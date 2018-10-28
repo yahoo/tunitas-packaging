@@ -3,6 +3,7 @@ default:
 PACKAGES = \
   temerarious-flagship \
   tunitas-basics \
+  tunitas-tarwater \
   $(end)
 PACKAGES.notready = \
   tunitas-butano \
@@ -12,7 +13,6 @@ PACKAGES.notready = \
   tunitas-pescadero \
   tunitas-purisima \
   tunitas-rockaway \
-  tunitas-tarwater \
   $(end)
 
 topdir = /build/rpms
@@ -48,16 +48,16 @@ $1.nvr.arch.rpm = $$($1.nvr).$$($1.arch).rpm
 endef
 DIRECTORY.temerarious-flagship = $(nearby)/temerarious-flagship
 DIRECTORY.tunitas-basics = $(nearby)/basics
-DIRECTORY.tunitas-butano = $(nearby)/tunitas-butano
-DIRECTORY.tunitas-grabtown = $(nearby)/tunitas-grabtown
-DIRECTORY.tunitas-lobitos = $(nearby)/tunitas-lobitos
-DIRECTORY.tunitas-montara = $(nearby)/tunitas-montara
-DIRECTORY.tunitas-pescadero = $(nearby)/tunitas-pescadero
-DIRECTORY.tunitas-purissima = $(nearby)/tunitas-purissima
-DIRECTORY.tunitas-rockaway = $(nearby)/tunitas-rockaway
-DIRECTORY.tunitas-tarwater = $(nearby)/tunitas-tarwater
+DIRECTORY.tunitas-butano = $(nearby)/butano
+DIRECTORY.tunitas-grabtown = $(nearby)/grabtown
+DIRECTORY.tunitas-lobitos = $(nearby)/lobitos
+DIRECTORY.tunitas-montara = $(nearby)/montara
+DIRECTORY.tunitas-pescadero = $(nearby)/pescadero
+DIRECTORY.tunitas-purissima = $(nearby)/purissima
+DIRECTORY.tunitas-rockaway = $(nearby)/rockaway
+DIRECTORY.tunitas-tarwater = $(nearby)/tarwater
 define RECIPE3 =
-$(rpmdir)/$$($1.nvr.arch.rpm) : $(specdir)/$$($1.nv.spec) $(sourcedir)/$$($1.nv.tarz)
+$(rpmdir)/$$($1.nvr.arch)/$$($1.nvr.arch.rpm) : $(specdir)/$$($1.nv.spec) $(sourcedir)/$$($1.nv.tarz)
 	rpmbuild -ba $(__RPMBUILD_OPTIONS) $$(word 1,$$^)
 $(specdir)/$$($1.nv.spec) : $1.spec
 	install -c -m 444 $$< $$@
@@ -91,6 +91,11 @@ $(foreach package,$(PACKAGES), \
 $(eval $(call RECIPE1,$(package)))\
 $(eval $(call RECIPE2,$(package)))\
 $(eval $(call RECIPE3,$(package))))
+
+.PHONY: $(addprefix package-, $(PACKAGES) $(patsubst tunitas-%,%,$(PACKAGES)))
+package-temerarious-flagship: $(rpmdir)/$(temerarious-flagship.nvr.arch)/$(temerarious-flagship.nvr.arch.rpm)
+package-basics: $(rpmdir)/$(tunitas-basics.nvr.arch)/$(tunitas-basics.nvr.arch.rpm)
+package-tarwater: $(rpmdir)/$(tunitas-tarwater.nvr.arch)/$(tunitas-tarwater.nvr.arch.rpm)
 
 .ALWAYS: ;
 clean:
