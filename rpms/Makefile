@@ -2,9 +2,9 @@
 default:
 PACKAGES = \
   temerarious-flagship \
+  tunitas-basics \
   $(end)
 PACKAGES.notready = \
-  tunitas-basics \
   tunitas-butano \
   tunitas-grabtown \
   tunitas-lobitos \
@@ -22,7 +22,9 @@ specdir = $(topdir)/SPECS
 sourcedir = $(topdir)/SOURCES
 
 cwd := $(shell pwd)# because PWD is wrong in 'make -C <directory>'
-sibling = $(patsubst %/,%,$(dir $(patsubst %/,%,$(dir $(cwd)))))
+cwd/.. = $(patsubst %/,%,$(dir $(cwd)))
+cwd/../.. = $(patsubst %/,%,$(dir $(patsubst %/,%,$(dir $(cwd)))))
+nearby = $(cwd/..)/sources
 
 rpmspec-query = rpmspec --srpm -q --qf="%{name} %{version} %{release} %{arch}" $1.spec
 define RECIPE1 =
@@ -44,16 +46,16 @@ $1.nvr.spec = $$(error NO SUCH variable $1.nvr.spec, instead use $1.nv.spec)
 $1.nvr.src.rpm = $$($1.nvr).src.rpm
 $1.nvr.arch.rpm = $$($1.nvr).$$($1.arch).rpm
 endef
-DIRECTORY.temerarious-flagship = $(sibling)/temerarious-flagship
-DIRECTORY.tunitas-basics = $(sibling)/basics
-DIRECTORY.tunitas-butano = $(sibling)/tunitas-butano
-DIRECTORY.tunitas-grabtown = $(sibling)/tunitas-grabtown
-DIRECTORY.tunitas-lobitos = $(sibling)/tunitas-lobitos
-DIRECTORY.tunitas-montara = $(sibling)/tunitas-montara
-DIRECTORY.tunitas-pescadero = $(sibling)/tunitas-pescadero
-DIRECTORY.tunitas-purissima = $(sibling)/tunitas-purissima
-DIRECTORY.tunitas-rockaway = $(sibling)/tunitas-rockaway
-DIRECTORY.tunitas-tarwater = $(sibling)/tunitas-tarwater
+DIRECTORY.temerarious-flagship = $(nearby)/temerarious-flagship
+DIRECTORY.tunitas-basics = $(nearby)/basics
+DIRECTORY.tunitas-butano = $(nearby)/tunitas-butano
+DIRECTORY.tunitas-grabtown = $(nearby)/tunitas-grabtown
+DIRECTORY.tunitas-lobitos = $(nearby)/tunitas-lobitos
+DIRECTORY.tunitas-montara = $(nearby)/tunitas-montara
+DIRECTORY.tunitas-pescadero = $(nearby)/tunitas-pescadero
+DIRECTORY.tunitas-purissima = $(nearby)/tunitas-purissima
+DIRECTORY.tunitas-rockaway = $(nearby)/tunitas-rockaway
+DIRECTORY.tunitas-tarwater = $(nearby)/tunitas-tarwater
 define RECIPE3 =
 $(rpmdir)/$$($1.nvr.arch.rpm) : $(specdir)/$$($1.nv.spec) $(sourcedir)/$$($1.nv.tarz)
 	rpmbuild -ba $(__RPMBUILD_OPTIONS) $$(word 1,$$^)
@@ -61,7 +63,7 @@ $(specdir)/$$($1.nv.spec) : $1.spec
 	install -c -m 444 $$< $$@
 $(sourcedir)/$$($1.nv.tarz) : PACKAGE=$$($1.nv)
 $(sourcedir)/$$($1.nv.tarz) : DIRECTORY=$$(if $$(DIRECTORY.$1),$$(DIRECTORY.$1),$$(error $$(DIRECTORY.$1) is unset))
-$(sourcedir)/$$($1.nv.tarz) :
+$(sourcedir)/$$($1.nv.tarz) : .ALWAYS
 	tar \
 	    --transform='s,^\.,$$(if $$(PACKAGE),$$(PACKAGE),$$(error PACKAGE is unset))/,' \
 	    -C $$(if $$(DIRECTORY),$$(DIRECTORY),$$(error DIRECTORY is unset)) \
@@ -90,6 +92,7 @@ $(eval $(call RECIPE1,$(package)))\
 $(eval $(call RECIPE2,$(package)))\
 $(eval $(call RECIPE3,$(package))))
 
+.ALWAYS: ;
 clean:
 all: $(RPMS)
 default: all

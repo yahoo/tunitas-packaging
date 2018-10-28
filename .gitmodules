@@ -1,0 +1,33 @@
+[submodule "sources/basics"]
+	path = sources/basics
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/basics.git
+[submodule "sources/butano"]
+	path = sources/butano
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/butano.git
+[submodule "sources/grabtown"]
+	path = sources/grabtown
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/grabtown.git
+[submodule "sources/lobitos"]
+	path = sources/lobitos
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/lobitos.git
+[submodule "sources/montara"]
+	path = sources/montara
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/montara.git
+[submodule "sources/packaging"]
+	path = sources/packaging
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/packaging.git
+[submodule "sources/pescadero"]
+	path = sources/pescadero
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/pescadero.git
+[submodule "sources/purissima"]
+	path = sources/purissima
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/purissima.git
+[submodule "sources/rockaway"]
+	path = sources/rockaway
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/rockaway.git
+[submodule "sources/tarwater"]
+	path = sources/tarwater
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/tarwater.git
+[submodule "sources/temerarious-flagship"]
+	path = sources/temerarious-flagship
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/temerarious-flagship.git

@@ -5,7 +5,7 @@
 %define pkgdatarootdir %{_prefix}/share/%{name}
 %define pkgdatadir     %{pkgdatarootdir}
 
-Version: 1.0.0
+Version: 1.1.2
 Release: 1
 Name: temerarious-flagship
 Summary: Tunitas Build System
@@ -32,17 +32,15 @@ This is an autoconf build system specialized to support Tunitas.
 %autosetup
 
 %build
-: nothing to build {yet}
+./buildconf
+./configure --prefix=%{_prefix}
+%make_build
 
 %check
-: nothing to check {yet}
+%make_build check
 
 %install
-: install manually
-mkdir -p %{buildroot}%{pkgdatadir}/{ac,am,bc}
-install -c -m 444 ac/*.m4 %{buildroot}%{pkgdatadir}/ac/.
-install -c -m 444 am/*.mk %{buildroot}%{pkgdatadir}/am/.
-install -c -m 444 bc/template.*-buildconf %{buildroot}%{pkgdatadir}/bc/.
+%make_install
 
 %files
 %license LICENSE
@@ -53,8 +51,18 @@ install -c -m 444 bc/template.*-buildconf %{buildroot}%{pkgdatadir}/bc/.
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%a %b %d %Y'
 
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.2-1
+- INSTALLED_module_INTERFACES corrected
+- include .../mk/toolflags.mk
+
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.1-1
+- TF_SOURCEStoMODULENAMES accepts *.cpp and *.xcpp
+
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.0-4
+- reminder: changes to the packaging itself are recorded herein.
+  major change to the project feature-function set and invariants are
+  described in the project ChangeLog and the project git log.
+  consequently, minimal change notations are made herein.
+
 * Sat Oct 27 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
-- first packaging, first release
-
-
-
+- first packaging, first release.

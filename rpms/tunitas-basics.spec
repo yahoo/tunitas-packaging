@@ -22,6 +22,17 @@ BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-conto
 
 BuildRequires: temerarious-flagship
 
+%define module_std_version 0.25
+BuildRequires: module-std-devel >= %{module_std_version}
+Requires:      module-std >= %{module_std_version}
+
+%define module_options_version 0.12
+BuildRequires: module-options-devel >= %{module_options_version}
+Requires:      module-options >= %{module_options_version}
+
+%define module_rigging_version 0.8
+BuildRequires: module-unit-rigging-devel >= %{module_rigging_version}
+
 %description
 Runtime libraries, files and other components of the Tunitas System.
 
@@ -36,6 +47,7 @@ These are "header files" and static & shared libraries.
 
 %prep
 %autosetup
+make -i distclean >& /dev/null || : in case a devel tarball was used
 
 %build
 eval \
@@ -43,11 +55,20 @@ eval \
     with_temerarious_flagship=%{std_tunitas_prefix} \
     with_hypogeal_twilight=%{std_scold_prefix} \
     ./buildconf
-./configure --prefix=%{_prefix}
-%make_build
+%configure \
+    --enable-shared --enable-static \
+    --prefix=%{_prefix} \
+    --with-std-scold=%{std_scold_prefix} \
+    --with-std-tunitas=%{std_tunitas_prefix} \
+    --with-temerarious-flagship=%{std_tunitas_prefix} \
+    ${end}
+%make_build \
+    V=1 \
+    DC_FLAGS=--make-depend-script="': make-depend-script ; \$\$(AM_V_TFDC) \$\$(DC) \$\$(DC_OPTIONS) \$\$(DC_SEARCHPATH) \$\$<'" \
+    ${end}
 
 %check
-%make_check
+%make_build check
 
 %install
 %make_install
@@ -65,8 +86,9 @@ eval \
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%a %b %d %Y'
 
-* Sat Oct 27 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
 - first packaging, first release
-
-
-
+- reminder: changes to the packaging itself are recorded herein.
+  major change to the project feature-function set and invariants are
+  described in the project ChangeLog and the project git log.
+  consequently, minimal change notations are made herein.
