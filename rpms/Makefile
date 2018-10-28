@@ -71,7 +71,7 @@ $(sourcedir)/$$($1.nv.tarz) : .ALWAYS
 endef
 
 SRPMS = $(addprefix $(srpmdir)/, $(foreach package,$(PACKAGES),$($(package).nvr.src.rpm)))
-RPMS  = $(addprefix $(rpmdir)/, $(foreach package,$(PACKAGES),$($(package).nvr.arch.rpm)))
+RPMS  = $(addprefix $(rpmdir)/, $(foreach package,$(PACKAGES),$($(package).nvr.arch)/$($(package).nvr.arch.rpm)))
 SPECS = $(addprefix $(specdir)/, $(foreach package,$(PACKAGES),$($(package).nv.spec)))
 TARZ  = $(addprefix $(sourcedir)/, $(foreach package,$(PACKAGES),$($(package).nv.tarz)))
 
