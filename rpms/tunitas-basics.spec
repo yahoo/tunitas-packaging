@@ -5,7 +5,7 @@
 %global std_scold_prefix   /opt/scold
 
 Version: 1.0.0
-Release: 1
+Release: 2
 Name: tunitas-basics
 Summary: Tunitas Audience Management System, basic components
 License: Apache-2.0
@@ -20,7 +20,7 @@ BuildRequires: gcc-c++ >= 7.1.0
 # http://rpm.org/user_doc/boolean_dependencies.html
 BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
 
-BuildRequires: temerarious-flagship
+BuildRequires: temerarious-flagship >= 1.1.3
 
 %define module_std_version 0.25
 BuildRequires: module-std-devel >= %{module_std_version}
@@ -63,8 +63,6 @@ eval \
     --with-temerarious-flagship=%{std_tunitas_prefix} \
     ${end}
 %make_build \
-    V=1 \
-    DC_FLAGS=--make-depend-script="': make-depend-script ; \$\$(AM_V_TFDC) \$\$(DC) \$\$(DC_OPTIONS) \$\$(DC_SEARCHPATH) \$\$<'" \
     ${end}
 
 %check
@@ -85,6 +83,9 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%a %b %d %Y'
+
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-2
+- require temerarious-flagship-1.1.3 with --make-depend-script in .../am/compile.am
 
 * Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
 - first packaging, first release
