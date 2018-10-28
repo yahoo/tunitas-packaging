@@ -4,7 +4,7 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.0.0
+Version: 1.0.1
 Release: 1
 Name: tunitas-tarwater
 Summary: Tunitas Audience Management, the Identity Management System
@@ -96,15 +96,18 @@ eval \
 
 %files devel
 %doc ChangeLog README.md
-# NOT YET ---> %{modulesdir}/*
-# NOT YET ---> %{_libdir}/*
-# NOT YET ---> %exclude %{_libdir}/*.so.*
+# NOT YET ---> %%{modulesdir}/*
+# NOT YET ---> %%{_libdir}/*
+# NOT YET ---> %%exclude %%{_libdir}/*.so.*
 
 %changelog
-# DO NOT use ISO-8601 dates; only use date +'%a %b %d %Y'
+# DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.1-1
+- ensure the -version-info $(CRA) gets into the libtunitas-tarwater.la link line.
 
 * Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
-- first packaging, first release
+- first packaging, first release.
 - reminder: changes to the packaging itself are recorded herein.
   major change to the project feature-function set and invariants are
   described in the project ChangeLog and the project git log.

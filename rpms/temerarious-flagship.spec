@@ -49,7 +49,7 @@ This is an autoconf build system specialized to support Tunitas.
 %{pkgdatadir}
 
 %changelog
-# DO NOT use ISO-8601 dates; only use date +'%a %b %d %Y'
+# DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
 * Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.3-2
 - am/compile.am provides an tf-friendly --make-depend-script within DC_OPTIONS

@@ -4,6 +4,7 @@ PACKAGES = \
   temerarious-flagship \
   tunitas-basics \
   tunitas-tarwater \
+  tunitas-rockaway \
   $(end)
 PACKAGES.notready = \
   tunitas-butano \
@@ -12,7 +13,6 @@ PACKAGES.notready = \
   tunitas-montara \
   tunitas-pescadero \
   tunitas-purisima \
-  tunitas-rockaway \
   $(end)
 
 topdir = /build/rpms
@@ -95,6 +95,7 @@ $(eval $(call RECIPE3,$(package))))
 .PHONY: $(addprefix package-, $(PACKAGES) $(patsubst tunitas-%,%,$(PACKAGES)))
 package-temerarious-flagship: $(rpmdir)/$(temerarious-flagship.nvr.arch)/$(temerarious-flagship.nvr.arch.rpm)
 package-basics: $(rpmdir)/$(tunitas-basics.nvr.arch)/$(tunitas-basics.nvr.arch.rpm)
+package-rockaway: $(rpmdir)/$(tunitas-rockaway.nvr.arch)/$(tunitas-rockaway.nvr.arch.rpm)
 package-tarwater: $(rpmdir)/$(tunitas-tarwater.nvr.arch)/$(tunitas-tarwater.nvr.arch.rpm)
 
 .ALWAYS: ;
