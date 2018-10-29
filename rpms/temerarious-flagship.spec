@@ -6,7 +6,7 @@
 %define pkgdatadir     %{pkgdatarootdir}
 
 Version: 1.2.0
-Release: 2
+Release: 3
 Name: temerarious-flagship
 Summary: Tunitas Build System
 License: Apache-2.0
@@ -51,8 +51,8 @@ This is an autoconf build system specialized to support Tunitas.
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
-* Mon Oct 29 2018 - Wendell Baker <wbaker@oath.com> - 1.2.0-2
-- define TF_V_DIS, TF_V_1ST, TF_V_2ND
+* Mon Oct 29 2018 - Wendell Baker <wbaker@oath.com> - 1.2.0-3
+- define TF_V_DIS, TF_V_DONE, TF_V_1ST, TF_V_2ND
 - override .../mk/toolflags.mk filtration computation to organize SEARCHPATH NEAR before THERE
 
 * Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.4-1
