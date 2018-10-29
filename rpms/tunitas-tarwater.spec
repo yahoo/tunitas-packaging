@@ -4,7 +4,7 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.0.1
+Version: 1.0.2
 Release: 1
 Name: tunitas-tarwater
 Summary: Tunitas Audience Management, the Identity Management System
@@ -102,6 +102,9 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.2-1
+- synchronize API tokens and version badging
 
 * Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.1-1
 - ensure the -version-info $(CRA) gets into the libtunitas-tarwater.la link line.

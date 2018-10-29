@@ -4,7 +4,7 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.0.1
+Version: 1.0.2
 Release: 1
 Name: tunitas-basics
 Summary: Tunitas Audience Management System, basic components
@@ -83,6 +83,9 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.2-1
+- version and API sync among ChangeLog, configure.ac, src/tunitas/Makefrag.am
 
 * Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.1-1
 - install the modules of libtunitas
