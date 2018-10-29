@@ -5,14 +5,14 @@ PACKAGES = \
   tunitas-basics \
   tunitas-tarwater \
   tunitas-rockaway \
+  tunitas-pescadero \
   $(end)
 PACKAGES.notready = \
   tunitas-butano \
   tunitas-grabtown \
   tunitas-lobitos \
   tunitas-montara \
-  tunitas-pescadero \
-  tunitas-purisima \
+  tunitas-prurissima \
   $(end)
 
 topdir = /build/rpms
@@ -69,6 +69,10 @@ $(sourcedir)/$$($1.nv.tarz) : .ALWAYS
 	    -C $$(if $$(DIRECTORY),$$(DIRECTORY),$$(error DIRECTORY is unset)) \
 	    -zcf $$@ .
 endef
+define RECIPE4 =
+.PHONY: $(addprefix package-, $1 $(patsubst tunitas-%,%,$1))
+$(addprefix package-, $1 $(patsubst tunitas-%,%,$1)): $(rpmdir)/$($1.nvr.arch)/$($1.nvr.arch.rpm)
+endef
 
 SRPMS = $(addprefix $(srpmdir)/, $(foreach package,$(PACKAGES),$($(package).nvr.src.rpm)))
 RPMS  = $(addprefix $(rpmdir)/, $(foreach package,$(PACKAGES),$($(package).nvr.arch)/$($(package).nvr.arch.rpm)))
@@ -90,13 +94,8 @@ distclean-SRPMS: ; rm -f $(SRPMS)
 $(foreach package,$(PACKAGES), \
 $(eval $(call RECIPE1,$(package)))\
 $(eval $(call RECIPE2,$(package)))\
-$(eval $(call RECIPE3,$(package))))
-
-.PHONY: $(addprefix package-, $(PACKAGES) $(patsubst tunitas-%,%,$(PACKAGES)))
-package-temerarious-flagship: $(rpmdir)/$(temerarious-flagship.nvr.arch)/$(temerarious-flagship.nvr.arch.rpm)
-package-basics: $(rpmdir)/$(tunitas-basics.nvr.arch)/$(tunitas-basics.nvr.arch.rpm)
-package-rockaway: $(rpmdir)/$(tunitas-rockaway.nvr.arch)/$(tunitas-rockaway.nvr.arch.rpm)
-package-tarwater: $(rpmdir)/$(tunitas-tarwater.nvr.arch)/$(tunitas-tarwater.nvr.arch.rpm)
+$(eval $(call RECIPE3,$(package)))\
+$(eval $(call RECIPE4,$(package))))
 
 .ALWAYS: ;
 clean:
