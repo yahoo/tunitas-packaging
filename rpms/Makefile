@@ -6,10 +6,10 @@ PACKAGES = \
   tunitas-tarwater \
   tunitas-rockaway \
   tunitas-pescadero \
+  tunitas-grabtown \
   $(end)
 PACKAGES.notready = \
   tunitas-butano \
-  tunitas-grabtown \
   tunitas-lobitos \
   tunitas-montara \
   tunitas-prurissima \
@@ -39,6 +39,7 @@ $1.release = $(word 3, $($1.spec))
 $1.arch = $(word 4, $($1.spec))
 $1.nv = $$($1.name)-$$($1.version)
 $1.nvr = $$($1.name)-$$($1.version)-$$($1.release)
+$1.nvr.arch = $($1.nvr.arch).$($1.arch)
 $1.nv.tarz = $$($1.nv).tar.gz
 $1.nvr.tarz = $$(error NO SUCH variable $1.nvr.tarz, instead use $1.nv.tarz)
 $1.nv.spec = $$($1.nv).spec

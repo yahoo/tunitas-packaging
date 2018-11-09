@@ -1,6 +1,6 @@
 [comment]: # (This is, of course -*- markdown -*- and you should mark it down)
 
-# Scope & Purpose
+# Scope &amp; Purpose
 
 Packaging and release machinery for the _Tunitas_ projects.
 Specifically, Red Hat-sphere rpm packaging on (modern) RHEL and (modern) Fedora.
