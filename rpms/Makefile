@@ -7,10 +7,10 @@ PACKAGES = \
   tunitas-rockaway \
   tunitas-pescadero \
   tunitas-grabtown \
+  tunitas-lobitos \
   $(end)
 PACKAGES.notready = \
   tunitas-butano \
-  tunitas-lobitos \
   tunitas-montara \
   tunitas-prurissima \
   $(end)
