@@ -1,0 +1,10 @@
+# Maybe you need the nonstd components or maybe not;
+# some of the bugs have been fixed in the intervening years.
+nonstd-boost-devel
+nonstd-curl-devel
+nonstd-curlpp-devel
+nonstd-jsoncpp-devel
+nonstd-libhttpserver-devel
+nonstd-mysql++-devel
+nonstd-sqlite-devel
+nonstd-uuid-devel

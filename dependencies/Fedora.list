@@ -1,0 +1,27 @@
+# basic build tooling
+autoconf
+automake
+gcc-g++
+libtool
+m4
+make
+perl
+#
+boost-devel
+boost-program-options
+cppunit-devel
+curlpp-devel
+jsoncpp-devel
+libcurl-devel
+libuuid-devel
+mariadb-devel
+mysql++-devel
+sqlite-devel
+#
+httpd
+curl
+pkgconf-pkg-config # /usr/bin/pkg-config
+#
+httpd-devel
+libapreq2-devel
+apr-util-devel

@@ -1,0 +1,31 @@
+# Basis from at least SCOLDing Release 02 (Maroon Iron Crow)
+#               acceptable     Release 03 (Red Mercury Goose)
+#               preferred      Release 04 (Green Copper Heron)
+#
+hypogeal-twilight
+#
+module-c-devel
+module-cppunit-devel
+module-c-string-devel
+module-file-slurp-devel
+module-format-devel
+module-httpserver-devel
+module-ish-devel
+module-mysql-devel
+module-path-devel
+module-posix-devel
+module-uuid-devel
+module-want-devel
+#
+# Extended packages needed for certain applications
+#
+module-boost-devel
+module-crypto-devel
+module-json-devel
+module-options-devel
+module-rigging-unit-devel
+module-sqlite-devel
+module-std-devel
+module-sys-devel
+#
+apache-httpd-api-devel
