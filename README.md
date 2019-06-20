@@ -181,6 +181,11 @@ A reference implementation of the [DataX Service](https://developer.yahoo.com/da
 It is themed after [Rockaway Creek](https://en.wikipedia.org/wiki/Rockaway_Creek_%28California%29) is a small creek, in the Rockaway Beach neighborhood of Pacifica, California.
 It is not yet published.
 
+### Scarpet
+
+A reference implementation of a resolver and identifier (document) storage service for [W3C Decentralized Identifiers](https://w3c-ccg.github.io/did-spec/).
+It is themed after [Scarpet Peak](https://openthewatershed.org/the-scarper-scarpet-scarpa-peak/), which one of The Summits in San Mateo County, California.
+
 ### Tarwater
 
 A reference implementation of the [Digi-Trust](http://www.digitru.st) universal identity system.
