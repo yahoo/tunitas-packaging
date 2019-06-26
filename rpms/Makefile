@@ -7,15 +7,17 @@ default:
 PACKAGES = \
   temerarious-flagship \
   tunitas-basics \
+  tunitas-butano \
   tunitas-tarwater \
-  tunitas-rockaway \
+  tunitas-apanolio \
+  tunitas-scarpet \
+  tunitas-montara \
+  $(end)
+PACKAGES.not_yet_published = \
   tunitas-pescadero \
+  tunitas-rockaway \
   tunitas-grabtown \
   tunitas-lobitos \
-  $(end)
-PACKAGES.notready = \
-  tunitas-butano \
-  tunitas-montara \
   tunitas-prurissima \
   $(end)
 
