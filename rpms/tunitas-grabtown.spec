@@ -118,12 +118,12 @@ eval \
 %changelog
 # DO NOT use ISO-8601 dates; only use date-abdY == $(date +'%%a %%b %%d %%Y')
 
-* Mon Nov 12 2018  - Wendell Baker <wbaker@oath.com> - 1.4.1-1.tu01
+* Mon Nov 12 2018  - Wendell Baker <wbaker@verizonmedia.com> - 1.4.1-1.tu01
 - faux dependency upon lobitos is removed
 - the option --help is the same as --usage for the executables j2s, s2j, jl
 - Corrected and amplified the %%description to match the README.md
 
-* Fri Nov 09 2018  - Wendell Baker <wbaker@oath.com> - 1.4.0-1.tu01
+* Fri Nov 09 2018  - Wendell Baker <wbaker@verizonmedia.com> - 1.4.0-1.tu01
 - first packaging, first release as rpm
 - reminder: changes to the packaging itself are recorded herein.
   major change to the project feature-function set and invariants are

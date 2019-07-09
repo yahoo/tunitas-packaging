@@ -154,7 +154,7 @@ eval \
 %changelog
 # DO NOT use ISO-8601 dates; only use date-abdY == $(date +'%%a %%b %%d %%Y')
 
-* Mon Nov 12 2018  - Wendell Baker <wbaker@oath.com> - 1.0.2-1.tu01
+* Mon Nov 12 2018  - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-1.tu01
 - first packaging, first release as rpm
 - reminder: changes to the packaging itself are recorded herein.
   major change to the project feature-function set and invariants are

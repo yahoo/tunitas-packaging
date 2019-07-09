@@ -88,17 +88,17 @@ eval \
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.2-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-1
 - version and API sync among ChangeLog, configure.ac, src/tunitas/Makefrag.am
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.1-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.1-1
 - install the modules of libtunitas
 - removed mention of boost as it is not (yet) used.
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-2
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-2
 - require temerarious-flagship-1.1.3 with --make-depend-script in .../am/compile.am
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-1
 - first packaging, first release
 - reminder: changes to the packaging itself are recorded herein.
   major change to the project feature-function set and invariants are
