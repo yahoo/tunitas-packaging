@@ -14,9 +14,6 @@
 [submodule "sources/montara"]
 	path = sources/montara
 	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/montara.git
-[submodule "sources/packaging"]
-	path = sources/packaging
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/packaging.git
 [submodule "sources/pescadero"]
 	path = sources/pescadero
 	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/pescadero.git

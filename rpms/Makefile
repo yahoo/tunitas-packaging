@@ -54,6 +54,7 @@ $1.nvr.src.rpm = $$($1.nvr).src.rpm
 $1.nvr.arch.rpm = $$($1.nvr).$$($1.arch).rpm
 endef
 DIRECTORY.temerarious-flagship = $(nearby)/temerarious-flagship
+DIRECTORY.tunitas-apanolio = $(nearby)/apanolio
 DIRECTORY.tunitas-basics = $(nearby)/basics
 DIRECTORY.tunitas-butano = $(nearby)/butano
 DIRECTORY.tunitas-grabtown = $(nearby)/grabtown
@@ -62,6 +63,7 @@ DIRECTORY.tunitas-montara = $(nearby)/montara
 DIRECTORY.tunitas-pescadero = $(nearby)/pescadero
 DIRECTORY.tunitas-purissima = $(nearby)/purissima
 DIRECTORY.tunitas-rockaway = $(nearby)/rockaway
+DIRECTORY.tunitas-scarpet = $(nearby)/scarpet
 DIRECTORY.tunitas-tarwater = $(nearby)/tarwater
 define RECIPE3 =
 $(rpmdir)/$$($1.nvr.arch)/$$($1.nvr.arch.rpm) : $(specdir)/$$($1.nv.spec) $(sourcedir)/$$($1.nv.tarz)
@@ -69,7 +71,7 @@ $(rpmdir)/$$($1.nvr.arch)/$$($1.nvr.arch.rpm) : $(specdir)/$$($1.nv.spec) $(sour
 $(specdir)/$$($1.nv.spec) : $1.spec
 	install -c -m 444 $$< $$@
 $(sourcedir)/$$($1.nv.tarz) : PACKAGE=$$($1.nv)
-$(sourcedir)/$$($1.nv.tarz) : DIRECTORY=$$(if $$(DIRECTORY.$1),$$(DIRECTORY.$1),$$(error $$(DIRECTORY.$1) is unset))
+$(sourcedir)/$$($1.nv.tarz) : DIRECTORY=$$(if $$(DIRECTORY.$1),$$(DIRECTORY.$1),$$(error variable DIRECTORY.$1 is unset))
 $(sourcedir)/$$($1.nv.tarz) : .ALWAYS
 	tar \
 	    --transform='s,^\.,$$(if $$(PACKAGE),$$(PACKAGE),$$(error PACKAGE is unset))/,' \
