@@ -1,6 +1,7 @@
 [submodule "sources/basics"]
 	path = sources/basics
 	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/basics.git
+	branch = series/v1.8/02.towering-redwood
 [submodule "sources/butano"]
 	path = sources/butano
 	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/butano.git
@@ -31,3 +32,10 @@
 [submodule "sources/temerarious-flagship"]
 	path = sources/temerarious-flagship
 	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/temerarious-flagship.git
+	branch = series/v1.2/02.towering-redwood
+[submodule "sources/apanolio"]
+	path = sources/apanolio
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/apanolio.git
+[submodule "sources/scarpet"]
+	path = sources/scarpet
+	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/scarpet.git
