@@ -5,11 +5,14 @@
 %global _prefix /opt/tunitas
 %define modulesdir %{_prefix}/modules
 
+%global tunitas tu02
+%global tunitas_dist %{?tunitas:.%{tunitas}}
+
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.0.2
-Release: 1
+Version: 1.8.1
+Release: 1%{?tunitas_dist}%{?dist}
 Name: tunitas-basics
 Summary: Tunitas Audience Management System, basic components
 License: Apache-2.0
@@ -24,7 +27,7 @@ BuildRequires: gcc-c++ >= 7.1.0
 # http://rpm.org/user_doc/boolean_dependencies.html
 BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
 
-BuildRequires: temerarious-flagship >= 1.1.3
+BuildRequires: temerarious-flagship >= 1.2.0
 
 %define module_std_version 0.25
 BuildRequires: module-std-devel >= %{module_std_version}
@@ -34,8 +37,10 @@ Requires:      module-std >= %{module_std_version}
 BuildRequires: module-options-devel >= %{module_options_version}
 Requires:      module-options >= %{module_options_version}
 
+# Whereas the test rigging has migrated names as it has evolved
+# but the underlying version numbering stays the same
 %define module_rigging_version 0.8
-BuildRequires: module-unit-rigging-devel >= %{module_rigging_version}
+BuildRequires: (module-rigging-devel >= %{module_rigging_version} or module-rigging-unit-devel >= %{module_rigging_version} or module-unit-rigging-devel >= %{module_rigging_version})
 
 %description
 Runtime libraries, files and other components of the Tunitas System.
@@ -87,6 +92,10 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-1.tu02
+- first build of Release 02 (Towering Redwood)
+- disjunct for module-rigging-devel or module-rigging-unit-devel or module-unit-rigging-devel
 
 * Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.2-1
 - version and API sync among ChangeLog, configure.ac, src/tunitas/Makefrag.am
