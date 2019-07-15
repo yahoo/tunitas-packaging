@@ -9,8 +9,11 @@
 %define pkgdatarootdir %{_prefix}/share/%{name}
 %define pkgdatadir     %{pkgdatarootdir}
 
+%global tunitas tu02
+%global tunitas_dist %{?tunitas:.%{tunitas}}
+
 Version: 1.2.0
-Release: 3
+Release: 3%{?tunitas_dist}%{?dist}
 Name: temerarious-flagship
 Summary: Tunitas Build System
 License: Apache-2.0
@@ -25,6 +28,8 @@ BuildRequires: gcc-c++ >= 7.1.0
 # http://rpm.org/user_doc/boolean_dependencies.html
 BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
 
+# https://fedoraproject.org/wiki/Packaging:Debuginfo
+%global debug_package %{nil}
 BuildArch: noarch
 %description
 This is an autoconf build system specialized to support Tunitas.
@@ -36,15 +41,26 @@ This is an autoconf build system specialized to support Tunitas.
 %autosetup
 
 %build
-./buildconf
-./configure --prefix=%{_prefix}
-%make_build
+# NO SUCH ---> ./buildconf
+# NO SUCH ---> ./configure --prefix=%{_prefix}
+# NO SUCH ---> %%make_build
+: all done
 
 %check
-%make_build check
+# NO SUCH ---> %%make_build check
+: all checked
 
 %install
-%make_install
+# NO SUCH ---> %make_install
+#
+# you have to install by hand
+# install -D creates all but the penultimate component of the target path (you frequently want this)
+# install -d is the same as mkdir -p wherein arguments are created as directories (you rarely want this)
+#
+mkdir -p %{buildroot}%{pkgdatarootdir}/{ac,am,bc}
+install -m 664 ac/*.m4 %{buildroot}%{pkgdatarootdir}/ac/.
+install -m 664 am/*.mk am/*.am %{buildroot}%{pkgdatarootdir}/am/.
+install -m 664 bc/template.*[^~]  %{buildroot}%{pkgdatarootdir}/bc/.
 
 %files
 %license LICENSE
@@ -54,6 +70,9 @@ This is an autoconf build system specialized to support Tunitas.
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-4.tu02
+- first build of Release 02 (Towering Redwood)
 
 * Mon Oct 29 2018 - Wendell Baker <wbaker@oath.com> - 1.2.0-3
 - define TF_V_DIS, TF_V_DONE, TF_V_1ST, TF_V_2ND
