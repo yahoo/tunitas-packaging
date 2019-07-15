@@ -13,7 +13,7 @@
 %global tunitas_dist %{?tunitas:.%{tunitas}}
 
 Version: 1.2.0
-Release: 3%{?tunitas_dist}%{?dist}
+Release: 5%{?tunitas_dist}%{?dist}
 Name: temerarious-flagship
 Summary: Tunitas Build System
 License: Apache-2.0
@@ -70,6 +70,9 @@ install -m 664 bc/template.*[^~]  %{buildroot}%{pkgdatarootdir}/bc/.
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-5.tu02
+- perform the packaging from branch series/v1.2/02.towering-redwood and with the consistent %%version adn %%changelog
 
 * Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-4.tu02
 - first build of Release 02 (Towering Redwood)
