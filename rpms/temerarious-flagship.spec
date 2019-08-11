@@ -77,28 +77,28 @@ install -m 664 bc/template.*[^~]  %{buildroot}%{pkgdatarootdir}/bc/.
 * Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-4.tu02
 - first build of Release 02 (Towering Redwood)
 
-* Mon Oct 29 2018 - Wendell Baker <wbaker@oath.com> - 1.2.0-3
+* Mon Oct 29 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-3
 - define TF_V_DIS, TF_V_DONE, TF_V_1ST, TF_V_2ND
 - override .../mk/toolflags.mk filtration computation to organize SEARCHPATH NEAR before THERE
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.4-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.1.4-1
 - bc/template.autotools-buildconf corrections and exit EX_SOFTWARE
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.3-2
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.1.3-2
 - am/compile.am provides an tf-friendly --make-depend-script within DC_OPTIONS
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.2-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.1.2-1
 - INSTALLED_module_INTERFACES corrected
 - include .../mk/toolflags.mk
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.1-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.1.1-1
 - TF_SOURCEStoMODULENAMES accepts *.cpp and *.xcpp
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.1.0-4
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.1.0-4
 - reminder: changes to the packaging itself are recorded herein.
   major change to the project feature-function set and invariants are
   described in the project ChangeLog and the project git log.
   consequently, minimal change notations are made herein.
 
-* Sat Oct 27 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
+* Sat Oct 27 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-1
 - first packaging, first release.

@@ -147,13 +147,13 @@ eval \
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.2-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-1
 - synchronize API tokens and version badging
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.1-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.1-1
 - ensure the -version-info $(CRA) gets into the libtunitas-tarwater.la link line.
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@oath.com> - 1.0.0-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-1
 - first packaging, first release.
 - reminder: changes to the packaging itself are recorded herein.
   major change to the project feature-function set and invariants are

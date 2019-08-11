@@ -13,13 +13,6 @@ PACKAGES = \
   tunitas-scarpet \
   tunitas-montara \
   $(end)
-PACKAGES.not_yet_published = \
-  tunitas-pescadero \
-  tunitas-rockaway \
-  tunitas-grabtown \
-  tunitas-lobitos \
-  tunitas-prurissima \
-  $(end)
 
 topdir = /build/rpms
 srpmdir = $(topdir)/SRPMS
