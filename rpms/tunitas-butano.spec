@@ -31,6 +31,14 @@ BuildRequires: temerarious-flagship >= 1.3
 BuildRequires: tunitas-basics-devel >= %{tunitas_basics_version}
 Requires:      tunitas-basics >= %{tunitas_basics_version}
 
+%bcond_without nonstd_jsoncpp
+%if %{with nonstd_jsoncpp}
+# Generally this is not warranted after jsoncpp-devel-1.7 era
+%define nonstd_jsoncpp_version 1.7
+%define nonstd_jsoncpp_prefix /opt/nonstd/jsoncpp
+BuildRequires: nonstd-jsoncpp-devel >= %{nonstd_jsoncpp_version}
+Requires:      nonstd-jsoncpp >= %{nonstd_jsoncpp_version}
+%endif
 # requires currency beyond 04.green-copper-heron
 %define module_json_version 0.8.0
 BuildRequires: module-json-devel >= %{module_json_version}
