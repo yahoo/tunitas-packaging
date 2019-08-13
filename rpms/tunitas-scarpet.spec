@@ -137,10 +137,11 @@ Requires:      module-sys >= %{module_sys_version}
 BuildRequires: module-uuid-devel >= %{module_uuid_version}
 Requires:      module-uuid >= %{module_uuid_version}
 
-%if %{with make_check)
+%if %{with make_check}
 %define module_rigging_unit_version 0.8.1
 %define module_rigging_version      0.9
 BuildRequires: (module-unit-rigging-devel >= %{module_rigging_unit_version} or module-rigging-devel >= %{module_rigging_version})
+%endif
 
 %description
 Runtime libraries, files and other components of Tunitas Apanolio, a "Northside" API to IAB PrivacyChain
