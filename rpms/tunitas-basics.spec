@@ -11,8 +11,8 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.8.1
-Release: 1%{?tunitas_dist}%{?dist}
+Version: 1.8.2
+Release: 6%{?tunitas_dist}%{?dist}
 Name: tunitas-basics
 Summary: Tunitas Audience Management System, basic components
 License: Apache-2.0
@@ -27,20 +27,49 @@ BuildRequires: gcc-c++ >= 7.1.0
 # http://rpm.org/user_doc/boolean_dependencies.html
 BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
 
-BuildRequires: temerarious-flagship >= 1.2.0
+BuildRequires: temerarious-flagship >= 1.3.0
 
-%define module_std_version 0.25
-BuildRequires: module-std-devel >= %{module_std_version}
-Requires:      module-std >= %{module_std_version}
+# the 'without' are by default enabled
+# the 'with'    are by default disabled
+%bcond_without nonstd_libhttpserver
+%if %{with nonstd_libhttpserver}
+# [[REMOVEWHEN]] taken care of as Recommends or Requires in module-httpserver.
+# Those certain bugs in IPv6 port assignment are (incompletely) remediated.
+# and yes, you do need all the patches for all those subystems
+%define nonstd_libhttpserver_version 0.9.0-7.1.ipv6+poll+regex+api
+%define nonstd_libhttpserver_prefix /opt/nonstd/libhttpserver
+BuildRequires: nonstd-libhttpserver-devel >= %{nonstd_libhttpserver_version}
+Requires:      nonstd-libhttpserver >= %{nonstd_libhttpserver_version}
+%endif
+%define module_httpserver_version 0.4
+BuildRequires: module-httpserver-devel >= %{module_httpserver_version}
+Requires:      module-httpserver >= %{module_httpserver_version}
 
-%define module_options_version 0.12
+%define module_nonstd_version 2:0.3.0
+BuildRequires: module-nonstd-devel >= %{module_nonstd_version}
+Requires:      module-nonstd >= %{module_nonstd_version}
+
+%define module_options_version 0.14
 BuildRequires: module-options-devel >= %{module_options_version}
 Requires:      module-options >= %{module_options_version}
 
-# Whereas the test rigging has migrated names as it has evolved
-# but the underlying version numbering stays the same
-%define module_rigging_version 0.8
-BuildRequires: (module-rigging-devel >= %{module_rigging_version} or module-rigging-unit-devel >= %{module_rigging_version} or module-unit-rigging-devel >= %{module_rigging_version})
+%define module_posix_version 2:0.27.0
+BuildRequires: module-posix-devel >= %{module_posix_version}
+Requires:      module-posix >= %{module_posix_version}
+
+%define module_std_version 2:0.27
+BuildRequires: module-std-devel >= %{module_std_version}
+Requires:      module-std >= %{module_std_version}
+
+%define module_string_version 0.13.1
+BuildRequires: module-string-devel >= %{module_string_version}
+Requires:      module-string >= %{module_string_version}
+
+%if %{with make_check}
+%define module_rigging_unit_version 0.8.1
+%define module_rigging_version      2:0.10.0
+BuildRequires: (module-unit-rigging-devel >= %{module_rigging_unit_version} or module-rigging-devel >= %{module_rigging_version})
+%endif
 
 %description
 Runtime libraries, files and other components of the Tunitas System.
@@ -49,6 +78,12 @@ Runtime libraries, files and other components of the Tunitas System.
 Summary: The development components of the Tunitas Audience Management System
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: gcc-c++
+Requires: module-httpserver-devel
+Requires: module-nonstd-devel
+Requires: module-options-devel
+Requires: module-posix-devel
+Requires: module-std-devel
+Requires: module-string-devel
 
 %description devel
 The S.C.O.L.D.-style modules of 'namespace tunitas' are supplied.
@@ -69,7 +104,8 @@ eval \
     --prefix=%{_prefix} \
     --with-std-scold=%{std_scold_prefix} \
     --with-std-tunitas=%{std_tunitas_prefix} \
-    --with-temerarious-flagship=%{std_tunitas_prefix} \
+    --with-temerarious-flagship=%{std_tunitas_prefix} --with-FIXTHIS=this_should_not_be_needed_the_std_tunitas_should_be_sufficient \
+    %{?with_nonstd_libhttpserver:--with-nonstd-libhttpserver=%{nonstd_libhttpserver_prefix}} \
     ${end}
 %make_build \
     ${end}
@@ -82,16 +118,45 @@ eval \
 
 %files
 %license LICENSE
+# DO NOT mention directories or files that do not exist
 %{_libdir}/*.so.*
 
 %files devel
 %doc ChangeLog README.md
+# DO NOT mention directories or files that do not exist
 %{modulesdir}/*
 %{_libdir}/*
 %exclude %{_libdir}/*.so.*
+%exclude %{modulesdir}/want
+%exclude %{modulesdir}/fpp/want
+%exclude %{modulesdir}/hpp/want
+%exclude %{modulesdir}/ipp/want
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-6.tu02
+- MUST be built against nonstd-libhttpserver >= 0.9.0-7.1.ipv6+poll+regex+api else it will segfault at runtime
+  MUST configure the build as such
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-5.tu02
+- this MUST be built against nonstd-libhttpserver >= 0.9.0-7.1.ipv6+poll+regex+api else it will segfault at runtime
+  and the configure MUST configure as such
+- and require for testing module-rigging-devel >= 2:0.10.0
+- do not declare ownership of the %%{modulesdir}/want directories
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-4.tu02
+- copy in the buildconf from temerarious-flagship 1.3.1
+- remind that in %%files, we cannot mention directories or files that do not exist
+- MUST configure --with-temerarious-flagship so decorate with --with-FIXTHIS
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-3.tu02
+- rachet into modern dependencies S.C.O.L.D. Ahead of Release 04 (Green Copper Heron), all in Epoch 2
+- rachet to require temerarious-flagship >= 1.3, which is current for Tunitas Release 02 (Towering Redwood)
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-2.tu02
+- second build for Release 02 (Towering Redwood)
+- rachet the S.C.O.L.D. modules up to use the current Release 04 (Green Copper Heron) or the Tunitas Ahead builds of Epoch 2
 
 * Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-1.tu02
 - first build for Release 02 (Towering Redwood)

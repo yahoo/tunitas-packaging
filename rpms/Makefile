@@ -3,6 +3,10 @@
 # Licensed under the terms of the Apache-2.0 license.
 # See the LICENSE file in https://github.com/yahoo/tunitas-packaging/blob/master/LICENSE for terms.
 
+# Avoid rpmbuilding everything at once.
+# https://www.gnu.org/software/make/manual/html_node/Special-Targets.html
+.NOTPARALLEL:
+
 default:
 PACKAGES = \
   temerarious-flagship \

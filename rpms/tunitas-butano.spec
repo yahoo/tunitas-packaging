@@ -8,8 +8,8 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.0.0
-Release: 1
+Version: 1.0.1
+Release: 2
 Name: tunitas-butano
 Summary: Tunitas macroservice implementation of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -32,7 +32,7 @@ BuildRequires: tunitas-basics-devel >= %{tunitas_basics_version}
 Requires:      tunitas-basics >= %{tunitas_basics_version}
 
 # requires currency beyond 04.green-copper-heron
-%define module_json_version 0.8.0
+%define module_json_version 2:0.8.0
 BuildRequires: module-json-devel >= %{module_json_version}
 Requires:      module-json >= %{module_json_version}
 
@@ -41,20 +41,20 @@ Requires:      module-json >= %{module_json_version}
 BuildRequires: module-nonstd-devel >= %{module_nonstd_version}
 Requires:      module-nonstd >= %{module_nonstd_version}
 
-%define module_options_version 0.12.7
+%define module_options_version 0.14
 BuildRequires: module-options-devel >= %{module_options_version}
 Requires:      module-options >= %{module_options_version}
 
-%define module_posix_version 0.19.1
+%define module_posix_version 2:0.27
 BuildRequires: module-posix-devel >= %{module_posix_version}
 Requires:      module-posix >= %{module_posix_version}
 
-%define module_std_version 0.25.2
+%define module_std_version 2:0.27
 BuildRequires: module-std-devel >= %{module_std_version}
 Requires:      module-std >= %{module_std_version}
 
 %define module_c_string_version 0.12.0
-%define module_string_version   0.13
+%define module_string_version   0.13.1
 BuildRequires: (module-c-string-devel >= %{module_string_version} or module-string-devel >= %{module_string_version})
 Requires:      (module-c-string >= %{module_string_version} or module-string >= %{module_string_version})
 
@@ -68,8 +68,9 @@ Requires:      module-uuid >= %{module_uuid_version}
 
 %if %{with make_check}
 %define module_rigging_unit_version 0.8.1
-%define module_rigging_version      0.9
+%define module_rigging_version      2:0.10.0
 BuildRequires: (module-unit-rigging-devel >= %{module_rigging_unit_version} or module-rigging-devel >= %{module_rigging_version})
+%endif
 
 %description
 Runtime libraries, files and other components of Tunitas Apanolio, a "Northside" API to IAB PrivacyChain
@@ -106,6 +107,7 @@ eval \
     --prefix=%{_prefix} \
     --with-std-scold=%{std_scold_prefix} \
     --with-std-tunitas=%{std_tunitas_prefix} \
+    --with-temerarious-flagship=%{std_tunitas_prefix} --with-FIXTHIS=this_should_not_be_needed_the_std_tunitas_should_be_sufficient \
     ${end}
 %make_build \
     ${end}
@@ -118,17 +120,36 @@ eval \
 
 %files
 %license LICENSE
-%{_sbindir}/*
+# DO NOT mention directories or files that do not exist
+%{_bindir}/*
 %{_libdir}/*.so.*
 
 %files devel
 %doc README.md
+# DO NOT mention directories or files that do not exist
 %{modulesdir}/*
 %{_libdir}/*
 %exclude %{_libdir}/*.so.*
+%exclude %{modulesdir}/want
+%exclude %{modulesdir}/fpp/want
+%exclude %{modulesdir}/hpp/want
+%exclude %{modulesdir}/ipp/want
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.1-2
+- do not declare ownership of the %%{modulesdir}/want directories
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.1-1
+- copy in the buildconf from temerarious-flagship 1.3.1
+- in %%files, must not mention directories or files that do not exist
+- MUST configure --with-temerarious-flagship so decorate with --with-FIXTHIS
+- and require for testing module-rigging-devel >= 2:0.10.0
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-2
+- second packaging, corrected the 'make check' rules Release 02 (Towering Redwood)
+- rachet to require temerarious-flagship >= 1.3, which is current for Tunitas Release 02 (Towering Redwood)
 
 * Wed Jun 26 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-1
 - first packaging, first release

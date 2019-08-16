@@ -12,8 +12,8 @@
 %global tunitas tu02
 %global tunitas_dist %{?tunitas:.%{tunitas}}
 
-Version: 1.2.0
-Release: 5%{?tunitas_dist}%{?dist}
+Version: 1.3.2
+Release: 1%{?tunitas_dist}%{?dist}
 Name: temerarious-flagship
 Summary: Tunitas Build System
 License: Apache-2.0
@@ -27,6 +27,8 @@ BuildRequires: gcc-c++ >= 7.1.0
 # https://fedoraproject.org/wiki/Packaging:Guidelines#Rich.2FBoolean_dependencies
 # http://rpm.org/user_doc/boolean_dependencies.html
 BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
+
+Requires: hypogeal-twilight >= 2:0.45.3
 
 # https://fedoraproject.org/wiki/Packaging:Debuginfo
 %global debug_package %{nil}
@@ -70,6 +72,17 @@ install -m 664 bc/template.*[^~]  %{buildroot}%{pkgdatarootdir}/bc/.
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.1-2.tu02
+- no recursion in debug
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.1-1.tu02
+- template of .../bc/template.autotools-buildconf corrected to use the devel-or-production temerarious_flagship_datadir_ac
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.0-1.tu02
+- current legal boilerplate
+- supplies TF_PROG_PROTOC
+- require hypogeal-twilight >= 2:0.45.3
 
 * Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-5.tu02
 - perform the packaging from branch series/v1.2/02.towering-redwood and with the consistent %%version adn %%changelog

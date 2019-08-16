@@ -1,38 +1,28 @@
 [submodule "sources/basics"]
 	path = sources/basics
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/basics.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/core/basics.git
 	branch = series/v1.8/02.towering-redwood
 [submodule "sources/butano"]
 	path = sources/butano
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/butano.git
-[submodule "sources/grabtown"]
-	path = sources/grabtown
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/grabtown.git
-[submodule "sources/lobitos"]
-	path = sources/lobitos
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/lobitos.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/core/butano.git
+        branch = series/v0.2/02.towering-redwood
 [submodule "sources/montara"]
 	path = sources/montara
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/montara.git
-[submodule "sources/pescadero"]
-	path = sources/pescadero
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/pescadero.git
-[submodule "sources/purissima"]
-	path = sources/purissima
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/purissima.git
-[submodule "sources/rockaway"]
-	path = sources/rockaway
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/rockaway.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/core/montara.git
+        branch = series/v0.1/02.towering-redwood
 [submodule "sources/tarwater"]
 	path = sources/tarwater
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/tarwater.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/core/tarwater.git
+        branch = series/v0.0/02.towering-redwood
 [submodule "sources/temerarious-flagship"]
 	path = sources/temerarious-flagship
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/temerarious-flagship.git
-	branch = series/v1.2/02.towering-redwood
+	url = ssh://git.tunitas.technology/var/git/tunitas/build/temerarious-flagship.git
+	branch = series/v1.3/02.towering-redwood
 [submodule "sources/apanolio"]
 	path = sources/apanolio
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/apanolio.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/core/apanolio.git
+        branch = series/v0.0/02.towering-redwood
 [submodule "sources/scarpet"]
 	path = sources/scarpet
-	url = ssh://troth.fd1d-eca0-3168.net/repos/tunitas/scarpet.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/core/scarpet.git
+        branch = series/v0.0/02.towering-redwood
