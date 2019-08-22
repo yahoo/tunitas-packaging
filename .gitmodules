@@ -1,18 +1,18 @@
 [submodule "sources/basics"]
 	path = sources/basics
-	url = ssh://git.tunitas.technology/var/git/tunitas/core/basics.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/components/basics.git
 	branch = series/v1.8/02.towering-redwood
 [submodule "sources/butano"]
 	path = sources/butano
-	url = ssh://git.tunitas.technology/var/git/tunitas/core/butano.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/components/butano.git
         branch = series/v0.2/02.towering-redwood
 [submodule "sources/montara"]
 	path = sources/montara
-	url = ssh://git.tunitas.technology/var/git/tunitas/core/montara.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/services/montara.git
         branch = series/v0.1/02.towering-redwood
 [submodule "sources/tarwater"]
 	path = sources/tarwater
-	url = ssh://git.tunitas.technology/var/git/tunitas/core/tarwater.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/services/tarwater.git
         branch = series/v0.0/02.towering-redwood
 [submodule "sources/temerarious-flagship"]
 	path = sources/temerarious-flagship
@@ -20,9 +20,9 @@
 	branch = series/v1.3/02.towering-redwood
 [submodule "sources/apanolio"]
 	path = sources/apanolio
-	url = ssh://git.tunitas.technology/var/git/tunitas/core/apanolio.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/services/apanolio.git
         branch = series/v0.0/02.towering-redwood
 [submodule "sources/scarpet"]
 	path = sources/scarpet
-	url = ssh://git.tunitas.technology/var/git/tunitas/core/scarpet.git
+	url = ssh://git.tunitas.technology/var/git/tunitas/services/scarpet.git
         branch = series/v0.0/02.towering-redwood
