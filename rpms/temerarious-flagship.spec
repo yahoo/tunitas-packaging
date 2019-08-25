@@ -12,7 +12,7 @@
 %global tunitas tu02
 %global tunitas_dist %{?tunitas:.%{tunitas}}
 
-Version: 1.3.3
+Version: 1.3.4
 Release: 1%{?tunitas_dist}%{?dist}
 Name: temerarious-flagship
 Summary: Tunitas Build System
@@ -72,6 +72,9 @@ install -m 664 bc/template.*[^~]  %{buildroot}%{pkgdatarootdir}/bc/.
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.4-1.tu02
+- license badging in buildconf
 
 * Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.3-1.tu02
 - burn a new patch-level number to resynchronize the project and the package
