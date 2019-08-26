@@ -12,7 +12,7 @@
 %global tunitas tu02
 %global tunitas_dist %{?tunitas:.%{tunitas}}
 
-Version: 1.3.4
+Version: 1.4.3
 Release: 1%{?tunitas_dist}%{?dist}
 Name: temerarious-flagship
 Summary: Tunitas Build System
@@ -66,35 +66,44 @@ install -m 664 bc/template.*[^~]  %{buildroot}%{pkgdatarootdir}/bc/.
 
 %files
 %license LICENSE
-%doc ChangeLog README.md
+# Although deprecating, leave ChangeLog in here for a while, at least
+# until it is fully clear tha the NEWS file subsumes all the release notes.
+%doc ChangeLog NEWS README.md
 # NOT YET ---> %%{pkglibexecdir}
 %{pkgdatadir}
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
-* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.4-1.tu02
+* Sun Aug 25 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.4.3-1
+- correct TF_CHECK_LEVELDB; until correct
+- remove the '.tu02' particle here in the specfile; .tu02 only for the Ahead Releases (e.g. those S.C.O.L.D. modules)
+
+* Sun Aug 25 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.4.0-1
+- with TF_CHECK_LEVELDB, TF_WITH_NONSTD_LEVELDB
+
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.4-1
 - license badging in buildconf
 
-* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.3-1.tu02
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.3-1
 - burn a new patch-level number to resynchronize the project and the package
 - incorporate fix for aclocal: error: couldn't open directory '/opt/tunitas/ac': No such file or directory
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.1-2.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.1-2
 - no recursion in debug
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.1-1.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.1-1
 - template of .../bc/template.autotools-buildconf corrected to use the devel-or-production temerarious_flagship_datadir_ac
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.0-1.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.3.0-1
 - current legal boilerplate
 - supplies TF_PROG_PROTOC
 - require hypogeal-twilight >= 2:0.45.3
 
-* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-5.tu02
+* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-5
 - perform the packaging from branch series/v1.2/02.towering-redwood and with the consistent %%version adn %%changelog
 
-* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-4.tu02
+* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-4
 - first build of Release 02 (Towering Redwood)
 
 * Mon Oct 29 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.2.0-3

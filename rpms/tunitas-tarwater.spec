@@ -11,8 +11,8 @@
 # install systemd unit files in /usr/lib/systemd no matter what %%{_prefix} says
 %global systemd_systemdir  /usr/lib/systemd/system
 
-Version: 1.0.2
-Release: 2
+Version: 0.0.4
+Release: 1
 Name: tunitas-tarwater
 Summary: Tunitas Audience Management, the Identity Management System
 License: Apache-2.0
@@ -37,7 +37,8 @@ BuildRequires: tunitas-basics-devel >= %{tunitas_basics_version}
 Requires:      tunitas-basics >= %{tunitas_basics_version}
 
 # requires currency beyond 04.green-copper-heron
-%define module_crypto_version 2:0.2
+# especially 2:0.2.2 which has cryptopp.byte to elide ::byte and CryptoPP::byte
+%define module_crypto_version 2:0.2.2
 BuildRequires: module-crypto-devel >= %{module_crypto_version}
 Requires:      module-crypto >= %{module_crypto_version}
 
@@ -98,6 +99,9 @@ Requires:      (module-c-string >= %{module_string_version} or module-string >= 
 BuildRequires: module-sys-devel >= %{module_sys_version}
 Requires:      module-sys >= %{module_sys_version}
 
+# the 'without' are by default enabled
+# the 'with'    are by default disabled
+%bcond_without make_check
 %if %{with make_check}
 %define module_rigging_unit_version 0.8.1
 %define module_rigging_version      2:0.10.0
@@ -159,13 +163,25 @@ eval \
 
 %files
 %license LICENSE
+%doc NEWS
 %{_bindir}/*
 %{_sbindir}/*
 # NO DSO, only convenience libraries ---> %%{_libdir}/*.so.*
 %{systemd_systemdir}/tarwater.service
 
 %files devel
+# Until the ChangeLog file is clearly no longer useful, it will be installed as documentation.
+# The NEWS file contains Release Notes-type descriptions of the new features.
+# The git log itself contains summarizations of the micro-level changes in the code.
 %doc ChangeLog README.md
+%if 0
+#
+# Towards the installation of the the development interface
+# ... nothing is installed in the v0.0-series
+# In the project Makefile.am, nearby
+#    see lib_LIBRARIES
+#    see modules_BB_SOURCES_ET
+#
 %{modulesdir}/*
 %{_libdir}/*
 # NO DSO, only convenience libraries ---> %%exclude %%{_libdir}/*.so.*
@@ -173,24 +189,34 @@ eval \
 %exclude %{modulesdir}/fpp/want
 %exclude %{modulesdir}/hpp/want
 %exclude %{modulesdir}/ipp/want
+%endif
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-2
+* Sun Aug 25 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.4-1
+- and with %%{with make_check} enabled by default
+- NEWS in lieu of ChangeLog going forward
+
+* Sun Aug 25 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.3-1
+- cram down the version number, back into the v0.0 series; semantic versioning
+- portification back to Fedora 27, GCC 7, cryptopp-5.6.5 (with ::byte contra CryptoPP::byte)
+- consistent installation of the DSOs (libraries) and the modules (header files)
+
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - <unavailable>0.0.2-2
 - first build for Tunitas Release 02 (Towering Redwood)
 - rachet to require temerarious-flagship >= 1.3, which is current for Tunitas Release 02 (Towering Redwood)
 - and require for testing module-rigging-devel >= 2:0.10.0
 - do not declare ownership of the %%{modulesdir}/want directories
 - install systemd unit files in /usr/lib/systemd no matter what %%{_prefix} says
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - <unreleased>1.0.2-1
 - synchronize API tokens and version badging
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.1-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - <unreleased>1.0.1-1
 - ensure the -version-info $(CRA) gets into the libtunitas-tarwater.la link line.
 
-* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-1
+* Sun Oct 28 2018 - Wendell Baker <wbaker@verizonmedia.com> - <unreleased>1.0.0-1
 - first packaging, first release.
 - reminder: changes to the packaging itself are recorded herein.
   major change to the project feature-function set and invariants are

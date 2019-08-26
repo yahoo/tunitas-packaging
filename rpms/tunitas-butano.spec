@@ -8,8 +8,8 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.0.1
-Release: 2
+Version: 1.0.2
+Release: 1
 Name: tunitas-butano
 Summary: Tunitas macroservice implementation of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -66,6 +66,9 @@ Requires:      module-sys >= %{module_sys_version}
 BuildRequires: module-uuid-devel >= %{module_uuid_version}
 Requires:      module-uuid >= %{module_uuid_version}
 
+# the 'without' are by default enabled
+# the 'with'    are by default disabled
+%bcond_without make_check
 %if %{with make_check}
 %define module_rigging_unit_version 0.8.1
 %define module_rigging_version      2:0.10.0
@@ -137,6 +140,10 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-1
+- synchronize the package nad the project version numbers
+- enfreshen buildconf and portify to Fedora 27 gcc-c++-7.3.1
 
 * Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.1-2
 - do not declare ownership of the %%{modulesdir}/want directories

@@ -35,10 +35,41 @@
 %bcond_with    southside_ramcloud
 %bcond_with    southside_scarpet
 
+%if %{defined declare_nonstd_leveldb}
+%declare_nonstd_leveldb
+%else
+# Whereas leveldb-1.20 sufficient and supplied since Fedora 28, we only handle exceptional ase as Fedora 27 & prior.
+# 
+# bcond_with    means you have to say --with=THING    to     get THING (default is without)
+# bcond_without means you have to say --without=THING to NOT get THING (default is with)
+#
+%bcond_with nonstd_leveldb
+%global nonstd_leveldb_prefix     /opt/nonstd/leveldb
+%global nonstd_leveldb_includedir %{nonstd_leveldb_prefix}/include
+%global nonstd_leveldb_libdir     %{nonstd_leveldb_prefix}/%{_lib}
+%global leveldb_CPPFLAGS          %{?with_nonstd_leveldb:-I%{nonstd_leveldb_includedir}}
+%global leveldb_CXXFLAGS          %{nil}
+%global leveldb_LDFLAGS           %{?with_nonstd_leveldb:-L%{nonstd_leveldb_prefix}/%{_lib} -Wl,-rpath=%{nonstd_leveldb_prefix}/%{_lib}} -lleveldb
+%global leveldb_package           %{?with_nonstd_leveldb:nonstd-leveldb}%{!?with_nonstd_leveldb:leveldb}
+%global leveldb_package_devel     %{leveldb_package}-devel
+%endif
+%if %{without nonstd_leveldb}
+# 
+# testing:
+#   rpmspec -q --define='%with_nonstd_leveldb 1' module-leveldb.spec 
+# 
+# Also, /opt/scold/libexec/vernacular-doggerel/extract-rpm-specfile-value
+# will run rpmspec without any other arguments, so you cannot %%error here
+#
+# See below, you need at least leveldb-1.20 with the Fedora-specific API patches
+%warning specifying nonstd_leveldb is required on Fedora 27 because there is no "standard" leveldb prior to Fedora 28
+%endif
+%warning DEBUG %{?with_nonstd_leveldb} %{?nonstd_leveldb_prefix}
+
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 0.0.1
+Version: 0.0.2
 Release: 1
 Name: tunitas-apanolio
 Summary: Tunitas macroservice implementation of the "Northbound API Service" for the IAB PrivacyChain
@@ -55,7 +86,8 @@ BuildRequires: gcc-c++ >= 7.1.0
 # http://rpm.org/user_doc/boolean_dependencies.html
 BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
 
-BuildRequires: temerarious-flagship >= 1.3
+# temerarious-flagship >= 1.4 has TF_CHECK_LEVELDB
+BuildRequires: temerarious-flagship >= 1.4.2
 
 %define tunitas_basics_version 1.8.0
 BuildRequires: tunitas-basics-devel >= %{tunitas_basics_version}
@@ -76,7 +108,7 @@ Requires:      hyperledger-fabric-db >= %{module_httpserver_version}
 %endif
 
 %if %{with southside_leveldb}
-%define module_leveldb_version 0.12
+%define module_leveldb_version 2:0.2.1
 BuildRequires: module-leveldb-devel >= %{module_leveldb_version}
 Requires:      module-leveldb >= %{module_leveldb_version}
 %endif
@@ -185,7 +217,8 @@ Requires:      module-std >= %{module_std_version}
 BuildRequires: (module-c-string-devel >= %{module_string_version} or module-string-devel >= %{module_string_version})
 Requires:      (module-c-string >= %{module_string_version} or module-string >= %{module_string_version})
 
-%define module_sys_version 0.24.14
+# Ahead of SCOLDing, Release 04 (Green Copper Heron), and hack around sys::error::e::Code::OVERFLOW contra <math.h>
+%define module_sys_version 2:0.27.2
 BuildRequires: module-sys-devel >= %{module_sys_version}
 Requires:      module-sys >= %{module_sys_version}
 
@@ -193,6 +226,9 @@ Requires:      module-sys >= %{module_sys_version}
 BuildRequires: module-uuid-devel >= %{module_uuid_version}
 Requires:      module-uuid >= %{module_uuid_version}
 
+# the 'without' are by default enabled
+# the 'with'    are by default disabled
+%bcond_without make_check
 %if %{with make_check}
 %define module_rigging_unit_version 0.8.1
 %define module_rigging_version      2:0.10.0
@@ -210,36 +246,36 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: gcc-c++
 Requires: tunitas-basics-devel
 Requires: tunitas-butano-devel
-%if %{with hyperledger_fabric}
+Requires: apache-httpd-api-devel
+%if %{with southside_hyperledger_fabric}
 Requires: hyperledger-fabric-devel
 Requires: hyperledger-fabric-ca-devel
 Requires: hyperledger-fabric-db-devel
 %endif
-%if %{with leveldb}
-Requires: module-leveldb-devel
-%endif
-%if %{with mysql}
-Requires: module-mysql-devel
-%endif
-%if %{with pgsql}
-Requires: module-pgsql-devel
-%endif
-%if %{with tunitas_scarpet}
-Requires: tunitas-scarpet-devel
-%endif
-%if %{with ramcloud}
-Requires: module-ramcloud-devel
-%endif
-Requires: apache-httpd-api-devel
 Requires: module-boost-devel
 Requires: module-c-devel
 Requires: module-format-devel
 Requires: module-half-devel
 Requires: module-json-devel
+%if %{with southside_leveldb}
+Requires: module-leveldb-devel
+%endif
+%if %{with southside_mysql}
+Requires: module-mysql-devel
+%endif
 Requires: module-nonstd-devel
 Requires: module-options-devel
+%if %{with southside_pgsql}
+Requires: module-pgsql-devel
+%endif
 Requires: module-posix-devel
 Requires: module-rabinpoly-devel
+%if %{with southside_ramcloud}
+Requires: module-ramcloud-devel
+%endif
+%if %{with southside_scarpet}
+Requires: tunitas-scarpet-devel
+%endif
 Requires: (module-slurp-devel or module-file-surp-devel)
 Requires: module-std-devel
 Requires: (module-c-string-devel >= %{module_string_version} or module-string-devel >= %{module_string_version})
@@ -265,6 +301,8 @@ eval \
     --with-std-scold=%{std_scold_prefix} \
     --with-std-tunitas=%{std_tunitas_prefix} \
     --with-temerarious-flagship=%{std_tunitas_prefix} --with-FIXTHIS=this_should_not_be_needed_the_std_tunitas_should_be_sufficient \
+    %{?with_nonstd_leveldb:--with-nonstd-leveldb=%{nonstd_leveldb_prefix}} \
+    %{?with_nonstd_jsoncpp:--with-nonstd-jsoncpp=%{nonstd_jsoncpp_prefix}} \
     %{?with_southside_fabric:--with-southside-fabric} \
     %{?with_southside_leveldb:--with-southside-leveldb} \
     %{?with_southside_mysql:--with-southside-mysql} \
@@ -300,6 +338,10 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Aug 25 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.2-1
+- upgrade the buildconf
+- consistent installation of the DSOs (libraries) and the modules (header files)
 
 * Thu Aug 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.1-1
 - unit tests passing again

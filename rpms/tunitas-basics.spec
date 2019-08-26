@@ -11,8 +11,8 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 1.8.2
-Release: 6%{?tunitas_dist}%{?dist}
+Version: 1.8.4
+Release: 1%{?tunitas_dist}%{?dist}
 Name: tunitas-basics
 Summary: Tunitas Audience Management System, basic components
 License: Apache-2.0
@@ -65,6 +65,9 @@ Requires:      module-std >= %{module_std_version}
 BuildRequires: module-string-devel >= %{module_string_version}
 Requires:      module-string >= %{module_string_version}
 
+# the 'without' are by default enabled
+# the 'with'    are by default disabled
+%bcond_without make_check
 %if %{with make_check}
 %define module_rigging_unit_version 0.8.1
 %define module_rigging_version      2:0.10.0
@@ -134,6 +137,12 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.4-1.tu02
+- build robustification; portification to gcc 7
+
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.3-1.tu02
+- copy in the new buildconf of temerarious-flagship >= 1.3.3
 
 * Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-6.tu02
 - MUST be built against nonstd-libhttpserver >= 0.9.0-7.1.ipv6+poll+regex+api else it will segfault at runtime

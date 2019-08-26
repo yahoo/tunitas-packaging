@@ -3,6 +3,19 @@
 # Licensed under the terms of the Apache-2.0 license.
 # See the LICENSE file in https://github.com/yahoo/tunitas-packaging/blob/master/LICENSE for terms.
 
+#
+# usage:
+#
+#   make [ all ]
+#   make package-temerarious-flagship
+#   make package-basics
+#   make package-butano
+#   make package-THING                         any THING with the s/tunitas-/ applied to it
+#
+# Makefile_RPMBUILD_OPTIONS can be set in the Makefile
+# RPMBUILD_OPTIONS          is reserved to the command line          
+#
+
 # Avoid rpmbuilding everything at once.
 # https://www.gnu.org/software/make/manual/html_node/Special-Targets.html
 .NOTPARALLEL:
@@ -59,7 +72,7 @@ DIRECTORY.tunitas-lobitos = $(nearby)/lobitos
 DIRECTORY.tunitas-montara = $(nearby)/montara
 DIRECTORY.tunitas-pescadero = $(nearby)/pescadero
 DIRECTORY.tunitas-purissima = $(nearby)/purissima
-DIRECTORY.tunitas-rockaway = $(nearby)/rockaway
+>DIRECTORY.tunitas-rockaway = $(nearby)/rockaway
 DIRECTORY.tunitas-scarpet = $(nearby)/scarpet
 DIRECTORY.tunitas-tarwater = $(nearby)/tarwater
 define RECIPE3 =
@@ -85,8 +98,15 @@ RPMS  = $(addprefix $(rpmdir)/, $(foreach package,$(PACKAGES),$($(package).nvr.a
 SPECS = $(addprefix $(specdir)/, $(foreach package,$(PACKAGES),$($(package).nv.spec)))
 TARZ  = $(addprefix $(sourcedir)/, $(foreach package,$(PACKAGES),$($(package).nv.tarz)))
 
+# /etc/fedora-release : Fedora release 27 (Twenty Seven)
+# Need some magic here.
+# Need leveldb >= 1.20
+# When Fedora is less than 28, use nonstd-leveldb-devel-1.20
+with_nonstd_leveldb := $(shell NN=$$(sed -e 's/Fedora release \(..\).*/\1' /etc/fedora-release 2>/dev/null || echo 00); \
+                               if ((NN < 28)) ; then echo --with=nonstd_leveldb ; else echo --without=nonstd_leveldb ; fi)
+
 # Whereas RPMBUILD_OPTIONS is reserved to the command line
-Makefile_RPMBUILD_OPTIONS = --define='%_topdir $(topdir)'
+Makefile_RPMBUILD_OPTIONS = --define='%_topdir $(topdir)' $(with_nonstd_leveldb)
 __RPMBUILD_OPTIONS = $(Makefile_RPMBUILD_OPTIONS) $(RPMBUILD_OPTIONS)
 
 clean: clean-SPECS clean-TARZ
