@@ -2,6 +2,23 @@
 # Licensed under the terms of the Apache-2.0 license.
 # See the LICENSE file in https://github.com/yahoo/tunitas-packaging/blob/master/LICENSE for terms.
 
+# https://wiki.tunitas.technology/page/Libtool
+# https://wiki.scold-lang.org/page/Libtool
+# -all-static
+#    If output-file is a library, then only create a static library. This flag cannot be used together with disable-static (see LT_INIT).
+#    If output-file is a program, then do not link it against any shared libraries at all. 
+# -static
+#    If output-file is a library, then only create a static library.
+#    If output-file is a program, then do not link it against any uninstalled shared libtool libraries. 
+# -static-libtool-libs
+#    If output-file is a library, then only create a static library.
+#    If output-file is a program, then do not link it against any shared libtool libraries. 
+#
+# i.e. the 'without' are by default enabled
+#      the 'with'    are by default disabled
+#
+%bcond_without static_libtool_libs
+
 %global _prefix /opt/tunitas
 %define modulesdir %{_prefix}/modules
 
@@ -73,8 +90,8 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 0.1.3
-Release: 3
+Version: 0.1.4
+Release: 1
 Name: tunitas-montara
 Summary: Tunitas microservice of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -97,20 +114,26 @@ BuildRequires: temerarious-flagship >= 1.4.2
 #            without that, it will build, but you will get duplicate-free on exit ... mixing is unworkable.
 %define tunitas_basics_version 1.8.2-6
 BuildRequires: tunitas-basics-devel >= %{tunitas_basics_version}
+%if %{without static_libtool_libs}
 Requires:      tunitas-basics >= %{tunitas_basics_version}
+%endif
 
 %define tunitas_butano_version 1.0.0
 BuildRequires: tunitas-butano-devel >= %{tunitas_butano_version}
+%if %{without static_libtool_libs}
 Requires:      tunitas-butano >= %{tunitas_butano_version}
+%endif
 
 %if %{with southside_fabric}
 %define hyperledger_fabric_version 1.4.0
 BuildRequires: hyperledger-fabric-devel >= %{module_httpserver_version}
-Requires:      hyperledger-fabric >= %{module_httpserver_version}
 BuildRequires: hyperledger-fabric-ca-devel >= %{module_httpserver_version}
-Requires:      hyperledger-fabric-ca >= %{module_httpserver_version}
 BuildRequires: hyperledger-fabric-db-devel >= %{module_httpserver_version}
+%if %{without static_libtool_libs}
+Requires:      hyperledger-fabric >= %{module_httpserver_version}
+Requires:      hyperledger-fabric-ca >= %{module_httpserver_version}
 Requires:      hyperledger-fabric-db >= %{module_httpserver_version}
+%endif
 %endif
 
 # the 'without' are by default enabled
@@ -120,54 +143,91 @@ Requires:      hyperledger-fabric-db >= %{module_httpserver_version}
 %if %{with southside_leveldb}
 %define module_leveldb_version 2:0.2.1
 BuildRequires: module-leveldb-devel >= %{module_leveldb_version}
+%if %{without static_libtool_libs}
 Requires:      module-leveldb >= %{module_leveldb_version}
+%endif
 %endif
 
 %if %{with southside_mysql}
 %define module_mysql_version 0.3.0
 BuildRequires: module-mysql-devel >= %{module_mysql_version}
+%if %{without static_libtool_libs}
 Requires:      module-mysql >= %{module_mysql_version}
+%endif
 %endif
 
 %if %{with southside_pgsql}
 %define module_pgsql_version 0.0
 BuildRequires: module-pgsql-devel >= %{module_pgsql_version}
+%if %{without static_libtool_libs}
 Requires:      module-pgsql >= %{module_pgsql_version}
+%endif
 %endif
 
 %if %{with southside_ramcloud}
 %define module_ramcloud_version 0.0
 BuildRequires: module-ramcloud-devel >= %{module_ramcloud_version}
+%if %{without static_libtool_libs}
 Requires:      module-ramcloud >= %{module_ramcloud_version}
+%endif
 %endif
 
 %if %{with southside_sqlite}
 %define module_sqlite_version 0.13.0
 BuildRequires: module-sqlite-devel >= %{module_sqlite_version}
+%if %{without static_libtool_libs}
 Requires:      module-sqlite >= %{module_sqlite_version}
+%endif
 %endif
 
 %if %{with southside_scarpet}
 %define tunitas_scarpet_version 0.0.0
 BuildRequires: tunitas-scarpet-devel >= %{tunitas_scarpet_version}
+%if %{without static_libtool_libs}
 Requires:      tunitas-scarpet >= %{tunitas_scarpet_version}
+%endif
 %endif
 
 %define module_boost_version 0.3.8
 BuildRequires: module-boost-devel >= %{module_boost_version}
+%if %{without static_libtool_libs}
 Requires:      module-boost >= %{module_boost_version}
+%endif
 
 %define module_c_version 2:0.4.0
 BuildRequires: module-c-devel >= %{module_c_version}
+%if %{without static_libtool_libs}
 Requires:      module-c >= %{module_c_version}
+%endif
 
 %define module_format_version 2:0.16.0
 BuildRequires: module-format-devel >= %{module_format_version}
+%if %{without static_libtool_libs}
 Requires:      module-format >= %{module_format_version}
+%endif
 
 %define module_half_version 0.1.1
 BuildRequires: module-half-devel >= %{module_half_version}
+%if %{without static_libtool_libs}
 Requires:      module-half >= %{module_half_version}
+%endif
+
+# the 'without' are by default enabled (the patches are required so use bcond_without)
+# the 'with'    are by default disabled
+%bcond_without nonstd_libhttpserver
+%if %{with nonstd_libhttpserver}
+%define nonstd_libhttpserver_version 0.9.0-9.3.ipv6+poll+regex+api
+%define nonstd_libhttpserver_prefix /opt/nonstd/libhttpserver
+BuildRequires: nonstd-libhttpserver-devel >= %{nonstd_libhttpserver_version}
+%if %{without static_libtool_libs}
+Requires:      nonstd-libhttpserver >= %{nonstd_libhttpserver_version}
+%endif
+%endif
+%define module_httpserver_version 0.4.0
+BuildRequires: module-httpserver-devel >= %{module_httpserver_version}
+%if %{without static_libtool_libs}
+Requires:      module-httpserver >= %{module_httpserver_version}
+%endif
 
 # the 'without' are by default enabled
 # the 'with'    are by default disabled
@@ -177,52 +237,74 @@ Requires:      module-half >= %{module_half_version}
 %define nonstd_jsoncpp_version 1.7
 %define nonstd_jsoncpp_prefix /opt/nonstd/jsoncpp
 BuildRequires: nonstd-jsoncpp-devel >= %{nonstd_jsoncpp_version}
+%if %{without static_libtool_libs}
 Requires:      nonstd-jsoncpp >= %{nonstd_jsoncpp_version}
+%endif
 %endif
 # requires currency beyond 04.green-copper-heron
 %define module_json_version 2:0.8.0
 BuildRequires: module-json-devel >= %{module_json_version}
+%if %{without static_libtool_libs}
 Requires:      module-json >= %{module_json_version}
+%endif
 
 # requires currency beyond 04.green-copper-heron
 %define module_nonstd_version 2:0.3.0
 BuildRequires: module-nonstd-devel >= %{module_nonstd_version}
+%if %{without static_libtool_libs}
 Requires:      module-nonstd >= %{module_nonstd_version}
+%endif
 
 %define module_options_version 0.14.0
 BuildRequires: module-options-devel >= %{module_options_version}
+%if %{without static_libtool_libs}
 Requires:      module-options >= %{module_options_version}
+%endif
 
 %define module_posix_version 2:0.27.0
 BuildRequires: module-posix-devel >= %{module_posix_version}
+%if %{without static_libtool_libs}
 Requires:      module-posix >= %{module_posix_version}
+%endif
 
 # requires currency beyond 04.green-copper-heron
 %define module_rabinpoly_version 2:0.2.0
 BuildRequires: module-rabinpoly-devel >= %{module_rabinpoly_version}
+%if %{without static_libtool_libs}
 Requires:      module-rabinpoly >= %{module_rabinpoly_version}
+%endif
 
 %define module_file_slurp_version 0.7.9
 %define module_slurp_version      2:0.11.0
 BuildRequires: (module-slurp-devel >= %{module_slurp_version} or module-file-surp-devel >= %{module_slurp_version})
+%if %{without static_libtool_libs}
 Requires:      (module-slurp >= %{module_slurp_version} or module-file-slurp >= %{module_file_slurp_version})
+%endif
 
 %define module_std_version 2:0.27.0
 BuildRequires: module-std-devel >= %{module_std_version}
+%if %{without static_libtool_libs}
 Requires:      module-std >= %{module_std_version}
+%endif
 
 %define module_c_string_version 0.12.0
 %define module_string_version   0.13.1
 BuildRequires: (module-c-string-devel >= %{module_string_version} or module-string-devel >= %{module_string_version})
+%if %{without static_libtool_libs}
 Requires:      (module-c-string >= %{module_string_version} or module-string >= %{module_string_version})
+%endif
 
 %define module_sys_version 2:0.27.0
 BuildRequires: module-sys-devel >= %{module_sys_version}
+%if %{without static_libtool_libs}
 Requires:      module-sys >= %{module_sys_version}
+%endif
 
 %define module_uuid_version 0.2.3
 BuildRequires: module-uuid-devel >= %{module_uuid_version}
+%if %{without static_libtool_libs}
 Requires:      module-uuid >= %{module_uuid_version}
+%endif
 
 # the 'without' are by default enabled
 # the 'with'    are by default disabled
@@ -266,12 +348,13 @@ Requires: module-boost-devel
 Requires: module-c-devel
 Requires: module-format-devel
 Requires: module-half-devel
+Requires: module-httpserver-devel
 Requires: module-json-devel
 Requires: module-nonstd-devel
 Requires: module-options-devel
 Requires: module-posix-devel
 Requires: module-rabinpoly-devel
-Requires: (module-slurp-devel or module-file-surp-devel)
+Requires: (module-slurp-devel or module-file-slurp-devel)
 Requires: module-std-devel
 Requires: (module-c-string-devel >= %{module_string_version} or module-string-devel >= %{module_string_version})
 Requires: module-sys-devel
@@ -298,6 +381,7 @@ eval \
     --with-temerarious-flagship=%{std_tunitas_prefix} --with-FIXTHIS=this_should_not_be_needed_the_std_tunitas_should_be_sufficient \
     %{?with_nonstd_leveldb:--with-nonstd-leveldb=%{nonstd_leveldb_prefix}} \
     %{?with_nonstd_jsoncpp:--with-nonstd-jsoncpp=%{nonstd_jsoncpp_prefix}} \
+    %{?with_nonstd_libhttpserver:--with-nonstd-libhttpserver=%{nonstd_libhttpserver_prefix}} \
     %{?with_southside_fabric:--with-southside-fabric} \
     %{?with_southside_leveldb:--with-southside-leveldb} \
     %{?with_southside_mysql:--with-southside-mysql} \
@@ -307,10 +391,13 @@ eval \
     %{?with_southside_scarpet:--with-southside-scarpet} \
     ${end}
 %make_build \
+    %{?with_static_libtool_libs:LDFLAGS=-static-libtool-libs} \
     ${end}
 
 %check
-%make_build check
+# DO NOT ---> %%make_build -j1 check <--- because it asserts -j24 anyway
+# [[FIXTHIS]] the dependencies in .../tests/api/Makefrag.am are not respected "enough" to make parallel testing reliable
+make check -j1
 
 %install
 %make_install
@@ -318,14 +405,20 @@ eval \
 %files
 %license LICENSE
 %{_sbindir}/*
+%if %{without static_libtool_libs}
+%{_libdir}/*.so.*
+%endif
 # NO DSO, only convenience libraries ---> %%{_libdir}/*.so.*
 %{systemd_systemdir}/montara.service
 
 %files devel
 %doc README.md
 %{modulesdir}/*
+# even if the executable is statically linked, the libraries are available for development (they will be static libraries)
 %{_libdir}/*
-# NO DSO, only convenience libraries ---> %%exclude %%{_libdir}/*.so.*
+%if %{with static_libtool_libs}
+%exclude %{_libdir}/*.so.*
+%endif
 %exclude %{modulesdir}/want
 %exclude %{modulesdir}/fpp/want
 %exclude %{modulesdir}/hpp/want
@@ -333,6 +426,16 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Fri Aug 30 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.4-1
+- typo in Requires on module-slurp-devel
+- in the -devel package, exclude the runtime DSO (when they exist)
+- in the base package, acquire the runtime DSO (when they exist)
+- bcond_without static_libtool_libs so we get default mostly-static
+- serialize the make check because the api tests seem to fail sporadically if there is too much concurrency(???)
+- and BuildRequires and Requires on module-httpserver (and -devel)
+  with (required) support for nonstd-libhttpserver
+- and @nonstd_libhttpserver_$TOOLFLAGS@ to ensure that the rpath has /opt/nonstd/libhttpserver/lib64
 
 * Sun Aug 25 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.3-3
 - rachet into temerarious-flagship >= 1.4.2 for TF_CHECK_LEVELDB (not yet necessary)
