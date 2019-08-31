@@ -25,6 +25,16 @@
 # install systemd unit files in /usr/lib/systemd no matter what %%{_prefix} says
 %global systemd_systemdir  /usr/lib/systemd/system
 
+# https://fedoraproject.org/wiki/Packaging:WeakDependencies
+# 
+# 	Forward 	Backward
+# Weak 	Recommends: 	Supplements:
+# Hint 	Suggests: 	Enhances:
+#
+# <quote>Hints are by default ignored by dnf. <strip>...more words</strip></quote>
+#
+Recommends: user-tunitas
+
 #
 # [[FIXTHIS]] many of these southside schemes are not yet possible in montara; they flow over from apanolio
 # All of these may be used simultaneously; they are further enabled at configure time.
@@ -90,7 +100,7 @@
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 0.1.4
+Version: 0.1.5
 Release: 1
 Name: tunitas-montara
 Summary: Tunitas microservice of the "Northbound API Service" for the IAB PrivacyChain
@@ -424,8 +434,35 @@ make check -j1
 %exclude %{modulesdir}/hpp/want
 %exclude %{modulesdir}/ipp/want
 
+%post
+%global username tunitas
+%global uid 10018
+%global fullname Tunitas
+%global groupname %{username}
+%global gid %{uid}
+%global comment %{fullname}
+%global home /var/lib/%{username}
+%global shell /sbin/nologin
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+# idempotence
+if getent passwd %{username} >/dev/null ; then
+    echo "OK user %{username} already exists, quitting with success"
+    exit 0
+fi
+# ALREADY DONE ---> groupadd -g %{gid} %{username}
+useradd -u %{uid} -g %{groupname} %{username}
+usermod -c '%{comment}' -d %{home} -s %{shell} %{username}
+%if %{defined password}
+usermod -p '%{password}' %{username}
+%endif
+: echo "OK construction of %{username}.%{groupname} is complete"
+
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Fri Aug 30 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.5-1
+- and Recommends: user-tunitas, because you will need a user tunitas to run the service
+- and make a user.group tunitas.tunitas in %%post anyway
 
 * Fri Aug 30 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.4-1
 - typo in Requires on module-slurp-devel
