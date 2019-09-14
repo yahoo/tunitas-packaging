@@ -101,7 +101,7 @@ Recommends: user-tunitas
 %global std_scold_prefix   /opt/scold
 
 Version: 0.1.5
-Release: 1
+Release: 2
 Name: tunitas-montara
 Summary: Tunitas microservice of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -136,13 +136,13 @@ Requires:      tunitas-butano >= %{tunitas_butano_version}
 
 %if %{with southside_fabric}
 %define hyperledger_fabric_version 1.4.0
-BuildRequires: hyperledger-fabric-devel >= %{module_httpserver_version}
-BuildRequires: hyperledger-fabric-ca-devel >= %{module_httpserver_version}
-BuildRequires: hyperledger-fabric-db-devel >= %{module_httpserver_version}
+BuildRequires: hyperledger-fabric-devel >= %{hyperledger_fabric_version}
+BuildRequires: hyperledger-fabric-ca-devel >= %{hyperledger_fabric_version}
+BuildRequires: hyperledger-fabric-db-devel >= %{hyperledger_fabric_version}
 %if %{without static_libtool_libs}
-Requires:      hyperledger-fabric >= %{module_httpserver_version}
-Requires:      hyperledger-fabric-ca >= %{module_httpserver_version}
-Requires:      hyperledger-fabric-db >= %{module_httpserver_version}
+Requires:      hyperledger-fabric >= %{hyperledger_fabric_version}
+Requires:      hyperledger-fabric-ca >= %{hyperledger_fabric_version}
+Requires:      hyperledger-fabric-db >= %{hyperledger_fabric_version}
 %endif
 %endif
 
@@ -459,6 +459,9 @@ usermod -p '%{password}' %{username}
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Fri Sep 13 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.5-2
+- corrected the name-and-version usage for hyperledger-fabric which is under %%bcond_with (default off)
 
 * Fri Aug 30 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.5-1
 - and Recommends: user-tunitas, because you will need a user tunitas to run the service
