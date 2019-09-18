@@ -6,6 +6,7 @@
 #
 # usage:
 #
+<<<<<<< HEAD
 #   make [ all ]
 #   make package-temerarious-flagship
 #   make package-basics
@@ -19,6 +20,25 @@
 # Avoid rpmbuilding everything at once.
 # https://www.gnu.org/software/make/manual/html_node/Special-Targets.html
 .NOTPARALLEL:
+=======
+#   make [all]            build every rpm
+#   make clean
+#   make distclean
+#
+#   To make individual rpms of named package, use a 'package-' prefix
+#   Removing the gratuitous 'tunitas-' prefix when it exists
+#   As such:
+#
+#       make package-temerarious-flagship
+#       make package-basics
+#       make package-butano
+#       make package-tarwater
+#       make package-apanolio
+#       make package-scarpet
+#       make package-montara
+#       ...etc...
+#
+>>>>>>> rachet the build number of all packages
 
 default:
 PACKAGES = \

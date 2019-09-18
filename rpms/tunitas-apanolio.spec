@@ -5,6 +5,9 @@
 %global _prefix /opt/tunitas
 %define modulesdir %{_prefix}/modules
 
+%global tunitas tu02
+%global tunitas_dist %{?tunitas:.%{tunitas}}
+
 #
 # All of these may be used simultaneously; they are further enabled at configure time.
 # Build the service with 
@@ -27,6 +30,11 @@
 # i.e. the 'without' are by default enabled
 #      the 'with'    are by default disabled
 #
+# THEREFORE
+#
+#    %%bcond_with    southside_fabric <------------- default "off" use --with=southside_fabric to enable
+#    %%bcond_without southside_leveldb <------------ default "on"  use --without=southside_fabric to disable
+# 
 %bcond_with    southside_fabric
 %bcond_without southside_leveldb
 %bcond_without southside_mysql
@@ -70,7 +78,7 @@
 %global std_scold_prefix   /opt/scold
 
 Version: 0.0.2
-Release: 2
+Release: 2%{?tunitas_dist}%{?dist}
 Name: tunitas-apanolio
 Summary: Tunitas macroservice implementation of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -84,7 +92,7 @@ BuildRequires: gcc-c++ >= 7.1.0
 # But until ModulesTS is available S.C.O.L.D methodology is used.
 # https://fedoraproject.org/wiki/Packaging:Guidelines#Rich.2FBoolean_dependencies
 # http://rpm.org/user_doc/boolean_dependencies.html
-BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
+BuildRequires: (SCOLD-DC or anguish-answer >= 2.0 or baleful-ballad >= 0.17 or ceremonial-contortion or demonstrable-deliciousness)
 
 # temerarious-flagship >= 1.4 has TF_CHECK_LEVELDB
 BuildRequires: temerarious-flagship >= 1.4.2
@@ -135,7 +143,8 @@ Requires:      module-ramcloud >= %{module_ramcloud_version}
 %endif
 
 %if %{with southside_sqlite}
-%define module_sqlite_version 0.11.10
+# SCOLDing Release 04 (Green Copper Heron) sports 0.13.0, so we could go there
+%define module_sqlite_version 0.12.0
 BuildRequires: module-sqlite-devel >= %{module_sqlite_version}
 Requires:      module-sqlite >= %{module_sqlite_version}
 %endif
@@ -146,9 +155,9 @@ BuildRequires: tunitas-scarpet-devel >= %{tunitas_scarpet_version}
 Requires:      tunitas-scarpet >= %{tunitas_scarpet_version}
 %endif
 
-# These are baselined out of SCOLDing Release 03, Red Mercury Goose
-#                         or SCOLDing Release 04, Green Copper Heron
-# With enhancements where the Tunitas Release 02, Towering Redwood requires more advanced work
+# These are baselined out of SCOLDing Release 03 (Red Mercury Goose)
+#                         or SCOLDing Release 04 (Green Copper Heron)
+# With enhancements where the Tunitas Release 02 (Towering Redwood) requires more advanced work
 #
 %define apache_httpd_api_version 0.4.0
 BuildRequires: apache-httpd-api-devel >= %{apache_httpd_api_version}
@@ -170,8 +179,9 @@ Requires:      module-format >= %{module_format_version}
 BuildRequires: module-half-devel >= %{module_half_version}
 Requires:      module-half >= %{module_half_version}
 
-# the 'without' are by default enabled
-# the 'with'    are by default disabled
+# reminder 
+# %%bcond_with    nonstd_jsoncpp ...means... --with=nonstd_jsoncpp    must be used to enable nonstd-jsoncpp
+# %%bcond_without nonstd_jsoncpp ...means... --without=nonstd_jsoncpp must be used to disable nonstd-jsoncpp
 %bcond_with nonstd_jsoncpp
 %if %{with nonstd_jsoncpp}
 # Generally this is not warranted after jsoncpp-devel-1.7 era
@@ -338,6 +348,9 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.2-3
+- Be specific about the SCOLD-DC that is allowed, especially anguish-answer >= 2.0 or a recent baleful-ballad
 
 * Fri Sep 13 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.2-2
 - corrected the name-and-version usage for hyperledger-fabric which is under %%bcond_with (default off)

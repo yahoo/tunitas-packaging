@@ -35,6 +35,9 @@
 #
 Recommends: user-tunitas
 
+%global tunitas tu02
+%global tunitas_dist %{?tunitas:.%{tunitas}}
+
 #
 # [[FIXTHIS]] many of these southside schemes are not yet possible in montara; they flow over from apanolio
 # All of these may be used simultaneously; they are further enabled at configure time.
@@ -58,6 +61,11 @@ Recommends: user-tunitas
 # i.e. the 'without' are by default enabled
 #      the 'with'    are by default disabled
 #
+# THEREFORE
+#
+#    %%bcond_with    southside_fabric <------------- default "off" use --with=southside_fabric to enable
+#    %%bcond_without southside_leveldb <------------ default "on"  use --without=southside_fabric to disable
+# 
 %bcond_with    southside_fabric
 %bcond_without southside_leveldb
 %bcond_without southside_mysql
@@ -101,7 +109,7 @@ Recommends: user-tunitas
 %global std_scold_prefix   /opt/scold
 
 Version: 0.1.5
-Release: 2
+Release: 3%{?tunitas_dist}%{?dist}
 Name: tunitas-montara
 Summary: Tunitas microservice of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -115,7 +123,7 @@ BuildRequires: gcc-c++ >= 7.1.0
 # But until ModulesTS is available S.C.O.L.D methodology is used.
 # https://fedoraproject.org/wiki/Packaging:Guidelines#Rich.2FBoolean_dependencies
 # http://rpm.org/user_doc/boolean_dependencies.html
-BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
+BuildRequires: (SCOLD-DC or anguish-answer >= 2.0 or baleful-ballad >= 0.17 or ceremonial-contortion or demonstrable-deliciousness)
 
 BuildRequires: temerarious-flagship >= 1.4.2
 
@@ -239,8 +247,9 @@ BuildRequires: module-httpserver-devel >= %{module_httpserver_version}
 Requires:      module-httpserver >= %{module_httpserver_version}
 %endif
 
-# the 'without' are by default enabled
-# the 'with'    are by default disabled
+# reminder 
+# %%bcond_with    nonstd_jsoncpp ...means... --with=nonstd_jsoncpp    must be used to enable nonstd-jsoncpp
+# %%bcond_without nonstd_jsoncpp ...means... --without=nonstd_jsoncpp must be used to disable nonstd-jsoncpp
 %bcond_with nonstd_jsoncpp
 %if %{with nonstd_jsoncpp}
 # Generally this is not warranted after jsoncpp-devel-1.7 era
@@ -459,6 +468,9 @@ usermod -p '%{password}' %{username}
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-3
+- Be specific about the SCOLD-DC that is allowed, especially anguish-answer >= 2.0 or a recent baleful-ballad
 
 * Fri Sep 13 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.5-2
 - corrected the name-and-version usage for hyperledger-fabric which is under %%bcond_with (default off)

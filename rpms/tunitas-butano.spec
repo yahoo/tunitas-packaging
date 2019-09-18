@@ -5,11 +5,14 @@
 %global _prefix /opt/tunitas
 %define modulesdir %{_prefix}/modules
 
+%global tunitas tu02
+%global tunitas_dist %{?tunitas:.%{tunitas}}
+
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
 Version: 1.0.2
-Release: 1
+Release: 2%{?tunitas_dist}%{?dist}
 Name: tunitas-butano
 Summary: Tunitas macroservice implementation of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -23,7 +26,7 @@ BuildRequires: gcc-c++ >= 7.1.0
 # But until ModulesTS is available S.C.O.L.D methodology is used.
 # https://fedoraproject.org/wiki/Packaging:Guidelines#Rich.2FBoolean_dependencies
 # http://rpm.org/user_doc/boolean_dependencies.html
-BuildRequires: (SCOLD-DC or anguish-answer or baleful-ballad or ceremonial-contortion or demonstrable-deliciousness)
+BuildRequires: (SCOLD-DC or anguish-answer >= 2.0 or baleful-ballad >= 0.17 or ceremonial-contortion or demonstrable-deliciousness)
 
 BuildRequires: temerarious-flagship >= 1.3
 
@@ -140,6 +143,9 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-2
+- Be specific about the SCOLD-DC that is allowed, especially anguish-answer >= 2.0 or a recent baleful-ballad
 
 * Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.2-1
 - synchronize the package nad the project version numbers
