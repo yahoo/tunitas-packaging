@@ -6,21 +6,7 @@
 #
 # usage:
 #
-<<<<<<< HEAD
 #   make [ all ]
-#   make package-temerarious-flagship
-#   make package-basics
-#   make package-butano
-#   make package-THING                         any THING with the s/tunitas-/ applied to it
-#
-# Makefile_RPMBUILD_OPTIONS can be set in the Makefile
-# RPMBUILD_OPTIONS          is reserved to the command line          
-#
-
-# Avoid rpmbuilding everything at once.
-# https://www.gnu.org/software/make/manual/html_node/Special-Targets.html
-.NOTPARALLEL:
-=======
 #   make [all]            build every rpm
 #   make clean
 #   make distclean
@@ -36,9 +22,17 @@
 #       make package-apanolio
 #       make package-scarpet
 #       make package-montara
+#       make package-THING                   any THING with the s/tunitas-/ applied to it
 #       ...etc...
 #
->>>>>>> rachet the build number of all packages
+#
+# Makefile_RPMBUILD_OPTIONS can be set in the Makefile
+# RPMBUILD_OPTIONS          is reserved to the command line          
+#
+
+# Avoid rpmbuilding everything at once.
+# https://www.gnu.org/software/make/manual/html_node/Special-Targets.html
+.NOTPARALLEL:
 
 default:
 PACKAGES = \
