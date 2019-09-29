@@ -108,8 +108,8 @@ Recommends: user-tunitas
 %global std_tunitas_prefix /opt/tunitas
 %global std_scold_prefix   /opt/scold
 
-Version: 0.1.5
-Release: 3%{?tunitas_dist}%{?dist}
+Version: 0.1.6
+Release: 1%{?tunitas_dist}%{?dist}
 Name: tunitas-montara
 Summary: Tunitas microservice of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -469,7 +469,11 @@ usermod -p '%{password}' %{username}
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
-* Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.0-3
+* Sun Sep 29 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.6-1
+- The devel package MUST NOT take ownership of the %%{modulesdir}/{fpp,hpp,ipp} directories
+- Continuing to try running the api tests ... which seem to fail by not killing off the server in zzz.test
+
+* Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.5-3
 - Be specific about the SCOLD-DC that is allowed, especially anguish-answer >= 2.0 or a recent baleful-ballad
 
 * Fri Sep 13 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.1.5-2

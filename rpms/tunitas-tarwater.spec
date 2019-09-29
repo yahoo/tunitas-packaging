@@ -15,7 +15,7 @@
 %global systemd_systemdir  /usr/lib/systemd/system
 
 Version: 0.0.4
-Release: 2%{?tunitas_dist}%{?dist}
+Release: 3%{?tunitas_dist}%{?dist}
 Name: tunitas-tarwater
 Summary: Tunitas Audience Management, the Identity Management System
 License: Apache-2.0
@@ -186,6 +186,9 @@ eval \
 #    see modules_BB_SOURCES_ET
 #
 %{modulesdir}/*
+%exclude %dir %{modulesdir}/fpp
+%exclude %dir %{modulesdir}/hpp
+%exclude %dir %{modulesdir}/ipp
 %{_libdir}/*
 # NO DSO, only convenience libraries ---> %%exclude %%{_libdir}/*.so.*
 %exclude %{modulesdir}/want
@@ -196,6 +199,9 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Sep 29 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.4-3
+- The devel package MUST NOT take ownership of the %%{modulesdir}/{fpp,hpp,ipp} directories
 
 * Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.4-2
 - Be specific about the SCOLD-DC that is allowed, especially anguish-answer >= 2.0 or a recent baleful-ballad

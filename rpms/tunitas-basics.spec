@@ -12,7 +12,7 @@
 %global std_scold_prefix   /opt/scold
 
 Version: 1.8.4
-Release: 2%{?tunitas_dist}%{?dist}
+Release: 3%{?tunitas_dist}%{?dist}
 Name: tunitas-basics
 Summary: Tunitas Audience Management System, basic components
 License: Apache-2.0
@@ -128,6 +128,9 @@ eval \
 %doc ChangeLog README.md
 # DO NOT mention directories or files that do not exist
 %{modulesdir}/*
+%exclude %dir %{modulesdir}/fpp
+%exclude %dir %{modulesdir}/hpp
+%exclude %dir %{modulesdir}/ipp
 %{_libdir}/*
 %exclude %{_libdir}/*.so.*
 %exclude %{modulesdir}/want
@@ -138,39 +141,43 @@ eval \
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
 
-* Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.4-2.tu02
+* Sun Sep 29 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.0.4-3
+- The devel package MUST NOT take ownership of the %%{modulesdir}/{fpp,hpp,ipp} directories
+- removed the tu02 particle from these change log entries (we already know it is tu02 %%tunitas_dist, just like we know it is %%dist)
+
+* Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.4-2
 - Be specific about the SCOLD-DC that is allowed, especially anguish-answer >= 2.0 or a recent baleful-ballad
 
-* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.4-1.tu02
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.4-1
 - build robustification; portification to gcc 7
 
-* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.3-1.tu02
+* Fri Aug 23 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.3-1
 - copy in the new buildconf of temerarious-flagship >= 1.3.3
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-6.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-6
 - MUST be built against nonstd-libhttpserver >= 0.9.0-7.1.ipv6+poll+regex+api else it will segfault at runtime
   MUST configure the build as such
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-5.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-5
 - this MUST be built against nonstd-libhttpserver >= 0.9.0-7.1.ipv6+poll+regex+api else it will segfault at runtime
   and the configure MUST configure as such
 - and require for testing module-rigging-devel >= 2:0.10.0
 - do not declare ownership of the %%{modulesdir}/want directories
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-4.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.2-4
 - copy in the buildconf from temerarious-flagship 1.3.1
 - remind that in %%files, we cannot mention directories or files that do not exist
 - MUST configure --with-temerarious-flagship so decorate with --with-FIXTHIS
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-3.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-3
 - rachet into modern dependencies S.C.O.L.D. Ahead of Release 04 (Green Copper Heron), all in Epoch 2
 - rachet to require temerarious-flagship >= 1.3, which is current for Tunitas Release 02 (Towering Redwood)
 
-* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-2.tu02
+* Sun Aug 11 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-2
 - second build for Release 02 (Towering Redwood)
 - rachet the S.C.O.L.D. modules up to use the current Release 04 (Green Copper Heron) or the Tunitas Ahead builds of Epoch 2
 
-* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-1.tu02
+* Mon Jul 15 2019 - Wendell Baker <wbaker@verizonmedia.com> - 1.8.1-1
 - first build for Release 02 (Towering Redwood)
 - disjunct for module-rigging-devel or module-rigging-unit-devel or module-unit-rigging-devel
 

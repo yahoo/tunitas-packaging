@@ -43,7 +43,7 @@
 %global std_scold_prefix   /opt/scold
 
 Version: 0.0.1
-Release: 5%{?tunitas_dist}%{?dist}
+Release: 6%{?tunitas_dist}%{?dist}
 Name: tunitas-scarpet
 Summary: Tunitas reference implementation of the "Northbound API Service" for the IAB PrivacyChain
 License: Apache-2.0
@@ -302,6 +302,9 @@ eval \
 %files devel
 %doc README.md
 %{modulesdir}/*
+%exclude %dir %{modulesdir}/fpp
+%exclude %dir %{modulesdir}/hpp
+%exclude %dir %{modulesdir}/ipp
 %{_libdir}/*
 %exclude %{_libdir}/*.so.*
 %exclude %{modulesdir}/want
@@ -311,6 +314,9 @@ eval \
 
 %changelog
 # DO NOT use ISO-8601 dates; only use date +'%%a %%b %%d %%Y'
+
+* Sun Sep 29 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.1-6
+- The devel package MUST NOT take ownership of the %%{modulesdir}/{fpp,hpp,ipp} directories
 
 * Wed Sep 18 2019 - Wendell Baker <wbaker@verizonmedia.com> - 0.0.1-5
 - Be specific about the SCOLD-DC that is allowed, especially anguish-answer >= 2.0 or a recent baleful-ballad

@@ -22,7 +22,7 @@
 #       make package-apanolio
 #       make package-scarpet
 #       make package-montara
-#       make package-THING                   any THING with the s/tunitas-/ applied to it
+#       make package-THING                   any THING with the s/tunitas-// applied to it
 #       ...etc...
 #
 #
