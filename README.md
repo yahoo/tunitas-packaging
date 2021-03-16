@@ -154,7 +154,7 @@ It is themed after [Butano Creek(https://en.wikipedia.org/wiki/Butano_Creek) in 
 
 ### Grabtown
 
-A standalone implementation of [Oath DataX API Specification](https://developer.yahoo.com/datax/guide/).
+A standalone implementation of [Verizon Media DataX API Specification](https://developer.yahoo.com/datax/guide/).
 It is themed after [Grabtown Gulch](https://en.wikipedia.org/wiki/Grabtown_Gulch) in San Mateo County, California.
 It is not yet published.
 
