@@ -1,4 +1,4 @@
-# Copyright 2018-2019, Oath Inc.
+# Copyright Yahoo Inc. 2021
 # Licensed under the terms of the Apache-2.0 license.
 # See the LICENSE file in https://github.com/yahoo/tunitas-packaging/blob/master/LICENSE for terms.
 

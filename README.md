@@ -121,10 +121,10 @@ The _packaging_ of the Tunitas family of technologies does not have any specific
 Please refer to [the contributing.md file](Contributing.md) for information about how to get involved. We welcome issues, questions, and pull requests. Pull Requests are welcome.
 
 ## Maintainers
-- Wendell Baker <wbaker@verizonmedia.com>
-- The Tunitas Team at Verizon Media.
+- Wendell Baker <wbaker@yahooinc.com>
+- The Tunitas Team at Yahoo.
 
-You may contact us at least at <tunitas@verizonmedia.com>
+You may contact us at least at <tunitas@yahooinc.com>
 
 ## License
 
@@ -154,7 +154,7 @@ It is themed after [Butano Creek(https://en.wikipedia.org/wiki/Butano_Creek) in 
 
 ### Grabtown
 
-A standalone implementation of [Oath DataX API Specification](https://developer.yahoo.com/datax/guide/).
+A standalone implementation of [Yahoo DataX API Specification](https://developer.yahoo.com/datax/guide/).
 It is themed after [Grabtown Gulch](https://en.wikipedia.org/wiki/Grabtown_Gulch) in San Mateo County, California.
 It is not yet published.
 
