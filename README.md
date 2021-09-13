@@ -62,13 +62,13 @@ In a development context, is also envisioned that this packaging repository form
   * [nonstd.list](https://github.com/yahoo/tunitas-packaging/blob/master/dependencies/nonstd.list) - Non-Standard packaging of Standard Fedora, <em>i.e.</em> patches.
   * [Tunitas.list](https://github.com/yahoo/tunitas-packaging/blob/master/dependencies/Tunitas.list) - Tunitas core components
 * `rpms`
-  * [Makefile](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/Makefile] - rpm building
-  * [temerarious-flagship.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/temerarious-flagship.spec] - The Build System
-  * [tunitas-basics.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-basics.spec] - Basic Components
-  * [tunitas-butano.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-butano.spec] - Components for IAB Transparency & Consent Framework (TCF)
-  * [tunitas-apanolio.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-apanolio.spec] - A "North-Facing Service" of PrivacyChain as a macroservice
-  * [tunitas-montara.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-montara.spec] - A "North-Facing Service" of PrivacyChain as a microservice
-  * [tunitas-scarpet.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-scarpet.spec] - Self Sovereign Identity, a W3C DID Resolver and Certificate Authority
+  * [Makefile](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/Makefile) - rpm building
+  * [temerarious-flagship.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/temerarious-flagship.spec) - The Build System
+  * [tunitas-basics.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-basics.spec) - Basic Components
+  * [tunitas-butano.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-butano.spec) - Components for IAB Transparency & Consent Framework (TCF)
+  * [tunitas-apanolio.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-apanolio.spec) - A "North-Facing Service" of PrivacyChain as a macroservice
+  * [tunitas-montara.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-montara.spec) - A "North-Facing Service" of PrivacyChain as a microservice
+  * [tunitas-scarpet.spec](https://github.com/yahoo/tunitas-packaging/blob/master/rpms/tunitas-scarpet.spec) - Self Sovereign Identity, a W3C DID Resolver and Certificate Authority
 * `sources` which are the submodules
   * [apanolio](https://github.com/yahoo/tunitas-apanolio)
   * [basics](https://github.com/yahoo/tunitas-basics)
