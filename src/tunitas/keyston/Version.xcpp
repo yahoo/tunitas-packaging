@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston {
+  //
+  // The package version, as an application exception.
+  //
+  // Usage:
+  //
+  //   throw Version{"program"};
+  //
+  // Usage:
+  //
+  //   try {
+  //     ...
+  //     throw Version{"program"};
+  //     ...
+  //   } catch (tunitas::application::exception::Generic const &g) {
+  //     g.stream() << g << '\n';
+  //     return g.code();          ... equivalently ::exit(g.code());
+  //   }
+  //
+  class [[nodiscard]] Version;
+}
+#endiv
+#divert <hpp>
+#import tunitas.application.exception.Version
+#import tunitas.application.exception.Messaging
+#import std.string
+#import std.exception
+class tunitas::keyston::Version : public tunitas::application::exception::Version, public tunitas::application::exception::Messaging, public std::exception {
+  struct Ancestors {
+    using Version = tunitas::application::exception::Version;
+    using Messaging = tunitas::application::exception::Messaging;
+    using Exception = std::exception;
+  };
+public:
+  inline explicit Version(std::string const &NAME);
+  auto what() const noexcept -> char const * final;
+private:
+  static auto format(std::string const &NAME) -> std::string;
+};
+#endiv
+#divert <ipp>
+#import sys.exits.constants
+tunitas::keyston::Version::Version(std::string const &NAME)
+  : Ancestors::Version{}
+  , Ancestors::Messaging{format(NAME)}
+  , Ancestors::Exception{}
+{ }
+#endiv
+#divert <cpp>
+#import std.ostringstream
+#include "config.h"  // [[FIXTHIS]] #import autotools.autoconfig.Config.tunitas.keyston.CONFIG
+auto tunitas::keyston::Version::format(std::string const &NAME) -> std::string {
+  std::ostringstream buf;
+  auto const vstring = PACKAGE_VERSION; // [[FIXTHIS]] to acquire the version from configure.ac; a.k.a. config.h, autotools::autoconf::Config<CONFIG>::version_string()
+  buf << "version: " << NAME << " " << vstring;
+  return buf.str();
+}
+auto tunitas::keyston::Version::what() const noexcept -> char const * {
+  return Messaging::what();
+}
+#endiv
