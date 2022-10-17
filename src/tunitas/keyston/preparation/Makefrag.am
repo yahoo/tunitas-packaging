@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_preparation_SUBSOURCES = \
+  obj/src/tunitas/keyston/preparation/namespace.cpp \
+  obj/src/tunitas/keyston/preparation/required.cpp \
+  obj/src/tunitas/keyston/preparation/Message.cpp \
+  $(tunitas_keyston_preparation_step_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/preparation/step/Makefrag.am
+

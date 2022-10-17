@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.array.Bounded
+namespace tunitas::keyston::array {
+  //
+  // An opaque, a blob, a chunk, some stuff
+  //
+  // Specification:
+  //
+  //   Obvious
+  //
+  // Design:
+  //
+  //   Limited length,
+  //   Variable length
+  //   https://en.cppreference.com/w/cpp/container/vector a.k.a. Variable Entity-Containing-Type [which] Owns Resources (VECTOR)
+  //   A vector with some limited bounds checking.
+  //
+  // Usage:
+  //
+  //   As you would a vector.
+  //
+  template<Size CAPACITY> using Opaque = Bounded<Octet, CAPACITY>;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::array;
+    using Subject = Opaque<(1uz<<16)>;
+    static_assert(std::is_default_constructible_v<Subject>);
+    static_assert(std::is_copy_constructible_v<Subject>);
+    static_assert(std::is_move_constructible_v<Subject>);
+    static_assert(std::is_copy_assignable_v<Subject>);
+    static_assert(std::is_move_assignable_v<Subject>);
+    static_assert(std::is_swappable_v<Subject>);
+  }
+}
+#endiv

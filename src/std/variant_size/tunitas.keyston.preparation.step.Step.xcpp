@@ -1,0 +1,15 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import std.variant_size
+#forward tunitas.keyston.preparation.step.Step
+namespace std {
+  template<> struct variant_size<tunitas::keyston::preparation::step::Step>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.preparation.step.Variant
+namespace std {
+  template<> struct variant_size<tunitas::keyston::preparation::step::Step> : public variant_size<tunitas::keyston::preparation::step::Variant> { };
+}
+#endiv

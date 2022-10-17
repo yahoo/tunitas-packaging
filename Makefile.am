@@ -33,6 +33,7 @@ noinst_LTLIBRARIES = \
   noinst/lib/libwant.la \
   noinst/lib/libapp.la \
   noinst/lib/libtunitas-keyston.la \
+  noinst/lib/libstd+tunitas-keyston.la \
   $(end)
 check_PROGRAMS = \
   check/bin/unit \
@@ -91,6 +92,7 @@ include noinst/lib/libapp.am
 include check/bin/unit.am
 include noinst/lib/libwant.am
 include noinst/lib/libtunitas-keyston.am
+include noinst/lib/libstd+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
 INSTALL_MODULES = \

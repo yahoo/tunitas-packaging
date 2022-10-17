@@ -1,0 +1,14 @@
+# This is a -*- Makefile -*- fragment
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+std_SUBSOURCES = \
+  obj/src/std/variant_alternative/N.tunitas.keyston.query.batch.Batch.cpp \
+  obj/src/std/variant_alternative/N.tunitas.keyston.query.partial.Partial.cpp \
+  obj/src/std/variant_alternative/N.tunitas.keyston.preparation.step.Step.cpp \
+  obj/src/std/variant_size/tunitas.keyston.query.batch.Batch.cpp \
+  obj/src/std/variant_size/tunitas.keyston.query.partial.Partial.cpp \
+  obj/src/std/variant_size/tunitas.keyston.preparation.step.Step.cpp \
+  obj/src/std/visit/tunitas.keyston.query.batch.Batch.cpp \
+  obj/src/std/visit/tunitas.keyston.query.partial.Partial.cpp \
+  obj/src/std/visit/tunitas.keyston.preparation.step.Step.cpp \
+  $(end)

@@ -1,0 +1,26 @@
+Tunitas Keyson (Creek)
+
+The core data structures, algorithms & protocol m machinery of the Tunitas working of 
+Privacy Preserving Measurement (PPM)
+Verifiable Distributed Aggregation Function (VDAF)
+Hypbrid Public Key Encryption (HPKE)
+
+Authorities (at least)
+
+Distributed Aggregation Protocol for Privacy Preserving Measurement
+https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+
+RFC 9180 Hybrid Public Key Encryption
+https://www.ietf.org/rfc/rfc9180.html
+
+
+Related projects:
+
+Tunitas Honsinger (Creek)
+A test rigging for PPM VDAF & HPKE using D-Bus
+
+Tunitas Nuff (Creek)
+A PPM Service <buzz>a micro-service</buzz>
+
+Tunitas (itself, the basics)
+The Core libraries of the Tunitas Service & Application

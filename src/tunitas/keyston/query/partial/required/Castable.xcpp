@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.query.partial.required.Queryable
+#import nonstd.required.Pointer
+#import nonstd.required.Reference
+#import std.remove_pointer
+#import std.remove_reference
+#import std.remove_const
+namespace tunitas::keyston::query::partial::required {
+  //
+  // Is this type suitable as the RESULT of a cast<RESULT>(Query)
+  //
+  // To wit:
+  //
+  //   auto const &emp = query::cast<query::Empty const &>(candidate);
+  //   auto const &tim = query::cast<query::Time_Interval const &>(candidate);
+  //   auto const &fix = query::cast<query::Fixed_Size> const &>(candidate);
+  //
+  //   auto const *emp = query::cast<query::Empty const *>(candidate);
+  //   auto const *tim = query::cast<query::Time_Interval const *>(candidate);
+  //   auto const *fix = query::cast<query::Fixed_Size const *>(candidate);
+  //
+  namespace [[eponymous]] castable {
+    using namespace std;
+    template<typename INSTANCE> concept IsA_Basis = Queryable<INSTANCE>;
+    template<typename RESULT> concept IsA_Pointer = requires(RESULT) {
+      requires Pointer<RESULT>;
+      requires IsA_Basis<remove_const_t<remove_pointer_t<RESULT>>>;
+    };
+    template<typename RESULT> concept IsA_Reference = requires(RESULT) {
+      requires Reference<RESULT>;
+      requires IsA_Basis<remove_const_t<remove_reference_t<RESULT>>>;
+    };
+    template<typename RESULT> concept Castable = requires(RESULT) {
+      requires Pointer<RESULT> || Reference<RESULT>;
+      requires !Pointer<RESULT> || IsA_Pointer<RESULT>;
+      requires !Reference<RESULT> || IsA_Reference<RESULT>;
+    };
+  }
+  using castable::Castable;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::query::partial::required;
+    using namespace tunitas::keyston::query::partial;
+    using enum tunitas::keyston::query::Type;
+    //
+    static_assert(required::Castable<Record<RESERVED> &>);
+    static_assert(required::Castable<Record<RESERVED> const &>);
+    static_assert(required::Castable<Record<RESERVED> *>);
+    static_assert(required::Castable<Record<RESERVED> const *>);
+    //
+    static_assert(required::Castable<Record<TIME_INTERVAL> &>);
+    static_assert(required::Castable<Record<TIME_INTERVAL> const &>);
+    static_assert(required::Castable<Record<TIME_INTERVAL> *>);
+    static_assert(required::Castable<Record<TIME_INTERVAL> const *>);
+    //
+    static_assert(required::Castable<Record<FIXED_SIZE> &>);
+    static_assert(required::Castable<Record<FIXED_SIZE> const &>);
+    static_assert(required::Castable<Record<FIXED_SIZE> *>);
+    static_assert(required::Castable<Record<FIXED_SIZE> const *>);
+  }
+}
+#endiv

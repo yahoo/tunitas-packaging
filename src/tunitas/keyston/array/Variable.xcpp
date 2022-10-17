@@ -1,0 +1,115 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::array {
+  //
+  // A variable array.
+  //
+  // Specification:
+  //
+  //   Obvious
+  //
+  // Design:
+  //
+  //   Unlimited length, thus variable length
+  //   a.k.a. Variable Entity-Containing-Type [which] Owns Resources (VECTOR)
+  //   https://en.cppreference.com/w/cpp/container/vector
+  //
+  // Usage:
+  //
+  //   As you would a vector; with the reduced interface.
+  //
+  template<typename TYPE> struct Variable;
+}
+#endiv
+#divert <hpp>
+#import nonstd.required.iterator.Forward
+#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
+#forward tunitas.keyston.array.Bounded
+#import std.vector
+namespace tunitas::keyston {
+  namespace array {
+    using std::move;
+    template<typename TYPE> inline auto swap(Variable<TYPE> &, Variable<TYPE> &) noexcept -> void;
+  }
+  template<typename TYPE> class array::Variable : private std::vector<TYPE> {
+    using Ancestor = std::vector<TYPE>;
+    friend auto array::swap<>(Variable &, Variable &) noexcept -> void;
+  public:
+    using Value [[school("New")]] = typename Ancestor::value_type;
+    //
+    Variable() = default;
+    template<Size CAPACITY> Variable(Bounded<Value, CAPACITY> const &);
+    template<Size CAPACITY> Variable(Bounded<Value, CAPACITY> &&);
+    //
+    using Ancestor::vector;
+    using Ancestor::empty;
+    using Ancestor::size;
+    using Ancestor::data;
+    using Ancestor::begin;
+    using Ancestor::end;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto at(this SELF *, Size) -> nonstd::like_t<SELF, Value &>;
+#else
+    inline auto at(Size) const -> Value const &;
+    inline auto at(Size) -> Value &;
+#endif
+    using Ancestor::push_back;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.exception.Bound
+#import tunitas.keyston.array.Bounded
+namespace tunitas::keyston {
+  template<typename TYPE> auto array::swap(Variable<TYPE> &a, Variable<TYPE> &b) noexcept -> void {
+    typename Variable<TYPE>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace array {
+    template<typename _> template<Size CAPACITY> Variable<_>::Variable(Bounded<Value, CAPACITY> const &other) : Ancestor{other} { }
+    template<typename _> template<Size CAPACITY> Variable<_>::Variable(Bounded<Value, CAPACITY> &&other) : Ancestor{move(other)} { }
+#if 202312 < __cplusplus
+    template<typename _> template<typename SELF> auto Variable<_>::at(this SELF *self, Size index) -> nonstd::like_t<SELF, Value &> try {
+      return self->at(index);
+    } catch (std::out_of_range const &e) {
+      throw exception::Bound{e};
+    }
+#else
+    template<typename _> auto Variable<_>::at(Size index) const -> Value const & try {
+      return Ancestor::at(index);
+    } catch (std::out_of_range const &e) {
+      throw exception::Bound{e};
+    }
+    template<typename _> auto Variable<_>::at(Size index) -> Value & try {
+      return Ancestor::at(index);
+    } catch (std::out_of_range const &e) {
+      throw exception::Bound{e};
+    }
+#endif
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::array;
+    using tunitas::keyston::Octet;
+    using Subject = Variable<Octet>;
+    using Bounded = Bounded<Octet, (1uz<<16)>;
+    static_assert(std::is_default_constructible_v<Subject>);
+    static_assert(std::is_copy_constructible_v<Subject>);
+    static_assert(std::is_move_constructible_v<Subject>);
+    static_assert(std::is_copy_assignable_v<Subject>);
+    static_assert(std::is_move_assignable_v<Subject>);
+    static_assert(std::is_swappable_v<Subject>);
+    static_assert(std::constructible_from<Subject, Bounded const &>);
+    static_assert(std::constructible_from<Subject, Bounded &>);
+    static_assert(std::assignable_from<Subject &, Bounded>);
+    static_assert(std::assignable_from<Subject &, Bounded &&>);
+  }
+}
+#endiv

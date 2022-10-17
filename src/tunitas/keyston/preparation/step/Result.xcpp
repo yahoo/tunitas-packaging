@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::preparation::step {
+  //
+  // The summarization of a preparation step; i.e. its type
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   The enum (class).
+  //
+  // Usage:
+  //
+  //   What, you need a tutorial on how to use an enum (class)? o.rly?
+  //
+  enum class Result : std::uint8_t {
+    CONTINUED = 0,
+    FINISHED = 1,
+    FAILED = 2,
+  };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+namespace tunitas::keyston::preparation::step {
+  inline constexpr auto underlying(Result r) { return std::underlying_type_t<Result>(r); }
+}
+#endiv

@@ -1,0 +1,14 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_array_SUBSOURCES = \
+  obj/src/tunitas/keyston/Opaque.cpp \
+  obj/src/tunitas/keyston/array/namespace.cpp \
+  obj/src/tunitas/keyston/array/Opaque.cpp \
+  obj/src/tunitas/keyston/array/Fixed.cpp \
+  obj/src/tunitas/keyston/array/Variable.cpp \
+  obj/src/tunitas/keyston/array/Bounded.cpp \
+  $(end)

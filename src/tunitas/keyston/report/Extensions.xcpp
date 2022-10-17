@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::report {
+  //
+  // The extensions
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   An opaque (blob)
+  //
+  // Usage:
+  //
+  //   Careful with these, they are the dark matter of the secure infrastructure.
+  //
+  struct Extensions;
+  using Extension [[deprecated("instead prefer the plural Extensions")]] = Extensions;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Opaque
+namespace tunitas::keyston {
+  namespace report {
+    using std::move;
+    inline auto swap(Extensions &, Extensions &) noexcept -> void;
+  }
+  struct report::Extensions : public Opaque<(1uz<<16)> {
+    using Ancestor = Opaque<(1uz<<16)>;
+    friend auto swap(Extensions &, Extensions &) noexcept -> void;
+  public:
+    enum class Type : std::uint16_t {
+      TBD  = 0,
+    };
+    Extensions() = default;
+    using Ancestor::Bounded; // You "just have to know" that this is the name of the ancestor constructor
+    inline explicit Extensions(Type, Size);
+    inline explicit Extensions(Type, std::initializer_list<Octet>);
+    Type type{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston {
+  auto report::swap(Extensions &a, Extensions &b) noexcept -> void {
+    Extensions::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+    std::swap(a.type, b.type);
+  }
+  namespace report {
+    Extensions::Extensions(Type type, Size count)
+      : Ancestor(count)
+      , type{type}
+    { }
+    Extensions::Extensions(Type type, std::initializer_list<Octet> init)
+      : Ancestor{init}
+      , type{type}
+    { }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::report;
+    static_assert(std::is_default_constructible_v<Extensions>);
+    static_assert(std::is_copy_constructible_v<Extensions>);
+    static_assert(std::is_move_constructible_v<Extensions>);
+    static_assert(std::is_copy_assignable_v<Extensions>);
+    static_assert(std::is_move_assignable_v<Extensions>);
+    static_assert(std::is_swappable_v<Extensions>);
+  }
+}
+#endiv
