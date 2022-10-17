@@ -7,36 +7,22 @@
 tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/namespace.cpp \
   obj/src/tunitas/keyston/Version.cpp \
-  obj/src/tunitas/keyston/Role.cpp \
-  $(tunitas_keyston_aggregation_SUBSOURCES) \
+  obj/src/tunitas/keyston/Opaque.cpp \
   $(tunitas_keyston_array_SUBSOURCES) \
-  $(tunitas_keyston_collection_SUBSOURCES) \
   $(tunitas_keyston_exception_SUBSOURCES) \
   $(tunitas_keyston_hpke_SUBSOURCES) \
-  $(tunitas_keyston_id_SUBSOURCES) \
-  $(tunitas_keyston_preparation_SUBSOURCES) \
-  $(tunitas_keyston_query_SUBSOURCES) \
-  $(tunitas_keyston_report_SUBSOURCES) \
+  $(tunitas_keyston_protocol_SUBSOURCES) \
   $(tunitas_keyston_required_SUBSOURCES) \
+  $(tunitas_keyston_run_SUBSOURCES) \
   $(tunitas_keyston_time_SUBSOURCES) \
-  \
-  $(tunitas_keyston_cbor_SUBSOURCES) \
-  $(tunitas_keyston_json_SUBSOURCES) \
   $(tunitas_keyston_wire_SUBSOURCES) \
   $(end)
 #
-include src/tunitas/keyston/aggregation/Makefrag.am
 include src/tunitas/keyston/array/Makefrag.am
-include src/tunitas/keyston/collection/Makefrag.am
 include src/tunitas/keyston/exception/Makefrag.am
 include src/tunitas/keyston/hpke/Makefrag.am
-include src/tunitas/keyston/id/Makefrag.am
-include src/tunitas/keyston/preparation/Makefrag.am
-include src/tunitas/keyston/query/Makefrag.am
-include src/tunitas/keyston/report/Makefrag.am
+include src/tunitas/keyston/protocol/Makefrag.am
 include src/tunitas/keyston/required/Makefrag.am
+include src/tunitas/keyston/run/Makefrag.am
 include src/tunitas/keyston/time/Makefrag.am
-#
-include src/tunitas/keyston/cbor/Makefrag.am
-include src/tunitas/keyston/json/Makefrag.am
 include src/tunitas/keyston/wire/Makefrag.am

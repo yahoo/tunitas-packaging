@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::protocol::report::share {
+  //
+  // The type of a report share (shard?)
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   An enum (class)
+  //
+  // Policy:
+  //
+  //   We already know it's an error (look a tthe name of the enum (class)).
+  //   Thus we don't need to put the word "error" in the name of the enumerator at all.
+  //
+  // Usage:
+  //
+  //   You need a tutorial on  how to use an enum (class)?)  o.rly?
+  //
+  enum class Error : std::uint8_t {
+    BATCH_ALREADY_COLLECTED = 0,
+    REPORT_WAS_REPLAYED = 1,
+    REPORT_WAS_DROPPED = 2,
+    HPKE_UNKNOWN_CONFIGURATION_ID = 3,
+    HPKE_DECRYPTION = 4,
+    VDAF_PREPARATION = 5,
+    BATCH_IS_SATURATED = 6,
+    TASK_HAS_EXPIRED = 7,
+    //
+    BATCH_COLLECTED [[deprecated("say it in full, and use proper grammer; prerer Error:BATCH_ALREADY_COLLECTED")]] = BATCH_ALREADY_COLLECTED,
+    REPORT_REPLAYED [[deprecated("say it in full, and use proper grammer; prerer Error:REPORT_WAS_REPLAYED")]] = REPORT_WAS_REPLAYED,
+    REPORT_DROPPED [[deprecated("say it in full, and use proper grammer; prerer Error:REPORT_WAS_DROPPED")]] = REPORT_WAS_DROPPED,
+    BATCH_SATURATED [[deprecated("say it in full, and use proper grammer; prerer Error:BATCH_IS_SATURATED")]] = BATCH_IS_SATURATED,
+    TASK_EXPIRED [[deprecated("say it in full, and use proper grammer; prerer Error:TASK_HAS_EXPIRED")]] = TASK_HAS_EXPIRED,
+    //
+    HPKE_UNKNOWN_CONFIG_ID [[deprecated("spell it out; instead prefer Error::HPKE_UNKNOWN_CONFIGURATION_ID")]] = HPKE_UNKNOWN_CONFIGURATION_ID,
+    HPKE_DECRYPT_ERROR [[deprecated("spell it out; instead prefer Error::HPKE_DECRYPTION")]] = HPKE_DECRYPTION,
+    VDAF_PREP_ERROR [[deprecated("spell it out; instead prefer Error::VDAF_PREPARATION")]] = VDAF_PREPARATION,
+  };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+namespace tunitas::keyston::protocol::report::share {
+  inline constexpr auto underlying(Error t) { return std::underlying_type_t<Error>(t); }
+  inline auto swap(Error &a, Error &b) noexcept -> void { return std::swap(a, b); }
+}
+#endiv

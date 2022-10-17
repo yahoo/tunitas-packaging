@@ -5,8 +5,8 @@
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
 tunitas_keyston_array_SUBSOURCES = \
-  obj/src/tunitas/keyston/Opaque.cpp \
   obj/src/tunitas/keyston/array/namespace.cpp \
+  obj/src/tunitas/keyston/array/Unique.cpp \
   obj/src/tunitas/keyston/array/Opaque.cpp \
   obj/src/tunitas/keyston/array/Fixed.cpp \
   obj/src/tunitas/keyston/array/Variable.cpp \

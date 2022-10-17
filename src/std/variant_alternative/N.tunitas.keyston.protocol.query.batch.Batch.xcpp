@@ -1,0 +1,16 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import std.variant_alternative
+#forward tunitas.keyston.protocol.query.batch.Batch
+#import std.size_t
+namespace std {
+  template<size_t N> struct variant_alternative<N, tunitas::keyston::protocol::query::batch::Batch>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.protocol.query.batch.Variant
+namespace std {
+  template<size_t N> struct variant_alternative<N, tunitas::keyston::protocol::query::batch::Batch> : public variant_alternative<N, tunitas::keyston::protocol::query::batch::Variant> { };
+}
+#endiv

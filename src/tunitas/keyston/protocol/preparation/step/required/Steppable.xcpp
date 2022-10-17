@@ -1,0 +1,19 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.protocol.preparation.step.Continued
+#forward tunitas.keyston.protocol.preparation.step.Finished
+#forward tunitas.keyston.protocol.preparation.step.Failed
+namespace tunitas::keyston::protocol::preparation::step::required {
+  //
+  // Is it steppable? (will it blend?)
+  // As applicable, the caller must strip off the cvreference-cvpointer qualifiers.
+  //
+  template<typename STEP> concept Steppable = (same_as<STEP, Continued> ||
+                                               same_as<STEP, Finished> ||
+                                               same_as<STEP, Failed>);
+}
+#endiv

@@ -1,0 +1,26 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_protocol_SUBSOURCES = \
+  obj/src/tunitas/keyston/protocol/namespace.cpp \
+  obj/src/tunitas/keyston/protocol/Role.cpp \
+  obj/src/tunitas/keyston/protocol/id.cpp \
+  $(tunitas_keyston_protocol_aggregation_SUBSOURCES) \
+  $(tunitas_keyston_protocol_collection_SUBSOURCES) \
+  $(tunitas_keyston_protocol_exception_SUBSOURCES) \
+  $(tunitas_keyston_protocol_preparation_SUBSOURCES) \
+  $(tunitas_keyston_protocol_query_SUBSOURCES) \
+  $(tunitas_keyston_protocol_report_SUBSOURCES) \
+  $(tunitas_keyston_protocol_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/protocol/aggregation/Makefrag.am
+include src/tunitas/keyston/protocol/collection/Makefrag.am
+include src/tunitas/keyston/protocol/exception/Makefrag.am
+include src/tunitas/keyston/protocol/preparation/Makefrag.am
+include src/tunitas/keyston/protocol/query/Makefrag.am
+include src/tunitas/keyston/protocol/report/Makefrag.am
+include src/tunitas/keyston/protocol/required/Makefrag.am

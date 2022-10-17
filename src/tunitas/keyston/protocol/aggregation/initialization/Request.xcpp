@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::protocol::aggregation::initialization {
+  //
+  // The aggregation initialization request
+  //
+  // Specification:
+  //  
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   As shown.
+  //
+  // Usage:
+  //
+  //   Use designated initialization.
+  //
+  struct Request;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.protocol.id
+#import tunitas.keyston.protocol.aggregation.Parameters
+#import tunitas.keyston.protocol.query.Partial
+#import tunitas.keyston.protocol.report.share.Produced
+#import tunitas.keyston.array.Bounded
+namespace tunitas::keyston::protocol::aggregation {
+  namespace initialization {
+    using std::move;
+    inline auto swap(Request &, Request &) noexcept -> void;
+  }
+  struct initialization::Request {
+    id::Task task_id{};
+    id::Job job_id{};
+    aggregation::Parameters aggregation_parameters{};
+    query::Partial partial_batch_selector{};
+    array::Bounded<report::share::Produced, (1uz<<32)> report_shares{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::protocol::aggregation {
+  auto initialization::swap(Request &a, Request &b) noexcept -> void {
+    swap(a.task_id, b.task_id);
+    swap(a.job_id, b.job_id);
+    swap(a.aggregation_parameters, b.aggregation_parameters);
+    swap(a.partial_batch_selector, b.partial_batch_selector);
+    swap(a.report_shares, b.report_shares);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::aggregation::initialization;
+    static_assert(std::is_default_constructible_v<Request>);
+    static_assert(std::is_copy_constructible_v<Request>);
+    static_assert(std::is_move_constructible_v<Request>);
+    static_assert(std::is_copy_assignable_v<Request>);
+    static_assert(std::is_move_assignable_v<Request>);
+    static_assert(std::is_swappable_v<Request>);
+  }
+}
+#endiv

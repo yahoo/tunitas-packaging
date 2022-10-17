@@ -1,0 +1,106 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::array { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::array::Fixture : public cppunit::test::Fixture {
+  static auto suite() -> cppunit::Test *;
+  //
+  auto test_usage_Unique() -> void;
+  auto test_usage_Opaque() -> void;
+  auto test_usage_Fixed() -> void;
+  auto test_usage_Variable() -> void;
+  auto test_usage_Bounded() -> void;
+};
+#endiv
+#divert <cpp>
+#import tunitas.keyston.array.Variable
+#import tunitas.keyston.array.Bounded
+#import tests.unit.array.Variable
+#import tests.unit.array.Bounded
+auto tests::unit::array::Fixture::suite() -> cppunit::Test * {
+  using namespace rigging::suite;
+  auto series = Stream{"array"};
+  series << []{
+              auto use = Stream{"usage"};
+              use << add("Unique", &Fixture::test_usage_Unique)
+                  << add("Opaque", &Fixture::test_usage_Opaque)
+                  << add("Fixed", &Fixture::test_usage_Fixed)
+                  << add("Variable", &Fixture::test_usage_Variable)
+                  << add("Bounded", &Fixture::test_usage_Bounded)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto var = Stream{"Variable"};
+              var << add<Variable<library::Variable<int>>>()
+                  << END;
+              return var;
+            }()
+         << []{
+              auto bou = Stream{"Bounded"};
+              bou << add<Variable<library::Bounded<int, 4uz>>>()
+                  << END;
+              return bou;
+            }()
+         << END;
+  return finalize(series);
+}
+#import tunitas.keyston.array.Unique
+#import tunitas.keyston.array.Opaque
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.array.Variable
+#import tunitas.keyston.array.Bounded
+namespace tests::unit::array {
+  auto Fixture::test_usage_Unique() -> void {
+    using Subject = library::Unique<4>;
+    auto subject = Subject{};
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Opaque() -> void {
+    using Subject = library::Opaque<4>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Fixed() -> void {
+    using Subject = library::Fixed<int, 4>;
+    auto subject = Subject{};
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = library::Variable<int>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Bounded() -> void {
+    using Subject = library::Bounded<int, 4>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+    try {
+      subject.push_back({});
+      impossible(ASSERTION);
+    } catch (::tunitas::exception::feature::Bound const &) {
+      require(ASSERTION);
+    }
+  }
+}
+#endiv

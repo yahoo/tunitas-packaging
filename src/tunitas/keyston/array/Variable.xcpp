@@ -58,6 +58,7 @@ namespace tunitas::keyston {
     inline auto at(Size) -> Value &;
 #endif
     using Ancestor::push_back;
+    using Ancestor::emplace_back;
   };
 }
 #endiv
@@ -82,12 +83,12 @@ namespace tunitas::keyston {
     template<typename _> auto Variable<_>::at(Size index) const -> Value const & try {
       return Ancestor::at(index);
     } catch (std::out_of_range const &e) {
-      throw exception::Bound{e};
+      throw exception::Bound{e.what()};
     }
     template<typename _> auto Variable<_>::at(Size index) -> Value & try {
       return Ancestor::at(index);
     } catch (std::out_of_range const &e) {
-      throw exception::Bound{e};
+      throw exception::Bound{e.what()};
     }
 #endif
   }

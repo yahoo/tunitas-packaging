@@ -1,0 +1,17 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_protocol_query_partial_SUBSOURCES = \
+  obj/src/tunitas/keyston/protocol/query/Partial.cpp \
+  obj/src/tunitas/keyston/protocol/query/partial/namespace.cpp \
+  obj/src/tunitas/keyston/protocol/query/partial/Partial.cpp \
+  obj/src/tunitas/keyston/protocol/query/partial/cast.cpp \
+  obj/src/tunitas/keyston/protocol/query/partial/Record.cpp \
+  obj/src/tunitas/keyston/protocol/query/partial/Variant.cpp \
+  $(tunitas_keyston_protocol_query_partial_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/protocol/query/partial/required/Makefrag.am

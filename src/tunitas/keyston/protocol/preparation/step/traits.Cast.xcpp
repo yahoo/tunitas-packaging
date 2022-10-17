@@ -1,0 +1,63 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#forward tunitas.keyston.protocol.preparation.step.Continued
+#forward tunitas.keyston.protocol.preparation.step.Finished
+#forward tunitas.keyston.protocol.preparation.step.Failed
+#import tunitas.keyston.protocol.preparation.step.required.Steppable
+namespace tunitas::keyston::protocol::preparation::step::traits {
+  //
+  // The traits of types suitable for RESULT in cast<RESULT>(...)
+  //
+  // Specification:
+  //
+  //   Rhymes with dynamic_cast
+  //
+  // Usage:
+  //
+  //   using Candidate = ...something something dark_side (being pointers or references to the basis types)...
+  //
+  //   using Basis = traits::Cast<Candidate>::Basis;
+  //
+  namespace [[eponymous]] cast {
+    template<required::Steppable> struct Base;
+    template<typename PAYLOAD> struct Cast;
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD *>;
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD &>;
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD const>;
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD const *>;
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD const &>;
+  }
+  using cast::Cast;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::protocol::preparation::step::traits {
+  template<required::Steppable BASIS> struct cast::Base {
+    using Basis = BASIS;
+    using Type [[school("New School")]] = Basis;
+    using type [[school("old_School")]] = Type;
+  };
+  template<typename PAYLOAD> struct Cast : public Base<PAYLOAD> { };
+  //
+  namespace cast {
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD *> : public Cast<PAYLOAD> { };
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD &> : public Cast<PAYLOAD> { };
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD const> : public Cast<PAYLOAD> { };
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD const *> : public Cast<PAYLOAD> { };
+    template<required::Steppable PAYLOAD> struct Cast<PAYLOAD const &> : public Cast<PAYLOAD> { };
+  }
+}
+#endiv
+#divert <cpp>
+#import std.same_as
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::preparation::step;
+    //
+    static_assert(std::same_as<Continued, traits::Cast<Continued>::Basis>);
+    static_assert(std::same_as<Finished, traits::Cast<Finished>::Basis>);
+    static_assert(std::same_as<Failed, traits::Cast<Failed>::Basis>);
+  }
+}
+#endiv

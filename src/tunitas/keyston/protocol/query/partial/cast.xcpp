@@ -1,0 +1,209 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::protocol::query::partial {
+  namespace package_cast {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_cast::interface;
+}
+#forward tunitas.keyston.protocol.query.partial.Partial
+#import tunitas.keyston.protocol.required // ctcnr (cascade that certain 'namespace required')
+#import std.same_as
+#import std.is_const
+#import std.remove_const
+#import nonstd.required.Pointer
+#import nonstd.required.Reference
+namespace tunitas::keyston::protocol::query::partial::package_cast::body {
+  template<typename> struct Conjugations;
+  template<> struct Conjugations<Partial>;
+  template<> struct Conjugations<Partial const>;
+  using namespace std; // at least same_as, remove_const, is_const and _v _t
+  namespace pointer {
+    template<required::Pointer RESULT, typename ACTUAL, typename MATCH> struct Each;
+    template<required::Pointer RESULT, typename ACTUAL, typename... MATCHES> struct Conjugator;
+    template<required::Pointer RESULT, typename ACTUAL, typename CONJUGATIONS> struct Selector;
+  }
+  namespace reference {
+    template<required::Reference RESULT, typename ACTUAL, typename MATCH> struct Each;
+    template<required::Reference RESULT, typename ACTUAL, typename... MATCHES> struct Conjugator;
+    template<required::Reference RESULT, typename ACTUAL, typename CONJUGATIONS> struct Selector;
+  }
+}
+#endiv
+#divert <hpp>
+#forward tunitas.keyston.protocol.query.partial.Record
+#import tunitas.keyston.protocol.query.partial.required.Castable
+#import tunitas.keyston.protocol.query.partial.required.Queryable
+#import tunitas.variant.Visitor
+#import tunitas.keyston.protocol.exception.Cast
+namespace tunitas::keyston::protocol::query::partial {
+  namespace package_cast::body {
+    namespace exported {
+      // 
+      // The variant cast
+      //
+      // Specification:
+      //
+      //   Conjugations for all of them: Reserved, Time_Interval, Fixed_Size.
+      //   Conjugations for constie and mutable variants.
+      //
+      // Exceptions:
+      //
+      //   The reference-returning variants throw an exception::Cast if the cast cannot be performed.
+      //   The pointer-returning variants merely return nullptr.
+      //
+      // Design:
+      //
+      //   Carefully to avoid copy pasta (and yet batch::cast<...>*...( abd partial::cast<...>(...) are copy-pasta in different namespaces for the ADL)
+      //
+      //   the predicates: is_reserved(...), is_time_interval(...), is_fixed_size(...) should be discoverable by ADL.
+      //   cast<RESULT>(...) need not be discoverable by ADL because you'll be uttering query::cast<RESULT(...) anyway.
+      //
+      // Usage:
+      //
+      //   Both constie and mutable variants following this pattern of usage
+      //
+      //   auto const &emp = query::cast<partial::Record<Type<RESERVED> const &>(candidate);
+      //   auto const &tim = query::cast<partial::Record<Type<TIME_INTERVAL> const &>(candidate);
+      //   auto const &fix = query::cast<partial::Record<Type<FIXED_SIZE> const &>(candidate);
+      //
+      //   auto const *emp = query::cast<partial::Record<Type<RESERVED> const *>(candidate);
+      //   auto const *tim = query::cast<partial::Record<Type<TIME_INTERVAL> const *>(candidate);
+      //   auto const *fix = query::cast<partial::Record<Type<FIXED_SIZE> const *>(candidate);
+      //
+      template<required::Queryable EXACT> inline auto is(Partial const &) -> bool;
+      inline auto is_reserved(Partial const &) -> bool;
+      inline auto is_time_interval(Partial const &) -> bool;
+      inline auto is_fixed_size(Partial const &) -> bool;
+      inline auto is_valid(Partial const &) -> bool;
+      //
+      template<typename RESULT> inline auto cast(Partial const &) -> RESULT requires required::Castable<RESULT>;
+      template<typename RESULT> inline auto cast(Partial &) -> RESULT requires required::Castable<RESULT>;
+    }
+    template<typename CONJUGATIONS, typename RESULT, typename VARIANT> inline auto conjugate(VARIANT &) -> RESULT;
+    template<> struct Conjugations<Partial> {
+      using Reserved      = partial::Record<Type::RESERVED>;
+      using Time_Interval = partial::Record<Type::TIME_INTERVAL>;
+      using Fixed_Size    = partial::Record<Type::FIXED_SIZE>;
+    };
+    template<> struct Conjugations<Partial const> {
+      using Reserved      = partial::Record<Type::RESERVED> const;
+      using Time_Interval = partial::Record<Type::TIME_INTERVAL> const;
+      using Fixed_Size    = partial::Record<Type::FIXED_SIZE> const;
+    };
+    template<required::Pointer RESULT, typename ACTUAL, typename MATCH> struct pointer::Each {
+      static_assert(!is_const_v<RESULT>);
+      static_assert(!is_const_v<ACTUAL>);
+      // MATCH may or may not be constie
+      auto operator()(MATCH &candidate) -> RESULT {
+        if constexpr (same_as<ACTUAL, remove_const_t<MATCH>>) {
+          return &candidate;
+        } else {
+          return nullptr;
+        }
+      }
+    };
+    template<required::Reference RESULT, typename ACTUAL, typename MATCH> struct reference::Each {
+      static_assert(!is_const_v<RESULT>);
+      static_assert(!is_const_v<ACTUAL>);
+      // MATCH may or may not be constie
+      auto operator()(MATCH &candidate) -> RESULT {
+        if constexpr (same_as<ACTUAL, remove_const_t<MATCH>>) {
+          return candidate;
+        } else {
+          throw exception::Cast{typeid(remove_const_t<MATCH>)};
+        }
+      }
+    };
+    template<required::Pointer RESULT, typename ACTUAL, typename... MATCHES> struct pointer::Conjugator : public variant::Visitor<Each<RESULT, ACTUAL, MATCHES>...> { };
+    template<required::Reference RESULT, typename ACTUAL, typename... MATCHES> struct reference::Conjugator : public variant::Visitor<Each<RESULT, ACTUAL, MATCHES>...> { };
+    //
+    template<required::Pointer RESULT, typename ACTUAL, typename CONJUGATIONS> struct pointer::Selector : public Conjugator<RESULT, ACTUAL,
+                                                                                                                            typename CONJUGATIONS::Reserved,
+                                                                                                                            typename CONJUGATIONS::Time_Interval,
+                                                                                                                            typename CONJUGATIONS::Fixed_Size> { };
+    template<required::Reference RESULT, typename ACTUAL, typename CONJUGATIONS> struct reference::Selector : public Conjugator<RESULT, ACTUAL,
+                                                                                                                                typename CONJUGATIONS::Reserved,
+                                                                                                                                typename CONJUGATIONS::Time_Interval,
+                                                                                                                                typename CONJUGATIONS::Fixed_Size> { };
+  }
+  //
+  // Must import the declarations directly so that ADL will find them from the argument Partial
+  //
+  using package_cast::body::exported::is;
+  using package_cast::body::exported::is_reserved;
+  using package_cast::body::exported::is_time_interval;
+  using package_cast::body::exported::is_fixed_size;
+  using package_cast::body::exported::is_valid;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.protocol.exception.Cast
+#import tunitas.keyston.protocol.query.traits.Cast
+#import tunitas.keyston.protocol.query.partial.Partial
+#import tunitas.keyston.protocol.query.partial.Record
+#import tunitas.variant.visit
+#import nonstd.exception.Unreachable
+#import nonstd.required.Pointer
+#import nonstd.required.Reference
+namespace tunitas::keyston::protocol::query::partial::package_cast {
+  template<required::Queryable EXACT> auto interface::is(Partial const &candidate) -> bool {
+    auto visitor = variant::Visitor{[](EXACT const &) { return true; },
+                                    [](auto const &)  { return false; }};
+    return visit(visitor, candidate);
+  }
+  auto interface::is_reserved(Partial const &candidate) -> bool      { return is<Record<Type::RESERVED>>(candidate); }
+  auto interface::is_time_interval(Partial const &candidate) -> bool { return is<Record<Type::TIME_INTERVAL>>(candidate); }
+  auto interface::is_fixed_size(Partial const &candidate) -> bool    { return is<Record<Type::FIXED_SIZE>>(candidate); }
+  auto interface::is_valid(Partial const &candidate) -> bool {
+    auto visitor = variant::Visitor{[](Record<Type::RESERVED> const &)      { return true; },
+                                    [](Record<Type::TIME_INTERVAL> const &) { return true; },
+                                    [](Record<Type::FIXED_SIZE> const &)    { return true; },
+                                    [](auto const &)                        { return false; }};
+    return visit(visitor, candidate);
+  }
+  template<typename RESULT> auto interface::cast(Partial const &candidate) -> RESULT requires required::Castable<RESULT> { return conjugate<Conjugations<Partial const>, RESULT>(candidate); }
+  template<typename RESULT> auto interface::cast(Partial &candidate) -> RESULT requires required::Castable<RESULT>       { return conjugate<Conjugations<Partial>, RESULT>(candidate); }
+  template<typename CONJUGATIONS, typename RESULT, typename VARIANT> auto body::conjugate(VARIANT &candidate) -> RESULT {
+    using Actual = typename traits::Cast<RESULT>::Basis;
+    if constexpr (required::Pointer<RESULT>) {
+      return visit(pointer::Selector<RESULT, Actual, CONJUGATIONS>{}, candidate);
+    } else if constexpr (required::Reference<RESULT>) {
+      return visit(reference::Selector<RESULT, Actual, CONJUGATIONS>{}, candidate);
+    } else {
+      throw exception::Unreachable{};
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::query::partial;
+    using enum tunitas::keyston::protocol::query::Type;
+    //
+    // The constie
+    static_assert(sizeof (cast<Record<RESERVED> const &>(Partial{})));
+    static_assert(sizeof (cast<Record<TIME_INTERVAL> const &>(Partial{})));
+    static_assert(sizeof (cast<Record<FIXED_SIZE> const &>(Partial{})));
+    //
+    static_assert(sizeof (cast<Record<RESERVED> const *>(Partial{})));
+    static_assert(sizeof (cast<Record<TIME_INTERVAL> const *>(Partial{})));
+    static_assert(sizeof (cast<Record<FIXED_SIZE> const *>(Partial{})));
+    //
+    // And the mutable
+    static_assert(sizeof (cast<Record<RESERVED> &>(Partial{})));
+    static_assert(sizeof (cast<Record<TIME_INTERVAL> &>(Partial{})));
+    static_assert(sizeof (cast<Record<FIXED_SIZE> &>(Partial{})));
+    //
+    static_assert(sizeof (cast<Record<RESERVED> *>(Partial{})));
+    static_assert(sizeof (cast<Record<TIME_INTERVAL> *>(Partial{})));
+    static_assert(sizeof (cast<Record<FIXED_SIZE> *>(Partial{})));
+  }
+}
+#endiv

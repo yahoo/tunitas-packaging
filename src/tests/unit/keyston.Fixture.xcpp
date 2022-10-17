@@ -4,23 +4,33 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-namespace tests::unit::keyston { class Fixture; }
+#import tunitas.keyston
+namespace tests::unit::keyston {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::keyston;
+  }
+  using fixture::Fixture;
+}
 #endiv
 #divert <hpp>
-struct tests::unit::keyston::Fixture : public cppunit::test::Fixture {
-  auto test_something() -> void;
+struct tests::unit::keyston::fixture::Fixture : public cppunit::test::Fixture {
   static auto suite() -> cppunit::Test *;
+  //
+  auto test_something() -> void;
 };
 #endiv
 #divert <cpp>
-auto tests::unit::keyston::Fixture::test_something() -> void {
-  CPPUNIT_ASSERT(true);
-}
-auto tests::unit::keyston::Fixture::suite() -> cppunit::Test * {
+auto tests::unit::keyston::fixture::Fixture::suite() -> cppunit::Test * {
   using namespace rigging::suite;
   auto series = Stream{"keyston"};
-  series << call("something", &Fixture::test_something)
+  series << add("something", &Fixture::test_something)
          << END;
   return finalize(series);
+}
+namespace tests::unit::keyston::fixture {
+  auto Fixture::test_something() -> void {
+    require(ASSERTION, true);
+  }
 }
 #endiv

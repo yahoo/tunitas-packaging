@@ -6,4 +6,11 @@
 #
 tunitas_keyston_wire_SUBSOURCES = \
   obj/src/tunitas/keyston/wire/namespace.cpp \
+  $(tunitas_keyston_wire_cbor_SUBSOURCES) \
+  $(tunitas_keyston_wire_json_SUBSOURCES) \
+  $(tunitas_keyston_wire_packet_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/keyston/wire/cbor/Makefrag.am
+include src/tunitas/keyston/wire/json/Makefrag.am
+include src/tunitas/keyston/wire/packet/Makefrag.am

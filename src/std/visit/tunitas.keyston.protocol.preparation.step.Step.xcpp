@@ -1,0 +1,27 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import std.visit
+#forward tunitas.keyston.protocol.preparation.step.Step
+namespace std {
+  namespace __detail::__variant {
+    // gcc (GCC) 11.2.1 20210827
+    // This worked to get std::visit(...) to operate on Step<CHAR, TRAITS, DOCUMENT>
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step>;
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step const>;
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step &>;
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step const &>;
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.protocol.preparation.step.Variant
+namespace std {
+  namespace __detail::__variant {
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step>         : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Variant> { };
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step const>   : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Variant> { };
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step &>       : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Variant> { };
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Step const &> : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::protocol::preparation::step::Variant> { };
+  }
+}
+#endiv

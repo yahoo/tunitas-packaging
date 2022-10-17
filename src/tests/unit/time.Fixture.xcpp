@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-time/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/time/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.time
+namespace tests::unit::time {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::keyston::time;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::time::fixture::Fixture : public cppunit::test::Fixture {
+  static auto suite() -> cppunit::Test *;
+  //
+  auto test_Clock() -> void;
+  auto test_Duration() -> void;
+  auto test_Point() -> void;
+  auto test_Interval() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::time::fixture::Fixture::suite() -> cppunit::Test * {
+  using namespace rigging::suite;
+  auto series = Stream{"time"};
+  series << add("Clock", &Fixture::test_Clock)
+         << add("Duration", &Fixture::test_Duration)
+         << add("Point", &Fixture::test_Point)
+         << add("Interval", &Fixture::test_Interval)
+         << END;
+  return finalize(series);
+}
+#import tunitas.keyston.time.Clock
+#import tunitas.keyston.time.Duration
+#import tunitas.keyston.time.Point
+#import tunitas.keyston.time.Interval
+namespace tests::unit::time::fixture { 
+  auto Fixture::test_Clock() -> void {
+    using Subject = library::Clock;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_Duration() -> void {
+    using Subject = library::Duration;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_Point() -> void {
+    using Subject = library::Point;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_Interval() -> void {
+    using Subject = library::Interval;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv
