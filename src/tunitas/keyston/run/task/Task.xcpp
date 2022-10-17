@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::run::task {
+  //
+  // The basic unit of the system is a Task
+  //
+  // Semantic:
+  //
+  //   A single measurement.
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 2. System Architecture
+  //
+  //   The type of each measurement.
+  //   The aggregation function to compute (e.g., sum, mean, etc.).
+  //   The set of aggregators and necessary cryptographic keying material to use.
+  //   The VDAF to execute, which to some extent is dictated by the previous choices.
+  //   The minimum "batch size" of reports which can be aggregated.
+  //   The rate at which measurements can be taken, i.e., the "minimum batch window".
+  //   These parameters are distributed out of band to the clients and to the aggregators.
+  //   They are distributed by the collecting entity in some authenticated form. Each task is identified by a unique// 32-byte ID which is
+  //
+  // Design:
+  //
+  //   Using the Bets Available Means and Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   Use designated initialization.
+  //   Construct one, and consider it.
+  //
+  struct Task;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.function // Result, Name
+#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.run.task.Service
+struct tunitas::keyston::run::task::Task {
+  function::Result result{};
+  keyston::function::Function function{};
+  array::Bounded<Service, (1u<<8)> processors{};
+};
+#endiv

@@ -14,8 +14,8 @@ namespace tests::unit::time {
 }
 #endiv
 #divert <hpp>
-struct tests::unit::time::fixture::Fixture : public cppunit::test::Fixture {
-  static auto suite() -> cppunit::Test *;
+struct tests::unit::time::fixture::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
   //
   auto test_Clock() -> void;
   auto test_Duration() -> void;
@@ -24,15 +24,14 @@ struct tests::unit::time::fixture::Fixture : public cppunit::test::Fixture {
 };
 #endiv
 #divert <cpp>
-auto tests::unit::time::fixture::Fixture::suite() -> cppunit::Test * {
-  using namespace rigging::suite;
-  auto series = Stream{"time"};
+auto tests::unit::time::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"time"sv};
   series << add("Clock", &Fixture::test_Clock)
          << add("Duration", &Fixture::test_Duration)
          << add("Point", &Fixture::test_Point)
          << add("Interval", &Fixture::test_Interval)
          << END;
-  return finalize(series);
+  return settle(series);
 }
 #import tunitas.keyston.time.Clock
 #import tunitas.keyston.time.Duration

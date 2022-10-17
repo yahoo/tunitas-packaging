@@ -4,12 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import std.string
-#import std.string_view
-namespace tests::unit {
-  using std::string;
-  using std::string_view;
-}
+#import tests
+namespace tests::unit { }
 #endiv
 #divert <hpp>
 // Because all test fixtures will need these
@@ -17,19 +13,11 @@ namespace tests::unit {
 #import tests.cppunit.test.Fixture // .......... eadem ratione
 #import tests.cppunit.ASSERT // ................ eadem
 #import rigging.suite.Fixture // ............... the v2-series with rigging::suite::Fixture and returning Suite
-#import rigging.ASSERTION
-namespace tests::unit {
-  using rigging::ASSERTION; // anchor for ADL on require(ASSERTION, ...) and impossible(ASSERTION, ...)
-}
 #endiv
 #divert <ipp>
-#import std.string_literals
-#import std.string_view_literals
-#import std.cerr
-namespace tests::unit {
-  using namespace std::string_literals;
-  using namespace std::string_view_literals;
-}
 #import rigging.suite.io // ... the v1-series shim
 #import rigging.io // ......... the v2-series
+#import std.cerr
+#import std.cout
+#import std.clog
 #endiv

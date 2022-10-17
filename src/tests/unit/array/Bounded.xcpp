@@ -10,8 +10,8 @@ namespace tests::unit::array {
 #endiv
 #divert <hpp>
 namespace tests::unit {
-  template<typename SUBJECT> struct array::Bounded : public cppunit::test::Fixture {
-    static auto suite() -> cppunit::Test *;
+  template<typename SUBJECT> struct array::Bounded : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
     //
     using Subject = SUBJECT;
     static_assert(Subject{}.capacity() <= 4uz, "too big for testing");
@@ -26,31 +26,30 @@ namespace tests::unit {
 #endiv
 #divert <tpp>
 namespace tests::unit::array {
-  template<typename _> auto Bounded<_>::suite() -> cppunit::Test * {
-    using namespace rigging::suite;
+  template<typename _> auto Bounded<_>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
     series << []{
-                auto con = Stream{"constructor"};
+                auto con = Stream{"constructor"sv};
                 con << add("default", &Bounded::test_constructor_default)
                     << END;
                 return con;
               }()
            << []{
-                auto at = Stream{"at"};
+                auto at = Stream{"at"sv};
                 at << add("constie", &Bounded::test_at_constie)
                    << add("mutable", &Bounded::test_at_mutable)
                    << END;
                 return at;
               }()
            << []{
-                auto back = Stream{"back"};
+                auto back = Stream{"back"sv};
                 back << add("push_back", &Bounded::test_push_back)
                      << add("emplace_back", &Bounded::test_emplace_back)
                      << END;
                 return back;
               }()
            << END;
-    return finalize(series);
+    return settle(series);
   }
 }
 #import tunitas.exception.feature.Bound

@@ -7,6 +7,5 @@
 #import tunitas.keyston
 namespace tunitas::keyston::hpke {
   namespace [[nodirectory]] id { }
-  namespace [[nodirectory]] key { }
 }
 #endiv

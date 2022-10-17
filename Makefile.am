@@ -38,6 +38,9 @@ noinst_LTLIBRARIES = \
 check_PROGRAMS = \
   check/bin/unit \
   $(end)
+check_LTLIBRARIES = \
+  check/lib/libtests.la \
+  $(end)
 
 default:
 # This bad design ... with limited tooling ... trying to get 'make' and one Makefile to do too many things "automatically"
@@ -64,6 +67,7 @@ include @temerarious_flagship_datadir@/am/build.am
 # These match with HGTW_WITH_MODULE in configure.ac
 DEVELOPMENT_AREAS = \
   $(module_cli_core_prefix) \
+  $(module_fmt_prefix) \
   $(module_langu_prefix) \
   $(module_nonstd_prefix) \
   $(module_sys_prefix) \
@@ -75,6 +79,7 @@ TESTING_AREAS = \
   $(deprecated_TESTING_AREAS) \
   $(end)
 INSTALLATION_AREAS = \
+  $(nonstd_fmt_prefix) \
   $(nonstd_gcc_prefix) \
   $(std_scold_prefix) \
   $(std_tunitas_prefix) \
@@ -90,6 +95,7 @@ clean-local:: clean-dependencies
 
 include noinst/lib/libapp.am
 include check/bin/unit.am
+include check/lib/libtests.am
 include noinst/lib/libwant.am
 include noinst/lib/libtunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am

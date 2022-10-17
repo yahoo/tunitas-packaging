@@ -49,6 +49,7 @@ TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
 
 # and mention in $(DEVELOPMENT_AREAS) in Makefile.am
 TF_WITH_MODULE([cli-core])
+TF_WITH_MODULE([fmt])
 TF_WITH_MODULE([langu])
 TF_WITH_MODULE([nonstd])
 TF_WITH_MODULE([sys])
@@ -63,6 +64,7 @@ TF_WITH_MODULE([cppunit])
 
 TF_MSG_VERBOSE([compiler-specific (alphabetical)])
 TF_WITH_NONSTD([cppunit])
+TF_WITH_NONSTD([fmt])
 TF_WITH_NONSTD([gcc]) dnl but modern gcc-12 & beyond is fine
 
 AM_PROG_AR

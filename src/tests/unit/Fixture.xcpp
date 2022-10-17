@@ -7,24 +7,27 @@
 namespace tests::unit { class Fixture; }
 #endiv
 #divert <hpp>
-struct tests::unit::Fixture : public cppunit::test::Fixture {
-  static auto suite() -> cppunit::Test *;
+struct tests::unit::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
   auto test_something() -> void;
 };
 #endiv
 #divert <cpp>
 #import tests.unit.array.Fixture
+#import tests.unit.function.Fixture
+#import tests.unit.hpke.Fixture
 #import tests.unit.keyston.Fixture
 #import tests.unit.protocol.Fixture
 #import tests.unit.run.Fixture
 #import tests.unit.time.Fixture
 #import tests.unit.wire.Fixture
 #import tests.unit.want.Fixture
-auto tests::unit::Fixture::suite() -> cppunit::Test * {
-  using namespace rigging::suite;
-  auto series = Stream{"unit"};
+auto tests::unit::Fixture::suite() -> Suite {
+  auto series = Stream{"unit"sv};
   series << add("something", &Fixture::test_something)
          << add<array::Fixture>()
+         << add<function::Fixture>()
+         << add<hpke::Fixture>()
          << add<keyston::Fixture>()
          << add<protocol::Fixture>()
          << add<run::Fixture>()
@@ -32,7 +35,7 @@ auto tests::unit::Fixture::suite() -> cppunit::Test * {
          << add<wire::Fixture>()
          << add<want::Fixture>()
          << END;
-  return finalize(series);
+  return settle(series);
 }
 namespace tests::unit {
   auto Fixture::test_something() -> void {

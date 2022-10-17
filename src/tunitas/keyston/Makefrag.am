@@ -10,6 +10,7 @@ tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/Opaque.cpp \
   $(tunitas_keyston_array_SUBSOURCES) \
   $(tunitas_keyston_exception_SUBSOURCES) \
+  $(tunitas_keyston_function_SUBSOURCES) \
   $(tunitas_keyston_hpke_SUBSOURCES) \
   $(tunitas_keyston_protocol_SUBSOURCES) \
   $(tunitas_keyston_required_SUBSOURCES) \
@@ -20,6 +21,7 @@ tunitas_keyston_SUBSOURCES = \
 #
 include src/tunitas/keyston/array/Makefrag.am
 include src/tunitas/keyston/exception/Makefrag.am
+include src/tunitas/keyston/function/Makefrag.am
 include src/tunitas/keyston/hpke/Makefrag.am
 include src/tunitas/keyston/protocol/Makefrag.am
 include src/tunitas/keyston/required/Makefrag.am

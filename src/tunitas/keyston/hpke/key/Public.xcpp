@@ -4,7 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.Opaque
 namespace tunitas::keyston::hpke::key {
   //
   // A public key.
@@ -19,12 +18,37 @@ namespace tunitas::keyston::hpke::key {
   //
   // Design:
   //
-  //   Just what you see.
+  //   A new type so that overloading works.
   //
   // Usage:
   //
   //   It's public .. publish it!
   //
-  using Public = Opaque<(1uz<<16)>;
+  struct Public;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Opaque
+namespace tunitas::keyston::hpke {
+  namespace key {
+    using std::move;
+    inline auto swap(Public &, Public &) noexcept -> void;
+  }
+  struct key::Public : public Opaque<(1uz<<16)> {
+    using Ancestor = Opaque<(1uz<<16)>;
+    friend auto swap(Public &, Public &) noexcept -> void;
+  public:
+    explicit Public() = default;
+    using Ancestor::Bounded; // Yes, you "just have to know" that the constructor name is such.
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::hpke {
+  auto key::swap(Public &a, Public &b) noexcept -> void {
+    Public::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace key { }
 }
 #endiv

@@ -1,11 +1,11 @@
 Tunitas Keyson (Creek)
+- Privacy-Preserving Measuremnet (PPM)
+- Verifiable Distributed Aggregation Function (VDAF)
+- Hypbrid Public Key Encryption (HPKE)
 
-The core data structures, algorithms & protocol m machinery of the Tunitas working of 
-Privacy Preserving Measurement (PPM)
-Verifiable Distributed Aggregation Function (VDAF)
-Hypbrid Public Key Encryption (HPKE)
+The core data structures, algorithms & protocol m machinery of the Tunitas working of PPM, VDAF, HPKE.
 
-Authorities (at least)
+# Authorities (at least)
 
 Distributed Aggregation Protocol for Privacy Preserving Measurement
 https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
@@ -13,14 +13,30 @@ https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
 RFC 9180 Hybrid Public Key Encryption
 https://www.ietf.org/rfc/rfc9180.html
 
-
-Related projects:
+# Related projects:
 
 Tunitas Honsinger (Creek)
-A test rigging for PPM VDAF & HPKE using D-Bus
+Privacy-Preserving Measurement (PPM) with D-Bus
 
 Tunitas Nuff (Creek)
-A PPM Service <buzz>a micro-service</buzz>
+Privacy-Preserving Measurement (PPM) with microhttpd++
 
-Tunitas (itself, the basics)
-The Core libraries of the Tunitas Service & Application
+Tunitas Woodruff (Creek)
+Privacy-Preserving Measurement (PPM) with Apache HTTPd
+
+# Scope
+
+Protocol Data Structures
+Wireline Packet Management
+Runtime simulatoin & test of the protocol
+
+# Alternatives
+
+0. single process -> herein
+   same host (obviously) with thread-based concurrency (easy debugging)
+1. multiple process -> using D-Bus within Tunitas Honsinger
+   same host using the session-level D-Bus for inter-process communication.
+2. multiple hosts -> using HTTPS microhttpd++ within Tunitas Nuff
+   multiple hosts, with wireline packets, with full-dress encryption
+3.  multiple hosts -> using HTTPS Apache HTTPd within Tunitas Woodruff
+   multiple hosts, with wireline packets, with full-dress encryption

@@ -7,16 +7,15 @@
 namespace tests::unit::wire { class Fixture; }
 #endiv
 #divert <hpp>
-struct tests::unit::wire::Fixture : public cppunit::test::Fixture {
-  static auto suite() -> cppunit::Test *;
+struct tests::unit::wire::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
 };
 #endiv
 #divert <cpp>
-auto tests::unit::wire::Fixture::suite() -> cppunit::Test * {
-  using namespace rigging::suite;
-  auto series = Stream{"wire"};
+auto tests::unit::wire::Fixture::suite() -> Suite {
+  auto series = Stream{"wire"sv};
   series // none (yet)
          << END;
-  return finalize(series);
+  return settle(series);
 }
 #endiv

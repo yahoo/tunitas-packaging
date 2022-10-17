@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.hpke.key.Bundle.template
+#import tunitas.keyston.hpke.key.Public
+namespace tunitas::keyston::hpke::key::bundle {
+  //
+  // A bundle fo public key material
+  //
+  // Specification:
+  //
+  //   RFC 9180
+  //   https://www.ietf.org/rfc/rfc9180.html
+  //
+  // Design:
+  //
+  //   Suitable for combination in Bundle<Public,Secret>
+  //
+  // Usage:
+  //
+  //   Can't use designated initialization because of the ancestry.
+  //
+  struct Public;
+  template<> struct Bundle<key::Public>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::hpke::key {
+  struct bundle::Public {
+    key::Public material{};
+    // What else?  parameters, algo, flavor, expiry, a poem?
+  };
+  namespace bundle {
+    using std::move;
+    inline auto swap(Public &, Public &) noexcept -> void;
+    inline auto swap(Bundle<key::Public> &, Bundle<key::Public> &) noexcept -> void;
+    template<> struct Bundle<key::Public> : public Public { };
+  }
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::hpke::key {
+  auto bundle::swap(Bundle<key::Public> &a, Bundle<key::Public> &b) noexcept -> void { swap(static_cast<Public &>(a), b); }
+  auto bundle::swap(Public &a, Public &b) noexcept -> void {
+    swap(a.material, b.material);
+  }
+}
+#endiv

@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.is_default_constructible
+#import std.is_copy_constructible
+#import std.is_move_constructible
+#import std.is_copy_assignable
+#import std.is_move_assignable
+#import std.is_swappable
+#import std.constructible_from
+#import std.assignable_from
+#import std.is_abstract
+namespace tests::fixture::generic {
+  //
+  // Is this a propertly defined "object", with all the pieces and parts?
+  //
+  namespace [[eponymous]] definition {
+    using namespace std;
+    template<typename OBJECT> concept Definition = requires(OBJECT a, OBJECT b) {
+      requires !is_abstract_v<OBJECT>;
+      requires is_default_constructible_v<OBJECT>;
+      requires is_copy_constructible_v<OBJECT>;
+      requires is_copy_assignable_v<OBJECT>;
+      requires is_move_constructible_v<OBJECT>;
+      requires is_move_assignable_v<OBJECT>;
+      requires is_swappable_v<OBJECT>;
+    };
+  }
+  using definition::Definition;
+}
+#endiv

@@ -9,6 +9,8 @@ tests_unit_SUBSOURCES = \
   check/obj/src/tests/unit/namespace.cpp \
   check/obj/src/tests/unit/Fixture.cpp \
   $(tests_unit_array_SUBSOURCES) \
+  $(tests_unit_function_SUBSOURCES) \
+  $(tests_unit_hpke_SUBSOURCES) \
   check/obj/src/tests/unit/keyston.Fixture.cpp \
   $(tests_unit_protocol_SUBSOURCES) \
   $(tests_unit_run_SUBSOURCES) \
@@ -18,6 +20,8 @@ tests_unit_SUBSOURCES = \
   $(end)
 #
 include src/tests/unit/array/Makefrag.am
+include src/tests/unit/function/Makefrag.am
+include src/tests/unit/hpke/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
 include src/tests/unit/run/Makefrag.am
 include src/tests/unit/wire/Makefrag.am

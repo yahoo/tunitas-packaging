@@ -7,4 +7,11 @@
 tests_unit_run_SUBSOURCES = \
   check/obj/src/tests/unit/run/namespace.cpp \
   check/obj/src/tests/unit/run/Fixture.cpp \
+  $(tests_unit_run_log_SUBSOURCES) \
+  $(tests_unit_run_service_SUBSOURCES) \
+  $(tests_unit_run_task_SUBSOURCES) \
   $(end)
+#
+include src/tests/unit/run/log/Makefrag.am
+include src/tests/unit/run/service/Makefrag.am
+include src/tests/unit/run/task/Makefrag.am

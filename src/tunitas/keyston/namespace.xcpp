@@ -35,5 +35,5 @@ namespace tunitas::keyston {
   using std::move;
   using std::forward;
   using std::swap;
-};
+}
 #endiv

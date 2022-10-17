@@ -8,6 +8,10 @@ tunitas_keyston_hpke_SUBSOURCES = \
   obj/src/tunitas/keyston/hpke/namespace.cpp \
   obj/src/tunitas/keyston/hpke/id.cpp \
   obj/src/tunitas/keyston/hpke/Ciphertext.cpp \
-  obj/src/tunitas/keyston/hpke/key.Public.cpp \
   obj/src/tunitas/keyston/hpke/Configuration.cpp \
+  $(tunitas_keyston_hpke_key_SUBSOURCES) \
+  $(tunitas_keyston_hpke_required_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/keyston/hpke/key/Makefrag.am
+include src/tunitas/keyston/hpke/required/Makefrag.am

@@ -6,4 +6,11 @@
 #
 tunitas_keyston_run_SUBSOURCES = \
   obj/src/tunitas/keyston/run/namespace.cpp \
+  $(tunitas_keyston_run_log_SUBSOURCES) \
+  $(tunitas_keyston_run_service_SUBSOURCES) \
+  $(tunitas_keyston_run_task_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/keyston/run/log/Makefrag.am
+include src/tunitas/keyston/run/service/Makefrag.am
+include src/tunitas/keyston/run/task/Makefrag.am

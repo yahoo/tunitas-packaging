@@ -14,19 +14,18 @@ namespace tests::unit::keyston {
 }
 #endiv
 #divert <hpp>
-struct tests::unit::keyston::fixture::Fixture : public cppunit::test::Fixture {
-  static auto suite() -> cppunit::Test *;
+struct tests::unit::keyston::fixture::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
   //
   auto test_something() -> void;
 };
 #endiv
 #divert <cpp>
-auto tests::unit::keyston::fixture::Fixture::suite() -> cppunit::Test * {
-  using namespace rigging::suite;
-  auto series = Stream{"keyston"};
+auto tests::unit::keyston::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"keyston"sv};
   series << add("something", &Fixture::test_something)
          << END;
-  return finalize(series);
+  return settle(series);
 }
 namespace tests::unit::keyston::fixture {
   auto Fixture::test_something() -> void {
