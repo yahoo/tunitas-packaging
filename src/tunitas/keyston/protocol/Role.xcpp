@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::protocol {
   //
-  // The roles of the runtime system.
+  // The named roles of the system.
   //
   // Specification
   //

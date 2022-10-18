@@ -33,6 +33,7 @@ noinst_LTLIBRARIES = \
   noinst/lib/libwant.la \
   noinst/lib/libapp.la \
   noinst/lib/libtunitas-keyston.la \
+  noinst/lib/libautotools-autoconf+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
   $(end)
 check_PROGRAMS = \
@@ -98,10 +99,11 @@ include check/bin/unit.am
 include check/lib/libtests.am
 include noinst/lib/libwant.am
 include noinst/lib/libtunitas-keyston.am
+include noinst/lib/libautotools-autoconf+tunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
-INSTALL_MODULES = \
+INSTALL_MODULES = $(error FIXTHIS) \
   $(noinst_lib_libtunitas_keyston_la_MODULES) \
   $(noinst_lib_libwant_la_MODULES) \
   $(end)

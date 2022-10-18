@@ -14,11 +14,11 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #endiv
 #divert <cpp>
 #import tests.unit.array.Fixture
+#import tests.unit.exception.Fixture
 #import tests.unit.function.Fixture
 #import tests.unit.hpke.Fixture
 #import tests.unit.keyston.Fixture
 #import tests.unit.protocol.Fixture
-#import tests.unit.run.Fixture
 #import tests.unit.time.Fixture
 #import tests.unit.wire.Fixture
 #import tests.unit.want.Fixture
@@ -26,11 +26,11 @@ auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
   series << add("something", &Fixture::test_something)
          << add<array::Fixture>()
+         << add<exception::Fixture>()
          << add<function::Fixture>()
          << add<hpke::Fixture>()
          << add<keyston::Fixture>()
          << add<protocol::Fixture>()
-         << add<run::Fixture>()
          << add<time::Fixture>()
          << add<wire::Fixture>()
          << add<want::Fixture>()

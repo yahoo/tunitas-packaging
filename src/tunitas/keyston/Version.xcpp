@@ -8,7 +8,7 @@ namespace tunitas::keyston {
   //
   // The package version, as an application exception.
   //
-  // Usage:
+  // Usage:x3
   //
   //   throw Version{"program"};
   //
@@ -54,14 +54,16 @@ tunitas::keyston::Version::Version(std::string const &NAME)
 #endiv
 #divert <cpp>
 #import std.ostringstream
-#include "config.h"  // [[FIXTHIS]] #import autotools.autoconfig.Config.tunitas.keyston.CONFIG
-auto tunitas::keyston::Version::format(std::string const &NAME) -> std::string {
-  std::ostringstream buf;
-  auto const vstring = PACKAGE_VERSION; // [[FIXTHIS]] to acquire the version from configure.ac; a.k.a. config.h, autotools::autoconf::Config<CONFIG>::version_string()
-  buf << "version: " << NAME << " " << vstring;
-  return buf.str();
-}
-auto tunitas::keyston::Version::what() const noexcept -> char const * {
-  return Messaging::what();
+#import cli.version.String
+#import autotools.autoconf.Config.tunitas.keyston.CONFIG
+namespace tunitas::keyston {
+  auto Version::format(std::string const &NAME) -> std::string {
+    using Config = autotools::autoconf::Config<CONFIG>;
+    auto triple = cli::version::String{Config::package_major(), Config::package_minor(), Config::package_patch()};
+    std::ostringstream buf;
+    buf << "version: " << NAME << " " << triple;
+    return buf.str();
+  }
+  auto Version::what() const noexcept -> char const * { return Messaging::what(); }
 }
 #endiv

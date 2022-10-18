@@ -16,6 +16,10 @@ with_module_nonstd=${with_module_nonstd?} \
 with_module_options=${with_module_options?} \
 with_module_sys=${with_module_sys?} \
 \
+with_module_cli_core=${with_module_cli_core?} \
+with_module_cli=${with_module_cli?} \
+with_module_options=${with_module_options?} \
+\
 with_module_fmt=${with_module_fmt?} \
 with_nonstd_fmt=${with_nonstd_fmt?} \
 \

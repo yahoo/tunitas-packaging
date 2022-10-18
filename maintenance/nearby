@@ -225,6 +225,8 @@ eval \
     ${with_hypogeal_twilight:+--with-hypogeal-twilight=$with_hypogeal_twilight} \
     ${with_temerarious_flagship:+--with-temerarious-flagship=$with_temerarious_flagship} \
     ${with_module_c:+--with-module-c=$with_module_c} \
+    ${with_module_cli_core:+--with-module-cli-core=$with_module_cli_core} \
+    ${with_module_cli:+--with-module-cli=$with_module_cli} \
     ${with_module_fmt:+--with-module-fmt=$with_module_fmt} \
     ${with_nonstd_fmt:+--with-nonstd-fmt=$with_nonstd_fmt} \
     ${with_module_half:+--with-module-half=$with_module_half} \

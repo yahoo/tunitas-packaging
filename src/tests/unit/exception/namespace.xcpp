@@ -4,9 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tests.unit.run
-#import tunitas.keyston.run.task
-namespace tests::unit::run::task {
-  namespace library = ::tunitas::keyston::run::task;
-}
+#import tests.unit
+namespace tests::unit::exception { }
 #endiv

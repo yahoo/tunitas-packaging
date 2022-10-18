@@ -10,6 +10,7 @@
 namespace tunitas::keyston {
   using Octet = std::byte;
   using Size = std::size_t;
+  enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
 }
 #import std.uint8_t
 #import std.uint16_t

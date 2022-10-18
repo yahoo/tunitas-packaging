@@ -14,7 +14,6 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_hpke_SUBSOURCES) \
   $(tunitas_keyston_protocol_SUBSOURCES) \
   $(tunitas_keyston_required_SUBSOURCES) \
-  $(tunitas_keyston_run_SUBSOURCES) \
   $(tunitas_keyston_time_SUBSOURCES) \
   $(tunitas_keyston_wire_SUBSOURCES) \
   $(end)
@@ -25,6 +24,5 @@ include src/tunitas/keyston/function/Makefrag.am
 include src/tunitas/keyston/hpke/Makefrag.am
 include src/tunitas/keyston/protocol/Makefrag.am
 include src/tunitas/keyston/required/Makefrag.am
-include src/tunitas/keyston/run/Makefrag.am
 include src/tunitas/keyston/time/Makefrag.am
 include src/tunitas/keyston/wire/Makefrag.am

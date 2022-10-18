@@ -10,6 +10,7 @@ noinst_lib_libtunitas_keyston_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 # [[FIXTHIS]] - -ltunitas-app is required here because tunitas::keyston::Version uses it
 # [[FIXTHIS]] - need a way to provide tunitas-keyston that doesn't need the TXUI of -ltuintas-app
 noinst_lib_libtunitas_keyston_la_LIBADD = \
+  noinst/lib/libautotools-autoconf+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
   noinst/lib/libwant.la \
   -ltunitas-app \
