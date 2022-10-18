@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service {
+  //
+  // The manifestation of a service (a computing resource).
+  //
+  // Specification:
+  //
+  //   Manages some computing.
+  //   Publishes an interface by which it can be contacted.
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Driver;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.log.Concentrator
+namespace tunitas::denniston {
+  namespace service {
+    using std::move;
+  }
+  struct service::Driver {
+    denniston::log::Concentrator log{};
+    explicit Driver() = default;
+    Driver(Driver const &) = delete;
+    Driver &operator=(Driver const &) = delete;
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::service;
+    static_assert(std::is_default_constructible_v<Driver>);
+    static_assert(not std::is_copy_constructible_v<Driver>);
+    static_assert(not std::is_move_constructible_v<Driver>);
+    static_assert(not std::is_copy_assignable_v<Driver>);
+    static_assert(not std::is_move_assignable_v<Driver>);
+    static_assert(not std::is_swappable_v<Driver>);
+  }
+}
+#endiv

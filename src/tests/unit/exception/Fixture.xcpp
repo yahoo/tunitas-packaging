@@ -1,0 +1,22 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::exception { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::exception::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.exception.denniston.Fixture
+auto tests::unit::exception::Fixture::suite() -> Suite {
+  auto series = Stream("exception"sv);
+  series << add<denniston::Fixture>()
+         << END;
+  return settle(series);
+}
+#endiv

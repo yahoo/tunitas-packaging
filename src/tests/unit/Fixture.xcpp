@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  auto test_something() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.denniston.Fixture
+#import tests.unit.exception.Fixture
+#import tests.unit.log.Fixture
+#import tests.unit.service.Fixture
+#import tests.unit.task.Fixture
+#import tests.unit.want.Fixture
+auto tests::unit::Fixture::suite() -> Suite {
+  auto series = Stream{"unit"sv};
+  series << add("something", &Fixture::test_something)
+         << add<denniston::Fixture>()
+         << add<exception::Fixture>()
+         << add<log::Fixture>()
+         << add<service::Fixture>()
+         << add<task::Fixture>()
+         << add<want::Fixture>()
+         << END;
+  return settle(series);
+}
+namespace tests::unit {
+  auto Fixture::test_something() -> void {
+    require(ASSERTION, true);
+  }
+}
+#endiv

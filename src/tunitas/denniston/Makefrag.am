@@ -1,0 +1,21 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_SUBSOURCES = \
+  obj/src/tunitas/denniston/namespace.cpp \
+  obj/src/tunitas/denniston/Version.cpp \
+  $(tunitas_denniston_exception_SUBSOURCES) \
+  $(tunitas_denniston_log_SUBSOURCES) \
+  $(tunitas_denniston_required_SUBSOURCES) \
+  $(tunitas_denniston_service_SUBSOURCES) \
+  $(tunitas_denniston_task_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/exception/Makefrag.am
+include src/tunitas/denniston/log/Makefrag.am
+include src/tunitas/denniston/required/Makefrag.am
+include src/tunitas/denniston/service/Makefrag.am
+include src/tunitas/denniston/task/Makefrag.am

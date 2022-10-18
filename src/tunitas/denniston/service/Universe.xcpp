@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service {
+  //
+  // The manifestation of the service universe
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 2. System Architecture
+  //
+  // Design:
+  //
+  //   The three roles:
+  //   1. collector.
+  //   2. processor; a.k.a. "helper", a.k.a. "aggregator"
+  //   3. gateway, a.k.a. "leader"
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  struct Universe;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.service.Instance
+namespace tunitas::denniston {
+  namespace service {
+    using std::move;
+  }
+  struct service::Universe {
+    explicit Universe() = default;
+    Universe(Universe const &) = delete;
+    Universe &operator=(Universe const &) = delete;
+    Instance gateway{Name::GATEWAY};
+    Instance collector{Name::COLLECTOR};
+    Instance processor[2]{Instance{Name::PROCESSOR1}, Instance{Name::PROCESSOR2}};
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::service;
+    static_assert(std::is_default_constructible_v<Universe>);
+    static_assert(not std::is_copy_constructible_v<Universe>);
+    static_assert(not std::is_move_constructible_v<Universe>);
+    static_assert(not std::is_copy_assignable_v<Universe>);
+    static_assert(not std::is_move_assignable_v<Universe>);
+    static_assert(not std::is_swappable_v<Universe>);
+  }
+}
+#endiv

@@ -1,0 +1,84 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::log {
+  //
+  // The client side of log-collection
+  //
+  // Specification:
+  //
+  //   Smells like syslog(3)
+  //   Yet uses std::format conventions
+  //   https://en.cppreference.com/w/cpp/utility/format/format
+  //
+  // Design:
+  //
+  //   std::format(...) when available; else fmt::format
+  //   Locks for the Concentrator.
+  //
+  // Usage:
+  //
+  //   auto name = service::Name::PROCESSOR2; .......... for example
+  //   auto client = Client{name};
+  //   client.format(...somehow...);
+  //
+  struct Client;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.log.Concentrator
+#forward tunitas.denniston.service.Name
+#forward tunitas.denniston.service.Driver
+#import tunitas.string.View
+struct tunitas::denniston::log::Client {
+  inline explicit Client(service::Name);
+  inline explicit Client(Concentrator &, service::Name);
+  Client(Client const &) = delete;
+  Client &operator=(Client const &) = delete;
+  template<typename... ARGUMENTS> inline auto format(string::View format, ARGUMENTS &&...) -> void;
+protected:
+  friend class service::Driver;
+  service::Name name{};
+  Concentrator *concentrator{};
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::log {
+  Client::Client(service::Name name)
+    : name{name}
+  { }
+  Client::Client(Concentrator &concentrator, service::Name name)
+    : name{name}
+    , concentrator{&concentrator}
+  { }
+}
+#endiv
+#divert <tpp>
+#import tunitas.denniston.log.Concentrator
+#import fmt.make_format_args
+#import fmt.vformat
+namespace tunitas::denniston::log {
+  template<typename... ARGUMENTS> auto Client::format(string::View format_string, ARGUMENTS &&...rest) -> void {
+    if (concentrator) {
+      auto formatted = log::vformat(format_string, log::make_format_args(rest...));
+      concentrator->accept(name, formatted);
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::log;
+    static_assert(not std::is_default_constructible_v<Client>);
+    static_assert(not std::is_copy_constructible_v<Client>);
+    static_assert(not std::is_move_constructible_v<Client>);
+    static_assert(not std::is_copy_assignable_v<Client>);
+    static_assert(not std::is_move_assignable_v<Client>);
+    static_assert(not std::is_swappable_v<Client>);
+  }
+}
+#endiv

@@ -1,0 +1,99 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::log {
+  namespace package_stamp {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_stamp::interface;
+}
+#endiv
+#divert <hpp>
+#import std.basic_ostream
+#import nonstd.required.Character
+#import nonstd.required.Character_Traits
+#import tunitas.keyston.time.Point
+#import tunitas.keyston.time.Clock
+#import tunitas.denniston.service.Name
+#import tunitas.keyston.required // at least
+namespace tunitas::denniston::log::package_stamp {
+  namespace body {
+    template<typename> struct Formatter;
+    template<required::Character CHAR, required::Character_Traits TRAITS, typename TYPE> inline auto operator<<(std::basic_ostream<CHAR, TRAITS> &, Formatter<TYPE> const &) -> std::basic_ostream<CHAR, TRAITS> &;
+    namespace exported {
+      //
+      // The "stamps" for log files.
+      //
+      // Lifetimes:
+      //
+      //   Whereas the stamp(...) series produce *formatters*
+      //   lifetime(Formatter<TYPE>) < lifetime(TYPE)
+      //
+      // Design:
+      //
+      //   The stamp(...) series accept arguments by reference so that a copy need not be made.
+      //
+      // Usage:
+      //
+      //   cout << stamp();
+      //
+      //   auto then = Clock::now();
+      //   cout << stamp(then);
+      //
+      //   auto proc  = service::Name::COLLECTOR;
+      //   cout << stamp(proc);
+      //
+      inline auto stamp(keyston::time::Point const & = keyston::time::Clock::now()) -> Formatter<keyston::time::Point>;
+      inline auto stamp(service::Name const &) -> Formatter<service::Name>;
+    }
+  }
+  template<typename TYPE> struct body::Formatter {
+    using Value = TYPE;
+    Value const &value;
+    Formatter(Value const &value) : value{value} { }
+    template<required::Character CHAR, required::Character_Traits TRAITS> inline auto insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
+  };
+  namespace body {
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<keyston::time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<service::Name>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
+  }
+}
+#endiv
+#divert <ipp>
+#import nonstd.setfill
+#import nonstd.setwidth
+#import sys.time.durations // for durations::nanoseconds
+#import std.same_as
+#import sys.time.duration_cast
+#import sys.time.put
+#import tunitas.string.View
+namespace tunitas::denniston::log::package_stamp {
+  auto interface::stamp(keyston::time::Point const &p) -> Formatter<keyston::time::Point> { return {p}; }
+  auto interface::stamp(service::Name const &n) -> Formatter<service::Name> { return {n}; }
+
+  template<required::Character CHAR, required::Character_Traits TRAITS, typename TYPE> auto body::operator<<(std::basic_ostream<CHAR, TRAITS> &o, Formatter<TYPE> const &f) -> std::basic_ostream<CHAR, TRAITS> & { return f.insert(o); }
+  namespace body {
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<keyston::time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
+      using namespace sys::time;
+      using namespace nonstd;
+      auto nanosecond_count = duration_cast<durations::nanoseconds>(this->value.time_since_epoch()).count();
+      return o << put(this->value, "%F %T.") << setwidth(9) << setfill('0') << nanosecond_count;
+    }
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<service::Name>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
+      using Numeric = std::common_type_t<unsigned, std::underlying_type_t<Value>>; // because the underlying_type might be  {signed,unsigned} char which (frustratingly) prints as like a narrow character (a 'char', ahem!)
+      if constexpr (std::same_as<char, CHAR>) {
+          return o << "process #" << (Numeric) this->value;
+        } else {
+        for (auto c : string::View{"process #"}) {
+          o << o.widen(c);
+        }
+        return o << (Numeric) this->value;
+      }
+    }
+  }
+}
+#endiv
