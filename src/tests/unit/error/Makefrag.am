@@ -1,0 +1,12 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+tests_unit_error_SUBSOURCES = \
+  check/obj/src/tests/unit/error/namespace.cpp \
+  check/obj/src/tests/unit/error/Fixture.cpp \
+  check/obj/src/tests/unit/error/Cluster.template.cpp \
+  check/obj/src/tests/unit/error/Cluster.DENNISTON.cpp \
+  check/obj/src/tests/unit/error/Cluster.NETWORK.cpp \
+  check/obj/src/tests/unit/error/Cluster.cpp \
+  check/obj/src/tests/unit/error/Schematic.cpp \
+  $(end)

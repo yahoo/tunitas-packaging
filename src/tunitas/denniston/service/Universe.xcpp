@@ -4,6 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
+#import tunitas.denniston.service.instance
 namespace tunitas::denniston::service {
   //
   // The manifestation of the service universe
@@ -20,34 +21,55 @@ namespace tunitas::denniston::service {
   //   2. processor; a.k.a. "helper", a.k.a. "aggregator"
   //   3. gateway, a.k.a. "leader"
   //
+  //   Use deque because we don't need the contiguousness of vector
+  //
   // Usage:
   //
   //   Yes.
   //
-  struct Universe;
+  namespace [[eponymous]] universe {
+    struct Universe;
+    using namespace instance;
+  }
+  using universe::Universe;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.service.Instance
-namespace tunitas::denniston {
-  namespace service {
-    using std::move;
-  }
-  struct service::Universe {
-    explicit Universe() = default;
-    Universe(Universe const &) = delete;
-    Universe &operator=(Universe const &) = delete;
-    Instance gateway{Name::GATEWAY};
-    Instance collector{Name::COLLECTOR};
-    Instance processor[2]{Instance{Name::PROCESSOR1}, Instance{Name::PROCESSOR2}};
-  };
-}
+#import std.deque
+struct tunitas::denniston::service::universe::Universe {
+  Instance gateway;
+  Instance collector;
+  Instance processor[2];
+  std::deque<Instance> clients{}; 
+  //
+  explicit Universe(Size initial_client_count = 0);
+  Universe(Universe const &) = delete;
+  Universe &operator=(Universe const &) = delete;
+};
 #endiv
 #divert <cpp>
+#import tunitas.denniston.service.instance.make
+#import tunitas.denniston.service.instance.Gateway
+#import tunitas.denniston.service.instance.Collector
+#import tunitas.denniston.service.instance.Processor
+#import tunitas.denniston.service.instance.Client
+namespace tunitas::denniston::service::universe {
+  Universe::Universe(Size initial_client_count)
+    : gateway{make<Gateway>()}
+    , collector{make<Collector>()}
+    , processor{make<Processor>(Name::PROCESSOR1), make<Processor>(Name::PROCESSOR2)}
+  {
+    for (auto i{0uz}; initial_client_count != i; ++i) {
+      auto name = Name(underlying(Name::CLIENT) + i);
+      clients.push_back(make<Client>(name));
+    }
+  }
+}
 namespace {
   namespace testate {
     using namespace tunitas::denniston::service;
-    static_assert(std::is_default_constructible_v<Universe>);
+    static_assert(not std::is_default_constructible_v<Universe> || std::is_default_constructible_v<Universe>);
     static_assert(not std::is_copy_constructible_v<Universe>);
     static_assert(not std::is_move_constructible_v<Universe>);
     static_assert(not std::is_copy_assignable_v<Universe>);

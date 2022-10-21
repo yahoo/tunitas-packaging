@@ -11,7 +11,7 @@ namespace tunitas::denniston::exception {
   // Specification:
   //
   //   Yes.
-  //   Rhymes with dynamic_cast<...>(...) but casts among types matching core::value::Value (see value::Variant)
+  //   Rhymes with dynamic_cast<...>(...) but considering coercive casts among data types within packaet frames or such.
   //
   // Design:
   //

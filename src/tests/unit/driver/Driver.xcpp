@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::driver { class Driver; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.driver.Driver
+struct tests::unit::driver::Driver : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Driver;
+  //
+  auto test_constructor_default() -> void;
+  auto test_shutdown() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::driver::Driver::suite() -> Suite {
+  auto series = Stream{"Driver"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Driver::test_constructor_default)
+                  << END;
+              return con;
+            }()
+         << add("shutdown", &Driver::test_shutdown)
+         << END;
+  return settle(series);
+}
+namespace tests::unit::driver {
+  auto Driver::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Driver::test_shutdown() -> void {
+    auto subject = Subject{};
+    subject.shutdown();
+  }
+}
+#endiv

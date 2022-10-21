@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::driver {
+  //
+  // The thread pool
+  //
+  // Specification:
+  //
+  //   launch them
+  //   join them up at the end.
+  //
+  // Design:
+  //
+  //   std::jthread
+  //
+  // Usage:
+  //
+  //   auto threads = Threads{};
+  //   threads.launch(function1, ...arguments2...);
+  //   threads.launch(function2, ...arguments2...);
+  //   threads.launch(function3, ...arguments3...);
+  //
+  struct Threads;
+}
+#endiv
+#divert <hpp>
+#import std.deque
+#import std.jthread
+struct tunitas::denniston::driver::Threads : public std::deque<std::jthread> {
+  using Ancestor = std::deque<std::jthread>;
+  using Value = Ancestor::value_type;
+  friend auto swap(Threads &, Threads &) noexcept -> void = delete;
+public:
+  Threads() = default;
+  Threads(Threads const &) = delete;
+  Threads &operator=(Threads const &) = delete;
+  template<typename FUNCTION, typename... ARGUMENTS> inline auto launch(FUNCTION &&, ARGUMENTS &&...) -> void;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::driver {
+  template<typename FUNCTION, typename... ARGUMENTS> auto Threads::launch(FUNCTION &&function, ARGUMENTS &&...arguments) -> void {
+    Ancestor::push_back(Value{forward<FUNCTION>(function), forward<ARGUMENTS>(arguments)...});
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::driver;
+    static_assert(std::is_default_constructible_v<Threads>);
+    static_assert(not std::is_copy_constructible_v<Threads>);
+    static_assert(not std::is_move_constructible_v<Threads>);
+    static_assert(not std::is_copy_assignable_v<Threads>);
+    static_assert(not std::is_move_assignable_v<Threads>);
+    static_assert(not std::is_swappable_v<Threads>);
+  }
+}
+#endiv

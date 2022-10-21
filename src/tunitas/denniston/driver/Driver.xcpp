@@ -1,0 +1,142 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/drivers/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::driver {
+  //
+  // The manifestation of a driver (a computing resource).
+  //
+  // Specification:
+  //
+  //   Manages some computing.
+  //   Publishes an interface by which it can be contacted.
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Driver;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.log.Concentrator
+#import tunitas.denniston.network.Sockets
+#import tunitas.denniston.network.Sockets.Interfaces
+#import tunitas.denniston.service.Universe
+#import tunitas.denniston.service.Instance
+#import tunitas.denniston.driver.Threads
+namespace tunitas::denniston {
+  namespace driver {
+    using std::move;
+  }
+  struct driver::Driver {
+    service::Universe universe{};
+    denniston::log::Concentrator log{};
+    network::Sockets sockets{};
+    Threads threads{};
+    struct Control {
+      network::Sockets::Interfaces everyone{};
+      network::Sockets::Interfaces clients{};
+    } control{};
+    //
+    auto shutdown() -> void; // idempotent
+    //
+    inline constexpr static auto DEFAULT_INITIAL_CLIENT_COUNT = 3uz;
+    explicit Driver(Size = DEFAULT_INITIAL_CLIENT_COUNT);
+    ~Driver();
+    Driver(Driver const &) = delete;
+    Driver &operator=(Driver const &) = delete;
+  protected:
+    auto startup() -> void;
+    auto link_logging() -> void;
+    auto link_control() -> void;
+    inline auto bind_system([[inout]] service::Instance &, network::Sockets::Descriptor) -> void;
+    inline auto bind_userland([[inout]] service::Instance &, network::Sockets::Descriptor) -> void;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::driver {
+  auto Driver::bind_system(service::Instance &destination, network::Sockets::Descriptor noob) -> void {
+    destination->control = noob->right();
+    control.everyone.push_back(noob->left());
+  }
+  auto Driver::bind_userland(service::Instance &destination, network::Sockets::Descriptor noob) -> void {
+    destination->control = noob->right();
+    auto our_side = noob->left();
+    control.everyone.push_back(our_side);
+    control.clients.push_back(our_side);
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.Instance
+#import std.clog
+namespace tunitas::denniston::driver {
+  Driver::Driver(Size initial_client_count)
+    : universe{initial_client_count} 
+ {
+   log.outbound = &std::clog; // else we won't see anything!
+    link_logging();
+    link_control();
+    startup();
+  }
+  Driver::~Driver() {
+    shutdown();
+  }
+  auto Driver::link_logging() -> void {
+    universe.gateway->log.concentrator = &log;
+    universe.collector->log.concentrator = &log;
+    universe.processor[0]->log.concentrator = &log;
+    universe.processor[1]->log.concentrator = &log;
+    for (auto &client : universe.clients) {
+      client->log.concentrator = &log;
+    }
+  }
+  auto Driver::link_control() -> void {
+    bind_system(universe.gateway, sockets.allocate());
+    bind_system(universe.collector, sockets.allocate());
+    bind_system(universe.processor[0], sockets.allocate());
+    bind_system(universe.processor[1], sockets.allocate());
+    for (auto &client : universe.clients) {
+      bind_userland(client, sockets.allocate());
+    }
+  }
+  auto Driver::startup() -> void {
+    universe.gateway->launch(threads);
+    universe.collector->launch(threads);
+    universe.processor[0]->launch(threads);
+    universe.processor[1]->launch(threads);
+    for (auto &client : universe.clients) {
+      client->launch(threads);
+    }
+  }
+}
+#import tunitas.denniston.message.packet.make
+#import tunitas.denniston.message.packet.Quit
+namespace tunitas::denniston::driver {
+  auto Driver::shutdown() -> void {
+    using namespace message::packet;
+    for (auto &face : control.everyone) {
+      face.write(make<Quit>());
+    }
+  }
+}
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::driver;
+    static_assert(std::is_default_constructible_v<Driver>);
+    static_assert(not std::is_copy_constructible_v<Driver>);
+    static_assert(not std::is_move_constructible_v<Driver>);
+    static_assert(not std::is_copy_assignable_v<Driver>);
+    static_assert(not std::is_move_assignable_v<Driver>);
+    static_assert(not std::is_swappable_v<Driver>);
+  }
+}
+#endiv

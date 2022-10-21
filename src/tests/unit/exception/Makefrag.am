@@ -8,6 +8,7 @@ tests_unit_exception_SUBSOURCES = \
   check/obj/src/tests/unit/exception/namespace.cpp \
   check/obj/src/tests/unit/exception/Fixture.cpp \
   check/obj/src/tests/unit/exception/denniston.Fixture.cpp \
+  check/obj/src/tests/unit/exception/network.Fixture.cpp \
   check/obj/src/tests/unit/exception/Palette.cpp \
   check/obj/src/tests/unit/exception/Palette.Generator.cpp \
   $(end)

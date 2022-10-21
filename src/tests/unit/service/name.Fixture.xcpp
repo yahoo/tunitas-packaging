@@ -1,0 +1,74 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::service::name {
+  class Fixture;
+  namespace library = ::tunitas::denniston::service;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.service.Name
+struct tests::unit::service::name::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Name;
+  //
+  auto test_is_collector() -> void;
+  auto test_is_processor() -> void;
+  auto test_is_gateway() -> void;
+  auto test_is_client() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::service::name::Fixture::suite() -> Suite {
+  auto series = Stream{"name"sv};
+  series << []{
+              auto is = Stream{"is"sv};
+              is << add("Collector", &Fixture::test_is_collector)
+                   << add("Processor", &Fixture::test_is_processor)
+                   << add("Gateway", &Fixture::test_is_gateway)
+                   << add("Client", &Fixture::test_is_client)
+                   << END;
+              return is;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::service::name {
+  auto Fixture::test_is_collector() -> void {
+    require(ASSERTION, is_collector(Subject::COLLECTOR));
+    require(ASSERTION, not is_collector(Subject::PROCESSOR2));
+    require(ASSERTION, not is_collector(Subject::PROCESSOR1));
+    require(ASSERTION, not is_collector(Subject::GATEWAY));
+    require(ASSERTION, not is_collector(Subject::CLIENT));
+  }
+  auto Fixture::test_is_processor() -> void {
+    require(ASSERTION, not is_processor(Subject::COLLECTOR));
+    require(ASSERTION, is_processor(Subject::PROCESSOR2));
+    require(ASSERTION, is_processor(Subject::PROCESSOR1));
+    require(ASSERTION, not is_processor(Subject::GATEWAY));
+    require(ASSERTION, not is_processor(Subject::CLIENT));
+  }
+  auto Fixture::test_is_gateway() -> void {
+    require(ASSERTION, not is_gateway(Subject::COLLECTOR));
+    require(ASSERTION, not is_gateway(Subject::PROCESSOR2));
+    require(ASSERTION, not is_gateway(Subject::PROCESSOR1));
+    require(ASSERTION, is_gateway(Subject::GATEWAY));
+    require(ASSERTION, not is_gateway(Subject::CLIENT));
+  }
+  auto Fixture::test_is_client() -> void {
+    require(ASSERTION, not is_client(Subject::COLLECTOR));
+    require(ASSERTION, not is_client(Subject::PROCESSOR2));
+    require(ASSERTION, not is_client(Subject::PROCESSOR1));
+    require(ASSERTION, not is_client(Subject::GATEWAY));
+    require(ASSERTION, is_client(Subject::CLIENT));
+    require(ASSERTION, is_client(Subject{1}));
+    require(ASSERTION, is_client(Subject{2}));
+    require(ASSERTION, is_client(Subject{3}));
+    require(ASSERTION, is_client(Subject{4}));
+  }
+}
+#endiv

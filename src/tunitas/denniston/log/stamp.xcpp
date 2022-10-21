@@ -11,14 +11,24 @@ namespace tunitas::denniston::log {
   }
   using namespace package_stamp::interface;
 }
+#import tunitas.denniston.service.Name
+#import std.common_type
+#import std.underlying_type
+namespace tunitas::denniston::log::package_stamp {
+  namespace body {
+    using service::Name;
+    using Numeric = std::common_type_t<unsigned, std::underlying_type_t<Name>>; // because the underlying_type might be  {signed,unsigned} char which (frustratingly) prints as like a narrow character (a 'char', ahem!)
+  }
+}
 #endiv
 #divert <hpp>
 #import std.basic_ostream
 #import nonstd.required.Character
 #import nonstd.required.Character_Traits
+#import tunitas.Optional
+#import tunitas.Tuple
 #import tunitas.keyston.time.Point
 #import tunitas.keyston.time.Clock
-#import tunitas.denniston.service.Name
 #import tunitas.keyston.required // at least
 namespace tunitas::denniston::log::package_stamp {
   namespace body {
@@ -50,6 +60,10 @@ namespace tunitas::denniston::log::package_stamp {
       inline auto stamp(keyston::time::Point const & = keyston::time::Clock::now()) -> Formatter<keyston::time::Point>;
       inline auto stamp(service::Name const &) -> Formatter<service::Name>;
     }
+    inline constexpr auto NaC = Optional<char>{};
+    inline constexpr auto NaN = Optional<Numeric>{};
+    inline auto encoderate(Name) -> Tuple<char, Optional<char>, Optional<Numeric>>;
+    inline auto renumerate(Name) -> Numeric;
   }
   template<typename TYPE> struct body::Formatter {
     using Value = TYPE;
@@ -80,20 +94,39 @@ namespace tunitas::denniston::log::package_stamp {
     template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<keyston::time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
       using namespace sys::time;
       using namespace nonstd;
-      auto nanosecond_count = duration_cast<durations::nanoseconds>(this->value.time_since_epoch()).count();
+      auto nanosecond_count = duration_cast<durations::nanoseconds>(this->value.time_since_epoch()).count() % 1'000'000'000;
       return o << put(this->value, "%F %T.") << setwidth(9) << setfill('0') << nanosecond_count;
     }
     template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<service::Name>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
-      using Numeric = std::common_type_t<unsigned, std::underlying_type_t<Value>>; // because the underlying_type might be  {signed,unsigned} char which (frustratingly) prints as like a narrow character (a 'char', ahem!)
+      auto [k, k1, n1] = encoderate(this->value);
       if constexpr (std::same_as<char, CHAR>) {
-          return o << "process #" << (Numeric) this->value;
-        } else {
-        for (auto c : string::View{"process #"}) {
-          o << o.widen(c);
-        }
-        return o << (Numeric) this->value;
+         o << "process " << k;
+      } else {
+        for (auto c : string::View{"process "}) { o << o.widen(c); }
+        o << o.widen(k);
       }
+      if (k1) { o << *k1; }
+      if (n1) { o << *n1; }
+      return o;
     }
+  }
+  auto body::encoderate(Name name) -> Tuple<char, Optional<char>, Optional<Numeric>> {
+    if (is_client(name)) {
+      return {'c', NaC, renumerate(name)};
+    } else if (is_gateway(name)) {
+      return {'g', 'w', NaN};
+    } else if (is_processor(name)) {
+      return {'p', NaC, renumerate(name)};
+    } else if (is_collector(name)) {
+      return {'$', '$',  NaN};
+    } else {
+      return {'?', '?', renumerate(name)};
+    }
+  }
+  auto body::renumerate(Name name) -> Numeric {
+    // yes yes we know about the UB inherent in -numeric_limits<int>::min(), and good luck to you
+    auto under = underlying(name);
+    return under < 0 ? -under : under;
   }
 }
 #endiv

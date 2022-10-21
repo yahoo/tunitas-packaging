@@ -1,0 +1,71 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.network.Socket>
+#endiv
+#divert <hpp>
+static_assert(sizeof (tunitas::denniston::network::Socket));
+static_assert(sizeof (tunitas::denniston::network::Socket::Interface *));
+namespace tunitas::denniston::network {
+  struct Socket::Interface {
+    using Value = Socket::Value;
+    inline auto write(Value &&) -> void;
+    template<typename VALUE> inline auto write(VALUE const &) -> void requires (std::same_as<Value, VALUE> && std::is_copy_constructible_v<Value>);
+    template<required::iterator::Producing<Value> ITERATOR> inline auto write(ITERATOR first, ITERATOR last) -> void;
+    inline auto read() -> Value; // blocks until there is something to read
+    using Peeked = channel::Peek<Value>;
+    inline auto peek() -> Peeked;
+    explicit Interface() = default;
+  protected:
+    friend class Socket;
+    inline Interface(Socket *, Pipe Socket::*read, Pipe Socket::*write);
+    Socket *origin{};;
+    Pipe Socket::*read_side{};
+    Pipe Socket::*write_side{};
+    inline auto validate_origin() const -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.Socket
+#import tunitas.denniston.network.exception.Null
+namespace tunitas::denniston::network {
+  Socket::Interface::Interface(Socket *o, Pipe Socket::*r, Pipe Socket::*w)
+    : origin{o}
+    , read_side{r}
+    , write_side{w}
+  { }
+  auto Socket::Interface::Interface::validate_origin() const -> void {
+    if (nullptr == origin) {
+      throw exception::Null{};
+    }
+  }
+  //
+  // writing
+  auto Socket::Interface::write(Value &&value) -> void {
+    validate_origin();
+    (origin->*write_side).push_back(move(value));
+  }
+  template<typename VALUE> auto Socket::Interface::write(VALUE const &value) -> void requires (std::same_as<Value, VALUE> && std::is_copy_constructible_v<Value>) {
+    validate_origin();
+    (origin->*write_side).push_back(value);
+  }
+  template<required::iterator::Producing<Socket::Value> ITERATOR> auto Socket::Interface::write(ITERATOR start, ITERATOR finish) -> void {
+    validate_origin();
+    (origin->*write_side).push_back(start, finish);
+  }
+  //
+  // reading
+  auto Socket::Interface::read() -> Value  {
+    validate_origin();
+    return (origin->*read_side).pop();
+  }
+  auto Socket::Interface::peek() -> Peeked {
+    validate_origin();
+    return (origin->*read_side).peek();
+  }
+}
+#endiv

@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.network.channel.required.Channelable
+namespace tunitas::denniston::network::channel {
+  //
+  // The result of a peek operation on a channel
+  //
+  // Specification:
+  //
+  //   An "optional reference" (whatever that means)
+  //   Rhymes with std::optional<...> where it can.
+  //
+  // Design:
+  //
+  //   Peek<RESULT> is NOT defined in terms of required::Peekable<RESULT>; instead that definitional order is inverted.
+  //   Because required::Peekable<RESULT> diagnoses to whether the RESULT can be used in Channel<TYPE>::peek<RESULT>() -> Peek<RESULT>
+  //
+  //   As with the Optional<RESULT>::operator* there is no checking here.
+  //
+  // Usage:
+  //
+  //   Use it as you would std::optional<RESULT const &> (if that were even a thing) 
+  //
+  template<required::Channelable RESULT> struct Peek;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import nonstd.required.Pointer
+#import std.same_as
+namespace tunitas::denniston::network {
+  template<channel::required::Channelable RESULT> class channel::Peek : private Optional<RESULT const *> {
+    using Ancestor = Optional<RESULT const *>;
+  public:
+    using Value [[school("New")]] = RESULT;
+    static_assert(not std::same_as<Value, typename Ancestor::value_type>, "reminder");
+    static_assert(required::Pointer<typename Ancestor::value_type>, "reminder");
+    inline [[implicit]] Peek() = default;
+    inline [[implicit]] Peek(Value const &);
+    using Ancestor::operator bool;
+    using Ancestor::has_value;
+    inline auto operator*() const -> Value const &; // just as dangerous as the ancestor's
+    inline auto value() const -> Value const &;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.exception.Optional
+namespace tunitas::denniston::network::channel {
+  template<required::Channelable _> Peek<_>::Peek(Value const &value) : Ancestor{&value} { }
+  template<required::Channelable _> auto Peek<_>::operator*() const -> Value const & { return *Ancestor::operator*(); }
+  template<required::Channelable _> auto Peek<_>::value() const -> Value const & try {
+    return *Ancestor::value();
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+}
+#endiv

@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::network::channel::message {
+  //
+  // Format the body of a Message.  Not for the public.
+  //
+  // Usage:
+  //
+  //   auto m = Message{a, b, c};
+  //   cerr << format(m);
+  //
+  struct Format;
+}
+#endiv
+#divert <hpp>
+#import std.ostream
+#forward tests.unit.network.channel.Message
+namespace tests::unit::network::channel {
+  auto format(Message const &) -> message::Format;
+}
+namespace tests::unit::network::channel::message {
+  auto operator<<(std::ostream &, Format const &) -> std::ostream &;
+}
+struct tests::unit::network::channel::message::Format {
+  inline Format(Message const &message) : message{message} { }
+  Message const &message;
+  // Whereas Format is a friend of Body, we can access its private members from here.
+  auto to_stream(std::ostream &) const -> std::ostream &;
+};
+#endiv
+#divert <ipp>
+#import tests.unit.network.channel.Message
+#endiv
+#divert <cpp>
+auto tests::unit::network::channel::format(Message const &m) -> message::Format {
+  return message::Format{m};
+}
+auto tests::unit::network::channel::message::operator<<(std::ostream &o, Format const &f) -> std::ostream & {
+  return f.to_stream(o);
+}
+auto tests::unit::network::channel::message::Format::to_stream(std::ostream &o) const -> std::ostream & {
+  return o << message.body->a << '/' << message.body->b << '/' << message.body->c;
+}
+#endiv

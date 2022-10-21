@@ -26,6 +26,9 @@ struct tests::unit::log::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
+#import tests.unit.log.Concentrator
+#import tests.unit.log.Client
+#import tests.unit.log.Cluster
 auto tests::unit::log::Fixture::suite() -> Suite {
   auto series = Stream{"log"sv};
   series << []{
@@ -44,6 +47,9 @@ auto tests::unit::log::Fixture::suite() -> Suite {
                    << END;
               return tamp;
             }()
+         << add<Concentrator>()
+         << add<Client>()
+         << add<Cluster>()
          << END;
   return settle(series);
 }

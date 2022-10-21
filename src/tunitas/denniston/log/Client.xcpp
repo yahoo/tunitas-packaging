@@ -30,30 +30,45 @@ namespace tunitas::denniston::log {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.log.Concentrator
-#forward tunitas.denniston.service.Name
-#forward tunitas.denniston.service.Driver
+#import tunitas.denniston.service.Name
+#forward tunitas.denniston.driver.Driver
 #import tunitas.string.View
-struct tunitas::denniston::log::Client {
-  inline explicit Client(service::Name);
-  inline explicit Client(Concentrator &, service::Name);
-  Client(Client const &) = delete;
-  Client &operator=(Client const &) = delete;
-  template<typename... ARGUMENTS> inline auto format(string::View format, ARGUMENTS &&...) -> void;
-protected:
-  friend class service::Driver;
-  service::Name name{};
-  Concentrator *concentrator{};
-};
+namespace tunitas::denniston {
+  namespace log {
+    using std::move;
+    inline auto swap(Client &, Client &) noexcept -> void;
+  }
+  struct log::Client {
+    inline explicit Client(service::Name);
+    inline explicit Client(Concentrator &, service::Name);
+    Client(Client const &) = delete;
+    Client &operator=(Client const &) = delete;
+    Client(Client &&) = default;
+    Client &operator=(Client &&) = default;
+    template<typename... ARGUMENTS> inline auto format(string::View format, ARGUMENTS &&...) -> void;
+  protected:
+    friend class driver::Driver;
+    service::Name name{};
+    Concentrator *concentrator{};
+    friend auto log::swap(Client &, Client &) noexcept -> void;
+  };
+}
 #endiv
 #divert <ipp>
-namespace tunitas::denniston::log {
-  Client::Client(service::Name name)
-    : name{name}
-  { }
-  Client::Client(Concentrator &concentrator, service::Name name)
-    : name{name}
-    , concentrator{&concentrator}
-  { }
+namespace tunitas::denniston {
+  auto log::swap(Client &a, Client &b) noexcept -> void {
+    swap(a.name, b.name);
+    std::swap(a.concentrator, b.concentrator);
+  }
+  namespace log {
+    Client::Client(service::Name name)
+      : name{name}
+    { }
+    Client::Client(Concentrator &arg_concentrator, service::Name arg_name)
+      : name{arg_name}
+      , concentrator{&arg_concentrator}
+    { }
+  }
 }
 #endiv
 #divert <tpp>
@@ -62,7 +77,7 @@ namespace tunitas::denniston::log {
 #import fmt.vformat
 namespace tunitas::denniston::log {
   template<typename... ARGUMENTS> auto Client::format(string::View format_string, ARGUMENTS &&...rest) -> void {
-    if (concentrator) {
+    if (nullptr != concentrator) {
       auto formatted = log::vformat(format_string, log::make_format_args(rest...));
       concentrator->accept(name, formatted);
     }
@@ -75,10 +90,10 @@ namespace {
     using namespace tunitas::denniston::log;
     static_assert(not std::is_default_constructible_v<Client>);
     static_assert(not std::is_copy_constructible_v<Client>);
-    static_assert(not std::is_move_constructible_v<Client>);
+    static_assert(    std::is_move_constructible_v<Client>);
     static_assert(not std::is_copy_assignable_v<Client>);
-    static_assert(not std::is_move_assignable_v<Client>);
-    static_assert(not std::is_swappable_v<Client>);
+    static_assert(    std::is_move_assignable_v<Client>);
+    static_assert(    std::is_swappable_v<Client>);
   }
 }
 #endiv

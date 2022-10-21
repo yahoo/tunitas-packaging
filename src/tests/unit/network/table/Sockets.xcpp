@@ -1,0 +1,101 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::network::table { class Sockets; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.network.table.Sockets
+#import tunitas.denniston.network.exception.Aspect
+struct tests::unit::network::table::Sockets : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Sockets;
+  //
+  auto test_constructor_default() -> void;
+  auto test_allocate_one() -> void;
+  auto test_allocate_many() -> void;
+  auto test_deallocate_once() -> void;
+  auto test_deallocate_twice() -> void;
+  auto test_lifecycle() -> void;
+protected:
+  using Failure_Aspect = ::tunitas::denniston::network::exception::Aspect;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.network.table.Sockets
+auto tests::unit::network::table::Sockets::suite() -> Suite {
+  auto series = Stream{"Sockets"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Sockets::test_constructor_default)
+                  << END;
+              return con;
+            }()
+         << []{
+              auto all = Stream{"allocate"sv};
+              all << add("once", &Sockets::test_allocate_one)
+                  << add("twice", &Sockets::test_allocate_many)
+                  << END;
+              return all;
+            }()
+         << []{
+              auto dea = Stream{"deallocate"sv};
+              dea << add("once", &Sockets::test_deallocate_once)
+                  << add("twice", &Sockets::test_deallocate_twice)
+                  << END;
+              return dea;
+            }()
+         << add("lifecycle", &Sockets::test_lifecycle)
+         << END;
+  return settle(series);
+}
+namespace tests::unit::network::table {
+  auto Sockets::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject)); // <------------------------------ test this
+  }
+  auto Sockets::test_allocate_one() -> void {
+    auto subject = Subject{};
+    auto descriptor = subject.allocate(); // <------------------------------ test this
+    auto &first = *descriptor;
+    require(ASSERTION, sizeof (first));
+  }
+  auto Sockets::test_allocate_many() -> void {
+    auto subject = Subject{};
+    auto descriptor0 = subject.allocate(); // <------------------------------ test this
+    auto descriptor1 = subject.allocate(); // <------------------------------ and so on
+    auto descriptor2 = subject.allocate();
+    auto descriptor3 = subject.allocate();
+    require(ASSERTION, descriptor0 != descriptor1);
+    require(ASSERTION, descriptor1 != descriptor2);
+    require(ASSERTION, descriptor2 != descriptor3);
+    require(ASSERTION, descriptor3 != descriptor0);
+  }
+  auto Sockets::test_deallocate_once() -> void {
+    auto subject = Subject{};
+    auto descriptor = subject.allocate();
+    subject.deallocate(descriptor); // <------------------------------ test this
+  }
+  auto Sockets::test_deallocate_twice() -> void try {
+    auto subject = Subject{};
+    auto descriptor = subject.allocate();
+    subject.deallocate(descriptor);
+    subject.deallocate(descriptor); // <------------------------------ test this (the second one is invalid)
+    impossible(ASSERTION);
+  } catch (Failure_Aspect const &) {
+    require(ASSERTION);
+  }
+  auto Sockets::test_lifecycle() -> void {
+    auto subject = Subject{};
+    auto first = subject.allocate(); // <--- test these (and the pairwise deallocate call)
+    auto second = subject.allocate();
+    auto third = subject.allocate();
+    subject.deallocate(first);
+    subject.deallocate(second);
+    subject.deallocate(third);
+  }
+}
+#endiv

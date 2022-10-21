@@ -124,15 +124,15 @@ Makefile_COMPILER_CFLAGS_SET   = -Wall   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
 Makefile_COMPILER_LDFLAGS_SET  = -Wall  @LDFLAGS_gcc@  @LDFLAGS_gdb@
 
-Makefile_nonstd_PACKAGE_CPPFLAGS_SET = 
-Makefile_nonstd_PACKAGE_CFLAGS_SET   = 
-Makefile_nonstd_PACKAGE_CXXFLAGS_SET = 
-Makefile_nonstd_PACKAGE_LDFLAGS_SET  = 
+Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_fmt_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_fmt_CFLAGS@
+Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_fmt_CXXFLAGS@
+Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_fmt_LDFLAGS@
 
 Makefile_PACKAGE_CPPFLAGS_SET = 
-Makefile_PACKAGE_CFLAGS_SET   = 
-Makefile_PACKAGE_CXXFLAGS_SET = 
-Makefile_PACKAGE_LDFLAGS_SET  = 
+Makefile_PACKAGE_CFLAGS_SET   = -pthread
+Makefile_PACKAGE_CXXFLAGS_SET = -pthread
+Makefile_PACKAGE_LDFLAGS_SET  = -pthread
 
 Makefile_nonstd_CHECK_CPPFLAGS_SET = 
 Makefile_nonstd_CHECK_CFLAGS_SET   = 

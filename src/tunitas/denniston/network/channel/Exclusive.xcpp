@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::channel {
+  //
+  // An exclusive lock, RAII around the Variables.
+  // 
+  // Usage: see Channel
+  //
+  //   Exclusive ex{variables};                 Exclusive::Guard gd{variables};
+  //   ex.lock();                               ...do exclusive stuff...
+  //   ...do exclusive stuff...
+  //   ex.unlock();
+  //
+  class Exclusive;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.network.channel.Variables
+#import std.unique_lock
+class tunitas::denniston::network::channel::Exclusive : public std::unique_lock<Variables::Mutex> {
+  using Ancestor = std::unique_lock<Variables::Mutex>;
+public:
+  inline explicit Exclusive(Variables &variables) : Ancestor{variables.mutex} { }
+  struct Guard;
+};
+#endiv

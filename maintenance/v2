@@ -42,5 +42,6 @@ with_microhttpd=${with_microhttpd?} \
 \
 with_temerarious_flagship=${with_temerarious_flagship?} \
 with_tunitas_basics=${with_tunitas_basics?} \
+with_tunitas_keyston=${with_tunitas_keyston?} \
 \
 exec ${0%/*}/nearby

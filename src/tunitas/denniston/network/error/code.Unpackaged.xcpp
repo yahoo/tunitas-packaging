@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::error::code {
+  //
+  // The Unpackaged Error Codes of Tunitas Denniston Network
+  //
+  // Usage:
+  //
+  //   std::error_code ec(BAD, error::category());
+  //   std::cout << ec.message();
+  //
+  struct Unpackaged {
+    enum class Enumeration {
+      SUCCESS, // ........ improper success (which is a failure)
+      FAILURE, // ........ sic, generic failure
+      //
+      CHANNEL_IS_EMPTY,
+      CHANNEL_IS_FULL,
+    };
+    using enum Enumeration;
+  };
+}
+#import std.is_error_code_enum.tunitas.denniston.network.error.code.Unpackaged.Enumeration // enable that certain magic template constructor
+#endiv
+#divert <hpp>
+#import std.error_code
+#import std.underlying_type
+namespace tunitas::denniston::network::error::code {
+  inline auto make_error_code(Unpackaged::Enumeration) noexcept -> std::error_code;
+  inline constexpr auto underlying(Unpackaged::Enumeration e) noexcept { return std::underlying_type_t<Unpackaged::Enumeration>(e); }
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.error.category
+namespace tunitas::denniston::network::error {
+  auto code::make_error_code(Unpackaged::Enumeration e) noexcept -> std::error_code { return {underlying(e), category()}; }
+}
+#endiv

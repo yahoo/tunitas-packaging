@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::log { class Concentrator; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.log.Concentrator
+#import tunitas.denniston.service.Name
+struct tests::unit::log::Concentrator : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  struct Subject : public library::Concentrator {
+    using library::Concentrator::outbound; // now public so we can assign to it
+  };
+  using Name = ::tunitas::denniston::service::Name;
+  //
+  auto test_constructor_default() -> void;
+  auto test_accept_with_outbound() -> void;
+  auto test_accept_without_outbound() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::log::Concentrator::suite() -> Suite {
+  auto series = Stream{"Concentrator"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Concentrator::test_constructor_default)
+                  << END;
+              return con;
+            }()
+         << []{
+              auto acc = Stream{"accept"sv};
+              acc << add("with", &Concentrator::test_accept_with_outbound)
+                  << add("without", &Concentrator::test_accept_without_outbound)
+                  << END;
+              return acc;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::log {
+  auto Concentrator::test_constructor_default() -> void {
+    auto subject = Concentrator{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Concentrator::test_accept_with_outbound() -> void {
+    auto subject = Subject{};
+    subject.outbound = &std::cerr;
+    subject.accept(Name::GATEWAY, "now hear this"sv);
+  }
+  auto Concentrator::test_accept_without_outbound() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, nullptr == subject.outbound);
+    subject.accept(Name::GATEWAY, "now hear this"sv);
+  }
+}
+#endiv

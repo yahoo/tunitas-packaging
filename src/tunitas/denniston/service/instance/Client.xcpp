@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::instance {
+  //
+  // A manifestation of a client in the network.
+  //
+  // Specification:
+  //
+  //   Provides the source of a measurement.
+  //   The client namei is expected to be a positive value; e.g. service::Name{33}
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Client;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.service.instance.Prototype
+class tunitas::denniston::service::instance::Client : public Prototype {
+  using Ancestor = Prototype;
+  auto run() noexcept -> void;
+public:
+  inline explicit Client(Name);
+  auto launch(driver::Threads &) -> void override;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.exception.Invalid
+namespace tunitas::denniston::service::instance {
+  Client::Client(Name name)
+    : Ancestor{name}
+  {
+    if (!is_client(name)) {
+      throw exception::Invalid{"invalid name for a client"};
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::service::instance {
+  auto Client::launch(driver::Threads &pool) -> void { pool.launch(&Client::run, this); }
+  auto Client::run() noexcept -> void try {
+    log.format("begin");
+    while (true) {
+      log.format("reading");
+      auto red = control.read();
+      log.format("red");
+      if (is_quit(red)) {
+        break;
+      }
+    }
+    log.format("ending gracefully");
+  } catch(...) {
+    log.format("escaped expression is suppressed");
+  }
+}
+#endiv

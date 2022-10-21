@@ -1,0 +1,20 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/networks/denniston/tree/LICENSE
+#
+tunitas_denniston_network_table_SUBSOURCES = \
+  obj/src/tunitas/denniston/network/Sockets.cpp \
+  obj/src/tunitas/denniston/network/Sockets.Interfaces.cpp \
+  obj/src/tunitas/denniston/network/table/namespace.cpp \
+  obj/src/tunitas/denniston/network/table/Sockets.cpp \
+  obj/src/tunitas/denniston/network/table/Sockets.Interfaces.cpp \
+  obj/src/tunitas/denniston/network/table/Descriptor.template.cpp \
+  obj/src/tunitas/denniston/network/table/Descriptor.Sockets.cpp \
+  obj/src/tunitas/denniston/network/table/Descriptor.cpp \
+  obj/src/tunitas/denniston/network/table/Indirect.cpp \
+  $(tunitas_denniston_network_table_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/network/table/required/Makefrag.am

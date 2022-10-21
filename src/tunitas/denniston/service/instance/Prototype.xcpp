@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::instance {
+  //
+  // The (prototype of a) manifestation of a service (a computing resource).
+  //
+  // Specification:
+  //
+  //   Manages some computing.
+  //   Publishes an interface by which it can be contacted.
+  //   Expects to be dynamically allocated with std::make_unique<DESCENDANT>(...)
+  //
+  //   Whereas this is a simulatoin, every process has a control channel (socket interface)
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Something something: a thread.
+  //   The destructor must be public so that std::unique_ptr can see it.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.log.Client
+#import tunitas.denniston.service.Name
+#import tunitas.denniston.network.Socket.Interface
+#forward tunitas.denniston.driver.Threads
+struct tunitas::denniston::service::instance::Prototype {
+  Name name{};
+  denniston::log::Client log;
+  network::Socket::Interface control{};
+  Prototype(Prototype const &) = delete;
+  Prototype &operator=(Prototype const &) = delete;
+  virtual ~Prototype() = default;
+  virtual auto launch([[inout]] driver::Threads &) -> void = 0;
+protected:
+  inline explicit Prototype(Name);
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::service::instance {
+  Prototype::Prototype(Name name)
+    : name{name}
+    , log{name}
+  { }
+}
+// All descendants will need this
+#import tunitas.denniston.driver.Threads
+#endiv

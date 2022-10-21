@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::log { class Cluster; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.log.Concentrator
+#import tunitas.denniston.log.Client
+#import tunitas.denniston.service.Name
+#import std.size_t
+struct tests::unit::log::Cluster : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  struct Concentrator : public library::Concentrator {
+    using library::Concentrator::outbound; // now public so we can assign to it
+  };
+  using Client = library::Client;
+  using Name = ::tunitas::denniston::service::Name;
+  //
+  auto test_one() -> void;
+  auto test_many() -> void;
+protected:
+  inline static auto const HOW_MANY = 20uz;
+  static auto run_many(std::size_t ith, Concentrator *, Name) noexcept -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::log::Cluster::suite() -> Suite {
+  auto series = Stream{"Cluster"sv};
+  series << add("one", &Cluster::test_one)
+         << add("many", &Cluster::test_many)
+         << END;
+  return settle(series);
+}
+#import std.vector
+#import std.jthread
+namespace tests::unit::log {
+  auto Cluster::test_one() -> void {
+    auto center = Concentrator{};
+    center.outbound = &std::cerr;
+    auto client = Client{center, Name::GATEWAY};
+    client.format("hello {}", "world"sv);
+  }
+  auto Cluster::run_many(std::size_t ith, Concentrator *center, Name name) noexcept -> void try {
+    auto client = Client{*center, name};
+    client.format("this is client {}", ith);
+  } catch (...) {
+    std::cerr << "surprise! suppressing an uncaught exception\n";
+  }
+  auto Cluster::test_many() -> void {
+    auto center = Concentrator{};
+    center.outbound = &std::cerr;
+    auto buf = std::vector<std::jthread>{};
+    for (auto i{0uz}; HOW_MANY != i; ++i) {
+      auto name = Name(i + underlying(Name::CLIENT));
+      buf.push_back(std::jthread{&Cluster::run_many, i, &center, name});
+    }
+  }
+}
+#endiv

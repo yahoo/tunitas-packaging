@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::network { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::network::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Pipe() -> void;
+  auto test_usage_Socket() -> void;
+  auto test_usage_Sockets() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.network.channel.Fixture
+#import tests.unit.network.pipe.Fixture
+#import tests.unit.network.socket.Fixture
+auto tests::unit::network::Fixture::suite() -> Suite {
+  auto series = Stream{"network"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Pipe", &Fixture::test_usage_Pipe)
+                  << add("Socket", &Fixture::test_usage_Socket)
+                  << add("Sockets", &Fixture::test_usage_Sockets)
+                  << END;
+              return use;
+            }()
+         << add<channel::Fixture>()
+         << add<pipe::Fixture>()
+         << add<socket::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.network.Pipe
+#import tunitas.denniston.network.Socket
+#import tunitas.denniston.network.Sockets
+namespace tests::unit::network {
+  auto Fixture::test_usage_Pipe() -> void {
+    using Subject = library::Pipe;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Socket() -> void {
+    using Subject = library::Socket;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Sockets() -> void {
+    using Subject = library::Sockets;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv

@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::message::packet {
+  //
+  // A provisioning packet.
+  //
+  // Specification:
+  //
+  //   I-D.ietf-ppm-dap
+  //   Distributed Aggregation Protocol for Privacy Preserving Measurement
+  //   https://www.ietf.org/archive/id/draft-ietf-ppm-dap-02.html
+  //   Section 2.1. System Architecture
+  //
+  //   <quote ref=https://www.ietf.org/archive/id/draft-ietf-ppm-dap-02.html>
+  //      These parameters are distributed out of band to the clients and to the aggregators.
+  //      They are distributed by the collecting entity in some authenticated form.
+  //      Each task is identified by a unique 32-byte ID which is used to refer to it in protocol messages.
+  //   </quote>
+  //
+  // Design:
+  //
+  //   There it is.
+  //
+  // Usage:
+  //
+  //   On the network.
+  //
+  struct Provision;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.message.packet.Prototype
+class tunitas::denniston::message::packet::Provision : public Prototype {
+  using Ancestor = Prototype;
+public:
+  explicit Provision() = default;
+};
+#endiv

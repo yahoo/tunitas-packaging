@@ -10,43 +10,47 @@ namespace tests::unit::service { class Fixture; }
 struct tests::unit::service::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  auto test_usage_Driver() -> void;
   auto test_usage_Instance() -> void;
   auto test_usage_Universe() -> void;
 };
 #endiv
 #divert <cpp>
+#import tests.unit.service.name.Fixture
+#import tests.unit.service.instance.Fixture
 auto tests::unit::service::Fixture::suite() -> Suite {
   auto series = Stream{"service"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Driver", &Fixture::test_usage_Driver)
-                  << add("Instance", &Fixture::test_usage_Instance)
+              use << add("Instance", &Fixture::test_usage_Instance)
                   << add("Universe", &Fixture::test_usage_Universe)
                   << END;
               return use;
             }()
+         << add<name::Fixture>()
+         << add<instance::Fixture>()
          << END;
   return settle(series);
 }
-#import tunitas.denniston.service.Driver
 #import tunitas.denniston.service.Instance
+#import tunitas.denniston.service.instance.make
+#import tunitas.denniston.service.instance.Gateway
 #import tunitas.denniston.service.Universe
 namespace tests::unit::service {
-  auto Fixture::test_usage_Driver() -> void {
-    using Subject = library::Driver;
-    auto subject = Subject{};
-    require(ASSERTION, sizeof (subject));
-  }
   auto Fixture::test_usage_Instance() -> void {
-    using Subject = library::Instance;
-    auto subject = Subject{library::Name::GATEWAY};
+    auto subject = library::instance::make<library::instance::Gateway>();
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_Universe() -> void {
-    using Subject = library::Universe;
-    auto subject = Subject{};
-    require(ASSERTION, sizeof (subject));
+    {
+      using Subject = library::Universe;
+      auto subject = Subject{};
+      require(ASSERTION, sizeof (subject));
+    } {
+      constexpr auto const INITIAL_CLIENT_COUNT = 10uz;
+      using Subject = library::Universe;
+      auto subject = Subject{INITIAL_CLIENT_COUNT};
+      require(ASSERTION, sizeof (subject));
+    }
   }
 }
 #endiv

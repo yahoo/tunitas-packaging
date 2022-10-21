@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.service.instance.Prototype
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
+#forward tunitas.denniston.service.instance.Client
+#forward tunitas.denniston.service.instance.Collector
+namespace tunitas::denniston::service::instance {
+  //
+  // A declaration of the Service Instance traits
+  // Specializations only.
+  //
+  template<typename> struct Traits;
+  template<> struct Traits<Prototype>;
+  template<> struct Traits<Gateway>;
+  template<> struct Traits<Processor>;
+  template<> struct Traits<Client>;
+  template<> struct Traits<Collector>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::denniston::service {
+  template<typename TYPE> struct instance::Traits : public std::false_type { };
+  namespace instance {
+    template<> struct Traits<Prototype> : public std::true_type { };
+    template<> struct Traits<Gateway>   : public std::true_type { };
+    template<> struct Traits<Processor> : public std::true_type { };
+    template<> struct Traits<Client>    : public std::true_type { };
+    template<> struct Traits<Collector> : public std::true_type { };
+  }
+}
+#endiv

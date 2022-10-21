@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::network::channel::message {
+  //
+  // Messages are movable but not copyable.
+  // They have disaggregate values (pointers)
+  //
+  // Usage:
+  //
+  //   auto message = Message{"apple", "banana", "cherry"};
+  //
+  class Message;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.network.channel.message.Body
+#import tests.unit.network.channel.message.Format
+#import std.unique_ptr
+namespace tests::unit::network::channel {
+  namespace message {
+    auto operator==(Message const &, Message const &) -> bool;
+    auto operator!=(Message const &, Message const &) -> bool;
+    auto swap(Message &, Message &) noexcept -> void;
+  }
+  struct message::Message {
+    Message();
+    Message(string::Storage a, std::string b, std::string c);
+    Message(Message const &) = delete;
+    auto operator=(Message const &) -> Message & = delete;
+    Message(Message &&) = default;
+    auto operator=(Message &&) -> Message & = default;
+    static auto equal(Message const &, Message const &) -> bool;
+  protected:
+    // Descendants will use this to re-enable copy & move
+    Message(std::unique_ptr<message::Body>);
+  private:
+    friend class message::Format;
+    friend auto swap(Message &, Message &) noexcept -> void;
+    std::unique_ptr<message::Body> body;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::network::channel {
+  auto message::operator==(Message const &a, Message const &b) -> bool { return Message::equal(a, b); }
+  auto message::operator!=(Message const &a, Message const &b) -> bool { return !Message::equal(a, b); }
+  auto message::swap(Message &a, Message &b) noexcept -> void {
+    swap(a.body, b.body);
+  }
+  namespace message {
+    Message::Message()
+      : Message{"", "", ""}
+    { }
+    Message::Message(string::Storage a, std::string b, std::string c)
+      : Message{std::make_unique<message::Body>(message::Body{move(a), move(b), move(c)})}
+    { }
+    Message::Message(std::unique_ptr<message::Body> body)
+      : body{move(body)}
+    { }
+    auto Message::equal(Message const &A, Message const &B) -> bool {
+      return A.body->a == B.body->a && A.body->b == B.body->b && A.body->c == B.body->c;
+    }
+  }
+}
+#endiv

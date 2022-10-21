@@ -1,0 +1,115 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.network.table.Descriptor.template
+#forward tunitas.denniston.network.table.Sockets
+namespace tunitas::denniston::network::table {
+  template<> class Descriptor<Sockets>;
+}
+#endiv
+#divert <hpp>
+#import std.deque
+#forward tunitas.denniston.network.Socket
+#forward tunitas.denniston.network.table.Indirect
+#import nonstd.iterator.Traits
+namespace tunitas::denniston::network::table {
+  using std::move;
+  inline auto swap(Descriptor<Sockets> &, Descriptor<Sockets> &) noexcept -> void;
+  template<> class Descriptor<Sockets> {
+    friend class table::Sockets;
+    friend auto table::swap(Descriptor<Sockets> &, Descriptor<Sockets> &) noexcept -> void;
+    using Iterator = std::deque<Indirect<Socket>>::iterator;
+    Iterator iterator{};
+    inline [[implicit]] Descriptor(Iterator);
+  public:
+    Descriptor() = default;
+    auto operator==(Descriptor const &) const -> bool = default;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto operator*(this SELF *) -> nonstd::like_t<SELF, Socket &>;
+    template<typename SELF> inline auto operator->(this SELF *) -> nonstd::like_t<SELF, Socket *>;
+#else
+  private:
+    template<typename SELF> inline static auto indirect(SELF *) -> decltype(auto);
+    template<typename SELF> inline static auto pointer(SELF *);
+  public:
+    inline auto operator*() const -> Socket const &;
+    inline auto operator*() -> Socket &;
+    inline auto operator->() const -> Socket const *;
+    inline auto operator->() -> Socket *;
+#endif
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.exception.Deallocated
+#import tunitas.denniston.network.exception.Null
+#import tunitas.denniston.network.table.Indirect
+namespace tunitas::denniston::network {
+  auto table::swap(Descriptor<Sockets> &a, Descriptor<Sockets> &b) noexcept -> void {
+    swap(a.iterator, b.iterator);
+  }
+  namespace table {
+    Descriptor<Sockets>::Descriptor(Iterator i) : iterator{i} { }
+#if 202312 < __cplusplus
+    template<typename SELF> auto Descriptor<Sockets>operator*(this SELF *self) -> nonstd::like_t<SELF, Socket &> {
+      if (auto &it=self->iterator; Iterator{} == it) {
+        throw exception::Null{};
+      } else if (auto indirect=it.get(); nullptr == indirect) {
+        throw exception::Deallocated{};
+      } else {
+        return *indirect;
+      }
+    }
+    template<typename SELF> auto Descriptor<Sockets>operator->(this SELF *self) -> nonstd::like_t<SELF, Socket *> {
+      if (auto &it=self->iterator; Iterator{} == it) {
+        throw exception::Null{};
+      } else if (auto pointer=it.get(); nullptr == pointer) {
+        throw exception::Deallocated{};
+      } else {
+        return pointer;
+      }
+    }
+#else
+    template<typename SELF> auto Descriptor<Sockets>::indirect(SELF *self) -> decltype(auto) {
+      if (auto &it=self->iterator; Iterator{} == it) {
+        throw exception::Null{};
+      } else if (auto pointer=it->get(); nullptr == pointer) {
+        throw exception::Deallocated{};
+      } else {
+        return *pointer; // this is basically Descritor::pointer(SELF *) but for the decltype(auto) to return a reference not an object (copy)
+      }
+    }
+    auto Descriptor<Sockets>::operator*() const -> Socket const & { return indirect(this); }
+    auto Descriptor<Sockets>::operator*() -> Socket &             { return indirect(this); }
+    template<typename SELF> auto Descriptor<Sockets>::pointer(SELF *self) {
+      if (auto &it=self->iterator; Iterator{} == it) {
+        throw exception::Null{};
+      } else if (auto pointer=it->get(); nullptr == pointer) {
+        throw exception::Deallocated{};
+      } else {
+        return pointer;
+      }
+    }
+    auto Descriptor<Sockets>::operator->() const -> Socket const * { return pointer(this); }
+    auto Descriptor<Sockets>::operator->() -> Socket *             { return pointer(this); }
+#endif
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::table;
+    // These are iterators.  Everything is supported.
+    static_assert(std::is_default_constructible_v<Descriptor<Sockets>>);
+    static_assert(std::is_copy_constructible_v<Descriptor<Sockets>>);
+    static_assert(std::is_move_constructible_v<Descriptor<Sockets>>);
+    static_assert(std::is_copy_assignable_v<Descriptor<Sockets>>);
+    static_assert(std::is_move_assignable_v<Descriptor<Sockets>>);
+    static_assert(std::is_swappable_v<Descriptor<Sockets>>);
+  }
+}
+#endiv

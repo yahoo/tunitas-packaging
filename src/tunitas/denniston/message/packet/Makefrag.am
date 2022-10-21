@@ -1,0 +1,21 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/networks/denniston/tree/LICENSE
+#
+tunitas_denniston_message_packet_SUBSOURCES = \
+  obj/src/tunitas/denniston/message/Packet.cpp \
+  obj/src/tunitas/denniston/message/packet/namespace.cpp \
+  obj/src/tunitas/denniston/message/packet/make.cpp \
+  obj/src/tunitas/denniston/message/packet/Traits.cpp \
+  obj/src/tunitas/denniston/message/packet/Pointer.cpp \
+  obj/src/tunitas/denniston/message/packet/Prototype.cpp \
+  obj/src/tunitas/denniston/message/packet/Ping.cpp \
+  obj/src/tunitas/denniston/message/packet/Provision.cpp \
+  obj/src/tunitas/denniston/message/packet/Status.cpp \
+  obj/src/tunitas/denniston/message/packet/Quit.cpp \
+  $(tunitas_denniston_message_packet_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/message/packet/required/Makefrag.am

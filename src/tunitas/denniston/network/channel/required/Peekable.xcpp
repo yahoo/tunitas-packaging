@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.network.channel.Peek
+#include <hpp/tunitas.denniston.network.channel.Peek>
+namespace tunitas::denniston::network::channel::required {
+  //
+  // Is the type usable as a RESULT in Channel<TYPE>::peek<RESULT>()
+  //
+  // Specification:
+  //
+  //   SFINAE for Channel<TYEP>::peek()
+  //
+  // Design:
+  //
+  //   An implementation detail for the SFINAE of Channel<TYPE>:;peek<PEEKABLE>() -> PEEKABLE
+  //   To ensure that peek is never available when the type inappropriate.
+  //
+  //   RESULT and FROM must be same_as because the Peek<RESULT> captures a (constie) reference to the FROM.
+  //
+  // Usage:
+  //
+  //   See Channel, but the moral equivalent of:
+  //
+  //   template<typename RESULT> auto peek() -> enable_if_t<required::Peekable<RESULT, Value>, Peek<RESULT>>;
+  //
+  template<typename RESULT, typename FROM> concept Peekable = requires(RESULT) {
+#if 1
+    // when returning by reference as Peek<RESULT>
+    requires same_as<RESULT, FROM>;
+    requires convertible_to<Peek<RESULT>, RESULT>;
+#else
+    // when returning by value as Optional<RESULT>
+    requires std::copy_constructible<RESULT>;
+#endif
+  };
+}
+#endiv

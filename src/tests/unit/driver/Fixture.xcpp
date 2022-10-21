@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::driver { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::driver::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Driver() -> void;
+  auto test_usage_Threads() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.driver.Driver
+#import tests.unit.driver.Threads
+auto tests::unit::driver::Fixture::suite() -> Suite {
+  auto series = Stream{"driver"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Driver", &Fixture::test_usage_Driver)
+                  << add("Threads", &Fixture::test_usage_Threads)
+                  << END;
+              return use;
+            }()
+         << add<Threads>()
+         << add<Driver>()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.driver.Driver
+#import tunitas.denniston.driver.Threads
+namespace tests::unit::driver {
+  auto Fixture::test_usage_Driver() -> void {
+    using Subject = library::Driver;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Threads() -> void {
+    auto thunk_ran{false};
+    auto thunk = [&thunk_ran]() {
+                 std::cerr << "thunk!\n";
+                 thunk_ran = true;
+               };
+    using Subject = library::Threads;
+    {
+      auto subject = Subject{};
+      subject.launch(thunk);
+    }
+    require(ASSERTION, thunk_ran);
+  }
+}
+#endiv

@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::message::packet {
+  //
+  // A status packaet.
+  //
+  // Specification:
+  //
+  //   I-D.ietf-ppm-dap
+  //   Distributed Aggregation Protocol for Privacy Preserving Measurement
+  //   https://www.ietf.org/archive/id/draft-ietf-ppm-dap-02.html
+  //   Section 3.2. Errors
+  //
+  // Design:
+  //
+  //   There it is.
+  //
+  // Reminder:
+  //
+  //   Recall that Code::SUCCESS means "error because of unexpected success (of some activity)"; i.e. it's still a failure.
+  //
+  // Usage:
+  //
+  //   On the network.
+  //
+  struct Status;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.message.packet.Prototype
+#import tunitas.keyston.transport.error.Code
+#import std.error_code
+class tunitas::denniston::message::packet::Status : public Prototype {
+  using Ancestor = Prototype;
+public:
+  using Code = keyston::transport::error::Code;
+  using Error = std::error_code;
+  explicit Status(Error e = Code{Code::SUCCESS}) : status{e} { }
+  Error status{};
+};
+#endiv

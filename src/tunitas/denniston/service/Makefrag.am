@@ -6,8 +6,10 @@
 #
 tunitas_denniston_service_SUBSOURCES = \
   obj/src/tunitas/denniston/service/namespace.cpp \
+  obj/src/tunitas/denniston/service/required.cpp \
   obj/src/tunitas/denniston/service/Name.cpp \
-  obj/src/tunitas/denniston/service/Instance.cpp \
+  $(tunitas_denniston_service_instance_SUBSOURCES) \
   obj/src/tunitas/denniston/service/Universe.cpp \
-  obj/src/tunitas/denniston/service/Driver.cpp \
   $(end)
+#
+include src/tunitas/denniston/service/instance/Makefrag.am

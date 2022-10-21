@@ -14,8 +14,11 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #endiv
 #divert <cpp>
 #import tests.unit.denniston.Fixture
+#import tests.unit.driver.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.log.Fixture
+#import tests.unit.message.Fixture
+#import tests.unit.network.Fixture
 #import tests.unit.service.Fixture
 #import tests.unit.task.Fixture
 #import tests.unit.want.Fixture
@@ -23,8 +26,11 @@ auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
   series << add("something", &Fixture::test_something)
          << add<denniston::Fixture>()
+         << add<driver::Fixture>()
          << add<exception::Fixture>()
          << add<log::Fixture>()
+         << add<message::Fixture>()
+         << add<network::Fixture>()
          << add<service::Fixture>()
          << add<task::Fixture>()
          << add<want::Fixture>()

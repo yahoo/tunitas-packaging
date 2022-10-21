@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network {
+  //
+  // A uni-directional inter-thread communication device
+  //
+  // Specification:
+  //
+  //   You Know.
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   auto pipe = Pipe{};
+  //
+  struct Pipe;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.network.Channel
+#import tunitas.denniston.message.Packet
+class tunitas::denniston::network::Pipe : public Channel<message::Packet> {
+  using Ancestor = Channel<message::Packet>;
+public:
+  explicit Pipe() = default;
+};
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network;
+    static_assert(std::is_default_constructible_v<Pipe>);
+    static_assert(not std::is_copy_constructible_v<Pipe>);
+    static_assert(not std::is_move_constructible_v<Pipe>);
+    static_assert(not std::is_copy_assignable_v<Pipe>);
+    static_assert(not std::is_move_assignable_v<Pipe>);
+    static_assert(not std::is_swappable_v<Pipe>);
+  }
+}
+#endiv

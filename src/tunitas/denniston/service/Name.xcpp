@@ -4,7 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston
 namespace tunitas::denniston::service {
   //
   // The "name" of a service.
@@ -23,10 +22,12 @@ namespace tunitas::denniston::service {
   //   You need a tutorial on the usage of an enum (class)?
   //
   enum class Name {
-    COLLECTOR = -1,
+    COLLECTOR = -3,
+    PROCESSOR2 = -2,
+    PROCESSOR1 = -1,
     GATEWAY = 0,
-    PROCESSOR1 = 1,
-    PROCESSOR2,
+    CLIENT = 1,
+    // and onward and upward
   };
 }
 #endiv
@@ -34,5 +35,10 @@ namespace tunitas::denniston::service {
 namespace tunitas::denniston::service {
   inline constexpr auto underlying(Name n) { return std::underlying_type_t<Name>(n); }
   inline auto swap(Name &a, Name &b) noexcept -> void { return std::swap(a, b); }
+  //
+  inline auto is_collector(Name name) -> bool { return Name::COLLECTOR == name; }
+  inline auto is_processor(Name name) -> bool { return Name::PROCESSOR1 == name || Name::PROCESSOR2 == name; }
+  inline auto is_gateway(Name name) -> bool   { return Name::GATEWAY == name; }
+  inline auto is_client(Name name) -> bool    { return 0 < underlying(name); }
 }
 #endiv

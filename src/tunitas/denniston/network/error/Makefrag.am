@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_network_error_SUBSOURCES = \
+  obj/src/tunitas/denniston/network/error/namespace.cpp \
+  obj/src/tunitas/denniston/network/error/category.cpp \
+  obj/src/tunitas/denniston/network/error/Category.cpp \
+  obj/src/tunitas/denniston/network/error/Code.cpp \
+  obj/src/tunitas/denniston/network/error/code.Unpackaged.cpp \
+  obj/src/tunitas/denniston/network/error/Condition.cpp \
+  obj/src/tunitas/denniston/network/error/condition.Unpackaged.cpp \
+  $(end)

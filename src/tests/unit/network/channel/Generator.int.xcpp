@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.network.channel.Generator.template
+namespace tests::unit::network::channel {
+  //
+  // Generate some random values
+  // We're looking for a series of values, not true non-determinism.
+  //
+  // Usage:
+  //
+  //   Generator<int> generator;
+  //   generator();
+  //   generator();
+  //   generator();
+  //
+  template<> struct Generator<int>;
+}
+#endiv
+#divert <hpp>
+#import std.default_random_engine
+#import std.uniform_int_distribution
+template<> struct tests::unit::network::channel::Generator<int> {
+  Generator();
+  using Result = int;
+  auto operator()() -> Result;
+private:
+  std::default_random_engine engine;
+  std::uniform_int_distribution<int> distribution;
+};
+#endiv
+#divert <cpp>
+namespace tests::unit::network::channel {
+  Generator<int>::Generator()
+    : distribution{0, 1'000'000'000}
+  { }
+  auto Generator<int>::operator()() -> Result {
+    return distribution(engine);
+  }
+}
+#endiv

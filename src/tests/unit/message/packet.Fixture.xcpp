@@ -1,0 +1,118 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/messages/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.message.packet
+#import tunitas.denniston.message.Packet
+#import tunitas.keyston.transport.error.Code
+namespace tests::unit::message::packet {
+  class Fixture;
+  namespace library = ::tunitas::denniston::message::packet;
+  namespace message = ::tunitas::denniston::message;
+  using ::tunitas::denniston::message::Packet;
+  using E = ::tunitas::keyston::transport::error::Code;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.message.packet.Status
+#forward tunitas.denniston.message.packet.Quit
+namespace tests::unit::message {
+  struct packet::Fixture : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    template<typename SUBJECT> auto test_make() -> void;
+    auto test_upcast() -> void;
+    template<typename SUBJECT> auto test_is_quit() -> void;
+    auto test_is_quit_generic() -> void;
+  };
+  namespace packet {
+    template<> auto Fixture::test_make<library::Status>() -> void;
+    template<> auto Fixture::test_is_quit<library::Quit>() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.denniston.message.packet.make
+namespace tests::unit::message::packet {
+  template<typename SUBJECT> auto Fixture::test_make() -> void {
+    auto made = library::make<SUBJECT>(); // <---------------------------------------- test this
+    require(ASSERTION, nullptr != made.get());
+    require(ASSERTION, sizeof (made));
+  }
+  template<typename SUBJECT> auto Fixture::test_is_quit() -> void {
+    auto made = library::make<SUBJECT>();
+    require(ASSERTION, !is_quit(made)); // <---------------------------------------- test this (false)
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.message.packet.Status
+#import tunitas.denniston.message.packet.Ping
+#import tunitas.denniston.message.packet.Provision
+#import tunitas.denniston.message.packet.Quit
+auto tests::unit::message::packet::Fixture::suite() -> Suite {
+  auto series = Stream{"packet"sv};
+  series << []{
+              auto make = Stream{"make"sv};
+              make << add("Ping", &Fixture::test_make<library::Ping>)
+                   << add("Provision", &Fixture::test_make<library::Provision>)
+                   << add("Status", &Fixture::test_make<library::Status>)
+                   << END;
+              return make;
+            }()
+         << add("upcast", &Fixture::test_upcast)
+         << []{
+              auto is = Stream{"is"sv};
+              is << []{
+                      auto qu = Stream{"quit"sv};
+                      qu << add("generic", &Fixture::test_is_quit_generic)
+                         << add("Ping", &Fixture::test_is_quit<library::Ping>)
+                         << add("Provision", &Fixture::test_is_quit<library::Provision>)
+                         << add("Status", &Fixture::test_is_quit<library::Status>)
+                         << add("Quit", &Fixture::test_is_quit<library::Quit>)
+                         << END;
+                      return qu;
+                    }()
+                 << END;
+              return is;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.message.Packet
+namespace tests::unit::message::packet {
+  template<> auto Fixture::test_make<library::Status>() -> void {
+    {
+      auto made = library::make<library::Status>(); // <---------------------------------------- test this (the default constructor)
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    } {
+      using E = ::tunitas::keyston::transport::error::Code::Enumeration;
+      auto made = library::make<library::Status>(E::FAILURE); // <---------------------------------------- test this
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    }
+  }
+  auto Fixture::test_upcast() -> void {
+    auto self = library::make<library::Status>();
+    Packet up0 = library::make<library::Status>();
+    Packet up1 = move(self);
+    require(ASSERTION, up0 != up1);
+  }
+  template<> auto Fixture::test_is_quit<library::Quit>() -> void {
+    auto made = library::make<library::Quit>();
+    require(ASSERTION, is_quit(made)); // <---------------------------------------- test this (true)
+  }
+  auto Fixture::test_is_quit_generic() -> void {
+    {
+      Packet upcast = library::make<library::Ping>();
+      require(ASSERTION, ! is_quit(upcast)); // <---------------------------------------- test this (the upcast)
+    } {
+      Packet upcast = library::make<library::Quit>();
+      require(ASSERTION, is_quit(upcast)); // <---------------------------------------- test this (the upcast)
+    }
+  }
+}
+#endiv
