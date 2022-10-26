@@ -22,12 +22,15 @@ namespace tunitas::keyston::protocol::query::batch {
   //
   // Design:
   //
-  //   No.
+  //   importing query::Type, though lexically visible from here, makes it convienient at site-of-use to say:
+  //      using namespace tunitas::keyston::protocol::query::batch;
+  //      return Record<Type::SOMETHING>{...somehow...};
   //
   // Usage:
   //
   //   As needed.
   //
+  using query::Type;
   template<Type> struct Record;
   template<> struct Record<Type::RESERVED>;
   template<> struct Record<Type::TIME_INTERVAL>;
@@ -40,7 +43,13 @@ namespace tunitas::keyston::protocol::query::batch {
 #import tunitas.keyston.protocol.query.Fixed_Size
 namespace tunitas::keyston::protocol::query::batch {
   template<> struct Record<Type::RESERVED>       : public Empty { };
-  template<> struct Record<Type::TIME_INTERVAL>  : public Time_Interval { };
-  template<> struct Record<Type::FIXED_SIZE>     : public Fixed_Size { };
+  template<> struct Record<Type::TIME_INTERVAL>  : public Time_Interval {
+    Record() = default;
+    constexpr Record(Time_Interval const &ti) : Time_Interval{ti} { }
+  };
+  template<> struct Record<Type::FIXED_SIZE>     : public Fixed_Size {
+    Record() = default;
+    constexpr Record(Fixed_Size const &fs) : Fixed_Size{fs} { }
+  };
 }
 #endiv

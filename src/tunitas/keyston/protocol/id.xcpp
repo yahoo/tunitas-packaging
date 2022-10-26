@@ -4,7 +4,15 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.id
+namespace tunitas::keyston::protocol::id {
+  using namespace keyston::id;
+}
 #import tunitas.keyston.array.Unique
+#forward tunitas.keyston.protocol.batch.Batch
+#forward tunitas.keyston.protocol.job.Job
+#forward tunitas.keyston.protocol.report.Report
+#forward tunitas.keyston.protocol.task.Task
 namespace tunitas::keyston::protocol::id {
   //
   // The various identifiers of size.
@@ -26,9 +34,10 @@ namespace tunitas::keyston::protocol::id {
   //
   //   Sure, use it, that's what it's there for.
   //
-  using Batch = array::Unique<32>;
-  using Job = array::Unique<32>;
-  using Report = array::Unique<32>;
-  using Task = array::Unique<32>;
+  using Batch = array::Unique<32, batch::Batch>;
+  using Job = array::Unique<32, job::Job>;
+  using Report = array::Unique<32, report::Report>;
+  using Task = array::Unique<32, task::Task>;
 }
+#import fmt.formatter.tunitas.keyston.array.Unique.SIZE.STAMP
 #endiv

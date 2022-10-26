@@ -40,6 +40,7 @@ namespace tunitas::keyston {
     friend auto array::swap<>(Variable &, Variable &) noexcept -> void;
   public:
     using Value [[school("New")]] = typename Ancestor::value_type;
+    using value_type [[school("Old")]] = Value;
     //
     Variable() = default;
     template<Size CAPACITY> Variable(Bounded<Value, CAPACITY> const &);

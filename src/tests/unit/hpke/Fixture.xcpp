@@ -12,6 +12,8 @@ struct tests::unit::hpke::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
+#import tests.unit.hpke.id.Fixture
+#import tests.unit.hpke.key.Fixture
 auto tests::unit::hpke::Fixture::suite() -> Suite {
   auto series = Stream{"hpke"sv};
   series << []{
@@ -20,6 +22,8 @@ auto tests::unit::hpke::Fixture::suite() -> Suite {
                  << END;
               return use;
             }()
+         << add<id::Fixture>()
+         << add<key::Fixture>()
          << END;
   return settle(series);
 }

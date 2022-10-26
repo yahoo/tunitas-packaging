@@ -9,20 +9,32 @@ tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/Version.cpp \
   obj/src/tunitas/keyston/Opaque.cpp \
   $(tunitas_keyston_array_SUBSOURCES) \
+  $(tunitas_keyston_entropy_SUBSOURCES) \
+  $(tunitas_keyston_error_SUBSOURCES) \
   $(tunitas_keyston_exception_SUBSOURCES) \
   $(tunitas_keyston_function_SUBSOURCES) \
   $(tunitas_keyston_hpke_SUBSOURCES) \
+  $(tunitas_keyston_id_SUBSOURCES) \
+  $(tunitas_keyston_nonce_SUBSOURCES) \
   $(tunitas_keyston_protocol_SUBSOURCES) \
+  $(tunitas_keyston_quantity_SUBSOURCES) \
   $(tunitas_keyston_required_SUBSOURCES) \
   $(tunitas_keyston_time_SUBSOURCES) \
+  $(tunitas_keyston_transport_SUBSOURCES) \
   $(tunitas_keyston_wire_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/array/Makefrag.am
+include src/tunitas/keyston/entropy/Makefrag.am
+include src/tunitas/keyston/error/Makefrag.am
 include src/tunitas/keyston/exception/Makefrag.am
 include src/tunitas/keyston/function/Makefrag.am
 include src/tunitas/keyston/hpke/Makefrag.am
+include src/tunitas/keyston/id/Makefrag.am
+include src/tunitas/keyston/nonce/Makefrag.am
 include src/tunitas/keyston/protocol/Makefrag.am
+include src/tunitas/keyston/quantity/Makefrag.am
 include src/tunitas/keyston/required/Makefrag.am
 include src/tunitas/keyston/time/Makefrag.am
+include src/tunitas/keyston/transport/Makefrag.am
 include src/tunitas/keyston/wire/Makefrag.am

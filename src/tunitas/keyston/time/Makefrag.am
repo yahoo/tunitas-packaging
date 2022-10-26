@@ -6,8 +6,13 @@
 #
 tunitas_keyston_time_SUBSOURCES = \
   obj/src/tunitas/keyston/time/namespace.cpp \
+  obj/src/tunitas/keyston/time/literals.cpp \
   obj/src/tunitas/keyston/time/Clock.cpp \
   obj/src/tunitas/keyston/time/Duration.cpp \
   obj/src/tunitas/keyston/time/Point.cpp \
   obj/src/tunitas/keyston/time/Interval.cpp \
+  obj/src/tunitas/keyston/time/cast.cpp \
+  $(tunitas_keyston_time_required_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/keyston/time/required/Makefrag.am

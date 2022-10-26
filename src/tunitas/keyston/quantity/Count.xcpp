@@ -4,9 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::keyston::protocol::report {
+namespace tunitas::keyston::quantity {
   //
-  // The count of reports (so that ADL will find it)
+  // The count of <something> (so that ADL will find it)
   //
   // Specification:
   //
@@ -26,7 +26,7 @@ namespace tunitas::keyston::protocol::report {
 #endiv
 #divert <hpp>
 #import std.underlying_type
-namespace tunitas::keyston::protocol::report {
+namespace tunitas::keyston::quantity {
   inline constexpr auto underlying(Count c) { return std::underlying_type_t<Count>(c); }
   inline auto swap(Count &a, Count &b) noexcept -> void { std::swap(a, b); }
 }

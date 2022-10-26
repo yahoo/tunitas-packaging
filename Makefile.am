@@ -34,6 +34,7 @@ noinst_LTLIBRARIES = \
   noinst/lib/libapp.la \
   noinst/lib/libtunitas-keyston.la \
   noinst/lib/libautotools-autoconf+tunitas-keyston.la \
+  noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
   $(end)
 check_PROGRAMS = \
@@ -100,6 +101,7 @@ include check/lib/libtests.am
 include noinst/lib/libwant.am
 include noinst/lib/libtunitas-keyston.am
 include noinst/lib/libautotools-autoconf+tunitas-keyston.am
+include noinst/lib/libfmt+tunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
@@ -123,10 +125,10 @@ Makefile_COMPILER_CFLAGS_SET   = -Wall   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
 Makefile_COMPILER_LDFLAGS_SET  = -Wall  @LDFLAGS_gcc@  @LDFLAGS_gdb@
 
-Makefile_nonstd_PACKAGE_CPPFLAGS_SET = 
-Makefile_nonstd_PACKAGE_CFLAGS_SET   = 
-Makefile_nonstd_PACKAGE_CXXFLAGS_SET = 
-Makefile_nonstd_PACKAGE_LDFLAGS_SET  = 
+Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_fmt_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_fmt_CFLAGS@
+Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_fmt_CXXFLAGS@
+Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_fmt_LDFLAGS@
 
 Makefile_PACKAGE_CPPFLAGS_SET = 
 Makefile_PACKAGE_CFLAGS_SET   = 

@@ -5,6 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import std.byte
+#import nonstd.required.Class // [[FIXTHIS]] should be tunitas.required.Class
+#import tunitas.keyston.required // ctcnr (cascade that certain namepace required)
 namespace tunitas::keyston::array {
   //
   // (An implementation detail of) a unique identifier.
@@ -27,17 +29,22 @@ namespace tunitas::keyston::array {
   //
   //   using Identifier = array::Unique<32>
   //
-  template<unsigned SIZE> requires (0u < SIZE) struct Unique;
+  namespace [[eponymous]] unique {
+    template<required::Class STAMP> struct Stamp { };
+    template<Size SIZE, required::Class STAMP> requires (0u < SIZE) struct Unique;
+  }
+  using unique::Unique;
 }
 #endiv
 #divert <hpp>
 #import std.array
-namespace tunitas::keyston {
-  template<unsigned SIZE> requires (0u < SIZE) class array::Unique : public std::array<Octet, SIZE> {
+namespace tunitas::keyston::array {
+  template<Size SIZE, required::Class STAMP> requires (0u < SIZE) class unique::Unique : public std::array<Octet, SIZE>, protected Stamp<STAMP> {
     using Ancestor = std::array<Octet, SIZE>;
   public:
     Unique() = default;
     using Ancestor::array;
+    using Value [[school("New School")]] = typename Ancestor::value_type;
   };
 }
 #endiv

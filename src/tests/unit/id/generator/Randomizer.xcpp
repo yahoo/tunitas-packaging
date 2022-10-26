@@ -1,0 +1,74 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.integers
+namespace tests::unit::id::generator {
+  template<unsigned WIDTH> struct Randomizer;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.keyston.protocol.task.Task
+#import tunitas.keyston.entropy.Source
+#import tunitas.keyston.array.Unique
+#import tunitas.keyston.id.generator.Randomizer
+#import tests.unit.id.generator.Formatter
+namespace tests::unit::id {
+  template<unsigned THE_WIDTH> struct generator::Randomizer : public rigging::suite::Fixture, protected Formatter {
+    static auto suite() -> Suite;
+    //
+    inline static constexpr auto const WIDTH = THE_WIDTH;
+    using Stamped = ::tunitas::keyston::protocol::task::Task; // pick one, any one will do
+    template<unsigned W> using Unique = ::tunitas::keyston::array::Unique<W, Stamped>;
+    class Subject : public library::Randomizer<Unique<WIDTH>> {
+      using Ancestor = library::Randomizer<Unique<WIDTH>>;
+    public:
+      Subject() = default;
+      using Ancestor::Randomizer;
+    };
+    //
+    auto test_constructor_default() -> void;
+    auto test_operator_call() -> void;
+  protected:
+    ::tunitas::keyston::entropy::Source source{};
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::id::generator {
+  template<unsigned _> auto Randomizer<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Randomizer::test_constructor_default)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto call = Stream{"operator()"sv};
+                call << add("operator()", &Randomizer::test_operator_call)
+                     << END;
+                return call;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<unsigned _> auto Randomizer<_>::test_constructor_default() -> void {
+    auto subject = Subject{source};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<unsigned _> auto Randomizer<_>::test_operator_call() -> void {
+    auto subject = Subject{source};
+    { auto got = subject();
+      std::cerr << "randomizer: " << format(got) << '\n'; }
+    { auto got = subject();
+      std::cerr << "randomizer: " << format(got) << '\n'; }
+    { auto got = subject();
+      std::cerr << "randomizer: " << format(got) << '\n'; }
+    { auto got = subject();
+      std::cerr << "randomizer: " << format(got) << '\n'; }
+  }
+}
+#endiv

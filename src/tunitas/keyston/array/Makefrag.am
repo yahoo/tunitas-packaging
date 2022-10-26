@@ -11,4 +11,7 @@ tunitas_keyston_array_SUBSOURCES = \
   obj/src/tunitas/keyston/array/Fixed.cpp \
   obj/src/tunitas/keyston/array/Variable.cpp \
   obj/src/tunitas/keyston/array/Bounded.cpp \
+  $(tunitas_keyston_array_required_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/keyston/array/required/Makefrag.am

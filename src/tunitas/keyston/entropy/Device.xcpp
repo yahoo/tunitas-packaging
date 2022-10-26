@@ -1,0 +1,89 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.entropy.required.Entropy
+namespace tunitas::keyston::entropy {
+  //
+  // The random device
+  //
+  // Specification:
+  //
+  //   Rhymes with std::random_device, but uses 'draw()' in lieu 'operator()'
+  //   Produces actual randomness.
+  //   Reads /dev/random, consults lavalamps, tracks that fly that's buzzing around your food.
+  //
+  //   Returns "reasonable" sized integers.
+  //
+  // Design:
+  //
+  //   We rely upon GCC's stdlibc++ which reads from /draw/random since GCC 8.1
+  //
+  //   <advertised ref="https://en.cppreference.com/w/cpp/numeric/random/random_device/entropy">
+  //     The entropy of the Linux kernel device /draw/urandom may be obtained using ioctl RNDGETENTCNT
+  //     that's what std::random_device::entropy() in GNU libstdc++ uses as of version 8.1.
+  //   </advertised>
+  //
+  //   No really, but what if we can't use /draw/random?
+  //   Well, that's what this wrapper artifice is for.
+  //
+  //   And yet we still have a problem because std::random_device::result_type is 'unsigned int' which is 32 bits in LP64
+  //   See https://en.wikipedia.org/wiki/64-bit_computing#64-bit_data_models
+  //   So we need to remediate that.
+  //
+  // Usage:
+  //
+  //   RTM at https://en.cppreference.com/w/cpp/numeric/random/random_device
+  //
+  template<unsigned N, required::Entropy> requires (0 < N && N <= 128) struct Device;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.entropy.Limits
+#import std.conditional
+namespace tunitas::keyston {
+  template<unsigned N, entropy::required::Entropy ENTROPY> requires (0 < N && N <= 128) struct entropy::Device {
+    using Entropy = ENTROPY; // in lieu of mentioning std::random_device;
+    inline explicit Device(Entropy &);
+    inline auto entropy() -> double;
+    using Limits = entropy::Limits<N>;
+  protected:
+    template<bool TEST, typename CONSEQUENT, typename ALTERNATE> using R0 = std::conditional_t<TEST, CONSEQUENT, ALTERNATE>; // just make it shorter to utter
+    template<bool T1, typename C1, bool T2, typename C2, bool T3, typename C3, typename ALTERNATIVE> using R = R0<T1, C1, R0<T2, C2, R0<T3, C3, ALTERNATIVE>>>;
+    Entropy &source;
+    inline static constexpr std::size_t const RESULT_WIDTH = N;
+    inline static constexpr std::size_t const DRAW_WIDTH = 8*sizeof (typename Entropy::Bits);
+    static constexpr auto is_small(unsigned n) -> bool { return n/8 <= sizeof (typename Entropy::Bits); }
+  public:
+    using Result = R<is_small(N), typename Entropy::Bits, (N <= 32), uint32_t, (N <= 64), uint64_t, uint128_t>;
+    [[deprecated("instead prefer Device<N,ENTROPY>::draw()")]] inline auto operator()() -> Result { return draw(); }
+    inline auto draw() -> Result;
+    inline static constexpr auto min() -> Result;
+    inline static constexpr auto max() -> Result;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.has_single_bit
+namespace tunitas::keyston::entropy {
+  template<unsigned N, required::Entropy E> Device<N,E>::Device(Entropy &s) : source{s} { }
+  template<unsigned N, required::Entropy E> constexpr auto Device<N,E>::min() -> Result { return Limits::min(); }
+  template<unsigned N, required::Entropy E> constexpr auto Device<N,E>::max() -> Result { return Limits::max(); }
+  template<unsigned N, required::Entropy E> auto Device<N,E>::entropy() -> double { return source.entropy(); }
+  template<unsigned N, required::Entropy E> auto Device<N,E>::draw() -> Result {
+    if constexpr (RESULT_WIDTH <= DRAW_WIDTH) {
+      return source.draw();
+    } else {
+      auto ret = Result{};
+      static_assert(std::has_single_bit(RESULT_WIDTH), "otherwise the division below needs +1");
+      for (auto i{0uz}, e{RESULT_WIDTH/DRAW_WIDTH}; e != i; ++i) {
+        ret <<= DRAW_WIDTH;
+        ret |= source.draw();
+      }
+      return ret;
+    }
+  }
+}
+#endiv

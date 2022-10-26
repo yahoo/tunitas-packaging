@@ -1,0 +1,111 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.integers
+namespace tests::unit::id::generator {
+  namespace [[eponymous]] supplier {
+    template<unsigned WIDTH> struct Supplier;
+    using namespace nonstd::integers;
+    static_assert(sizeof(uint128_t));
+  }
+  using supplier::Supplier;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.keyston.protocol.task.Task
+#import tunitas.keyston.array.Unique
+#import tunitas.keyston.id.generator.Supplier
+#import tests.unit.id.generator.Formatter
+namespace tests::unit::id {
+  template<unsigned THE_WIDTH> struct generator::Supplier : public rigging::suite::Fixture, protected Formatter {
+    static auto suite() -> Suite;
+    //
+    inline static constexpr auto const WIDTH = THE_WIDTH;
+    using Stamped = ::tunitas::keyston::protocol::task::Task; // pick one, any one will do
+    template<unsigned W> using Unique = ::tunitas::keyston::array::Unique<W, Stamped>;
+    class Subject : public library::Supplier<Unique<WIDTH>> {
+      using Ancestor = library::Supplier<Unique<WIDTH>>;
+    public:
+      Subject() = default;
+      using Ancestor::Supplier;
+    };
+    //
+    auto test_constructor_default() -> void;
+    auto test_operator_call_uint8() -> void;
+    auto test_operator_call_uint16() -> void;
+    auto test_operator_call_uint32() -> void;
+    auto test_operator_call_uint64() -> void;
+    auto test_operator_call_uint128() -> void;
+    auto test_operator_call_uint256() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::id::generator {
+  template<unsigned _> auto Supplier<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Supplier::test_constructor_default)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto call = Stream{"operator()"sv};
+                call << add("uint8", &Supplier::test_operator_call_uint8)
+                     << add("uint18", &Supplier::test_operator_call_uint16)
+                     << add("uint32", &Supplier::test_operator_call_uint32)
+                     << add("uint64", &Supplier::test_operator_call_uint64)
+                     << add("uint128", &Supplier::test_operator_call_uint128)
+                     << add("uint256", &Supplier::test_operator_call_uint256)
+                     << END;
+                return call;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<unsigned _> auto Supplier<_>::test_constructor_default() -> void {
+    auto subject = Subject();
+    require(ASSERTION, sizeof (subject));
+  }
+  template<unsigned _> auto Supplier<_>::test_operator_call_uint8() -> void {
+    using Supplied = uint8_t;
+    auto subject = Subject();
+    auto got = subject(Supplied{3});
+    std::cerr << "supplier: " << typeid(Supplied).name() << '=' << format(got) << '\n';
+  }
+  template<unsigned _> auto Supplier<_>::test_operator_call_uint16() -> void {
+    using Supplied = uint16_t;
+    auto subject = Subject();
+    auto got = subject(Supplied{3});
+    std::cerr << "supplier: " << typeid(Supplied).name() << '=' << format(got) << '\n';
+  }
+  template<unsigned _> auto Supplier<_>::test_operator_call_uint32() -> void {
+    using Supplied = uint32_t;
+    auto subject = Subject();
+    auto got = subject(Supplied{3});
+    std::cerr << "supplier: " << typeid(Supplied).name() << '=' << format(got) << '\n';
+  }
+  template<unsigned _> auto Supplier<_>::test_operator_call_uint64() -> void {
+    using Supplied = uint64_t;
+    auto subject = Subject();
+    auto got = subject(Supplied{3});
+    std::cerr << "supplier: " << typeid(Supplied).name() << '=' << format(got) << '\n';
+  }
+  template<unsigned _> auto Supplier<_>::test_operator_call_uint128() -> void {
+    using Supplied = uint128_t;
+    auto subject = Subject();
+    auto got = subject(Supplied{3});
+    std::cerr << "supplier: " << typeid(Supplied).name() << '=' << format(got) << '\n';
+  }
+  template<unsigned _> auto Supplier<_>::test_operator_call_uint256() -> void {
+    using Supplied = uint128_t;
+    auto subject = Subject();
+    auto got = subject(Supplied{3}, Supplied{3});
+    std::cerr << "supplier: " << typeid(Supplied).name() << '=' << format(got) << '\n';
+  }
+}
+#endiv

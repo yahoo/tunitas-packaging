@@ -49,6 +49,8 @@ namespace tunitas::keyston::protocol::query {
   public:
     Batch() = default;
     using Ancestor::variant;
+    using Ancestor::operator=;
+    Batch &operator=(Batch const &) = default;
     inline auto type() const -> Type;
   };
 }

@@ -1,0 +1,71 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import fmt.formatter
+#forward tunitas.keyston.array.Unique
+#import nonstd.required.Class
+#import nonstd.required.Character
+namespace fmt {
+  template<tunitas::keyston::Size SIZE, nonstd::required::Class STAMP, nonstd::required::Character CHAR> struct formatter<tunitas::keyston::array::Unique<SIZE, STAMP>, CHAR>;
+}
+#endiv
+#divert <hpp>
+namespace fmt {
+  //
+  // Specification:
+  //
+  //   https://en.cppreference.com/w/cpp/utility/format/formatter
+  //   https://en.cppreference.com/w/cpp/named_req/Formatter
+  //   https://en.cppreference.com/w/cpp/named_req/BasicFormatter
+  //   callables parse(...) and format(...)
+  //   ParseContext, an alias of std::basic_format_parse_context<CharT>
+  //   FormatContext, an alias of std::basic_format_context<OutputIt, CharT>
+  //   ParseContext::iterator
+  //   FormatContext::iterator
+  // 
+  template<tunitas::keyston::Size SIZE, nonstd::required::Class STAMP, nonstd::required::Character CHAR> struct formatter<tunitas::keyston::array::Unique<SIZE, STAMP>, CHAR> {
+    using Value = tunitas::keyston::array::Unique<SIZE, STAMP>;
+    template<typename ParseContext> inline constexpr auto parse(ParseContext &ctx) -> decltype(ctx.begin());
+    template<typename FormatContext> inline auto format(Value const &, FormatContext &ctx) const -> decltype(ctx.out());
+  };
+}
+#endiv
+#divert <ipp>
+namespace fmt {
+  template<tunitas::keyston::Size S, tunitas::keyston::required::Class T, nonstd::required::Character C> 
+  template<typename ParseContext> 
+  constexpr auto formatter<tunitas::keyston::array::Unique<S,T>,C>::parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+    //
+    // {} only
+    //
+    if (auto end=ctx.end(); end != ctx.begin()) {
+      throw fmt::format_error{"only the trivial fornat {} is supported"};
+    } else {
+      return end;
+    }
+  }
+  template<tunitas::keyston::Size S, tunitas::keyston::required::Class T, nonstd::required::Character C> 
+  template<typename FormatContext> 
+  auto formatter<tunitas::keyston::array::Unique<S,T>,C>::format(Value const &specimen, FormatContext &ctx) const -> decltype(ctx.out()) {
+    auto hex = [](unsigned nibble) -> char {
+                 if (nibble < 10) {
+                   return char('0' + nibble);
+                 } else {
+                   return char('a' + (nibble - 10));
+                 }
+               };
+    auto out = ctx.out();
+    for (auto octet : specimen) {
+      auto un = (unsigned) octet;
+      auto hi = (un >> 4) & 0xfu;
+      auto lo = un & 0xfu;
+      *out++ = hex(hi);
+      *out++ = hex(lo);
+    }
+    return out;
+  }
+}
+#endiv

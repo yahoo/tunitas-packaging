@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.nonce.required.Precision
+#import tunitas.keyston.time.Clock
+#import nonstd.required.Integral
+namespace tunitas::keyston::entropy::required {
+  //
+  // Is this type an entropy source?
+  // is this type a duration?
+  //
+  // You will need the complete type of the entropy source to make the determination
+  //
+  // Usage:
+  //
+  //   #import tunitas.keyston.entropy.Source
+  //   #include <hpp/tunitas.keyston.entropy.Source>
+  //   template<required::Entropy> struct Something;
+  //   template<> struct Something<entropy::Source>;
+  //
+  template<typename ENTROPY> concept Entropy = requires(ENTROPY source) {
+    { ENTROPY{} };
+    //
+    // The entropy source axis
+    typename ENTROPY::Bits;
+    requires required::Integral<typename ENTROPY::Bits>;
+    { source.draw() } -> same_as<typename ENTROPY::Bits>;
+    //
+    // And the time axis (gotta look like std::chrono::system_clock)
+    typename ENTROPY::Since;
+    requires nonce::required::Precision<typename ENTROPY::Since>;
+    { ENTROPY::now() } -> same_as<typename ENTROPY::Since>;
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.entropy.Source
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::entropy;
+    static_assert(required::Entropy<Source>);
+  }
+}
+#endiv

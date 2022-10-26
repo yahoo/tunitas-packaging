@@ -11,7 +11,7 @@ namespace tunitas::keyston::protocol::collection {
   // Specification:
   //  
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   Section 4.5.1.  Collection Initialization
   //
   // Design:
   //
@@ -46,6 +46,19 @@ namespace tunitas::keyston::protocol {
     swap(a.task_id, b.task_id);
     swap(a.query, b.query);
     swap(a.aggregation_parameters, b.aggregation_parameters);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::collection;
+    static_assert(std::is_default_constructible_v<Request>);
+    static_assert(std::is_copy_constructible_v<Request>);
+    static_assert(std::is_move_constructible_v<Request>);
+    static_assert(std::is_copy_assignable_v<Request>);
+    static_assert(std::is_move_assignable_v<Request>);
+    static_assert(std::is_swappable_v<Request>);
   }
 }
 #endiv

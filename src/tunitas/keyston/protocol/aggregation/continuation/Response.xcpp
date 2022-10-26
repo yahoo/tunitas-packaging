@@ -6,12 +6,12 @@
 #divert <fpp>
 namespace tunitas::keyston::protocol::aggregation::continuation {
   //
-  // The aggregation continuation request
+  // The aggregation continuation response
   //
   // Specification:
   //  
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   Section 4.4.2.  Aggregate Continuation
   //
   // Design:
   //
@@ -19,32 +19,27 @@ namespace tunitas::keyston::protocol::aggregation::continuation {
   //
   // Usage:
   //
-  //   Use designated initialization.
+  //   Use designated continuation.
   //
-  struct Request;
+  struct Response;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.preparation.Step
+#import tunitas.keyston.protocol.aggregation.preparation.Step
 #import tunitas.keyston.array.Bounded
 namespace tunitas::keyston::protocol::aggregation {
   namespace continuation {
     using std::move;
-    inline auto swap(Request &, Request &) noexcept -> void;
+    inline auto swap(Response &, Response &) noexcept -> void;
   }
-  struct continuation::Request {
-    id::Task task_id{};
-    id::Job job_id{};
+  struct continuation::Response {
     array::Bounded<preparation::Step, (1uz<<32)> preparation_steps{};
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::protocol::aggregation {
-  auto continuation::swap(Request &a, Request &b) noexcept -> void {
-    swap(a.task_id, b.task_id);
-    swap(a.job_id, b.job_id);
+  auto continuation::swap(Response &a, Response &b) noexcept -> void {
     swap(a.preparation_steps, b.preparation_steps);
   }
 }
@@ -53,12 +48,12 @@ namespace tunitas::keyston::protocol::aggregation {
 namespace {
   namespace testate {
     using namespace tunitas::keyston::protocol::aggregation::continuation;
-    static_assert(std::is_default_constructible_v<Request>);
-    static_assert(std::is_copy_constructible_v<Request>);
-    static_assert(std::is_move_constructible_v<Request>);
-    static_assert(std::is_copy_assignable_v<Request>);
-    static_assert(std::is_move_assignable_v<Request>);
-    static_assert(std::is_swappable_v<Request>);
+    static_assert(std::is_default_constructible_v<Response>);
+    static_assert(std::is_copy_constructible_v<Response>);
+    static_assert(std::is_move_constructible_v<Response>);
+    static_assert(std::is_copy_assignable_v<Response>);
+    static_assert(std::is_move_assignable_v<Response>);
+    static_assert(std::is_swappable_v<Response>);
   }
 }
 #endiv

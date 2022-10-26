@@ -18,12 +18,15 @@ namespace tunitas::keyston::protocol::query::partial {
   //
   // Design:
   //
-  //   No.
+  //   importing query::Type, though lexically visible from here, makes it convienient at site-of-use to say:
+  //      using namespace tunitas::keyston::protocol::query::partial;
+  //      return Record<Type::SOMETHING>{...somehow...};
   //
   // Usage:
   //
   //   As needed.
   //
+  using query::Type;
   template<Type> struct Record;
   template<> struct Record<Type::RESERVED>;
   template<> struct Record<Type::TIME_INTERVAL>;
@@ -36,6 +39,9 @@ namespace tunitas::keyston::protocol::query::partial {
 namespace tunitas::keyston::protocol::query::partial {
   template<> struct Record<Type::RESERVED>       : public Empty { };
   template<> struct Record<Type::TIME_INTERVAL>  : public Empty { };
-  template<> struct Record<Type::FIXED_SIZE>     : public Fixed_Size { };
+  template<> struct Record<Type::FIXED_SIZE>     : public Fixed_Size {
+    Record() = default;
+    constexpr Record(Fixed_Size const &fs) : Fixed_Size{fs} { }
+  };
 }
 #endiv

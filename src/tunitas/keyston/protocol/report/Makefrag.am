@@ -7,9 +7,9 @@
 tunitas_keyston_protocol_report_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/report/namespace.cpp \
   obj/src/tunitas/keyston/protocol/report/Report.cpp \
-  obj/src/tunitas/keyston/protocol/report/Count.cpp \
   obj/src/tunitas/keyston/protocol/report/Metadata.cpp \
   obj/src/tunitas/keyston/protocol/report/Extensions.cpp \
   $(tunitas_keyston_protocol_report_share_SUBSOURCES) \
   $(end)
+#
 include src/tunitas/keyston/protocol/report/share/Makefrag.am

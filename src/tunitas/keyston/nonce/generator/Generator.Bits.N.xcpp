@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.nonce.generator.Generator.template
+#import tunitas.keyston.required.Has_Single_Bit
+#import tunitas.keyston.nonce.Bits
+namespace tunitas::keyston::nonce::generator {
+  //
+  // Fill up a Bits<N>
+  //
+  template<unsigned N, required::Entropy E> requires required::Has_Single_Bit<N> struct Generator<Bits<N>, E>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.entropy.Device
+#import tunitas.keyston.nonce.Bits
+namespace tunitas::keyston::nonce::generator {
+  template<unsigned N, required::Entropy E> requires required::Has_Single_Bit<N> struct Generator<Bits<N>, E> {
+    using Entropy = E;
+    inline explicit Generator(Entropy &held);
+    using Result = Bits<N>;
+    using Traits = bits::Traits<Bits<N>>;
+    inline auto operator()() -> Result;
+  private:
+    inline static constexpr auto WIDTH = Traits::is_specialized ? N : bits::MAXIMUM_SPECIALIZED_WIDTH;
+    entropy::Device<WIDTH, Entropy> device;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::nonce::generator {
+  template<unsigned N, required::Entropy E> Generator<Bits<N>,E>::Generator(Entropy &e) : device{e} { }
+  template<unsigned N, required::Entropy E> auto Generator<Bits<N>,E>::operator()() -> Result {
+    if constexpr (Traits::is_specialized) {
+      return Result(device.draw()); // this is a narrowing conversion, by definition (by specialization)
+    } else {
+      auto ret = Result{};
+      for (auto &place : ret.values) {
+        place = device.draw();
+      }
+      return ret;
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import  std.declval
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::nonce;
+    using namespace tunitas::keyston::nonce::generator;
+    static_assert(sizeof (std::declval<Generator<Bits<1>>>().operator()()));
+    using Specimen = Generator<Bits<1>>;
+    static_assert(not std::is_default_constructible_v<Specimen>);
+    static_assert(    std::is_copy_constructible_v<Specimen>);
+    static_assert(    std::is_move_constructible_v<Specimen>);
+    static_assert(not std::is_copy_assignable_v<Specimen>, "there are references inside");
+    static_assert(not std::is_move_assignable_v<Specimen>, "there are references inside");
+    static_assert(not std::is_swappable_v<Specimen>);
+  }
+}
+#endiv

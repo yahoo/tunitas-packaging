@@ -11,7 +11,7 @@ namespace tunitas::keyston::protocol::report {
   // Specification:
   //
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   Section 4.4.2 Upload Request
   //
   // Design:
   //
@@ -28,6 +28,9 @@ namespace tunitas::keyston::protocol::report {
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.array.Bounded
 #import tunitas.keyston.hpke.Ciphertext
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.nonce.Bundle
+#import tunitas.keyston.nonce.Since
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.protocol.report.Metadata
 namespace tunitas::keyston::protocol {
@@ -37,7 +40,7 @@ namespace tunitas::keyston::protocol {
   }
   struct report::Report {
     id::Task task_id{};
-    time::Point time{};
+    nonce::Bundle<nonce::Bits<64>, nonce::Since<std::chrono::microseconds>> time{};
     Opaque<(1uz<<32)> public_share{};
     array::Bounded<hpke::Ciphertext, (1uz<<32)> encrypted_input_shares{};
   };

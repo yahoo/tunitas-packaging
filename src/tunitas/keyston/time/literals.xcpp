@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.chrono_literals
+namespace tunitas::keyston::time::literals {
+  //
+  // The time literals
+  //
+  // Specification:
+  //
+  //   https://en.cppreference.com/w/cpp/chrono/operator%22%22s
+  //
+  // Design:
+  //
+  //   No (i.e. nothing new)
+  //
+  // Usage:
+  //
+  //   #import tunitas.keyston.time.literals
+  //   using namespace tunitas::keyston::time::literals
+  //   auto ms = 1ms;
+  //   auto sec = 1s;
+  //   ...and so on...
+  //
+  using namespace std::chrono_literals;
+}
+#endiv
+#divert <hpp>
+#import std.chrono.hours
+#import std.chrono.days
+#import std.chrono.weeks
+#import std.chrono.months
+#import std.chrono.years
+namespace tunitas::keyston::time::literals {
+  //
+  // Even C++20 does not have literals for these (yet)
+  //
+#if __GNUC__
+  template<char... DIGITS> inline constexpr auto operator""_hour() -> std::chrono::hours    { return __check_overflow<std::chrono::hours, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_hours() -> std::chrono::hours   { return __check_overflow<std::chrono::hours, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_day() -> std::chrono::days      { return __check_overflow<std::chrono::days, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_days() -> std::chrono::days     { return __check_overflow<std::chrono::days, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_week() -> std::chrono::weeks    { return __check_overflow<std::chrono::weeks, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_weeks() -> std::chrono::weeks   { return __check_overflow<std::chrono::weeks, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_month() -> std::chrono::months  { return __check_overflow<std::chrono::months, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_months() -> std::chrono::months { return __check_overflow<std::chrono::months, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_year() -> std::chrono::years    { return __check_overflow<std::chrono::years, DIGITS...>(); }
+  template<char... DIGITS> inline constexpr auto operator""_years() -> std::chrono::years   { return __check_overflow<std::chrono::years, DIGITS...>(); }
+#else
+  inline constexpr auto operator""_hour(unsigned long long value) -> std::chrono::hours    { return std::chrono::hours{value); }
+  inline constexpr auto operator""_hours(unsigned long long value) -> std::chrono::hours   { return std::chrono::hours{value); }
+  inline constexpr auto operator""_day(unsigned long long value) -> std::chrono::days      { return std::chrono::days{value); }
+  inline constexpr auto operator""_days(unsigned long long value) -> std::chrono::days     { return std::chrono::days{value); }
+  inline constexpr auto operator""_week(unsigned long long value) -> std::chrono::weeks    { return std::chrono::weeks{value); }
+  inline constexpr auto operator""_weeks(unsigned long long value) -> std::chrono::weeks   { return std::chrono::weeks{value); }
+  inline constexpr auto operator""_month(unsigned long long value) -> std::chrono::months  { return std::chrono::months{value); }
+  inline constexpr auto operator""_months(unsigned long long value) -> std::chrono::months { return std::chrono::months{value); }
+  inline constexpr auto operator""_year(unsigned long long value) -> std::chrono::years    { return std::chrono::years{value); }
+  inline constexpr auto operator""_years(unsigned long long value) -> std::chrono::years   { return std::chrono::years{value); }
+#endif
+}
+#endiv

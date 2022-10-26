@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.nonce.required.Precision
+namespace tunitas::keyston::nonce {
+  //
+  // A nonce implemented as the number of ticks "since"
+  //
+  // Specification:
+  //
+  //   This isn't a nonce now is it?
+  //
+  // Design:
+  //
+  //   A duration, in a precision.
+  //
+  // Usage:
+  //
+  //   You'll see.  Oh, you'll ALL see.
+  //
+  template<required::Precision> struct Since;
+}
+#endiv
+#divert <hpp>
+#import std.strong_ordering
+namespace tunitas::keyston {
+  template<nonce::required::Precision PRECISION> struct nonce::Since {
+    using Precision = PRECISION;
+    Since() = default;
+    Since(Precision p) : value{p} { }
+    Precision value{};
+    inline auto operator==(Since const &) const -> bool = default;
+    inline auto operator<=>(Since const &) const -> std::strong_ordering = default;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.chrono.microseconds
+#import std.chrono.seconds
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::nonce;
+    static_assert(sizeof (Since<std::chrono::microseconds>));
+    static_assert(sizeof (Since<std::chrono::seconds>));
+    using Specimen = Since<std::chrono::seconds>;
+    static_assert(std::is_default_constructible_v<Specimen>);
+    static_assert(std::is_copy_constructible_v<Specimen>);
+    static_assert(std::is_move_constructible_v<Specimen>);
+    static_assert(std::is_copy_assignable_v<Specimen>);
+    static_assert(std::is_move_assignable_v<Specimen>);
+    static_assert(std::is_swappable_v<Specimen>);
+  }
+}
+#endiv

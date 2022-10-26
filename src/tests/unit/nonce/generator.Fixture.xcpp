@@ -1,0 +1,77 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce::generator { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.nonce.required.Nonce
+#import tunitas.keyston.entropy.Serial
+#import tests.unit.nonce.Palette
+namespace tests::unit::nonce {
+  struct generator::Fixture : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    template<required::Nonce NONCE> auto test_usage_Generator() -> void;
+  protected:
+    // We must use Serial here because the usage tests check that the generated value changes
+    using Entropy = ::tunitas::keyston::entropy::Serial;
+    Entropy source{};
+  };
+  namespace generator {
+    template<> auto Fixture::test_usage_Generator<noncelib::Since<Palette::Seconds>>() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.nonce.generator.Generator
+namespace tests::unit::nonce::generator {
+  template<required::Nonce NONCE> auto Fixture::test_usage_Generator() -> void {
+    using Subject = library::Generator<NONCE, Entropy>;
+    auto subject = Subject{source};
+    // We'll test the non-zero values in and aroundx Generator<Subject>
+    auto got1 = subject();
+    auto got2 = subject();
+    require(ASSERTION, got1 != got2);
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.nonce.generator.Generator
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.nonce.Bundle
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.nonce.Since
+auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
+  auto series = Stream{"Generator"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Bits<4>", &Fixture::test_usage_Generator<noncelib::Bits<16>>)
+                  << add("Since<seconds>", &Fixture::test_usage_Generator<noncelib::Since<Seconds>>)
+                  << add("Bits<4>,Since<seconds>", &Fixture::test_usage_Generator<noncelib::Bundle<noncelib::Bits<32>, noncelib::Since<Seconds>>>)
+                  << add("Since<seconds>,Bits<4>", &Fixture::test_usage_Generator<noncelib::Bundle<noncelib::Since<Seconds>, noncelib::Bits<64>>>)
+                  << END;
+              return use;
+            }()
+         << add<generator::Generator<library::Generator<noncelib::Bits<16>, Entropy>>>()
+         << add<generator::Generator<library::Generator<noncelib::Since<Seconds>, Entropy>>>()
+         << add<generator::Generator<library::Generator<noncelib::Bundle<noncelib::Bits<32>, noncelib::Since<Seconds>>, Entropy>>>()
+         << add<generator::Generator<library::Generator<noncelib::Bundle<noncelib::Since<Seconds>, noncelib::Bits<64>>, Entropy>>>()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::nonce::generator {
+  template<> auto Fixture::test_usage_Generator<noncelib::Since<Palette::Seconds>>() -> void {
+    using Subject = library::Generator<noncelib::Since<Seconds>, Entropy>;
+    auto subject = Subject{source};
+    // We'll test the non-zero values in and aroundx Generator<Subject>
+    auto got1 = subject();
+    if (Palette::delay<Seconds>()) {
+      auto got2 = subject();
+      require(ASSERTION, got1 != got2);
+    }
+  }
+}
+#endiv

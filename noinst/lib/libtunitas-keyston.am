@@ -11,9 +11,10 @@ noinst_lib_libtunitas_keyston_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 # [[FIXTHIS]] - need a way to provide tunitas-keyston that doesn't need the TXUI of -ltuintas-app
 noinst_lib_libtunitas_keyston_la_LIBADD = \
   noinst/lib/libautotools-autoconf+tunitas-keyston.la \
+  noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
   noinst/lib/libwant.la \
-  -ltunitas-app \
+  -ltunitas-application -lnonstd++ -lfmt \
   $(end)
 noinst_lib_libtunitas_keyston_la_MODULES = $(call TF_SOURCEStoMODULES, $(noinst_lib_libtunitas_keyston_la_SOURCES))
 noinst_lib_libtunitas_keyston_la_SOURCES = $(tunitas_keyston_SUBSOURCES)

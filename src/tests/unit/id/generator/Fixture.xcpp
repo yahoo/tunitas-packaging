@@ -1,0 +1,99 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::id::generator { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.id.Generator
+#import tests.unit.id.generator.Formatter
+#import std.integer_sequence
+#import std.make_index_sequence
+#import std.size_t
+namespace tests::unit::id {
+  struct generator::Fixture : public rigging::suite::Fixture, protected Formatter {
+    static auto suite() -> Suite;
+    //
+    template<typename SUBJECT> auto test_usage_Generator() -> void;
+  protected:
+    inline static constexpr auto const HOW_BIG = 16uz; // yes, just bigger than that certain power of 2 (HOW_BIG is in in bytes)
+    using Fat_Sequence = std::make_index_sequence<HOW_BIG-1>;
+    using Thin_Sequence = std::integer_sequence<std::size_t, 0, 1, 2, 3, 4, 5, 7, 8, 9, 14, 15, 16, 30, 31, 32>;
+    using Sequence = Thin_Sequence;
+  };
+  namespace generator {
+    template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>>() -> void;
+    template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>>() -> void;
+    template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SUPPLIED>>() -> void;
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.id.generator.Randomizer
+#import tests.unit.id.generator.Serializer
+#import tests.unit.id.generator.Supplier
+auto tests::unit::id::generator::Fixture::suite() -> Suite {
+  auto series = Stream{"Generator<...>"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Generator<id::Batch,RANDOM>", &Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>>)
+                  << add("Generator<id::Batch,SERIAL>", &Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>>)
+                  << add("Generator<id::Batch,SUPPLIED>", &Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SUPPLIED>>)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto ran = Stream{"Randomizer"sv};
+              [&ran]<std::size_t... WIDTH>(std::integer_sequence<std::size_t, WIDTH...>) {
+                ((ran << add<Randomizer<1+WIDTH>>()), ...);
+              }(Sequence{});
+              return ran;
+            }()
+         << []{
+              auto ser = Stream{"Serializer"sv};
+              [&ser]<std::size_t... WIDTH>(std::integer_sequence<std::size_t, WIDTH...>) {
+                ((ser << add<Serializer<1+WIDTH>>()), ...);
+              }(Sequence{});
+              return ser;
+            }()
+         << []{
+              auto sup = Stream{"Supplier"sv};
+              [&sup]<std::size_t... WIDTH>(std::integer_sequence<std::size_t, WIDTH...>) {
+                ((sup << add<Supplier<1+WIDTH>>()), ...);
+              }(Sequence{});
+              return sup;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.entropy.Source
+namespace tests::unit::id::generator { 
+  template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>>() -> void {
+    using Subject = library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>;
+    auto subject = Subject{};
+    std::cerr << "serial: " << format(subject()) << '\n';
+    std::cerr << "serial: " << format(subject()) << '\n';
+    std::cerr << "serial: " << format(subject()) << '\n';
+    std::cerr << "serial: " << format(subject()) << '\n';
+  }
+  template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SUPPLIED>>() -> void {
+    using Subject = library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SUPPLIED>;
+    auto subject = Subject{};
+    std::cerr << "supply: " << format(subject(1u)) << '\n';
+    std::cerr << "supply: " << format(subject(2u)) << '\n';
+    std::cerr << "supply: " << format(subject(4u)) << '\n';
+    std::cerr << "supply: " << format(subject(8u)) << '\n';
+  }
+  template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>>() -> void {
+    auto source = ::tunitas::keyston::entropy::Source{};
+    using Subject = library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>;
+    auto subject = Subject{source};
+    std::cerr << "random: " << format(subject()) << '\n';
+    std::cerr << "random: " << format(subject()) << '\n';
+    std::cerr << "random: " << format(subject()) << '\n';
+    std::cerr << "random: " << format(subject()) << '\n';
+  }
+}
+#endiv

@@ -11,7 +11,7 @@ namespace tunitas::keyston::protocol::collection {
   // Specification:
   //  
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   Section 4.5.1 Collection Initialization
   //
   // Design:
   //
@@ -28,7 +28,7 @@ namespace tunitas::keyston::protocol::collection {
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.hpke.Ciphertext
 #import tunitas.keyston.protocol.query.Partial
-#import tunitas.keyston.protocol.report.Count
+#import tunitas.keyston.quantity.Count
 namespace tunitas::keyston::protocol {
   namespace collection {
     using std::move;
@@ -36,7 +36,7 @@ namespace tunitas::keyston::protocol {
   }
   struct collection::Response {
     query::Partial partial_batch_selector{};
-    report::Count report_count{};
+    quantity::Count report_count{};
     array::Bounded<hpke::Ciphertext, (1uz<<32)> encrypted_aggregation_shares{};
   };
 }
@@ -47,6 +47,19 @@ namespace tunitas::keyston::protocol {
     swap(a.partial_batch_selector, b.partial_batch_selector);
     swap(a.report_count, b.report_count);
     swap(a.encrypted_aggregation_shares, b.encrypted_aggregation_shares);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::collection;
+    static_assert(std::is_default_constructible_v<Response>);
+    static_assert(std::is_copy_constructible_v<Response>);
+    static_assert(std::is_move_constructible_v<Response>);
+    static_assert(std::is_copy_assignable_v<Response>);
+    static_assert(std::is_move_assignable_v<Response>);
+    static_assert(std::is_swappable_v<Response>);
   }
 }
 #endiv

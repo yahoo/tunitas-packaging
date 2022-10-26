@@ -1,0 +1,110 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce::bundle {
+  template<typename SUBJECT> struct Bundle;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.entropy.Serial
+#import tunitas.keyston.nonce.Generator
+#import tests.unit.nonce.Palette
+#import std.same_as
+#import tunitas.keyston.nonce.Bundle
+#import tunitas.keyston.nonce.Since
+namespace tests::unit::nonce {
+  template<typename SUBJECT> struct bundle::Bundle : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_operator_eq() -> void;
+    auto test_operator_ne() -> void;
+  protected:
+    using Entropy = ::tunitas::keyston::entropy::Serial;
+    Entropy source{};
+    library::Generator<Subject, Entropy> generate{source};
+    // Any other Bundles of Since with wider precision we don't detect and can't remediate around
+    inline static constexpr auto BUNDLE_OF_SINCE = (std::same_as<Subject, library::Bundle<library::Since<Seconds>>> ||
+                                                    std::same_as<Subject, library::Bundle<library::Since<Milliseconds>>> ||
+                                                    std::same_as<Subject, library::Bundle<library::Since<Microseconds>>>);
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::nonce::bundle {
+  template<typename _> auto Bundle<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Bundle::test_constructor_default)
+                    << add("copy", &Bundle::test_constructor_copy)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assignment"sv};
+                ass << add("copy", &Bundle::test_constructor_copy)
+                    << END;
+                return ass;
+              }()
+           << add("operator==", &Bundle::test_operator_eq)
+           << add("operator!=", &Bundle::test_operator_ne)
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Bundle<_>::test_constructor_default() -> void {
+    auto subject = Subject{}; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Bundle<_>::test_constructor_copy() -> void {
+    auto const specimen = generate();
+    auto subject = Subject{specimen}; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Bundle<_>::test_assignment_copy() -> void {
+    auto const specimen = generate();
+    auto subject = Subject{};
+    subject = specimen; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Bundle<_>::test_operator_eq() -> void {
+    auto const a = generate();
+    auto check_for_changes = [this, a]{
+                               auto const b = generate();
+                               auto const c = a;
+                               require(ASSERTION, a == c);
+                               require(ASSERTION, !(a == b));
+                             };
+    if constexpr (BUNDLE_OF_SINCE) {
+        if (Palette::delay<Seconds>()) {
+        check_for_changes();
+      }
+    } else {
+      check_for_changes();
+    }
+  }
+  template<typename _> auto Bundle<_>::test_operator_ne() -> void {
+    auto const a = generate();
+    auto check_for_changes = [this, a]{
+                               auto const b = generate();
+                               auto const c = a;
+                               require(ASSERTION, a != b);
+                               require(ASSERTION, !(a != c));
+                             };
+    if constexpr (BUNDLE_OF_SINCE) {
+        if (Palette::delay</*pick the big one*/Seconds>()) {
+        check_for_changes();
+      }
+    } else {
+      check_for_changes();
+    }
+  }
+}
+#endiv

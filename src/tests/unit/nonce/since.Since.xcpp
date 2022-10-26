@@ -1,0 +1,86 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce::since {
+  template<typename SUBJECT> struct Since;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.nonce.Generator
+#import tests.unit.nonce.Palette
+namespace tests::unit::nonce {
+  template<typename SUBJECT> struct since::Since : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_operator_eq() -> void;
+    auto test_operator_ne() -> void;
+  protected:
+    library::Generator<Subject> generate{};
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::nonce::since {
+  template<typename _> auto Since<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Since::test_constructor_default)
+                    << add("copy", &Since::test_constructor_copy)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assignment"sv};
+                ass << add("copy", &Since::test_constructor_copy)
+                    << END;
+                return ass;
+              }()
+           << add("operator==", &Since::test_operator_eq)
+           << add("operator!=", &Since::test_operator_ne)
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Since<_>::test_constructor_default() -> void {
+    auto subject = Subject{}; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Since<_>::test_constructor_copy() -> void {
+    auto const specimen = generate();
+    auto subject = Subject{specimen}; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Since<_>::test_assignment_copy() -> void {
+    auto const specimen = generate();
+    auto subject = Subject{};
+    subject = specimen; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Since<_>::test_operator_eq() -> void {
+    auto const a = generate(); // this is time ... if we do this too quickly then time is "the same"
+    if (Palette::delay<typename Subject::Precision>()) {
+      auto const b = generate();
+      auto const c = a;
+      require(ASSERTION, a == c);
+      require(ASSERTION, !(a == b));
+    }
+  }
+  template<typename _> auto Since<_>::test_operator_ne() -> void {
+    auto const a = generate(); // eadem ratione
+    if (Palette::delay<typename Subject::Precision>()) {
+      auto const b = generate();
+      auto const c = a;
+      require(ASSERTION, a != b);
+      require(ASSERTION, !(a != c));
+    }
+  }
+}
+#endiv

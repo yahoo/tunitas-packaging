@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.nonce.required.Precision
+#import tunitas.keyston.nonce.required.Entropy
+#import tunitas.keyston.nonce.Since
+#import tunitas.keyston.nonce.generator.Generator.template
+namespace tunitas::keyston::nonce::generator {
+  //
+  // Fill up a Since<PRECISION>
+  //
+  // Specification:
+  //
+  //   Uses wall clock time.
+  //   That's not a noce at all, you know that, right?
+  //   Yeah, no.  But (pretend monotonic) time is frequently used *around* nonces to something something "the salubrious effect".
+  //
+  // Design:
+  //
+  //   For symmetry with the other generators which require it...
+  //   - reconstructible (move and copy)
+  //   - not assignable at all (because the others have embedded references)
+  //   - constructible from an entropy source (since wall clock time is freely available)
+  //
+  template<required::Precision PRECISION, required::Entropy ENTROPY> struct Generator<Since<PRECISION>, ENTROPY>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::nonce::generator {
+  template<required::Precision PRECISION, required::Entropy ENTROPY> struct Generator<Since<PRECISION>, ENTROPY> {
+    using Entropy = ENTROPY;
+    Generator() = default;
+    explicit Generator(Entropy &unused) { }
+    using Result = Since<PRECISION>;
+    inline auto operator()() -> Result;
+    Generator(Generator const &) = default;
+    Generator(Generator &&) = default;
+    Generator &operator=(Generator const &) = delete;
+    Generator &operator=(Generator &&) = delete;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.time.cast
+namespace tunitas::keyston::nonce::generator {
+  template<required::Precision P, required::Entropy E> auto Generator<Since<P>, E>::operator()() -> Result {
+    auto got = Entropy::now();
+    if constexpr (std::same_as<typename Result::Precision, time::Clock::duration>) {
+      return got;
+    } else {
+      return time::cast<typename Result::Precision>(got);
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import  std.declval
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::nonce;
+    using namespace tunitas::keyston::nonce::generator;
+    static_assert(sizeof (std::declval<Generator<Since<std::chrono::seconds>>>().operator()()));
+    using Specimen = Generator<Since<std::chrono::seconds>>;
+    static_assert(    std::is_default_constructible_v<Specimen>, "construction from an entropy source is not required");
+    static_assert(    std::is_copy_constructible_v<Specimen>);
+    static_assert(    std::is_move_constructible_v<Specimen>);
+    static_assert(not std::is_copy_assignable_v<Specimen>, "there are references inside");
+    static_assert(not std::is_move_assignable_v<Specimen>, "there are references inside");
+    static_assert(not std::is_swappable_v<Specimen>);
+  }
+}
+#endiv

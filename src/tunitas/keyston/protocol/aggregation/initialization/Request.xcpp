@@ -11,7 +11,7 @@ namespace tunitas::keyston::protocol::aggregation::initialization {
   // Specification:
   //  
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   Section 4.4.1 Aggregate Initialization
   //
   // Design:
   //

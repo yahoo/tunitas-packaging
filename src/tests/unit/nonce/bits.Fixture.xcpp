@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce::bits { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tests.unit.nonce.Palette
+struct tests::unit::nonce::bits::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  template<unsigned> auto test_usage_Bits() -> void;
+};
+#endiv
+#divert <tpp>
+#import tunitas.keyston.nonce.Bits
+namespace tests::unit::nonce::bits {
+  template<unsigned N> auto Fixture::test_usage_Bits() -> void {
+    using Subject = library::Bits<N>;
+    auto subject = Subject{};
+    // We'll test the non-zero values in and aroundx Generator<Subject>
+    require(ASSERTION, Subject{} == subject);
+    require(ASSERTION, !(Subject{} != subject));
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.nonce.bits.Bits
+auto tests::unit::nonce::bits::Fixture::suite() -> Suite {
+  auto series = Stream{"Bits<...>"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              [&use]<unsigned... INDEX>(std::integer_sequence<unsigned, INDEX...>) {
+                ((use << add(std::to_string(INDEX), &Fixture::template test_usage_Bits<INDEX>)), ...);
+              }(The_Power_Series{});
+              return use;
+            }()
+         << END;
+  [&series]<unsigned... INDEX>(std::integer_sequence<unsigned, INDEX...>) {
+    ((series << add<bits::Bits<library::Bits<INDEX>>>()), ...);
+  }(The_Power_Series{});
+  return settle(series);
+}
+#endiv

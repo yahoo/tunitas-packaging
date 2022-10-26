@@ -45,6 +45,8 @@ namespace tunitas::keyston::protocol::query {
   public:
     Partial() = default;
     using Ancestor::variant;
+    using Ancestor::operator=;
+    Partial &operator=(Partial const &) = default;
     inline auto type() const -> Type;
   };
 }

@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.quantity
+namespace tests::unit::quantity {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::keyston::quantity;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::quantity::fixture::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_Count() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::quantity::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"quantity"sv};
+  series << add("Count", &Fixture::test_Count)
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.quantity.Count
+namespace tests::unit::quantity::fixture { 
+  auto Fixture::test_Count() -> void {
+    using Subject = library::Count;
+    auto subject0 = Subject{0};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    require(ASSERTION, 0u == underlying(subject1));
+  }
+}
+#endiv

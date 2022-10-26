@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.transport
+namespace tests::unit::transport {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::keyston::transport;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::transport::fixture::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_something() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::transport::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"transport"sv};
+  series << add("something", &Fixture::test_something)
+    // errors are tested in tests::unit::errors::Fixture
+         << END;
+  return settle(series);
+}
+namespace tests::unit::transport::fixture {
+  auto Fixture::test_something() -> void {
+    require(ASSERTION, true);
+  }
+}
+#endiv

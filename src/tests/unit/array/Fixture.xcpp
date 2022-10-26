@@ -56,7 +56,7 @@ auto tests::unit::array::Fixture::suite() -> Suite {
 #import tunitas.keyston.array.Bounded
 namespace tests::unit::array {
   auto Fixture::test_usage_Unique() -> void {
-    using Subject = library::Unique<4>;
+    using Subject = library::Unique<4, Fixture>;
     auto subject = Subject{};
     require(ASSERTION, 4 == subject.size());
   }

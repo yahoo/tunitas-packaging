@@ -24,8 +24,11 @@ namespace tunitas::keyston::protocol {
   enum class Role : std::uint8_t {
     COLLECTOR,
     CLIENT,
-    LEADER,
-    HELPER,
+    GATEWAY,
+    PROCESSOR,
+    // The specifications are varied in how they name these roles.  We provide aliases.
+    LEADER = GATEWAY,
+    HELPER = PROCESSOR,
   };
 }
 #endiv

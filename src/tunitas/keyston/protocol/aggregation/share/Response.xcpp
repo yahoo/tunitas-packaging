@@ -11,7 +11,7 @@ namespace tunitas::keyston::protocol::aggregation::share {
   // Specification:
   //  
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   Section 4.5.2. Collection Aggregation
   //
   // Design:
   //
@@ -40,6 +40,19 @@ namespace tunitas::keyston::protocol::aggregation {
 namespace tunitas::keyston::protocol::aggregation {
   auto share::swap(Response &a, Response &b) noexcept -> void {
     swap(a.encrypted_aggregation_share, b.encrypted_aggregation_share);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::aggregation::share;
+    static_assert(std::is_default_constructible_v<Response>);
+    static_assert(std::is_copy_constructible_v<Response>);
+    static_assert(std::is_move_constructible_v<Response>);
+    static_assert(std::is_copy_assignable_v<Response>);
+    static_assert(std::is_move_assignable_v<Response>);
+    static_assert(std::is_swappable_v<Response>);
   }
 }
 #endiv
