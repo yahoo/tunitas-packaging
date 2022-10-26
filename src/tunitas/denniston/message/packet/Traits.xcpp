@@ -9,6 +9,8 @@
 #forward tunitas.denniston.message.packet.Provision
 #forward tunitas.denniston.message.packet.Quit
 #forward tunitas.denniston.message.packet.Status
+#forward tunitas.denniston.message.packet.Query
+#forward tunitas.denniston.message.packet.Response
 namespace tunitas::denniston::message::packet {
   //
   // A declaration of the Service Instance traits
@@ -20,6 +22,10 @@ namespace tunitas::denniston::message::packet {
   template<> struct Traits<Provision>;
   template<> struct Traits<Quit>;
   template<> struct Traits<Status>;
+  template<> struct Traits<Query<Get::HPKE>>;
+  template<> struct Traits<Query<Get::TASKS>>;
+  template<> struct Traits<Response<Get::HPKE>>;
+  template<> struct Traits<Response<Get::TASKS>>;
 }
 #endiv
 #divert <hpp>
@@ -33,6 +39,10 @@ namespace tunitas::denniston::message {
     template<> struct Traits<Provision> : public std::true_type { };
     template<> struct Traits<Quit>      : public std::true_type { };
     template<> struct Traits<Status>    : public std::true_type { };
+    template<> struct Traits<Query<Get::HPKE>>     : public std::true_type { };
+    template<> struct Traits<Query<Get::TASKS>>    : public std::true_type { };
+    template<> struct Traits<Response<Get::HPKE>>  : public std::true_type { };
+    template<> struct Traits<Response<Get::TASKS>> : public std::true_type { };
   }
 }
 #endiv

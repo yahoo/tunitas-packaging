@@ -1,0 +1,29 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import nonstd.basic_string
+#import nonstd.required.InstanceOf
+namespace nonstd::required::string {
+  //
+  // Is this TYPE an instance of std::basic_string?
+  //
+  template<typename STORAGE> concept Storage = InstanceOf<STORAGE, basic_string>;
+}
+#endiv
+#divert <cpp>
+#import std.string
+#import std.wstring
+#import std.u8string
+#import std.u16string
+#import std.u32string
+namespace {
+  namespace testate {
+    using namespace nonstd;
+    static_assert(required::string::Storage<std::string>);
+    static_assert(required::string::Storage<std::wstring>);
+    static_assert(required::string::Storage<std::u8string>);
+    static_assert(required::string::Storage<std::u16string>);
+    static_assert(required::string::Storage<std::u32string>);
+  }
+}
+#endiv

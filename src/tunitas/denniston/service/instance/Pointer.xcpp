@@ -31,10 +31,13 @@ namespace tunitas::denniston::service {
   template<instance::required::Instance INSTANCE> struct instance::Pointer : public std::unique_ptr<INSTANCE> {
     using Ancestor = std::unique_ptr<INSTANCE>;
   public:
-    explicit Pointer() = default;
+    Pointer() = default;
     using Ancestor::unique_ptr;
     Pointer(Ancestor &&donor) : Ancestor{forward<Ancestor>(donor)} { }
     Pointer &operator=(Ancestor &&donor) { Ancestor::operator=(forward<Ancestor>(donor)); return *this; }
+#if 0 // not needed (yet)
+    template<typename TYPE> inline auto operator->*(TYPE INSTANCE::*member) -> TYPE * { return this->get()->*member; }
+#endif
   };
 }
 #endiv

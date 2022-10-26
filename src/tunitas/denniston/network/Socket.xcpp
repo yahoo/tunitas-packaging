@@ -28,13 +28,14 @@ namespace tunitas::denniston::network {
 #divert <hpp>
 #import tunitas.denniston.network.Pipe
 #import tunitas.denniston.network.table.Descriptor.Sockets
+#forward tunitas.denniston.network.channel.Ready
 static_assert(sizeof (tunitas::denniston::network::table::Descriptor<tunitas::denniston::network::table::Sockets>));
 struct tunitas::denniston::network::Socket {
   Socket() = default;
   struct Interface;
   using Value = Pipe::Value;
-  inline auto left() -> Interface;
-  inline auto right() -> Interface;
+  inline auto left(channel::Ready *) -> Interface;
+  inline auto right(channel::Ready *) -> Interface;
 protected:
   Pipe left2right{};
   Pipe right2left{};
@@ -45,8 +46,8 @@ protected:
 #divert <ipp>
 #import tunitas.denniston.network.Socket.Interface
 namespace tunitas::denniston::network {
-  auto Socket::left() -> Interface  { return {this, &Socket::left2right, &Socket::right2left}; }
-  auto Socket::right() -> Interface { return {this, &Socket::right2left, &Socket::left2right}; }
+  auto Socket::left(channel::Ready *ready) -> Interface  { return {this, &Socket::left2right, &Socket::right2left, ready}; }
+  auto Socket::right(channel::Ready *ready) -> Interface { return {this, &Socket::right2left, &Socket::left2right, ready}; }
 }
 #endiv
 #divert <cpp>

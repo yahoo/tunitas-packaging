@@ -4,11 +4,22 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
-XFAIL_TESTS = \
-  $(tests_unit_XFAIL_TESTS) \
-  $(end)
 TESTS = \
   $(tests_unit_TESTS) \
+  $(tests_scriptie_flow_denniston_TESTS) \
+  $(tests_flow_denniston_TESTS) \
+  $(end)
+XFAIL_TESTS = \
+  $(tests_unit_XFAIL_TESTS) \
+  $(tests_scriptie_flow_denniston_XFAIL_TESTS) \
+  $(tests_flow_denniston_XFAIL_TESTS) \
+  $(end)
+XGOD_TESTS = \
+  $(tests_unit_XGOD_TESTS) \
+  $(tests_scriptie_flow_denniston_XGOD_TESTS) \
+  $(tests_flow_denniston_XGOD_TESTS) \
   $(end)
 #
 include tests/unit/Makefrag.am
+include tests/flow-denniston/Makefrag.am
+include tests/scriptie/flow-denniston/Makefrag.am

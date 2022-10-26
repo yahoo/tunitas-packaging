@@ -1,0 +1,29 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.dictionary.required.Foundable
+namespace tunitas::denniston::service::required::dictionary {
+  //
+  // For the dictionary, is this type Foundable?
+  //
+  // Specification:
+  //
+  //   The constie or mutable variant
+  //   MUST be diagnosable without seeing the complete type of struct service::Dictionary
+  //
+  // Design:
+  //
+  //   Obvious.
+  //
+  //   Indeed, "foundable" is not grammatical; yet it conjugates with its use in diagnosing admissability for Found<VALUE>
+  //
+  // Usage:
+  //
+  //   See service::Dictionary
+  //
+  using denniston::dictionary::required::Foundable;
+}
+#endiv

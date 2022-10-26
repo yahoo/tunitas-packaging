@@ -14,6 +14,7 @@ tunitas_denniston_network_channel_SUBSOURCES = \
   obj/src/tunitas/denniston/network/channel/Peek.cpp \
   obj/src/tunitas/denniston/network/channel/Predicate.cpp \
   obj/src/tunitas/denniston/network/channel/Variables.cpp \
+  obj/src/tunitas/denniston/network/channel/Ready.cpp \
   $(tunitas_denniston_network_channel_required_SUBSOURCES) \
   $(end)
 #

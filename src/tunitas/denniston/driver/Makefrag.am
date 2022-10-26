@@ -5,6 +5,7 @@
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/drivers/denniston/tree/LICENSE
 #
 tunitas_denniston_driver_SUBSOURCES = \
+  obj/src/tunitas/denniston/Driver.cpp \
   obj/src/tunitas/denniston/driver/namespace.cpp \
   obj/src/tunitas/denniston/driver/Driver.cpp \
   obj/src/tunitas/denniston/driver/Threads.cpp \

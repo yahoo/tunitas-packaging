@@ -24,6 +24,7 @@ AM_MAKEFLAGS= \
   $(end)
 
 bin_PROGRAMS = \
+  bin/flow-denniston \
   $(end)
 # WATCHOUT - these installable libraries MUST be in this order to congeal the rpath dependencies upon installation
 lib_LTLIBRARIES = \
@@ -31,13 +32,18 @@ lib_LTLIBRARIES = \
   $(end)
 noinst_LTLIBRARIES = \
   noinst/lib/libwant.la \
+  noinst/lib/libaddenda+nonstd.la \
   noinst/lib/libapp.la \
+  noinst/lib/libapp-flow-denniston.la \
   noinst/lib/libtunitas-denniston.la \
+  noinst/lib/libfmt+tunitas-denniston.la \
   noinst/lib/libstd+tunitas-denniston.la \
+  noinst/lib/libnonstd+tunitas-denniston.la \
   noinst/lib/libautotools-autoconf+tunitas-denniston.la \
   $(end)
 check_PROGRAMS = \
   check/bin/unit \
+  check/bin/flow-denniston \
   $(end)
 check_LTLIBRARIES = \
   check/lib/libtests.la \
@@ -78,6 +84,7 @@ DEVELOPMENT_AREAS = \
   $(end)
 TESTING_AREAS = \
   $(module_rigging_core_prefix) \
+  $(module_rigging_app_prefix) \
   $(deprecated_TESTING_AREAS) \
   $(end)
 INSTALLATION_AREAS = \
@@ -95,13 +102,19 @@ clean-local mostlyclean-local distclean-local::
 clean-dependencies::
 clean-local:: clean-dependencies
 
+include bin/flow-denniston.am
+include noinst/lib/libaddenda+nonstd.am
 include noinst/lib/libapp.am
+include noinst/lib/libapp-flow-denniston.am
 include check/bin/unit.am
+include check/bin/flow-denniston.am
 include check/lib/libtests.am
 include noinst/lib/libwant.am
 include noinst/lib/libtunitas-denniston.am
 include noinst/lib/libautotools-autoconf+tunitas-denniston.am
+include noinst/lib/libfmt+tunitas-denniston.am
 include noinst/lib/libstd+tunitas-denniston.am
+include noinst/lib/libnonstd+tunitas-denniston.am
 include lib/libtunitas-denniston.am
 
 INSTALL_MODULES = $(error FIXTHIS) \

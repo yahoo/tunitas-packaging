@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+addenda_nonstd_required_SUBSOURCES = \
+  $(addenda_nonstd_required_allocator_SUBSOURCES) \
+  noinst/obj/src/nonstd/required/InstanceOf.cpp \
+  noinst/obj/src/nonstd/required/string.Storage.cpp \
+  noinst/obj/src/nonstd/required/string.View.cpp \
+  noinst/obj/src/nonstd/required/Derived_From.cpp \
+  noinst/obj/src/nonstd/required/Convertible_To.cpp \
+  noinst/obj/src/nonstd/required/Same_As.cpp \
+  noinst/obj/src/nonstd/required/Number.cpp \
+  $(end)
+#
+include addenda/nonstd/required/allocator/Makefrag.am

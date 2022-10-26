@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.message.packet.Response.template
+namespace tunitas::denniston::message::packet {
+  //
+  // Semantic:
+  //
+  //   The response to an Query<HPKE>
+  //
+  // Design:
+  //
+  //   The manifest constructors in lieu of agggregate or designated initialization allows make<...>(...) to work.
+  //
+  // Usage:
+  //
+  //   auto cfg = keyston::hpke::Configuration{...somehow...};
+  //
+  //   auto made = make<Request<Get::HPLE>(cfg);
+  //
+  template<> struct Response<Get::HPKE>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.message.packet.Prototype
+#import tunitas.keyston.hpke.Configuration
+namespace tunitas::denniston::message::packet {
+  template<> struct Response<Get::HPKE> : public Prototype {
+    using Configuration = keyston::hpke::Configuration;
+    Configuration configuration{};
+    explicit Response() = default;
+    explicit Response(keyston::hpke::Configuration c) : configuration{move(c)} { }
+  };
+}
+#endiv

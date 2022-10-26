@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::flow { struct Options; }
+#endiv
+#divert <hpp>
+#import app.flow.Configuration
+#import rigging.app.fixture.Core
+#import tests.fixture.Mainly
+#import tests.fixture.Combine
+class tests::flow::Options : public rigging::app::fixture::Core<fixture::Mainly<fixture::Combine<app::flow::Configuration>>> {
+  using Ancestor = rigging::app::fixture::Core<fixture::Mainly<fixture::Combine<app::flow::Configuration>>>;
+public:
+  static auto suite() -> Suite;
+  //
+  auto test_i() -> void;
+  auto test_interactive() -> void;
+  //
+  auto test_p() -> void;
+  auto test_program() -> void;
+  auto test_programmatic() -> void;
+};
+#endiv
+#divert <cpp>
+namespace tests::flow {
+  auto Options::suite() -> Suite {
+    auto series = Stream{"options"sv};
+    series << stanza("generic"sv)
+           << []{
+                auto act = Stream{"interactive"sv};
+                act << add("i", &Options::test_i)
+                    << add("interactive", &Options::test_interactive)
+                    << END;
+                return act;
+              }()
+           << []{
+                auto prog = Stream{"programmatic"sv};
+                prog << add("h", &Options::test_p)
+                     << add("program", &Options::test_program)
+                     << add("programmatic", &Options::test_programmatic)
+                     << END;
+                return prog;
+              }()
+           << END;
+    return settle(series);
+  }
+  auto Options::test_i() -> void            { exercise(OK, "-i"); }
+  auto Options::test_interactive() -> void  { exercise(OK, "--interactive"); }
+  auto Options::test_p() -> void            { exercise(OK, "-p"); }
+  auto Options::test_program() -> void      { exercise(OK, "--program"); }
+  auto Options::test_programmatic() -> void { exercise(OK, "--programmatic"); }
+}
+#endiv

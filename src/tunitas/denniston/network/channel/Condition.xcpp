@@ -22,8 +22,7 @@ namespace tunitas::denniston::network::channel {
 #import tunitas.denniston.network.channel.Exclusive
 #import tunitas.denniston.network.channel.Predicate
 #import tunitas.denniston.network.channel.Variables
-class tunitas::denniston::network::channel::Condition {
-public:
+struct tunitas::denniston::network::channel::Condition {
   inline Condition(Variables &, Predicate);
   inline ~Condition() noexcept(false);
   Condition(Condition const &) = delete;
@@ -45,7 +44,9 @@ namespace tunitas::denniston::network::channel {
     }
   Condition::~Condition() noexcept(false) {
     anchor.unlock();
-    // [[FIXTHIS]] sloppy ... we should notify only on the one *other* than predicate.variable since we know that the surrounding operation may have cleared up *that* blockage; e.g. pop() remedies "is full"; push_back() remedies "is empty"
+    // [[FIXTHIS]] sloppy ... this notifies obth on noempty and non-full but only one is blocked (right?)
+    // [[FIXTHIS]] we should notify only on the one *other* than predicate.variable since we know that the
+    //  surrounding operation may have cleared up *that* blockage; e.g. pop() remedies "is full"; push_back() remedies "is empty"
     variables.nonempty.notify_one();
     variables.nonfull.notify_one();
   }

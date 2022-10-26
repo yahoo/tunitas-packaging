@@ -56,6 +56,12 @@ namespace tunitas::denniston::error::package_error {
       switch (E{code}) {
       case E::SUCCESS:          return "unexpected success"sv;
       case E::FAILURE:          return "failure"sv;
+      case E::NO_SUCH_BATCH:    return "no such batch identifier"sv;
+      case E::NO_SUCH_JOB:      return "no such job identifier"sv;
+      case E::NO_SUCH_REPORT:   return "no such report identifier"sv;
+      case E::NO_SUCH_SERVICE:  return "no such service identifier"sv;
+      case E::NO_SUCH_TASK:     return "no such task identifier"sv;
+      case E::NO_AVAILABLE_TASKS: return "no available tasks"sv;
       default: return {};
       }
     }

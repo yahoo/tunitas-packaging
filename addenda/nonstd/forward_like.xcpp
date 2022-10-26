@@ -1,0 +1,22 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <hpp>
+#import nonstd.like
+namespace nonstd {
+  //
+  // As mentioned, but not defined, in P0847R7
+  // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r7.html
+  //
+  // <quote>
+  //   forward_like, a version of forward that is intended to forward a variable not based on its own type
+  //   but instead based on some other type. forward_like<T>(u) is short-hand for forward<like_t<T,decltype(u)>>(u).
+  // </quote>
+  //
+  template<typename RESULT, typename SOURCE> inline constexpr auto forward_like(SOURCE &&) -> like_t<SOURCE &&, RESULT>;
+}
+#endiv
+#divert <ipp>
+template<typename RESULT, typename SOURCE> constexpr auto nonstd::forward_like(SOURCE &&source) -> like_t<SOURCE &&, RESULT> {
+  return static_cast<like_t<SOURCE &&, RESULT>>(source);
+}
+#endiv

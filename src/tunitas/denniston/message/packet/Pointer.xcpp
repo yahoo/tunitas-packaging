@@ -28,25 +28,14 @@ namespace tunitas::denniston::message::packet {
 #divert <hpp>
 #import std.unique_ptr
 namespace tunitas::denniston::message {
-  namespace packet {
-    template<packet::required::Packet PACKET> inline auto is_quit(Pointer<PACKET> const &) -> bool;
-  }
   template<packet::required::Packet PACKET> struct packet::Pointer : public std::unique_ptr<PACKET> {
     using Ancestor = std::unique_ptr<PACKET>;
   public:
-    explicit Pointer() = default;
+    Pointer() = default;
     using Ancestor::unique_ptr;
     Pointer(Ancestor &&donor) : Ancestor{forward<Ancestor>(donor)} { }
     using Ancestor::operator=;
     Pointer &operator=(Ancestor &&donor) { Ancestor::operator=(forward<Ancestor>(donor)); return *this; }
   };
-}
-#endiv
-#divert <ipp>
-#import tunitas.denniston.message.packet.Quit
-namespace tunitas::denniston::message {
-  template<packet::required::Packet PACKET> auto packet::is_quit(Pointer<PACKET> const &p) -> bool {
-    return nullptr != dynamic_cast<Quit const *>(p.get());
-  }
 }
 #endiv

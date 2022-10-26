@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+addenda_nonstd_Like_SUBSOURCES = \
+  noinst/obj/src/nonstd/Like/namespace.cpp \
+  noinst/obj/src/nonstd/Like/std.optional.TYPE.cpp \
+  noinst/obj/src/nonstd/Like/nonstd.Optional.TYPE.cpp \
+  noinst/obj/src/nonstd/Like/nonstd.optional.Optional.TYPE.cpp \
+  \
+  noinst/obj/src/nonstd/Like/nonstd.iterator.Qualified.CONTAINER.Type.cpp \
+  \
+  noinst/obj/src/nonstd/Like/std.optional.nonstd.iterator.Qualified.CONTAINER.Type.cpp \
+  noinst/obj/src/nonstd/Like/nonstd.Optional.nonstd.iterator.Qualified.CONTAINER.Type.cpp \
+  noinst/obj/src/nonstd/Like/nonstd.optional.Optional.nonstd.iterator.Qualified.CONTAINER.Type.cpp \
+  $(end)

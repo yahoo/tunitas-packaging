@@ -1,0 +1,87 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+namespace tests::unit::nonstd { struct Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::nonstd::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_required_Number() -> void;
+protected:
+  template<typename CHAR> static auto stanza_from_string(string::View name) -> Stream;
+};
+#endiv
+#divert <tpp>
+#import tests.unit.nonstd.From_String
+namespace tests::unit::nonstd {
+  template<typename CHAR> auto Fixture::stanza_from_string(string::View name) -> Stream {
+    auto sub = Stream{name};
+    sub << []{
+             auto si = Stream{"signed"sv};
+             si << add<From_String<char signed, CHAR>>()
+                << add<From_String<int short signed, CHAR>>()
+                << add<From_String<int signed, CHAR>>()
+                << add<From_String<int long signed, CHAR>>()
+                << add<From_String<int long long signed, CHAR>>()
+                << END;
+             return si;
+           }()
+        << []{
+             auto un = Stream{"unsigned"sv};
+             un << add<From_String<char unsigned, CHAR>>()
+                << add<From_String<int short unsigned, CHAR>>()
+                << add<From_String<int unsigned, CHAR>>()
+                << add<From_String<int long unsigned, CHAR>>()
+                << add<From_String<int long long unsigned, CHAR>>()
+                << END;
+             return un;
+           }()
+        << add<From_String<float, CHAR>>()
+        << add<From_String<double, CHAR>>()
+        << add<From_String<long double, CHAR>>()
+        << END;
+    return sub;
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::nonstd::Fixture::suite() -> Suite {
+  auto series = Stream{"nonstd"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << []{
+                       auto req = Stream{"required"sv};
+                       req << add("Number", &Fixture::test_usage_required_Number)
+                           << END;
+                       return req;
+                     }()
+                  << END;
+              return use;
+            }()
+         << []{
+              auto from = Stream{"from_string"sv};
+              from << stanza_from_string<char>("char"sv)
+                   << stanza_from_string<wchar_t>("wchar_t"sv)
+                   << stanza_from_string<char8_t>("char8_t"sv)
+                   << stanza_from_string<char16_t>("char16_t"sv)
+                   << stanza_from_string<char32_t>("char32_t"sv)
+                   <<END;
+              return from;
+            }()
+         << END;
+  return settle(series);
+}
+#import nonstd.required.Number
+namespace tests::unit::nonstd {
+  auto Fixture::test_usage_required_Number() -> void {
+    static_assert(library::required::Number<char unsigned>);
+    static_assert(library::required::Number<char signed>);
+    static_assert(library::required::Number<unsigned>);
+    static_assert(library::required::Number<signed>);
+    static_assert(library::required::Number<long double>);
+    // the others are tested in the testate stanza in Number.xcpp
+    static_assert(not library::required::Number<std::string>);
+  }
+}
+#endiv

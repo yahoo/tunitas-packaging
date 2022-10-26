@@ -4,7 +4,6 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
-check_bin_unit = check/bin/unit$(error REMOVE)
 check_bin_unit_CPPFLAGS = $(CHECK_CPPFLAGS_SET)
 check_bin_unit_CXXFLAGS = $(CHECK_CXXFLAGS_SET)
 check_bin_unit_LDFLAGS = $(CHECK_LDFLAGS_SET)

@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+addenda_nonstd_SUBSOURCES = \
+  $(addenda_nonstd_iterator_SUBSOURCES) \
+  $(addenda_nonstd_Like_SUBSOURCES) \
+  noinst/obj/src/nonstd/like.cpp \
+  noinst/obj/src/nonstd/forward_like.cpp \
+  noinst/obj/src/nonstd/to_string.cpp \
+  noinst/obj/src/nonstd/from_string.cpp \
+  noinst/obj/src/nonstd/from_string_view.cpp \
+  $(addenda_nonstd_required_SUBSOURCES) \
+  $(addenda_nonstd_usage_SUBSOURCES) \
+  $(end)
+#
+include addenda/nonstd/Like/Makefrag.am
+include addenda/nonstd/required/Makefrag.am
+include addenda/nonstd/iterator/Makefrag.am
+include addenda/nonstd/usage/Makefrag.am

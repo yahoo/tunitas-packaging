@@ -22,12 +22,14 @@ namespace tunitas::denniston::service {
   //   You need a tutorial on the usage of an enum (class)?
   //
   enum class Name {
+    CONFIGURATION = -5,
+    DIRECTORY = -4,
     COLLECTOR = -3,
     PROCESSOR2 = -2,
     PROCESSOR1 = -1,
     GATEWAY = 0,
     CLIENT = 1,
-    // and onward and upward
+    // clients are positive numbers and onward and upward
   };
 }
 #endiv
@@ -36,9 +38,23 @@ namespace tunitas::denniston::service {
   inline constexpr auto underlying(Name n) { return std::underlying_type_t<Name>(n); }
   inline auto swap(Name &a, Name &b) noexcept -> void { return std::swap(a, b); }
   //
-  inline auto is_collector(Name name) -> bool { return Name::COLLECTOR == name; }
-  inline auto is_processor(Name name) -> bool { return Name::PROCESSOR1 == name || Name::PROCESSOR2 == name; }
-  inline auto is_gateway(Name name) -> bool   { return Name::GATEWAY == name; }
-  inline auto is_client(Name name) -> bool    { return 0 < underlying(name); }
+  inline auto is_directory(Name name) -> bool     { return Name::DIRECTORY == name; }
+  inline auto is_configuration(Name name) -> bool { return Name::CONFIGURATION == name; }
+  inline auto is_collector(Name name) -> bool     { return Name::COLLECTOR == name; }
+  inline auto is_processor(Name name) -> bool     { return Name::PROCESSOR1 == name || Name::PROCESSOR2 == name; }
+  inline auto is_gateway(Name name) -> bool       { return Name::GATEWAY == name; }
+  inline auto is_client(Name name) -> bool        { return 0 < underlying(name); }
+  //
+  inline auto make_client_name(unsigned index) -> Name;
+}
+#endiv
+#divert <ipp>
+#import std.same_as
+#import std.make_unsigned
+namespace tunitas::denniston {
+  auto service::make_client_name(unsigned index) -> Name {
+    static_assert(std::same_as<decltype(index), std::make_unsigned_t<std::underlying_type_t<Name>>>);
+    return Name(index + underlying(Name::CLIENT));
+  }
 }
 #endiv

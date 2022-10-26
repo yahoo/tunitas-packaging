@@ -24,16 +24,24 @@ namespace tests::unit::message {
     //
     template<typename SUBJECT> auto test_make() -> void;
     auto test_upcast() -> void;
+    auto test_downcast() -> void;
+    template<typename SUBJECT> auto test_is_ping() -> void;
     template<typename SUBJECT> auto test_is_quit() -> void;
+    template<typename SUBJECT> auto test_is_status() -> void;
+    auto test_is_ping_generic() -> void;
     auto test_is_quit_generic() -> void;
+    auto test_is_status_generic() -> void;
   };
   namespace packet {
     template<> auto Fixture::test_make<library::Status>() -> void;
+    template<> auto Fixture::test_is_ping<library::Ping>() -> void;
     template<> auto Fixture::test_is_quit<library::Quit>() -> void;
+    template<> auto Fixture::test_is_status<library::Status>() -> void;
   }
 }
 #endiv
 #divert <tpp>
+#import tunitas.denniston.message.packet.cast
 #import tunitas.denniston.message.packet.make
 namespace tests::unit::message::packet {
   template<typename SUBJECT> auto Fixture::test_make() -> void {
@@ -41,9 +49,17 @@ namespace tests::unit::message::packet {
     require(ASSERTION, nullptr != made.get());
     require(ASSERTION, sizeof (made));
   }
+  template<typename SUBJECT> auto Fixture::test_is_ping() -> void {
+    auto made = library::make<SUBJECT>();
+    require(ASSERTION, !is_ping(made)); // <---------------------------------------- test this (false)
+  }
   template<typename SUBJECT> auto Fixture::test_is_quit() -> void {
     auto made = library::make<SUBJECT>();
     require(ASSERTION, !is_quit(made)); // <---------------------------------------- test this (false)
+  }
+  template<typename SUBJECT> auto Fixture::test_is_status() -> void {
+    auto made = library::make<SUBJECT>();
+    require(ASSERTION, !is_status(made)); // <---------------------------------------- test this (false)
   }
 }
 #endiv
@@ -52,6 +68,8 @@ namespace tests::unit::message::packet {
 #import tunitas.denniston.message.packet.Ping
 #import tunitas.denniston.message.packet.Provision
 #import tunitas.denniston.message.packet.Quit
+#import tunitas.denniston.message.packet.Query
+#import tunitas.denniston.message.packet.Response
 auto tests::unit::message::packet::Fixture::suite() -> Suite {
   auto series = Stream{"packet"sv};
   series << []{
@@ -59,19 +77,54 @@ auto tests::unit::message::packet::Fixture::suite() -> Suite {
               make << add("Ping", &Fixture::test_make<library::Ping>)
                    << add("Provision", &Fixture::test_make<library::Provision>)
                    << add("Status", &Fixture::test_make<library::Status>)
+                   << []{
+                        auto hpke = Stream{"hpke"sv};
+                        hpke << add("Query", &Fixture::test_make<library::Query<library::Get::HPKE>>)
+                             << add("Response", &Fixture::test_make<library::Response<library::Get::HPKE>>)
+                             << END;
+                        return hpke;
+                      }()
+                   << []{
+                        auto tasks = Stream{"tasks"sv};
+                        tasks << add("Query", &Fixture::test_make<library::Query<library::Get::TASKS>>)
+                              << add("Response", &Fixture::test_make<library::Response<library::Get::TASKS>>)
+                              << END;
+                        return tasks;
+                      }()
                    << END;
               return make;
             }()
          << add("upcast", &Fixture::test_upcast)
+         << add("downcast", &Fixture::test_downcast)
          << []{
               auto is = Stream{"is"sv};
               is << []{
+                      auto qu = Stream{"ping"sv};
+                      qu << add("generic", &Fixture::test_is_ping_generic)
+                         << add("Ping", &Fixture::test_is_ping<library::Ping>)
+                         << add("Provision", &Fixture::test_is_ping<library::Provision>)
+                         << add("Status", &Fixture::test_is_ping<library::Status>)
+                         << add("Quit", &Fixture::test_is_ping<library::Quit>)
+                         << END;
+                      return qu;
+                    }()
+                << []{
                       auto qu = Stream{"quit"sv};
                       qu << add("generic", &Fixture::test_is_quit_generic)
                          << add("Ping", &Fixture::test_is_quit<library::Ping>)
                          << add("Provision", &Fixture::test_is_quit<library::Provision>)
                          << add("Status", &Fixture::test_is_quit<library::Status>)
                          << add("Quit", &Fixture::test_is_quit<library::Quit>)
+                         << END;
+                      return qu;
+                    }()
+                << []{
+                      auto qu = Stream{"status"sv};
+                      qu << add("generic", &Fixture::test_is_status_generic)
+                         << add("Ping", &Fixture::test_is_status<library::Ping>)
+                         << add("Provision", &Fixture::test_is_status<library::Provision>)
+                         << add("Status", &Fixture::test_is_status<library::Status>)
+                         << add("Quit", &Fixture::test_is_status<library::Quit>)
                          << END;
                       return qu;
                     }()
@@ -101,6 +154,26 @@ namespace tests::unit::message::packet {
     Packet up1 = move(self);
     require(ASSERTION, up0 != up1);
   }
+  auto Fixture::test_downcast() -> void {
+    Packet up = library::make<library::Status>();
+    auto *yes = downcast<library::Status>(up);
+    require(ASSERTION, nullptr != yes);
+    auto *no = downcast<library::Quit>(up);
+    require(ASSERTION, nullptr == no);
+  }
+  template<> auto Fixture::test_is_ping<library::Ping>() -> void {
+    auto made = library::make<library::Ping>();
+    require(ASSERTION, is_ping(made)); // <---------------------------------------- test this (true)
+  }
+  auto Fixture::test_is_ping_generic() -> void {
+    {
+      Packet upcast = library::make<library::Quit>();
+      require(ASSERTION, ! is_ping(upcast)); // <---------------------------------------- test this (the upcast)
+    } {
+      Packet upcast = library::make<library::Ping>();
+      require(ASSERTION, is_ping(upcast)); // <---------------------------------------- test this (the upcast)
+    }
+  }
   template<> auto Fixture::test_is_quit<library::Quit>() -> void {
     auto made = library::make<library::Quit>();
     require(ASSERTION, is_quit(made)); // <---------------------------------------- test this (true)
@@ -112,6 +185,19 @@ namespace tests::unit::message::packet {
     } {
       Packet upcast = library::make<library::Quit>();
       require(ASSERTION, is_quit(upcast)); // <---------------------------------------- test this (the upcast)
+    }
+  }
+  template<> auto Fixture::test_is_status<library::Status>() -> void {
+    auto made = library::make<library::Status>();
+    require(ASSERTION, is_status(made)); // <---------------------------------------- test this (true)
+  }
+  auto Fixture::test_is_status_generic() -> void {
+    {
+      Packet upcast = library::make<library::Ping>();
+      require(ASSERTION, ! is_status(upcast)); // <---------------------------------------- test this (the upcast)
+    } {
+      Packet upcast = library::make<library::Status>();
+      require(ASSERTION, is_status(upcast)); // <---------------------------------------- test this (the upcast)
     }
   }
 }

@@ -7,4 +7,5 @@
 tests_unit_task_SUBSOURCES = \
   check/obj/src/tests/unit/task/namespace.cpp \
   check/obj/src/tests/unit/task/Fixture.cpp \
+  check/obj/src/tests/unit/task/Dictionary.cpp \
   $(end)

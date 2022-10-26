@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace app::exception {
+  //
+  // The testing exception
+  //
+  // Specification:
+  //
+  //   What?
+  //
+  // Semantic:
+  //
+  //   We're in test mode and it is time to leave.
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Usage:
+  //
+  //   throw exception::Testing{exp};
+  //
+  class Testing;
+}
+#endiv
+#divert <hpp>
+#import app.exception.Aspect
+#import cli.exception.Aspect
+#import cli.exception.partial.Testing
+#import cli.exits.Code
+#import cli.experience.Console
+#import tunitas.exception.Aspect
+#import tunitas.application.exception.Aspect
+class app::exception::Testing : public virtual app::exception::Aspect,
+                                public virtual cli::exception::Aspect,
+                                public virtual tunitas::exception::Aspect,
+                                public virtual tunitas::application::exception::Aspect,
+                                public cli::exception::partial::Testing {
+  struct Ancestors {
+    struct Aspects {
+      using Tunitas = tunitas::exception::Aspect;
+      using Application = tunitas::application::exception::Aspect;
+      using App = app::exception::Aspect;
+    };
+    using Exception = cli::exception::partial::Testing;
+  };
+public:
+  using Results [[either]] = Ancestors::Aspects::Application::Results;
+  inline explicit Testing(cli::experience::Console const &);
+  inline explicit Testing(cli::experience::Console const &, cli::exits::Code);
+  auto what() const noexcept -> Results::What override;
+  auto stream() const noexcept -> Results::Stream override;
+  auto code() const noexcept -> Results::Exit override;
+  auto exit() const noexcept -> Results::Exit override;
+};
+#endiv
+#divert <ipp>
+#import cli.exits.constants
+namespace app::exception {
+  Testing::Testing(cli::experience::Console const &exp)
+    : Testing{exp, cli::exits::OK}
+  { }
+  Testing::Testing(cli::experience::Console const &exp, cli::exits::Code code)
+    : Ancestors::Exception{exp.NAME, "testing", code}
+  { }
+}
+#endiv
+#divert <cpp>
+namespace app::exception {
+  auto Testing::what() const noexcept -> Results::What     { return Ancestors::Exception::what(); }
+  auto Testing::stream() const noexcept -> Results::Stream { return Ancestors::Exception::stream(); }
+  auto Testing::code() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
+  auto Testing::exit() const noexcept -> Results::Exit     { return Ancestors::Exception::exit(); }
+}
+// Of course this is test code
+#import std.is_abstract
+namespace {
+  namespace testate {
+    using namespace app::exception;
+    static_assert(not std::is_abstract_v<Testing>);
+  }
+}
+#endiv

@@ -9,6 +9,7 @@ namespace tests::unit::network::channel {
   //
   // Generate some random values
   // We're looking for a series of values, not true non-determinism.
+  // But bracket with {{ }} to show these aren't random memory from a stray pointer.
   //
   // Usage:
   //
@@ -39,17 +40,19 @@ namespace tests::unit::network::channel {
 #divert <cpp>
 namespace tests::unit::network::channel {
   Generator<string::Storage>::Generator()
-    : length{0, 20}
-    , alphabet{0,25}
-    , goupper{0,1}
+    : length{1, 20}
+    , alphabet{0, 25}
+    , goupper{0, 1}
   { }
   auto Generator<string::Storage>::operator()() -> Result {
     Result ret{};
+    ret += "{{generated:"s;
     for (auto i{0u}, e{0u+length(engine)}; e != i; ++i) {
       char _c = (char) 'a' + alphabet(engine);
       char cc = goupper(engine) ? std::toupper(_c) : _c;
       ret += cc;
     }
+    ret += "}}"s;
     return ret;
   }
 }

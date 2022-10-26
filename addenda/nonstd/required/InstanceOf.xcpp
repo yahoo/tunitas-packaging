@@ -1,0 +1,54 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+namespace nonstd::required {
+  //
+  // Is this TYPE an instance of that TEMPLATE?
+  //
+  // Invariants:
+  //
+  //   At least one of these specified constructors must exist to force the deduction resolution
+  //
+  // Design:
+  //
+  //   Does not support NTTP
+  //
+  //   TYPE may not be copyable
+  //   TYPE may not be movable
+  //   TYPE may not be referencable
+  //   in which case this won't work.
+  //
+  // Usage:
+  //
+  //   template<typename, typename> struct Something;
+  //   template<required::InstanceOf<Something> SOMETHING> struct Dark_Side;
+  //
+  namespace [[eponymous]] instanceof {
+    template<typename TYPE> concept Has_Copy_Constructor = requires(TYPE const &old) {
+      { TYPE{old} };
+    };
+    template<typename TYPE> concept Has_Move_Constructor = requires(TYPE old) {
+      { TYPE{static_cast<TYPE &&>(old)} };
+    };
+    template<typename TYPE> concept Has_Reference_Constructor = requires(TYPE &old) {
+      { TYPE{old} };
+    };
+    template<typename TYPE, template<typename...> typename TEMPLATE> concept Pass_Self = requires(TYPE obj) {
+      requires Has_Copy_Constructor<TYPE> || Has_Move_Constructor<TYPE> || Has_Reference_Constructor<TYPE>;
+      { []<typename... ANY>(TEMPLATE<ANY...>){}(static_cast<TYPE &&>(obj)) };
+    };
+    template<typename TYPE, template<typename...> typename TEMPLATE> concept Pass_Reference = requires(TYPE &obj) {
+      // Why isn't this one good enough for everything?
+      { []<typename... ANY>(TEMPLATE<ANY...> &){}(obj) };
+    };
+    template<typename TYPE, template<typename...> typename TEMPLATE> concept By_Pointer = requires(TYPE *obj) {
+      // Avoid needing to know the complete type of TEMPLATE<ANY...>
+      { []<typename... ANY>(TEMPLATE<ANY...> *){}(obj) };
+    };
+    template<typename TYPE, template<typename...> typename TEMPLATE> concept InstanceOf = By_Pointer<TYPE, TEMPLATE>; // Pass_Self<TYPE, TEMPLATE> || Pass_Reference<TYPE, TEMPLATE>;
+    template<typename TYPE, template<typename...> typename TEMPLATE> concept Derived_From_InstanceOf = Pass_Reference<TYPE, TEMPLATE>;
+  }
+  using instanceof::InstanceOf;
+  using instanceof::Derived_From_InstanceOf;
+}
+#endiv

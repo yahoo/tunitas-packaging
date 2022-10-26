@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace app::flow {
+  namespace package_run {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_run::interface;
+}
+#import cli.exits.constants
+namespace app::flow::package_run {
+  namespace body {
+    using namespace cli::exits::constants;
+  }
+}
+#import cli.controllability.Through
+#import cli.exits.Code
+#import cli.experience.Console
+#import tunitas.denniston.Driver
+namespace app::flow::package_run {
+  using Exit = cli::exits::Code;
+  using cli::experience::Console;
+  namespace body {
+    using cli::controllability::Through;
+    using tunitas::denniston::Driver;
+  }
+}
+#endiv
+#divert <hpp>
+#import app.flow.Configuration
+namespace app::flow::package_run {
+  namespace body {
+    namespace exported {
+      auto run([[inout]] Console &, [[inout]] Configuration const &) -> Exit;
+    }
+  }
+}
+#endiv
+#divert <ipp>
+namespace app::flow::package_run {
+  // any/.
+}
+#endiv
+#divert <cpp>
+#import std.cerr
+#import app.exception.Testing
+namespace app::flow::package_run {
+  auto interface::run(Console &exp, Configuration const &cfg) -> Exit {
+    error(exp) << "unimplemented" << '\n';
+    auto driver = Driver{};
+    if (testing(cfg) <= Through::SETUP) {
+      throw exception::Testing{exp};
+    }
+    driver.shutdown();
+    return UNIMPLEMENTED;
+  }
+}
+#endiv

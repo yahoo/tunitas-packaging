@@ -1,0 +1,91 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace app::exception {
+  //
+  // The package version, as an application exception.
+  //
+  // Usage:
+  //
+  //   throw Version{"program"};
+  //
+  // Usage:
+  //
+  //   try {
+  //     ...
+  //     throw Version{"program"};
+  //     ...
+  //   } catch (tunitas::application::exception::Generic const &g) {
+  //     g.stream() << g.what() << '\n';
+  //     return g.code();          ... equivalently ::exit(g.code());
+  //   }
+  //
+  class [[nodiscard]] Version;
+}
+#endiv
+#divert <hpp>
+#import app.exception.Aspect
+#import cli.exception.Aspect
+#import cli.experience.Console
+#import cli.exception.formatting.Version
+#import tunitas.application.exception.Aspect
+#import tunitas.exception.Aspect
+#import tunitas.denniston.version.String
+#import tunitas.denniston.version.Generator
+class app::exception::Version : public virtual app::exception::Aspect,
+                                public virtual cli::exception::Aspect,
+                                public virtual tunitas::exception::Aspect,
+                                public virtual tunitas::application::exception::Aspect,
+                                public cli::exception::formatting::Version {
+  struct Ancestors {
+    struct Aspects {
+      using Tunitas = tunitas::exception::Aspect;
+      using Application = tunitas::application::exception::Aspect;
+      using App = app::exception::Aspect;
+    };
+    using Exception = cli::exception::formatting::Version;
+  };
+public:
+  using Results [[either]] = Ancestors::Aspects::Application::Results;
+  inline explicit Version(cli::experience::Console &);
+  auto what() const noexcept -> Results::What override;
+  auto stream() const noexcept -> Results::Stream override;
+  auto code() const noexcept -> Results::Exit override;
+  auto exit() const noexcept -> Results::Exit override;
+  using String = tunitas::denniston::version::String;
+  inline auto version() const -> String;
+private:
+  auto unformatted() const -> std::string;
+  tunitas::denniston::version::Generator generate{};
+};
+#endiv
+#divert <ipp>
+namespace app::exception {
+  Version::Version(cli::experience::Console &exp) : Ancestors::Exception{exp.NAME} { }
+  auto Version::version() const -> String { return generate(); }
+}
+#endiv
+#divert <cpp>
+#import std.ostringstream
+namespace app::exception {
+  auto Version::what() const noexcept -> Results::What     { return Ancestors::Exception::what(); }
+  auto Version::stream() const noexcept -> Results::Stream { return Ancestors::Exception::stream(); }
+  auto Version::code() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
+  auto Version::exit() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
+  auto Version::unformatted() const -> std::string {
+    auto buf = std::ostringstream{};
+    buf << "version: ${NAME} " << generate();
+    return buf.str();
+  }
+}
+#import std.is_abstract
+namespace {
+  namespace testate {
+    using namespace app::exception;
+    static_assert(not std::is_abstract_v<Version>);
+  }
+}
+#endiv

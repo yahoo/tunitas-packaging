@@ -121,8 +121,9 @@ namespace tests::unit::network::channel {
   template<typename _> auto Channel<_>::test_pop() -> void {
     Subject subject{10};
     require(ASSERTION, subject.empty());
-    auto original = generator();
-    subject.push_back(std::move(original));
+    auto specimen = generator();
+    auto const original = specimen;
+    subject.push_back(std::move(specimen));
     require(ASSERTION, 1 == subject.size());
     auto const popped = subject.pop(); // <-------------------------------------------- test this
     require(ASSERTION, 0 == subject.size());
@@ -131,8 +132,9 @@ namespace tests::unit::network::channel {
   template<typename _> auto Channel<_>::test_peek() -> void {
     Subject subject{10};
     require(ASSERTION, subject.empty());
-    auto original = generator();
-    subject.push_back(std::move(original));
+    auto specimen = generator();
+    auto const original = specimen;
+    subject.push_back(std::move(specimen));
     require(ASSERTION, 1 == subject.size());
     auto const peeked = subject.peek(); // <------------------------------------------ test this
     require(ASSERTION, 1 == subject.size());
@@ -172,14 +174,14 @@ namespace tests::unit::network::channel {
   template<> auto Channel<Generator<Message>>::test_pop() -> void {
     Subject subject{10};
     require(ASSERTION, subject.empty());
-    auto original = generator();
-    auto const original_picture = to_string(original);
-    subject.push_back(std::move(original));
+    auto specimen = generator();
+    auto const original = to_string(specimen);
+    subject.push_back(std::move(specimen));
     require(ASSERTION, 1 == subject.size());
     auto const popped = subject.pop(); // <-------------------------------------------- test this
     auto const popped_picture = to_string(popped);
     require(ASSERTION, 0 == subject.size());
-    require(ASSERTION, popped_picture == original_picture);
+    require(ASSERTION, popped_picture == original);
   }
   template<> auto Channel<Generator<Message>>::test_peek() -> void {
     Subject subject{10};
@@ -188,16 +190,16 @@ namespace tests::unit::network::channel {
     auto const nope = subject.peek(); // <------------------------------------------- test this
     require(ASSERTION, !nope.has_value());
     //
-    auto original = generator();
-    auto const original_picture = to_string(original);
-    subject.push_back(std::move(original));
+    auto specimen = generator();
+    auto const original = to_string(specimen);
+    subject.push_back(std::move(specimen));
     require(ASSERTION, 1 == subject.size());
     //
     auto const peeked = subject.peek(); // <----------------------------------------- test this
     require(ASSERTION, peeked.has_value());
     auto const peeked_picture = to_string(*peeked);
     require(ASSERTION, 1 == subject.size());
-    require(ASSERTION, peeked_picture == original_picture);
+    require(ASSERTION, peeked_picture == original);
   }
 }
 #endiv

@@ -1,0 +1,135 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import nonstd.required.Enumeration
+namespace nonstd {
+  //
+  // As mentioned, but not defined, in P0847R7
+  // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r7.html
+  //
+  // <quote>
+  //   Like_t, a metafunction that applies the cv- and ref-qualifiers of the first type onto the second
+  //   (e.g. like_t<int&, double>  is double &,
+  //         like_t<X const &&, Y> is Y const &&,
+  //    etc.)
+  // </quote>
+  //
+  // Naming
+  //
+  //   #import nonstd.Like ... New School.
+  //   #import nonstd.like ... old_school
+  //
+  namespace likely {
+    template<typename PATTERN, typename REPLACE> struct Like;
+    //
+    //
+    namespace indirect {
+      enum class Title { }; // prefer Title Case as 'Type' as we require herein (You Will Obey the Naming Convention)
+      enum class Lower { }; // allow lower case as 'type' as the core library uses
+      enum class None { }; // the triviality
+      template<typename DEFER, required::Enumeration KEY = Title> struct Indirect;
+      template<typename DEFER> struct Indirect<DEFER, Title>;
+      template<typename DEFER> struct Indirect<DEFER, Lower>;
+      template<typename DEFER> struct Indirect<DEFER, None>;
+    }
+    using indirect::Indirect;
+    //
+    //
+    template<typename PATTERN, typename REPLACE> struct Left;
+    // cv
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN const, REPLACE>;
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN volatile, REPLACE>;
+    // value
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN *, REPLACE>;
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN &, REPLACE>;
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN &&, REPLACE>;
+    //
+    //
+    template<typename PATTERN, typename REPLACE> struct Right;
+    template<typename PATTERN, typename REPLACE, required::Enumeration KEY> struct Right<PATTERN, Indirect<REPLACE, KEY>>;
+    // cv
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE const>;
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE volatile>;
+    // value
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE *>;
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE &>;
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE &&>;
+  }
+  using likely::Like;
+}
+#endiv
+#divert <hpp>
+namespace nonstd {
+  template<typename PATTERN, typename REPLACE> struct likely::Left {
+    using Type [[school("New_School")]] = REPLACE;
+    using type [[school("old_school")]] = Type;
+  };
+  template<typename PATTERN, typename REPLACE> struct likely::Right {
+    using Type [[school("New_School")]] = typename Left<PATTERN, REPLACE>::Type; // see the specialization on std::optional<...> for 
+    using type [[school("old_school")]] = Type;
+  };
+  template<typename PATTERN, typename REPLACE> struct likely::Like : public Right<PATTERN, REPLACE> { } ;
+  namespace likely {
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN const, REPLACE> {
+      using Type [[school("New_School")]] = typename Left<PATTERN, REPLACE>::Type const;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN volatile, REPLACE> {
+      using Type [[school("New_School")]] = typename Left<PATTERN, REPLACE>::Type volatile;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN *, REPLACE> {
+      using Type [[school("New_School")]] = typename Left<PATTERN, REPLACE>::Type *;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN &, REPLACE> {
+      using Type [[school("New_School")]] = typename Left<PATTERN, REPLACE>::Type &;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Left<PATTERN &&, REPLACE> {
+      using Type [[school("New_School")]] = typename Left<PATTERN, REPLACE>::Type &&;
+      using type [[school("old_school")]] = Type;
+    };
+  }
+  namespace likely {
+    template<typename PATTERN, typename REPLACE, required::Enumeration KEY> struct Right<PATTERN, Indirect<REPLACE, KEY>> {
+      using Type [[school("New_School")]] = typename Indirect<REPLACE, KEY>::Type;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE const> {
+      using Type [[school("New_School")]] = typename Right<PATTERN, REPLACE>::Type const;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE volatile> {
+      using Type [[school("New_School")]] = typename Right<PATTERN, REPLACE>::Type volatile;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE *> {
+      using Type [[school("New_School")]] = typename Right<PATTERN, REPLACE>::Type *;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE &> {
+      using Type [[school("New_School")]] = typename Right<PATTERN, REPLACE>::Type &;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename PATTERN, typename REPLACE> struct Right<PATTERN, REPLACE &&> {
+      using Type [[school("New_School")]] = typename Right<PATTERN, REPLACE>::Type &&;
+      using type [[school("old_school")]] = Type;
+    };
+  }
+  namespace likely::indirect {
+    template<typename DEFER> struct Indirect<DEFER, Title> {
+      using Type [[school("New_School")]] = typename DEFER::Type;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename DEFER> struct Indirect<DEFER, Lower> {
+      using Type [[school("New_School")]] = typename DEFER::type;
+      using type [[school("old_school")]] = Type;
+    };
+    template<typename DEFER> struct Indirect<DEFER, None> {
+      using Type [[school("New_School")]] = DEFER;
+      using type [[school("old_school")]] = Type;
+    };
+  }
+}
+#endiv

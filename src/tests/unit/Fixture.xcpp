@@ -9,7 +9,6 @@ namespace tests::unit { class Fixture; }
 #divert <hpp>
 struct tests::unit::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  auto test_something() -> void;
 };
 #endiv
 #divert <cpp>
@@ -19,27 +18,27 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.log.Fixture
 #import tests.unit.message.Fixture
 #import tests.unit.network.Fixture
+#import tests.unit.nonstd.Fixture
 #import tests.unit.service.Fixture
 #import tests.unit.task.Fixture
+#import tests.unit.version.Fixture
 #import tests.unit.want.Fixture
+#import tests.unit.world.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
-  series << add("something", &Fixture::test_something)
-         << add<denniston::Fixture>()
+  series << add<denniston::Fixture>()
          << add<driver::Fixture>()
          << add<exception::Fixture>()
          << add<log::Fixture>()
          << add<message::Fixture>()
          << add<network::Fixture>()
+         << add<nonstd::Fixture>()
          << add<service::Fixture>()
          << add<task::Fixture>()
+         << add<version::Fixture>()
          << add<want::Fixture>()
+         << add<world::Fixture>()
          << END;
   return settle(series);
-}
-namespace tests::unit {
-  auto Fixture::test_something() -> void {
-    require(ASSERTION, true);
-  }
 }
 #endiv

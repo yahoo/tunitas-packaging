@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::index {
+  //
+  // Indices are small integers used to index internal tables of the simulator.
+  // They are not intended to go "over the wire" to other "processes" (network::instance::Prototype descendants)
+  //
+  enum Batch : unsigned;
+  enum Job : unsigned;
+  enum Report : unsigned;
+  enum Service : unsigned;
+  enum Task : unsigned;
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+namespace tunitas::denniston::index {
+  inline constexpr auto underlying(Batch b)   { return std::underlying_type_t<Batch>(b); }
+  inline constexpr auto underlying(Job j)     { return std::underlying_type_t<Job>(j); }
+  inline constexpr auto underlying(Report r)  { return std::underlying_type_t<Report>(r); }
+  inline constexpr auto underlying(Service s) { return std::underlying_type_t<Service>(s); }
+  inline constexpr auto underlying(Task t)    { return std::underlying_type_t<Task>(t); }
+}
+#endiv

@@ -5,11 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.message.Packet
+#import tunitas.denniston.network.channel.Ready
 namespace tests::unit::network::socket {
   namespace [[eponymous]] fixture {
     class Fixture;
     namespace packet = ::tunitas::denniston::message::packet;
-    using Packet = ::tunitas::denniston::message::Packet;
+    using ::tunitas::denniston::message::Packet;
+    using ::tunitas::denniston::network::channel::Ready;
   }
   using fixture::Fixture;
 }
@@ -31,6 +33,7 @@ struct tests::unit::network::socket::Fixture : public rigging::suite::Fixture {
   auto test_read() -> void;
   auto test_peek() -> void;
 protected:
+  Ready ready{}; 
   inline static constexpr auto const SERIES_COUNT = 10uz;
   using Inventory = std::vector<Packet>;
   static auto generate() -> Inventory;
@@ -71,26 +74,26 @@ namespace tests::unit::network::socket {
   }
   auto Fixture::test_left() -> void {
     auto subject = Subject{};
-    auto left = subject.left();
+    auto left = subject.left(&ready);
     require(ASSERTION, sizeof (left));   
   }
   auto Fixture::test_right() -> void {
     auto subject = Subject{};
-    auto right = subject.right();
+    auto right = subject.right(&ready);
     require(ASSERTION, sizeof (right));   
   }
   auto Fixture::test_write_moving() -> void {
     auto subject = Subject{};
-    auto right = subject.right();
+    auto right = subject.right(&ready);
     auto specimen = packet::make<packet::Ping>();
     right.write(move(specimen)); // <---------------------- test this (moving)
     require(ASSERTION);
   }
   auto Fixture::test_write_copying() -> void {
-    auto delayed = []<typename VALUE>(VALUE const &specimen) {
+    auto delayed = [this]<typename VALUE>(VALUE const &specimen) {
       if constexpr (std::is_copy_constructible_v<VALUE>) {
         auto subject = Subject{};
-        auto right = subject.right();
+        auto right = subject.right(&ready);
         right.write(specimen); // <---------------------- test this (copying)
         require(ASSERTION);
       }
@@ -99,7 +102,7 @@ namespace tests::unit::network::socket {
   }
   auto Fixture::test_write_series() -> void {
     auto subject = Subject{};
-    auto right = subject.right();
+    auto right = subject.right(&ready);
     auto prepared = generate();
     require(ASSERTION, 0 < prepared.size());
     right.write(std::make_move_iterator(prepared.begin()), std::make_move_iterator(prepared.end())); // <---------------------- test this (moving)
@@ -111,7 +114,7 @@ namespace tests::unit::network::socket {
                    }
                    return items_read;
                  };
-    require(ASSERTION, SERIES_COUNT == drain(subject.right()));
+    require(ASSERTION, SERIES_COUNT == drain(subject.right(&ready)));
   }
   auto Fixture::test_read() -> void {
     auto subject = Subject{};
@@ -119,8 +122,8 @@ namespace tests::unit::network::socket {
     // Prep: write into the left side.
     // Show: read out of the right side.
     //
-    fill(subject.left());
-    auto right = subject.right();
+    fill(subject.left(&ready));
+    auto right = subject.right(&ready);
     auto items_read{0uz};
     while (right.peek()) {
       auto red = right.read();

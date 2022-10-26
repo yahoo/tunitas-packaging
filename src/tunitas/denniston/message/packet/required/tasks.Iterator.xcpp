@@ -1,0 +1,19 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import tunitas.keyston.protocol.task.Task
+namespace tunitas::denniston::message::packet::required::tasks {
+  //
+  // produce some tasks
+  //
+  template<typename ITERATOR> concept Iterator = requires(ITERATOR) {
+    requires iterator::Forward<ITERATOR>;
+    requires iterator::Producing<ITERATOR, keyston::protocol::task::Task>;
+  };
+}
+#endiv

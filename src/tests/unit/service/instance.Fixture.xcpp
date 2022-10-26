@@ -41,18 +41,22 @@ namespace tests::unit::service::instance {
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.service.instance.Collector
-#import tunitas.denniston.service.instance.Processor
-#import tunitas.denniston.service.instance.Gateway
 #import tunitas.denniston.service.instance.Client
+#import tunitas.denniston.service.instance.Collector
+#import tunitas.denniston.service.instance.Configuration
+#import tunitas.denniston.service.instance.Directory
+#import tunitas.denniston.service.instance.Gateway
+#import tunitas.denniston.service.instance.Processor
 auto tests::unit::service::instance::Fixture::suite() -> Suite {
   auto series = Stream{"instance"sv};
   series << []{
               auto make = Stream{"make"sv};
-              make << add("Collector", &Fixture::test_make<library::Collector>)
-                   << add("Processor", &Fixture::test_make<library::Processor>)
+              make << add("Client", &Fixture::test_make<library::Client>)
+                   << add("Collector", &Fixture::test_make<library::Collector>)
+                   << add("Configuration", &Fixture::test_make<library::Configuration>)
+                   << add("Directory", &Fixture::test_make<library::Directory>)
                    << add("Gateway", &Fixture::test_make<library::Gateway>)
-                   << add("Client", &Fixture::test_make<library::Client>)
+                   << add("Processor", &Fixture::test_make<library::Processor>)                  
                    << END;
               return make;
             }()

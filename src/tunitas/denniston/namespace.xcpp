@@ -11,6 +11,8 @@ namespace tunitas::denniston {
   using Octet = std::byte;
   using Size = std::size_t;
   enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
+  namespace index { }
+  namespace version { }
 }
 #import std.uint8_t
 #import std.uint16_t

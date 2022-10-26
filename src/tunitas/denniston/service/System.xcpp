@@ -1,0 +1,102 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.instance
+#import tunitas.keyston.protocol.constants
+namespace tunitas::denniston::service {
+  //
+  // The manifestation of the service system (all of them comprise the system)
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 2. System Architecture
+  //
+  // Design:
+  //
+  //   The three (no four) roles:
+  //   1. configuration & directory
+  //   2. collector.
+  //   3. processor; a.k.a. "helper", a.k.a. "aggregator"
+  //   4. gateway, a.k.a. "leader"
+  //
+  //   Use deque because we don't need the contiguousness of vector
+  //
+  //   Responsible for sizing the interface arrays within each of subsystems
+  //   See the constructor
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  namespace [[eponymous]] system {
+    struct System;
+    using namespace instance;
+    using tunitas::keyston::protocol::constants::PROCESSOR_COUNT;
+  }
+  using system::System;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.World
+#import tunitas.denniston.service.instance.Pointer
+#import tunitas.denniston.service.instance.Client
+#import tunitas.denniston.service.instance.Collector
+#import tunitas.denniston.service.instance.Configuration
+#import tunitas.denniston.service.instance.Directory
+#import tunitas.denniston.service.instance.Gateway
+#import tunitas.denniston.service.instance.Processor
+#import std.array
+#import std.deque
+class tunitas::denniston::service::system::System {
+  template<instance::required::Instance TYPE> using Pointer = instance::Pointer<TYPE>;
+public:
+  std::deque<Pointer<Client>> clients{}; 
+  Pointer<Collector> collector{};
+  Pointer<Configuration> configuration{};
+  Pointer<Directory> directory{};
+  Pointer<Gateway> gateway{};
+  std::array<Pointer<Processor>, PROCESSOR_COUNT> processors{};
+  //
+  explicit System([[inout]] World &, Size initial_client_count = 0);
+  System(System const &) = delete;
+  System &operator=(System const &) = delete;
+};
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.instance.make
+#import std.to_array
+namespace tunitas::denniston::service::system {
+  System::System(World &world, Size initial_client_count)
+    : collector{make<Collector>(world)}
+    , configuration{make<Configuration>(world)}
+    , directory{make<Directory>(world)}
+    , gateway{make<Gateway>(world)}
+    , processors{std::to_array({make<Processor>(world, Name::PROCESSOR1), make<Processor>(world, Name::PROCESSOR2)})}
+  {
+    for (auto i{0uz}; initial_client_count != i; ++i) {
+      auto name = Name(underlying(Name::CLIENT) + i);
+      clients.push_back(make<Client>(world, name));
+    }
+    configuration->processors.resize(processors.size());
+    configuration->clients.resize(clients.size());
+    directory->clients.resize(clients.size());
+    gateway->processors.resize(processors.size());
+    gateway->clients.resize(clients.size());
+  }
+}
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::service;
+    static_assert(not std::is_default_constructible_v<System> || std::is_default_constructible_v<System>);
+    static_assert(not std::is_copy_constructible_v<System>);
+    static_assert(not std::is_move_constructible_v<System>);
+    static_assert(not std::is_copy_assignable_v<System>);
+    static_assert(not std::is_move_assignable_v<System>);
+    static_assert(not std::is_swappable_v<System>);
+  }
+}
+#endiv

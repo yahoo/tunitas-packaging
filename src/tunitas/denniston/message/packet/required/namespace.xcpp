@@ -6,5 +6,8 @@
 #divert <fpp>
 #import tunitas.denniston.message.packet
 #import tunitas.denniston.message.required
-namespace tunitas::denniston::message::packet::required { using namespace tunitas::denniston::message::required; }
+namespace tunitas::denniston::message::packet::required {
+  using namespace tunitas::denniston::message::required;
+  namespace [[nodirectory]] tasks { }
+}
 #endiv

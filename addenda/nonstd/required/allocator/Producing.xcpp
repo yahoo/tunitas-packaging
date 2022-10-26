@@ -1,0 +1,30 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import std.allocator_traits // but for non-standard ALLOCATOR, you may need specializations visile to make this work
+#import nonstd.required.allocator.Basic
+namespace nonstd::required::allocator {
+  //
+  // Does THIS allocator produce THAT type?
+  // rhymes with iterator::Producing
+  //
+  // Models
+  // https://en.cppreference.com/w/cpp/memory/allocator_traits
+  // https://en.cppreference.com/w/cpp/memory/allocator
+  //
+  template<typename ALLOCATOR, typename VALUE> concept Producing = requires(ALLOCATOR, VALUE) {
+    requires Basic<ALLOCATOR>;
+    requires same_as<VALUE, typename std::allocator_traits<ALLOCATOR>::value_type>;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.allocator
+namespace {
+  namespace testate {
+    namespace subrequired = nonstd::required::allocator;
+    // Testify! - All known character types (have) Allocators
+    static_assert(subrequired::Producing<std::allocator<char>, char>);
+  }
+}
+#endiv

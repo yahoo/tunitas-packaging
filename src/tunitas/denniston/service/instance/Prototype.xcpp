@@ -31,19 +31,28 @@ namespace tunitas::denniston::service::instance {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.log.Client
+#import tunitas.denniston.network.channel.Ready
 #import tunitas.denniston.service.Name
 #import tunitas.denniston.network.Socket.Interface
 #forward tunitas.denniston.driver.Threads
+#forward tunitas.denniston.driver.Driver
+#import std.atomic
+#import std.vector
 struct tunitas::denniston::service::instance::Prototype {
   Name name{};
   denniston::log::Client log;
-  network::Socket::Interface control{};
+  using Interface = network::Socket::Interface;
+  using Interfaces = std::vector<network::Socket::Interface>;
+  Interface control{};
   Prototype(Prototype const &) = delete;
   Prototype &operator=(Prototype const &) = delete;
   virtual ~Prototype() = default;
   virtual auto launch([[inout]] driver::Threads &) -> void = 0;
 protected:
   inline explicit Prototype(Name);
+  std::atomic<bool> graceful_shutdown{false}; // not clear this needs to be atomic.
+  friend class driver::Driver;
+  network::channel::Ready ready{};
 };
 #endiv
 #divert <ipp>

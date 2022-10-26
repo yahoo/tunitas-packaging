@@ -1,0 +1,25 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import nonstd.Like.std.optional.nonstd.iterator.Qualified.CONTAINER.Type
+#import nonstd.Optional
+#endiv
+#divert <cpp>
+#import std.same_as
+#import std.vector // pick one, any one will do
+namespace {
+  namespace testate {
+    struct Pattern;
+    namespace mutating {
+      using Expected = nonstd::Optional<std::vector<char>::iterator>;
+      using Observed = nonstd::Like<Pattern /*mutable*/, nonstd::Optional<nonstd::likely::Indirect<nonstd::iterator::Qualified<std::vector<char>>>>>::Type;
+      static_assert(std::same_as<Expected, Observed>);
+    }
+    namespace constie {
+      using Expected = nonstd::Optional<std::vector<char>::const_iterator>;
+      using Observed = nonstd::Like<Pattern const, nonstd::Optional<nonstd::likely::Indirect<nonstd::iterator::Qualified<std::vector<char>>>>>::Type;
+      static_assert(std::same_as<Expected, Observed>);
+    }
+  }
+}
+#endiv

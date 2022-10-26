@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.message.packet.Response.template
+namespace tunitas::denniston::message::packet {
+  //
+  // Semantic:
+  //
+  //   The response to a Query<TASKS>
+  //
+  // Design:
+  //
+  //   The manifest constructors in lieu of agggregate or designated initialization allows make<...>(...) to work.
+  //
+  //   There is some small limit on the number of available tasks.
+  //   Let that number be circa 256.
+  //
+  template<> struct Response<Get::TASKS>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.message.packet.Prototype
+#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.protocol.task.Task
+#import tunitas.denniston.message.packet.required.tasks.Iterator
+namespace tunitas::denniston::message::packet {
+  template<> class Response<Get::TASKS> : public Prototype {
+    inline static constexpr auto const CAPACITY = 1uz<<8;
+  public:
+    using Task = keyston::protocol::task::Task;
+    using Tasks = keyston::array::Bounded<Task, CAPACITY>;
+    static constexpr auto capacity() -> Size { return CAPACITY; }
+    Tasks tasks{};
+    explicit Response() = default;
+    inline explicit Response(Task);
+    inline explicit Response(Tasks);
+    template<required::tasks::Iterator ITERATOR> inline explicit Response(ITERATOR start, ITERATOR finish);
+  };
+}
+#endiv
+#divert <ipp>
+#import nonstd.move
+#import std.back_inserter
+namespace tunitas::denniston::message::packet {
+  Response<Get::TASKS>::Response(Tasks t) : tasks{move(t)} { }
+  Response<Get::TASKS>::Response(Task t) { tasks.push_back(move(t)); }
+  template<required::tasks::Iterator ITERATOR> Response<Get::TASKS>::Response(ITERATOR start, ITERATOR finish) {
+    // relying upon Bounded<...>::push_back(...) to throw an exception if the array bound is exceeded.
+    nonstd::move(start, finish, std::back_inserter(tasks));
+  }
+}
+#endiv

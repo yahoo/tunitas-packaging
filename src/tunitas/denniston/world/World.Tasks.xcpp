@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.world.World>
+#endiv
+#divert <hpp>
+#import std.size_t
+#import tunitas.keyston.id.Generator
+#import tunitas.keyston.protocol.id // Batch, Task, etc.
+#import tunitas.keyston.protocol.query.Type
+#import tunitas.keyston.protocol.query.Query
+#import tunitas.keyston.protocol.query.Batch
+#import tunitas.keyston.function // for function::Function
+#import tunitas.keyston.time.Clock
+namespace tunitas::denniston::world {
+  struct World::Tasks {
+    template<World::Index::Task> static auto fill([[inout]] keyston::protocol::task::Task &, World const &) -> void;
+    static std::size_t const COUNT;
+  private:
+    struct Generator {
+      using Task = keyston::id::Generator<keyston::protocol::id::Task, keyston::id::generator::Policy::SUPPLIED>;
+      using Batch = keyston::id::Generator<keyston::protocol::id::Batch, keyston::id::generator::Policy::SUPPLIED>;
+    };
+    using Clock = keyston::time::Clock;
+    struct Query {
+      using enum keyston::protocol::query::Type;
+      static_assert(std::same_as<keyston::protocol::query::Query, keyston::protocol::query::Batch>, "still true");
+      using Batch = keyston::protocol::query::Batch;
+      using Time_Interval = keyston::protocol::query::Time_Interval;
+      using Fixed_Size = keyston::protocol::query::Fixed_Size;
+      template<keyston::protocol::query::Type TYPE> using Record = keyston::protocol::query::batch::Record<TYPE>;
+    };
+    using Function = keyston::function::Function;
+  };
+  template<> auto World::Tasks::fill<World::Index::Task{0}>(keyston::protocol::task::Task &, World const &) -> void;
+  template<> auto World::Tasks::fill<World::Index::Task{1}>(keyston::protocol::task::Task &, World const &) -> void;
+  inline std::size_t const World::Tasks::COUNT{2uz};
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::world {
+  template<> auto World::Tasks::fill<World::Index::Task{0}>(keyston::protocol::task::Task &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Task{0};
+    noob.id = Generator::Task{}(INDEX);
+    noob.services = {row.endpoints.at(0), row.endpoints.at(1)};
+    noob.query = Query::Batch{Query::Record<Query::FIXED_SIZE>{Query::Fixed_Size{.batch_id{Generator::Batch{}(0u)}}}};
+    noob.function = Function::SUM;
+  }
+  template<> auto World::Tasks::fill<World::Index::Task{1}>(keyston::protocol::task::Task &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Task{1};
+    noob.id = Generator::Task{}(INDEX);
+    noob.services = {row.endpoints.at(2), row.endpoints.at(3)};
+    noob.query = Query::Batch{Query::Record<Query::TIME_INTERVAL>{Query::Time_Interval{Clock::now(), 1_day}}};
+    noob.function = Function::SUM;
+  }
+}
+#endiv

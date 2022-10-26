@@ -1,0 +1,99 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::channel {
+  //
+  // At the process level, are any channels readable?
+  //
+  // Specification:
+  //
+  //   A "monitor"
+  //   A lock+condition (variable) system.
+  //
+  // Design:
+  //
+  //   Right outta da books.
+  //
+  //   See te recipe for using a condition variable
+  //   https://en.cppreference.com/w/cpp/thread/condition_variable
+  //   1. acquire a std::unique_lock<std::mutex>, on the same mutex as used to protect the shared variable
+  //   2. choices among the predicated variants of wait(...), wait_for(...), wait_until(...)
+  //
+  // Usage:
+  //
+  //   Positioned in a process.
+  //   Socket::Interface performs update+notificatoins.
+  //
+  // Centrall; e.g. at the service instance (a.k.a. "process") state variables (a.k.a. "struct").
+  //
+  //   struct Something {
+  //     ...etc...
+  //     Ready ready{};
+  //     ...etc...
+  //   }
+  //
+  // Reading; e.g. within the service instance's run function
+  //
+  //    while (true) {
+  //      ready.await();
+  //      ... something is ready to read ... find it (poll).
+  //      auto red0 = some_face.read_if();
+  //      auto red1 = someother_face.read_if();
+  //      auto red2 = another_face.read_if();
+  //      auto red3 = and_another_face.read_if();
+  //      ... and so on...
+  //   }
+  //
+  // Writing:
+  //
+  //   readability.notify();
+  //
+  struct Ready;
+}
+#endiv
+#divert <hpp>
+#import std.mutex
+#import std.lock_guard
+#import std.condition_variable
+class tunitas::denniston::network::channel::Ready {
+  std::mutex mutex{};
+  std::unique_lock<std::mutex> anchor{mutex, std::defer_lock};
+  std::condition_variable condition{};
+  bool some_channel_is_ready_to_read{};
+  using Guard = std::lock_guard<std::mutex>;
+  struct Await {
+    inline explicit Await(Ready &);
+    inline ~Await();
+    Ready &guarded;
+  };
+public:
+  inline auto notify() -> void;
+  inline auto await() -> void;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::network::channel {
+  auto Ready::notify() -> void {
+    { auto guard = Guard{mutex};
+      some_channel_is_ready_to_read = true; }
+    // [[does it matter?]] dont' notify while in the critical section
+    condition.notify_all();
+  }
+  auto Ready::await() -> void {
+    auto guard = Await{*this};
+    // acknowledge that something is ready to ready and transmit that back by returning from "await"
+    some_channel_is_ready_to_read = false;
+  }
+  Ready::Await::Await(Ready &g) : guarded{g} {
+    guarded.anchor.lock();
+    guarded.condition.wait(guarded.anchor, [&location=guarded.some_channel_is_ready_to_read]{ return location; });
+  }
+  Ready::Await::~Await() {
+    guarded.anchor.unlock();
+    guarded.condition.notify_all(); // why not notify_one?
+  }
+}
+#endiv

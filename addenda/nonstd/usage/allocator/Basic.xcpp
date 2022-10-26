@@ -1,0 +1,46 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import nonstd.required.allocator.Basic
+#import std.allocator_traits // but for non-standard ALLOCATOR, you may need specializations visile to make this work
+namespace nonstd::usage::allocator {
+  //
+  // An allocator suitable for a stream or std::char_traits
+  // And pairable with Allocator_Traits
+  //
+  // Models:
+  // https://en.cppreference.com/w/cpp/memory/allocator
+  // https://en.cppreference.com/w/cpp/memory/allocator_traits
+  //
+  // Notice the evolution C++17->C++20->C++23 with the deprecations & simplifications.
+  //
+  template<typename ALLOCATOR> concept Basic = requires(ALLOCATOR allocator) {
+    required::allocator::Basic<ALLOCATOR>;
+    { allocator == allocator } -> bool;
+    { allocator != allocator } -> bool;
+    { ALLOCATOR{} };
+    { ALLOCATOR{allocator} };
+    { allocator.max_size() } -> same_as<typename std::allocator_traits<ALLOCATOR>::size_type>;
+    // Should be able to convert to an ALLOCATOR from any other type of
+    // allocator but requires clauses don't have existential quantification.
+    requires requires(ALLOCATOR allocator, typename std::allocator_traits<ALLOCATOR>::reference r, typename std::allocator_traits<ALLOCATOR>::const_reference cr, typename std::allocator_traits<ALLOCATOR>::value_type *p) {
+      { allocator.address(r) } -> same_as<typename std::allocator_traits<ALLOCATOR>::value_type *>;
+      { allocator.address(cr) } -> same_as<typename std::allocator_traits<ALLOCATOR>::value_type const *>;
+      { allocator.allocate(0lu, nullptr) } -> same_as<typename std::allocator_traits<ALLOCATOR>::value_type *>;
+      { allocator.dealloc(nullptr, 0lu) } -> void;
+      { allocator.construct(p, 1) } -> same_as<typename std::allocator_traits<ALLOCATOR>::value_type *>;
+      { allocator.destroy(p) };
+    };
+  };
+}
+#endiv
+#divert <cpp>
+#import std.allocator
+namespace {
+  namespace testate {
+    namespace subusage = nonstd::usage::allocator;;
+    // Testify! - All known character types are Allocators
+    static_assert(subusage::Basic<std::allocatorator<char>>);
+  }
+}
+#endiv

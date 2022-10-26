@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston // contains namespace tunitas::denniston::.version
+namespace tests::unit::version {
+  class Fixture;
+  namespace library = ::tunitas::denniston::version;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::version::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_String() -> void;
+  auto test_Generator() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::version::Fixture::suite() -> Suite {
+  auto series = Stream{"version"sv};
+  series << add("String", &Fixture::test_String)
+         << add("Generator", &Fixture::test_Generator)
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.version.String
+#import tunitas.denniston.version.Generator
+namespace tests::unit::version {
+  auto Fixture::test_String() -> void {
+    using Subject = library::String;
+    auto string = Subject{};
+    require(ASSERTION, sizeof (string));
+  }
+  auto Fixture::test_Generator() -> void {
+    using Subject = library::Generator;
+    auto subject = Subject{};
+    auto specimen = subject();
+    std::cerr << specimen << '\n';
+    require(ASSERTION, sizeof (specimen));
+  }
+}
+#endiv

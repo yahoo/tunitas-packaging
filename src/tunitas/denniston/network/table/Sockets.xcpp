@@ -15,7 +15,7 @@ namespace tunitas::denniston::network::table {
   // Design:
   //
   //   Whereas sockets cannot be moved or copied, some special treatment is implicated.
-  //   Not copyable, movable or swapable because there are iterators pointing back into here from "all over" (e.g. service::Universe)
+  //   Not copyable, movable or swapable because there are iterators pointing back into here from "all over" (e.g. service::System)
   //
   // Usage:
   //

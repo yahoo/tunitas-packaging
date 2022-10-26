@@ -28,7 +28,7 @@ namespace tunitas::denniston::task {
   //
   // Design:
   //
-  //   Using the Bets Available Means and Methods (UBAMM)
+  //   Using the Best Available Means and Methods (UBAMM)
   //
   // Usage:
   //
@@ -39,12 +39,19 @@ namespace tunitas::denniston::task {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.function // Result, Function
-#import tunitas.keyston.array.Bounded
-#import tunitas.denniston.task.Service
-struct tunitas::denniston::task::Task {
-  keyston::function::Result result{};
-  keyston::function::Function function{};
-  keyston::array::Bounded<Service, (1u<<8)> processors{};
-};
+#import tunitas.keyston.protocol.task.Task
+struct tunitas::denniston::task::Task : public keyston::protocol::task::Task { };
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::task;
+    static_assert(std::is_default_constructible_v<Task>);
+    static_assert(std::is_copy_constructible_v<Task>);
+    static_assert(std::is_move_constructible_v<Task>);
+    static_assert(std::is_copy_assignable_v<Task>);
+    static_assert(std::is_move_assignable_v<Task>);
+    static_assert(std::is_swappable_v<Task>);
+  }
+}
 #endiv

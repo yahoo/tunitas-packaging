@@ -24,36 +24,56 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <hpp>
+#forward tunitas.denniston.World
 #import tunitas.denniston.service.instance.Prototype
 class tunitas::denniston::service::instance::Gateway : public Prototype {
   using Ancestor = Prototype;
   auto run() noexcept -> void;
 public:
   inline explicit Gateway();
+  inline explicit Gateway([[inout]] World &);
   auto launch(driver::Threads &) -> void override;
+  Interfaces clients{};
+  Interface collector{};
+  Interfaces processors{};
 };
 #endiv
 #divert <ipp>
+#import tunitas.denniston.World
 namespace tunitas::denniston::service::instance {
+  Gateway::Gateway(World &) : Gateway{} { }
   Gateway::Gateway()
     : Ancestor{Name::GATEWAY}
   { }
 }
 #endiv
 #divert <cpp>
+#import tunitas.denniston.message.packet.cast
+#import tunitas.denniston.message.packet.make
+#import tunitas.denniston.message.packet.Status
 namespace tunitas::denniston::service::instance {
   auto Gateway::launch(driver::Threads &pool) -> void { pool.launch(&Gateway::run, this); }
   auto Gateway::run() noexcept -> void try {
-    log.format("begin");
-    while (true) {
+    log.format("begin running");
+    while (!graceful_shutdown.load()) {
+      ready.await();
       log.format("reading");
-      auto red = control.read();
-      log.format("red");
-      if (is_quit(red)) {
-        break;
+      if (auto red=control.read_if(); red) {
+        log.format("red from control");
+        if (is_quit(*red)) {
+          graceful_shutdown.store(true);
+          break;
+        }
+      }
+      if (auto red=collector.read_if(); red) {
+        log.format("red from collector");
+        if (is_ping(*red)) {
+          log.format("collector sent ping");
+          collector.write(message::packet::make<message::packet::Status>());
+        }
       }
     }
-    log.format("ending gracefully");
+    log.format("ending");
   } catch(...) {
     log.format("escaped expression is suppressed");
   }

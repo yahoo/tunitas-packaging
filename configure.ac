@@ -22,7 +22,7 @@ dnl These options are also in the Makefile.am in AUTOMAKE_OPTIONS
 dnl AM_INIT_AUTOMAKE([no-define subdir-objects foreign])
 AM_SILENT_RULES([yes])
 
-AC_CONFIG_SRCDIR([src/tunitas/denniston/Version.xcpp])
+AC_CONFIG_SRCDIR([src/tunitas/denniston/namespace.xcpp])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
@@ -55,6 +55,7 @@ TF_WITH_MODULE([langu])
 TF_WITH_MODULE([nonstd])
 TF_WITH_MODULE([sys])
 TF_WITH_MODULE([rigging-core])
+TF_WITH_MODULE([rigging-app])
 
 dnl deprecating (being subsumed by the above)
 TF_WITH_MODULE([posix])

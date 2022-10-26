@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace app::flow {
+  //
+  // The configuration
+  //
+  // Specification:
+  //
+  //   Separated experience & configruation.
+  //
+  // Design:
+  //
+  //   The ancestry into Controllability is needed for the test controllability system.
+  //   use of Optional allows for delegation to a pre-declared default value (see namespace defaults)
+  //
+  // Usage:
+  //
+  //   Sure.
+  //
+  struct Configuration;
+}
+#endiv
+#divert <hpp>
+#import cli.configuration.Core
+#import cli.configuration.Controllability
+#import tunitas.Optional
+struct app::flow::Configuration : public cli::configuration::Core, public cli::configuration::Controllability {
+  using Ancestor = cli::configuration::Core;
+public:
+  Configuration() = default;
+  tunitas::Optional<bool> interactive_mode{};
+  tunitas::Optional<bool> programmatic_mode{};
+};
+#endiv

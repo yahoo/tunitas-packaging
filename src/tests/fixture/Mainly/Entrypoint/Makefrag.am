@@ -1,0 +1,8 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+tests_fixture_Mainly_Entrypoint_SUBSOURCES = \
+  check/obj/src/tests/fixture/Mainly/Entrypoint/app.flow.Configuration.cpp \
+  $(end)
+$(tests_fixture_Mainly_Entrypoint_SUBSOURCES) : DISCOFLAGS=--no-insert-namespace
+$(tests_fixture_Mainly_Entrypoint_SUBSOURCES) : bbDC_FLAGS=$(DISCOFLAGS)

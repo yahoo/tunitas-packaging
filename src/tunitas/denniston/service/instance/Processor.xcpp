@@ -28,18 +28,24 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <hpp>
+#forward tunitas.denniston.World
 #import tunitas.denniston.service.instance.Prototype
 class tunitas::denniston::service::instance::Processor : public Prototype {
   using Ancestor = Prototype;
   auto run() noexcept -> void;
 public:
   inline explicit Processor(Name);
+  inline explicit Processor([[inout]] World &, Name);
   auto launch(driver::Threads &) -> void override;
+  Interface configuration{};
+  Interface gateway{};
 };
 #endiv
 #divert <ipp>
+#import tunitas.denniston.World
 #import tunitas.denniston.exception.Invalid
 namespace tunitas::denniston::service::instance {
+  Processor::Processor(World &, Name name) : Processor{name} { }
   Processor::Processor(Name name)
     : Ancestor{name}
   {
@@ -50,6 +56,7 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <cpp>
+#import tunitas.denniston.message.packet.cast
 namespace tunitas::denniston::service::instance {
   auto Processor::launch(driver::Threads &pool) -> void { pool.launch(&Processor::run, this); }
   auto Processor::run() noexcept -> void try {

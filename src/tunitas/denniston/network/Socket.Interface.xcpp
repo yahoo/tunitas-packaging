@@ -4,27 +4,53 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
+//
+// The socket ineterface
+//
+// Specification:
+//
+//   Interfaces are light-to-copy.
+//   The operation (read & write) have move semantics; moving the packets.
+//   The read operation blocks.
+//   The read_if operation does not block but returns an optional
+//
+// Design:
+//
+//   Just what you see.
+//
+// Usage:
+//
+//   auto face = ...somehow...
+//
+//   auto pack = face.read());
+//   auto maybe = face.read_if();
+//   face.write(move(move(pack)));
+//   
 #include <hpp/tunitas.denniston.network.Socket>
 #endiv
 #divert <hpp>
 static_assert(sizeof (tunitas::denniston::network::Socket));
 static_assert(sizeof (tunitas::denniston::network::Socket::Interface *));
+#forward tunitas.denniston.network.channel.Ready
+#import tunitas.Optional
+#import tunitas.denniston.network.required.iterator.Socket_Move
 namespace tunitas::denniston::network {
   struct Socket::Interface {
     using Value = Socket::Value;
-    inline auto write(Value &&) -> void;
-    template<typename VALUE> inline auto write(VALUE const &) -> void requires (std::same_as<Value, VALUE> && std::is_copy_constructible_v<Value>);
-    template<required::iterator::Producing<Value> ITERATOR> inline auto write(ITERATOR first, ITERATOR last) -> void;
-    inline auto read() -> Value; // blocks until there is something to read
+    inline auto write(Value) -> void;
+    template<required::iterator::Socket_Move<Value> ITERATOR> inline auto write(ITERATOR first, ITERATOR last) -> void;
+    inline auto read() -> Value; // ................ blocks until there is something to read
+    inline auto read_if() -> Optional<Value>; // ... does not block
     using Peeked = channel::Peek<Value>;
     inline auto peek() -> Peeked;
     explicit Interface() = default;
   protected:
     friend class Socket;
-    inline Interface(Socket *, Pipe Socket::*read, Pipe Socket::*write);
+    inline Interface(Socket *, Pipe Socket::*read, Pipe Socket::*write, channel::Ready *);
     Socket *origin{};;
     Pipe Socket::*read_side{};
     Pipe Socket::*write_side{};
+    channel::Ready *ready{};
     inline auto validate_origin() const -> void;
   };
 }
@@ -32,11 +58,13 @@ namespace tunitas::denniston::network {
 #divert <ipp>
 #import tunitas.denniston.network.Socket
 #import tunitas.denniston.network.exception.Null
+#import tunitas.denniston.network.channel.Ready
 namespace tunitas::denniston::network {
-  Socket::Interface::Interface(Socket *o, Pipe Socket::*r, Pipe Socket::*w)
+  Socket::Interface::Interface(Socket *o, Pipe Socket::*r, Pipe Socket::*w, channel::Ready *y)
     : origin{o}
     , read_side{r}
     , write_side{w}
+    , ready{y}
   { }
   auto Socket::Interface::Interface::validate_origin() const -> void {
     if (nullptr == origin) {
@@ -45,23 +73,25 @@ namespace tunitas::denniston::network {
   }
   //
   // writing
-  auto Socket::Interface::write(Value &&value) -> void {
+  auto Socket::Interface::write(Value value) -> void {
     validate_origin();
     (origin->*write_side).push_back(move(value));
+    ready->notify();
   }
-  template<typename VALUE> auto Socket::Interface::write(VALUE const &value) -> void requires (std::same_as<Value, VALUE> && std::is_copy_constructible_v<Value>) {
-    validate_origin();
-    (origin->*write_side).push_back(value);
-  }
-  template<required::iterator::Producing<Socket::Value> ITERATOR> auto Socket::Interface::write(ITERATOR start, ITERATOR finish) -> void {
+  template<required::iterator::Socket_Move<Socket::Value> ITERATOR> auto Socket::Interface::write(ITERATOR start, ITERATOR finish) -> void {
     validate_origin();
     (origin->*write_side).push_back(start, finish);
+    ready->notify();
   }
   //
   // reading
-  auto Socket::Interface::read() -> Value  {
+  auto Socket::Interface::read() -> Value {
     validate_origin();
     return (origin->*read_side).pop();
+  }
+  auto Socket::Interface::read_if() -> Optional<Value> {
+    validate_origin();
+    return (origin->*read_side).pop_if();
   }
   auto Socket::Interface::peek() -> Peeked {
     validate_origin();

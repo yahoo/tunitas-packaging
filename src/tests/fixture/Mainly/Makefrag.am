@@ -1,0 +1,9 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+tests_fixture_Mainly_SUBSOURCES = \
+  check/obj/src/tests/fixture/Mainly.cpp \
+  $(tests_fixture_Mainly_Entrypoint_SUBSOURCES) \
+  $(end)
+#
+include src/tests/fixture/Mainly/Entrypoint/Makefrag.am

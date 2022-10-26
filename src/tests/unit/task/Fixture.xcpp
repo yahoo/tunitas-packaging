@@ -10,36 +10,30 @@ namespace tests::unit::task { class Fixture; }
 struct tests::unit::task::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  auto test_usage_Provisions() -> void;
-  auto test_usage_Service() -> void;
+  auto test_usage_Dictionary() -> void;
   auto test_usage_Task() -> void;
 };
 #endiv
 #divert <cpp>
+#import tests.unit.task.Dictionary
 auto tests::unit::task::Fixture::suite() -> Suite {
   auto series = Stream{"task"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Provisions", &Fixture::test_usage_Provisions)
-                  << add("Service", &Fixture::test_usage_Service)
-                  << add("Task", &Fixture::test_usage_Task)
+              use << add("Task", &Fixture::test_usage_Task)
+                  << add("Dictionary", &Fixture::test_usage_Dictionary)
                   << END;
               return use;
             }()
+         << add<Dictionary>()
          << END;
   return settle(series);
 }
-#import tunitas.denniston.task.Provisions
-#import tunitas.denniston.task.Service
+#import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Task
 namespace tests::unit::task {
-  auto Fixture::test_usage_Provisions() -> void {
-    using Subject = library::Provisions;
-    auto subject = Subject{};
-    require(ASSERTION, sizeof (subject));
-  }
-  auto Fixture::test_usage_Service() -> void {
-    using Subject = library::Service;
+  auto Fixture::test_usage_Dictionary() -> void {
+    using Subject = library::Dictionary;
     auto subject = Subject{};
     require(ASSERTION, sizeof (subject));
   }

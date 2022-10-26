@@ -11,7 +11,10 @@ noinst_lib_libtunitas_denniston_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
 # [[FIXTHIS]] - need a way to provide tunitas that doesn't need the TXUI of -ltunitas-app
 noinst_lib_libtunitas_denniston_la_LIBADD = \
   noinst/lib/libautotools-autoconf+tunitas-denniston.la \
+  noinst/lib/libaddenda+nonstd.la \
+  noinst/lib/libfmt+tunitas-denniston.la \
   noinst/lib/libstd+tunitas-denniston.la \
+  noinst/lib/libnonstd+tunitas-denniston.la \
   noinst/lib/libwant.la \
   -ltunitas-keyston -ltunitas-app -ltunitas \
   -lfmt -lsys++-posix -lsys++ -lnonstd++ \

@@ -1,0 +1,22 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import nonstd.iterator.Traits
+#include <hpp/nonstd.iterator.Traits> // but you may need specializations to fully activate this
+namespace tunitas::denniston::network::required::iterator {
+  //
+  // Iterators used in Socket::Interface::write(...)
+  // MUST be move iterators.
+  // And they MUST be producing a VALUE
+  //
+  template<typename ITERATOR, typename VALUE> concept Socket_Move = requires(ITERATOR, VALUE) {
+    requires Forward<ITERATOR>;
+    requires Producing<ITERATOR, typename nonstd::iterator::Traits<ITERATOR>::Value &&>;
+  };
+}
+#endiv

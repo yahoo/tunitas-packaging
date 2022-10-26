@@ -16,10 +16,14 @@ struct tests::unit::service::name::Fixture : public rigging::suite::Fixture {
   //
   using Subject = library::Name;
   //
-  auto test_is_collector() -> void;
-  auto test_is_processor() -> void;
-  auto test_is_gateway() -> void;
   auto test_is_client() -> void;
+  auto test_is_collector() -> void;
+  auto test_is_configuration() -> void;
+  auto test_is_directory() -> void;
+  auto test_is_gateway() -> void;
+  auto test_is_processor() -> void;
+  //
+  auto test_make_client_name() -> void;
 };
 #endiv
 #divert <cpp>
@@ -27,40 +31,24 @@ auto tests::unit::service::name::Fixture::suite() -> Suite {
   auto series = Stream{"name"sv};
   series << []{
               auto is = Stream{"is"sv};
-              is << add("Collector", &Fixture::test_is_collector)
-                   << add("Processor", &Fixture::test_is_processor)
-                   << add("Gateway", &Fixture::test_is_gateway)
-                   << add("Client", &Fixture::test_is_client)
-                   << END;
+              is << add("Client", &Fixture::test_is_client)                 
+                 << add("Collector", &Fixture::test_is_collector)
+                 << add("Configuration", &Fixture::test_is_configuration)
+                 << add("Directory", &Fixture::test_is_directory)
+                 << add("Gateway", &Fixture::test_is_gateway)
+                 << add("Processor", &Fixture::test_is_processor)
+                 << END;
               return is;
             }()
+         << add("make_client_name", &Fixture::test_make_client_name)
          << END;
   return settle(series);
 }
 namespace tests::unit::service::name {
-  auto Fixture::test_is_collector() -> void {
-    require(ASSERTION, is_collector(Subject::COLLECTOR));
-    require(ASSERTION, not is_collector(Subject::PROCESSOR2));
-    require(ASSERTION, not is_collector(Subject::PROCESSOR1));
-    require(ASSERTION, not is_collector(Subject::GATEWAY));
-    require(ASSERTION, not is_collector(Subject::CLIENT));
-  }
-  auto Fixture::test_is_processor() -> void {
-    require(ASSERTION, not is_processor(Subject::COLLECTOR));
-    require(ASSERTION, is_processor(Subject::PROCESSOR2));
-    require(ASSERTION, is_processor(Subject::PROCESSOR1));
-    require(ASSERTION, not is_processor(Subject::GATEWAY));
-    require(ASSERTION, not is_processor(Subject::CLIENT));
-  }
-  auto Fixture::test_is_gateway() -> void {
-    require(ASSERTION, not is_gateway(Subject::COLLECTOR));
-    require(ASSERTION, not is_gateway(Subject::PROCESSOR2));
-    require(ASSERTION, not is_gateway(Subject::PROCESSOR1));
-    require(ASSERTION, is_gateway(Subject::GATEWAY));
-    require(ASSERTION, not is_gateway(Subject::CLIENT));
-  }
   auto Fixture::test_is_client() -> void {
     require(ASSERTION, not is_client(Subject::COLLECTOR));
+    require(ASSERTION, not is_client(Subject::CONFIGURATION));
+    require(ASSERTION, not is_client(Subject::DIRECTORY));
     require(ASSERTION, not is_client(Subject::PROCESSOR2));
     require(ASSERTION, not is_client(Subject::PROCESSOR1));
     require(ASSERTION, not is_client(Subject::GATEWAY));
@@ -69,6 +57,55 @@ namespace tests::unit::service::name {
     require(ASSERTION, is_client(Subject{2}));
     require(ASSERTION, is_client(Subject{3}));
     require(ASSERTION, is_client(Subject{4}));
+  }
+  auto Fixture::test_is_collector() -> void {
+    require(ASSERTION, is_collector(Subject::COLLECTOR));
+    require(ASSERTION, not is_collector(Subject::CONFIGURATION));
+    require(ASSERTION, not is_collector(Subject::DIRECTORY));
+    require(ASSERTION, not is_collector(Subject::PROCESSOR2));
+    require(ASSERTION, not is_collector(Subject::PROCESSOR1));
+    require(ASSERTION, not is_collector(Subject::GATEWAY));
+    require(ASSERTION, not is_collector(Subject::CLIENT));
+  }
+  auto Fixture::test_is_configuration() -> void {
+    require(ASSERTION, is_configuration(Subject::CONFIGURATION));
+    require(ASSERTION, not is_configuration(Subject::COLLECTOR));
+    require(ASSERTION, not is_configuration(Subject::DIRECTORY));
+    require(ASSERTION, not is_configuration(Subject::PROCESSOR2));
+    require(ASSERTION, not is_configuration(Subject::PROCESSOR1));
+    require(ASSERTION, not is_configuration(Subject::GATEWAY));
+    require(ASSERTION, not is_configuration(Subject::CLIENT));
+  }
+  auto Fixture::test_is_directory() -> void {
+    require(ASSERTION, not is_directory(Subject::COLLECTOR));
+    require(ASSERTION, not is_directory(Subject::CONFIGURATION));
+    require(ASSERTION, not is_directory(Subject::PROCESSOR2));
+    require(ASSERTION, not is_directory(Subject::PROCESSOR1));
+    require(ASSERTION, not is_directory(Subject::GATEWAY));
+    require(ASSERTION, not is_directory(Subject::CLIENT));
+  }
+  auto Fixture::test_is_gateway() -> void {
+    require(ASSERTION, not is_gateway(Subject::COLLECTOR));
+    require(ASSERTION, not is_gateway(Subject::CONFIGURATION));
+    require(ASSERTION, not is_gateway(Subject::DIRECTORY));
+    require(ASSERTION, not is_gateway(Subject::PROCESSOR2));
+    require(ASSERTION, not is_gateway(Subject::PROCESSOR1));
+    require(ASSERTION, is_gateway(Subject::GATEWAY));
+    require(ASSERTION, not is_gateway(Subject::CLIENT));
+  }
+  auto Fixture::test_is_processor() -> void {
+    require(ASSERTION, not is_processor(Subject::COLLECTOR));
+    require(ASSERTION, not is_processor(Subject::CONFIGURATION));
+    require(ASSERTION, not is_processor(Subject::DIRECTORY));
+    require(ASSERTION, is_processor(Subject::PROCESSOR2));
+    require(ASSERTION, is_processor(Subject::PROCESSOR1));
+    require(ASSERTION, not is_processor(Subject::GATEWAY));
+    require(ASSERTION, not is_processor(Subject::CLIENT));
+  }
+  auto Fixture::test_make_client_name() -> void {
+    auto observed = library::make_client_name(3);
+    auto expected = Subject{4};
+    require(ASSERTION, expected == observed);
   }
 }
 #endiv

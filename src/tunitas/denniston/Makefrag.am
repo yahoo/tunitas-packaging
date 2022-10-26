@@ -6,8 +6,11 @@
 #
 tunitas_denniston_SUBSOURCES = \
   obj/src/tunitas/denniston/namespace.cpp \
-  obj/src/tunitas/denniston/Version.cpp \
+  obj/src/tunitas/denniston/version.String.cpp \
+  obj/src/tunitas/denniston/version.Generator.cpp \
+  obj/src/tunitas/denniston/index.cpp \
   $(tunitas_denniston_driver_SUBSOURCES) \
+  $(tunitas_denniston_dictionary_SUBSOURCES) \
   $(tunitas_denniston_error_SUBSOURCES) \
   $(tunitas_denniston_exception_SUBSOURCES) \
   $(tunitas_denniston_log_SUBSOURCES) \
@@ -16,8 +19,10 @@ tunitas_denniston_SUBSOURCES = \
   $(tunitas_denniston_network_SUBSOURCES) \
   $(tunitas_denniston_service_SUBSOURCES) \
   $(tunitas_denniston_task_SUBSOURCES) \
+  $(tunitas_denniston_world_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/denniston/dictionary/Makefrag.am
 include src/tunitas/denniston/driver/Makefrag.am
 include src/tunitas/denniston/error/Makefrag.am
 include src/tunitas/denniston/exception/Makefrag.am
@@ -27,3 +32,4 @@ include src/tunitas/denniston/network/Makefrag.am
 include src/tunitas/denniston/required/Makefrag.am
 include src/tunitas/denniston/service/Makefrag.am
 include src/tunitas/denniston/task/Makefrag.am
+include src/tunitas/denniston/world/Makefrag.am

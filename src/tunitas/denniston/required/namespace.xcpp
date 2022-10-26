@@ -6,5 +6,12 @@
 #divert <fpp>
 #import tunitas.denniston
 #import tunitas.required
-namespace tunitas::denniston::required { using namespace tunitas::required; }
+static_assert(::tunitas::required::same_as<int,int>, "visible");
+static_assert(tunitas::required::same_as<int,int>, "visible");
+namespace tunitas::denniston::required {
+  using namespace tunitas::required;
+  static_assert(same_as<int,int>, "visible");
+  static_assert(convertible_to<int,int>, "visible");
+  static_assert(!derived_from<int,int>, "visible");
+}
 #endiv

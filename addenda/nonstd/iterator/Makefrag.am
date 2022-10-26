@@ -1,0 +1,8 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+addenda_nonstd_iterator_SUBSOURCES = \
+  noinst/obj/src/nonstd/iterator/Qualified.cpp \
+  $(end)
+#
+$(addenda_nonstd_iterator_SUBSOURCES) : DISCOFLAGS+=--no-insert-namespace # not here anyway

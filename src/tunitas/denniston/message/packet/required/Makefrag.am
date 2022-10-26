@@ -7,4 +7,5 @@
 tunitas_denniston_message_packet_required_SUBSOURCES = \
   obj/src/tunitas/denniston/message/packet/required/namespace.cpp \
   obj/src/tunitas/denniston/message/packet/required/Packet.cpp \
+  obj/src/tunitas/denniston/message/packet/required/tasks.Iterator.cpp \
   $(end)

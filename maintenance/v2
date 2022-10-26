@@ -23,6 +23,7 @@ with_module_options=${with_module_options?} \
 with_module_fmt=${with_module_fmt?} \
 with_nonstd_fmt=${with_nonstd_fmt?} \
 \
+with_module_rigging_app=${with_module_rigging_app?} \
 with_module_rigging_core=${with_module_rigging_core?} \
 with_module_rigging=${with_module_rigging?} \
 with_nonstd_cppunit=${with_nonstd_cppunit:-no} \

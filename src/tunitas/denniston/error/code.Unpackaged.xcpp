@@ -13,6 +13,14 @@ namespace tunitas::denniston::error::code {
     enum class Enumeration {
       SUCCESS, // ........ improper success (which is a failure)
       FAILURE, // ........ sic, generic failure
+      //
+      NO_SUCH_BATCH,
+      NO_SUCH_JOB,
+      NO_SUCH_REPORT,
+      NO_SUCH_SERVICE,
+      NO_SUCH_TASK,
+      //
+      NO_AVAILABLE_TASKS,
     };
     using enum Enumeration;
   };

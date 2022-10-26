@@ -11,10 +11,12 @@ tunitas_denniston_service_instance_SUBSOURCES = \
   obj/src/tunitas/denniston/service/instance/Pointer.cpp \
   obj/src/tunitas/denniston/service/instance/Traits.cpp \
   obj/src/tunitas/denniston/service/instance/Prototype.cpp \
-  obj/src/tunitas/denniston/service/instance/Gateway.cpp \
-  obj/src/tunitas/denniston/service/instance/Collector.cpp \
-  obj/src/tunitas/denniston/service/instance/Processor.cpp \
   obj/src/tunitas/denniston/service/instance/Client.cpp \
+  obj/src/tunitas/denniston/service/instance/Collector.cpp \
+  obj/src/tunitas/denniston/service/instance/Configuration.cpp \
+  obj/src/tunitas/denniston/service/instance/Directory.cpp \
+  obj/src/tunitas/denniston/service/instance/Gateway.cpp \
+  obj/src/tunitas/denniston/service/instance/Processor.cpp \
   $(tunitas_denniston_service_instance_required_SUBSOURCES) \
   $(end)
 #

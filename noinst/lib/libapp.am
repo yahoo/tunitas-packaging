@@ -9,7 +9,7 @@
 noinst_lib_libapp_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
 noinst_lib_libapp_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
 noinst_lib_libapp_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
-noinst_lib_libapp_la_LIBADD = $(none)
+noinst_lib_libapp_la_LIBADD = lib/libtunitas-denniston.la -lcli++ -lnonstd++
 noinst_lib_libapp_la_SOURCES = $(app_SUBSOURCES)
 include src/app/Makefrag.am
 $(noinst_lib_libapp_la_SOURCES) : disco_objdir=noinst/obj

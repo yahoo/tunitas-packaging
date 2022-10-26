@@ -1,0 +1,93 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service {
+  //
+  // A dictionary of all the services
+  //
+  // Specification:
+  //
+  //   Given an id::Service, find the "preprovisioned" information belonging to it.
+  //
+  // Design:
+  //
+  //   map id::Service -> hpke::Configuration
+  //   Not thread-aware (the caller must perform synchronization, if such is necessary)
+  //
+  //   But avoid (suppress) the ability to create-on-missing with operator[]
+  //
+  // Usage:
+  //
+  //   As you would.
+  //
+  struct Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.Configuration
+#import tunitas.keyston.id.Service
+#import std.map
+#import std.size_t
+#import tunitas.denniston.service.required.dictionary.Foundable
+struct tunitas::denniston::service::Dictionary {
+  Dictionary() = default;
+  using Key = keyston::id::Service;
+  using Value = keyston::hpke::Configuration;
+  inline auto empty() const -> bool;
+  inline auto size() const -> std::size_t;
+  inline auto contains(Key const &) const -> bool;
+  struct Inserted;
+  inline auto insert(Key, Value) -> Inserted;
+  template<required::dictionary::Foundable<Value> VALUE> struct Found;
+#if 202312 < __cplusplus
+  template<typename SELF> inline auto find(this SELF *, Key const &) -> nonstd::like_t<SELF, Found<Value>>;
+#else
+  inline auto find(Key const &) const -> Found<Value const>;
+  inline auto find(Key const &) -> Found<Value>;
+private:
+  template<typename SELF> inline static auto search(SELF &, Key const &);
+public:
+#endif
+private:
+  std::map<Key, Value> corpus{};
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.service.Dictionary.Found
+#import tunitas.denniston.service.Dictionary.Inserted
+// NOT YET ---> #import nonstd.like
+#import std.conditional
+#import std.is_const
+namespace tunitas::denniston::service {
+  auto Dictionary::empty() const -> bool       { return corpus.empty(); }
+  auto Dictionary::size() const -> std::size_t { return corpus.size(); }
+  auto Dictionary::contains(Key const &key) const -> bool { return corpus.contains(key); }
+  auto Dictionary::insert(Key key, Value noob) -> Inserted {
+    auto [there, done] = corpus.insert({move(key), move(noob)});
+    return {there->second, done};
+  }
+#if 202312 < __cplusplus_
+  template<typename SELF> auto Dictionary::find(this SELF *self, Key const &key) -> nonstd::like_t<SELF, Found<Value>> {
+    if (auto found=self->corpus.find(key); corpus.end() == found) {
+      return {};
+    } else {
+      return {found->second};
+    }
+  }
+#else
+  template<typename SELF> auto Dictionary::search(SELF &self, Key const &key) {
+    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
+    if (auto found=self.corpus.find(key); self.corpus.end() == found) {
+      return Result{};
+    } else {
+      return Result{found->second};
+    }
+  }
+  auto Dictionary::find(Key const &key) const -> Found<Value const> { return search(*this, key); }
+  auto Dictionary::find(Key const &key) -> Found<Value>             { return search(*this, key); }
+#endif
+}
+#endiv

@@ -20,29 +20,29 @@ namespace tests::unit::network::channel::message {
 #import std.ostream
 #forward tests.unit.network.channel.Message
 namespace tests::unit::network::channel {
-  auto format(Message const &) -> message::Format;
+  namespace message {
+    auto format(Message const &) -> message::Format;
+    auto operator<<(std::ostream &, Format const &) -> std::ostream &;
+  }
+  using message::format; // so it is easy to find
+
+  struct message::Format {
+    inline Format(Message const &message) : message{message} { }
+    Message const &message;
+    // Whereas Format is a friend of Body, we can access its private members from here.
+    auto to_stream(std::ostream &) const -> std::ostream &;
+  };
 }
-namespace tests::unit::network::channel::message {
-  auto operator<<(std::ostream &, Format const &) -> std::ostream &;
-}
-struct tests::unit::network::channel::message::Format {
-  inline Format(Message const &message) : message{message} { }
-  Message const &message;
-  // Whereas Format is a friend of Body, we can access its private members from here.
-  auto to_stream(std::ostream &) const -> std::ostream &;
-};
 #endiv
 #divert <ipp>
 #import tests.unit.network.channel.Message
 #endiv
 #divert <cpp>
-auto tests::unit::network::channel::format(Message const &m) -> message::Format {
-  return message::Format{m};
-}
-auto tests::unit::network::channel::message::operator<<(std::ostream &o, Format const &f) -> std::ostream & {
-  return f.to_stream(o);
-}
-auto tests::unit::network::channel::message::Format::to_stream(std::ostream &o) const -> std::ostream & {
-  return o << message.body->a << '/' << message.body->b << '/' << message.body->c;
+namespace tests::unit::network::channel {
+  auto message::format(Message const &m) -> Format { return Format{m}; }
+  auto message::operator<<(std::ostream &o, Format const &f) -> std::ostream & { return f.to_stream(o); }
+  namespace message {
+    auto Format::to_stream(std::ostream &o) const -> std::ostream & { return o << message.body->a << '/' << message.body->b << '/' << message.body->c; }
+  }
 }
 #endiv

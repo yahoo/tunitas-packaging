@@ -10,45 +10,64 @@ namespace tests::unit::service { class Fixture; }
 struct tests::unit::service::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
+  auto test_usage_Dictionary() -> void;
   auto test_usage_Instance() -> void;
-  auto test_usage_Universe() -> void;
+  auto test_usage_System() -> void;
 };
 #endiv
 #divert <cpp>
 #import tests.unit.service.name.Fixture
 #import tests.unit.service.instance.Fixture
+#import tests.unit.service.Dictionary
 auto tests::unit::service::Fixture::suite() -> Suite {
   auto series = Stream{"service"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Instance", &Fixture::test_usage_Instance)
-                  << add("Universe", &Fixture::test_usage_Universe)
+              use << add("Dictionary", &Fixture::test_usage_Dictionary)
+                  << add("Instance", &Fixture::test_usage_Instance)
+                  << add("System", &Fixture::test_usage_System)
                   << END;
               return use;
             }()
+         << add<Dictionary>()
          << add<name::Fixture>()
          << add<instance::Fixture>()
          << END;
   return settle(series);
 }
+#import tunitas.denniston.service.Dictionary
 #import tunitas.denniston.service.Instance
 #import tunitas.denniston.service.instance.make
 #import tunitas.denniston.service.instance.Gateway
-#import tunitas.denniston.service.Universe
+#import tunitas.denniston.service.System
+#import tunitas.denniston.World
+#import tunitas.keyston.entropy.Source
 namespace tests::unit::service {
+  auto Fixture::test_usage_Dictionary() -> void {
+    using Subject = library::Dictionary;
+    auto subject = Subject{};
+    auto inserted1 = subject.insert(Subject::Key{}, Subject::Value{});
+    require(ASSERTION, inserted1.second);
+    auto inserted2 = subject.insert(Subject::Key{}, Subject::Value{});
+    require(ASSERTION, !inserted2.second);
+    auto found = subject.find(Subject::Key{});
+    require(ASSERTION, (bool) found);
+  }
   auto Fixture::test_usage_Instance() -> void {
     auto subject = library::instance::make<library::instance::Gateway>();
     require(ASSERTION, sizeof (subject));
   }
-  auto Fixture::test_usage_Universe() -> void {
+  auto Fixture::test_usage_System() -> void {
+    auto source = ::tunitas::keyston::entropy::Source{};
+    auto world = ::tunitas::denniston::World{source};
     {
-      using Subject = library::Universe;
-      auto subject = Subject{};
+      using Subject = library::System;
+      auto subject = Subject{world};
       require(ASSERTION, sizeof (subject));
     } {
       constexpr auto const INITIAL_CLIENT_COUNT = 10uz;
-      using Subject = library::Universe;
-      auto subject = Subject{INITIAL_CLIENT_COUNT};
+      using Subject = library::System;
+      auto subject = Subject{world, INITIAL_CLIENT_COUNT};
       require(ASSERTION, sizeof (subject));
     }
   }

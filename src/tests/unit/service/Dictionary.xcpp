@@ -1,0 +1,78 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::service { struct Dictionary; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.service.Dictionary
+struct tests::unit::service::Dictionary : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Dictionary;
+  //
+  auto test_constructor_default() -> void;
+  auto test_insert_good() -> void;
+  auto test_insert_fail() -> void;
+  auto test_find_good() -> void;
+  auto test_find_fail() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::service::Dictionary::suite() -> Suite {
+  auto series = Stream{"Dictionary"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Dictionary::test_constructor_default)
+                  << END;
+              return con;
+            }()
+         << []{
+              auto ins = Stream{"insert"sv};
+              ins << add("good", &Dictionary::test_insert_good)
+                  << add("fail", &Dictionary::test_insert_fail)
+                  << END;
+              return ins;
+            }()
+         << []{
+              auto fin = Stream{"find"sv};
+              fin << add("good", &Dictionary::test_find_good)
+                  << add("fail", &Dictionary::test_find_fail)
+                  << END;
+              return fin;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::service {
+  auto Dictionary::test_constructor_default() -> void {
+    auto subject = Subject{}; // <---------------------------------------------------- test this
+    require(ASSERTION, subject.empty());
+  }
+  auto Dictionary::test_insert_good() -> void {
+    auto subject = Subject{};
+    auto const &[noob, inserted] = subject.insert(Subject::Key{"a"}, {}); // <------- test this
+    require(ASSERTION, inserted);
+  }
+  auto Dictionary::test_insert_fail() -> void {
+    auto subject = Subject{};
+    subject.insert(Subject::Key{"a"}, {});
+    auto const &[noob, inserted] = subject.insert(Subject::Key{"a"}, {}); // <------ test this
+    require(ASSERTION, !inserted);
+  }
+  auto Dictionary::test_find_good() -> void {
+    auto subject = Subject{};
+    subject.insert(Subject::Key{"a"}, {});
+    auto found = subject.find(Subject::Key{"a"}); // <------------------------- test this
+    require(ASSERTION, true == (bool) found);
+  }
+  auto Dictionary::test_find_fail() -> void {
+    auto subject = Subject{};
+    subject.insert(Subject::Key{"a"}, {});
+    auto found = subject.find(Subject::Key{"NOSUCH"}); // <------------------- test this
+    require(ASSERTION, false == (bool) found);
+  }
+}
+#endiv

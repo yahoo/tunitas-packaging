@@ -1,0 +1,155 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/service<s/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::task {
+  //
+  // A dictionary of all the tasks
+  //
+  // Specification:
+  //
+  //   Given an id::Task ...
+  //   Given an index::Task...
+  //   ... find the "preprovisioned" information belonging to it.
+  //
+  //   Has both the content-addressable and the index-addressable capability
+  //
+  // Design:
+  //
+  //   vector Task::Index -> task::Task
+  //   Not thread-aware (the caller must perform synchronization, if such is necessary)
+  //
+  // Usage:
+  //
+  //   As you would.
+  //
+  struct Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.index // for index::Task
+#import tunitas.denniston.task.Task
+#import tunitas.denniston.dictionary.required.Either
+#import tunitas.denniston.task.required.dictionary.Foundable
+#import tunitas.keyston.protocol.id // for id::Task
+#import std.vector
+#import std.size_t
+#import nonstd.iterator.Qualified.tunitas.denniston.task.Dictionary
+struct tunitas::denniston::task::Dictionary {
+  Dictionary() = default;
+  using Index = denniston::index::Task;
+  using Key = keyston::protocol::id::Task;
+  using Value = denniston::task::Task;
+  inline auto empty() const -> bool;
+  inline auto size() const -> std::size_t;
+  inline auto contains(Key const &) const -> bool;
+  template<required::dictionary::Foundable<Value>> struct Found;
+  template<dictionary::required::Either<Dictionary> SELF> using Iterator = typename nonstd::iterator::Qualified<SELF>::Iterator;
+#if 202312 < __cplusplus
+  template<typename SELF> inline auto at(this SELF *, Index) -> nonstd::like_t<SELF, Found<Value>>;
+  template<typename SELF> inline auto find(this SELF *, Key const &) -> nonstd::like_t<SELF, Found<Value>>;
+  template<typename SELF> inline auto begin(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>>;
+  template<typename SELF> inline auto end(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>>;
+#else
+  inline auto at(Index) const -> Found<Value const>;
+  inline auto at(Index) -> Found<Value>;
+  inline auto find(Key const &) const -> Found<Value const>;
+  inline auto find(Key const &) -> Found<Value>;
+  inline auto begin() const -> Iterator<Dictionary const>;
+  inline auto end() const -> Iterator<Dictionary const>;
+  inline auto begin() -> Iterator<Dictionary>;
+  inline auto end() -> Iterator<Dictionary>;
+private:
+  template<typename SELF> inline static auto access(SELF &, Index);
+  template<typename SELF> inline static auto search(SELF &, Key const &);
+  template<typename SELF> inline static auto start(SELF &);
+  template<typename SELF> inline static auto finish(SELF &);
+public:
+#endif
+  struct Inserted;
+  inline auto insert(Value) -> Inserted;
+private:
+  std::vector<Value> corpus{};
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.task.Dictionary.Found
+#import tunitas.denniston.task.Dictionary.Inserted
+#import std.find_if
+// NOT YET ---> #import nonstd.like
+#import std.is_const
+#import std.conditional
+namespace tunitas::denniston::task {
+  auto Dictionary::empty() const -> bool       { return corpus.empty(); }
+  auto Dictionary::size() const -> std::size_t { return corpus.size(); }
+  auto Dictionary::insert(Value noob) -> Inserted {
+    auto const &key = noob.id;
+    auto const end = corpus.end();
+    auto const found = std::find_if(corpus.begin(), end, [&key](auto const &item) { return item.id == key; });
+    if (end == found) {
+      corpus.push_back(move(noob));
+      return {*prev(corpus.end()), true};
+    } else {
+      return {*found, false};
+    }
+  }
+  auto Dictionary::contains(Key const &key) const -> bool {
+    auto const end = corpus.end();
+    auto const found = std::find_if(corpus.begin(), end, [&key](auto const &item) { return item.id == key; });
+    return end != found;
+  }
+#if 202312 < __cplusplus
+  template<typename SELF> auto Dictionary::at(this SELF *, Index index) -> nonstd::like_t<SELF, Found<Value>> {
+    if (index < self->corpus.size()) {
+      return {self->corpus.at(index)}; // need to duplicate the bounds check(?)
+    } else {
+      return {};
+    }
+  }
+  template<typename SELF> auto Dictionary::find(this SELF *, Key const &key) -> nonstd::like_t<SELF, Found<Value>> {
+    auto const end = self->corpus.end();
+    auto const found = std::find_if(self->corpus.begin(), end, [&key](auto const &item) { return item.id == key; });
+    if (end == found) {
+      return {};
+    } else {
+      return {*found};
+    }
+  }
+  template<typename SELF> auto Dictionary::begin(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>> { return corpus.begin(); }
+  template<typename SELF> auto Dictionary::end(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>>   { return corpus.begin(); }
+#else
+  template<typename SELF> auto Dictionary::access(SELF &self, Index index) {
+    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
+    auto uindex = underlying(index);
+    if (uindex < self.corpus.size()) {
+      return Result{self.corpus.at(uindex)}; // need to duplicate the bounds check(?)
+    } else {
+      return Result{};
+    }
+  }
+  auto Dictionary::at(Index index) const -> Found<Value const> { return access(*this, index); }
+  auto Dictionary::at(Index index) -> Found<Value>             { return access(*this, index); }
+  template<typename SELF> auto Dictionary::search(SELF &self, Key const &key) {
+    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
+    auto const end = self.corpus.end();
+    auto const found = std::find_if(self.corpus.begin(), end, [&key](auto const &item) { return item.id == key; });
+    if (end == found) {
+      return Result{};
+    } else {
+      return Result{*found};
+    }
+  }
+  auto Dictionary::find(Key const &key) const -> Found<Value const> { return search(*this, key); }
+  auto Dictionary::find(Key const &key) -> Found<Value>             { return search(*this, key); }
+  //
+  template<typename SELF> auto Dictionary::start(SELF &self)  { return self.corpus.begin(); }
+  template<typename SELF> auto Dictionary::finish(SELF &self) { return self.corpus.end(); }
+  auto Dictionary::begin() const -> Iterator<Dictionary const> { return start(*this); }
+  auto Dictionary::end() const -> Iterator<Dictionary const>   { return finish(*this); }
+  auto Dictionary::begin() -> Iterator<Dictionary>             { return start(*this); }
+  auto Dictionary::end() -> Iterator<Dictionary>               { return finish(*this); }
+#endif
+}
+#endiv

@@ -25,18 +25,24 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <hpp>
+#forward tunitas.denniston.World
 #import tunitas.denniston.service.instance.Prototype
 class tunitas::denniston::service::instance::Client : public Prototype {
   using Ancestor = Prototype;
   auto run() noexcept -> void;
 public:
   inline explicit Client(Name);
+  inline explicit Client([[inout]] World &, Name);
   auto launch(driver::Threads &) -> void override;
+  Interface configuration{};
+  Interface gateway{};
 };
 #endiv
 #divert <ipp>
+#import tunitas.denniston.World
 #import tunitas.denniston.exception.Invalid
 namespace tunitas::denniston::service::instance {
+  Client::Client(World &, Name name) : Client{name} { }
   Client::Client(Name name)
     : Ancestor{name}
   {
@@ -47,6 +53,7 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <cpp>
+#import tunitas.denniston.message.packet.cast
 namespace tunitas::denniston::service::instance {
   auto Client::launch(driver::Threads &pool) -> void { pool.launch(&Client::run, this); }
   auto Client::run() noexcept -> void try {

@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/app.flow.options.Parser>
+#endiv
+#divert <hpp>
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import tunitas.Outcome
+#import tunitas.application.words.Strings
+#import app.flow.required
+namespace app::flow::options {
+  class Parser::Result : public tunitas::Outcome<tunitas::application::words::Strings> {
+    using Ancestor = tunitas::Outcome<tunitas::application::words::Strings>;
+    using Strings = tunitas::application::words::Strings;
+  public:
+    using Ancestor::variant; // you "just have to know" that the this is the constructor name
+    template<required::iterator::Forward ITERATOR> inline [[implicit]] Result(ITERATOR start, ITERATOR finish) requires required::iterator::Producing<ITERATOR, Strings::value_type>;
+  };
+}
+#endiv
+#divert <ipp>
+namespace app::flow::options {
+  template<required::iterator::Forward ITERATOR> Parser::Result::Result(ITERATOR start, ITERATOR finish)
+    requires required::iterator::Producing<ITERATOR, Strings::value_type>
+    : Ancestor{Strings{start, finish}}
+    { }
+}
+#endiv

@@ -1,0 +1,29 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import nonstd.basic_string_view
+#import nonstd.required.InstanceOf
+namespace nonstd::required::string {
+  //
+  // Is this TYPE an instance of std::basic_string?
+  //
+  template<typename VIEW> concept View = InstanceOf<VIEW, basic_string_view>;
+}
+#endiv
+#divert <cpp>
+#import std.string_view
+#import std.wstring_view
+#import std.u8string_view
+#import std.u16string_view
+#import std.u32string_view
+namespace {
+  namespace testate {
+    using namespace nonstd;
+    static_assert(required::string::View<std::string_view>);
+    static_assert(required::string::View<std::wstring_view>);
+    static_assert(required::string::View<std::u8string_view>);
+    static_assert(required::string::View<std::u16string_view>);
+    static_assert(required::string::View<std::u32string_view>);
+  }
+}
+#endiv

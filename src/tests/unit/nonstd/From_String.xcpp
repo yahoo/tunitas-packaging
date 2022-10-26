@@ -1,0 +1,113 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import tests.unit.required // cascade that certain 'namespace required'
+#import nonstd.required.Character
+#import nonstd.required.Character_Traits
+#import nonstd.required.Number
+namespace tests::unit::nonstd {
+  template<required::Number, required::Character CHAR, required::Character_Traits = std::char_traits<CHAR>> class From_String;
+}
+#endiv
+#divert <hpp>
+#import std.basic_string
+#import std.basic_ostringstream
+namespace tests::unit {
+  template<required::Number SUBJECT, required::Character CHAR, required::Character_Traits TRAITS> struct nonstd::From_String : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    using Character = CHAR;
+    using Character_Traits = TRAITS;
+    using String = std::basic_string<Character, Character_Traits>;
+    using Stringsstream = std::basic_ostringstream<Character, Character_Traits>;
+    //
+    auto test_zero() -> void;
+    auto test_plus_one() -> void;
+    auto test_minus_one() -> void;
+    auto test_plus_big() -> void;
+    auto test_minus_big() -> void;
+  protected:
+    template<typename WIDE, required::Number NUMBER> static auto pretend_to_string(NUMBER) -> WIDE;
+  };
+}
+#endiv
+#divert <tpp>
+#import nonstd.to_string
+#import nonstd.from_string
+#import std.is_signed
+namespace tests::unit::nonstd {
+  template<required::Number N, required::Character C, required::Character_Traits T> auto From_String<N,C,T>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("-big", &From_String::test_minus_big)
+           << add("-1", &From_String::test_minus_one)
+           << add("0", &From_String::test_zero)
+           << add("1", &From_String::test_plus_one)
+           << add("+big", &From_String::test_plus_big)
+           << END;
+    return settle(series);
+  }
+  template<required::Number N, required::Character C, required::Character_Traits T> template<typename WIDE, required::Number NUMBER> auto From_String<N,C,T>::pretend_to_string(NUMBER number) -> WIDE {
+    auto thin = library::to_string(number);
+    auto wide = WIDE{};
+    for (auto c : thin) {
+      wide.push_back(typename WIDE::value_type(c)); // [[WATCHOUT]] this is not really how one is supposed to widen characters ... now is it?
+    }
+    return wide;
+  }
+  template<required::Number N, required::Character C, required::Character_Traits T> auto From_String<N,C,T>::test_zero() -> void {
+    auto const specimen = Subject{0};
+    auto prepared = pretend_to_string<String>(specimen);
+    require(ASSERTION, !prepared.empty());
+    if constexpr (std::same_as<Character, char>) { std::cerr << prepared << '\n'; }
+    auto got = library::from_string<Subject>(prepared);
+    require(ASSERTION, good(got));
+    auto recovered = value(move(got));
+    require(ASSERTION, recovered == specimen);
+  }
+  template<required::Number N, required::Character C, required::Character_Traits T> auto From_String<N,C,T>::test_minus_one() -> void {
+    if constexpr (std::is_signed_v<Subject>) {
+      auto const specimen = Subject{-1};
+      auto prepared = pretend_to_string<String>(specimen);
+      require(ASSERTION, !prepared.empty());
+      if constexpr (std::same_as<Character, char>) { std::cerr << prepared << '\n'; }
+      auto got = library::from_string<Subject>(prepared);
+      require(ASSERTION, good(got));
+      auto recovered = value(move(got));
+      require(ASSERTION, recovered == specimen);
+    }
+  }
+  template<required::Number N, required::Character C, required::Character_Traits T> auto From_String<N,C,T>::test_plus_one() -> void {
+    auto const specimen = Subject{1};
+    auto prepared = pretend_to_string<String>(specimen);
+    require(ASSERTION, !prepared.empty());
+    if constexpr (std::same_as<Character, char>) { std::cerr << prepared << '\n'; }
+    auto got = library::from_string<Subject>(prepared);
+    require(ASSERTION, good(got));
+    auto recovered = value(move(got));
+    require(ASSERTION, recovered == specimen);
+  }
+  template<required::Number N, required::Character C, required::Character_Traits T> auto From_String<N,C,T>::test_minus_big() -> void {
+    if constexpr (std::is_signed_v<Subject>) {
+      auto const specimen = Subject{-124}; // make this work for the chars ... we're not exercising whether std::from_chars(...) operates correctly
+      auto prepared = pretend_to_string<String>(specimen);
+      require(ASSERTION, !prepared.empty());
+      if constexpr (std::same_as<Character, char>) { std::cerr << prepared << '\n'; }
+      auto got = library::from_string<Subject>(prepared);
+      require(ASSERTION, good(got));
+      auto recovered = value(move(got));
+      require(ASSERTION, recovered == specimen);
+    }
+  }
+  template<required::Number N, required::Character C, required::Character_Traits T> auto From_String<N,C,T>::test_plus_big() -> void {
+    auto const specimen = Subject{124}; // eadem ratione
+    auto prepared = pretend_to_string<String>(specimen);
+    require(ASSERTION, !prepared.empty());
+    if constexpr (std::same_as<Character, char>) { std::cerr << prepared << '\n'; }
+    auto got = library::from_string<Subject>(prepared);
+    require(ASSERTION, good(got));
+    auto recovered = value(move(got));
+    require(ASSERTION, recovered == specimen);
+  }
+}
+#endiv

@@ -1,0 +1,97 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.world.World>
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.key.Public
+#import tunitas.string.View
+namespace tunitas::denniston::world {
+  struct World::Services {
+    template<World::Index::Service> static auto fill([[inout]] keyston::hpke::Configuration &, World const &) -> void;
+    static std::size_t const COUNT;
+  private:
+    inline static auto publicate(string::View) -> keyston::hpke::key::Public;
+  };
+  template<> auto World::Services::fill<World::Index::Service{0}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{1}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{2}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{3}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{4}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{5}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{6}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{7}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{8}>(keyston::hpke::Configuration &, World const &) -> void;
+  template<> auto World::Services::fill<World::Index::Service{9}>(keyston::hpke::Configuration &, World const &) -> void;
+  inline std::size_t const World::Services::COUNT{10uz};
+}
+#endiv
+#divert <ipp>
+#import std.transform
+#import std.back_inserter
+namespace tunitas::denniston::world {
+  auto World::Services::publicate(string::View junk) -> keyston::hpke::key::Public {
+    auto ret = keyston::hpke::key::Public{};
+    std::transform(junk.begin(), junk.end(), std::back_inserter(ret), [](char c) { return Octet(c); });
+    return ret;
+  }
+}
+#endiv
+#divert <cpp>
+#import std.to_string
+namespace tunitas::denniston::world {
+  template<> auto World::Services::fill<World::Index::Service{0}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{0};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{1}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{1};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{2}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{2};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{3}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{3};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{4}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{4};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{5}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{5};
+    noob.id = keyston::hpke::id::Configuration{INDEX};; 
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+ }
+  template<> auto World::Services::fill<World::Index::Service{6}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{6};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{7}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{7};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{8}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{8};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto World::Services::fill<World::Index::Service{9}>(keyston::hpke::Configuration &noob, World const &row) -> void {
+    constexpr auto const INDEX = World::Index::Service{9};
+    noob.id = keyston::hpke::id::Configuration{INDEX};;
+    noob.public_key = publicate("public_key-"s + std::to_string(underlying(INDEX)));
+  }
+}
+#endiv

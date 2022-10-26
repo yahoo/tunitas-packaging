@@ -28,15 +28,19 @@ namespace tunitas::denniston::driver {
 #import tunitas.denniston.log.Concentrator
 #import tunitas.denniston.network.Sockets
 #import tunitas.denniston.network.Sockets.Interfaces
-#import tunitas.denniston.service.Universe
+#import tunitas.denniston.service.System
 #import tunitas.denniston.service.Instance
 #import tunitas.denniston.driver.Threads
+#import tunitas.keyston.entropy.Source
+#import tunitas.denniston.World
 namespace tunitas::denniston {
   namespace driver {
     using std::move;
   }
   struct driver::Driver {
-    service::Universe universe{};
+    keyston::entropy::Source entropy{};
+    denniston::World world;
+    service::System system;
     denniston::log::Concentrator log{};
     network::Sockets sockets{};
     Threads threads{};
@@ -53,25 +57,35 @@ namespace tunitas::denniston {
     Driver(Driver const &) = delete;
     Driver &operator=(Driver const &) = delete;
   protected:
+    network::channel::Ready ready{}; 
     auto startup() -> void;
     auto link_logging() -> void;
+    auto link_configuration() -> void;
     auto link_control() -> void;
-    inline auto bind_system([[inout]] service::Instance &, network::Sockets::Descriptor) -> void;
-    inline auto bind_userland([[inout]] service::Instance &, network::Sockets::Descriptor) -> void;
+    auto link_directory() -> void;
+    auto link_gateway() -> void;
+    inline auto bind_control_system([[inout]] network::Socket::Interface &, [[in]] network::channel::Ready &) -> network::Socket::Interface;
+    inline auto bind_control_userland([[inout]] network::Socket::Interface &, [[in]] network::channel::Ready &) -> void;
+    inline auto bind([[inout]] network::Socket::Interface &green_face, [[inout]] network::channel::Ready &green_ready, [[inout]] network::Socket::Interface &blue_face, [[inout]] network::channel::Ready &blue_ready) -> void;
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::driver {
-  auto Driver::bind_system(service::Instance &destination, network::Sockets::Descriptor noob) -> void {
-    destination->control = noob->right();
-    control.everyone.push_back(noob->left());
+  auto Driver::bind_control_userland(network::Socket::Interface &face, network::channel::Ready &ready) -> void { control.clients.push_back(bind_control_system(face, ready)); }
+  auto Driver::bind_control_system(network::Socket::Interface &green_face, network::channel::Ready &green_ready) -> network::Socket::Interface {
+    control.everyone.push_back(network::Socket::Interface{});
+    auto &blue_face = control.everyone.back();
+    auto &blue_ready = this->ready;
+    bind(green_face, green_ready, blue_face, blue_ready);
+    return blue_face;
   }
-  auto Driver::bind_userland(service::Instance &destination, network::Sockets::Descriptor noob) -> void {
-    destination->control = noob->right();
-    auto our_side = noob->left();
-    control.everyone.push_back(our_side);
-    control.clients.push_back(our_side);
+  auto Driver::bind(network::Socket::Interface &green_face, network::channel::Ready &green_ready, network::Socket::Interface &blue_face, network::channel::Ready &blue_ready) -> void {
+    // when we write to blue, green must be notified that it is ready-to-ready
+    // When we write to green, blue becomes ready
+    auto noob = sockets.allocate();
+    green_face = noob->left(&blue_ready);
+    blue_face = noob->right(&green_ready);
   }
 }
 #endiv
@@ -80,40 +94,73 @@ namespace tunitas::denniston::driver {
 #import std.clog
 namespace tunitas::denniston::driver {
   Driver::Driver(Size initial_client_count)
-    : universe{initial_client_count} 
- {
-   log.outbound = &std::clog; // else we won't see anything!
+    : world{entropy}
+    , system{world, initial_client_count}
+  {
+    log.outbound = &std::clog; // else we won't see anything!
     link_logging();
+    // in arbitrary order
     link_control();
+    link_gateway();
+    link_configuration();
+    link_directory();
+    // and finally
     startup();
   }
   Driver::~Driver() {
     shutdown();
   }
-  auto Driver::link_logging() -> void {
-    universe.gateway->log.concentrator = &log;
-    universe.collector->log.concentrator = &log;
-    universe.processor[0]->log.concentrator = &log;
-    universe.processor[1]->log.concentrator = &log;
-    for (auto &client : universe.clients) {
-      client->log.concentrator = &log;
+  auto Driver::link_configuration() -> void {
+    for (auto i{0uz}, e{system.processors.size()}; e != i; ++i) {
+      bind(system.configuration->processors[i], system.processors[i]->ready, system.processors[i]->configuration, system.configuration->ready);
+    }
+    for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
+      bind(system.configuration->clients[i], system.clients[i]->ready, system.clients[i]->configuration, system.configuration->ready);
     }
   }
   auto Driver::link_control() -> void {
-    bind_system(universe.gateway, sockets.allocate());
-    bind_system(universe.collector, sockets.allocate());
-    bind_system(universe.processor[0], sockets.allocate());
-    bind_system(universe.processor[1], sockets.allocate());
-    for (auto &client : universe.clients) {
-      bind_userland(client, sockets.allocate());
+    bind_control_system(system.gateway->control, system.gateway->ready);
+    bind_control_system(system.collector->control, system.collector->ready);
+    bind_control_system(system.configuration->control, system.configuration->ready);
+    for (auto &processor : system.processors) {
+      bind_control_system(processor->control, processor->ready);
+    }
+    for (auto &client : system.clients) {
+      bind_control_userland(client->control, client->ready);
+    }
+  }
+  auto Driver::link_directory() -> void {
+    for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
+      bind(system.directory->clients[i], system.clients[i]->ready, system.clients[i]->configuration, system.directory->ready);
+    }
+  }
+  auto Driver::link_gateway() -> void {
+    for (auto i{0uz}, e{system.processors.size()}; e != i; ++i) {
+      bind(system.gateway->processors[i], system.processors[i]->ready, system.processors[i]->gateway, system.gateway->ready);
+    }
+    for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
+      bind(system.configuration->clients[i], system.clients[i]->ready, system.clients[i]->configuration, system.configuration->ready);
+    }
+    bind(system.gateway->collector, system.collector->ready, system.collector->gateway, system.gateway->ready);
+  }
+  auto Driver::link_logging() -> void {
+    system.gateway->log.concentrator = &log;
+    system.collector->log.concentrator = &log;
+    system.configuration->log.concentrator = &log;
+    for (auto &processor : system.processors) {
+      processor->log.concentrator = &log;
+    }
+    for (auto &client : system.clients) {
+      client->log.concentrator = &log;
     }
   }
   auto Driver::startup() -> void {
-    universe.gateway->launch(threads);
-    universe.collector->launch(threads);
-    universe.processor[0]->launch(threads);
-    universe.processor[1]->launch(threads);
-    for (auto &client : universe.clients) {
+    system.gateway->launch(threads);
+    system.collector->launch(threads);
+    for (auto &processor : system.processors) {
+      processor->launch(threads);
+    }
+    for (auto &client : system.clients) {
       client->launch(threads);
     }
   }
@@ -126,6 +173,7 @@ namespace tunitas::denniston::driver {
     for (auto &face : control.everyone) {
       face.write(make<Quit>());
     }
+    // and after the Quit messages are processed, all the run(...) functions will have exited.
   }
 }
 namespace {

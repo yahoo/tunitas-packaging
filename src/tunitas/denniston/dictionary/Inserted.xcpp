@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::dictionary {
+  //
+  // The result of an insertion into the dictionary
+  //
+  // Specification:
+  //
+  //   <quote ref="https://en.cppreference.com/w/cpp/container/map/insert">
+  //     1-3) Returns a pair consisting of
+  //          an iterator to the inserted element (or to the element that prevented the insertion)
+  //          and a bool denoting whether the insertion took place.
+  //   </quote>
+  //
+  // Design:
+  //
+  //   Same as the underlying, but Indirect the iterator.
+  //   Do not return the iterator, return the reference to the underlying
+  //
+  //   Because the thing holds a referece,
+  //   no default construction
+  //   no assignment
+  //   no moving.
+  //
+  //   Basically these things are useful only to capture the result value of a call to Dictionary::insert(...)
+  //
+  // Usage:
+  //
+  //   As with insert(...)
+  //
+  template<typename VALUE> struct Inserted;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Pair
+namespace tunitas::denniston {
+  template<typename VALUE> struct dictionary::Inserted : public Pair<VALUE &, bool> {
+    using Ancestor = Pair<VALUE &, bool>;
+  public:
+    using Value = VALUE;
+    inline Inserted(Value &either_inserted_or_existing, bool did_actually_insert) : Ancestor{either_inserted_or_existing, did_actually_insert} { }
+  };
+}
+#endiv

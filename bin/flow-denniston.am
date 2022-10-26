@@ -1,0 +1,22 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tflow_dennistonas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tflow_dennistonas.technology/all/services/denniston/tree/LICENSE
+#
+bin_flow_denniston_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+bin_flow_denniston_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+bin_flow_denniston_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+bin_flow_denniston_LDADD = noinst/lib/libapp-flow-denniston.la
+bin_flow_denniston_SOURCES = noinst/obj/src/app/flow/c.main.cpp
+$(bin_flow_denniston_SOURCES) : disco_objdir=noinst/obj
+$(bin_flow_denniston_SOURCES) : scold_objdir=$(disco_objdir)
+$(bin_flow_denniston_SOURCES) : noinst/obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
+$(tf_noinst_mkdir)/flow-denniston.mk: $(bin_flow_denniston_SOURCES)
+$(tf_noinst_mkdir)/flow-denniston.mk:
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
+include $(tf_noinst_mkdir)/flow-denniston.mk
+clean-dependencies:: ; rm -f $(tf_noinst_mkdir)/flow-denniston.mk

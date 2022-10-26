@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import rigging.suite.Fixture
+//
+// Usage:
+//
+//   #import tests.fixture.environment
+//   namespace tests::something {
+//     using namespace ::cli::exits::constants; .......... because there MAY be a namespace tests::something::app
+//   }
+//
+#import cli.exits.constants
+#endiv
+#divert <hpp>
+//
+// Usage:
+//
+//   #import tests.fixture.environment .......... (a.k.a. #import rigging.ASSERTION)
+//   namespace tests::something {
+//     using rigging::ASSERTION;
+//   }
+//   ...
+//   ...some time later...
+//   ...
+//   namespace tests::something {
+//     auto test_something() -> void {
+//      require(ASSERTION< 0 != 1); ........................................ and ADL will find it.
+//     }
+//   }
+//
+#import rigging.ASSERTION
+//
+// And everyone wants to say something
+//
+#import std.cerr
+#import std.clog
+#import std.cout
+#endiv
