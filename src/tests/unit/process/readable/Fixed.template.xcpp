@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::process::readable {
+  template<typename SUBJECT> struct Fixed;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.readable.Fixed
+#import tunitas.denniston.process.Ready
+#import std.mutex
+namespace tests::unit::process {
+  template<typename SUBJECT> struct readable::Fixed : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    struct Subject : public SUBJECT {
+      using SUBJECT::SUBJECT;
+      auto is_ready_to_read() -> bool { return false; }
+    };
+    //
+    auto test_constructor() -> void;
+    auto test_lock() -> void;
+    auto test_unlock_all() -> void;
+    auto test_unlock_first() -> void;
+    auto test_unlock_rest() -> void;
+  protected:
+    ::tunitas::denniston::process::Ready ready{};
+    using Lock = std::mutex;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::process::readable{
+  template<typename _> auto Fixed<_>::suite() -> Suite {
+    auto series = Stream{"Fixed"sv};
+    series << add("constructor", &Fixed::test_constructor)
+           << add("lock", &Fixed::test_lock)
+           << []{
+                auto un = Stream{"unlock"sv};
+                un << add("all", &Fixed::test_unlock_all)
+                   << add("first", &Fixed::test_unlock_first)
+                   << add("rest", &Fixed::test_unlock_rest)
+                   << END;
+                return un;
+              }()
+           << END;
+    return settle(series);
+  }
+}
+#endiv

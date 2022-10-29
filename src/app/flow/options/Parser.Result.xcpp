@@ -9,15 +9,14 @@
 #divert <hpp>
 #import nonstd.required.iterator.Forward
 #import nonstd.required.iterator.Producing
-#import tunitas.Outcome
 #import tunitas.application.words.Strings
 #import app.flow.required
 namespace app::flow::options {
-  class Parser::Result : public tunitas::Outcome<tunitas::application::words::Strings> {
-    using Ancestor = tunitas::Outcome<tunitas::application::words::Strings>;
-    using Strings = tunitas::application::words::Strings;
+  class Parser::Result : public tunitas::application::words::Strings {
+    using Ancestor = tunitas::application::words::Strings;
+    using Strings = Ancestor;
   public:
-    using Ancestor::variant; // you "just have to know" that the this is the constructor name
+    using Ancestor::deque; // you "just have to know" that the this is the constructor name
     template<required::iterator::Forward ITERATOR> inline [[implicit]] Result(ITERATOR start, ITERATOR finish) requires required::iterator::Producing<ITERATOR, Strings::value_type>;
   };
 }
@@ -26,7 +25,7 @@ namespace app::flow::options {
 namespace app::flow::options {
   template<required::iterator::Forward ITERATOR> Parser::Result::Result(ITERATOR start, ITERATOR finish)
     requires required::iterator::Producing<ITERATOR, Strings::value_type>
-    : Ancestor{Strings{start, finish}}
+    : Ancestor{start, finish}
     { }
 }
 #endiv

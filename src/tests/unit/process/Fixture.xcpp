@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::process { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::process::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Ready() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.process.Ready
+#import tests.unit.process.readable.Fixture
+auto tests::unit::process::Fixture::suite() -> Suite {
+  auto series = Stream{"process"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Ready", &Fixture::test_usage_Ready)
+                  << END;
+              return use;
+            }()
+         << add<Ready>()
+         << add<readable::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.process.Ready
+namespace tests::unit::process {
+  auto Fixture::test_usage_Ready() -> void {
+    using Subject = library::Ready;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv

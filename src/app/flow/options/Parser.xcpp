@@ -129,6 +129,11 @@ auto app::flow::options::Parser::parse(Configuration &cfg, Args &args) -> Result
       throw exception::Quitting{exp, cli::exits::SOFTWARE};
     }
   }
-  return {getter.begin(), getter.end()};
+  if (getter.size()) {
+    error(exp) << "there may not be any words after the options\n";
+    throw exception::Quitting{exp, cli::exits::USAGE};
+  } else {
+    return {getter.begin(), getter.end()};
+  }
 }
 #endiv

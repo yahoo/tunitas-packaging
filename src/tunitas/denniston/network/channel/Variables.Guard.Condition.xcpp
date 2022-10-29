@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// Condition the two conditions of "too empty" and "too full"
+// 
+// Usage: see Channel, channel::Variables
+//
+//   auto variables = Variables{...somehow...};
+//   auto predicate = Predicate{...somehow...};
+//   channel::Condition guard{variables, predicate};
+//   ...do stuff...
+//
+#include <hpp/tunitas.denniston.network.channel.Variables>
+#endiv
+#divert <hpp>
+#import tunitas.denniston.network.channel.Variables.Predicate
+#import std.unique_lock
+namespace tunitas::denniston::network::channel {
+  struct Variables::Guard::Condition {
+    inline Condition(Variables &, Predicate);
+    inline ~Condition() noexcept(false);
+    Condition(Condition const &) = delete;
+    auto operator=(Condition const &) -> Condition & = delete;
+    Condition(Condition &&) = delete;
+    auto operator=(Condition &&) -> Condition & = delete;
+  protected:
+    using Unique = std::unique_lock<Mutex>;
+    Variables &variables;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.channel.Variables
+namespace tunitas::denniston::network::channel {
+  Variables::Guard::Condition::Condition(Variables &v, Predicate predicate)
+    : variables{v} {
+      auto &condition = variables.*predicate.condition;
+      auto uuu = Unique{variables.lock};
+      condition.wait(uuu, predicate.function);
+      uuu.release();
+    }
+  Variables::Guard::Condition::~Condition() noexcept(false) {
+    variables.lock.unlock();
+    // [[FIXTHIS]] sloppy ... this notifies obth on noempty and non-full but only one is blocked (right?)
+    // [[FIXTHIS]] we should notify only on the one *other* than predicate.variable since we know that the
+    //  surrounding operation may have cleared up *that* blockage; e.g. pop() remedies "is full"; push_back() remedies "is empty"
+    variables.nonempty.notify_one();
+    variables.nonfull.notify_one();
+  }
+}
+#endiv

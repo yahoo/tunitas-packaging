@@ -31,9 +31,10 @@
 #divert <hpp>
 static_assert(sizeof (tunitas::denniston::network::Socket));
 static_assert(sizeof (tunitas::denniston::network::Socket::Interface *));
-#forward tunitas.denniston.network.channel.Ready
+#forward tunitas.denniston.process.Ready
 #import tunitas.Optional
 #import tunitas.denniston.network.required.iterator.Socket_Move
+#forward tunitas.denniston.driver.Binder
 namespace tunitas::denniston::network {
   struct Socket::Interface {
     using Value = Socket::Value;
@@ -46,11 +47,12 @@ namespace tunitas::denniston::network {
     explicit Interface() = default;
   protected:
     friend class Socket;
-    inline Interface(Socket *, Pipe Socket::*read, Pipe Socket::*write, channel::Ready *);
+    friend class driver::Binder;
+    inline Interface(Socket *, Pipe Socket::*read, Pipe Socket::*write, process::Ready *);
     Socket *origin{};;
     Pipe Socket::*read_side{};
     Pipe Socket::*write_side{};
-    channel::Ready *ready{};
+    process::Ready *ready{};
     inline auto validate_origin() const -> void;
   };
 }
@@ -58,9 +60,9 @@ namespace tunitas::denniston::network {
 #divert <ipp>
 #import tunitas.denniston.network.Socket
 #import tunitas.denniston.network.exception.Null
-#import tunitas.denniston.network.channel.Ready
+#import tunitas.denniston.process.Ready
 namespace tunitas::denniston::network {
-  Socket::Interface::Interface(Socket *o, Pipe Socket::*r, Pipe Socket::*w, channel::Ready *y)
+  Socket::Interface::Interface(Socket *o, Pipe Socket::*r, Pipe Socket::*w, process::Ready *y)
     : origin{o}
     , read_side{r}
     , write_side{w}

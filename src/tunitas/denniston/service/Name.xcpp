@@ -38,12 +38,12 @@ namespace tunitas::denniston::service {
   inline constexpr auto underlying(Name n) { return std::underlying_type_t<Name>(n); }
   inline auto swap(Name &a, Name &b) noexcept -> void { return std::swap(a, b); }
   //
-  inline auto is_directory(Name name) -> bool     { return Name::DIRECTORY == name; }
+  inline auto is_client(Name name) -> bool        { return 0 < underlying(name); }
   inline auto is_configuration(Name name) -> bool { return Name::CONFIGURATION == name; }
   inline auto is_collector(Name name) -> bool     { return Name::COLLECTOR == name; }
-  inline auto is_processor(Name name) -> bool     { return Name::PROCESSOR1 == name || Name::PROCESSOR2 == name; }
+  inline auto is_directory(Name name) -> bool     { return Name::DIRECTORY == name; }
   inline auto is_gateway(Name name) -> bool       { return Name::GATEWAY == name; }
-  inline auto is_client(Name name) -> bool        { return 0 < underlying(name); }
+  inline auto is_processor(Name name) -> bool     { return Name::PROCESSOR1 == name || Name::PROCESSOR2 == name; }
   //
   inline auto make_client_name(unsigned index) -> Name;
 }

@@ -1,0 +1,16 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.network.channel.Pollability
+#include <hpp/tunitas.denniston.network.channel.Pollability>
+namespace tunitas::denniston::network::channel::required {
+  //
+  // Is this type a (descendant of) Pollability?
+  // The complete type of POLLABILITY is required to make the diagnosis.
+  //
+  template<typename POLLABILITY> concept Pollability = derived_from<POLLABILITY, Pollability>;
+}
+#endiv

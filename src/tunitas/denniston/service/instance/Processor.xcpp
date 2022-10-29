@@ -60,18 +60,21 @@ namespace tunitas::denniston::service::instance {
 namespace tunitas::denniston::service::instance {
   auto Processor::launch(driver::Threads &pool) -> void { pool.launch(&Processor::run, this); }
   auto Processor::run() noexcept -> void try {
-    log.format("begin");
-    while (true) {
+    log.format("begin running");
+    while (!graceful_shutdown.load()) {
+      ready.wait(readable);
       log.format("reading");
-      auto red = control.read();
-      log.format("red");
-      if (is_quit(red)) {
-        break;
+      if (auto red=control.read_if(); red) {
+        log.format("red from control");
+        if (is_quit(*red)) {
+          graceful_shutdown.store(true);
+          break;
+        }
       }
     }
     log.format("ending gracefully");
   } catch(...) {
-    log.format("escaped expression is suppressed");
+    log.format("escaped exception is suppressed");
   }
 }
 #endiv

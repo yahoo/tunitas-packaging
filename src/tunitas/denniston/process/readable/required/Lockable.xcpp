@@ -1,0 +1,29 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import std.mutex
+#import std.unique_lock
+namespace tunitas::denniston::process::readable::required {
+  //
+  // Is this a Lockable??
+  // Useful for variadic argument declarations.
+  //
+  // Specification:
+  //
+  //   https://en.cppreference.com/w/cpp/named_req/Lockable
+  //   https://en.cppreference.com/w/cpp/named_req/BasicLockable
+  //
+  // Design:
+  //
+  //   But for here we hardcode this to the one implemenation of Lockable
+  //
+  // Usage:
+  //
+  //   template<typename... LOCKABLE> auto function(LOCKABLE &...) -> void requires (Lockable<LOCKABLE> && ... );
+  //
+  template<typename LOCKABLE> concept Lockable = same_as<LOCKABLE, std::unique_lock<std::mutex>>;
+}
+#endiv

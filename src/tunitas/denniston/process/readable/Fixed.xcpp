@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::readable {
+  //
+  // The fixed-count implementation of readable.
+  //
+  // Specification:
+  //
+  //   See Prototype
+  //
+  // Design:
+  //
+  //   Uses a fixed array.
+  //   See the requires constraint on the constructor that clamps the size of the initializer list.
+  //
+  // Usage:
+  //
+  //   See Ready
+  //
+  template<Size N> struct Fixed;
+  template<> struct Fixed<0>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.readable.Container
+namespace tunitas::denniston::process {
+  template<> class readable::Fixed<0> : public Container<std::array<std::mutex *, 1>> {
+    using Ancestor = Container<std::array<std::mutex *, 1>>;
+  protected:
+    inline static constexpr auto const N = 1uz;
+  public:
+    [[implicit]] Fixed(Ready &r) : Ancestor{r} { }
+  };
+  template<Size N_OTHERS> class readable::Fixed : public Container<std::array<std::mutex *, 1+N_OTHERS>> {
+    using Ancestor = Container<std::array<std::mutex *, 1+N_OTHERS>>;
+  protected:
+    inline static constexpr auto const N = 1uz+N_OTHERS;
+  public:
+    template<typename... MUTEXES> inline [[implicit]] Fixed(Ready &, MUTEXES &...) requires (required::Mutexes<MUTEXES...> && N-1 == sizeof...(MUTEXES));
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::readable {
+  template<Size _> template<typename... MUTEXES> Fixed<_>::Fixed(Ready &first, MUTEXES &...rest) requires (required::Mutexes<MUTEXES...> && N-1 == sizeof...(MUTEXES))
+    : Ancestor{first, rest...}
+  { }
+}
+#endiv

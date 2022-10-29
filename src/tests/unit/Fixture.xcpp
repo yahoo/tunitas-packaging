@@ -19,6 +19,7 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.message.Fixture
 #import tests.unit.network.Fixture
 #import tests.unit.nonstd.Fixture
+#import tests.unit.process.Fixture
 #import tests.unit.service.Fixture
 #import tests.unit.task.Fixture
 #import tests.unit.version.Fixture
@@ -33,6 +34,7 @@ auto tests::unit::Fixture::suite() -> Suite {
          << add<message::Fixture>()
          << add<network::Fixture>()
          << add<nonstd::Fixture>()
+         << add<process::Fixture>()
          << add<service::Fixture>()
          << add<task::Fixture>()
          << add<version::Fixture>()

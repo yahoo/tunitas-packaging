@@ -94,11 +94,14 @@ namespace tests::unit::log {
     require(ASSERTION, !actual.empty());
   }
   auto Fixture::test_stamp_service_Name() -> void {
-    auto buf = std::ostringstream{};
-    buf << library::stamp(Name::COLLECTOR); // <-------------------- test this
-    auto actual = buf.str();
-    std::cerr << "stamp = " << actual << '\n';
-    require(ASSERTION, !actual.empty());
+    using enum Name;
+    for (auto name : {CLIENT, COLLECTOR, CONFIGURATION, DIRECTORY, GATEWAY, PROCESSOR1, PROCESSOR2, Name{2}, Name{3}, Name{4}, Name{98}, Name{99}, Name{100}}) {
+      auto buf = std::ostringstream{};
+      buf << library::stamp(name); // <-------------------- test this
+      auto actual = buf.str();
+      std::cerr << "stamp = " << actual << '\n';
+      require(ASSERTION, !actual.empty());
+    }
   }
 }
 #endiv

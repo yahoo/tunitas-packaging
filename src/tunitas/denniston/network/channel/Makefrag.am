@@ -8,13 +8,14 @@ tunitas_denniston_network_channel_SUBSOURCES = \
   obj/src/tunitas/denniston/network/Channel.cpp \
   obj/src/tunitas/denniston/network/channel/namespace.cpp \
   obj/src/tunitas/denniston/network/channel/Channel.cpp \
-  obj/src/tunitas/denniston/network/channel/Condition.cpp \
-  obj/src/tunitas/denniston/network/channel/Exclusive.Guard.cpp \
-  obj/src/tunitas/denniston/network/channel/Exclusive.cpp \
   obj/src/tunitas/denniston/network/channel/Peek.cpp \
-  obj/src/tunitas/denniston/network/channel/Predicate.cpp \
   obj/src/tunitas/denniston/network/channel/Variables.cpp \
-  obj/src/tunitas/denniston/network/channel/Ready.cpp \
+  obj/src/tunitas/denniston/network/channel/Variables.Guard.Condition.cpp \
+  obj/src/tunitas/denniston/network/channel/Variables.Guard.Exclusive.cpp \
+  obj/src/tunitas/denniston/network/channel/Variables.Predicate.cpp \
+  obj/src/tunitas/denniston/network/channel/Pollability.cpp \
+  obj/src/tunitas/denniston/network/channel/readable.Fixed.cpp \
+  obj/src/tunitas/denniston/network/channel/readable.Variable.cpp \
   $(tunitas_denniston_network_channel_required_SUBSOURCES) \
   $(end)
 #

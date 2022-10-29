@@ -5,5 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.network
-namespace tunitas::denniston::network::channel { }
+namespace tunitas::denniston::network::channel {
+  namespace [[nodirectory]] readable { }
+}
 #endiv

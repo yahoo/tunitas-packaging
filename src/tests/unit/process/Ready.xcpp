@@ -1,0 +1,84 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::process { struct Ready; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.readable.Variable
+struct tests::unit::process::Ready : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  struct Subject : public library::Ready {
+    using Ancestor = library::Ready;
+  public:
+    using Ancestor::Ready;
+    // Make it public so we can set it
+    using Ancestor::some_channel_is_ready_to_read;
+  };
+  //
+  auto test_constructor_default() -> void;
+  auto test_notify() -> void;
+  auto test_wait_yes() -> void;
+  auto test_wait_no() -> void;
+protected:
+  class Readable : public library::readable::Variable {
+    using Ancestor = library::readable::Variable;
+  public:
+    using Ancestor::Variable;
+    auto is_ready_to_read() -> bool override { return false; }
+  };
+};
+#endiv
+#divert <cpp>
+#import std.jthread
+auto tests::unit::process::Ready::suite() -> Suite {
+  auto series = Stream{"Ready"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Ready::test_constructor_default)
+                  << END;
+              return con;
+            }()
+         << add("notify", &Ready::test_notify)
+         << []{
+              auto wait = Stream{"wait"sv};
+              wait << add("yes", &Ready::test_wait_yes)
+                   << add("no", &Ready::test_wait_no)
+                   << END;
+              return wait;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::process {
+  auto Ready::test_constructor_default() -> void {
+    auto subject = Subject{}; // <---------------------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Ready::test_notify() -> void {
+    auto subject = Subject{};
+    subject.notify();
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Ready::test_wait_yes() -> void {
+    auto subject = Subject{};
+    auto run = [&subject]{
+                 subject.notify();
+               };
+    auto readable = Readable{subject};
+    std::jthread{run};
+    subject.wait(readable);
+    require(ASSERTION);
+  }
+  auto Ready::test_wait_no() -> void {
+    auto subject = Subject{};
+    auto readable = Readable{subject};
+    subject.some_channel_is_ready_to_read = true;
+    subject.wait(readable);
+    require(ASSERTION);
+  }
+}
+#endiv

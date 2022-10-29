@@ -17,6 +17,7 @@ tunitas_denniston_SUBSOURCES = \
   $(tunitas_denniston_required_SUBSOURCES) \
   $(tunitas_denniston_message_SUBSOURCES) \
   $(tunitas_denniston_network_SUBSOURCES) \
+  $(tunitas_denniston_process_SUBSOURCES) \
   $(tunitas_denniston_service_SUBSOURCES) \
   $(tunitas_denniston_task_SUBSOURCES) \
   $(tunitas_denniston_world_SUBSOURCES) \
@@ -31,5 +32,6 @@ include src/tunitas/denniston/message/Makefrag.am
 include src/tunitas/denniston/network/Makefrag.am
 include src/tunitas/denniston/required/Makefrag.am
 include src/tunitas/denniston/service/Makefrag.am
+include src/tunitas/denniston/process/Makefrag.am
 include src/tunitas/denniston/task/Makefrag.am
 include src/tunitas/denniston/world/Makefrag.am

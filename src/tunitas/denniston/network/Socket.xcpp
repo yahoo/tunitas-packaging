@@ -11,6 +11,9 @@ namespace tunitas::denniston::network {
   // Specification:
   //
   //   You Know.
+  //   Read & Write with Socket::Interface
+  //   Allocate with Sockets::allocate()
+  //   Bind to the process system with driver::Binder
   //
   // Design:
   //
@@ -28,14 +31,20 @@ namespace tunitas::denniston::network {
 #divert <hpp>
 #import tunitas.denniston.network.Pipe
 #import tunitas.denniston.network.table.Descriptor.Sockets
-#forward tunitas.denniston.network.channel.Ready
+#forward tunitas.denniston.process.Ready
+#forward tunitas.denniston.driver.Binder
 static_assert(sizeof (tunitas::denniston::network::table::Descriptor<tunitas::denniston::network::table::Sockets>));
 struct tunitas::denniston::network::Socket {
   Socket() = default;
   struct Interface;
   using Value = Pipe::Value;
-  inline auto left(channel::Ready *) -> Interface;
-  inline auto right(channel::Ready *) -> Interface;
+#if 0
+  using Untied = Tuple<channel::Variables::Lock *, Interface>;
+  inline auto left(process::Ready &) -> Untied;
+  inline auto right(process::Ready &) -> Untied;
+#else
+  friend class driver::Binder;
+#endif
 protected:
   Pipe left2right{};
   Pipe right2left{};
@@ -46,8 +55,11 @@ protected:
 #divert <ipp>
 #import tunitas.denniston.network.Socket.Interface
 namespace tunitas::denniston::network {
+#if 0
+  // These have to be done in the driver::binder::Binder now
   auto Socket::left(channel::Ready *ready) -> Interface  { return {this, &Socket::left2right, &Socket::right2left, ready}; }
   auto Socket::right(channel::Ready *ready) -> Interface { return {this, &Socket::right2left, &Socket::left2right, ready}; }
+#endif
 }
 #endiv
 #divert <cpp>

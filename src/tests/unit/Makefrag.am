@@ -17,6 +17,7 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_message_SUBSOURCES) \
   $(tests_unit_network_SUBSOURCES) \
   $(tests_unit_nonstd_SUBSOURCES) \
+  $(tests_unit_process_SUBSOURCES) \
   $(tests_unit_service_SUBSOURCES) \
   $(tests_unit_task_SUBSOURCES) \
   check/obj/src/tests/unit/version.Fixture.cpp \
@@ -31,6 +32,7 @@ include src/tests/unit/log/Makefrag.am
 include src/tests/unit/message/Makefrag.am
 include src/tests/unit/network/Makefrag.am
 include src/tests/unit/nonstd/Makefrag.am
+include src/tests/unit/process/Makefrag.am
 include src/tests/unit/service/Makefrag.am
 include src/tests/unit/task/Makefrag.am
 include src/tests/unit/world/Makefrag.am

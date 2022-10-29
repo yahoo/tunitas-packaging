@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/drivers/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::driver {
+  //
+  // The inert layout of a driver (a computing resource).
+  //
+  // Specification:
+  //
+  //   Static configuration (no binding, linkage startup or shutdown)
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Just the inert & static tables.
+  //
+  // Usage:
+  //
+  //   By inheritance into Driver
+  //
+  struct Layout;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.log.Concentrator
+#import tunitas.denniston.network.Sockets
+#import tunitas.denniston.network.Sockets.Interfaces
+#import tunitas.denniston.service.System
+#import tunitas.denniston.service.Instance
+#import tunitas.denniston.driver.Threads
+#import tunitas.denniston.process.Prototype
+#import tunitas.keyston.entropy.Source
+#import tunitas.denniston.World
+struct tunitas::denniston::driver::Layout : public process::Prototype {
+  using Entropy = keyston::entropy::Source;
+  using Logs = denniston::log::Concentrator;
+  using Sockets = network::Sockets;
+  using System =service::System;
+  using World = denniston::World;
+  //
+  Entropy entropy{};
+  World world;
+  System system;
+  Logs logs{};
+  Sockets sockets{};
+  Threads threads{};
+  struct Control {
+    network::Sockets::Interfaces everyone{};
+    network::Sockets::Interfaces clients{};
+  } control{};
+  //
+  inline constexpr static auto DEFAULT_INITIAL_CLIENT_COUNT = 3uz;
+  Layout(Layout const &) = delete;
+  Layout &operator=(Layout const &) = delete;
+protected:
+  ~Layout() = default;
+  inline explicit Layout(Size);
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::driver {
+  Layout::Layout(Size initial_client_count)
+    : world{entropy}
+    , system{world, initial_client_count}
+  { }
+}
+#endiv

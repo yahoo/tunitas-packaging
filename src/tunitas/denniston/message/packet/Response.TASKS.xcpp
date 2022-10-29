@@ -42,14 +42,15 @@ namespace tunitas::denniston::message::packet {
 }
 #endiv
 #divert <ipp>
-#import nonstd.move
+#import std.copy
 #import std.back_inserter
 namespace tunitas::denniston::message::packet {
   Response<Get::TASKS>::Response(Tasks t) : tasks{move(t)} { }
   Response<Get::TASKS>::Response(Task t) { tasks.push_back(move(t)); }
   template<required::tasks::Iterator ITERATOR> Response<Get::TASKS>::Response(ITERATOR start, ITERATOR finish) {
     // relying upon Bounded<...>::push_back(...) to throw an exception if the array bound is exceeded.
-    nonstd::move(start, finish, std::back_inserter(tasks));
+    // this MUST be copy, not move because the packet will be re-built multiple times and sent multiple places
+    std::copy(start, finish, std::back_inserter(tasks));
   }
 }
 #endiv

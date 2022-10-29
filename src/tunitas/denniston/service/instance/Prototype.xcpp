@@ -31,14 +31,16 @@ namespace tunitas::denniston::service::instance {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.log.Client
-#import tunitas.denniston.network.channel.Ready
-#import tunitas.denniston.service.Name
 #import tunitas.denniston.network.Socket.Interface
+#import tunitas.denniston.service.Name
 #forward tunitas.denniston.driver.Threads
 #forward tunitas.denniston.driver.Driver
+#import tunitas.denniston.process.Prototype
 #import std.atomic
 #import std.vector
-struct tunitas::denniston::service::instance::Prototype {
+class tunitas::denniston::service::instance::Prototype : public process::Prototype {
+  using Ancestor = process::Prototype;
+public:
   Name name{};
   denniston::log::Client log;
   using Interface = network::Socket::Interface;
@@ -52,7 +54,6 @@ protected:
   inline explicit Prototype(Name);
   std::atomic<bool> graceful_shutdown{false}; // not clear this needs to be atomic.
   friend class driver::Driver;
-  network::channel::Ready ready{};
 };
 #endiv
 #divert <ipp>

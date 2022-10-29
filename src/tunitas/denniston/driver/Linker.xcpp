@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::driver {
+  //
+  // Link everything up.
+  // It's complicated.
+  //
+  // Specification:
+  //
+  //   The network.  Build it.
+  //
+  // Design:
+  //
+  //   There was no design. It just evolved.
+  //
+  // Usage:
+  //
+  //   See Driver.
+  //
+  struct Linker;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.service.System
+#import tunitas.denniston.driver.Binder
+#forward tunitas.denniston.driver.Layout
+struct tunitas::denniston::driver::Linker {
+  service::System &system;
+  Binder binder;
+  inline explicit Linker(Layout &);
+  //
+  auto configuration() -> void;
+  auto control() -> void;
+  auto directory() -> void;
+  auto gateway() -> void;
+  auto processor(service::Name) -> void;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.driver.Layout
+namespace tunitas::denniston::driver {
+  Linker::Linker(Layout &l)
+    : system{l.system}
+    , binder{l}
+  { }
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::driver {
+  auto Linker::configuration() -> void {
+    binder.link({system.configuration->collector, *system.configuration}, {system.collector->configuration, *system.collector});
+    for (auto i{0uz}, e{system.processors.size()}; e != i; ++i) {
+      binder.link({system.configuration->processors[i], *system.configuration}, {system.processors[i]->configuration, *system.processors[i]});
+    }
+    for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
+      binder.link({system.configuration->clients[i], *system.configuration}, {system.clients[i]->configuration, *system.clients[i]});
+    }
+  }
+  auto Linker::control() -> void {
+    // All processes of the s System MUST be listed here
+    binder.control_system(*system.configuration);
+    binder.control_system(*system.collector);
+    binder.control_system(*system.directory);
+    binder.control_system(*system.gateway);
+    for (auto &processor : system.processors) { binder.control_system(*processor); }
+    for (auto &client : system.clients)       { binder.control_userland(*client); }
+  }
+  auto Linker::directory() -> void {
+    for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
+      binder.link({system.directory->clients[i], *system.directory}, {system.clients[i]->directory, *system.clients[i]});
+    }
+  }
+  auto Linker::gateway() -> void {
+    for (auto i{0uz}, e{system.processors.size()}; e != i; ++i) {
+      binder.link({system.gateway->processors[i], *system.gateway}, {system.processors[i]->gateway, *system.processors[i]});
+    }
+    for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
+      binder.link({system.configuration->clients[i], *system.configuration}, {system.clients[i]->configuration, *system.clients[i]});
+    }
+    binder.link({system.gateway->collector, *system.gateway}, {system.collector->gateway, *system.collector});
+  }
+}
+#endiv

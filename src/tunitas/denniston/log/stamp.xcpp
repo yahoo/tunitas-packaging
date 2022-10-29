@@ -119,6 +119,10 @@ namespace tunitas::denniston::log::package_stamp {
       return {'p', NaC, renumerate(name)};
     } else if (is_collector(name)) {
       return {'$', '$',  NaN};
+    } else if (is_configuration(name)) {
+      return {'f', 'g',  NaN};
+    } else if (is_directory(name)) {
+      return {'d', 'y',  NaN};
     } else {
       return {'?', '?', renumerate(name)};
     }

@@ -39,6 +39,7 @@ namespace tunitas::denniston::service::instance {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.World
+#import tunitas.denniston.network.channel.readable.Variable
 #import tunitas.denniston.service.instance.Prototype
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.error.Code
@@ -69,19 +70,19 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.message.packet.cast
+#import tunitas.denniston.message.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
 #import tunitas.denniston.message.packet.make
 #import tunitas.denniston.message.packet.Status
 #import tunitas.denniston.message.packet.Query
 #import tunitas.denniston.message.packet.Response
-#import tunitas.denniston.message.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
 #import std.min
+#import std.cbegin
 namespace tunitas::denniston::service::instance {
   auto Configuration::launch(driver::Threads &pool) -> void { pool.launch(&Configuration::run, this); }
   auto Configuration::run() noexcept -> void try {
     log.format("begin running");
     while (!graceful_shutdown.load()) {
-      ready.await();
+      ready.wait(readable);
       log.format("reading");
       if (auto red=control.read_if(); red) {
         log.format("red from control");
@@ -90,6 +91,7 @@ namespace tunitas::denniston::service::instance {
           break;
         }
       }
+      log.format("after probing control");
       if (auto red=collector.read_if(); red) {
         log.format("red from collector");
         if (is_ping(*red)) {
@@ -97,7 +99,10 @@ namespace tunitas::denniston::service::instance {
           collector.write(message::packet::make<message::packet::Status>());
         }
       }
+      log.format("after probing collector");
+      log.format("there are {} clients", clients.size());
       for (auto &face : clients) {
+          log.format("poll client");
         if (auto red=face.read_if(); red) {
           log.format("red from some client");
           using namespace message::packet;
@@ -106,8 +111,8 @@ namespace tunitas::denniston::service::instance {
               if (tasks.empty()) {
                 face.write(make<Status>(E::NO_AVAILABLE_TASKS));
               } else {
-                // returns only the first (um) 256
-                auto start = tasks.begin();
+                // returns only the first (um) 256; MUST be cbegin to satisfy the constructor
+                auto start = std::cbegin(tasks);
                 auto finish = start + std::min(Response<Get::TASKS>::capacity(), tasks.size());
                 face.write(make<Response<Get::TASKS>>(start, finish));
               }
@@ -125,7 +130,7 @@ namespace tunitas::denniston::service::instance {
     }
     log.format("ending");
   } catch(...) {
-    log.format("escaped expression is suppressed");
+    log.format("escaped exception is suppressed");
   }
 }
 #endiv

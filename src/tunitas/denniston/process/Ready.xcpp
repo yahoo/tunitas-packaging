@@ -4,13 +4,14 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::network::channel {
+namespace tunitas::denniston::process {
   //
   // At the process level, are any channels readable?
   //
   // Specification:
   //
-  //   A "monitor"
+  //   A multi-lock situation
+  //   The first lock(able) is special, for it guards the "is ready" bit.
   //   A lock+condition (variable) system.
   //
   // Design:
@@ -25,7 +26,7 @@ namespace tunitas::denniston::network::channel {
   // Usage:
   //
   //   Positioned in a process.
-  //   Socket::Interface performs update+notificatoins.
+  //   Socket::Interface performs update+notifications.
   //
   // Centrall; e.g. at the service instance (a.k.a. "process") state variables (a.k.a. "struct").
   //
@@ -38,7 +39,7 @@ namespace tunitas::denniston::network::channel {
   // Reading; e.g. within the service instance's run function
   //
   //    while (true) {
-  //      ready.await();
+  //      ready.wait();
   //      ... something is ready to read ... find it (poll).
   //      auto red0 = some_face.read_if();
   //      auto red1 = someother_face.read_if();
@@ -57,43 +58,47 @@ namespace tunitas::denniston::network::channel {
 #divert <hpp>
 #import std.mutex
 #import std.lock_guard
+#import std.unique_lock
 #import std.condition_variable
-class tunitas::denniston::network::channel::Ready {
-  std::mutex mutex{};
-  std::unique_lock<std::mutex> anchor{mutex, std::defer_lock};
+#import tunitas.denniston.process.Readable
+#forward tunitas.denniston.process.readable.Container
+#forward tunitas.denniston.process.readable.Fixed
+#forward tunitas.denniston.process.readable.Variable
+class tunitas::denniston::process::Ready {
+protected:
+  template<readable::required::Array> friend class readable::Container;
+  template<Size> friend class readable::Fixed;
+  friend class readable::Variable;
+  std::mutex lock{};
+  // std::unique_lock<std::mutex> lock{mutex, std::defer_lock};
   std::condition_variable condition{};
   bool some_channel_is_ready_to_read{};
   using Guard = std::lock_guard<std::mutex>;
-  struct Await {
-    inline explicit Await(Ready &);
-    inline ~Await();
-    Ready &guarded;
-  };
+  using Unique = std::unique_lock<std::mutex>;
 public:
   inline auto notify() -> void;
-  inline auto await() -> void;
+  inline auto wait([[inout]] Readable &) -> void;
 };
 #endiv
 #divert <ipp>
-namespace tunitas::denniston::network::channel {
+namespace tunitas::denniston::process {
   auto Ready::notify() -> void {
-    { auto guard = Guard{mutex};
+    { auto guard = Guard{lock};
       some_channel_is_ready_to_read = true; }
     // [[does it matter?]] dont' notify while in the critical section
     condition.notify_all();
   }
-  auto Ready::await() -> void {
-    auto guard = Await{*this};
-    // acknowledge that something is ready to ready and transmit that back by returning from "await"
-    some_channel_is_ready_to_read = false;
-  }
-  Ready::Await::Await(Ready &g) : guarded{g} {
-    guarded.anchor.lock();
-    guarded.condition.wait(guarded.anchor, [&location=guarded.some_channel_is_ready_to_read]{ return location; });
-  }
-  Ready::Await::~Await() {
-    guarded.anchor.unlock();
-    guarded.condition.notify_all(); // why not notify_one?
+  auto Ready::wait(Readable &them) -> void {
+    them.lock();
+    some_channel_is_ready_to_read |= them.is_ready_to_read();
+    them.unlock_rest();
+    if (!some_channel_is_ready_to_read) {
+      auto uuu = Unique{lock, std::adopt_lock};
+      condition.wait(uuu, [&location=some_channel_is_ready_to_read]{ return location; });
+      uuu.release();
+    }
+    some_channel_is_ready_to_read = false; // You MUST now go about your business reading the channels
+    them.unlock_first();
   }
 }
 #endiv

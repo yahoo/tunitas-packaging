@@ -1,0 +1,186 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::network::socket { class Interface; }
+#endiv
+#divert <hpp>
+#import std.vector
+#import tunitas.denniston.network.Socket
+#import tunitas.denniston.process.Ready
+#import tunitas.denniston.driver.Layout
+#import tunitas.denniston.driver.Binder
+#import tunitas.denniston.message.Packet
+#import tunitas.denniston.network.channel.readable.Variable
+struct tests::unit::network::socket::Interface : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Socket = library::Socket;
+  using Subject = library::Socket::Interface;
+  using Readable = ::tunitas::denniston::network::channel::readable::Variable;
+  using Ready = ::tunitas::denniston::process::Ready;
+  using Packet = ::tunitas::denniston::message::Packet;
+  class Driver : public ::tunitas::denniston::driver::Layout {
+    using Ancestor = ::tunitas::denniston::driver::Layout;
+  public:
+    // use the inert one so that we have activations in the background
+    Driver() : Ancestor{3} { }
+  };
+  class Binder : public  ::tunitas::denniston::driver::Binder {
+    using Ancestor = ::tunitas::denniston::driver::Binder;
+  public:
+    using Ancestor::Binder;
+    // Making them public so we can test against them
+    using Ancestor::left;
+    using Ancestor::right;
+  };
+  //
+  auto test_left() -> void;
+  //
+  auto test_right() -> void;
+  auto test_right_write_moving() -> void;
+  auto test_right_write_copying() -> void;
+  auto test_right_write_series() -> void;
+  auto test_right_read() -> void;
+  auto test_right_peek() -> void;
+protected:
+  Ready ready{}; 
+  Readable readable{ready};
+  inline static constexpr auto const SERIES_COUNT = 10uz;
+  using Inventory = std::vector<Packet>;
+  static auto generate() -> Inventory;
+  static auto fill(Subject) -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::network::socket::Interface::suite() -> Suite {
+  auto series = Stream{"Interface"sv};
+  series << []{
+              auto luft = Stream{"left"sv};
+              luft << add("create", &Interface::test_left)
+                   << END;
+              return luft;
+            }()
+         << []{
+              auto rite = Stream{"right"sv};
+              rite << add("create", &Interface::test_right)
+                   << []{
+                        auto writ = Stream{"write"sv};
+                        writ << add("moving", &Interface::test_right_write_moving)
+                             << add("copying", &Interface::test_right_write_copying)
+                             << add("series", &Interface::test_right_write_series)
+                             << END;
+                        return writ;
+                      }()
+                   << add("peek", &Interface::test_right_peek)
+                   << add("read", &Interface::test_right_read)
+                   << END;
+              return rite;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.message.packet.make
+#import tunitas.denniston.message.packet.Ping
+#import std.make_move_iterator
+namespace tests::unit::network::socket {
+  auto Interface::generate() -> Inventory {
+    auto buf = Inventory{};
+    for (auto i{0uz}; SERIES_COUNT != i; ++i) {
+      buf.push_back(packet::make<packet::Ping>());
+    }
+    return buf;
+  }
+  auto Interface::fill(Subject where) -> void {
+    auto prepared = generate();
+    require(ASSERTION, 0 < prepared.size());
+    where.write(std::make_move_iterator(prepared.begin()), std::make_move_iterator(prepared.end())); // <---------------------- test this (moving)
+  }
+}
+namespace tests::unit::network::socket {
+  auto Interface::test_left() -> void {
+    auto driver = Driver{};
+    auto binder = Binder{driver};
+    auto socket = driver.sockets.allocate();
+    auto [ability, left] = binder.left(socket, ready);
+    require(ASSERTION, sizeof (left));   
+  }
+}
+namespace tests::unit::network::socket {
+  auto Interface::test_right() -> void {
+    auto driver = Driver{};
+    auto binder = Binder{driver};
+    auto socket = driver.sockets.allocate();
+    auto left = binder.left(socket, ready);
+    require(ASSERTION, sizeof (left));   
+  }
+  auto Interface::test_right_write_moving() -> void {
+    auto driver = Driver{};
+    auto binder = Binder{driver};
+    auto socket = driver.sockets.allocate();
+    auto [ability, right] = binder.right(socket, ready);
+    //
+    auto specimen = packet::make<packet::Ping>();
+    right.write(move(specimen)); // <---------------------- test this (moving)
+    require(ASSERTION);
+  }
+  auto Interface::test_right_write_copying() -> void {
+    auto driver = Driver{};
+    auto binder = Binder{driver};
+    auto socket = driver.sockets.allocate();
+    auto [ability, right] = binder.right(socket, ready);
+    //
+    auto delayed = [&, this]<typename VALUE>(VALUE const &specimen) {
+      if constexpr (std::is_copy_constructible_v<VALUE>) {
+        right.write(specimen); // <---------------------- test this (copying)
+        require(ASSERTION);
+      }
+    };
+    delayed(packet::make<packet::Ping>());
+  }
+  auto Interface::test_right_write_series() -> void {
+    auto driver = Driver{};
+    auto binder = Binder{driver};
+    auto socket = driver.sockets.allocate();
+    auto [rabilit, right] = binder.right(socket, ready);
+    auto [labilit, left] = binder.left(socket, ready);
+    //
+    auto prepared = generate();
+    require(ASSERTION, 0 < prepared.size());
+    right.write(std::make_move_iterator(prepared.begin()), std::make_move_iterator(prepared.end())); // <---------------------- test this (moving)
+    auto drain = [](typename Subject::Interface face) {
+                   auto items_read{0uz};
+                   while (face.peek()) {
+                     (void) face.read();
+                     ++items_read;
+                   }
+                   return items_read;
+                 };
+    require(ASSERTION, SERIES_COUNT == drain(left));
+  }
+  auto Interface::test_right_read() -> void {
+    auto driver = Driver{};
+    auto binder = Binder{driver};
+    auto socket = driver.sockets.allocate();
+    auto [rability, right] = binder.right(socket, ready);
+    auto [lability, left] = binder.left(socket, ready); // [[FIXTHIS]] shouldn't use the same ready for a different side of the socket
+    //
+    // Prep: write into the left side.
+    // Show: read out of the right side.
+    //
+    fill(left);
+    auto items_read{0uz};
+    while (right.peek()) {
+      auto red = right.read();
+      ++items_read;
+    }
+    std::cerr << "expected " << SERIES_COUNT << " and got " << items_read << '\n';
+    require(ASSERTION, SERIES_COUNT == items_read);
+  }
+  auto Interface::test_right_peek() -> void {
+    // we just tested peek (above)
+  }
+}
+#endiv

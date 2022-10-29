@@ -6,10 +6,21 @@
 #divert <fpp>
 namespace tunitas::denniston::network::channel {
   //
-  // The condition (variables) of the channel.
-  // These are all the thread synchronization primitives all in one place.
-  // Depending, the Predicate will switch between the two Condition variables.
+  // The (synchronization) variables of the channel.
+  //
+  // Specification:
+  //
+  //    A "monitor"
+  //
+  // Design:
+  //
+  //   The lock public (and named 'lock' which is well-known to the process::readable system.
+  //
+  //   These are all the thread synchronization primitives all in one place.
+  //   Depending, the Predicate will switch between the two Condition variables.
   // 
+  //   Because of std::mutex, Variables is neither copyable nor movable. 
+  //
   // Usage: see Channel
   //
   struct Variables;
@@ -17,16 +28,31 @@ namespace tunitas::denniston::network::channel {
 #endiv
 #divert <hpp>
 #import std.mutex
-#import std.lock_guard
-#import std.unique_lock
 #import std.condition_variable
 struct tunitas::denniston::network::channel::Variables {
-  // std::mutex is neither copyable nor movable. 
   using Mutex = std::mutex;
-  using Guard = std::lock_guard<Mutex>;
+  using Lock = std::unique_lock<Mutex>;
   using Condition = std::condition_variable;
-  Mutex mutex;
-  Condition nonempty;
-  Condition nonfull;
+  Mutex lock{};
+  Condition nonempty{};
+  Condition nonfull{};
+  struct Guard {
+    struct Exclusive;
+    struct Condition;
+  };
+  struct Predicate;
 };
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::channel;
+    static_assert(std::is_default_constructible_v<Variables>);
+    static_assert(not std::is_copy_constructible_v<Variables>);
+    static_assert(not std::is_move_constructible_v<Variables>);
+    static_assert(not std::is_copy_assignable_v<Variables>);
+    static_assert(not std::is_move_assignable_v<Variables>);
+    static_assert(not std::is_swappable_v<Variables>);
+  }
+}
 #endiv

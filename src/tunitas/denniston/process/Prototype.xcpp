@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process {
+  //
+  // The prototype of a "process"
+  //
+  // Specifications:
+  //
+  //   There are some (j)threads involved
+  //   A process can notified that it has become Ready
+  //   A process has readable input channels (sensitivies)
+  //
+  // Design:
+  //
+  //   Just that.
+  //
+  // Usage:
+  //
+  //   By inheritance
+  //   in the services
+  //   in the Driver
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.process.Ready
+class tunitas::denniston::process::Prototype {
+protected:
+  virtual ~Prototype() = default;
+public:
+  Ready ready{};
+  network::channel::readable::Variable readable{ready};
+};
+#endiv

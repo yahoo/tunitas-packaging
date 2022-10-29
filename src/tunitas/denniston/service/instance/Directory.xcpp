@@ -76,7 +76,7 @@ namespace tunitas::denniston::service::instance {
   auto Directory::run() noexcept -> void try {
     log.format("begin running");
     while (!graceful_shutdown.load()) {
-      ready.await();
+      ready.wait(readable);
       log.format("reading");
       if (auto red=control.read_if(); red) {
         log.format("red from control");
@@ -107,7 +107,7 @@ namespace tunitas::denniston::service::instance {
     }
     log.format("ending");
   } catch(...) {
-    log.format("escaped expression is suppressed");
+    log.format("escaped exception is suppressed");
   }
 }
 #endiv

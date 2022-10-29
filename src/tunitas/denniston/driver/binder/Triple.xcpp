@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::driver::binder {
+  //
+  // The triple of <readable, interface, ready>
+  // As lvalue references
+  //
+  // Specification:
+  //
+  //   Just what it says on the label
+  //
+  // Design:
+  //
+  //   Make it convenient to pass blue and green to the bindery interfaces
+  //   All about the convenience & cogency at the constructor call site.
+  //
+  // Usage:
+  //
+  //   Oh come on.   You need a tutorial on how to use an implicit constructor?
+  //
+  struct Triple;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.process.Prototype
+#forward tunitas.denniston.network.channel.readable.Variable
+#forward tunitas.denniston.network.Socket.Interface
+#forward tunitas.denniston.process.Ready
+class tunitas::denniston::driver::binder::Triple {
+  using Process = process::Prototype;
+public:
+  using Readable = network::channel::readable::Variable;
+  using Interface = network::Socket::Interface;
+  using Ready = process::Ready;
+  //
+  Readable &readable;
+  Ready &ready;
+  Interface &face;
+  //
+  inline Triple(Interface &, Process &);
+  inline Triple(Process &, Interface &);
+  inline Triple(Readable &, Ready &, Interface &);
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.process.Prototype
+namespace tunitas::denniston::driver::binder{
+  Triple::Triple(Interface &f, Process &p) : Triple{p.readable, p.ready,f} { }
+  Triple::Triple(Process &p, Interface &f) : Triple{p.readable, p.ready,f} { }
+  Triple::Triple(Readable &r, Ready &y, Interface &f)
+    : readable{r}
+    , ready{y}
+    , face{f}
+  { }
+}
+// Present the rest of the inlines (reduce the warnings)
+#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.network.Socket.Interface
+#import tunitas.denniston.process.Ready
+#endiv

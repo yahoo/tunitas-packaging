@@ -47,12 +47,12 @@ namespace tunitas::denniston::network::channel {
 #import std.bind
 #import nonstd.required.iterator.Producing
 #import tunitas.denniston.network.channel.Peek
-#import tunitas.denniston.network.channel.Predicate
-#import tunitas.denniston.network.channel.Variables
+#import tunitas.denniston.network.channel.Variables.Predicate
 #import tunitas.denniston.network.channel.required.Peekable
+#import tunitas.denniston.network.channel.Pollability
 #import tunitas.denniston.network.required // ctcnr (cascade that certain 'namespace required')
 namespace tunitas::denniston::network {
-  template<typename TYPE> class channel::Channel : private std::deque<TYPE> {
+  template<typename TYPE> class channel::Channel : private std::deque<TYPE>, public Pollability {
     using Ancestor = std::deque<TYPE>;
   public:
     using Value = TYPE;
@@ -72,55 +72,53 @@ namespace tunitas::denniston::network {
     inline auto peek() -> Peek<Value>;
     inline auto empty() -> bool;
     inline auto size() -> Size;
+    virtual auto is_ready_to_read() -> bool override;  // the caller MUST lock
   protected:
     Size limit;
-    friend class channel::Predicate;
+    friend class channel::Variables::Predicate;
     inline auto is_not_full() const -> bool { return Ancestor::size() <= limit; }
     inline auto is_not_empty() const -> bool { return !Ancestor::empty(); }
-    inline auto nonfull() const -> Predicate { return Predicate{&Variables::nonfull, std::bind(&Channel::is_not_full, this)}; }
-    inline auto nonempty() const -> Predicate { return Predicate{&Variables::nonempty, std::bind(&Channel::is_not_empty, this)}; }
-    Variables variables;   // is neither copyable nor movable. 
+    inline auto nonfull() const -> Variables::Predicate  { return Variables::Predicate{&Variables::nonfull, std::bind(&Channel::is_not_full, this)}; }
+    inline auto nonempty() const -> Variables::Predicate { return Variables::Predicate{&Variables::nonempty, std::bind(&Channel::is_not_empty, this)}; }
   };
 }
 #endiv
 #divert <ipp>
 #import std.error_code
-#import std.move
-#import std.forward
-#import tunitas.denniston.network.channel.Exclusive.Guard
-#import tunitas.denniston.network.channel.Condition
+#import tunitas.denniston.network.channel.Variables.Guard.Exclusive
+#import tunitas.denniston.network.channel.Variables.Guard.Condition
 #import tunitas.denniston.network.error.Code
 namespace tunitas::denniston::network::channel {
   template<typename _> Channel<_>::Channel(Size limit)
     : limit{limit}
   { }
   template<typename _> auto Channel<_>::push_back(Value &&value) -> void {
-    Condition guard{variables, nonfull()};
+    Variables::Guard::Condition guard{Pollability::variables, nonfull()};
     Ancestor::push_back(std::move(value));
   }
   template<typename _> auto Channel<_>::push_back(Value const &value) -> void {
-    Condition guard{variables, nonfull()};
+    Variables::Guard::Condition guard{Pollability::variables, nonfull()};
     Ancestor::push_back(value);
 
   }
   template<typename _> template<required::iterator::Producing<_> ITERATOR> auto Channel<_>::push_back(ITERATOR here, ITERATOR last) -> void {
-    Condition guard{variables, nonfull()};
+    Variables::Guard::Condition guard{Pollability::variables, nonfull()};
     for ( ;  last != here; ++here) {
       Ancestor::push_back(*here);
     }
   }
   template<typename _> template<typename... ARGS> auto Channel<_>::emplace_back(ARGS &&...args) -> void {
-    Condition guard{variables, nonfull()};
+    Variables::Guard::Condition guard{Pollability::variables, nonfull()};
     Ancestor::emplace_back(std::forward<ARGS>(args)...);
   }
   template<typename _> auto Channel<_>::pop() -> Value {
-    Condition guard{variables, nonempty()};
+    Variables::Guard::Condition guard{Pollability::variables, nonempty()};
     auto popped{std::move(Ancestor::front())};
     Ancestor::pop_front();
     return popped;
   }
   template<typename _> auto Channel<_>::pop_if() -> Optional<Value> {
-    Exclusive::Guard guard{variables};
+    Variables::Guard::Exclusive guard{variables};
     if (Ancestor::empty()) {
       return {};
     } else {
@@ -130,7 +128,7 @@ namespace tunitas::denniston::network::channel {
     }
   }
   template<typename _> auto Channel<_>::peek() -> Peek<Value> {
-    Exclusive::Guard guard{variables};
+    Variables::Guard::Exclusive guard{variables};
 #if 1
     if (Ancestor::empty()) {
       return {};
@@ -146,12 +144,21 @@ namespace tunitas::denniston::network::channel {
 #endif
   }
   template<typename _> auto Channel<_>::empty() -> bool {
-    Exclusive::Guard guard{variables};
+    Variables::Guard::Exclusive guard{variables};
     return Ancestor::empty();
   }
   template<typename _> auto Channel<_>::size() -> Size {
-    Exclusive::Guard guard{variables};
+    Variables::Guard::Exclusive guard{variables};
     return Ancestor::size();
+  }
+}
+#endiv
+#divert <tpp>
+namespace tunitas::denniston::network::channel {
+  template<typename _> auto Channel<_>::is_ready_to_read() -> bool {
+    // WATCHOUT - this MUST be called lock-free (the caller sets up and holds *this* lock on *this* mutex)
+    // Calling this->empty() is WRONG because it lock
+    return !Ancestor::empty();
   }
 }
 #endiv

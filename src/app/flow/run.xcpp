@@ -12,9 +12,11 @@ namespace app::flow {
   using namespace package_run::interface;
 }
 #import cli.exits.constants
+#import tunitas.keyston.time.literals
 namespace app::flow::package_run {
   namespace body {
     using namespace cli::exits::constants;
+    using namespace tunitas::keyston::time::literals;
   }
 }
 #import cli.controllability.Through
@@ -48,15 +50,16 @@ namespace app::flow::package_run {
 #divert <cpp>
 #import std.cerr
 #import app.exception.Testing
+#import std.this_thread.sleep_for
 namespace app::flow::package_run {
   auto interface::run(Console &exp, Configuration const &cfg) -> Exit {
-    error(exp) << "unimplemented" << '\n';
     auto driver = Driver{};
     if (testing(cfg) <= Through::SETUP) {
       throw exception::Testing{exp};
     }
+    std::this_thread::sleep_for(200ms);
     driver.shutdown();
-    return UNIMPLEMENTED;
+    return OK;
   }
 }
 #endiv

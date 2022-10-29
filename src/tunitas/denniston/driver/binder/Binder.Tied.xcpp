@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.driver.binder.Binder>
+#endiv
+#divert <hpp>
+#import tunitas.Tuple
+#forward tunitas.denniston.network.channel.readable.Variable
+#forward tunitas.denniston.network.Socket.Interface
+namespace tunitas::denniston::driver::binder {
+  class Binder::Tied : public Tuple<network::channel::readable::Variable &, network::Socket::Interface &> {
+    using Ancestor = Tuple<network::channel::readable::Variable &, network::Socket::Interface &>;
+  public:
+    using Ancestor::tuple;
+    inline auto operator=(Untied) -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.Socket.Interface
+namespace tunitas::denniston::driver::binder {
+  auto Binder::Tied::operator=(Untied untied) -> void {
+    auto &[readable, face_lhs] = static_cast<Ancestor &>(*this);
+    auto [pollability, face_rhs] = untied;
+    face_lhs = face_rhs;
+    readable.add(*pollability);
+  }
+}
+// Present the rest of the inlines (reduce warnings)
+#import tunitas.denniston.network.channel.readable.Variable
+#endiv

@@ -40,7 +40,18 @@ namespace tunitas::denniston::task {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.protocol.task.Task
-struct tunitas::denniston::task::Task : public keyston::protocol::task::Task { };
+class tunitas::denniston::task::Task : public keyston::protocol::task::Task {
+  using Ancestor = keyston::protocol::task::Task;
+public:
+  Task() = default;
+  using Ancestor::Task;
+  constexpr [[implicit]] Task(Ancestor a) : Ancestor{move(a)} { }
+  using Ancestor::operator=;
+  auto operator=(Ancestor a) -> Task & {
+    Ancestor::operator=(move(a));
+    return *this;
+  }
+};
 #endiv
 #divert <cpp>
 namespace {

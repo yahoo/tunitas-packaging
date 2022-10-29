@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::readable {
+  //
+  // The readable interface for a set of lockable objects.
+  //
+  // Specification:
+  //
+  //   Get all locks.
+  //   Selective release.
+  //   The first lock is special
+  //
+  //   Descendants MUST implement the rest.
+  //
+  //   Prototype::is_ready_to_read() is the value-add here; it
+  //     operates under under all the locks
+  //     surveys the lockable's elements (i.e. input channels) and estimates readability.
+  //     returns a boolean "is readable"
+  //
+  // Design:
+  //
+  //   Use that certain algorithm for getting all-or-none of the locks.
+  //
+  //   Rhymes with std::lock(...) but suitable prprocess readability
+  //   https://en.cppreference.com/w/cpp/thread/lock
+  //
+  // Usage:
+  //
+  //   See Ready
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+class tunitas::denniston::process::readable::Prototype {
+protected:
+  virtual ~Prototype() = default;
+public:
+  virtual auto lock() -> void = 0;
+  virtual auto unlock() -> void = 0;
+  virtual auto unlock_rest() -> void = 0;
+  virtual auto unlock_first() -> void = 0;
+  virtual auto is_ready_to_read() -> bool = 0;
+};
+// All descendants will need this (these)
+#import std.mutex
+#endiv

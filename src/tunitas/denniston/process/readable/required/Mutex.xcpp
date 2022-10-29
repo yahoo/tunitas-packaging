@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import std.mutex
+namespace tunitas::denniston::process::readable::required {
+  //
+  // Is this a Mutex?
+  // Useful for variadic argument declarations.
+  //
+  // Specification:
+  //
+  //   https://en.cppreference.com/w/cpp/named_req/Mutex
+  //
+  // Design:
+  //
+  //   But for here we hardcode this to the one implementation of Mutex.
+  //
+  // Usage:
+  //
+  //   template<typename... MUTEX> auto function(MUTEX &...) -> void requires (Mutex<MUTEX> && ... );
+  //
+  template<typename MUTEX> concept Mutex = same_as<MUTEX, std::mutex>;
+}
+#endiv

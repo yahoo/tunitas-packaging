@@ -1,0 +1,92 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.process.readable.required.Array
+namespace tunitas::denniston::process::readable {
+  //
+  // The fixed-count implementation of readable.
+  //
+  // Specification:
+  //
+  //   see Prototype
+  //
+  // Design:
+  //
+  //   Whereas ARRAY::value_type will be Mutex and thus does not have owns_lock(), we must rewrap the mutex in unique_lock,Mutex> to run the algorithm.
+  //
+  //   Can use a fixed-size array for ARRAY.
+  //   BUT does not (yet) use the same fixed-size array for the companion unique_lock<Mutex>
+  //
+  // Usage:
+  //
+  //   See Ready
+  //
+  template<required::Array> struct Container;
+}
+#endiv
+#divert <hpp>
+#import std.begin
+#import std.end
+#import std.next
+#import std.ranges.subrange
+#import std.remove_pointer
+#import tunitas.denniston.process.Ready
+#import tunitas.denniston.process.readable.Prototype
+#import tunitas.denniston.process.readable.required.Array
+#import tunitas.denniston.process.readable.required.Mutexes
+namespace tunitas::denniston::process {
+  template<readable::required::Array ARRAY> class readable::Container : public Prototype {
+    using Ancestor = Prototype;
+  protected:
+    template<typename... MUTEXES> inline [[implicit]] Container(Ready &, MUTEXES &...) requires required::Mutexes<MUTEXES...>; // the descendant clamps the size
+    ~Container() = default;
+    using Array = ARRAY;
+    using Mutex = std::remove_pointer_t<typename Array::value_type>;
+    Array locks;
+    static auto first(Array &a) { return a.front(); }
+    static auto rest(Array &a)  { return std::ranges::subrange{std::next(std::begin(a)), std::end(a)}; }
+  public:
+    auto lock() -> void override;
+    auto unlock() -> void override;
+    auto unlock_rest() -> void override;
+    auto unlock_first() -> void override;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.vector
+namespace tunitas::denniston::process::readable {
+  template<readable::required::Array _> template<typename... MUTEXES> Container<_>::Container(Ready &first, MUTEXES &...rest) requires required::Mutexes<MUTEXES...>
+    : locks{&first.lock, &rest...} // the descendant MUST clamp the size
+  { }
+  template<required::Array _> auto Container<_>::unlock() -> void       { for (auto place : locks) { place->unlock(); } }
+  template<required::Array _> auto Container<_>::unlock_first() -> void { first(locks)->unlock(); }
+  template<required::Array _> auto Container<_>::unlock_rest() -> void  { for (auto place : rest(locks)) { place->unlock(); } }
+  template<required::Array _> auto Container<_>::lock() -> void {
+    auto first = 0uz;
+    auto uniques = [this]{
+                     auto ret = std::vector<std::unique_lock<Mutex>>{}; // [[FIXTHIS]] figure out a companion to Array that conjugates into unique_lock<std::mutex>
+                     for (auto tex : locks) { ret.push_back(std::unique_lock<Mutex>{*tex, std::defer_lock}); }
+                     return ret;
+                   }();
+    do {
+      uniques[first].lock();
+      auto const N = uniques.size();
+      for (auto j{1uz}; j < N; ++j) {
+        auto const idx = (first + j) % N;
+        if (!uniques[idx].try_lock()) {
+          for (auto k = j; k != 0uz; --k) {
+            uniques[(first + k - 1) % N].unlock();
+          }
+          first = idx;
+          break;
+        }
+      }
+    } while (!uniques[first].owns_lock());
+    for (auto &place : uniques) { place.release(); }
+  }
+}
+#endiv

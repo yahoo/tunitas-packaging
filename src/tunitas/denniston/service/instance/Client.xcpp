@@ -4,6 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
+#import tunitas.denniston.message.packet
+#import tunitas.string.literals
 namespace tunitas::denniston::service::instance {
   //
   // A manifestation of a client in the network.
@@ -21,27 +23,42 @@ namespace tunitas::denniston::service::instance {
   //
   //   In the environment..
   //
-  struct Client;
+  namespace [[eponymous]] client {
+    struct Client;
+    using namespace message::packet;
+    using namespace string::literals;
+  }
+  using client::Client;
 }
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.World
 #import tunitas.denniston.service.instance.Prototype
-class tunitas::denniston::service::instance::Client : public Prototype {
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.service.Dictionary
+#import tunitas.denniston.service.script.Barrier
+class tunitas::denniston::service::instance::client::Client : public Prototype {
   using Ancestor = Prototype;
   auto run() noexcept -> void;
+  auto script() noexcept -> void;
 public:
   inline explicit Client(Name);
   inline explicit Client([[inout]] World &, Name);
   auto launch(driver::Threads &) -> void override;
   Interface configuration{};
+  Interface directory{};
   Interface gateway{};
+  task::Dictionary tasks{};
+  service::Dictionary services{};
+  script::Barrier barrier{};
+  Size inflight_query_count{};
+  keyston::id::Service inflight_query_endpoint{};
 };
 #endiv
 #divert <ipp>
 #import tunitas.denniston.World
 #import tunitas.denniston.exception.Invalid
-namespace tunitas::denniston::service::instance {
+namespace tunitas::denniston::service::instance::client {
   Client::Client(World &, Name name) : Client{name} { }
   Client::Client(Name name)
     : Ancestor{name}
@@ -53,22 +70,98 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.message.packet.cast
-namespace tunitas::denniston::service::instance {
-  auto Client::launch(driver::Threads &pool) -> void { pool.launch(&Client::run, this); }
+#import tunitas.denniston.message.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
+#import tunitas.denniston.message.packet.make
+#import tunitas.denniston.message.packet.Status
+#import tunitas.denniston.message.packet.Query
+#import tunitas.denniston.message.packet.Response
+#import nonstd.copy
+namespace tunitas::denniston::service::instance::client {
+  auto Client::launch(driver::Threads &pool) -> void {
+    pool.launch(&Client::run, this);
+    pool.launch(&Client::script, this);
+  }
   auto Client::run() noexcept -> void try {
-    log.format("begin");
-    while (true) {
+    log.format("run is starting");
+    while (!graceful_shutdown.load()) {
+      ready.wait(readable);
       log.format("reading");
-      auto red = control.read();
-      log.format("red");
-      if (is_quit(red)) {
-        break;
+      if (auto red=control.read_if(); red) {
+        log.format("red from control");
+        if (is_quit(*red)) {
+          graceful_shutdown.store(true);
+          barrier.notify();
+          break;
+        }
+      }
+      if (auto red=configuration.read_if(); red) {
+        if (auto got=downcast<Status>(*red); nullptr != got) {
+          log.format("from configuration failure: {}", got->status.message());
+        } else if (auto got=downcast<Response<Get::TASKS>>(*red); nullptr != got) {
+          log.format("from configuration tasks: count {}", got->tasks.size());
+          for (auto &given : got->tasks) {
+            auto [noob, inserted] = tasks.insert(move(given));
+            log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.id);
+          }
+          barrier.notify();
+        } else {
+          log.format("from configuration something else (ignored)");
+        }
+      }
+      if (auto red=directory.read_if(); red) {
+        if (auto got=downcast<Status>(*red); nullptr != got) {
+          log.format("from directory failure for {} as {}", inflight_query_endpoint, got->status.message());
+          --inflight_query_count;
+        } else if (auto got=downcast<Response<Get::HPKE>>(*red); nullptr != got) {
+          auto [noob, inserted] = services.insert(nonstd::copy(inflight_query_endpoint), got->configuration);
+          log.format("from directory hpke for {} which is {}", inflight_query_endpoint, (inserted ? "inserted"s : "duplicated"s));
+          --inflight_query_count;
+        } else {
+          log.format("configuration sends something else (ignored)");
+        }
+        if (0 == inflight_query_count) {
+          barrier.notify();
+        }
       }
     }
-    log.format("ending gracefully");
+    log.format("run ending gracefully");
   } catch(...) {
-    log.format("escaped expression is suppressed");
+    log.format("run has an escaped exception which is suppressed");
+  }
+  auto Client::script() noexcept -> void try {
+    barrier.start();
+    log.format("starting the script");
+    //
+    // Ask for the tasks
+    //
+    configuration.write(make<Query<Get::TASKS>>()); // ask for them all
+    log.format("wrote or TASKS");
+    barrier.wait([this]{ return !tasks.empty() || graceful_shutdown.load(); });
+    log.format("after the barrier");
+    if (graceful_shutdown.load()) { return; }
+    barrier.start();
+    //
+    // Foreach task, ask for the service specifications
+    //
+    inflight_query_count = [this]{
+                             auto count{0uz};
+                             for (auto const &task : tasks) { count += task.services.size(); }
+                             return count;
+                           }();
+    log.format("there will be {} endpoints", inflight_query_count);
+    for (auto const &task : tasks) {
+      for (auto const &endpoint : task.services) {
+        inflight_query_endpoint = endpoint;
+        ++inflight_query_count;
+        directory.write(make<Query<Get::HPKE>>(endpoint, task.id));
+      }
+    }
+    log.format("waiting");
+    barrier.wait([this]{ return 0 == inflight_query_count || graceful_shutdown.load(); });
+    if (graceful_shutdown.load()) { return; }
+    log.format("script is ending, having recovered the endpoints");
+  } catch(...) {
+    log.format("script has an escaped exception which is suppressed");
   }
 }
 #endiv

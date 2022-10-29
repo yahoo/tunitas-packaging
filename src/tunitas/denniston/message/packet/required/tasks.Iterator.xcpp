@@ -6,14 +6,32 @@
 #divert <fpp>
 #import nonstd.required.iterator.Forward
 #import nonstd.required.iterator.Producing
-#import tunitas.keyston.protocol.task.Task
+#import tunitas.denniston.task.Task
+#import std.remove_reference
 namespace tunitas::denniston::message::packet::required::tasks {
   //
-  // produce some tasks
+  // Produce Some Tasks
+  // MUST produce the task by value (Task) for copy or by constie reference
+  // MUST  NOT by lvalue reference (Task &&) for move
+  // Check the iterator for specific return of Task or Task const &; never Task &
   //
-  template<typename ITERATOR> concept Iterator = requires(ITERATOR) {
-    requires iterator::Forward<ITERATOR>;
-    requires iterator::Producing<ITERATOR, keyston::protocol::task::Task>;
-  };
+  // This DOES NOT handle the ancestry of keyston::protocol::task::Task into denniston::task::Task
+  // or the implicit prmotion (conversion) of keyston::protocol::task::Task into denniston::task::Task.
+  // See the hardcoding of the denniston Task.
+  // We're trading denniston tasks around, sot his is appropriate.
+  //
+  namespace [[eponymous]] eponymous_iterator {
+    template<typename VALUE, typename MATCH> concept Copying = same_as<MATCH, VALUE> || same_as<MATCH const, std::remove_reference_t<VALUE>>;
+    template<typename ITERATOR, typename VALUE> concept Iterator_Producing = requires(ITERATOR) {
+      requires iterator::Forward<ITERATOR>;
+      requires requires(VALUE, ITERATOR const constie, ITERATOR writing) {
+        requires iterator::Producing<ITERATOR, VALUE>; // ... which is too vague
+        { *constie } -> Copying<VALUE>;
+        { *writing } -> Copying<VALUE>;
+      };
+    };
+    template<typename ITERATOR> concept Iterator = Iterator_Producing<ITERATOR, denniston::task::Task>;
+  }
+  using eponymous_iterator::Iterator;
 }
 #endiv
