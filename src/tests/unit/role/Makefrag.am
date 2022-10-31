@@ -1,0 +1,12 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_unit_role_SUBSOURCES = \
+  check/obj/src/tests/unit/role/namespace.cpp \
+  check/obj/src/tests/unit/role/Fixture.cpp \
+  check/obj/src/tests/unit/role/Genus.cpp \
+  check/obj/src/tests/unit/role/Species.cpp \
+  $(end)

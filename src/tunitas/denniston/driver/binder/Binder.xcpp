@@ -35,25 +35,25 @@ namespace tunitas::denniston::driver::binder {
 #import tunitas.Tuple
 #forward tunitas.denniston.driver.Layout
 #import tunitas.denniston.driver.binder.Triple
-#import tunitas.denniston.network.channel.Pollability
-#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.network.pipe.Pollability
+#import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.network.Socket.Interface
 #import tunitas.denniston.network.Sockets
 #import tunitas.denniston.process.Prototype
 #import tunitas.denniston.process.Ready
 #import tunitas.denniston.process.readable.Variable
-#import tunitas.denniston.service.instance.Prototype
+#import tunitas.denniston.process.Model
 class tunitas::denniston::driver::binder::Binder {
   using Process = process::Prototype;
-  using Instance = service::instance::Prototype;
-  using Readable = network::channel::readable::Variable;
+  using Instance = process::Model;
+  using Readable = network::pipe::readable::Variable;
   using Ready = process::Ready;
   using Socket = network::Socket;
   using Interface = network::Socket::Interface;
   using Descriptor = network::Sockets::Descriptor;
 protected:
   inline auto do_control_channel(Triple) -> Interface;
-  using Untied = Tuple<network::channel::Pollability *, Interface>;
+  using Untied = Tuple<network::pipe::Pollability *, Interface>;
   inline auto left(Descriptor, Ready &) -> Untied;
   inline auto right(Descriptor, Ready &) -> Untied;
   struct Tied;

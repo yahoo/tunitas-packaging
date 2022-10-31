@@ -2,7 +2,7 @@
 // Copyright Yahoo Inc. 2022.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
-// For terms, see the LICENSE file at https://git.tunitas.technology/all/drivers/denniston/tree/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 namespace tunitas::denniston::driver {
   //
@@ -87,15 +87,15 @@ namespace tunitas::denniston::driver {
     }
   }
 }
-#import tunitas.denniston.message.packet.make
-#import tunitas.denniston.message.packet.Quit
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Quit
 namespace tunitas::denniston::driver {
   auto Driver::shutdown() -> void {
-    using namespace message::packet;
+    using namespace protocol::packet;
     for (auto &face : control.everyone) {
       face.write(make<Quit>());
     }
-    // and after the Quit messages are processed, all the run(...) functions will have exited.
+    // and after the Quit packets are processed, all the run(...) functions will have exited.
   }
 }
 namespace {

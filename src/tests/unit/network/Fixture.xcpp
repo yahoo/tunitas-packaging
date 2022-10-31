@@ -16,7 +16,6 @@ struct tests::unit::network::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
-#import tests.unit.network.channel.Fixture
 #import tests.unit.network.pipe.Fixture
 #import tests.unit.network.socket.Fixture
 auto tests::unit::network::Fixture::suite() -> Suite {
@@ -29,7 +28,6 @@ auto tests::unit::network::Fixture::suite() -> Suite {
                   << END;
               return use;
             }()
-         << add<channel::Fixture>()
          << add<pipe::Fixture>()
          << add<socket::Fixture>()
          << END;
@@ -40,7 +38,7 @@ auto tests::unit::network::Fixture::suite() -> Suite {
 #import tunitas.denniston.network.Sockets
 namespace tests::unit::network {
   auto Fixture::test_usage_Pipe() -> void {
-    using Subject = library::Pipe;
+    using Subject = library::Pipe<int>;
     auto subject = Subject{};
     require(ASSERTION, sizeof (subject));
   }

@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tunitas.denniston.channel.required.Channel
+#forward tunitas.denniston.channel.Peek
+namespace tunitas::denniston::channel::usage {
+  //
+  // Is the CHANNEL an instance of something shaped like Channel<TYPE,VARIABILITY>, for any TYPE?
+  // requires the complete type of CHANNEL
+  //
+  // Usage:
+  //
+  //   Oh, Come On. You know how this works.
+  //   
+  template<typename CHANNEL> concept Channel = required::Channel<CHANNEL> && requires(CHANNEL channel) {
+    typename CHANNEL::Value; // New_School
+    { CHANNEL{} };
+    { channel.push_back(typename CHANNEL::Value{}) };
+    { channel.pop() } -> convertible_to<typename CHANNEL::Value>;
+    { channel.peek() } -> convertible_to<Peek<typename CHANNEL::Value>>;
+    { channel.empty() } -> convertible_to<bool>;
+    { channel.size() } -> convertible_to<Size>;
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.channel.Channel
+namespace {
+  namespace testate {
+    using tunitas::denniston::channel::Channel;
+    namespace usage = tunitas::denniston::channel::usage;
+    static_assert(usage::Channel<Channel<int>>);
+  }
+}
+#endiv

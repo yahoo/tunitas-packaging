@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.service.instance.Client
+#forward tunitas.denniston.service.instance.Collector
+#forward tunitas.denniston.service.instance.Configuration
+#forward tunitas.denniston.service.instance.Directory
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
+namespace tunitas::denniston::service::instance::traits {
+  //
+  // A declaration of the Genus-to-Instance types
+  // Specializations only.
+  //
+  template<typename> struct Genus;
+  template<> struct Genus<Client>;
+  template<> struct Genus<Collector>;
+  template<> struct Genus<Configuration>;
+  template<> struct Genus<Directory>;
+  template<> struct Genus<Gateway>;
+  template<> struct Genus<Processor>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.role.Genus
+namespace tunitas::denniston::service::instance {
+  template<typename> struct traits::Genus { };
+  namespace traits {
+    template<> struct Genus<Client> {
+      inline static constexpr auto const GENUS = role::Genus::CLIENT;
+      [[deprecated("in this case, prefer GENUS as the distinguished constant")]] inline static constexpr auto const value = GENUS;
+    };
+    template<> struct Genus<Collector> {
+      inline static constexpr auto const GENUS = role::Genus::COLLECTOR;
+      [[deprecated("in this case, prefer GENUS as the distinguished constant")]] inline static constexpr auto const value = GENUS;
+    };
+    template<> struct Genus<Configuration> {
+      inline static constexpr auto const GENUS = role::Genus::CONFIGURATION;
+      [[deprecated("in this case, prefer GENUS as the distinguished constant")]] inline static constexpr auto const value = GENUS;
+    };
+    template<> struct Genus<Directory> {
+      inline static constexpr auto const GENUS = role::Genus::DIRECTORY;
+      [[deprecated("in this case, prefer GENUS as the distinguished constant")]] inline static constexpr auto const value = GENUS;
+    };
+    template<> struct Genus<Gateway> {
+      inline static constexpr auto const GENUS = role::Genus::GATEWAY;
+      [[deprecated("in this case, prefer GENUS as the distinguished constant")]] inline static constexpr auto const value = GENUS;
+    };
+    template<> struct Genus<Processor> {
+      inline static constexpr auto const GENUS = role::Genus::PROCESSOR;
+      [[deprecated("in this case, prefer GENUS as the distinguished constant")]] inline static constexpr auto const value = GENUS;
+    };
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.role.traits.Service
+namespace {
+  namespace testate {
+    using enum tunitas::denniston::role::Genus;
+    using tunitas::denniston::role::traits::Service;
+    using tunitas::denniston::service::instance::traits::Genus;
+    // round-trip consistency
+    static_assert(CLIENT        == Genus<Service<CLIENT>::Type>::GENUS);
+    static_assert(COLLECTOR     == Genus<Service<COLLECTOR>::Type>::GENUS);
+    static_assert(CONFIGURATION == Genus<Service<CONFIGURATION>::Type>::GENUS);
+    static_assert(DIRECTORY     == Genus<Service<DIRECTORY>::Type>::GENUS);
+    static_assert(GATEWAY       == Genus<Service<GATEWAY>::Type>::GENUS);
+    static_assert(PROCESSOR     == Genus<Service<PROCESSOR>::Type>::GENUS);
+  }
+}
+#endiv

@@ -6,5 +6,6 @@
 #
 tunitas_denniston_service_instance_required_SUBSOURCES = \
   obj/src/tunitas/denniston/service/instance/required/namespace.cpp \
+  obj/src/tunitas/denniston/service/instance/required/Corporal.cpp \
   obj/src/tunitas/denniston/service/instance/required/Instance.cpp \
   $(end)

@@ -9,7 +9,7 @@ namespace tests::unit::log { class Cluster; }
 #divert <hpp>
 #import tunitas.denniston.log.Concentrator
 #import tunitas.denniston.log.Client
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 #import std.size_t
 struct tests::unit::log::Cluster : public rigging::suite::Fixture {
   static auto suite() -> Suite;
@@ -18,13 +18,13 @@ struct tests::unit::log::Cluster : public rigging::suite::Fixture {
     using library::Concentrator::outbound; // now public so we can assign to it
   };
   using Client = library::Client;
-  using Name = ::tunitas::denniston::service::Name;
+  using Species = ::tunitas::denniston::Species;
   //
   auto test_one() -> void;
   auto test_many() -> void;
 protected:
   inline static auto const HOW_MANY = 20uz;
-  static auto run_many(std::size_t ith, Concentrator *, Name) noexcept -> void;
+  static auto run_many(std::size_t ith, Concentrator *, Species) noexcept -> void;
 };
 #endiv
 #divert <cpp>
@@ -41,10 +41,10 @@ namespace tests::unit::log {
   auto Cluster::test_one() -> void {
     auto center = Concentrator{};
     center.outbound = &std::cerr;
-    auto client = Client{center, Name::GATEWAY};
+    auto client = Client{center, Species::GATEWAY};
     client.format("hello {}", "world"sv);
   }
-  auto Cluster::run_many(std::size_t ith, Concentrator *center, Name name) noexcept -> void try {
+  auto Cluster::run_many(std::size_t ith, Concentrator *center, Species name) noexcept -> void try {
     auto client = Client{*center, name};
     client.format("this is client {}", ith);
   } catch (...) {
@@ -55,7 +55,7 @@ namespace tests::unit::log {
     center.outbound = &std::cerr;
     auto buf = std::vector<std::jthread>{};
     for (auto i{0uz}; HOW_MANY != i; ++i) {
-      auto name = Name(i + underlying(Name::CLIENT));
+      auto name = Species(i + underlying(Species::CLIENT));
       buf.push_back(std::jthread{&Cluster::run_many, i, &center, name});
     }
   }

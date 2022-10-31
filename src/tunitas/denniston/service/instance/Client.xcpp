@@ -4,8 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.message.packet
-#import tunitas.string.literals
 namespace tunitas::denniston::service::instance {
   //
   // A manifestation of a client in the network.
@@ -13,7 +11,7 @@ namespace tunitas::denniston::service::instance {
   // Specification:
   //
   //   Provides the source of a measurement.
-  //   The client namei is expected to be a positive value; e.g. service::Name{33}
+  //   The client namei is expected to be a positive value; e.g. Species{33}
   //
   // Design:
   //
@@ -23,123 +21,114 @@ namespace tunitas::denniston::service::instance {
   //
   //   In the environment..
   //
-  namespace [[eponymous]] client {
-    struct Client;
-    using namespace message::packet;
-    using namespace string::literals;
-  }
-  using client::Client;
+  struct Client;
 }
 #endiv
 #divert <hpp>
+#import tunitas.denniston.Species
 #forward tunitas.denniston.World
-#import tunitas.denniston.service.instance.Prototype
+#import tunitas.denniston.process.Reactor
 #import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
 #import tunitas.denniston.service.Dictionary
-#import tunitas.denniston.service.script.Barrier
-class tunitas::denniston::service::instance::client::Client : public Prototype {
-  using Ancestor = Prototype;
-  auto run() noexcept -> void;
+#import tunitas.denniston.process.companion.Barrier
+#import tunitas.denniston.report.Generator
+#import tunitas.keyston.entropy.Source
+class tunitas::denniston::service::instance::Client : public process::Reactor {
+  using Ancestor = process::Reactor;
   auto script() noexcept -> void;
+  auto react() -> void override;
+  auto catchup() -> void override;
 public:
-  inline explicit Client(Name);
-  inline explicit Client([[inout]] World &, Name);
+  using Entropy = keyston::entropy::Source;
+  inline explicit Client([[inout]] Entropy &, [[inout]] World &, Species);
   auto launch(driver::Threads &) -> void override;
   Interface configuration{};
   Interface directory{};
   Interface gateway{};
-  task::Dictionary tasks{};
+  task::Dictionary<task::Definition> tasks{};
   service::Dictionary services{};
-  script::Barrier barrier{};
+  process::companion::Barrier barrier{*this};
   Size inflight_query_count{};
-  keyston::id::Service inflight_query_endpoint{};
+  report::Generator measure;
 };
 #endiv
 #divert <ipp>
 #import tunitas.denniston.World
 #import tunitas.denniston.exception.Invalid
-namespace tunitas::denniston::service::instance::client {
-  Client::Client(World &, Name name) : Client{name} { }
-  Client::Client(Name name)
-    : Ancestor{name}
+namespace tunitas::denniston::service::instance {
+  Client::Client(Entropy &entropy, World &, Species role)
+    : Ancestor{role}
+    , measure{entropy}
   {
-    if (!is_client(name)) {
-      throw exception::Invalid{"invalid name for a client"};
+    if (!is_client(role)) {
+      throw exception::Invalid{"invalid role for a client"};
     }
   }
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.message.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
-#import tunitas.denniston.message.packet.make
-#import tunitas.denniston.message.packet.Status
-#import tunitas.denniston.message.packet.Query
-#import tunitas.denniston.message.packet.Response
+#import tunitas.denniston.protocol.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Response
+#import tunitas.denniston.protocol.packet.Report
+#import tunitas.denniston.process.companion.Shutdown
 #import nonstd.copy
-namespace tunitas::denniston::service::instance::client {
+#import std.this_thread.sleep_for
+namespace tunitas::denniston::service::instance {
   auto Client::launch(driver::Threads &pool) -> void {
     pool.launch(&Client::run, this);
     pool.launch(&Client::script, this);
   }
-  auto Client::run() noexcept -> void try {
-    log.format("run is starting");
-    while (!graceful_shutdown.load()) {
-      ready.wait(readable);
-      log.format("reading");
-      if (auto red=control.read_if(); red) {
-        log.format("red from control");
-        if (is_quit(*red)) {
-          graceful_shutdown.store(true);
-          barrier.notify();
-          break;
+  auto Client::catchup() -> void {
+    if (graceful_shutdown.load()) {
+      barrier.notify(); // catch up!
+    }
+  }
+  auto Client::react() -> void {
+    if (auto red=configuration.read_if(); red) {
+      if (auto got=downcast<Status>(*red); nullptr != got) {
+        log.format("from configuration failure: {}", got->status.message());
+      } else if (auto got=downcast<Response<Get::TASKS>>(*red); nullptr != got) {
+        log.format("from configuration tasks: count {}", got->tasks.size());
+        for (auto &given : got->tasks) {
+          auto [noob, inserted] = tasks.insert(move(given));
+          log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.id);
         }
-      }
-      if (auto red=configuration.read_if(); red) {
-        if (auto got=downcast<Status>(*red); nullptr != got) {
-          log.format("from configuration failure: {}", got->status.message());
-        } else if (auto got=downcast<Response<Get::TASKS>>(*red); nullptr != got) {
-          log.format("from configuration tasks: count {}", got->tasks.size());
-          for (auto &given : got->tasks) {
-            auto [noob, inserted] = tasks.insert(move(given));
-            log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.id);
-          }
-          barrier.notify();
-        } else {
-          log.format("from configuration something else (ignored)");
-        }
-      }
-      if (auto red=directory.read_if(); red) {
-        if (auto got=downcast<Status>(*red); nullptr != got) {
-          log.format("from directory failure for {} as {}", inflight_query_endpoint, got->status.message());
-          --inflight_query_count;
-        } else if (auto got=downcast<Response<Get::HPKE>>(*red); nullptr != got) {
-          auto [noob, inserted] = services.insert(nonstd::copy(inflight_query_endpoint), got->configuration);
-          log.format("from directory hpke for {} which is {}", inflight_query_endpoint, (inserted ? "inserted"s : "duplicated"s));
-          --inflight_query_count;
-        } else {
-          log.format("configuration sends something else (ignored)");
-        }
-        if (0 == inflight_query_count) {
-          barrier.notify();
-        }
+        barrier.notify();
+      } else {
+        log.format("from configuration something else (ignored)");
       }
     }
-    log.format("run ending gracefully");
-  } catch(...) {
-    log.format("run has an escaped exception which is suppressed");
+    if (auto red=directory.read_if(); red) {
+      if (auto got=downcast<Status>(*red); nullptr != got) {
+        log.format("from directory, the failure {}", got->status.message());
+        --inflight_query_count;
+      } else if (auto got=downcast<Response<Get::HPKE>>(*red); nullptr != got) {
+        log.format("from directory, got the hpke for {}", got->service_id);
+        auto [noob, inserted] = services.insert(move(got->service_id), move(got->configuration));
+        log.format("which is {}", (inserted ? "inserted"s : "duplicated"s));
+        --inflight_query_count;
+      } else {
+        log.format("from directory, something else (which is ignored)");
+      }
+      if (0 == inflight_query_count) {
+        barrier.notify();
+      }
+    }
   }
   auto Client::script() noexcept -> void try {
-    barrier.start();
     log.format("starting the script");
     //
     // Ask for the tasks
     //
-    configuration.write(make<Query<Get::TASKS>>()); // ask for them all
-    log.format("wrote or TASKS");
-    barrier.wait([this]{ return !tasks.empty() || graceful_shutdown.load(); });
-    log.format("after the barrier");
-    if (graceful_shutdown.load()) { return; }
     barrier.start();
+    configuration.write(make<Query<Get::TASKS>>()); // ask for them all
+    log.format("wrote for some TASKS");
+    barrier.wait([this]{ return !tasks.empty(); });
+    log.format("after the barrier, there are {} tasks and {} shutdown", tasks.size(), graceful_shutdown.load());
     //
     // Foreach task, ask for the service specifications
     //
@@ -149,17 +138,31 @@ namespace tunitas::denniston::service::instance::client {
                              return count;
                            }();
     log.format("there will be {} endpoints", inflight_query_count);
+    barrier.start();
+    auto howmany{0uz};
     for (auto const &task : tasks) {
       for (auto const &endpoint : task.services) {
-        inflight_query_endpoint = endpoint;
+        ++howmany;
         ++inflight_query_count;
         directory.write(make<Query<Get::HPKE>>(endpoint, task.id));
       }
     }
-    log.format("waiting");
-    barrier.wait([this]{ return 0 == inflight_query_count || graceful_shutdown.load(); });
-    if (graceful_shutdown.load()) { return; }
+    log.format("waiting for {} queries to return", howmany);
+    barrier.wait([this]{ return 0 == inflight_query_count; });
+    //
+    // Then start sending measurements
+    //
+    barrier.start();
+    while (!graceful_shutdown.load()) {
+      for (auto const &task : tasks) {
+        std::this_thread::sleep_for(10ms);
+        gateway.write(make<Report<Slice::WHOLE>>(measure(task.id)));
+      }
+      std::this_thread::sleep_for(90ms);
+    }
     log.format("script is ending, having recovered the endpoints");
+  } catch (process::companion::Shutdown) {
+    // yay!
   } catch(...) {
     log.format("script has an escaped exception which is suppressed");
   }

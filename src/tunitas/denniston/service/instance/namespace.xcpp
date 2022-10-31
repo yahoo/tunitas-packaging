@@ -5,5 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.service
-namespace tunitas::denniston::service::instance { }
+#import tunitas.denniston.protocol.packet
+#import tunitas.keyston.time.literals
+#import tunitas.string.literals
+namespace tunitas::denniston::service::instance {
+  using namespace protocol::packet;
+  using namespace string::literals;
+  using namespace keyston::time::literals;
+  namespace [[nodirectory]] traits { }
+}
 #endiv

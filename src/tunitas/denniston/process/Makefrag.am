@@ -8,9 +8,13 @@ tunitas_denniston_process_SUBSOURCES = \
   obj/src/tunitas/denniston/process/namespace.cpp \
   obj/src/tunitas/denniston/process/Ready.cpp \
   obj/src/tunitas/denniston/process/Prototype.cpp \
+  obj/src/tunitas/denniston/process/Model.cpp \
+  obj/src/tunitas/denniston/process/Reactor.cpp \
+  $(tunitas_denniston_process_companion_SUBSOURCES) \
   $(tunitas_denniston_process_required_SUBSOURCES) \
   $(tunitas_denniston_process_readable_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/denniston/process/companion/Makefrag.am
 include src/tunitas/denniston/process/required/Makefrag.am
 include src/tunitas/denniston/process/readable/Makefrag.am

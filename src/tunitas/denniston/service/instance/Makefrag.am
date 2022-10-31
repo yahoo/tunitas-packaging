@@ -9,8 +9,9 @@ tunitas_denniston_service_instance_SUBSOURCES = \
   obj/src/tunitas/denniston/service/instance/namespace.cpp \
   obj/src/tunitas/denniston/service/instance/make.cpp \
   obj/src/tunitas/denniston/service/instance/Pointer.cpp \
-  obj/src/tunitas/denniston/service/instance/Traits.cpp \
-  obj/src/tunitas/denniston/service/instance/Prototype.cpp \
+  obj/src/tunitas/denniston/service/instance/traits.Corporal.cpp \
+  obj/src/tunitas/denniston/service/instance/traits.Instance.cpp \
+  obj/src/tunitas/denniston/service/instance/traits.Genus.cpp \
   obj/src/tunitas/denniston/service/instance/Client.cpp \
   obj/src/tunitas/denniston/service/instance/Collector.cpp \
   obj/src/tunitas/denniston/service/instance/Configuration.cpp \

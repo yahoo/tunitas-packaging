@@ -2,7 +2,7 @@
 // Copyright Yahoo Inc. 2022.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
-// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/keyston/tree/LICENSE
 #divert <fpp>
 namespace tunitas::denniston::network {
   //
@@ -29,6 +29,7 @@ namespace tunitas::denniston::network {
 }
 #endiv
 #divert <hpp>
+#import tunitas.denniston.protocol.Packet
 #import tunitas.denniston.network.Pipe
 #import tunitas.denniston.network.table.Descriptor.Sockets
 #forward tunitas.denniston.process.Ready
@@ -37,29 +38,20 @@ static_assert(sizeof (tunitas::denniston::network::table::Descriptor<tunitas::de
 struct tunitas::denniston::network::Socket {
   Socket() = default;
   struct Interface;
-  using Value = Pipe::Value;
-#if 0
-  using Untied = Tuple<channel::Variables::Lock *, Interface>;
-  inline auto left(process::Ready &) -> Untied;
-  inline auto right(process::Ready &) -> Untied;
-#else
-  friend class driver::Binder;
-#endif
+  using Value = protocol::Packet;
 protected:
+  using Pipe = network::Pipe<Value>;
   Pipe left2right{};
   Pipe right2left{};
   table::Descriptor<table::Sockets> descriptor{};
   friend class table::Sockets;
+  friend class driver::Binder;
 };
 #endiv
 #divert <ipp>
 #import tunitas.denniston.network.Socket.Interface
 namespace tunitas::denniston::network {
-#if 0
-  // These have to be done in the driver::binder::Binder now
-  auto Socket::left(channel::Ready *ready) -> Interface  { return {this, &Socket::left2right, &Socket::right2left, ready}; }
-  auto Socket::right(channel::Ready *ready) -> Interface { return {this, &Socket::right2left, &Socket::left2right, ready}; }
-#endif
+  // any?
 }
 #endiv
 #divert <cpp>

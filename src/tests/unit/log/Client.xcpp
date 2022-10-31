@@ -9,7 +9,7 @@ namespace tests::unit::log { class Client; }
 #divert <hpp>
 #import tunitas.denniston.log.Concentrator
 #import tunitas.denniston.log.Client
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 struct tests::unit::log::Client : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -17,7 +17,7 @@ struct tests::unit::log::Client : public rigging::suite::Fixture {
     using library::Concentrator::outbound; // now public so we can assign to it
   };
   using Subject = library::Client;
-  using Name = ::tunitas::denniston::service::Name;
+  using Species = ::tunitas::denniston::Species;
   //
   auto test_constructor_one() -> void;
   auto test_constructor_two() -> void;
@@ -30,13 +30,13 @@ namespace tests::unit::log {
   template<> auto Client::test_format<0>() -> void {
     auto center = Concentrator{};
     center.outbound = &std::cerr;
-    auto client = Subject{center, Name::GATEWAY};
+    auto client = Subject{center, Species::GATEWAY};
     client.format("");
   }
   template<> auto Client::test_format<1>() -> void {
     auto center = Concentrator{};
     center.outbound = &std::cerr;
-    auto client = Subject{center, Name::GATEWAY};
+    auto client = Subject{center, Species::GATEWAY};
     client.format("char={} int={} string={}", 'a', 0xb, "c"s);
   }
   namespace {
@@ -67,7 +67,7 @@ auto tests::unit::log::Client::suite() -> Suite {
 }
 namespace tests::unit::log {
   auto Client::test_constructor_one() -> void {
-    auto client = Subject{Name::GATEWAY};
+    auto client = Subject{Species::GATEWAY};
     //
     client.format("hello {}", "world"sv);
     client.format("{}", "This won't output anything because there is no concentrator and thus no outbound"sv);
@@ -75,7 +75,7 @@ namespace tests::unit::log {
   auto Client::test_constructor_two() -> void {
     auto center = Concentrator{};
     center.outbound = &std::cerr;
-    auto client = Subject{center, Name::GATEWAY};
+    auto client = Subject{center, Species::GATEWAY};
     client.format("hello {}", "world"sv);
   }
 }

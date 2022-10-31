@@ -41,6 +41,7 @@ namespace tunitas::denniston::service {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.entropy.Source
 #import tunitas.denniston.World
 #import tunitas.denniston.service.instance.Pointer
 #import tunitas.denniston.service.instance.Client
@@ -61,7 +62,8 @@ public:
   Pointer<Gateway> gateway{};
   std::array<Pointer<Processor>, PROCESSOR_COUNT> processors{};
   //
-  explicit System([[inout]] World &, Size initial_client_count = 0);
+  using Entropy = keyston::entropy::Source;
+  explicit System(Entropy &, [[inout]] World &, Size initial_client_count = 0);
   System(System const &) = delete;
   System &operator=(System const &) = delete;
 };
@@ -70,16 +72,16 @@ public:
 #import tunitas.denniston.service.instance.make
 #import std.to_array
 namespace tunitas::denniston::service::system {
-  System::System(World &world, Size initial_client_count)
+  System::System(Entropy &entropy, World &world, Size initial_client_count)
     : collector{make<Collector>(world)}
     , configuration{make<Configuration>(world)}
     , directory{make<Directory>(world)}
     , gateway{make<Gateway>(world)}
-    , processors{std::to_array({make<Processor>(world, Name::PROCESSOR1), make<Processor>(world, Name::PROCESSOR2)})}
+    , processors{std::to_array({make<Processor>(world, Species::PROCESSOR1), make<Processor>(world, Species::PROCESSOR2)})}
   {
     for (auto i{0uz}; initial_client_count != i; ++i) {
-      auto name = Name(underlying(Name::CLIENT) + i);
-      clients.push_back(make<Client>(world, name));
+      auto role = role::make_client_species(i);
+      clients.push_back(make<Client>(entropy, world, role));
     }
     configuration->processors.resize(processors.size());
     configuration->clients.resize(clients.size());

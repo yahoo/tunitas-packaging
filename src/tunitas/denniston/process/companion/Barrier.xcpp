@@ -1,0 +1,84 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::companion {
+  //
+  // The barrier for the scripting
+  //
+  // Specification:
+  //
+  //   Just what you see.
+  //
+  //   <quote ref="https://en.cppreference.com/w/cpp/thread/condition_variable">
+  //     Any thread that intends to wait on std::condition_variable has to
+  //     1. acquire a std::unique_lock<std::mutex>, on the same mutex as used to protect the shared variable
+  //     2. either
+  //        a. check the condition, in case it was already updated and notified
+  //        b. execute wait, wait_for, or wait_until.
+  //     The wait operations atomically release the mutex and suspend the execution of the thread.
+  //     When the condition variable is notified, a timeout expires, or a spurious wakeup occurs,
+  //     the thread is awakened, and the mutex is atomically reacquired.
+  //     The thread should then check the condition and resume waiting if the wake up was spurious.
+  //     The use the predicated overload of wait, wait_for, and wait_until, which takes care of the three steps above
+  //   </quote>
+  //  
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   Reader               Executor
+  //   ------------------------------------
+  //   ....                  barrier.start()
+  //   barrier.notify()      ....
+  //   ....                  barrier.wait(...predicate...)
+  //   barrier.notify()      ....
+  //   ....                  barrier.wait(...predicate...)
+  //   barrier.notify()      ....
+  //   ....                  barrier.wait(...predicate...)
+  //
+  // And so on
+  //
+  struct Barrier;
+}
+#endiv
+#divert <hpp>
+#import std.mutex
+#import std.unique_lock
+#import std.condition_variable
+#import std.invocable
+#import tunitas.denniston.process.Model
+struct tunitas::denniston::process::companion::Barrier {
+  process::Model &owner;
+  inline explicit Barrier(process::Model &o) : owner{o} { }
+  std::mutex lock{};
+  std::condition_variable when;
+  inline auto notify() -> void;
+  inline auto start() -> void;
+  template<std::invocable<> PREDICATE> inline auto wait(PREDICATE predicate) -> void;
+  using Unique = std::unique_lock<std::mutex>;
+  Unique uuu{lock, std::defer_lock};
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.process.companion.Shutdown
+namespace tunitas::denniston::process::companion {
+  auto Barrier::notify() -> void { when.notify_all(); }
+  auto Barrier::start() -> void { uuu.lock(); }
+  template<std::invocable<> PREDICATE> auto Barrier::wait(PREDICATE caller_predicate) -> void {
+    auto predicate = [this, caller_predicate]{
+                         if (owner.graceful_shutdown.load()) {
+                           throw Shutdown{};
+                         } else {
+                           return caller_predicate();
+                         }
+                     };
+    when.wait(uuu, predicate);
+    uuu.unlock();
+  }
+}
+#endiv

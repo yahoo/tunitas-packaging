@@ -41,8 +41,8 @@ auto tests::unit::process::readable::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.denniston.network.channel.readable.Fixed
-#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.network.pipe.readable.Fixed
+#import tunitas.denniston.network.pipe.readable.Variable
 namespace tests::unit::process::readable {
   auto Fixture::test_usage_Fixed() -> void {
     using Subject = sublibrary::Fixed<0>;

@@ -27,13 +27,13 @@ namespace tunitas::denniston::driver::binder {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.process.Prototype
-#forward tunitas.denniston.network.channel.readable.Variable
+#forward tunitas.denniston.network.pipe.readable.Variable
 #forward tunitas.denniston.network.Socket.Interface
 #forward tunitas.denniston.process.Ready
 class tunitas::denniston::driver::binder::Triple {
   using Process = process::Prototype;
 public:
-  using Readable = network::channel::readable::Variable;
+  using Readable = network::pipe::readable::Variable;
   using Interface = network::Socket::Interface;
   using Ready = process::Ready;
   //
@@ -58,7 +58,7 @@ namespace tunitas::denniston::driver::binder{
   { }
 }
 // Present the rest of the inlines (reduce the warnings)
-#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.network.Socket.Interface
 #import tunitas.denniston.process.Ready
 #endiv

@@ -43,9 +43,9 @@
 #import tunitas.denniston.task.required.dictionary.Foundable
 #import tunitas.denniston.dictionary.Found
 namespace tunitas::denniston::task {
-  template<required::dictionary::Foundable<Dictionary::Value> VALUE> struct Dictionary::Found : public dictionary::Found<VALUE, Dictionary::Value> {
-    using Ancestor = dictionary::Found<VALUE, Dictionary::Value>;
-    static_assert(std::same_as<Dictionary::Value, std::remove_const_t<VALUE>>, "belabor the point");
+  template<required::dictionary::Valuable V> template<required::dictionary::Foundable<typename Dictionary<V>::Value> VALUE> struct Dictionary<V>::Found : public dictionary::Found<VALUE, typename Dictionary::Value> {
+    using Ancestor = dictionary::Found<VALUE, typename Dictionary::Value>;
+    static_assert(std::same_as<typename Dictionary::Value, std::remove_const_t<VALUE>>, "belabor the point");
   public:
     Found() = default;
     using Ancestor::Found;

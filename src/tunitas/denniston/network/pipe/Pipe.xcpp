@@ -1,0 +1,61 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.network.pipe.required.Pipeable
+namespace tunitas::denniston::network::pipe {
+  //
+  // A uni-directional inter-thread communication device
+  //
+  // Specification:
+  //
+  //   You Know.
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   auto pipe = Pipe{};
+  //
+  template<required::Pipeable> struct Pipe;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.channel.Channel
+#import tunitas.denniston.network.pipe.Pollability
+namespace tunitas::denniston::network {
+  template<pipe::required::Pipeable VALUE> class pipe::Pipe : public channel::Channel<VALUE, Pollability> {
+    using Ancestor = channel::Channel<VALUE, Pollability>;
+  public:
+    explicit Pipe() = default;
+    virtual auto is_ready_to_read() -> bool override;  // the caller MUST lock
+  };
+}
+#endiv
+#divert <tpp>
+namespace tunitas::denniston::network::pipe {
+  template<required::Pipeable _> auto Pipe<_>::is_ready_to_read() -> bool {
+    // WATCHOUT - this MUST be called lock-free (the caller sets up and holds *this* lock on *this* mutex)
+    // Calling this->empty() is WRONG because it lock
+    return !this->unguarded_empty();
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::pipe;
+    using Specimen = Pipe<int>;
+    static_assert(std::is_default_constructible_v<Specimen>);
+    static_assert(not std::is_copy_constructible_v<Specimen>);
+    static_assert(not std::is_move_constructible_v<Specimen>);
+    static_assert(not std::is_copy_assignable_v<Specimen>);
+    static_assert(not std::is_move_assignable_v<Specimen>);
+    static_assert(not std::is_swappable_v<Specimen>);
+  }
+}
+#endiv

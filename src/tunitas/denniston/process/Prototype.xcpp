@@ -28,13 +28,13 @@ namespace tunitas::denniston::process {
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.process.Ready
 class tunitas::denniston::process::Prototype {
 protected:
   virtual ~Prototype() = default;
 public:
   Ready ready{};
-  network::channel::readable::Variable readable{ready};
+  network::pipe::readable::Variable readable{ready};
 };
 #endiv

@@ -8,11 +8,11 @@
 #endiv
 #divert <hpp>
 #import tunitas.Tuple
-#forward tunitas.denniston.network.channel.readable.Variable
+#forward tunitas.denniston.network.pipe.readable.Variable
 #forward tunitas.denniston.network.Socket.Interface
 namespace tunitas::denniston::driver::binder {
-  class Binder::Tied : public Tuple<network::channel::readable::Variable &, network::Socket::Interface &> {
-    using Ancestor = Tuple<network::channel::readable::Variable &, network::Socket::Interface &>;
+  class Binder::Tied : public Tuple<network::pipe::readable::Variable &, network::Socket::Interface &> {
+    using Ancestor = Tuple<network::pipe::readable::Variable &, network::Socket::Interface &>;
   public:
     using Ancestor::tuple;
     inline auto operator=(Untied) -> void;
@@ -30,5 +30,5 @@ namespace tunitas::denniston::driver::binder {
   }
 }
 // Present the rest of the inlines (reduce warnings)
-#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.network.pipe.readable.Variable
 #endiv

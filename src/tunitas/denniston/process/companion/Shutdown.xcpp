@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::companion {
+  //
+  // An exception
+  //
+  // Specification:
+  //
+  //   thrown when it is observed that graceful_quitting is in force
+  //
+  // Design:
+  //
+  //   Trivial.
+  //   Never escapes The Script
+  //
+  // Usage:
+  //
+  //   auto companion() noexcept -> void try {
+  //     ...do stuff...
+  //     if (graceful_shutdown.load()) {
+  //       throw companion::Shutdown{};
+  //     }
+  //     ..more stuff...
+  //   } catch (companion::Shutdown) {
+  //     ...silently & elegantly shut down...
+  //   }
+  //
+  struct Shutdown { };
+}
+#endiv

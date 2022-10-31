@@ -38,6 +38,7 @@ static_assert(sizeof (tunitas::denniston::network::Socket::Interface *));
 namespace tunitas::denniston::network {
   struct Socket::Interface {
     using Value = Socket::Value;
+    using Pipe = network::Pipe<Value>; // same as Socket::Pipe, but that is protected and Interface is not a friend
     inline auto write(Value) -> void;
     template<required::iterator::Socket_Move<Value> ITERATOR> inline auto write(ITERATOR first, ITERATOR last) -> void;
     inline auto read() -> Value; // ................ blocks until there is something to read

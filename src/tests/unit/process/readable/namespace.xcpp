@@ -6,9 +6,9 @@
 #divert <fpp>
 #import tests.unit.process
 #import tunitas.denniston.process.readable
-#import tunitas.denniston.network.channel // namespace channel::readable has the implementations
+#import tunitas.denniston.network.pipe // namespace channel::readable has the implementations
 namespace tests::unit::process::readable {
   namespace library = ::tunitas::denniston::process::readable;
-  namespace sublibrary = ::tunitas::denniston::network::channel::readable;
+  namespace sublibrary = ::tunitas::denniston::network::pipe::readable;
 }
 #endiv

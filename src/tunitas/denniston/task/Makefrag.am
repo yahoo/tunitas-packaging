@@ -6,11 +6,18 @@
 #
 tunitas_denniston_task_SUBSOURCES = \
   obj/src/tunitas/denniston/task/namespace.cpp \
-  obj/src/tunitas/denniston/task/Task.cpp \
+  obj/src/tunitas/denniston/task/Corpus.template.cpp \
+  obj/src/tunitas/denniston/task/Corpus.COLLECTOR.cpp \
+  obj/src/tunitas/denniston/task/Corpus.GATEWAY.cpp \
+  obj/src/tunitas/denniston/task/Corpus.PROCESSOR.cpp \
+  obj/src/tunitas/denniston/task/Corpus.cpp \
+  obj/src/tunitas/denniston/task/Definition.cpp \
   obj/src/tunitas/denniston/task/Dictionary.cpp \
   obj/src/tunitas/denniston/task/Dictionary.Found.cpp \
   obj/src/tunitas/denniston/task/Dictionary.Inserted.cpp \
   $(tunitas_denniston_task_required_SUBSOURCES) \
+  $(tunitas_denniston_task_usage_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/denniston/task/required/Makefrag.am
+include src/tunitas/denniston/task/usage/Makefrag.am

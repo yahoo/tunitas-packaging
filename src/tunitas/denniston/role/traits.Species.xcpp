@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.Species
+namespace tunitas::denniston::role::traits {
+  //
+  // A declaration of the Species-to-truth
+  // Specializations only.
+  //
+  template<Species> struct Species;
+  template<> struct Species<role::Species::CLIENT>;
+  template<> struct Species<role::Species::COLLECTOR>;
+  template<> struct Species<role::Species::CONFIGURATION>;
+  template<> struct Species<role::Species::DIRECTORY>;
+  template<> struct Species<role::Species::GATEWAY>;
+  template<> struct Species<role::Species::PROCESSOR2>;
+  template<> struct Species<role::Species::PROCESSOR1>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::denniston::role {
+  template<Species> struct traits::Species : public std::false_type { };
+  namespace traits {
+    template<> struct Species<role::Species::CLIENT>        : public std::true_type { };
+    template<> struct Species<role::Species::COLLECTOR>     : public std::true_type { };
+    template<> struct Species<role::Species::CONFIGURATION> : public std::true_type { };
+    template<> struct Species<role::Species::DIRECTORY>     : public std::true_type { };
+    template<> struct Species<role::Species::GATEWAY>       : public std::true_type { };
+    template<> struct Species<role::Species::PROCESSOR2>    : public std::true_type { };
+    template<> struct Species<role::Species::PROCESSOR1>    : public std::true_type { };
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using enum tunitas::denniston::role::Species;
+    using tunitas::denniston::role::traits::Species;
+    static_assert(Species<CLIENT>::value);
+    static_assert(Species<COLLECTOR>::value);
+    static_assert(Species<CONFIGURATION>::value);
+    static_assert(Species<DIRECTORY>::value);
+    static_assert(Species<GATEWAY>::value);
+    static_assert(Species<PROCESSOR2>::value);
+    static_assert(Species<PROCESSOR1>::value);
+    static_assert(not Species<tunitas::denniston::role::Species{999}>::value);
+  }
+}
+#endiv

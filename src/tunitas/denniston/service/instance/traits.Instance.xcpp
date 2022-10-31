@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.process.Model
+#forward tunitas.denniston.process.Reactor
+#forward tunitas.denniston.service.instance.Client
+#forward tunitas.denniston.service.instance.Collector
+#forward tunitas.denniston.service.instance.Configuration
+#forward tunitas.denniston.service.instance.Directory
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
+namespace tunitas::denniston::service::instance::traits {
+  //
+  // A declaration of the Service Instance traits
+  // Specializations only.
+  //
+  template<typename> struct Instance;
+  template<> struct Instance<process::Model>;
+  template<> struct Instance<process::Reactor>;
+  template<> struct Instance<Client>;
+  template<> struct Instance<Collector>;
+  template<> struct Instance<Configuration>;
+  template<> struct Instance<Directory>;
+  template<> struct Instance<Gateway>;
+  template<> struct Instance<Processor>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::denniston::service::instance {
+  template<typename TYPE> struct traits::Instance : public std::false_type { };
+  namespace traits {
+    template<> struct Instance<process::Model>   : public std::true_type { };
+    template<> struct Instance<process::Reactor> : public std::true_type { };
+    template<> struct Instance<Client>           : public std::true_type { };
+    template<> struct Instance<Collector>        : public std::true_type { };
+    template<> struct Instance<Configuration>    : public std::true_type { };
+    template<> struct Instance<Directory>        : public std::true_type { };
+    template<> struct Instance<Gateway>          : public std::true_type { };
+    template<> struct Instance<Processor>        : public std::true_type { };
+  }
+}
+#endiv

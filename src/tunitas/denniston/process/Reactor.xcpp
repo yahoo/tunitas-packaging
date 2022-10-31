@@ -1,0 +1,83 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process {
+  //
+  // A process has a specific shape to the run function
+  // Descendants work within that ready-to-run framework
+  //
+  // Specification:
+  //
+  //   Prototype supplying a standard run()
+  //   Descendants implement ready()
+  //
+  //   catchup() is designed to allow descendants to notify their sibling threads of end-of-times.
+  //   e.g. as is done in see Client & Gateway
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Reactor;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.Model
+class tunitas::denniston::process::Reactor : public Model {
+  using Ancestor = Model;
+protected:
+  virtual ~Reactor();
+  inline explicit Reactor(Species);
+  auto run() noexcept -> void;
+  virtual auto react() -> void = 0;
+  virtual auto catchup() -> void { }
+public:
+  auto launch(driver::Threads &) -> void override;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process {
+  Reactor::Reactor(Species role) : Ancestor{role} { }
+}
+#endiv
+#divert <cpp>
+#import tunitas.string.Storage
+#import tunitas.denniston.protocol.packet.cast // for is_quit(...)
+#import tunitas.denniston.protocol.packet.Status
+#import substd.exception.Exception
+namespace tunitas::denniston::process {
+  Reactor::~Reactor() = default; // force the layout of the vtable right here
+  auto Reactor::launch(driver::Threads &pool) -> void { pool.launch(&Reactor::run, this); }
+  auto Reactor::run() noexcept -> void try {
+    while (!graceful_shutdown.load()) {
+      ready.wait(readable);
+      if (auto red=control.read_if(); red) {
+        if (is_quit(*red)) {
+          graceful_shutdown.store(true);
+          break;
+        }
+      }
+      this->react();
+    }
+    catchup();
+  } catch (...) {
+    auto adjective = []() -> string::Storage {
+                       // blick ... must copy the message somewhere because the exception is handled and will be going away
+                       try {
+                         throw;
+                       } catch (substd::exception::Exception const &e) {
+                         return e.what();
+                       }
+                       return "unknown";
+                     }();
+    log.format("escaped {} exception is suppressed", adjective);
+  }
+}
+#endiv

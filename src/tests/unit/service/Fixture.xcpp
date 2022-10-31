@@ -16,7 +16,6 @@ struct tests::unit::service::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
-#import tests.unit.service.name.Fixture
 #import tests.unit.service.instance.Fixture
 #import tests.unit.service.Dictionary
 auto tests::unit::service::Fixture::suite() -> Suite {
@@ -30,7 +29,6 @@ auto tests::unit::service::Fixture::suite() -> Suite {
               return use;
             }()
          << add<Dictionary>()
-         << add<name::Fixture>()
          << add<instance::Fixture>()
          << END;
   return settle(series);
@@ -62,12 +60,12 @@ namespace tests::unit::service {
     auto world = ::tunitas::denniston::World{source};
     {
       using Subject = library::System;
-      auto subject = Subject{world};
+      auto subject = Subject{source, world};
       require(ASSERTION, sizeof (subject));
     } {
       constexpr auto const INITIAL_CLIENT_COUNT = 10uz;
       using Subject = library::System;
-      auto subject = Subject{world, INITIAL_CLIENT_COUNT};
+      auto subject = Subject{source, world, INITIAL_CLIENT_COUNT};
       require(ASSERTION, sizeof (subject));
     }
   }

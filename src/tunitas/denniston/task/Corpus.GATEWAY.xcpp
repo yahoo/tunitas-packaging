@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.task.Corpus.template
+namespace tunitas::denniston::task {
+  template<> struct Corpus<Genus::GATEWAY>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.task.Definition
+#import tunitas.denniston.channel.Channel
+#import tunitas.keyston.protocol.report.Produced
+#import std.unique_ptr
+namespace tunitas::denniston::task {
+  inline auto swap(Corpus<Genus::GATEWAY> &, Corpus<Genus::GATEWAY> &) noexcept -> void;
+  template<> struct Corpus<Genus::GATEWAY> {
+    using Outgoing = channel::Channel<keyston::protocol::report::Produced>;
+    Definition definition{};
+    std::unique_ptr<Outgoing> outgoing{};
+    [[implicit]] Corpus() = default;
+    inline [[implicit]] Corpus(Definition);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto task::swap(Corpus<Genus::GATEWAY> &a, Corpus<Genus::GATEWAY> &b) noexcept -> void {
+    swap(a.definition, b.definition);
+    swap(a.outgoing, b.outgoing);
+  }
+  namespace task {
+    Corpus<Genus::GATEWAY>::Corpus(Definition d)
+      : definition{move(d)}
+      , outgoing{std::make_unique<Outgoing>()}
+    { }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::task::Corpus;
+    using tunitas::denniston::Genus;
+    static_assert(    std::is_default_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(not std::is_copy_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(    std::is_move_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(not std::is_copy_assignable_v<Corpus<Genus::GATEWAY>>);
+    static_assert(    std::is_move_assignable_v<Corpus<Genus::GATEWAY>>);
+    static_assert(    std::is_swappable_v<Corpus<Genus::GATEWAY>>);
+  }
+}
+#endiv

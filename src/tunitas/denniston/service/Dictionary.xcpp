@@ -28,13 +28,13 @@ namespace tunitas::denniston::service {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.hpke.Configuration
-#import tunitas.keyston.id.Service
+#import tunitas.keyston.protocol.id // for id::Service
 #import std.map
 #import std.size_t
 #import tunitas.denniston.service.required.dictionary.Foundable
 struct tunitas::denniston::service::Dictionary {
   Dictionary() = default;
-  using Key = keyston::id::Service;
+  using Key = keyston::protocol::id::Service;
   using Value = keyston::hpke::Configuration;
   inline auto empty() const -> bool;
   inline auto size() const -> std::size_t;

@@ -12,16 +12,16 @@ namespace tests::unit::network::socket { class Interface; }
 #import tunitas.denniston.process.Ready
 #import tunitas.denniston.driver.Layout
 #import tunitas.denniston.driver.Binder
-#import tunitas.denniston.message.Packet
-#import tunitas.denniston.network.channel.readable.Variable
+#import tunitas.denniston.protocol.Packet
+#import tunitas.denniston.network.pipe.readable.Variable
 struct tests::unit::network::socket::Interface : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   using Socket = library::Socket;
   using Subject = library::Socket::Interface;
-  using Readable = ::tunitas::denniston::network::channel::readable::Variable;
+  using Readable = ::tunitas::denniston::network::pipe::readable::Variable;
   using Ready = ::tunitas::denniston::process::Ready;
-  using Packet = ::tunitas::denniston::message::Packet;
+  using Packet = ::tunitas::denniston::protocol::Packet;
   class Driver : public ::tunitas::denniston::driver::Layout {
     using Ancestor = ::tunitas::denniston::driver::Layout;
   public:
@@ -82,8 +82,8 @@ auto tests::unit::network::socket::Interface::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.denniston.message.packet.make
-#import tunitas.denniston.message.packet.Ping
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Ping
 #import std.make_move_iterator
 namespace tests::unit::network::socket {
   auto Interface::generate() -> Inventory {

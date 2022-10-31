@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.task.Corpus.template
+namespace tunitas::denniston::task {
+  template<> struct Corpus<Genus::COLLECTOR>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.task.Definition
+namespace tunitas::denniston::task {
+  inline auto swap(Corpus<Genus::COLLECTOR> &, Corpus<Genus::COLLECTOR> &) noexcept -> void;
+  template<> struct Corpus<Genus::COLLECTOR> {
+    Definition definition{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto task::swap(Corpus<Genus::COLLECTOR> &a, Corpus<Genus::COLLECTOR> &b) noexcept -> void {
+    swap(a.definition, b.definition);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::task::Corpus;
+    using tunitas::denniston::Genus;
+    static_assert(std::is_default_constructible_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_copy_constructible_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_move_constructible_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_copy_assignable_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_move_assignable_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_swappable_v<Corpus<Genus::COLLECTOR>>);
+  }
+}
+#endiv

@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::pipe {
+  //
+  // The pollability interface
+  //
+  // Specification:
+  //
+  //   Is the pipe ready to read?
+  //   Performed under the lock of the monitor; the caller must provide the lock.
+  //
+  // Design:
+  //
+  //   virtual, abstract so that every pipe has a pollability interface.
+  //
+  // Usage:
+  //
+  //   See Channel<TYPE,VARIABILITY>
+  //
+  struct Pollability;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.channel.Variability
+#forward tunitas.denniston.network.pipe.readable.Variable
+#forward tunitas.denniston.network.pipe.readable.Fixed
+class tunitas::denniston::network::pipe::Pollability : public channel::Variability {
+protected:
+  virtual ~Pollability() = default;
+  friend class readable::Variable;
+  template<Size> friend class readable::Fixed;
+public:
+  virtual auto is_ready_to_read() -> bool = 0;
+};
+#endiv

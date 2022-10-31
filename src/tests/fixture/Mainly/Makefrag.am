@@ -1,5 +1,8 @@
-# This is a GNU -*- Makefile -*- fragment which is managed by automake
-# For terms and provenance see the LICENSE file at the top of this repository.
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
 tests_fixture_Mainly_SUBSOURCES = \
   check/obj/src/tests/fixture/Mainly.cpp \

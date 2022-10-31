@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::report { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.Species
+struct tests::unit::report::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Species = ::tunitas::denniston::Species;
+  //
+  auto test_usage_Generator() -> void;
+  auto test_usage_Slicer() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::report::Fixture::suite() -> Suite {
+  auto series = Stream{"report"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Generator", &Fixture::test_usage_Generator)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.entropy.Source
+#import tunitas.denniston.report.Generator
+#import tunitas.denniston.report.Slicer
+#import tunitas.denniston.exception.Aspect
+namespace tests::unit::report {
+  auto Fixture::test_usage_Generator() -> void {
+    using Subject = library::Generator;
+    auto entropy = ::tunitas::keyston::entropy::Source{};
+    auto subject = Subject{entropy};
+    auto task_id = ::tunitas::keyston::protocol::id::Task{};
+    auto generated = subject(task_id);
+    require(ASSERTION, sizeof (generated));
+  }
+  auto Fixture::test_usage_Slicer() -> void {
+    using Generator = library::Generator;
+    using Subject = library::Slicer;
+    auto entropy = ::tunitas::keyston::entropy::Source{};
+    auto generator = Generator{entropy};
+    auto task_id = ::tunitas::keyston::protocol::id::Task{};
+    auto generated = generator(task_id);
+    auto subject = Subject{};
+    auto splat1 = subject(generated, Species::PROCESSOR1);
+    auto splat2 = subject(generated, Species::PROCESSOR2);
+    require(ASSERTION, sizeof (splat1));
+    require(ASSERTION, sizeof (splat2));
+    try {
+      subject(generated, Species::GATEWAY);
+      impossible(ASSERTION);
+    } catch (::tunitas::denniston::exception::Aspect const &) {
+      require(ASSERTION);
+    }
+  }
+}
+#endiv

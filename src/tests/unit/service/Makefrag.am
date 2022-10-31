@@ -8,6 +8,5 @@ tests_unit_service_SUBSOURCES = \
   check/obj/src/tests/unit/service/namespace.cpp \
   check/obj/src/tests/unit/service/Dictionary.cpp \
   check/obj/src/tests/unit/service/Fixture.cpp \
-  check/obj/src/tests/unit/service/name.Fixture.cpp \
   check/obj/src/tests/unit/service/instance.Fixture.cpp \
   $(end)

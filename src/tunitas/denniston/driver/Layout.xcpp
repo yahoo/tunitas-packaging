@@ -2,7 +2,7 @@
 // Copyright Yahoo Inc. 2022.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
-// For terms, see the LICENSE file at https://git.tunitas.technology/all/drivers/denniston/tree/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 namespace tunitas::denniston::driver {
   //
@@ -64,7 +64,7 @@ protected:
 namespace tunitas::denniston::driver {
   Layout::Layout(Size initial_client_count)
     : world{entropy}
-    , system{world, initial_client_count}
+    , system{entropy, world, initial_client_count}
   { }
 }
 #endiv

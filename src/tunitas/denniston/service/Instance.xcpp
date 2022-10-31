@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.service.instance.Pointer
-#import tunitas.denniston.service.instance.Prototype
+#import tunitas.denniston.process.Model
 namespace tunitas::denniston::service {
-  using Instance = instance::Pointer<instance::Prototype>;
+  using Instance = instance::Pointer<process::Model>;
 }
 #endiv

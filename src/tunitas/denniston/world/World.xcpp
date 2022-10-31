@@ -43,18 +43,24 @@ namespace tunitas::denniston::world {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.hpke.Configuration
-#import tunitas.keyston.id.Service
-#import tunitas.keyston.protocol.task.Task
+#import tunitas.keyston.protocol.id // for id::Service
 #import tunitas.keyston.entropy.Source
 #import tunitas.denniston.index // for index::Service, index::Task
 #import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
 #import tunitas.denniston.service.Dictionary
 #import std.underlying_type
 struct tunitas::denniston::world::World {
-  std::vector<keyston::id::Service> endpoints{}; // stored according to the order
-  Optional<task::Dictionary> tasks{};
-  Optional<service::Dictionary> services{};
+  struct Definitions { // plural because the contained type aliases are plural
+    using Tasks = task::Dictionary<task::Definition>;
+    using Services = service::Dictionary;
+  };
   using Entropy = keyston::entropy::Source;
+  //
+  std::vector<keyston::protocol::id::Service> endpoints{}; // stored according to the order
+  Optional<Definitions::Tasks> tasks{};
+  Optional<Definitions::Services> services{};
+  //
   inline explicit World(Entropy &);
   World(World const &) = delete;
   World &operator=(World const &) = delete;
@@ -78,8 +84,8 @@ private:
 #import std.make_index_sequence
 namespace tunitas::denniston::world {
   World::World(Entropy &source) {
-    tasks = task::Dictionary{};
-    services = service::Dictionary{};
+    tasks = Definitions::Tasks{};
+    services = Definitions::Services{};
     fill_endpoints();
     if (endpoints.size() != Services::COUNT) {
       throw exception::Invariant{"endpoints != services"};

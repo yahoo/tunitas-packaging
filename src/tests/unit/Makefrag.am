@@ -10,14 +10,17 @@ tests_unit_SUBSOURCES = \
   check/obj/src/tests/unit/required.cpp \
   check/obj/src/tests/unit/Fixture.cpp \
   check/obj/src/tests/unit/denniston.Fixture.cpp \
+  $(tests_unit_channel_SUBSOURCES) \
   $(tests_unit_driver_SUBSOURCES) \
   $(tests_unit_error_SUBSOURCES) \
   $(tests_unit_exception_SUBSOURCES) \
   $(tests_unit_log_SUBSOURCES) \
-  $(tests_unit_message_SUBSOURCES) \
   $(tests_unit_network_SUBSOURCES) \
   $(tests_unit_nonstd_SUBSOURCES) \
   $(tests_unit_process_SUBSOURCES) \
+  $(tests_unit_protocol_SUBSOURCES) \
+  $(tests_unit_report_SUBSOURCES) \
+  $(tests_unit_role_SUBSOURCES) \
   $(tests_unit_service_SUBSOURCES) \
   $(tests_unit_task_SUBSOURCES) \
   check/obj/src/tests/unit/version.Fixture.cpp \
@@ -25,14 +28,17 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_world_SUBSOURCES) \
   $(end)
 #
+include src/tests/unit/channel/Makefrag.am
 include src/tests/unit/driver/Makefrag.am
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
 include src/tests/unit/log/Makefrag.am
-include src/tests/unit/message/Makefrag.am
 include src/tests/unit/network/Makefrag.am
 include src/tests/unit/nonstd/Makefrag.am
 include src/tests/unit/process/Makefrag.am
+include src/tests/unit/protocol/Makefrag.am
+include src/tests/unit/report/Makefrag.am
+include src/tests/unit/role/Makefrag.am
 include src/tests/unit/service/Makefrag.am
 include src/tests/unit/task/Makefrag.am
 include src/tests/unit/world/Makefrag.am

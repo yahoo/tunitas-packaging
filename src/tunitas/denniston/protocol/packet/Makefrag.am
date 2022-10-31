@@ -1,0 +1,37 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_protocol_packet_SUBSOURCES = \
+  obj/src/tunitas/denniston/protocol/Packet.cpp \
+  obj/src/tunitas/denniston/protocol/packet/namespace.cpp \
+  obj/src/tunitas/denniston/protocol/packet/make.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Traits.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Pointer.cpp \
+  obj/src/tunitas/denniston/protocol/packet/cast.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Prototype.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Ping.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Provision.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Status.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Quit.cpp \
+  $(tunitas_denniston_protocol_packet_required_SUBSOURCES) \
+  \
+  obj/src/tunitas/denniston/protocol/packet/Query.template.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Query.HPKE.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Query.TASKS.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Query.cpp \
+  \
+  obj/src/tunitas/denniston/protocol/packet/Response.template.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Response.HPKE.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Response.TASKS.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Response.cpp \
+  \
+  obj/src/tunitas/denniston/protocol/packet/Report.template.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Report.WHOLE.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Report.SHARE.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Report.cpp \
+  $(end)
+#
+include src/tunitas/denniston/protocol/packet/required/Makefrag.am

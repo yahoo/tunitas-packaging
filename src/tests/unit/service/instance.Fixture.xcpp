@@ -5,12 +5,12 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.service.instance
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 namespace tests::unit::service::instance {
   class Fixture;
   namespace library = ::tunitas::denniston::service::instance;
   namespace service = ::tunitas::denniston::service;
-  using service::Name;
+  using ::tunitas::denniston::Species;
 }
 #endiv
 #divert <hpp>
@@ -64,24 +64,28 @@ auto tests::unit::service::instance::Fixture::suite() -> Suite {
   return settle(series);
 }
 #import std.deque
+#import tunitas.keyston.entropy.Source
+#import tunitas.denniston.World
 #import tunitas.denniston.service.Instance
 namespace tests::unit::service::instance {
   template<> auto Fixture::test_make<library::Processor>() -> void {
     {
-      auto made = library::make<library::Processor>(Name::PROCESSOR1); // <---------------------------------------- test this
+      auto made = library::make<library::Processor>(Species::PROCESSOR1); // <---------------------------------------- test this
       require(ASSERTION, nullptr != made.get());
       require(ASSERTION, sizeof (made));
     } {
-      auto made = library::make<library::Processor>(Name::PROCESSOR2); // <---------------------------------------- test this
+      auto made = library::make<library::Processor>(Species::PROCESSOR2); // <---------------------------------------- test this
       require(ASSERTION, nullptr != made.get());
       require(ASSERTION, sizeof (made));
     }
   }
   template<> auto Fixture::test_make<library::Client>() -> void {
+    auto source = ::tunitas::keyston::entropy::Source{};
+    auto world = ::tunitas::denniston::World{source};
     auto hold = std::deque<service::Instance>{};
     for (auto count{0uz}; CLIENT_COUNT != count; ++count) {
-      auto client = Name(1+count);
-      auto made = library::make<library::Client>(client); // <---------------------------------------- test this
+      auto client = Species(1+count);
+      auto made = library::make<library::Client>(source, world, client); // <---------------------------------------- test this
       require(ASSERTION, nullptr != made.get());
       require(ASSERTION, sizeof (made));
       hold.push_back(move(made));

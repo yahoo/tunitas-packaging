@@ -11,13 +11,12 @@ namespace tunitas::denniston::log {
   }
   using namespace package_stamp::interface;
 }
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 #import std.common_type
 #import std.underlying_type
 namespace tunitas::denniston::log::package_stamp {
   namespace body {
-    using service::Name;
-    using Numeric = std::common_type_t<unsigned, std::underlying_type_t<Name>>; // because the underlying_type might be  {signed,unsigned} char which (frustratingly) prints as like a narrow character (a 'char', ahem!)
+    using Numeric = std::common_type_t<unsigned, std::underlying_type_t<Species>>; // because the underlying_type might be  {signed,unsigned} char which (frustratingly) prints as like a narrow character (a 'char', ahem!)
   }
 }
 #endiv
@@ -54,16 +53,16 @@ namespace tunitas::denniston::log::package_stamp {
       //   auto then = Clock::now();
       //   cout << stamp(then);
       //
-      //   auto proc  = service::Name::COLLECTOR;
+      //   auto proc  = Species::COLLECTOR;
       //   cout << stamp(proc);
       //
       inline auto stamp(keyston::time::Point const & = keyston::time::Clock::now()) -> Formatter<keyston::time::Point>;
-      inline auto stamp(service::Name const &) -> Formatter<service::Name>;
+      inline auto stamp(Species const &) -> Formatter<Species>;
     }
     inline constexpr auto NaC = Optional<char>{};
     inline constexpr auto NaN = Optional<Numeric>{};
-    inline auto encoderate(Name) -> Tuple<char, Optional<char>, Optional<Numeric>>;
-    inline auto renumerate(Name) -> Numeric;
+    inline auto encoderate(Species) -> Tuple<char, Optional<char>, Optional<Numeric>>;
+    inline auto renumerate(Species) -> Numeric;
   }
   template<typename TYPE> struct body::Formatter {
     using Value = TYPE;
@@ -73,7 +72,7 @@ namespace tunitas::denniston::log::package_stamp {
   };
   namespace body {
     template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<keyston::time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
-    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<service::Name>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<Species>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
   }
 }
 #endiv
@@ -87,7 +86,7 @@ namespace tunitas::denniston::log::package_stamp {
 #import tunitas.string.View
 namespace tunitas::denniston::log::package_stamp {
   auto interface::stamp(keyston::time::Point const &p) -> Formatter<keyston::time::Point> { return {p}; }
-  auto interface::stamp(service::Name const &n) -> Formatter<service::Name> { return {n}; }
+  auto interface::stamp(Species const &n) -> Formatter<Species> { return {n}; }
 
   template<required::Character CHAR, required::Character_Traits TRAITS, typename TYPE> auto body::operator<<(std::basic_ostream<CHAR, TRAITS> &o, Formatter<TYPE> const &f) -> std::basic_ostream<CHAR, TRAITS> & { return f.insert(o); }
   namespace body {
@@ -97,7 +96,7 @@ namespace tunitas::denniston::log::package_stamp {
       auto nanosecond_count = duration_cast<durations::nanoseconds>(this->value.time_since_epoch()).count() % 1'000'000'000;
       return o << put(this->value, "%F %T.") << setwidth(9) << setfill('0') << nanosecond_count;
     }
-    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<service::Name>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<Species>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
       auto [k, k1, n1] = encoderate(this->value);
       if constexpr (std::same_as<char, CHAR>) {
          o << "process " << k;
@@ -110,26 +109,26 @@ namespace tunitas::denniston::log::package_stamp {
       return o;
     }
   }
-  auto body::encoderate(Name name) -> Tuple<char, Optional<char>, Optional<Numeric>> {
-    if (is_client(name)) {
-      return {'c', NaC, renumerate(name)};
-    } else if (is_gateway(name)) {
+  auto body::encoderate(Species role) -> Tuple<char, Optional<char>, Optional<Numeric>> {
+    if (is_client(role)) {
+      return {'c', NaC, renumerate(role)};
+    } else if (is_gateway(role)) {
       return {'g', 'w', NaN};
-    } else if (is_processor(name)) {
-      return {'p', NaC, renumerate(name)};
-    } else if (is_collector(name)) {
+    } else if (is_processor(role)) {
+      return {'p', NaC, renumerate(role)};
+    } else if (is_collector(role)) {
       return {'$', '$',  NaN};
-    } else if (is_configuration(name)) {
+    } else if (is_configuration(role)) {
       return {'f', 'g',  NaN};
-    } else if (is_directory(name)) {
+    } else if (is_directory(role)) {
       return {'d', 'y',  NaN};
     } else {
-      return {'?', '?', renumerate(name)};
+      return {'?', '?', renumerate(role)};
     }
   }
-  auto body::renumerate(Name name) -> Numeric {
+  auto body::renumerate(Species role) -> Numeric {
     // yes yes we know about the UB inherent in -numeric_limits<int>::min(), and good luck to you
-    auto under = underlying(name);
+    auto under = underlying(role);
     return under < 0 ? -under : under;
   }
 }

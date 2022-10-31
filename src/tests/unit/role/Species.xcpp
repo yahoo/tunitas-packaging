@@ -1,0 +1,179 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::role { class Species; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.role.Species
+#import tunitas.denniston.role.Genus
+struct tests::unit::role::Species : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Species;
+  using Genus = library::Genus;
+  //
+  auto test_is_client() -> void;
+  auto test_is_collector() -> void;
+  auto test_is_configuration() -> void;
+  auto test_is_directory() -> void;
+  auto test_is_gateway() -> void;
+  auto test_is_processor() -> void;
+  //
+  auto test_make_client_species() -> void;
+  auto test_recover_processor_index() -> void;
+  //
+  auto test_estimate_genus_good() -> void;
+  auto test_estimate_genus_fail() -> void;
+  auto test_to_genus_good() -> void;
+  auto test_to_genus_fail() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::role::Species::suite() -> Suite {
+  auto series = Stream{"Species"sv};
+  series << []{
+              auto is = Stream{"is"sv};
+              is << add("Client", &Species::test_is_client)                 
+                 << add("Collector", &Species::test_is_collector)
+                 << add("Configuration", &Species::test_is_configuration)
+                 << add("Directory", &Species::test_is_directory)
+                 << add("Gateway", &Species::test_is_gateway)
+                 << add("Processor", &Species::test_is_processor)
+                 << END;
+              return is;
+            }()
+         << add("make_client_species", &Species::test_make_client_species)
+         << add("recover_processor_index", &Species::test_recover_processor_index)
+         << []{
+              auto est = Stream{"to_genus"sv};
+              est << add("good", &Species::test_to_genus_good)
+                  << add("fail", &Species::test_to_genus_fail)
+                  << END;
+              return est;
+            }()
+         << []{
+              auto est = Stream{"estimate_genus"sv};
+              est << add("good", &Species::test_estimate_genus_good)
+                  << add("fail", &Species::test_estimate_genus_fail)
+                  << END;
+              return est;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.exception.Invalid
+namespace tests::unit::role {
+  auto Species::test_is_client() -> void {
+    require(ASSERTION, not is_client(Subject::COLLECTOR));
+    require(ASSERTION, not is_client(Subject::CONFIGURATION));
+    require(ASSERTION, not is_client(Subject::DIRECTORY));
+    require(ASSERTION, not is_client(Subject::PROCESSOR2));
+    require(ASSERTION, not is_client(Subject::PROCESSOR1));
+    require(ASSERTION, not is_client(Subject::GATEWAY));
+    require(ASSERTION, is_client(Subject::CLIENT));
+    require(ASSERTION, is_client(Subject{1}));
+    require(ASSERTION, is_client(Subject{2}));
+    require(ASSERTION, is_client(Subject{3}));
+    require(ASSERTION, is_client(Subject{4}));
+  }
+  auto Species::test_is_collector() -> void {
+    require(ASSERTION, is_collector(Subject::COLLECTOR));
+    require(ASSERTION, not is_collector(Subject::CONFIGURATION));
+    require(ASSERTION, not is_collector(Subject::DIRECTORY));
+    require(ASSERTION, not is_collector(Subject::PROCESSOR2));
+    require(ASSERTION, not is_collector(Subject::PROCESSOR1));
+    require(ASSERTION, not is_collector(Subject::GATEWAY));
+    require(ASSERTION, not is_collector(Subject::CLIENT));
+  }
+  auto Species::test_is_configuration() -> void {
+    require(ASSERTION, is_configuration(Subject::CONFIGURATION));
+    require(ASSERTION, not is_configuration(Subject::COLLECTOR));
+    require(ASSERTION, not is_configuration(Subject::DIRECTORY));
+    require(ASSERTION, not is_configuration(Subject::PROCESSOR2));
+    require(ASSERTION, not is_configuration(Subject::PROCESSOR1));
+    require(ASSERTION, not is_configuration(Subject::GATEWAY));
+    require(ASSERTION, not is_configuration(Subject::CLIENT));
+  }
+  auto Species::test_is_directory() -> void {
+    require(ASSERTION, not is_directory(Subject::COLLECTOR));
+    require(ASSERTION, not is_directory(Subject::CONFIGURATION));
+    require(ASSERTION, not is_directory(Subject::PROCESSOR2));
+    require(ASSERTION, not is_directory(Subject::PROCESSOR1));
+    require(ASSERTION, not is_directory(Subject::GATEWAY));
+    require(ASSERTION, not is_directory(Subject::CLIENT));
+  }
+  auto Species::test_is_gateway() -> void {
+    require(ASSERTION, not is_gateway(Subject::COLLECTOR));
+    require(ASSERTION, not is_gateway(Subject::CONFIGURATION));
+    require(ASSERTION, not is_gateway(Subject::DIRECTORY));
+    require(ASSERTION, not is_gateway(Subject::PROCESSOR2));
+    require(ASSERTION, not is_gateway(Subject::PROCESSOR1));
+    require(ASSERTION, is_gateway(Subject::GATEWAY));
+    require(ASSERTION, not is_gateway(Subject::CLIENT));
+  }
+  auto Species::test_is_processor() -> void {
+    require(ASSERTION, not is_processor(Subject::COLLECTOR));
+    require(ASSERTION, not is_processor(Subject::CONFIGURATION));
+    require(ASSERTION, not is_processor(Subject::DIRECTORY));
+    require(ASSERTION, is_processor(Subject::PROCESSOR2));
+    require(ASSERTION, is_processor(Subject::PROCESSOR1));
+    require(ASSERTION, not is_processor(Subject::GATEWAY));
+    require(ASSERTION, not is_processor(Subject::CLIENT));
+  }
+  auto Species::test_make_client_species() -> void {
+    auto observed = library::make_client_species(3);
+    auto expected = Subject{4};
+    require(ASSERTION, expected == observed);
+  }
+  auto Species::test_recover_processor_index() -> void {
+    require(ASSERTION, 0u == library::recover_processor_index(Subject::PROCESSOR1));
+    require(ASSERTION, 1u == library::recover_processor_index(Subject::PROCESSOR2));
+    for (auto other : {Subject::CLIENT, Subject::COLLECTOR, Subject::DIRECTORY, Subject::GATEWAY}) {
+      try {
+        library::recover_processor_index(other);
+        impossible(ASSERTION);
+      } catch (::tunitas::denniston::exception::Invalid const &) {
+        require(ASSERTION);
+      }
+    }
+  }
+  auto Species::test_estimate_genus_good() -> void {
+    require(ASSERTION, true == (bool) library::estimate_genus(Subject::CLIENT));
+    require(ASSERTION, true == (bool) library::estimate_genus(Subject::COLLECTOR));
+    require(ASSERTION, true == (bool) library::estimate_genus(Subject::CONFIGURATION));
+    require(ASSERTION, true == (bool) library::estimate_genus(Subject::DIRECTORY));
+    require(ASSERTION, true == (bool) library::estimate_genus(Subject::GATEWAY));
+    require(ASSERTION, true == (bool) library::estimate_genus(Subject::PROCESSOR1));
+    require(ASSERTION, true == (bool) library::estimate_genus(Subject::PROCESSOR2));
+    require(ASSERTION, true == (bool) library::estimate_genus(library::make_client_species(0)));
+    require(ASSERTION, true == (bool) library::estimate_genus(library::make_client_species(1)));
+    require(ASSERTION, true == (bool) library::estimate_genus(library::make_client_species(2)));
+    require(ASSERTION, true == (bool) library::estimate_genus(library::make_client_species(3)));
+  }
+  auto Species::test_estimate_genus_fail() -> void {
+    require(ASSERTION, false == (bool) library::estimate_genus(Subject{-99}));
+  }
+  auto Species::test_to_genus_good() -> void {
+    require(ASSERTION, Genus::CLIENT == library::to_genus(Subject::CLIENT));
+    require(ASSERTION, Genus::COLLECTOR == library::to_genus(Subject::COLLECTOR));
+    require(ASSERTION, Genus::CONFIGURATION == library::to_genus(Subject::CONFIGURATION));
+    require(ASSERTION, Genus::DIRECTORY == library::to_genus(Subject::DIRECTORY));
+    require(ASSERTION, Genus::GATEWAY == library::to_genus(Subject::GATEWAY));
+    require(ASSERTION, Genus::PROCESSOR == library::to_genus(Subject::PROCESSOR1));
+    require(ASSERTION, Genus::PROCESSOR == library::to_genus(Subject::PROCESSOR2));
+    require(ASSERTION, Genus::CLIENT == library::to_genus(library::make_client_species(0)));
+    require(ASSERTION, Genus::CLIENT == library::to_genus(library::make_client_species(1)));
+    require(ASSERTION, Genus::CLIENT == library::to_genus(library::make_client_species(2)));
+    require(ASSERTION, Genus::CLIENT == library::to_genus(library::make_client_species(3)));
+  }
+  auto Species::test_to_genus_fail() -> void try {
+    library::to_genus(Subject{-99});
+    impossible(ASSERTION);
+  } catch (::tunitas::denniston::exception::Invalid const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

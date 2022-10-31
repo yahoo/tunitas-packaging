@@ -1,0 +1,95 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.role.Genus
+#include <hpp/tunitas.denniston.role.Genus>
+namespace tunitas::denniston::role {
+  //
+  // The role is the "name" of a role, by index
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   The Distributed Aggregation Protoco for Privacy-Preserving Measurement
+  //
+  // Design:
+  //
+  //   The enum valuation is the same as that of Genus
+  //
+  // Usage:
+  //
+  //   You need a tutorial on the usage of an enum (class)?
+  //
+  enum class Species {
+    CONFIGURATION = underlying(Genus::CONFIGURATION),
+    DIRECTORY     = underlying(Genus::DIRECTORY),
+    COLLECTOR     = underlying(Genus::COLLECTOR),
+    PROCESSOR2    = underlying(Genus::PROCESSOR),
+    PROCESSOR1    = 1+underlying(Genus::PROCESSOR),
+    GATEWAY       = underlying(Genus::GATEWAY),
+    CLIENT        = underlying(Genus::CLIENT),
+  };
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+namespace tunitas::denniston::role {
+  inline constexpr auto underlying(Species n) { return std::underlying_type_t<Species>(n); }
+  inline auto swap(Species &a, Species &b) noexcept -> void { return std::swap(a, b); }
+  //
+  inline constexpr auto is_client(Species species) -> bool        { return 0 < underlying(species); }
+  inline constexpr auto is_configuration(Species species) -> bool { return Species::CONFIGURATION == species; }
+  inline constexpr auto is_collector(Species species) -> bool     { return Species::COLLECTOR == species; }
+  inline constexpr auto is_directory(Species species) -> bool     { return Species::DIRECTORY == species; }
+  inline constexpr auto is_gateway(Species species) -> bool       { return Species::GATEWAY == species; }
+  inline constexpr auto is_processor(Species species) -> bool     { return Species::PROCESSOR1 == species || Species::PROCESSOR2 == species; }
+  static_assert(-2 == underlying(Species::PROCESSOR2));
+  static_assert(-1 == underlying(Species::PROCESSOR1));
+  //
+  inline constexpr auto make_client_species(unsigned index) -> Species;
+  inline auto recover_processor_index(Species) -> Size; // throws in !is_processor
+  //
+  inline auto to_genus(Species) -> Genus;
+  inline constexpr auto estimate_genus(Species) -> Optional<Genus>;
+}
+#endiv
+#divert <ipp>
+#import std.same_as
+#import std.make_unsigned
+#import tunitas.denniston.exception.Invalid
+namespace tunitas::denniston {
+  constexpr auto role::make_client_species(unsigned index) -> Species {
+    static_assert(std::same_as<decltype(index), std::make_unsigned_t<std::underlying_type_t<Species>>>);
+    return Species(index + underlying(Species::CLIENT));
+  }
+  auto role::to_genus(Species species) -> Genus {
+    // can't be constexpr because of the exception
+    if (auto got=estimate_genus(species); got) {
+      return *got;
+    } else {
+      throw exception::Invalid{"not a known species"};
+    }
+  }
+  constexpr auto role::estimate_genus(Species species) -> Optional<Genus> {
+    // because Optional is constexpr through and through!
+    if (is_client(species))        { return Genus::CLIENT; }
+    if (is_collector(species))     { return Genus::COLLECTOR; }
+    if (is_configuration(species)) { return Genus::CONFIGURATION; }
+    if (is_directory(species))     { return Genus::DIRECTORY; }
+    if (is_gateway(species))       { return Genus::GATEWAY; }
+    if (is_processor(species))     { return Genus::PROCESSOR; }
+    else                           { return {}; }
+  }
+  auto role::recover_processor_index(Species species) -> Size {
+    if (!is_processor(species)) {
+      throw exception::Invalid{"not a processor species"};
+    } else {
+      auto raw = underlying(species);
+      return -raw - 1u;
+    }
+  }
+}
+#endiv

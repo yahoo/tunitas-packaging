@@ -21,8 +21,8 @@ namespace tunitas::denniston::log {
   //
   // Usage:
   //
-  //   auto name = service::Name::PROCESSOR2; .......... for example
-  //   auto client = Client{name};
+  //   auto role = Species::PROCESSOR2; .......... for example
+  //   auto client = Client{role};
   //   client.format(...somehow...);
   //
   struct Client;
@@ -30,7 +30,7 @@ namespace tunitas::denniston::log {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.log.Concentrator
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 #forward tunitas.denniston.driver.Driver
 #import tunitas.string.View
 namespace tunitas::denniston {
@@ -39,8 +39,8 @@ namespace tunitas::denniston {
     inline auto swap(Client &, Client &) noexcept -> void;
   }
   struct log::Client {
-    inline explicit Client(service::Name);
-    inline explicit Client(Concentrator &, service::Name);
+    inline explicit Client(Species);
+    inline explicit Client(Concentrator &, Species);
     Client(Client const &) = delete;
     Client &operator=(Client const &) = delete;
     Client(Client &&) = default;
@@ -48,7 +48,7 @@ namespace tunitas::denniston {
     template<typename... ARGUMENTS> inline auto format(string::View format, ARGUMENTS &&...) -> void;
   protected:
     friend class driver::Driver;
-    service::Name name{};
+    Species role{};
     Concentrator *concentrator{};
     friend auto log::swap(Client &, Client &) noexcept -> void;
   };
@@ -57,15 +57,15 @@ namespace tunitas::denniston {
 #divert <ipp>
 namespace tunitas::denniston {
   auto log::swap(Client &a, Client &b) noexcept -> void {
-    swap(a.name, b.name);
+    swap(a.role, b.role);
     std::swap(a.concentrator, b.concentrator);
   }
   namespace log {
-    Client::Client(service::Name name)
-      : name{name}
+    Client::Client(Species role)
+      : role{role}
     { }
-    Client::Client(Concentrator &arg_concentrator, service::Name arg_name)
-      : name{arg_name}
+    Client::Client(Concentrator &arg_concentrator, Species arg_role)
+      : role{arg_role}
       , concentrator{&arg_concentrator}
     { }
   }
@@ -79,7 +79,7 @@ namespace tunitas::denniston::log {
   template<typename... ARGUMENTS> auto Client::format(string::View format_string, ARGUMENTS &&...rest) -> void {
     if (nullptr != concentrator) {
       auto formatted = log::vformat(format_string, log::make_format_args(rest...));
-      concentrator->accept(name, formatted);
+      concentrator->accept(role, formatted);
     }
   }
 }

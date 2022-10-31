@@ -7,12 +7,12 @@
 namespace tests::unit::log { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 #import tunitas.keyston.time.Clock
 struct tests::unit::log::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using Name = ::tunitas::denniston::service::Name;
+  using Species = ::tunitas::denniston::Species;
   using Clock = ::tunitas::keyston::time::Clock;
   //
   auto test_usage_Client() -> void;
@@ -22,7 +22,7 @@ struct tests::unit::log::Fixture : public rigging::suite::Fixture {
   //
   auto test_stamp_none() -> void;
   auto test_stamp_time_Point() -> void;
-  auto test_stamp_service_Name() -> void;
+  auto test_stamp_role_Species() -> void;
 };
 #endiv
 #divert <cpp>
@@ -43,7 +43,7 @@ auto tests::unit::log::Fixture::suite() -> Suite {
               auto tamp = Stream{"stamp"sv};
               tamp << add("none", &Fixture::test_stamp_none)
                    << add("time::Point", &Fixture::test_stamp_time_Point)
-                   << add("service::Name", &Fixture::test_stamp_service_Name)
+                   << add("Species", &Fixture::test_stamp_role_Species)
                    << END;
               return tamp;
             }()
@@ -61,7 +61,7 @@ auto tests::unit::log::Fixture::suite() -> Suite {
 namespace tests::unit::log {
   auto Fixture::test_usage_Client() -> void {
     using Subject = library::Client;
-    auto subject = Subject{Name::GATEWAY};
+    auto subject = Subject{Species::GATEWAY};
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_Concentrator() -> void {
@@ -93,9 +93,9 @@ namespace tests::unit::log {
     std::cerr << "stamp = " << actual << '\n';
     require(ASSERTION, !actual.empty());
   }
-  auto Fixture::test_stamp_service_Name() -> void {
-    using enum Name;
-    for (auto name : {CLIENT, COLLECTOR, CONFIGURATION, DIRECTORY, GATEWAY, PROCESSOR1, PROCESSOR2, Name{2}, Name{3}, Name{4}, Name{98}, Name{99}, Name{100}}) {
+  auto Fixture::test_stamp_role_Species() -> void {
+    using enum Species;
+    for (auto name : {CLIENT, COLLECTOR, CONFIGURATION, DIRECTORY, GATEWAY, PROCESSOR1, PROCESSOR2, Species{2}, Species{3}, Species{4}, Species{98}, Species{99}, Species{100}}) {
       auto buf = std::ostringstream{};
       buf << library::stamp(name); // <-------------------- test this
       auto actual = buf.str();

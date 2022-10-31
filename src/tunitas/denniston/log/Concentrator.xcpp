@@ -27,11 +27,11 @@ namespace tunitas::denniston::log {
 #import std.mutex
 #import std.lock_guard
 #import tunitas.keyston.time.Clock
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 #forward tunitas.denniston.driver.Driver
 #import tunitas.string.View
 struct tunitas::denniston::log::Concentrator {
-  auto accept(service::Name, string::View message) -> void;
+  auto accept(Species, string::View message) -> void;
 protected:
   friend class driver::Driver;
   std::ostream *outbound{};
@@ -48,7 +48,7 @@ protected:
 #import tunitas.denniston.log.ine
 #import tunitas.denniston.log.stamp
 namespace tunitas::denniston::log {
-  auto Concentrator::accept(service::Name origin, string::View message) -> void {
+  auto Concentrator::accept(Species origin, string::View message) -> void {
     auto guard = Guardian{mutex};
     if (outbound) {
       // [[FIXTHIS]] just queue up this message in the critical section and then outbound it later on a separate path

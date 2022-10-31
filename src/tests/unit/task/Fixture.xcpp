@@ -11,34 +11,46 @@ struct tests::unit::task::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   auto test_usage_Dictionary() -> void;
-  auto test_usage_Task() -> void;
+  auto test_usage_Definition() -> void;
 };
 #endiv
 #divert <cpp>
 #import tests.unit.task.Dictionary
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
+#import tunitas.denniston.task.Corpus
 auto tests::unit::task::Fixture::suite() -> Suite {
   auto series = Stream{"task"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Task", &Fixture::test_usage_Task)
+              use << add("Definition", &Fixture::test_usage_Definition)
                   << add("Dictionary", &Fixture::test_usage_Dictionary)
                   << END;
               return use;
             }()
-         << add<Dictionary>()
+         << []{
+              auto dict = Stream{"Dictionary"sv};
+              using ::tunitas::denniston::Genus;
+              dict << add<Dictionary<library::Dictionary<library::Definition>>>()
+                   << add<Dictionary<library::Dictionary<library::Corpus<Genus::COLLECTOR>>>>()
+                   << add<Dictionary<library::Dictionary<library::Corpus<Genus::GATEWAY>>>>()
+                   << add<Dictionary<library::Dictionary<library::Corpus<Genus::PROCESSOR>>>>()
+                   << END;
+              return dict;
+            }()
          << END;
   return settle(series);
 }
 #import tunitas.denniston.task.Dictionary
-#import tunitas.denniston.task.Task
+#import tunitas.denniston.task.Definition
 namespace tests::unit::task {
   auto Fixture::test_usage_Dictionary() -> void {
-    using Subject = library::Dictionary;
+    using Subject = library::Dictionary<library::Definition>;
     auto subject = Subject{};
     require(ASSERTION, sizeof (subject));
   }
-  auto Fixture::test_usage_Task() -> void {
-    using Subject = library::Task;
+  auto Fixture::test_usage_Definition() -> void {
+    using Subject = library::Definition;
     auto subject = Subject{};
     require(ASSERTION, sizeof (subject));
   }

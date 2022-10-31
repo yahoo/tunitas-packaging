@@ -39,22 +39,24 @@ namespace tunitas::denniston::service::instance {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.World
-#import tunitas.denniston.network.channel.readable.Variable
-#import tunitas.denniston.service.instance.Prototype
+#import tunitas.denniston.network.pipe.readable.Variable
+#import tunitas.denniston.process.Reactor
 #import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
 #import tunitas.denniston.error.Code
-class tunitas::denniston::service::instance::Configuration : public Prototype {
-  using Ancestor = Prototype;
-  auto run() noexcept -> void;
+#import tunitas.denniston.protocol.packet.Query
+class tunitas::denniston::service::instance::Configuration : public process::Reactor {
+  using Ancestor = process::Reactor;
+  auto react() -> void;
+  auto respond([[inout]] Interface &, [[inout]] Query<Get::TASKS> &, string::View from_whom) -> void;
 public:
   inline explicit Configuration();
   inline explicit Configuration([[inout]] World &);
-  auto launch(driver::Threads &) -> void override;
   Interfaces clients{};
   Interface collector{};
-  // gateway does not appear (gateway do does not contact the configuration server)
+  Interface gateway{};
   Interfaces processors{};
-  task::Dictionary tasks{};
+  task::Dictionary<task::Definition> tasks{};
   using E = error::Code;
 };
 #endiv
@@ -62,7 +64,7 @@ public:
 #import tunitas.denniston.World
 namespace tunitas::denniston::service::instance {
   Configuration::Configuration()
-    : Ancestor{Name::CONFIGURATION}
+    : Ancestor{Species::CONFIGURATION}
   { }
   Configuration::Configuration(World &world) : Configuration{} {
     tasks = move(*world.tasks);
@@ -70,67 +72,61 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.message.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
-#import tunitas.denniston.message.packet.make
-#import tunitas.denniston.message.packet.Status
-#import tunitas.denniston.message.packet.Query
-#import tunitas.denniston.message.packet.Response
+#import tunitas.denniston.protocol.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Response
 #import std.min
 #import std.cbegin
 namespace tunitas::denniston::service::instance {
-  auto Configuration::launch(driver::Threads &pool) -> void { pool.launch(&Configuration::run, this); }
-  auto Configuration::run() noexcept -> void try {
-    log.format("begin running");
-    while (!graceful_shutdown.load()) {
-      ready.wait(readable);
-      log.format("reading");
-      if (auto red=control.read_if(); red) {
-        log.format("red from control");
-        if (is_quit(*red)) {
-          graceful_shutdown.store(true);
-          break;
-        }
+  auto Configuration::react() -> void try {
+    if (auto red=collector.read_if(); red) {
+      if (is_ping(*red)) {
+        log.format("configuration is sent a ping");
+        collector.write(protocol::packet::make<protocol::packet::Status>());
       }
-      log.format("after probing control");
-      if (auto red=collector.read_if(); red) {
-        log.format("red from collector");
-        if (is_ping(*red)) {
-          log.format("configuration is sent a ping");
-          collector.write(message::packet::make<message::packet::Status>());
-        }
+    }
+    if (auto red=gateway.read_if(); red) {
+      if (auto got=downcast<Query<Get::TASKS>>(*red); nullptr != got) {
+        respond(gateway, *got, "gateway");
       }
-      log.format("after probing collector");
-      log.format("there are {} clients", clients.size());
-      for (auto &face : clients) {
-          log.format("poll client");
-        if (auto red=face.read_if(); red) {
-          log.format("red from some client");
-          using namespace message::packet;
-          if (auto got=downcast<Query<Get::TASKS>>(*red); nullptr != got) {
-            if (!got->task_id) {
-              if (tasks.empty()) {
-                face.write(make<Status>(E::NO_AVAILABLE_TASKS));
-              } else {
-                // returns only the first (um) 256; MUST be cbegin to satisfy the constructor
-                auto start = std::cbegin(tasks);
-                auto finish = start + std::min(Response<Get::TASKS>::capacity(), tasks.size());
-                face.write(make<Response<Get::TASKS>>(start, finish));
-              }
-            } else {
-              auto const &task_id = *got->task_id;
-              if (auto found=tasks.find(task_id); !found) {
-                face.write(make<Status>(E::NO_SUCH_TASK));
-              } else {
-                face.write(make<Response<Get::TASKS>>(*found));
-              }
-            }
-          }
+    }
+    for (auto &face : clients) {
+      if (auto red=face.read_if(); red) {
+        if (auto got=downcast<Query<Get::TASKS>>(*red); nullptr != got) {
+          respond(face, *got, "some client");
         }
       }
     }
-    log.format("ending");
+    for (auto &face : processors) {
+      if (auto red=face.read_if(); red) {
+        if (auto got=downcast<Query<Get::TASKS>>(*red); nullptr != got) {
+          respond(face, *got, "some processor");
+        }
+      }
+    }
   } catch(...) {
     log.format("escaped exception is suppressed");
+  }
+  auto Configuration::respond([[inout]] Interface &back, [[inout]] Query<Get::TASKS> &query, string::View from_whom) -> void {
+    if (!query.task_id) {
+      if (tasks.empty()) {
+        back.write(make<Status>(E::NO_AVAILABLE_TASKS));
+      } else {
+        // [[FIXTHIS]] returns only the first (um) 256 ... tell someone of the problem
+        auto start = std::cbegin(tasks); // ; MUST be cbegin to satisfy the constructor
+        auto finish = start + std::min(Response<Get::TASKS>::capacity(), tasks.size());
+        back.write(make<Response<Get::TASKS>>(start, finish));
+      }
+    } else {
+      auto const &task_id = *query.task_id;
+      if (auto found=tasks.find(task_id); !found) {
+        back.write(make<Status>(E::NO_SUCH_TASK));
+      } else {
+        back.write(make<Response<Get::TASKS>>(*found));
+      }
+    }
   }
 }
 #endiv

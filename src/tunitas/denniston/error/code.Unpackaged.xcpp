@@ -14,6 +14,10 @@ namespace tunitas::denniston::error::code {
       SUCCESS, // ........ improper success (which is a failure)
       FAILURE, // ........ sic, generic failure
       //
+      GATEWAY_IS_MISCONFIGURED,
+      COLLECTOR_IS_MISCONFIGURED,
+      PROCESSOR_IS_MISCONFIGURED,
+      //
       NO_SUCH_BATCH,
       NO_SUCH_JOB,
       NO_SUCH_REPORT,
@@ -21,6 +25,7 @@ namespace tunitas::denniston::error::code {
       NO_SUCH_TASK,
       //
       NO_AVAILABLE_TASKS,
+      SHARE_COUNT_IS_INCORRECT_FOR_THIS_TASK,
     };
     using enum Enumeration;
   };

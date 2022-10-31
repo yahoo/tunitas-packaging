@@ -7,4 +7,7 @@
 tunitas_denniston_task_required_SUBSOURCES = \
   obj/src/tunitas/denniston/task/required/namespace.cpp \
   obj/src/tunitas/denniston/task/required/dictionary.Foundable.cpp \
+  obj/src/tunitas/denniston/task/required/dictionary.Valuable.cpp \
+  obj/src/tunitas/denniston/task/required/Corpus.cpp \
+  obj/src/tunitas/denniston/task/required/Corporal.cpp \
   $(end)

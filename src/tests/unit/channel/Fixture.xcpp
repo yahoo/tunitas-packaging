@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::channel { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.channel.Channel
+#import tests.unit.channel.Message
+struct tests::unit::channel::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage() -> void;
+protected:
+  using Channel_Message = library::Channel<Message>;
+  static auto spew(Channel_Message *, unsigned ith) -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.channel.Channel
+#import tests.unit.channel.Generator
+#import tests.unit.channel.Message
+namespace tests::unit::channel {
+  auto Fixture::suite() -> Suite {
+    auto series = Stream{"channel"sv};
+    series << add("usage", &Fixture::test_usage)
+           << add<Channel<Generator<int>>>() // ............... copyable
+           << add<Channel<Generator<string::Storage>>>() // ... copyable
+           << add<Channel<Generator<Message>>>() // ........... uncopyable, but movable; so peek() is unavailable
+           << END;
+    return settle(series);
+  }
+}
+#import tests.unit.channel.Generator
+#import tests.unit.channel.Message
+#import std.to_string
+namespace tests::unit::channel {
+  auto Fixture::spew(Channel_Message *_chan, unsigned ith) -> void {
+    auto &chan = *_chan;
+    Generator<string::Storage> generator;
+    for (auto i{0u}, e{ith}; e != i; ++i) {
+      chan.emplace_back(std::to_string(ith), std::to_string(i), generator());
+    }
+  }
+}
+
+#import std.async
+#import std.exception
+#import std.cerr
+#import std.vector
+#import std.future
+namespace tests::unit::channel {
+  auto Fixture::test_usage() -> void {
+    Channel_Message subject{10};
+    auto const LIMIT = 10;
+    auto count{0};
+    std::vector<std::future<void>> jobs;
+    for (auto i{1}, e{1+LIMIT}; e != i; ++i) {
+      count += i;
+      try {
+        jobs.emplace_back(std::async(Fixture::spew, &subject, i));
+      } catch (std::exception const &) {
+        std::cerr << "Failed to async at " << i << "(quitting the test)\n";
+        impossible(ASSERTION);
+      }
+    }
+    for (auto i{0}, e{count}; e != i; ++i) {
+      auto popped = subject.pop();
+      std::cerr <<  "popped #" << i << " of " << count << " is " << format(popped) << '\n';
+    }
+  }
+}
+#endiv

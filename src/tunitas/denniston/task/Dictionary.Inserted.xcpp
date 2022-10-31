@@ -36,7 +36,7 @@
 #divert <hpp>
 #import tunitas.denniston.dictionary.Inserted
 namespace tunitas::denniston::task {
-  struct Dictionary::Inserted : public dictionary::Inserted<Value> {
+  template<required::dictionary::Valuable _> struct Dictionary<_>::Inserted : public dictionary::Inserted<Value> {
     using Ancestor = dictionary::Inserted<Value>;
   public:
     using Ancestor::Inserted;

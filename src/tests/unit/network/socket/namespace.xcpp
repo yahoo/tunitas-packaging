@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tests.unit.network
-#import tunitas.denniston.message.packet
+#import tunitas.denniston.protocol.packet
 namespace tests::unit::network::socket {
-  namespace packet = ::tunitas::denniston::message::packet;
+  namespace packet = ::tunitas::denniston::protocol::packet;
 }
 #endiv

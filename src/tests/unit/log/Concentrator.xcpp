@@ -8,14 +8,14 @@ namespace tests::unit::log { class Concentrator; }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.log.Concentrator
-#import tunitas.denniston.service.Name
+#import tunitas.denniston.Species
 struct tests::unit::log::Concentrator : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   struct Subject : public library::Concentrator {
     using library::Concentrator::outbound; // now public so we can assign to it
   };
-  using Name = ::tunitas::denniston::service::Name;
+  using Species = ::tunitas::denniston::Species;
   //
   auto test_constructor_default() -> void;
   auto test_accept_with_outbound() -> void;
@@ -49,12 +49,12 @@ namespace tests::unit::log {
   auto Concentrator::test_accept_with_outbound() -> void {
     auto subject = Subject{};
     subject.outbound = &std::cerr;
-    subject.accept(Name::GATEWAY, "now hear this"sv);
+    subject.accept(Species::GATEWAY, "now hear this"sv);
   }
   auto Concentrator::test_accept_without_outbound() -> void {
     auto subject = Subject{};
     require(ASSERTION, nullptr == subject.outbound);
-    subject.accept(Name::GATEWAY, "now hear this"sv);
+    subject.accept(Species::GATEWAY, "now hear this"sv);
   }
 }
 #endiv

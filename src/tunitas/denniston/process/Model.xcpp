@@ -1,0 +1,73 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process {
+  //
+  // The (prototype of a) manifestation of a service (a computing resource).
+  //
+  // Specification:
+  //
+  //   Manages some computing.
+  //   Publishes an interface by which it can be contacted.
+  //   Expects to be dynamically allocated with std::make_unique<DESCENDANT>(...)
+  //
+  //   Whereas this is a simulatoin, every process has a control channel (socket interface)
+  //
+  //   I am the very model of a modern major process. 
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Something something: a thread.
+  //   The destructor must be public so that std::unique_ptr can see it.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Model;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.log.Client
+#import tunitas.denniston.network.Socket.Interface
+#import tunitas.denniston.Species
+#forward tunitas.denniston.driver.Threads
+#forward tunitas.denniston.driver.Driver
+#forward tunitas.denniston.process.companion.Barrier
+#import tunitas.denniston.process.Prototype
+#import std.atomic
+#import std.vector
+class tunitas::denniston::process::Model : public Prototype {
+  using Ancestor = Prototype;
+public:
+  using Species = denniston::Species;
+  Species role{};
+  denniston::log::Client log;
+  using Interface = network::Socket::Interface;
+  using Interfaces = std::vector<network::Socket::Interface>;
+  Interface control{};
+  Model(Model const &) = delete;
+  Model &operator=(Model const &) = delete;
+  virtual ~Model() = default;
+  virtual auto launch([[inout]] driver::Threads &) -> void = 0;
+protected:
+  inline explicit Model(Species);
+  std::atomic<bool> graceful_shutdown{false}; // not clear this needs to be atomic.
+  friend class companion::Barrier;
+  friend class driver::Driver;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process {
+  Model::Model(Species role)
+    : role{role}
+    , log{role}
+  { }
+}
+// All descendants will need this
+#import tunitas.denniston.driver.Threads
+#endiv

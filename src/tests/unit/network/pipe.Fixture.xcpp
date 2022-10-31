@@ -4,34 +4,79 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tests::unit::network::pipe { class Fixture; }
+#import tunitas.denniston.network.pipe
+namespace tests::unit::network::pipe {
+  class Fixture;
+  namespace library = tunitas::denniston::network::pipe;
+}
 #endiv
 #divert <hpp>
 #import tunitas.denniston.network.Pipe
 struct tests::unit::network::pipe::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using Subject = library::Pipe;
+  using Subject = library::Pipe<int>;
+  //
+  auto test_usage_readable_Variable() -> void;
+  auto test_usage_readable_Fixed() -> void;
   //
   auto test_constructor_default() -> void;
+  auto test_is_ready_to_read() -> void;
 };
 #endiv
 #divert <cpp>
 auto tests::unit::network::pipe::Fixture::suite() -> Suite {
   auto series = Stream{"Pipe"sv};
   series << []{
+              auto use = Stream{"usage"sv};
+               use << []{
+                        auto read = Stream{"readable"sv};
+                        read << add("Variable", &Fixture::test_usage_readable_Variable)
+                             << add("Fixed<2>", &Fixture::test_usage_readable_Fixed)
+                             << END;
+                        return read;
+                      }()
+                   << END;
+              return use;
+            }()
+         << []{
               auto con = Stream{"constructor"sv};
               con << add("default", &Fixture::test_constructor_default)
                   << END;
               return con;
             }()
+         << add("is_ready_to_read", &Fixture::test_is_ready_to_read)
          << END;
   return settle(series);
 }
+#import tunitas.denniston.process.Ready
+#import tunitas.denniston.network.pipe.readable.Variable
+#import tunitas.denniston.network.pipe.readable.Fixed
 namespace tests::unit::network::pipe {
+  auto Fixture::test_usage_readable_Variable() -> void {
+    using Pipe = Fixture::Subject;
+    using Subject = library::readable::Variable;
+    auto ready = ::tunitas::denniston::process::Ready{};
+    Pipe set{}, go{};
+    auto subject = Subject{ready, set, go};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_readable_Fixed() -> void {
+    using Pipe = Fixture::Subject;
+    using Subject = library::readable::Fixed<2>;
+    auto ready = ::tunitas::denniston::process::Ready{};
+    Pipe set{}, go{};
+    auto subject = Subject{ready, set, go};
+    require(ASSERTION, sizeof (subject));
+  }
   auto Fixture::test_constructor_default() -> void {
     auto subject = Subject{};
     require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_is_ready_to_read() -> void {
+    auto subject = Subject{};
+    auto well_is_it_ready_qusetionmark = subject.is_ready_to_read();
+    require(ASSERTION, well_is_it_ready_qusetionmark || !well_is_it_ready_qusetionmark);
   }
 }
 #endiv

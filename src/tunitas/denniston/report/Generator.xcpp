@@ -1,0 +1,78 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::report {
+  //
+  // A report generator
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.3.2. Upload Request
+  //
+  //   Measure something.
+  //   Produce a report.
+  //
+  // Design:
+  //
+  //   Whatever man, it's a simulator.
+  //
+  // Usage:
+  //
+  //   auto &entropy = keyston::entropy::Source{...somehow...};
+  //   auto generator = Generator{entropy};
+  //
+  //   auto const &task_id = keyston::protocol::id::Task{...somehow...};
+  //   auto report = generate(task_id);
+  //
+  struct Generator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.entropy.Source
+#import tunitas.keyston.identifier.Generator
+#import tunitas.keyston.protocol.id // id::Report and id::Task
+#import tunitas.keyston.protocol.report.Produced
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.nonce.Bundle
+#import tunitas.keyston.nonce.Since
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.time.Clock
+struct tunitas::denniston::report::Generator {
+  using Entropy = keyston::entropy::Source;
+  inline explicit Generator(Entropy &);
+  using Task = keyston::protocol::id::Task;
+  using Report = keyston::protocol::report::Produced;
+  auto operator()(Task const &task_id) -> Report;
+protected:
+  using Clock = keyston::time::Clock;
+  class Generators {
+    using Policy = keyston::identifier::generator::Policy;
+    template<typename UNIQUENESS, Policy POLICY> using Name = keyston::identifier::Generator<UNIQUENESS, POLICY>;
+    template<typename UNIQUENESS> using Nonce = keyston::nonce::Generator<UNIQUENESS>;
+    template<typename... SUBNONCES> requires (0 < sizeof...(SUBNONCES)) using Bundle = keyston::nonce::Bundle<SUBNONCES...>;
+  public:
+    Name<keyston::protocol::id::Report, Policy::RANDOM> report_id;
+    Nonce<Bundle<keyston::nonce::Bits<64>, keyston::nonce::Since<std::chrono::microseconds>>> nonce;
+    Generators(Entropy &e) : report_id{e}, nonce{e} { }
+  } generator;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::report {
+  Generator::Generator(Entropy &entropy) : generator{entropy} { }
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::report {
+  auto Generator::operator()(Task const &task_id) -> Report {
+    auto ret = Report{.task_id{task_id}, .metadata{.report_id{generator.report_id()}, .time{Clock::now()}, .extensions{}}};
+#warning fill out public_share based on the function of the task
+#warning fill out encrypted_input_shares based on the function of the task
+    return ret;
+  }
+}
+#endiv

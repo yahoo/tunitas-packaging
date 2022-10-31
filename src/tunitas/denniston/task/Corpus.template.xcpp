@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.Genus
+#import tunitas.denniston.task.required.Corporal
+namespace tunitas::denniston::task {
+  //
+  // Some of the processes need to keep around piles of work to do (or has been done)
+  // This work is organized by id::Task.
+  //
+  // Specification:
+  //
+  //   Indexed by the service instance 
+  //   Suitable for the VALUE of a Dictionary<VALUE>; i.e. required::Valueable<Corpus<INSTANCE>>.
+  //
+  // Design:
+  //
+  //   Specialization.
+  //
+  // Usage:
+  //
+  //   Sure.
+  //
+  template<auto CORPORAL> requires required::Corporal<CORPORAL> struct Corpus;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.protocol.id // for id::Task
+namespace tunitas::denniston::task {
+  using std::move;
+  template<auto CORPORAL> requires required::Corporal<CORPORAL> inline auto key_from(Corpus<CORPORAL> const &) -> keyston::protocol::id::Task const &;
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  template<auto CORPORAL> requires task::required::Corporal<CORPORAL> auto task::key_from(Corpus<CORPORAL> const &corpus) -> keyston::protocol::id::Task const & { return corpus.definition.id; }
+}
+#endiv

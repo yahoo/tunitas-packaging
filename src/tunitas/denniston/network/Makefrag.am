@@ -2,22 +2,21 @@
 # Copyright Yahoo Inc, 2022.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
-# For terms, see the LICENSE file at https://git.tunitas.technology/all/networks/denniston/tree/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
 tunitas_denniston_network_SUBSOURCES = \
   obj/src/tunitas/denniston/network/namespace.cpp \
-  obj/src/tunitas/denniston/network/Pipe.cpp \
   obj/src/tunitas/denniston/network/Socket.cpp \
   obj/src/tunitas/denniston/network/Socket.Interface.cpp \
-  $(tunitas_denniston_network_channel_SUBSOURCES) \
   $(tunitas_denniston_network_error_SUBSOURCES) \
   $(tunitas_denniston_network_exception_SUBSOURCES) \
+  $(tunitas_denniston_network_pipe_SUBSOURCES) \
   $(tunitas_denniston_network_required_SUBSOURCES) \
   $(tunitas_denniston_network_table_SUBSOURCES) \
   $(end)
 #
-include src/tunitas/denniston/network/channel/Makefrag.am
 include src/tunitas/denniston/network/error/Makefrag.am
 include src/tunitas/denniston/network/exception/Makefrag.am
+include src/tunitas/denniston/network/pipe/Makefrag.am
 include src/tunitas/denniston/network/required/Makefrag.am
 include src/tunitas/denniston/network/table/Makefrag.am

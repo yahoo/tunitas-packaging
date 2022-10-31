@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.role.Genus
+namespace tunitas::denniston::role::traits {
+  //
+  // A declaration of the Genus-to-truth
+  // Specializations only.
+  //
+  template<role::Genus> struct Corporal;
+  template<> struct Corporal<role::Genus::COLLECTOR>;
+  template<> struct Corporal<role::Genus::GATEWAY>;
+  template<> struct Corporal<role::Genus::PROCESSOR>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::denniston::role {
+  template<role::Genus> struct traits::Corporal : public std::false_type { };
+  namespace traits {
+    template<> struct Corporal<role::Genus::COLLECTOR> : public std::true_type { };
+    template<> struct Corporal<role::Genus::GATEWAY>   : public std::true_type { };
+    template<> struct Corporal<role::Genus::PROCESSOR> : public std::true_type { };
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.instance.traits.Genus
+namespace {
+  namespace testate {
+    using enum tunitas::denniston::role::Genus;
+    using tunitas::denniston::role::traits::Corporal;
+    static_assert(not Corporal<CLIENT>::value);
+    static_assert(    Corporal<COLLECTOR>::value);
+    static_assert(not Corporal<CONFIGURATION>::value);
+    static_assert(not Corporal<DIRECTORY>::value);
+    static_assert(    Corporal<GATEWAY>::value);
+    static_assert(    Corporal<PROCESSOR>::value);
+    static_assert(not Corporal<tunitas::denniston::role::Genus{999}>::value);
+  }
+}
+#endiv

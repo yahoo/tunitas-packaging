@@ -29,9 +29,9 @@ namespace tunitas::denniston::service::instance {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.World
-#import tunitas.denniston.service.instance.Prototype
-class tunitas::denniston::service::instance::Collector : public Prototype {
-  using Ancestor = Prototype;
+#import tunitas.denniston.process.Model
+class tunitas::denniston::service::instance::Collector : public process::Model {
+  using Ancestor = process::Model;
   auto run() noexcept -> void;
 public:
   inline explicit Collector();
@@ -46,12 +46,12 @@ public:
 namespace tunitas::denniston::service::instance {
   Collector::Collector(World &) : Collector{} { }
   Collector::Collector()
-    : Ancestor{Name::COLLECTOR}
+    : Ancestor{Species::COLLECTOR}
   { }
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.message.packet.cast
+#import tunitas.denniston.protocol.packet.cast
 namespace tunitas::denniston::service::instance {
   auto Collector::launch(driver::Threads &pool) -> void { pool.launch(&Collector::run, this); }
   auto Collector::run() noexcept -> void try {
@@ -68,7 +68,7 @@ namespace tunitas::denniston::service::instance {
       }
       if (auto red=gateway.read_if(); red) {
         log.format("red from gateway");
-        if (auto down=downcast<message::packet::Status>(*red); nullptr != down) {
+        if (auto down=downcast<Status>(*red); nullptr != down) {
           log.format("status returned {}", down->status.message());
         }
       }

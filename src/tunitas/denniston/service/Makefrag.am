@@ -9,13 +9,10 @@ tunitas_denniston_service_SUBSOURCES = \
   obj/src/tunitas/denniston/service/Dictionary.cpp \
   obj/src/tunitas/denniston/service/Dictionary.Found.cpp \
   obj/src/tunitas/denniston/service/Dictionary.Inserted.cpp \
-  obj/src/tunitas/denniston/service/Name.cpp \
   obj/src/tunitas/denniston/service/System.cpp \
   $(tunitas_denniston_service_instance_SUBSOURCES) \
   $(tunitas_denniston_service_required_SUBSOURCES) \
-  $(tunitas_denniston_service_script_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/denniston/service/instance/Makefrag.am
 include src/tunitas/denniston/service/required/Makefrag.am
-include src/tunitas/denniston/service/script/Makefrag.am
