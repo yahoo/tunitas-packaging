@@ -6,7 +6,7 @@
 #
 tunitas_keyston_protocol_report_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/report/namespace.cpp \
-  obj/src/tunitas/keyston/protocol/report/Report.cpp \
+  obj/src/tunitas/keyston/protocol/report/Produced.cpp \
   obj/src/tunitas/keyston/protocol/report/Metadata.cpp \
   obj/src/tunitas/keyston/protocol/report/Extensions.cpp \
   $(tunitas_keyston_protocol_report_share_SUBSOURCES) \

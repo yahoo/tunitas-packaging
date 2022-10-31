@@ -38,7 +38,7 @@ namespace tunitas::keyston::protocol {
     inline auto swap(Metadata &, Metadata &) noexcept -> void;
   }
   struct report::Metadata {
-    id::Report report_id{};
+    id::Report report_id{}; // also serves as a nonce [[why?]]
     time::Point time{};
     Extensions extensions{};
   };

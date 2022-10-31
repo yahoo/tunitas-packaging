@@ -1,0 +1,384 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.identifier.generator.required.Unique
+namespace tunitas::keyston::identifier::generator {
+  //
+  // The random source.
+  //
+  // Specification:
+  //
+  //   Like a nonce generator, but bigger.
+  //   Using the unsigned integers as bit sources
+  //
+  // Design:
+  //
+  //   Use the nonce generator.
+  //
+  // Usage:
+  //
+  //   by inheritance.
+  //
+  template<required::Unique IDENTIFIER> struct Supplier;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.keyston.identifier.generator.Serializer
+#import tunitas.keyston.entropy.Source
+#import nonstd.required.integer.Unsigned
+#import nonstd.required.iterator.Forward
+#import tunitas.Tuple
+namespace tunitas::keyston::identifier {
+  template<generator::required::Unique IDENTIFIER> struct generator::Supplier {
+    using Result = IDENTIFIER;
+    inline auto operator()(unsigned char) -> Result;
+    inline auto operator()(unsigned int short) -> Result;
+    inline auto operator()(unsigned int) -> Result;
+    inline auto operator()(unsigned int long) -> Result;
+    inline auto operator()(unsigned int long long) -> Result;
+    inline auto operator()(uint128_t) -> Result;
+    inline auto operator()(uint128_t hi, uint128_t lo) -> Result; // in lieu of int256_t or a ubiquitous bignum
+    //
+    // and the signed integers are disallowed as bit sources
+    auto operator()(signed char) -> Result = delete;
+    auto operator()(signed int short) -> Result = delete;
+    auto operator()(signed int) -> Result = delete;
+    auto operator()(signed int long) -> Result = delete;
+    auto operator()(signed int long long) -> Result = delete;
+    auto operator()(int128_t) -> Result = delete;
+    explicit Supplier() = default;
+   protected:
+    ~Supplier() = default;
+    template<generator::required::Unique> friend class generator::Serializer;
+    template<required::integer::Unsigned SOURCE> inline static auto slice(SOURCE) -> Tuple<SOURCE, Octet>;
+    template<required::iterator::Forward ITERATOR> inline static auto fill(ITERATOR start, ITERATOR finish) -> void;
+    template<required::integer::Unsigned SOURCE, required::iterator::Forward ITERATOR> inline static auto grind([[inout]] Result &, SOURCE, [[inout]] ITERATOR &here, ITERATOR const finish) -> void;
+    template<required::integer::Unsigned SOURCE, required::iterator::Forward ITERATOR> inline static auto andmore([[inout]] Result &, SOURCE, [[inout]] ITERATOR &here, ITERATOR const finish) -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.integer_sequence
+#import std.make_integer_sequence
+namespace tunitas::keyston::identifier::generator {
+  template<required::Unique _> template<required::integer::Unsigned SOURCE> auto Supplier<_>::slice(SOURCE source) -> Tuple<SOURCE, Octet> { return {source >> 8, Octet(source & 0xff)}; }
+  template<required::Unique _> template<required::iterator::Forward ITERATOR> auto Supplier<_>::fill(ITERATOR here, ITERATOR finish) -> void {
+    for ( ; finish != here; ++here) {
+      *here = {};
+    }
+  }
+  template<required::Unique _> auto Supplier<_>::operator()(unsigned char value) -> Result {
+    auto ret = Result();
+    auto start = ret.rbegin();
+    auto finish = ret.rend();
+    auto [value0, byte0] = slice(value);
+    static_assert(0 != Result{}.size());
+    *start++ = byte0;
+    fill(start, finish);
+    return ret;
+  }
+  template<required::Unique _> auto Supplier<_>::operator()(unsigned int short value) -> Result {
+    auto ret = Result();
+    auto start = ret.rbegin();
+    auto finish = ret.rend();
+#if 1
+    grind(ret, value, start, finish);
+    if constexpr (sizeof(unsigned int short) != Result{}.size()) { fill(start, finish); }
+#else
+    if constexpr (2 <= Result{}.size()) {
+      auto [value0, byte0] = slice(value);
+      *start++ = byte0;
+      auto [value1, byte1] = slice(value0);
+      *start++ = byte1;
+      if constexpr (2 != Result{}.size()) { fill(start, finish); }
+    } else {
+      // it is small so we have to go carefully (lots of branches)
+      auto [value0, byte0] = slice(value);
+      static_assert(0 != Result{}.size());
+      *start++ = byte0;
+      if (finish != start) {
+        auto [value1, byte1] = slice(value0);
+        *start++ = byte1;
+      }
+      fill(start, finish);
+    }
+#endif
+    return ret;
+  }
+  template<required::Unique _> auto Supplier<_>::operator()(unsigned int value) -> Result {
+    auto ret = Result();
+    auto start = ret.rbegin();
+    auto finish = ret.rend();
+#if 1
+    grind(ret, value, start, finish);
+    if constexpr (sizeof(unsigned int) != Result{}.size()) { fill(start, finish); }
+#else
+    if constexpr (4 <= Result{}.size()) {
+      auto [value0, byte0] = slice(value);
+      *start++ = byte0;
+      auto [value1, byte1] = slice(value0);
+      *start++ = byte1;
+      auto [value2, byte2] = slice(value1);
+      *start++ = byte2;
+      auto [value3, byte3] = slice(value2);
+      *start++ = byte3;
+      if constexpr (4 != Result{}.size()) { fill(start, finish); }
+    } else {
+      // it is small so we have to go carefully (lots of branches)
+      auto [value0, byte0] = slice(value);
+      static_assert(0 != Result{}.size());
+      *start++ = byte0;
+      if (finish != start) {
+        auto [value1, byte1] = slice(value0);
+        *start++ = byte1;
+        if (finish != start) {
+          auto [value2, byte2] = slice(value1);
+          *start++ = byte2;
+          if (finish != start) {
+            auto [value3, byte3] = slice(value2);
+            *start++ = byte3;
+          }
+        }
+      }
+      fill(start, finish);
+    }
+#endif
+    return ret;
+  }
+  template<required::Unique _> auto Supplier<_>::operator()(unsigned int long value) -> Result {
+    auto ret = Result();
+    auto start = ret.rbegin();
+    auto finish = ret.rend();
+#if 1
+    grind(ret, value, start, finish);
+    if constexpr (sizeof(unsigned int long) != Result{}.size()) { fill(start, finish); }
+#else
+    if constexpr (8 <= Result{}.size()) {
+      auto [value0, byte0] = slice(value);
+      static_assert(0 != Result{}.size());
+      *start++ = byte0;
+      auto [value1, byte1] = slice(value0);
+      *start++ = byte1;
+      auto [value2, byte2] = slice(value1);
+      *start++ = byte2;
+      auto [value3, byte3] = slice(value2);
+      *start++ = byte3;
+      auto [value4, byte4] = slice(value3);
+      *start++ = byte4;
+      auto [value5, byte5] = slice(value4);
+      *start++ = byte5;
+      auto [value6, byte6] = slice(value5);
+      *start++ = byte6;
+      auto [value7, byte7] = slice(value6);
+      *start++ = byte7;
+      if constexpr (8 != Result{}.size()) { fill(start, finish); }
+    } else {
+      // it is small so we have to go carefully (lots of branches)
+      auto [value0, byte0] = slice(value);
+      static_assert(0 != Result{}.size());
+      *start++ = byte0;
+      if (finish != start) {
+        auto [value1, byte1] = slice(value0);
+        *start++ = byte1;
+        if (finish != start) {
+          auto [value2, byte2] = slice(value1);
+          *start++ = byte2;
+          if (finish != start) {
+            auto [value3, byte3] = slice(value2);
+            *start++ = byte3;
+            if (finish != start) {
+              auto [value4, byte4] = slice(value3);
+              *start++ = byte4;
+              if (finish != start) {
+                auto [value5, byte5] = slice(value4);
+                *start++ = byte5;
+                if (finish != start) {
+                  auto [value6, byte6] = slice(value5);
+                  *start++ = byte6;
+                  if (finish != start) {
+                    auto [value7, byte7] = slice(value6);
+                    *start++ = byte7;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      fill(start, finish);
+    }
+#endif
+    return ret;
+  }
+  template<required::Unique _> auto Supplier<_>::operator()(unsigned int long long value) -> Result {
+    auto ret = Result();
+    auto start = ret.rbegin();
+    auto finish = ret.rend();
+    grind(ret, value, start, finish);
+    if constexpr (sizeof(unsigned int long long) != Result{}.size()) { fill(start, finish); }
+    return ret;
+  }
+  template<required::Unique _> auto Supplier<_>::operator()(uint128_t value) -> Result {
+    auto ret = Result();
+    auto start = ret.rbegin();
+    auto finish = ret.rend();
+#if 1
+    grind(ret, value, start, finish);
+    if constexpr (2*sizeof(uint128_t) != Result{}.size()) { fill(start, finish); }
+#else
+    if constexpr (16 <= Result{}.size()) {
+      auto [value0, byte0] = slice(value);
+      static_assert(0 != Result{}.size());
+      *start++ = byte0;
+      auto [value1, byte1] = slice(value0);
+      *start++ = byte1;
+      auto [value2, byte2] = slice(value1);
+      *start++ = byte2;
+      auto [value3, byte3] = slice(value2);
+      *start++ = byte3;
+      auto [value4, byte4] = slice(value3);
+      *start++ = byte4;
+      auto [value5, byte5] = slice(value4);
+      *start++ = byte5;
+      auto [value6, byte6] = slice(value5);
+      *start++ = byte6;
+      auto [value7, byte7] = slice(value6);
+      *start++ = byte7;
+      auto [value8, byte0] = slice(value7);
+      *start++ = byte8;
+      auto [value9, byte9] = slice(value8);
+      *start++ = byte9;
+      auto [valuea, bytea] = slice(value9);
+      *start++ = bytea;
+      auto [valueb, byteb] = slice(valuea);
+      *start++ = byteb;
+      auto [valuec, bytec] = slice(valueb);
+      *start++ = bytec;
+      auto [valued, byted] = slice(valuec);
+      *start++ = byted;
+      auto [valuee, bytee] = slice(valued);
+      *start++ = bytee;
+      auto [valuef, bytef] = slice(valuee);
+      *start++ = bytef;
+      if constexpr (16 != Result{}.size()) { fill(start, finish); }
+    } else {
+      // it is small so we have to go carefully (lots of branches)
+      auto [value0, byte0] = slice(value);
+      static_assert(0 != Result{}.size());
+      *start++ = byte0;
+      if (finish != start) {
+        auto [value1, byte1] = slice(value0);
+        *start++ = byte1;
+        if (finish != start) {
+          auto [value2, byte2] = slice(value1);
+          *start++ = byte2;
+          if (finish != start) {
+            auto [value3, byte3] = slice(value2);
+            *start++ = byte3;
+            if (finish != start) {
+              auto [value4, byte4] = slice(value3);
+              *start++ = byte4;
+              if (finish != start) {
+                auto [value5, byte5] = slice(value4);
+                *start++ = byte5;
+                if (finish != start) {
+                  auto [value6, byte6] = slice(value5);
+                  *start++ = byte6;
+                  if (finish != start) {
+                    auto [value7, byte7] = slice(value6);
+                    *start++ = byte7;
+                    if (finish != start) {
+                      auto [value8, byte0] = slice(value7);
+                      *start++ = byte8;
+                      if (finish != start) {
+                        auto [value9, byte9] = slice(value8);
+                        *start++ = byte9;
+                        if (finish != start) {
+                          auto [valuea, bytea] = slice(value9);
+                          *start++ = bytea;
+                          if (finish != start) {
+                            auto [valueb, byteb] = slice(valuea);
+                            *start++ = byteb;
+                            if (finish != start) {
+                              auto [valuec, bytec] = slice(valueb);
+                              *start++ = bytec;
+                              if (finish != start) {
+                                auto [valued, byted] = slice(valuec);
+                                *start++ = byted;
+                                if (finish != start) {
+                                  auto [valuee, bytee] = slice(valued);
+                                  *start++ = bytee;
+                                  if (finish != start) {
+                                    auto [valuef, bytef] = slice(valuee);
+                                    *start++ = bytef;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      fill(start, finish);
+    }
+#endif
+    return ret;
+  }
+  template<required::Unique _> auto Supplier<_>::operator()(uint128_t hi, uint128_t lo) -> Result {
+    auto ret = Result();
+    auto start = ret.rbegin();
+    auto finish = ret.rend();
+    // Which winds up accepting the bits it in little endian format but placing them in big endian order
+    grind(ret, lo, start, finish);
+    if (finish != start) { andmore(ret, hi, start, finish); }
+    if (finish != start) { fill(start, finish); }
+    return ret;
+  }
+  template<required::Unique _> template<required::integer::Unsigned SOURCE, required::iterator::Forward ITERATOR> auto Supplier<_>::grind(Result &ret, SOURCE value, ITERATOR &here, ITERATOR const finish) -> void {
+    [&]<unsigned... EACH>(std::integer_sequence<unsigned, EACH...>) {
+      if constexpr (sizeof (SOURCE) <= Result{}.size()) {
+        auto each = [&](auto) {
+                      auto [value0, byte0] = slice(value);
+                      *here++ = byte0;
+                      value = value0;
+                    };
+        (each(EACH), ...);
+      } else {
+        auto each = [&](auto) {
+                      // Because the Result is smaller than COUNT we have to go slow and branch a lot
+                      if (finish != here) {
+                        auto [value0, byte0] = slice(value);
+                        *here++ = byte0;
+                        value = value0;
+                      }
+                    };
+        (each(EACH), ...);
+      }
+    }(std::make_integer_sequence<unsigned, sizeof (SOURCE)>{});
+  }
+  template<required::Unique _> template<required::integer::Unsigned SOURCE, required::iterator::Forward ITERATOR> auto Supplier<_>::andmore(Result &ret, SOURCE value, ITERATOR &here, ITERATOR const finish) -> void {
+    [&]<unsigned... EACH>(std::integer_sequence<unsigned, EACH...>) {
+      // In the second phase we have to check every byte (because we're being sloppy)
+      auto each = [&](auto) {
+                    // Because the Result is smaller than COUNT we have to go slow and branch a lot
+                    if (finish != here) {
+                      auto [value0, byte0] = slice(value);
+                      *here++ = byte0;
+                      value = value0;
+                    }
+                  };
+      (each(EACH), ...);
+    }(std::make_integer_sequence<unsigned, sizeof (SOURCE)>{});
+  }
+}
+#endiv

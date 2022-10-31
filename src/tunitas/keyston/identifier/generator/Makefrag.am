@@ -1,0 +1,21 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_identifier_generator_SUBSOURCES = \
+  obj/src/tunitas/keyston/identifier/Generator.cpp \
+  obj/src/tunitas/keyston/identifier/generator/namespace.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Generator.template.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Generator.IDENTIFIER.RANDOM.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Generator.IDENTIFIER.SERIAL.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Generator.IDENTIFIER.SUPPLIED.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Generator.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Serializer.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Randomizer.cpp \
+  obj/src/tunitas/keyston/identifier/generator/Supplier.cpp \
+  $(tunitas_keyston_identifier_generator_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/identifier/generator/required/Makefrag.am

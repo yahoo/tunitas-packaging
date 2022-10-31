@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::identifier::generator {
+  //
+  // Some hexidecimal formatting of the generated values
+  // Descendants only.
+  //
+  class Formatter;
+}
+#endiv
+#divert <hpp>
+class tests::unit::identifier::generator::Formatter {
+protected:
+  ~Formatter() = default;
+public:
+  template<typename GENERATED> static auto format(GENERATED const &) -> string::Storage;
+};
+#endiv
+#divert <tpp>
+#import std.transform
+#import std.back_inserter
+#import std.isprint
+namespace tests::unit::identifier::generator {
+  template<typename GENERATED> auto Formatter::format(GENERATED const &specimen) -> string::Storage {
+    auto ret = string::Storage{};
+#if 1
+    auto hex = [](unsigned nibble) -> char {
+                 if (nibble < 10) {
+                   return char('0' + nibble);
+                 } else {
+                   return char('a' + (nibble - 10));
+                 }
+               };
+    for (auto octet : specimen) {
+      auto un = (unsigned) octet;
+      auto hi = (un >> 4) & 0xfu;
+      auto lo = un & 0xfu;
+      ret.push_back(hex(hi));
+      ret.push_back(hex(lo));
+    }
+#else
+    // That goofy transform
+    auto printable = [](auto octet) {
+                       auto candidate = char(octet);
+                       return std::isprint(candidate) ? candidate : '?';
+                     };
+    transform(specimen.begin(), specimen.end(), back_inserter(ret), printable);
+#endif
+    return ret;
+  }
+}
+#endiv

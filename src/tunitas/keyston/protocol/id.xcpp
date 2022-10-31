@@ -4,14 +4,15 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.id
+#import tunitas.keyston.identifier
 namespace tunitas::keyston::protocol::id {
-  using namespace keyston::id;
+  using namespace keyston::identifier;
 }
 #import tunitas.keyston.array.Unique
+#import tunitas.keyston.identifier.Service
 #forward tunitas.keyston.protocol.batch.Batch
 #forward tunitas.keyston.protocol.job.Job
-#forward tunitas.keyston.protocol.report.Report
+#forward tunitas.keyston.protocol.report.Produced
 #forward tunitas.keyston.protocol.task.Task
 namespace tunitas::keyston::protocol::id {
   //
@@ -36,7 +37,8 @@ namespace tunitas::keyston::protocol::id {
   //
   using Batch = array::Unique<32, batch::Batch>;
   using Job = array::Unique<32, job::Job>;
-  using Report = array::Unique<32, report::Report>;
+  using Report = array::Unique<32, report::Produced>;
+  using Service = keyston::identifier::Service;
   using Task = array::Unique<32, task::Task>;
 }
 #import fmt.formatter.tunitas.keyston.array.Unique.SIZE.STAMP

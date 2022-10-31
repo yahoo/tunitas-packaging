@@ -37,7 +37,8 @@ namespace tunitas::keyston::protocol {
     friend auto swap(Extensions &, Extensions &) noexcept -> void;
   public:
     enum class Type : std::uint16_t {
-      TBD  = 0,
+      // [[FIXTHIS,TODO]] needs swap(...) and underlying(...)
+      TBD = 0,
     };
     Extensions() = default;
     using Ancestor::Bounded; // You "just have to know" that this is the name of the ancestor constructor

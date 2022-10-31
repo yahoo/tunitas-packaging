@@ -4,9 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.id
+#import tunitas.keyston.identifier
 namespace tunitas::keyston::hpke::id {
-  using namespace keyston::id;
+  using namespace keyston::identifier;
   //
   // All the HPKE identifiers.
   //
@@ -32,7 +32,7 @@ namespace tunitas::keyston::hpke::id {
 #divert <hpp>
 #import std.underlying_type
 #import nonstd.required.Enumeration
-#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.keyston.hpke.required // ctcnr (cascade that certain 'namespace required')
 namespace tunitas::keyston::hpke::id {
   template<required::Enumeration ENUMERATION> inline constexpr auto underlying(ENUMERATION e) { return std::underlying_type_t<ENUMERATION>(e); }
   template<required::Enumeration ENUMERATION> inline auto swap(ENUMERATION &a, ENUMERATION &b) noexcept -> void { std::swap(a, b); }

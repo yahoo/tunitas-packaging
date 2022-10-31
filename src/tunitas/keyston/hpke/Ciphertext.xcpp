@@ -46,7 +46,7 @@ namespace tunitas::keyston {
 #divert <ipp>
 namespace tunitas::keyston {
   auto hpke::swap(Ciphertext &a, Ciphertext &b) noexcept -> void {
-    std::swap(a.id, b.id);
+    swap(a.id, b.id);
     swap(a.enc, b.enc);
     swap(a.payload, b.payload);
   }

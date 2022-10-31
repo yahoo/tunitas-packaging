@@ -14,7 +14,7 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_exception_SUBSOURCES) \
   $(tunitas_keyston_function_SUBSOURCES) \
   $(tunitas_keyston_hpke_SUBSOURCES) \
-  $(tunitas_keyston_id_SUBSOURCES) \
+  $(tunitas_keyston_identifier_SUBSOURCES) \
   $(tunitas_keyston_nonce_SUBSOURCES) \
   $(tunitas_keyston_protocol_SUBSOURCES) \
   $(tunitas_keyston_quantity_SUBSOURCES) \
@@ -30,7 +30,7 @@ include src/tunitas/keyston/error/Makefrag.am
 include src/tunitas/keyston/exception/Makefrag.am
 include src/tunitas/keyston/function/Makefrag.am
 include src/tunitas/keyston/hpke/Makefrag.am
-include src/tunitas/keyston/id/Makefrag.am
+include src/tunitas/keyston/identifier/Makefrag.am
 include src/tunitas/keyston/nonce/Makefrag.am
 include src/tunitas/keyston/protocol/Makefrag.am
 include src/tunitas/keyston/quantity/Makefrag.am
