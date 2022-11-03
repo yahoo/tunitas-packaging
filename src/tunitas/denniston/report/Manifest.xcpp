@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::report {
+  //
+  // Bookkeeping on a report
+  //
+  // Specifiatoin:
+  //
+  //   Where is it now in the system?
+  //
+  // Usage:
+  //
+  //   See service::Gateway
+  //
+  struct Manifest;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.protocol.id // id::Report and id::Job and so on
+#import tunitas.keyston.protocol.report.Produced
+#import tunitas.Optional
+namespace tunitas::denniston {
+  namespace report {
+    using std::move;
+    inline auto swap(Manifest &, Manifest &) noexcept -> void;
+    inline auto key_from(Manifest const &) -> keyston::protocol::id::Report const &;
+  }
+  struct report::Manifest {
+    keyston::protocol::report::Produced report{};
+    Optional<keyston::protocol::id::Job> job_id{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto report::key_from(Manifest const &m) -> keyston::protocol::id::Report const & { return m.report.metadata.report_id; }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.dictionary.usage.Key_From
+#import std.declval
+namespace {
+  namespace testate {
+    namespace usage = tunitas::denniston::dictionary::usage;
+    using namespace tunitas::denniston::report;
+    //
+    static_assert(std::semiregular<Manifest>);
+    // and moreso
+    static_assert(std::is_default_constructible_v<Manifest>);
+    static_assert(std::is_copy_constructible_v<Manifest>);
+    static_assert(std::is_move_constructible_v<Manifest>);
+    static_assert(std::is_copy_assignable_v<Manifest>);
+    static_assert(std::is_move_assignable_v<Manifest>);
+    static_assert(std::is_swappable_v<Manifest>);
+    //
+    static_assert(usage::Key_From<Manifest>);
+  }
+}
+#endiv

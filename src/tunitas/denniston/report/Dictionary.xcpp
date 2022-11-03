@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.required.Valuable
+#import tunitas.denniston.dictionary.Dictionary.template // for enums Complexity, Concurrency and Parameters<....>
+namespace tunitas::denniston::report {
+  //
+  // A (sequential) dictionary of reports.
+  //
+  // Scope:
+  //
+  //   For bookkeeping the awaiting-outbound and awaiting-return work.  //
+  //
+  // Specification:
+  //
+  //   The sequential dictionary interface.
+  //
+  // Design.
+  //
+  //   Off The Shelf.
+  //
+  // Usage:
+  //
+  //   As espected.
+  //
+  namespace [[eponymous]] dictionary {
+    template<required::Valuable> struct Dictionary;
+    using denniston::dictionary::Parameters;
+    using enum denniston::dictionary::Complexity;
+    using enum denniston::dictionary::Concurrency;
+  }
+  using dictionary::Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.protocol.id // for id::Report
+#import tunitas.denniston.dictionary.Dictionary
+namespace tunitas::denniston::report {
+  template<required::Valuable VALUE> struct dictionary::Dictionary : public denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Report, VALUE>> {
+    using Ancestor = denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Report, VALUE>>;
+  public:
+    Dictionary() = default;
+    using Ancestor::Dictionary;
+  };
+}
+#endiv

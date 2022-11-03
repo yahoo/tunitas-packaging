@@ -10,4 +10,7 @@ std_SUBSOURCES = \
   \
   obj/src/std/is_error_condition_enum/tunitas.denniston.error.condition.Unpackaged.Enumeration.cpp \
   obj/src/std/is_error_condition_enum/tunitas.denniston.network.error.condition.Unpackaged.Enumeration.cpp \
+  \
+  obj/src/std/tuple_size/tunitas.denniston.dictionary.Inserted.VALUE.GUARD.cpp \
+  obj/src/std/tuple_element/N.tunitas.denniston.dictionary.Inserted.VALUE.GUARD.cpp \
   $(end)

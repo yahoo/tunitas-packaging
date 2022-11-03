@@ -38,6 +38,7 @@ noinst_LTLIBRARIES = \
   noinst/lib/libtunitas-denniston.la \
   noinst/lib/libfmt+tunitas-denniston.la \
   noinst/lib/libstd+tunitas-denniston.la \
+  noinst/lib/libtunitas-keyston+tunitas-denniston.la \
   noinst/lib/libnonstd+tunitas-denniston.la \
   noinst/lib/libautotools-autoconf+tunitas-denniston.la \
   $(end)
@@ -114,6 +115,7 @@ include noinst/lib/libtunitas-denniston.am
 include noinst/lib/libautotools-autoconf+tunitas-denniston.am
 include noinst/lib/libfmt+tunitas-denniston.am
 include noinst/lib/libstd+tunitas-denniston.am
+include noinst/lib/libtunitas-keyston+tunitas-denniston.am
 include noinst/lib/libnonstd+tunitas-denniston.am
 include lib/libtunitas-denniston.am
 

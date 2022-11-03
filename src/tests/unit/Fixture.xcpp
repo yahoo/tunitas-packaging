@@ -14,6 +14,7 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #divert <cpp>
 #import tests.unit.channel.Fixture
 #import tests.unit.denniston.Fixture
+#import tests.unit.dictionary.Fixture
 #import tests.unit.driver.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.log.Fixture
@@ -32,6 +33,7 @@ auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
   series << add<channel::Fixture>()
          << add<denniston::Fixture>()
+         << add<dictionary::Fixture>()
          << add<driver::Fixture>()
          << add<exception::Fixture>()
          << add<log::Fixture>()

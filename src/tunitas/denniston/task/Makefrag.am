@@ -13,8 +13,6 @@ tunitas_denniston_task_SUBSOURCES = \
   obj/src/tunitas/denniston/task/Corpus.cpp \
   obj/src/tunitas/denniston/task/Definition.cpp \
   obj/src/tunitas/denniston/task/Dictionary.cpp \
-  obj/src/tunitas/denniston/task/Dictionary.Found.cpp \
-  obj/src/tunitas/denniston/task/Dictionary.Inserted.cpp \
   $(tunitas_denniston_task_required_SUBSOURCES) \
   $(tunitas_denniston_task_usage_SUBSOURCES) \
   $(end)

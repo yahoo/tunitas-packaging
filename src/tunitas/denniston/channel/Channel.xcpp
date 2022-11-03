@@ -76,7 +76,7 @@ namespace tunitas::denniston {
     template<typename... ARGS> inline auto emplace_back(ARGS &&...) -> void;
     inline auto pop() -> Value; // ................ blocks until there is something to pop
     inline auto pop_if() -> Optional<Value>; // ... does not block
-    inline auto peek() -> Peek<Value>;
+    inline auto peek() -> Peek<Value>; // retains exclusive access; can't peek twice without peek.reset()
     inline auto empty() -> bool;
     inline auto size() -> Size;
   protected:
@@ -137,7 +137,7 @@ namespace tunitas::denniston::channel {
     if (Ancestor::empty()) {
       return {};
     } else {
-      return Peek<Value>{Ancestor::front()}; // WATCHOUT - this returns a (constie) reference into the queue.
+      return Peek<Value>{move(guard), Ancestor::front()}; // WATCHOUT - this returns a (constie) reference into the queue.
     }
   }
   template<required::Channelable C, required::Variability V> auto Channel<C,V>::empty() -> bool {

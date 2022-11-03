@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.InstanceOf
+#import tunitas.denniston.dictionary.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::denniston::dictionary {
+  //
+  // A dictionary.
+  //
+  // Specification:
+  //
+  //   Regularize the names, computed names index the actual implementations
+  //   Select the concurrency support..
+  //   Select the complexity of operations.
+  //
+  // Design:
+  //
+  //   Specializations into inheritance from the implementations.
+  //
+  //   The LINEAR implementations will have a required::Indexable template parameter.
+  //   The LOGARITHMIC implementations will NOT such a parameter.
+  //
+  // Usage:
+  //
+  //   Hack the Spew (figure it otu).
+  //
+  enum class Complexity { LINEAR, LOGARITHMIC };
+  enum class Concurrency { SEQUENTIAL, CONCURRENT };
+  template<typename...> struct Parameters; // and never defined
+  template<Complexity, Concurrency, required::InstanceOf<Parameters>> struct Dictionary;
+  //
+  // Here within namespace dictionary we'll not require the enum qualifier.
+  using enum Complexity;
+  using enum Concurrency;
+}
+// (Nearly) every specialization will need these
+#import tunitas.denniston.dictionary.required.Keyable
+#import tunitas.denniston.dictionary.required.Indexable
+#import tunitas.denniston.dictionary.required.Valuable
+#endiv
+#divert <hpp>
+// Every specialization will need these
+#forward tunitas.denniston.dictionary.Range
+#endiv

@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.dictionary.required.Iterable
+#import tunitas.denniston.dictionary.required.Origin
+namespace tunitas::denniston::dictionary {
+  //
+  // The range, with or without a lock
+  //
+  // Specification:
+  //
+  //   For the concurrent mode, the  dictionary is locked while the range is active..
+  //
+  // Design:
+  //
+  //   typename ORIGIN::Guard is the guard
+  //
+  //   Just what you'd expect for this sort of a thing.
+  //   The Guard (lock) MUST be established before the origin.begin() and origin.end() are captured.
+  //
+  //   The Range(Origin &) in the constructor is always mutable because of the locks 
+  //
+  // Usage:
+  //
+  //   See Dictionary<...>::range() but moreover Concurrent::range()
+  //
+  template<required::Origin, required::Iterable> struct Range;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.dictionary.Dictionary
+#import tunitas.denniston.dictionary.Variables.Guard.Exclusive
+#import tunitas.denniston.dictionary.Subrange
+#import tunitas.denniston.dictionary.usage.Origin
+#import std.remove_cvref
+#import std.same_as
+namespace tunitas::denniston::dictionary {
+  template<required::Origin ORIGIN, required::Iterable ITERATOR> struct Range : private ORIGIN::Guard, public Subrange<ITERATOR> {
+    struct Ancestors {
+      using Guard = typename ORIGIN::Guard;
+      using Subrange = dictionary::Subrange<ITERATOR>;
+    };
+    static_assert(usage::Origin<ORIGIN>);
+  public:
+    using Guard = typename ORIGIN::Guard;
+    using Origin = ORIGIN;
+    template<typename LOCKED> requires std::same_as<Origin, std::remove_cvref_t<LOCKED>> inline [[implicit]] Range(Guard &&, LOCKED &&);
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.dictionary.Dictionary
+namespace tunitas::denniston::dictionary {
+  template<required::Origin D, required::Iterable I> template<typename LOCKED> requires std::same_as<typename Range<D,I>::Origin, std::remove_cvref_t<LOCKED>> Range<D,I>::Range(Guard &&guard, LOCKED &&locked)
+    : Ancestors::Guard{move(guard)}
+#if 202312 < __cplusplus
+    , Ancestors::Subrange{locked.start(), locked.:finish()}
+#else
+    , Ancestors::Subrange{Origin::start(locked), Origin::finish(locked)}
+#endif
+  { }
+}
+#endiv
+
+
+
+

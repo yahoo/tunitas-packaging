@@ -1,0 +1,355 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.dictionary.required.Dictionary
+#import tests.unit.dictionary.required // ctcnr (cascade that certain 'namespace required')
+namespace tests::unit::dictionary {
+  //
+  // The dictionary testers
+  //
+  template<required::Dictionary SUBJECT> struct Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Pair
+#import tests.unit.dictionary.sample
+namespace tests::unit {
+  template<dictionary::required::Dictionary SUBJECT> struct dictionary::Dictionary : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    static constexpr auto is_linear() -> bool      { return library::Complexity::LINEAR == Subject::COMPLEXITY; }
+    static constexpr auto is_logarithmic() -> bool { return library::Complexity::LOGARITHMIC == Subject::COMPLEXITY; }
+    static constexpr auto has_index() -> bool      { return is_linear(); }
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_constructor_move() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    auto test_swap() -> void;
+    auto test_empty() -> void;
+    auto test_size() -> void;
+    auto test_contains() -> void;
+    auto test_at_constie() -> void;
+    auto test_at_mutable() -> void;
+  protected:
+    template<bool MAYBE> auto test_at_constie_maybe() -> void;
+    template<bool MAYBE> auto test_at_mutable_maybe() -> void;
+  public:
+    auto test_find_constie_found() -> void;
+    auto test_find_constie_missing() -> void;
+    auto test_find_mutable_found() -> void;
+    auto test_find_mutable_missing() -> void;
+    auto test_range_constie() -> void;
+    auto test_range_mutable() -> void;
+    auto test_insert_noob() -> void;
+    auto test_insert_dupe() -> void;
+  protected:
+    template<unsigned INSERT_HAS_N_ARGUMENTS> auto test_insert_noob_somehow() -> void;
+    template<unsigned INSERT_HAS_N_ARGUMENTS> auto test_insert_dupe_somehow() -> void;
+  protected:
+    static auto first() -> sample::Key;
+    static auto second() -> sample::Key;
+    static auto nosuch() -> sample::Key;
+    static auto fill([[inout]] Subject &) -> void;
+    template<unsigned INSERT_HAS_N_ARGUMENTS> static auto fill_somehow([[inout]] Subject &) -> void;
+    template<typename FIRST, typename SECOND> using Pair = ::tunitas::Pair<FIRST, SECOND>;
+    static auto drop(typename Subject::Inserted) -> Pair<typename Subject::Value, bool>; // WATCHOUT - insert returns a locked reference
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::dictionary {
+  template<required::Dictionary _> auto Dictionary<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Dictionary::test_constructor_default)
+                    << add("copy", &Dictionary::test_constructor_copy)
+                    << add("move", &Dictionary::test_constructor_move)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assignment"sv};
+                ass << add("copy", &Dictionary::test_assignment_copy)
+                    << add("move", &Dictionary::test_assignment_move)
+                    << END;
+                return ass;
+              }()
+           << add("swap", &Dictionary::test_swap)
+           << add("empty", &Dictionary::test_empty)
+           << add("size", &Dictionary::test_size)
+           << add("contains", &Dictionary::test_contains)
+           << []{
+                auto at = Stream{"at"sv};
+                at 
+                  << add("constie", &Dictionary::test_at_constie)
+                  << add("mutable", &Dictionary::test_at_mutable)
+                  << END;
+                return at;
+              }()
+           << []{
+                auto fin = Stream{"find"sv};
+                fin << []{
+                         auto con = Stream{"constie"sv};
+                         con << add("found", &Dictionary::test_find_constie_found)
+                             << add("missing", &Dictionary::test_find_constie_missing)
+                             << END;
+                         return con;
+                       }()
+                    << []{
+                         auto mut = Stream{"mutable"sv};
+                         mut << add("found", &Dictionary::test_find_mutable_found)
+                             << add("missing", &Dictionary::test_find_mutable_missing)
+                             << END;
+                         return mut;
+                       }()
+                    << END;
+                return fin;
+              }()
+           << []{
+                auto ran = Stream{"range"sv};
+                ran 
+                  << add("constie", &Dictionary::test_range_constie)
+                  << add("mutable", &Dictionary::test_range_mutable)
+                  << END;
+                return ran;
+              }()
+           << []{
+                auto ins = Stream{"insert"sv};
+                ins << add("noob", &Dictionary::test_insert_noob)
+                    << add("dupe", &Dictionary::test_insert_dupe)
+                    << END;
+                return ins;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::drop(typename Subject::Inserted in) -> Pair<typename Subject::Value, bool> {
+     // WATCHOUT - wherrrrrrrreas insert(...) returns Inserted which captures a lock; we strip the lock and keep the value(s)
+    return static_cast<Pair<typename Subject::Value, bool> const &>(in);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::first() -> sample::Key { return sample::Key{'a'}; }
+  template<required::Dictionary _> auto Dictionary<_>::second() -> sample::Key { return sample::Key{'b'}; }
+  template<required::Dictionary _> auto Dictionary<_>::nosuch() -> sample::Key { return sample::Key{'/'}; }
+  template<required::Dictionary _> auto Dictionary<_>::fill(Subject &lhs) -> void {
+    if constexpr (is_linear())           { fill_somehow<1>(lhs); }
+    else if constexpr (is_logarithmic()) { fill_somehow<2>(lhs); }
+  }
+  template<required::Dictionary _> template<unsigned INSERT_HAS_N_ARGUMENTS> auto Dictionary<_>::fill_somehow(Subject &lhs) -> void {
+    if constexpr (1 == INSERT_HAS_N_ARGUMENTS) {
+      lhs.insert(sample::Value{"a"s});
+      lhs.insert(sample::Value{"b"s});
+      lhs.insert(sample::Value{"c"s});
+    } else if constexpr (2 == INSERT_HAS_N_ARGUMENTS) {
+      lhs.insert(sample::Key{'a'}, sample::Value{"a"s});
+      lhs.insert(sample::Key{'b'}, sample::Value{"b"s});
+      lhs.insert(sample::Key{'c'}, sample::Value{"c"s});
+    }
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_constructor_default() -> void {
+    auto subject = Subject{}; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_constructor_copy() -> void {
+    auto maybe = []<typename SUBJECT>(SUBJECT *) {
+      if constexpr (std::is_copy_constructible_v<SUBJECT>) {
+          auto const specimen = SUBJECT{};
+          auto subject = SUBJECT{specimen}; // <---------------------------------------- test this
+          require(ASSERTION, sizeof (subject));
+        }
+    };
+    maybe(static_cast<Subject *>(nullptr));
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_constructor_move() -> void {
+    auto maybe = []<typename SUBJECT>(SUBJECT *) {
+      if constexpr (std::is_move_constructible_v<SUBJECT>) {
+        auto specimen = SUBJECT{};
+        auto subject = SUBJECT{move(specimen)}; // <---------------------------------------- test this
+        require(ASSERTION, sizeof (subject));
+      }
+    };
+    maybe(static_cast<Subject *>(nullptr));
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_assignment_copy() -> void {
+    auto maybe = []<typename SUBJECT>(SUBJECT *) {
+      if constexpr (std::is_copy_assignable_v<SUBJECT>) {
+        auto const specimen = SUBJECT{};
+        auto subject = SUBJECT{};
+        subject = specimen; // <---------------------------------------- test this
+        require(ASSERTION, sizeof (subject));
+      }
+    };
+    maybe(static_cast<Subject *>(nullptr));
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_assignment_move() -> void {
+    auto maybe = []<typename SUBJECT>(SUBJECT *) {
+      if constexpr (std::is_move_assignable_v<SUBJECT>) {
+        auto specimen = SUBJECT{};
+        auto subject = SUBJECT{};
+        subject = move(specimen); // <---------------------------------------- test this
+        require(ASSERTION, sizeof (subject));
+      }
+    };
+    maybe(static_cast<Subject *>(nullptr));
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_swap() -> void {
+    auto maybe = []<typename SUBJECT>(SUBJECT *) {
+      if constexpr (std::is_swappable_v<SUBJECT>) {
+        auto a = SUBJECT{};
+        fill(a);
+        require(ASSERTION, 3u == a.size());
+        auto b = SUBJECT{};
+        require(ASSERTION, 0u == b.size());
+        swap(a, b); // <---------------------------------------- test this
+        require(ASSERTION, 0u == a.size());
+        require(ASSERTION, 3u == b.size());
+      }
+    };
+    maybe(static_cast<Subject *>(nullptr));
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_empty() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, subject.empty()); // <---------------------------------------- test this
+    fill(subject);
+    require(ASSERTION, !subject.empty());
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_size() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, 0u == subject.size()); // <---------------------------------------- test this
+    fill(subject);
+    require(ASSERTION, 0u != subject.size());
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_contains() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, !subject.contains({})); // <---------------------------------------- test this
+    fill(subject);
+    require(ASSERTION, subject.contains(first()));
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_at_constie() -> void { test_at_constie_maybe<has_index()>(); }
+  template<required::Dictionary _> auto Dictionary<_>::test_at_mutable() -> void { test_at_mutable_maybe<has_index()>(); }
+  template<required::Dictionary _> template<bool MAYBE> auto Dictionary<_>::test_at_constie_maybe() -> void {
+    if constexpr (MAYBE) {
+      auto specimen = Subject{};
+      fill(specimen);
+      auto const &subject{specimen};
+      auto got = subject.at(typename Subject::Index{}); // <---------------------------------------- test this
+      require(ASSERTION, sizeof (got));
+    }
+  }
+  template<required::Dictionary _> template<bool MAYBE> auto Dictionary<_>::test_at_mutable_maybe() -> void {
+    if constexpr (MAYBE) {
+      auto subject = Subject{};
+      fill(subject);
+      auto got = subject.at(typename Subject::Index{}); // <---------------------------------------- test this
+      require(ASSERTION, sizeof (got));
+    }
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_find_constie_found() -> void {
+    auto specimen = Subject{};
+    fill(specimen);
+    auto const &subject{specimen};
+    auto key = first();
+    auto found = subject.find(key); // <---------------------------------------- test this (constie & found)
+    require(ASSERTION, true == (bool) found);
+    require(ASSERTION, "a"s == *found);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_find_constie_missing() -> void {
+    auto specimen = Subject{};
+    fill(specimen);
+    auto const &subject{specimen};
+    auto key = nosuch();
+    auto found = subject.find(key); // <---------------------------------------- test this (constie & missing)
+    require(ASSERTION, false == (bool) found);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_find_mutable_found() -> void {
+    auto subject = Subject{};
+    fill(subject);
+    auto key = first();
+    auto found = subject.find(key); // <---------------------------------------- test this (mutable & found)
+    require(ASSERTION, true == (bool) found);
+    require(ASSERTION, "a"s == *found);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_find_mutable_missing() -> void {
+    auto subject = Subject{};
+    fill(subject);
+    auto key = nosuch();
+    auto found = subject.find(key); // <---------------------------------------- test this (mutable & missing)
+    require(ASSERTION, false == (bool) found);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_range_constie() -> void {
+    auto specimen = Subject{};
+    fill(specimen);
+    auto const &subject{specimen};
+    auto count{0u};
+    for (auto item : subject.range()) { // <---------------------------------------- test this (constie)
+      count += 0 != sizeof (item);
+    }
+    require(ASSERTION, 0u != count);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_range_mutable() -> void {
+    auto subject = Subject{};
+    fill(subject);
+    auto count{0u};
+    for (auto item : subject.range()) { // <---------------------------------------- test this (mutable)
+      count += 0 != sizeof (item);
+    }
+    require(ASSERTION, 0u != count);
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_insert_noob() -> void {
+    if constexpr (is_linear())           { test_insert_noob_somehow<1>(); }
+    else if constexpr (is_logarithmic()) { test_insert_noob_somehow<2>(); }
+  }
+  template<required::Dictionary _> auto Dictionary<_>::test_insert_dupe() -> void {
+    if constexpr (is_linear())           { test_insert_dupe_somehow<1>(); }
+    else if constexpr (is_logarithmic()) { test_insert_dupe_somehow<2>(); }
+  }
+  template<required::Dictionary _> template<unsigned INSERT_HAS_N_ARGUMENTS> auto Dictionary<_>::test_insert_noob_somehow() -> void {
+    auto subject = Subject{};
+    auto verify = [&subject](auto &&i1, auto &&b1, auto &&i2, auto &&b2) {
+                    require(ASSERTION, 2u == subject.size());
+                    require(ASSERTION, b1);
+                    require(ASSERTION, "a"s == i1);
+                    require(ASSERTION, b2);
+                    require(ASSERTION, "b"s == i2);
+                  };
+    if constexpr (1 == INSERT_HAS_N_ARGUMENTS) {
+      // WATCHOUT - insert returns a locked reference
+      auto [i1, b1] = drop(subject.insert("a"s));
+      auto [i2, b2] = drop(subject.insert("b"s));
+      verify(i1, b1, i2, b2);
+    } else if constexpr (2 == INSERT_HAS_N_ARGUMENTS) {
+      // WATCHOUT - insert returns a locked reference
+      auto [i1, b1] = drop(subject.insert(first(), "a"s));
+      auto [i2, b2] = drop(subject.insert(second(), "b"s));
+      verify(i1, b1, i2, b2);
+    }
+  }
+  template<required::Dictionary _> template<unsigned INSERT_HAS_N_ARGUMENTS> auto Dictionary<_>::test_insert_dupe_somehow() -> void {
+    auto subject = Subject{};
+    auto verify = [&subject](auto &&i1, auto &&b1, auto &&i2, auto &&b2) {
+                    require(ASSERTION, 1u == subject.size()); // thus there is only one element in the dictionary
+                    require(ASSERTION, b1);
+                    require(ASSERTION, "a"s == i1);
+                    require(ASSERTION, !b2);
+                    require(ASSERTION, "a"s == i2);
+                  };
+    if constexpr (1 == INSERT_HAS_N_ARGUMENTS) {
+      // WATCHOUT - insert returns a locked reference
+      auto [i1, b1] = drop(subject.insert("a"s));
+      auto [i2, b2] = drop(subject.insert("a"s)); // this is a duplicate
+      verify(i1, b1, i2, b2);
+    } else if constexpr (2 == INSERT_HAS_N_ARGUMENTS) {
+      // WATCHOUT - insert returns a locked reference
+      auto [i1, b1] = drop(subject.insert(first(), "a"s));
+      auto [i2, b2] = drop(subject.insert(first(), "a"s)); // this is a duplicate
+      verify(i1, b1, i2, b2);
+    }
+  }
+}
+#endiv

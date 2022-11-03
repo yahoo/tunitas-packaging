@@ -5,5 +5,8 @@
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
 nonstd_SUBSOURCES = \
-  obj/src/nonstd/iterator/Qualified/tunitas.denniston.task.Dictionary.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.linear.Concurrent.KEY.INDEX.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.linear.Sequential.KEY.INDEX.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.logarithmic.Concurrent.KEY.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.logarithmic.Sequential.KEY.VALUE.cpp \
   $(end)

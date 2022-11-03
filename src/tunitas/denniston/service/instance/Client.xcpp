@@ -94,6 +94,7 @@ namespace tunitas::denniston::service::instance {
       } else if (auto got=downcast<Response<Get::TASKS>>(*red); nullptr != got) {
         log.format("from configuration tasks: count {}", got->tasks.size());
         for (auto &given : got->tasks) {
+          static_assert(std::tuple_size<decltype(tasks.insert(move(given)))>::value);
           auto [noob, inserted] = tasks.insert(move(given));
           log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.id);
         }
@@ -134,13 +135,13 @@ namespace tunitas::denniston::service::instance {
     //
     inflight_query_count = [this]{
                              auto count{0uz};
-                             for (auto const &task : tasks) { count += task.services.size(); }
+                             for (auto locked=tasks.range(); auto const &task : locked) { count += task.services.size(); }
                              return count;
                            }();
     log.format("there will be {} endpoints", inflight_query_count);
     barrier.start();
     auto howmany{0uz};
-    for (auto const &task : tasks) {
+    for (auto locked=tasks.range(); auto const &task : locked) {
       for (auto const &endpoint : task.services) {
         ++howmany;
         ++inflight_query_count;
@@ -154,7 +155,7 @@ namespace tunitas::denniston::service::instance {
     //
     barrier.start();
     while (!graceful_shutdown.load()) {
-      for (auto const &task : tasks) {
+      for (auto locked=tasks.range(); auto const &task : locked) {
         std::this_thread::sleep_for(10ms);
         gateway.write(make<Report<Slice::WHOLE>>(measure(task.id)));
       }

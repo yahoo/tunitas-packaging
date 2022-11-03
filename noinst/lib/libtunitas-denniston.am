@@ -13,6 +13,7 @@ noinst_lib_libtunitas_denniston_la_LIBADD = \
   noinst/lib/libautotools-autoconf+tunitas-denniston.la \
   noinst/lib/libaddenda+nonstd.la \
   noinst/lib/libfmt+tunitas-denniston.la \
+  noinst/lib/libtunitas-keyston+tunitas-denniston.la \
   noinst/lib/libstd+tunitas-denniston.la \
   noinst/lib/libnonstd+tunitas-denniston.la \
   noinst/lib/libwant.la \

@@ -6,6 +6,21 @@
 #divert <fpp>
 #import tunitas.denniston.task.Corpus.template
 namespace tunitas::denniston::task {
+  //
+  // The corpus of the Task Dictionary of the Gateway
+  //
+  // Specification:
+  //
+  //   Outgoing communicates from run to delegate (subprocess)
+  //
+  // Design:
+  //
+  //   Whereas the Outgonig is a Channel, it cannot be copied.
+  //
+  // Usage:
+  //
+  //   See service::Gateway
+  //
   template<> struct Corpus<Genus::GATEWAY>;
 }
 #endiv

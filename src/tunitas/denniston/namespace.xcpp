@@ -20,6 +20,8 @@ namespace tunitas::denniston {
 #import std.uint64_t
 // For the hygeine, and for in-place testing.
 // as predicate-variables
+#import std.semiregular
+#import std.regular
 #import std.is_default_constructible
 #import std.is_copy_constructible
 #import std.is_move_constructible

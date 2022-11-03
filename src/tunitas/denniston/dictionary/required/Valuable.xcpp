@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::dictionary::required {
+  //
+  // Is this type suitable for the VALUE of a Dictionary<..., VALUE>
+  //
+  template<typename VALUE> concept Valuable = requires(VALUE) {
+    // And because the VALUE will live in a container; e.g. std::vector<VALUE> or std::deque<VALUE>
+    // we also provide a companion usage::Valuable<VALUE>
+    // The requirement cannot be uttered here because these conditions require the complete type of VALUE.
+    //
+    // See usage::Valuable<VALUE>
+    //
+    // It's not clear what constraints this could even be.
+    // Be the key a class? or an integer or an enumration?
+    // Is there anything it can't be?
+    // Thus all the real constraints are delegated to usage::Keyable<KEY>
+    requires true;
+  };
+}
+#endiv

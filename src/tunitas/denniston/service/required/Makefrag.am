@@ -6,5 +6,4 @@
 #
 tunitas_denniston_service_required_SUBSOURCES = \
   obj/src/tunitas/denniston/service/required/namespace.cpp \
-  obj/src/tunitas/denniston/service/required/dictionary.Foundable.cpp \
   $(end)

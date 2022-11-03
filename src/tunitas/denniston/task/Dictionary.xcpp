@@ -5,6 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.task.required.dictionary.Valuable
+#import tunitas.denniston.dictionary.Dictionary.template // for Complexity, Concurrency, Parameters
 namespace tunitas::denniston::task {
   //
   // A dictionary of all the tasks
@@ -22,138 +23,40 @@ namespace tunitas::denniston::task {
   //   vector maps Index -> Definition
   //   Not thread-aware (the caller must perform synchronization, if such is necessary)
   //
+  //   Both Found and Inserted return references into the core dtaa structure.
+  //   The core data structure {vector,deque,etc.}) MUST NOT move its storage over the lifetime of these objects.
+  //
+  // Lifetimes:
+  //
+  //   Whereas Found and Inserted return references.
+  //   lifetime(Found) is invalidated by insert(...)
+  //   lifetime(Inserted) is invalidated by insert(...)
+  //
   // Usage:
   //
   //   As you would.
   //
-  template<required::dictionary::Valuable> struct Dictionary;
+  namespace [[eponymous]] dictionary {
+    template<required::dictionary::Valuable> struct Dictionary;
+    using denniston::dictionary::Parameters;
+    using enum denniston::dictionary::Complexity;
+    using enum denniston::dictionary::Concurrency;
+  }
+  using dictionary::Dictionary;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.index // for index::Task
-#import tunitas.denniston.dictionary.required.Either
-#import tunitas.denniston.task.required.dictionary.Foundable
+#import tunitas.denniston.dictionary.Dictionary
 #import tunitas.keyston.protocol.id // for id::Task
-#import std.vector
-#import std.size_t
-#import nonstd.iterator.Qualified.tunitas.denniston.task.Dictionary.VALUE
 #import tunitas.denniston.task.usage.dictionary.Valuable
-namespace tunitas::denniston {
-  template<task::required::dictionary::Valuable VALUE> struct task::Dictionary {
-    static_assert(usage::dictionary::Valuable<VALUE>);
-    Dictionary() = default;
-    using Index = denniston::index::Task;
-    using Key = keyston::protocol::id::Task;
-    using Value = VALUE;
-    inline auto empty() const -> bool;
-    inline auto size() const -> std::size_t;
-    inline auto contains(Key const &) const -> bool;
-    template<required::dictionary::Foundable<Value>> struct Found;
-    template<dictionary::required::Either<Dictionary> SELF> using Iterator = typename nonstd::iterator::Qualified<SELF>::Iterator;
-#if 202312 < __cplusplus
-    template<typename SELF> inline auto at(this SELF *, Index) -> nonstd::like_t<SELF, Found<Value>>;
-    template<typename SELF> inline auto find(this SELF *, Key const &) -> nonstd::like_t<SELF, Found<Value>>;
-    template<typename SELF> inline auto begin(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>>;
-    template<typename SELF> inline auto end(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>>;
-#else
-    inline auto at(Index) const -> Found<Value const>;
-    inline auto at(Index) -> Found<Value>;
-    inline auto find(Key const &) const -> Found<Value const>;
-    inline auto find(Key const &) -> Found<Value>;
-    inline auto begin() const -> Iterator<Dictionary const>;
-    inline auto end() const -> Iterator<Dictionary const>;
-    inline auto begin() -> Iterator<Dictionary>;
-    inline auto end() -> Iterator<Dictionary>;
-  private:
-    template<typename SELF> inline static auto access(SELF &, Index);
-    template<typename SELF> inline static auto search(SELF &, Key const &);
-    template<typename SELF> inline static auto start(SELF &);
-    template<typename SELF> inline static auto finish(SELF &);
-  public:
-#endif
-    struct Inserted;
-    inline auto insert(Value) -> Inserted;
-  private:
-    std::vector<Value> corpus{};
-  };
-}
-#endiv
-#divert <ipp>
-#import tunitas.denniston.task.Dictionary.Found
-#import tunitas.denniston.task.Dictionary.Inserted
-#import std.find_if
-#import nonstd.like
-#import std.is_const
-#import std.conditional
 namespace tunitas::denniston::task {
-  template<required::dictionary::Valuable _> auto Dictionary<_>::empty() const -> bool       { return corpus.empty(); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::size() const -> std::size_t { return corpus.size(); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::insert(Value noob) -> Inserted {
-    auto const &key = key_from(noob);
-    auto const end = corpus.end();
-    auto const found = std::find_if(corpus.begin(), end, [&key](auto const &item) { return key_from(item) == key; });
-    if (end == found) {
-      corpus.push_back(move(noob));
-      return {*prev(corpus.end()), true};
-    } else {
-      return {*found, false};
-    }
-  }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::contains(Key const &key) const -> bool {
-    auto const end = corpus.end();
-    auto const found = std::find_if(corpus.begin(), end, [&key](auto const &item) { return key_from(item) == key; });
-    return end != found;
-  }
-#if 202312 < __cplusplus
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::at(this SELF *, Index index) -> nonstd::like_t<SELF, Found<Value>> {
-    if (index < self->corpus.size()) {
-      return {self->corpus.at(index)}; // need to duplicate the bounds check(?)
-    } else {
-      return {};
-    }
-  }
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::find(this SELF *, Key const &key) -> nonstd::like_t<SELF, Found<Value>> {
-    auto const end = self->corpus.end();
-    auto const found = std::find_if(self->corpus.begin(), end, [&key](auto const &item) { return key_from(item)d == key; });
-    if (end == found) {
-      return {};
-    } else {
-      return {*found};
-    }
-  }
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::begin(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>> { return corpus.begin(); }
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::end(this SELF *) -> nonstd::like_t<SELF, Iterator<Dictionary>>   { return corpus.begin(); }
-#else
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::access(SELF &self, Index index) {
-    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
-    auto uindex = underlying(index);
-    if (uindex < self.corpus.size()) {
-      return Result{self.corpus.at(uindex)}; // need to duplicate the bounds check(?)
-    } else {
-      return Result{};
-    }
-  }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::at(Index index) const -> Found<Value const> { return access(*this, index); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::at(Index index) -> Found<Value>             { return access(*this, index); }
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::search(SELF &self, Key const &key) {
-    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
-    auto const end = self.corpus.end();
-    auto const found = std::find_if(self.corpus.begin(), end, [&key](auto const &item) { return key_from(item) == key; });
-    if (end == found) {
-      return Result{};
-    } else {
-      return Result{*found};
-    }
-  }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::find(Key const &key) const -> Found<Value const> { return search(*this, key); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::find(Key const &key) -> Found<Value>             { return search(*this, key); }
-  //
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::start(SELF &self)  { return self.corpus.begin(); }
-  template<required::dictionary::Valuable _> template<typename SELF> auto Dictionary<_>::finish(SELF &self) { return self.corpus.end(); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::begin() const -> Iterator<Dictionary const> { return start(*this); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::end() const -> Iterator<Dictionary const>   { return finish(*this); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::begin() -> Iterator<Dictionary>             { return start(*this); }
-  template<required::dictionary::Valuable _> auto Dictionary<_>::end() -> Iterator<Dictionary>               { return finish(*this); }
-#endif
+  template<required::dictionary::Valuable VALUE> class dictionary::Dictionary : public denniston::dictionary::Dictionary<LINEAR, SEQUENTIAL, Parameters<keyston::protocol::id::Task, denniston::index::Task, VALUE>> {
+    using Ancestor = denniston::dictionary::Dictionary<LINEAR, SEQUENTIAL, Parameters<keyston::protocol::id::Task, denniston::index::Task, VALUE>>;
+    static_assert(usage::dictionary::Valuable<VALUE>);
+  public:
+    Dictionary() = default;
+    using Ancestor::Dictionary;
+  };
 }
 #endiv

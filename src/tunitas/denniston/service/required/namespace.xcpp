@@ -8,6 +8,5 @@
 #import tunitas.denniston.required
 namespace tunitas::denniston::service::required {
   using namespace tunitas::denniston::required;
-  namespace [[nodirectory]] dictionary { }
 }
 #endiv

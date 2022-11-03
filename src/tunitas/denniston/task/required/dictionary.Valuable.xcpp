@@ -7,6 +7,7 @@
 #forward tunitas.denniston.task.Definition
 #forward tunitas.denniston.task.Corpus
 #import tunitas.denniston.task.required.Corpus
+#import nonstd.required.Class
 namespace tunitas::denniston::task::required::dictionary {
   //
   // Is this type suitable for the VALUE of a Dictionary<VALUE>
@@ -15,12 +16,13 @@ namespace tunitas::denniston::task::required::dictionary {
     template<typename VALUE> concept Taskie = same_as<VALUE, task::Definition>;
     template<typename VALUE> concept Corpie = required::Corpus<VALUE>;
     template<typename VALUE> concept Valuable = (Taskie<VALUE> || Corpie<VALUE>) && requires(VALUE) {
-      // And because the VALUE wil live in a container; e.g. std::vector<VALUE> or std::deque<VALUE> we also require
-      // This cannot be uttered here because these conditions reqwuire the complete type of VALUE
+      // And because the VALUE will live in a container; e.g. std::vector<VALUE> or std::deque<VALUE>
+      // we also provide a companion usage::Valuable<VALUE>
+      // This requirement cannot be uttered here because these conditions require the complete type of VALUE
       //
-      // see usage::dictionary::Definition<VALUE>
+      // See usage::dictionary::Valuable<VALUE>
       //
-      requires true;
+      requires Class<VALUE>;
     };
   }
   using valuable::Valuable;

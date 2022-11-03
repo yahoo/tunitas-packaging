@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.dictionary.linear.Sequential
+#forward tunitas.denniston.dictionary.linear.Concurrent
+#forward tunitas.denniston.dictionary.logarithmic.Sequential
+#forward tunitas.denniston.dictionary.logarithmic.Concurrent
+#import nonstd.required.InstanceOf
+namespace tunitas::denniston::dictionary::required {
+  //
+  // Is this type suitable as an ORIGIN in Range<ORIGIN, ITERATOR>
+  //
+  // Specification:
+  //
+  //   What it says on the label.
+  //   The 'reqwuired' step must be deducable without the complete type definition.
+  //   See usage::Origin for more conditoins.
+  //
+  // Design:
+  //
+  //   Yes.
+  //
+  // Usage:
+  //
+  //   See Range<ORIGIN, ITERATOR>
+  //
+  template<typename ORIGIN> concept Origin = (InstanceOf<ORIGIN, linear::Sequential> ||
+                                              InstanceOf<ORIGIN, linear::Concurrent> ||
+                                              InstanceOf<ORIGIN, logarithmic::Sequential> ||
+                                              InstanceOf<ORIGIN, logarithmic::Concurrent>);
+}
+#endiv

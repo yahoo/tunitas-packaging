@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// Synchronize around the condition of the monitor 
+//
+// Specification:
+//
+//   Upon construction await the PREDICATE
+//   Upon destruction, release the mutex and notify the condition.
+// 
+// Usage: see dictionary::Concurrent and Variables
+//
+//   auto variables = Variables{...somehow...};
+//   {
+//     auto predicate = ...invocable condition...
+//     dictionary::Condition guard{variables, predicate};
+//     ...do stuff...
+//   }
+//
+#include <hpp/tunitas.denniston.dictionary.Variables>
+#endiv
+#divert <hpp>
+#import std.regular_invocable
+#import std.unique_lock
+namespace tunitas::denniston::dictionary {
+  struct Variables::Guard::Condition {
+    template<std::regular_invocable PREDICATE> inline Condition(Variables &, PREDICATE);
+    inline ~Condition() noexcept(false);
+    Condition(Condition const &) = delete;
+    auto operator=(Condition const &) -> Condition & = delete;
+    Condition(Condition &&) = delete;
+    auto operator=(Condition &&) -> Condition & = delete;
+  protected:
+    using Unique = std::unique_lock<Mutex>;
+    Variables &variables;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.dictionary.Variables
+namespace tunitas::denniston::dictionary {
+  template<std::regular_invocable PREDICATE> Variables::Guard::Condition::Condition(Variables &v, PREDICATE predicate)
+    : variables{v} {
+      auto uuu = Unique{variables.lock};
+      variables.nonempty.wait(uuu, predicate);
+      uuu.release();
+    }
+  Variables::Guard::Condition::~Condition() noexcept(false) {
+    variables.lock.unlock();
+    variables.nonempty.notify_all();
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::dictionary;
+    static_assert(not std::is_default_constructible_v<Variables::Guard::Condition>);
+    static_assert(not std::is_copy_constructible_v<Variables::Guard::Condition>);
+    static_assert(not std::is_move_constructible_v<Variables::Guard::Condition>);
+    static_assert(not std::is_copy_assignable_v<Variables::Guard::Condition>);
+    static_assert(not std::is_move_assignable_v<Variables::Guard::Condition>);
+    static_assert(not std::is_swappable_v<Variables::Guard::Condition>);
+  }
+}
+#endiv

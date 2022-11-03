@@ -1,0 +1,155 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.dictionary.required.Keyable
+#import tunitas.denniston.dictionary.required.Valuable
+namespace tunitas::denniston::dictionary::logarithmic {
+  //
+  // A dictionary for concurrent accesses.
+  // With logarithmic complexity.
+  //
+  // Specification:
+  //
+  //   Given a key (e.g. an id::Job, id::Report, id::Task, etc.)
+  //
+  // Design:
+  //
+  //   Both Found and Inserted return references into the core dtaa structure.
+  //   The core data structure {ordered_map,unordered_map,etc.}) MUST NOT move its storage over the lifetime of these objects.
+  //
+  //   Keyable<KEY> and Valuable<VALUE> define the requirements for content-addressable lookup.
+  //   e.g. key_from(Value &) -> Key const &
+  //
+  //   This implementation is *almost* the same as linear::Sequential but for the absence of the Index
+  //
+  // Lifetimes:
+  //
+  //   Whereas Found and Inserted return references.
+  //   lifetime(Found) is invalidated by insert(...)
+  //   lifetime(Inserted) is invalidated by insert(...)
+  //
+  // Usage:
+  //
+  //   As you would.
+  //
+  template<required::Keyable, required::Valuable> struct Concurrent;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.dictionary.required.Either
+#import tunitas.denniston.dictionary.required.Foundable
+#import tunitas.denniston.dictionary.required.Iterable
+#import tunitas.denniston.dictionary.Found
+#import tunitas.denniston.dictionary.Inserted
+#forward tunitas.denniston.dictionary.Subrange
+#forward tunitas.denniston.dictionary.Range
+#import tunitas.denniston.dictionary.usage.Keyable
+#import tunitas.denniston.dictionary.usage.Valuable
+#import tunitas.denniston.dictionary.Variables
+#import tunitas.denniston.dictionary.Variables.Guard.Exclusive
+#import nonstd.iterator.Qualified.tunitas.denniston.dictionary.logarithmic.Concurrent.KEY.VALUE
+#import std.map
+#import std.size_t
+#import std.same_as
+namespace tunitas::denniston::dictionary {
+  template<dictionary::required::Keyable KEY, dictionary::required::Valuable VALUE> class logarithmic::Concurrent {
+    static_assert(usage::Keyable<KEY>);
+    static_assert(usage::Valuable<VALUE>);
+    using Guard = Variables::Guard::Exclusive;
+  public:
+    Concurrent() = default;
+    using Key = KEY;
+    using Value = VALUE;
+    inline auto empty() const -> bool;
+    inline auto size() const -> Size;
+    inline auto contains(Key const &) const -> bool;
+    template<required::Foundable<Value> VAL> using Found = dictionary::Found<VAL, Value, Guard>;
+    template<dictionary::required::Either<Concurrent> SELF> using Iterator = typename nonstd::iterator::Qualified<SELF>::Iterator;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto find(this SELF *, Key const &) -> nonstd::like_t<SELF, Found<Value>>;
+    template<typename SELF> inline auto range(this SELF *) -> nonstd::like_t<SELF, Range<Concurrent, Iterator<Concurrent>>>; // [[FIXTHIS,TODO]] needs some Like<...> specializations
+  protected:
+    template<typename SELF> inline auto start(this SELF *) -> nonstd::like_t<SELF, Range<Concurrent, Iterator<Concurrent>>>;
+    template<typename SELF> inline auto finish(this SELF *) -> nonstd::like_t<SELF, Range<Concurrent, Iterator<Concurrent>>>;
+  public:
+#else
+    inline auto find(Key const &) const -> Found<Value const>;
+    inline auto find(Key const &) -> Found<Value>;
+    inline auto range() const -> Range<Concurrent, Iterator<Concurrent const>>;
+    inline auto range() -> Range<Concurrent, Iterator<Concurrent>>;
+  private:
+    template<typename SELF> inline static auto search(SELF &, Key const &);
+    template<typename SELF> inline static auto start(SELF &);
+    template<typename SELF> inline static auto finish(SELF &);
+  public:
+#endif
+    using Inserted = dictionary::Inserted<Value, Guard>;
+    inline auto insert(Key, Value) -> Inserted;
+  private:
+    using Corpus = std::map<Key, Value>;
+    Corpus corpus{};
+    static_assert(std::same_as<Iterator<Concurrent>, typename Corpus::iterator>);
+    mutable Variables variables{};
+    template<required::Origin, required::Iterable> friend class dictionary::Range;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.dictionary.Subrange
+#import tunitas.denniston.dictionary.Range
+#import nonstd.like
+#import std.is_const
+#import std.conditional
+namespace tunitas::denniston::dictionary::logarithmic {
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::empty() const -> bool {
+    Guard guard{variables};
+    return corpus.empty();
+  }
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::size() const -> Size {
+    Guard guard{variables};
+    return corpus.size();
+  }
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::insert(Key key, Value noob) -> Inserted {
+    Guard guard{variables};
+    auto [location, done] = corpus.insert({move(key), move(noob)});
+  return {move(guard), location->second, done};
+  }
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::contains(Key const &key) const -> bool {
+    Guard guard{variables};
+    return corpus.contains(key);
+  }
+#if 202312 < __cplusplus
+  template<required::Keyable K, required::Valuable V> template<typename SELF> auto Concurrent<K,V>::find(this SELF *self, Key const &key) -> nonstd::like_t<SELF, Found<Value>> {
+    Guard guard{self->variables};
+    if (auto const found=corpus.find(key); self->corpus.end() == found) {
+      return {};
+    } else {
+      return {move(guard), found->second};
+    }
+  }
+  template<required::Keyable K, required::Valuable V> template<typename SELF> auto Concurrent<K,V>::range(this SELF *self) const -> nonstd::like_t<SELF, Range<Concurrent, Iterator<Concurrent>>> { return {Guard{self->variables}, *self}; }
+  template<required::Keyable K, required::Valuable V> template<typename SELF> auto Concurrent<K,V>::start(this SELF *) -> nonstd::like_t<SELF, Range<Concurrent, Iterator<Concurrent>>>  { return self->corpus.begin(); }
+  template<required::Keyable K, required::Valuable V> template<typename SELF> auto Concurrent<K,V>::finish(this SELF *) -> nonstd::like_t<SELF, Range<Concurrent, Iterator<Concurrent>>> { return self->corpus.end(); }
+#else
+  template<required::Keyable K, required::Valuable V> template<typename SELF> auto Concurrent<K,V>::search(SELF &self, Key const &key) {
+    Guard guard{self.variables};
+    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
+    if (auto const found=self.corpus.find(key); self.corpus.end() == found) {
+      return Result{};
+    } else {
+      return Result{move(guard), found->second};
+    }
+  }
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::find(Key const &key) const -> Found<Value const> { return search(*this, key); }
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::find(Key const &key) -> Found<Value>             { return search(*this, key); }
+  //
+  template<required::Keyable K, required::Valuable V> template<typename SELF> auto Concurrent<K,V>::start(SELF &self)  { return self.corpus.begin(); }
+  template<required::Keyable K, required::Valuable V> template<typename SELF> auto Concurrent<K,V>::finish(SELF &self) { return self.corpus.end(); }
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::range() const -> Range<Concurrent, Iterator<Concurrent const>> { return {Guard{this->variables}, *this}; }
+  template<required::Keyable K, required::Valuable V> auto Concurrent<K,V>::range() -> Range<Concurrent, Iterator<Concurrent>>             { return {Guard{this->variables}, *this}; }
+#endif
+}
+#endiv

@@ -59,7 +59,7 @@ namespace tests::unit::channel {
               }()
            << add("emplace_back", &Channel::test_emplace_back)
            << add("pop", &Channel::test_pop)
-           << add("peek", &Channel::test_empty)
+           << add("peek", &Channel::test_peek)
            << add("empty", &Channel::test_empty)
            << add("size", &Channel::test_size)
            << END;
@@ -136,9 +136,10 @@ namespace tests::unit::channel {
     auto const original = specimen;
     subject.push_back(std::move(specimen));
     require(ASSERTION, 1 == subject.size());
-    auto const peeked = subject.peek(); // <------------------------------------------ test this
+    { auto const peeked = subject.peek(); // <------------------------------------------ test this
+      require(ASSERTION, *peeked == original); }
+    // WATCHOUT - we cannot query subject again while peeked is living because it holds a lock.
     require(ASSERTION, 1 == subject.size());
-    require(ASSERTION, *peeked == original);
   }
   template<typename _> auto Channel<_>::test_empty() -> void {
     Subject subject{10};
@@ -195,11 +196,12 @@ namespace tests::unit::channel {
     subject.push_back(std::move(specimen));
     require(ASSERTION, 1 == subject.size());
     //
-    auto const peeked = subject.peek(); // <----------------------------------------- test this
-    require(ASSERTION, peeked.has_value());
-    auto const peeked_picture = to_string(*peeked);
+    { auto const peeked = subject.peek(); // <----------------------------------------- test this
+      require(ASSERTION, peeked.has_value());
+      auto const peeked_picture = to_string(*peeked);
+      require(ASSERTION, peeked_picture == original); }
+    // WATCHOUT  we cannot query subject while peeked is living becaues it holds locks
     require(ASSERTION, 1 == subject.size());
-    require(ASSERTION, peeked_picture == original);
   }
 }
 #endiv

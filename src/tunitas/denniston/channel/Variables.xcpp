@@ -14,10 +14,12 @@ namespace tunitas::denniston::channel {
   //
   // Design:
   //
-  //   The lock public (and named 'lock' which is well-known to the process::readable system.
+  //   The lock is a bare mutex.
+  //   The lock is public and named 'lock'
+  //   The lock is well-known to the process::readable system in Pollability
   //
   //   These are all the thread synchronization primitives all in one place.
-  //   Depending, the Predicate will switch between the two Condition variables.
+  //   Depending, the Predicate, the monitored condition will switch between the two Condition variables.
   // 
   //   Because of std::mutex, Variables is neither copyable nor movable. 
   //

@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tunitas.denniston.dictionary.usage.Keyable
+#import tunitas.denniston.dictionary.usage.Key_From
+#import tunitas.denniston.dictionary.usage.Valuable
+namespace tunitas::denniston::dictionary::usage {
+  //
+  // Are the container key and the derived key comparable?
+  //
+  // Specification:
+  //
+  //   Is it possible to compare key and key_from
+  //
+  //   In std::find_if, the prediate tests
+  //   Given:
+  //     auto key = Key{...somehow...};
+  //     auto value = Value{...somehow...};
+  //   Derive:
+  //     auto const &from = key_from(value);
+  //   Test:
+  //     if (key == from) { ... }
+  //
+  // Design:
+  //
+  //   Exercise it.
+  //   This is NOT applicable to the logarithmic dictionaries because they only compare key-to-key.
+  //
+  // Usage:
+  //
+  //   See linear::Sequential<...>
+  //   See linear::Concurrent<...>
+  //
+  namespace [[eponymous]] comparable {
+    template<typename KEY, typename FROM> concept Find_If_Comparator = requires(KEY const &key, FROM const &from) {
+      requires Keyable<KEY>;
+      // This is the test that is used in std::find_if(...) in teh linear dictionary implementations
+      { key == from } -> convertible_to<bool>;
+    };
+    template<typename KEY, typename VALUE> concept Comparable_From = requires(KEY, VALUE) {
+      requires Keyable<KEY>;
+      requires Valuable<VALUE>;
+      requires Key_From<VALUE>;
+      requires Find_If_Comparator<KEY, decltype(key_from(std::declval<VALUE>()))>;
+    };
+  }
+  using comparable::Comparable_From;
+}
+#endiv

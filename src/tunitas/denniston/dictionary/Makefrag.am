@@ -8,7 +8,28 @@ tunitas_denniston_dictionary_SUBSOURCES = \
   obj/src/tunitas/denniston/dictionary/namespace.cpp \
   obj/src/tunitas/denniston/dictionary/Found.cpp \
   obj/src/tunitas/denniston/dictionary/Inserted.cpp \
+  obj/src/tunitas/denniston/dictionary/Subrange.cpp \
+  obj/src/tunitas/denniston/dictionary/Range.cpp \
+  \
+  obj/src/tunitas/denniston/dictionary/Dictionary.template.cpp \
+  obj/src/tunitas/denniston/dictionary/Dictionary.LINEAR.SEQUENTIAL.Parameters.KEY.INDEX.VALUE.cpp \
+  obj/src/tunitas/denniston/dictionary/Dictionary.LINEAR.CONCURRENT.Parameters.KEY.INDEX.VALUE.cpp \
+  obj/src/tunitas/denniston/dictionary/Dictionary.LOGARITHMIC.SEQUENTIAL.Parameters.KEY.VALUE.cpp \
+  obj/src/tunitas/denniston/dictionary/Dictionary.LOGARITHMIC.CONCURRENT.Parameters.KEY.VALUE.cpp \
+  obj/src/tunitas/denniston/dictionary/Dictionary.cpp \
+  \
+  obj/src/tunitas/denniston/dictionary/Variables.cpp \
+  obj/src/tunitas/denniston/dictionary/Variables.Guard.Free.cpp \
+  obj/src/tunitas/denniston/dictionary/Variables.Guard.Exclusive.cpp \
+  obj/src/tunitas/denniston/dictionary/Variables.Guard.Condition.cpp \
+  \
+  $(tunitas_denniston_dictionary_linear_SUBSOURCES) \
+  $(tunitas_denniston_dictionary_logarithmic_SUBSOURCES) \
   $(tunitas_denniston_dictionary_required_SUBSOURCES) \
+  $(tunitas_denniston_dictionary_usage_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/denniston/dictionary/linear/Makefrag.am
+include src/tunitas/denniston/dictionary/logarithmic/Makefrag.am
 include src/tunitas/denniston/dictionary/required/Makefrag.am
+include src/tunitas/denniston/dictionary/usage/Makefrag.am

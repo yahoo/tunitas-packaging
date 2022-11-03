@@ -1,0 +1,19 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import std.tuple_element
+#import std.size_t
+#forward tunitas.denniston.dictionary.Inserted
+namespace std {
+  template<size_t N, tunitas::denniston::dictionary::required::Valuable VALUE, tunitas::denniston::dictionary::required::Guardian GUARD> struct tuple_element<N, tunitas::denniston::dictionary::Inserted<VALUE, GUARD>>;
+}
+#endiv
+#divert <hpp>
+#import tunitas::denniston.dictionary.Inserted
+namespace std {
+  template<size_t N, tunitas::denniston::dictionary::required::Valuable VALUE, tunitas::denniston::dictionary::required::Guardian GUARD> struct tuple_element<N, tunitas::denniston::dictionary::Inserted<VALUE, GUARD>> : public std::tuple_element<N, typename tunitas::denniston::dictionary::Inserted<VALUE, GUARD>::Ancestor> { };
+}
+#endiv

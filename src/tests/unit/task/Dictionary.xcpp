@@ -139,7 +139,7 @@ namespace tests::unit::task {
                          }();
     require(ASSERTION, COUNT == subject.size());
     auto recount{0uz};
-    for (auto const &place : subject) { // <---------------------------------------- test this (on constie subject)
+    for (auto locked=subject.range(); auto const &place : locked) { // <---------------------------------------- test this (on constie subject)
       ++recount;
       require(ASSERTION, sizeof (place));
     }
@@ -159,7 +159,7 @@ namespace tests::unit::task {
                    }();
     require(ASSERTION, COUNT == subject.size());
     auto recount{0uz};
-    for (auto &place : subject) { // <---------------------------------------- test this (on mutable subject)
+    for (auto locked=subject.range(); auto &place : locked) { // <---------------------------------------- test this (on mutable subject)
       ++recount;
       require(ASSERTION, sizeof (place));
     }

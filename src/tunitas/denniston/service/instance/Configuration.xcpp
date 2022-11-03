@@ -115,7 +115,8 @@ namespace tunitas::denniston::service::instance {
         back.write(make<Status>(E::NO_AVAILABLE_TASKS));
       } else {
         // [[FIXTHIS]] returns only the first (um) 256 ... tell someone of the problem
-        auto start = std::cbegin(tasks); // ; MUST be cbegin to satisfy the constructor
+        auto const locked = tasks.range(); // hold the object (and its lock) for the duration; MUST be constie to satisfy the constructor in Response
+        auto start = std::cbegin(locked);
         auto finish = start + std::min(Response<Get::TASKS>::capacity(), tasks.size());
         back.write(make<Response<Get::TASKS>>(start, finish));
       }

@@ -29,12 +29,18 @@ namespace tunitas::denniston::service::instance {
 #import tunitas.denniston.process.Reactor
 #import tunitas.denniston.error.Code
 #import tunitas.denniston.process.companion.Barrier
-#import tunitas.denniston.report.Slicer
+#import tunitas.denniston.report.Dictionary
+#import tunitas.denniston.report.Manifest
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Corpus
 class tunitas::denniston::service::instance::Gateway : public process::Reactor {
   using Ancestor = process::Reactor;
-  auto script() noexcept -> void;
+protected:
+  using Barrier = process::companion::Barrier;
+  Barrier init_barrier{*this};
+  auto init_subprocess() noexcept -> void;
+  Barrier delegate_barrier{*this};
+  auto delegate_subprocess() noexcept -> void;
   auto react() -> void override;
   auto catchup() -> void override;
   auto respond([[inout]] Interface &, [[inout]] Report<Slice::WHOLE> &, string::View from_whom) -> void;
@@ -47,9 +53,8 @@ public:
   Interface configuration{};
   Interfaces processors{};
   task::Dictionary<task::Corpus<Genus::GATEWAY>> tasks{};
-  process::companion::Barrier barrier{*this};
+  report::Dictionary<report::Manifest> reports{};
   using E = error::Code;
-  report::Slicer slice{};
 };
 #endiv
 #divert <ipp>
@@ -60,6 +65,7 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <cpp>
+#import tunitas.keyston.protocol.report.key_from
 #import tunitas.denniston.exception.Invariant
 #import tunitas.denniston.process.companion.Shutdown
 #import tunitas.denniston.protocol.packet.cast
@@ -70,11 +76,13 @@ namespace tunitas::denniston::service::instance {
 namespace tunitas::denniston::service::instance {
   auto Gateway::launch(driver::Threads &pool) -> void {
     pool.launch(&Gateway::run, this);
-    pool.launch(&Gateway::script, this);
+    pool.launch(&Gateway::init_subprocess, this);
+    delegate_barrier.start();
+    pool.launch(&Gateway::delegate_subprocess, this);
   }
   auto Gateway::catchup() -> void {
     if (graceful_shutdown.load()) {
-      barrier.notify(); // catch up!
+      init_barrier.notify(); // catch up!
     }
   }
   auto Gateway::react() -> void {
@@ -98,7 +106,7 @@ namespace tunitas::denniston::service::instance {
           auto [noob, inserted] = tasks.insert({move(given)});
           log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.definition.id);
         }
-        barrier.notify();
+        init_barrier.notify();
       } else {
         log.format("from configuration something else (ignored)");
       }
@@ -123,22 +131,41 @@ namespace tunitas::denniston::service::instance {
       back.write(make<Status>());
     }
   }
-  auto Gateway::script() noexcept -> void try {
-    log.format("starting the script");
+  auto Gateway::init_subprocess() noexcept -> void try {
     //
     // Ask for the tasks
+    // The init barrier is superfluous here because all we're doing here is asking for the TASKS,
     //
-    barrier.start();
+    init_barrier.start();
     configuration.write(make<Query<Get::TASKS>>()); // ask for them all
-    log.format("wrote for some TASKS");
-    barrier.wait([this]{ return !tasks.empty(); });
-    log.format("after the barrier, there are {} tasks and {} shutdown", tasks.size(), graceful_shutdown.load());
+    init_barrier.wait([this]{ return !tasks.empty(); });
+    delegate_barrier.notify();
     //
-    log.format("script is ending, having recovered the endpoints");
+    log.format("init is ending, having recovered the endpoints");
+ } catch (process::companion::Shutdown) {
+    // yay!
+  } catch(...) {
+    log.format("init has an escaped exception which is suppressed");
+  }
+  auto Gateway::delegate_subprocess() noexcept -> void try {
+    delegate_barrier.wait([this]{ return !tasks.empty(); });
+    while (!graceful_shutdown.load()) {
+      std::this_thread::sleep_for(250ms);
+      for (auto locked=tasks.range(); auto &corpus : locked) {
+        if (auto red=corpus.outgoing->pop_if(); red) {
+          auto saved_report_id_for_ux = key_from(*red);
+          auto copy = saved_report_id_for_ux;
+          auto [noob, inserted] = reports.insert(move(copy), {.report{move(*red)}});
+          if (!inserted) {
+            log.format("duplicate report {} is ignored", saved_report_id_for_ux);
+          }
+        }
+      }
+    }
   } catch (process::companion::Shutdown) {
     // yay!
   } catch(...) {
-    log.format("script has an escaped exception which is suppressed");
+    log.format("delegate has an escaped exception which is suppressed");
   }
 }
 #endiv

@@ -8,4 +8,9 @@ tunitas_denniston_report_SUBSOURCES = \
   obj/src/tunitas/denniston/report/namespace.cpp \
   obj/src/tunitas/denniston/report/Generator.cpp \
   obj/src/tunitas/denniston/report/Slicer.cpp \
+  obj/src/tunitas/denniston/report/Dictionary.cpp \
+  obj/src/tunitas/denniston/report/Manifest.cpp \
+  $(tunitas_denniston_report_required_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/denniston/report/required/Makefrag.am

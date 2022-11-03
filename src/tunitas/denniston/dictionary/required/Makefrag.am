@@ -8,4 +8,13 @@ tunitas_denniston_dictionary_required_SUBSOURCES = \
   obj/src/tunitas/denniston/dictionary/required/namespace.cpp \
   obj/src/tunitas/denniston/dictionary/required/Foundable.cpp \
   obj/src/tunitas/denniston/dictionary/required/Either.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Concurrent.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Sequential.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Indexable.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Iterable.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Keyable.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Valuable.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Dictionary.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Guardian.cpp \
+  obj/src/tunitas/denniston/dictionary/required/Origin.cpp \
   $(end)

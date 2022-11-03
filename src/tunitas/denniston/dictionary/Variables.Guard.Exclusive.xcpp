@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// The exclusive guard on the variables
+//
+// Specification:
+//
+//   The usual for these things
+//
+// Design:
+//
+//   No.
+//   The lock is bare mutex; here Exclusive is operating it similarly to unique_lock<mutex>
+//
+// Usage:
+//
+//   auto variables = Variables{...somehow...}
+//   {
+//     auto guard = Variables::Guard::Exclusive{variables};
+//     ...do guarded things...
+//   }
+//
+#include <hpp/tunitas.denniston.dictionary.Variables>
+#endiv
+#divert <hpp>
+namespace tunitas::denniston::dictionary {
+  using std::move;
+  inline auto swap(Variables::Guard::Exclusive &, Variables::Guard::Exclusive &) noexcept -> void;
+  class Variables::Guard::Exclusive : public std::unique_lock<Variables::Mutex> {
+    using Ancestor = std::unique_lock<Variables::Mutex>;
+  public:
+    inline explicit Exclusive(Variables &v) : Ancestor{v.lock} { }
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::dictionary;
+    static_assert(not std::is_default_constructible_v<Variables::Guard::Exclusive>);
+    static_assert(not std::is_copy_constructible_v<Variables::Guard::Exclusive>);
+    static_assert(     std::is_move_constructible_v<Variables::Guard::Exclusive>);
+    static_assert(not std::is_copy_assignable_v<Variables::Guard::Exclusive>);
+    static_assert(     std::is_move_assignable_v<Variables::Guard::Exclusive>);
+    static_assert(     std::is_swappable_v<Variables::Guard::Exclusive>);
+  }
+}
+#endiv

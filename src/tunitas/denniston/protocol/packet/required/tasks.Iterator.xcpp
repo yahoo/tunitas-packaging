@@ -10,7 +10,7 @@
 #import std.remove_reference
 namespace tunitas::denniston::protocol::packet::required::tasks {
   //
-  // Produce Some task:Definitions
+  // Produce some task:Definitions
   // MUST produce the task by value (task:Definition) for copy or by constie reference
   // MUST  NOT by lvalue reference (task:Definition &&) for move
   // Check the iterator for specific return of task:Definition or task:Definition const &; never task:Definition &
@@ -21,13 +21,13 @@ namespace tunitas::denniston::protocol::packet::required::tasks {
   // We're trading denniston tasks around, sot his is appropriate.
   //
   namespace [[eponymous]] eponymous_iterator {
-    template<typename VALUE, typename MATCH> concept Copying = same_as<MATCH, VALUE> || same_as<MATCH const, std::remove_reference_t<VALUE>>;
-    template<typename ITERATOR, typename VALUE> concept Iterator_Producing = requires(ITERATOR) {
+    template<typename VALUE, typename MATCH> concept Copying = convertible_to<VALUE, MATCH>; // a new (copied) value, not a reference to the old one
+    template<typename ITERATOR, typename MATCH> concept Iterator_Producing = requires(ITERATOR) {
       requires iterator::Forward<ITERATOR>;
-      requires requires(VALUE, ITERATOR const constie, ITERATOR writing) {
-        requires iterator::Producing<ITERATOR, VALUE>; // ... which is too vague
-        { *constie } -> Copying<VALUE>;
-        { *writing } -> Copying<VALUE>;
+      requires requires(MATCH, ITERATOR const constie, ITERATOR writing) {
+        requires iterator::Producing<ITERATOR, MATCH>; // ... which is too vague
+        { *constie } -> Copying<MATCH>;
+        { *writing } -> Copying<MATCH>;
       };
     };
     template<typename ITERATOR> concept Iterator = Iterator_Producing<ITERATOR, denniston::task::Definition>;

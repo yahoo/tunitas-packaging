@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import std.is_const
+#import std.is_reference
+#import std.remove_reference
+namespace tunitas::denniston::dictionary::usage {
+  //
+  // Is there a key_from(...) function on this type?
+  // The key_from(...) needs to be lexically visible or available by ADL.
+  //
+  // Does it return an appropriate type?  Which MUST be a constie reference (NOT the key by value).
+  //
+  // Example:
+  //
+  //   namespace id { using Thing = ...somehow... }
+  //   struct Thing;
+  //
+  //   auto key_from(Thing const &) -> id::Thing const &;
+  //
+  namespace [[eponymous]] eponymous_key_from {
+    template<typename FROM> concept Nominated_Result = std::is_reference_v<FROM> && std::is_const_v<std::remove_reference_t<FROM>>;
+    template<typename VALUE> concept Key_From = requires(VALUE const &value) {
+      { key_from(value) } -> Nominated_Result<>;
+    };
+  }
+  using eponymous_key_from::Key_From;
+}
+#endiv
