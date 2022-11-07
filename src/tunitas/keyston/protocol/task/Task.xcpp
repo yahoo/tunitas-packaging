@@ -27,9 +27,10 @@ namespace tunitas::keyston::protocol::task {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.array.Bounded
+#import tunitas.keyston.function.Definition
+#import tunitas.keyston.identifier.Service
 #import tunitas.keyston.quantity.Count
 #import tunitas.keyston.protocol.query.Query
-#import tunitas.keyston.identifier.Service
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.function // supplies function::Function
 #import tunitas.keyston.time.Clock
@@ -49,7 +50,7 @@ namespace tunitas::keyston::protocol {
       Optional<time::Point> then{time::Clock::now()};
     };
     Optional<Expiration> expiration{};
-    keyston::function::Function function{};
+    keyston::function::Definition function{};
   };
 }
 #endiv

@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.function.exception
+namespace tests::unit::exception::function {
+  class Fixture;
+  namespace library = ::tunitas::keyston::function::exception;
+  namespace feature = ::tunitas::exception::feature;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.exception.Palette
+struct tests::unit::exception::function::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  // reminders mosly
+  using Palette::stanza0;
+  using Palette::stanza1string;
+  using Palette::stanza1error;
+  using Palette::stanza1type;
+  //
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception0() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1string() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1error() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1type() -> void;
+};
+#endiv
+#divert <tpp>
+#import std.error_code
+namespace tests::unit::exception::function {
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception0() -> void       { exercise<CATCHABLE, EXCEPTION>(); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1string() -> void { exercise<CATCHABLE, EXCEPTION>("give-me-one-reason"s); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1error() -> void  { exercise<CATCHABLE, EXCEPTION>(std::error_code{}, "give-me-one-reason"s); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1type() -> void   { exercise<CATCHABLE, EXCEPTION>(typeid(CATCHABLE)); }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.function.exception.Failure
+#import tunitas.keyston.function.exception.Invalid
+#import tunitas.keyston.function.exception.Invariant
+#import tunitas.keyston.function.exception.Null
+#import tunitas.keyston.function.exception.Unimplemented
+auto tests::unit::exception::function::Fixture::suite() -> Suite {
+  auto series = Stream{"function"sv};
+  series << stanza1error<Fixture, feature::Failure, library::Failure>("Failure")
+         << stanza1string<Fixture, feature::Invalid, library::Invalid>("Invalid")
+         << stanza1string<Fixture, feature::Invariant, library::Invariant>("Invariant")
+         << stanza0<Fixture, feature::Null, library::Null>("Null")
+         << stanza0<Fixture, feature::Unimplemented, library::Unimplemented>("Unimplemented")
+         << END;
+  return settle(series);
+}
+#endiv

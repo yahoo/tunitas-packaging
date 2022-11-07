@@ -1,0 +1,129 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.protocol.query.Type
+namespace tests::unit::protocol::query::similar {
+  template<typename SUBJECT, template<library::Type> class RECORD> class Fixture;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::protocol::query {
+  template<typename SUBJECT, template<library::Type> class RECORD> struct similar::Fixture : public rigging::suite::Fixture {
+  public: static auto suite() -> Suite; // [[observe]] never used?
+  protected:
+    static auto stanza(string::View name) -> Stream;
+    static auto stanza(std::type_info const &info) -> Stream { return stanza(info.name()); }
+  public:
+    using Subject = SUBJECT;
+    using Type = library::Type;
+    template<library::Type TYPE> using Record = RECORD<TYPE>;
+    //
+    auto test_usage_constructor() -> void;
+    auto test_usage_type() -> void;
+    auto test_usage_cast_reference() -> void;
+    auto test_usage_cast_pointer() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::protocol::query::similar {
+  template<typename S, template<library::Type> class R> auto Fixture<S,R>::suite() -> Suite {
+    auto series = stanza(typeid(Subject));
+    return settle(series);
+  }
+  template<typename SUBJECT, template<library::Type> class RECORD> auto Fixture<SUBJECT,RECORD>::stanza(string::View name) -> Stream {
+    auto series = Stream{name};
+    series << []{
+                auto use = Stream{"usage"sv};
+                use << add("constructor", &Fixture::test_usage_constructor)
+                    << add("type", &Fixture::test_usage_type)
+                    << []{
+                         auto cast = Stream{"cast"sv};
+                         cast << add("reference", &Fixture::test_usage_cast_reference)
+                              << add("pointer", &Fixture::test_usage_cast_pointer)
+                              << END;
+                         return cast;
+                       }()
+                    << END;
+                return use;
+              }()
+           << END;
+    return series;
+  }
+  template<typename S, template<library::Type> class R> auto Fixture<S,R>::test_usage_constructor() -> void {
+    {
+      auto subject = Subject{};
+      require(ASSERTION, sizeof (subject));
+    } {
+      auto subject = Subject{Record<Type::RESERVED>{}};
+      require(ASSERTION, sizeof (subject));
+    } {
+      auto subject = Subject{Record<Type::TIME_INTERVAL>{}};
+      require(ASSERTION, sizeof (subject));
+    } {
+      auto subject = Subject{Record<Type::FIXED_SIZE>{}};
+      require(ASSERTION, sizeof (subject));
+    }
+  }
+  template<typename S, template<library::Type> class R> auto Fixture<S,R>::test_usage_type() -> void {
+    {
+      auto specimen = Subject{};
+      auto subject = specimen.type();
+      require(ASSERTION, Type::RESERVED == subject);
+    } {
+      auto specimen = Subject{Record<Type::RESERVED>{}};
+      auto subject = specimen.type();
+      require(ASSERTION, Type::RESERVED == subject);
+    } {
+      auto specimen = Subject{Record<Type::TIME_INTERVAL>{}};
+      auto subject = specimen.type();
+      require(ASSERTION, Type::TIME_INTERVAL == subject);
+    } {
+      auto specimen = Subject{Record<Type::FIXED_SIZE>{}};
+      auto subject = specimen.type();
+      require(ASSERTION, Type::FIXED_SIZE == subject);
+    }
+  }
+  template<typename S, template<library::Type> class R> auto Fixture<S,R>::test_usage_cast_reference() -> void {
+    // failures are tested in tests::unit::protocol::query::similar::Cast
+    {
+      auto subject = Subject{};
+      // ADL will have to find cast<...>(...) from the now-visible declarations
+      auto const &residual = cast<Record<Type::RESERVED> const &>(subject);
+      require(ASSERTION, sizeof (residual));
+    } {
+      auto subject = Subject{Record<Type::RESERVED>{}};
+      auto const &residual = cast<Record<Type::RESERVED> const &>(subject);
+      require(ASSERTION, sizeof (residual));
+    } {
+      auto subject = Subject{Record<Type::TIME_INTERVAL>{}};
+      auto const &residual = cast<Record<Type::TIME_INTERVAL> const &>(subject);
+      require(ASSERTION, sizeof (residual));
+    } {
+      auto subject = Subject{Record<Type::FIXED_SIZE>{}};
+      auto const &residual = cast<Record<Type::FIXED_SIZE> const &>(subject);
+      require(ASSERTION, sizeof (residual));
+    }
+  }
+  template<typename S, template<library::Type> class R> auto Fixture<S,R>::test_usage_cast_pointer() -> void {
+    // failures are tested in tests::unit::protocol::query::similar::Cast
+    {
+      auto subject = Subject{};
+      // ADL will have to find cast<...>(...) from the now-visible declarations
+      require(ASSERTION, nullptr != cast<Record<Type::RESERVED> const *>(subject));
+    } {
+      auto subject = Subject{Record<Type::RESERVED>{}};
+      require(ASSERTION, nullptr != cast<Record<Type::RESERVED> const *>(subject));
+    } {
+      auto subject = Subject{Record<Type::TIME_INTERVAL>{}};
+      require(ASSERTION, nullptr != cast<Record<Type::TIME_INTERVAL> const *>(subject));
+    } {
+      auto subject = Subject{Record<Type::FIXED_SIZE>{}};
+      require(ASSERTION, nullptr != cast<Record<Type::FIXED_SIZE> const *>(subject));
+    }
+  }
+}
+#endiv

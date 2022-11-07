@@ -11,6 +11,11 @@ namespace tunitas::keyston {
   using Octet = std::byte;
   using Size = std::size_t;
   enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
+  //
+  // Whereas the Slice concept is referenced in keyston::function (numerics) and keyston::protocol (bytes, buffers & data layout)
+  // the canonical definition is provided here; but should be conceived as also being sourced in keyston::protocol.
+  enum class Slice { WHOLE, SHARD, SHARE = SHARD };
+  using enum Slice; // within the namespace allow the unqualified names.
 }
 #import std.uint8_t
 #import std.uint16_t

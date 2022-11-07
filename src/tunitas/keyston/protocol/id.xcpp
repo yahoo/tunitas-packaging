@@ -37,7 +37,7 @@ namespace tunitas::keyston::protocol::id {
   //
   using Batch = array::Unique<32, batch::Batch>;
   using Job = array::Unique<32, job::Job>;
-  using Report = array::Unique<32, report::Produced>;
+  using Report = array::Unique<32, report::produced::Identifier_Tag>;
   using Service = keyston::identifier::Service;
   using Task = array::Unique<32, task::Task>;
 }

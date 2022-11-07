@@ -31,7 +31,7 @@ namespace tunitas::keyston::protocol::report {
 #divert <hpp>
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.time.Point
-#import tunitas.keyston.protocol.report.Extensions
+#import tunitas.keyston.protocol.extension.Array
 namespace tunitas::keyston::protocol {
   namespace report {
     using std::move;
@@ -40,7 +40,7 @@ namespace tunitas::keyston::protocol {
   struct report::Metadata {
     id::Report report_id{}; // also serves as a nonce [[why?]]
     time::Point time{};
-    Extensions extensions{};
+    extension::Array extensions{};
   };
 }
 #endiv

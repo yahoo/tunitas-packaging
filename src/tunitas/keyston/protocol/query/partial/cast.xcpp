@@ -39,7 +39,7 @@ namespace tunitas::keyston::protocol::query::partial::package_cast::body {
 #forward tunitas.keyston.protocol.query.partial.Record
 #import tunitas.keyston.protocol.query.partial.required.Castable
 #import tunitas.keyston.protocol.query.partial.required.Queryable
-#import tunitas.variant.Visitor
+#import tunitas.keyston.protocol.query.Visitor
 #import tunitas.keyston.protocol.exception.Cast
 namespace tunitas::keyston::protocol::query::partial {
   namespace package_cast::body {
@@ -120,8 +120,8 @@ namespace tunitas::keyston::protocol::query::partial {
         }
       }
     };
-    template<required::Pointer RESULT, typename ACTUAL, typename... MATCHES> struct pointer::Conjugator : public variant::Visitor<Each<RESULT, ACTUAL, MATCHES>...> { };
-    template<required::Reference RESULT, typename ACTUAL, typename... MATCHES> struct reference::Conjugator : public variant::Visitor<Each<RESULT, ACTUAL, MATCHES>...> { };
+    template<required::Pointer RESULT, typename ACTUAL, typename... MATCHES> struct pointer::Conjugator : public Visitor<Each<RESULT, ACTUAL, MATCHES>...> { };
+    template<required::Reference RESULT, typename ACTUAL, typename... MATCHES> struct reference::Conjugator : public Visitor<Each<RESULT, ACTUAL, MATCHES>...> { };
     //
     template<required::Pointer RESULT, typename ACTUAL, typename CONJUGATIONS> struct pointer::Selector : public Conjugator<RESULT, ACTUAL,
                                                                                                                             typename CONJUGATIONS::Reserved,
@@ -140,6 +140,7 @@ namespace tunitas::keyston::protocol::query::partial {
   using package_cast::body::exported::is_time_interval;
   using package_cast::body::exported::is_fixed_size;
   using package_cast::body::exported::is_valid;
+  using package_cast::body::exported::cast;
 }
 #endiv
 #divert <ipp>
@@ -153,18 +154,18 @@ namespace tunitas::keyston::protocol::query::partial {
 #import nonstd.required.Reference
 namespace tunitas::keyston::protocol::query::partial::package_cast {
   template<required::Queryable EXACT> auto interface::is(Partial const &candidate) -> bool {
-    auto visitor = variant::Visitor{[](EXACT const &) { return true; },
-                                    [](auto const &)  { return false; }};
+    auto visitor = Visitor{[](EXACT const &) { return true; },
+                           [](auto const &)  { return false; }};
     return visit(visitor, candidate);
   }
   auto interface::is_reserved(Partial const &candidate) -> bool      { return is<Record<Type::RESERVED>>(candidate); }
   auto interface::is_time_interval(Partial const &candidate) -> bool { return is<Record<Type::TIME_INTERVAL>>(candidate); }
   auto interface::is_fixed_size(Partial const &candidate) -> bool    { return is<Record<Type::FIXED_SIZE>>(candidate); }
   auto interface::is_valid(Partial const &candidate) -> bool {
-    auto visitor = variant::Visitor{[](Record<Type::RESERVED> const &)      { return true; },
-                                    [](Record<Type::TIME_INTERVAL> const &) { return true; },
-                                    [](Record<Type::FIXED_SIZE> const &)    { return true; },
-                                    [](auto const &)                        { return false; }};
+    auto visitor = Visitor{[](Record<Type::RESERVED> const &)      { return true; },
+                           [](Record<Type::TIME_INTERVAL> const &) { return true; },
+                           [](Record<Type::FIXED_SIZE> const &)    { return true; },
+                           [](auto const &)                        { return false; }};
     return visit(visitor, candidate);
   }
   template<typename RESULT> auto interface::cast(Partial const &candidate) -> RESULT requires required::Castable<RESULT> { return conjugate<Conjugations<Partial const>, RESULT>(candidate); }

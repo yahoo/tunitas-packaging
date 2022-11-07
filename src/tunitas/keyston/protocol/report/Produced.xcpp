@@ -4,75 +4,19 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.protocol.report.whole.Produced
+#import tunitas.keyston.protocol.report.share.Produced
 namespace tunitas::keyston::protocol::report {
   //
-  // The report
+  // Choose which one
   //
-  // Specification:
-  //
-  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4.3.2. Upload Request
-  //
-  // Design:
-  //
-  //   As-stated.
-  //
-  // Usage:
-  //
-  //   Construct with designated initialization.
-  //
-  struct Produced;
-}
-#endiv
-#divert <hpp>
-#import tunitas.keyston.Opaque
-#import tunitas.keyston.array.Bounded
-#import tunitas.keyston.hpke.Ciphertext
-#import tunitas.keyston.nonce.Bits
-#import tunitas.keyston.nonce.Bundle
-#import tunitas.keyston.nonce.Since
-#import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.report.Metadata
-namespace tunitas::keyston::protocol {
-  namespace report {
-    using std::move;
-    inline auto swap(Produced &, Produced &) noexcept -> void;
+  namespace [[eponymous]] produced {
+    struct Identifier_Tag {};
+    template<Slice> struct Choice;
+    template<> struct Choice<WHOLE> { using Type = whole::Produced; };
+    template<> struct Choice<SHARE> { using Type = share::Produced; };
+    template<Slice SLICE> using Produced = typename Choice<SLICE>::Type;
   }
-  struct report::Produced {
-    id::Task task_id{};
-    Metadata metadata{};
-#if 0
-    // NO NORE since draft-ietf-ppm-dap-03
-    nonce::Bundle<nonce::Bits<64>, nonce::Since<std::chrono::microseconds>> noncetime{};
-#endif
-    Opaque<(1uz<<32)> public_share{};
-    array::Bounded<hpke::Ciphertext, (1uz<<32)> encrypted_input_shares{};
-  };
-}
-#endiv
-#divert <ipp>
-namespace tunitas::keyston::protocol {
-  auto report::swap(Produced &a, Produced &b) noexcept -> void {
-    swap(a.task_id, b.task_id);
-    swap(a.metadata, b.metadata);
-#if 0
-    swap(a.noncetime, b.noncetime);
-#endif
-    swap(a.public_share, b.public_share);
-    swap(a.encrypted_input_shares, b.encrypted_input_shares);
-  }
-}
-#endiv
-#divert <cpp>
-namespace {
-  namespace testate {
-    using namespace tunitas::keyston::protocol::report;
-    static_assert(std::is_default_constructible_v<Produced>);
-    static_assert(std::is_copy_constructible_v<Produced>);
-    static_assert(std::is_move_constructible_v<Produced>);
-    static_assert(std::is_copy_assignable_v<Produced>);
-    static_assert(std::is_move_assignable_v<Produced>);
-    static_assert(std::is_swappable_v<Produced>);
-  }
+  using produced::Produced;
 }
 #endiv

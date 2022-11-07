@@ -4,9 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.function.Parameters
 namespace tunitas::keyston::protocol::aggregation {
   //
-  // The aggragation paramteers
+  // The aggragation parameters, as known to the DAP.
   //
   // Specification:
   //
@@ -21,31 +22,7 @@ namespace tunitas::keyston::protocol::aggregation {
   //
   //   It's opaque, get it?
   //
-  struct Parameters;
-}
-#endiv
-#divert <hpp>
-#import tunitas.keyston.Opaque
-namespace tunitas::keyston::protocol {
-  namespace aggregation {
-    using std::move;
-    inline auto swap(Parameters &, Parameters &) noexcept -> void;
-  }
-  struct aggregation::Parameters : public Opaque<(1uz<<16)> {
-    using Ancestor = Opaque<(1uz<<16)>;
-    friend auto swap(Parameters &, Parameters &) noexcept -> void;
-  public:
-    Parameters() = default;
-    using Ancestor::Bounded; // you "just have to know" that the ancestor's constructor is named thus.
-  };
-}
-#endiv
-#divert <ipp>
-namespace tunitas::keyston::protocol {
-  auto aggregation::swap(Parameters &a, Parameters &b) noexcept -> void {
-    Parameters::Ancestor &aa{a}, &bb{b};
-    swap(aa, bb);
-  }
+  using Parameters = function::Parameters;
 }
 #endiv
 #divert <cpp>

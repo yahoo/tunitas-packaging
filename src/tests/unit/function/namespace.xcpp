@@ -8,5 +8,17 @@
 #import tunitas.keyston.function
 namespace tests::unit::function {
   namespace library = ::tunitas::keyston::function;
+  namespace zero {
+    namespace library = ::tunitas::keyston::function::zero;
+  }
+  namespace constant {
+    namespace library = ::tunitas::keyston::function::constant;
+  }
+  namespace prio3 {
+    namespace library = ::tunitas::keyston::function::prio3;
+  }
+  namespace poplar1 {
+    namespace library = ::tunitas::keyston::function::poplar1;
+  }
 }
 #endiv

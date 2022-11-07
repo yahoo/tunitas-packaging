@@ -6,10 +6,12 @@
 #
 tunitas_keyston_protocol_report_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/report/namespace.cpp \
-  obj/src/tunitas/keyston/protocol/report/Produced.cpp \
   obj/src/tunitas/keyston/protocol/report/Metadata.cpp \
-  obj/src/tunitas/keyston/protocol/report/Extensions.cpp \
+  obj/src/tunitas/keyston/protocol/report/Basis.cpp \
+  obj/src/tunitas/keyston/protocol/report/Produced.cpp \
   $(tunitas_keyston_protocol_report_share_SUBSOURCES) \
+  $(tunitas_keyston_protocol_report_whole_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/protocol/report/share/Makefrag.am
+include src/tunitas/keyston/protocol/report/whole/Makefrag.am

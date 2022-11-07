@@ -5,5 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-namespace tunitas::keyston::protocol { }
+namespace tunitas::keyston::protocol {
+  // Because it is commonly referenced from here in external & downstream usage; e.g. denniston, honsinger, ladera, nuff, woodruff
+  using keyston::Slice;
+}
 #endiv

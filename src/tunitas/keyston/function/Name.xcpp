@@ -1,0 +1,73 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::function {
+  //
+  // The Name of a VDAF is a code point (codepoint)
+  //
+  // Specificatoin:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html#codepoints
+  //   Verifiable Distributed Aggregation Functions
+  //   Section 10. IANA Considerations
+  //   Table 16
+  //
+  //   <recitation>
+  //     <paraphrase>
+  //
+  //       Note that 0xFFFF0000 through 0xFFFFFFFF are reserved for private use.
+  //
+  //       Value                         Scheme                  Type        Reference
+  //       --------------------------------------------------------------------------------
+  //       0x00000000                    Prio3Aes128Count        VDAF        Section 7.4.1
+  //       0x00000001                    Prio3Aes128Sum          VDAF        Section 7.4.2
+  //       0x00000002                    Prio3Aes128Histogram    VDAF        Section 7.4.3
+  //       0x00000003 to 0x00000FFF      Prio3 reserved          VDAF        n/a
+  //       0x00001000                    Poplar1Aes128           VDAF        Section 8.4
+  //       0xFFFF0000 to 0xFFFFFFFF      private use             n/a        n/a
+  //
+  //       Table 16: Unique identifiers for (V)DAFs.
+  //
+  //     </paraphrase>
+  // </recitation>
+  //
+  // Design:
+  //
+  //   It's an enum (class).
+  //
+  // Usage:
+  //
+  //  You need a tutorial on how to use an enum (class)? o.rly?
+  //
+  enum class Name : std::uint32_t {
+    PRIO3_AES128_COUNT = 0x00000000,
+    Prio3Aes128Count = PRIO3_AES128_COUNT,
+    //
+    PRIO3_AES128_SUM = 0x00000001,
+    Prio3Aes128Sum = PRIO3_AES128_SUM,
+    //
+    PRIO3_AES128_HISTOGRAM = 0x00000002,
+    Prio3Aes128Histogram = PRIO3_AES128_HISTOGRAM,
+    //
+    POPLAR1_AES128 = 0x00001000,
+    Poplar1Aes128 = POPLAR1_AES128,
+    //
+    // As known herein.
+    ZERO = 0xffff0000u, // ... the zero function
+    CONSTANT, // ............. a constant function
+    PRIO3, // ................ summation, aggregation
+    POPLAR1, // .............. "top K", "heavy hitters"
+  };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+namespace tunitas::keyston::function {
+  inline constexpr auto underlying(Name n) { return std::underlying_type_t<Name>(n); }
+  //
+  inline auto swap(Name &a, Name &b) noexcept -> void { return std::swap(a, b); }
+}
+#endiv

@@ -8,7 +8,13 @@ tests_unit_protocol_SUBSOURCES = \
   check/obj/src/tests/unit/protocol/namespace.cpp \
   check/obj/src/tests/unit/protocol/Fixture.cpp \
   check/obj/src/tests/unit/protocol/batch.Fixture.cpp \
+  check/obj/src/tests/unit/protocol/extension.Fixture.cpp \
   check/obj/src/tests/unit/protocol/id.Fixture.cpp \
   check/obj/src/tests/unit/protocol/job.Fixture.cpp \
+  $(tests_unit_protocol_query_SUBSOURCES) \
+  $(tests_unit_protocol_report_SUBSOURCES) \
   check/obj/src/tests/unit/protocol/task.Fixture.cpp \
   $(end)
+#
+include src/tests/unit/protocol/query/Makefrag.am
+include src/tests/unit/protocol/report/Makefrag.am

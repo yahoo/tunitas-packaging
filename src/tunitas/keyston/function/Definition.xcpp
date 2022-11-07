@@ -1,0 +1,188 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.Tuple
+#import tunitas.keyston.function.Seed
+#import tunitas.keyston.function.Input
+#import tunitas.keyston.function.Preparation
+#import tunitas.keyston.function.Continued
+#import tunitas.keyston.function.Output
+#import tunitas.keyston.function.Aggregate
+#import tunitas.keyston.function.types // [[FIXTHIS]] do we still need this?  Answer: yes, for at least Vector<...>
+#import tunitas.keyston.measurement.Result
+namespace tunitas::keyston::function {
+  //
+  // The definition of a (Verifiable Distributed Aggregation) Function
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   There really are only two such functions specified at this point
+  //   PRIO3
+  //   POPLAR1
+  //
+  //   The interface, as stated
+  //
+  //   (a noun form)
+  //   disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement) -> (Bytes, Vec[Bytes])
+  //   initialization ........ Vdaf.prep_init(verify_key: Bytes, agg_id: Unsigned, agg_param: AggParam, nonce: Bytes, public_share: Bytes, input_share: Bytes) -> Prep
+  //   continuation .......... Vdaf.prep_next(prep: Prep, inbound: Optional[Bytes]) -> Union[Tuple[Prep, Bytes], OutShare]
+  //   amalgamation .......... Vdaf.prep_shares_to_prep(agg_param: AggParam, prep_shares: Vec[Bytes]) -> Bytes
+  //   disgorgement .......... Vdaf.out_shares_to_agg_share(agg_param: AggParam, out_shares: Vec[OutShare]) -> agg_share: Bytes
+  //   reassembly ............ Vdaf.agg_shares_to_result(agg_param: AggParam, agg_shares: Vec[Bytes], num_measurements: Unsigned) -> AggResult
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  //   The interface terminology in the I-D.irtf-cfrg-vdaf is clunky. clang, Clang, ClAnG, CLANG
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  namespace [[eponymous]] definition {
+    struct Definition;
+    //
+    // These are also consumed in the free function clusters of namespace zero, constant, prio3, poplar1
+    using Disassembled = Tuple<Seed<SHARE>, Vector<Input<SHARE>>>;
+    using Initialized = Preparation<WHOLE>;
+    using Continued = function::Continued;
+    using Amalgamated = Preparation<WHOLE>;
+    using Disgorged = Aggregate<SHARE>;
+    using Reassembled = measurement::Result;
+  }
+  using definition::Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.Tuple
+#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.function.Continued
+#import tunitas.keyston.function.Name
+#import tunitas.keyston.function.Parameters
+namespace tunitas::keyston::function {
+  namespace definition {
+    using std::move;
+    inline auto swap(Definition &, Definition &) noexcept -> void;
+  }
+  struct definition::Definition {
+    using Name = function::Name;
+    using enum Name;
+    //
+    using Disassembled = definition::Disassembled;
+    using Disassembly = Disassembled (*)(measurement::Specimen const &);
+    Disassembly disassembly{};
+    //
+    using Initialized = definition::Initialized;
+    using Initialization = Initialized (*)(Parameters const &, verify::Key const &, Processor, Nonce const &, Seed<SHARE> const &, Input<SHARE> const &);
+    Initialization initialization{};
+    //
+    using Continued = definition::Continued;
+    using Continuation = Continued (*)(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &);
+    Continuation continuation{};
+    //
+    using Amalgamated = definition::Amalgamated;
+    using Amalgamation = Amalgamated (*)(Parameters const &, Vector<Preparation<SHARE>> const &);
+    Amalgamation amalgamation{};
+    //
+    using Disgorged = definition::Disgorged;
+    using Disgorgement = Disgorged (*)(Parameters const &, Vector<Output<SHARE>> const &);
+    Disgorgement disgorgement{};
+    //
+    using Reassembled = definition::Reassembled;
+    using Reassembly = Reassembled (*)(Parameters const &, Vector<Aggregate<SHARE>> const &, measurement::Count);
+    Reassembly reassembly{};
+    //
+    explicit Definition() = default;
+    explicit Definition(Name);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::function {
+  auto definition::swap(Definition &a, Definition &b) noexcept -> void {
+    swap(a.disassembly, b.disassembly);
+    swap(a.initialization, b.initialization);
+    swap(a.continuation, b.continuation);
+    swap(a.amalgamation, b.amalgamation);
+    swap(a.disgorgement, b.disgorgement);
+    swap(a.reassembly, b.reassembly);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::function::definition;
+    //
+    static_assert(std::semiregular<Definition>);
+    //
+    static_assert(std::is_default_constructible_v<Definition>);
+    static_assert(std::is_copy_constructible_v<Definition>);
+    static_assert(std::is_move_constructible_v<Definition>);
+    static_assert(std::is_copy_assignable_v<Definition>);
+    static_assert(std::is_move_assignable_v<Definition>);
+    static_assert(std::is_swappable_v<Definition>);
+  }
+}
+#import tunitas.keyston.function.exception.Invalid
+#import tunitas.keyston.function.exception.Unimplemented
+#import tunitas.keyston.function.zero
+#import tunitas.keyston.function.constant
+#import tunitas.keyston.function.prio3
+#import tunitas.keyston.function.poplar1
+namespace tunitas::keyston::function::definition {
+  Definition::Definition(Name name) {
+    switch (name) {
+    case Name::PRIO3_AES128_COUNT:
+    case Name::PRIO3_AES128_SUM:
+    case Name::PRIO3_AES128_HISTOGRAM:
+    case Name::POPLAR1_AES128:
+      throw exception::Unimplemented{};
+    case Name::ZERO:
+      disassembly = zero::disassembly;
+      initialization = zero::initialization;
+      continuation = zero::continuation;
+      amalgamation = zero::amalgamation;
+      disgorgement = zero::disgorgement;
+      reassembly = zero::reassembly;
+      break;
+    case Name::CONSTANT:
+      disassembly = constant::disassembly;
+      initialization = constant::initialization;
+      continuation = constant::continuation;
+      amalgamation = constant::amalgamation;
+      disgorgement = constant::disgorgement;
+      reassembly = constant::reassembly;
+      break;
+    case Name::PRIO3:
+      disassembly = prio3::disassembly;
+      initialization = prio3::initialization;
+      continuation = prio3::continuation;
+      amalgamation = prio3::amalgamation;
+      disgorgement = prio3::disgorgement;
+      reassembly = prio3::reassembly;
+      break;
+    case Name::POPLAR1:
+      disassembly = poplar1::disassembly;
+      initialization = poplar1::initialization;
+      continuation = poplar1::continuation;
+      amalgamation = poplar1::amalgamation;
+      disgorgement = poplar1::disgorgement;
+      reassembly = poplar1::reassembly;
+      break;
+    default:
+      throw exception::Invalid{"function name"};
+    }
+  }
+}
+#endiv

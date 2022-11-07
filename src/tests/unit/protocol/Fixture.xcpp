@@ -15,8 +15,11 @@ struct tests::unit::protocol::Fixture : public rigging::suite::Fixture {
 #endiv
 #divert <cpp>
 #import tests.unit.protocol.batch.Fixture
+#import tests.unit.protocol.extension.Fixture
 #import tests.unit.protocol.id.Fixture
 #import tests.unit.protocol.job.Fixture
+#import tests.unit.protocol.query.Fixture
+#import tests.unit.protocol.report.Fixture
 #import tests.unit.protocol.task.Fixture
 auto tests::unit::protocol::Fixture::suite() -> Suite {
   auto series = Stream{"protocol"sv};
@@ -27,15 +30,16 @@ auto tests::unit::protocol::Fixture::suite() -> Suite {
               return use;
             }()
          << add<batch::Fixture>()
+         << add<extension::Fixture>()
          << add<id::Fixture>()
          << add<job::Fixture>()
+         << add<query::Fixture>()
+         << add<report::Fixture>()
          << add<task::Fixture>()
 #if 0
          << add<aggregation::Fixture>()
          << add<collection::Fixture>()
          << add<preparation::Fixture>()
-         << add<query::Fixture>()
-         << add<report::Fixture>()
 #endif
          << END;
   return settle(series);

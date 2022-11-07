@@ -12,4 +12,5 @@ tunitas_keyston_exception_SUBSOURCES = \
   obj/src/tunitas/keyston/exception/Failure.cpp \
   obj/src/tunitas/keyston/exception/Invalid.cpp \
   obj/src/tunitas/keyston/exception/Invariant.cpp \
+  obj/src/tunitas/keyston/exception/Unimplemented.cpp \
   $(end)

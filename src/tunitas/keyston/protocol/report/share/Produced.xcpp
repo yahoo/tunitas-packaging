@@ -17,35 +17,53 @@ namespace tunitas::keyston::protocol::report::share {
   //
   //   As stated.
   //
+  //   <strike>Construct with designated initialization, maybe.</strike>
+  //   The use of inheritance precludes the use of designated initialization; see the constructor(s).
+  //
   // Usage:
   //
-  //   Use designated initialization
+  //   Hack the Spew (figure it out).
   //
   struct Produced;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.Opaque
-#import tunitas.keyston.hpke.Ciphertext
-#import tunitas.keyston.protocol.report.Metadata
+#import tunitas.keyston.protocol.report.Basis
 namespace tunitas::keyston::protocol::report {
   namespace share {
     using std::move;
     inline auto swap(Produced &, Produced &) noexcept -> void;
   }
-  struct share::Produced {
-    Metadata metadata{};
-    Opaque<(1uz<<32)> public_share{};
-    hpke::Ciphertext encrypted_input_share{};
+  struct share::Produced : public Basis {
+    using Ancestor = Basis;
+    friend auto swap(Produced &, Produced &) noexcept -> void;
+  public:
+    using Encrypted_Input_Share = hpke::Ciphertext;
+    Encrypted_Input_Share encrypted_input_share{};
+    //
+    explicit Produced() = default;
+    using Ancestor::Basis;
+    inline explicit Produced(Metadata, Encrypted_Input_Share);
+    inline explicit Produced(id::Report, time::Point, extension::Array, Encrypted_Input_Share);
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::protocol::report {
   auto share::swap(Produced &a, Produced &b) noexcept -> void {
-    swap(a.metadata, b.metadata);
-    swap(a.public_share, b.public_share);
+    Produced::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
     swap(a.encrypted_input_share, b.encrypted_input_share);
+  }
+  namespace share {
+    Produced::Produced(Metadata m, Encrypted_Input_Share eis)
+      : Ancestor{move(m)}
+      , encrypted_input_share{move(eis)}
+    { }
+    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, Encrypted_Input_Share eis)
+      : Ancestor{move(rid), move(tp), move(ea)}
+      , encrypted_input_share{move(eis)}
+    { }
   }
 }
 #endiv

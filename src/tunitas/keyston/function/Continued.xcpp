@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.Pair
+#import tunitas.Variant
+#import tunitas.keyston.function.Preparation
+#import tunitas.keyston.function.Output
+namespace tunitas::keyston::function {
+  //
+  // The sum type of the contnuity
+  //
+  // Specification:
+  //
+  //   The usual place
+  //
+  // Design:
+  //
+  //   using Continued = Variant<Pair<Preparation<WHOLE>, Preparation<SHARE>>, Output<SHARE>>;
+  //
+  //   but make it more convenient.
+  //
+  // Usage:
+  //
+  //   See Definition.
+  //
+  namespace [[eponymous]] continued {
+    using Again = Pair<Preparation<WHOLE>, Preparation<SHARE>>;
+    using Final = Output<SHARE>;
+    using Variant = tunitas::Variant<Again, Final>;
+    using Continued = Variant;
+  }
+  using continued::Continued;
+}
+#endiv

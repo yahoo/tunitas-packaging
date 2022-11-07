@@ -13,6 +13,8 @@ tunitas_keyston_protocol_query_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/query/Fixed_Size.cpp \
   obj/src/tunitas/keyston/protocol/query/traits.Cast.cpp \
   obj/src/tunitas/keyston/protocol/query/cast.cpp \
+  obj/src/tunitas/keyston/protocol/query/Visitor.cpp \
+  obj/src/tunitas/keyston/protocol/query/visit.cpp \
   $(tunitas_keyston_protocol_query_batch_SUBSOURCES) \
   $(tunitas_keyston_protocol_query_partial_SUBSOURCES) \
   $(tunitas_keyston_protocol_query_required_SUBSOURCES) \

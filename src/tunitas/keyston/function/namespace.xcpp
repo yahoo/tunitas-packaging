@@ -9,33 +9,24 @@ namespace tunitas::keyston::function {
   //
   // Specification:
   //
-  //   Just what it says.
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
+  //   Verifiable Distributed Aggregation Functions
+  //
+  //   See tunitas.keyston.function.types
   //
   // Design:
   //
-  //   Oh come on, they're enum (class)es.
+  //   No.
   //
   // Usage:
   //
-  //   You need a tutorial on how to use an enum (class)? o.rly?
+  //   Yes.
   //
-  enum class Result {
-    CONSTANT, // ........ the constant result
-    INTEGER_ZMODM, // ... Z_m, integers modulo m 
-  };
-  enum class Function {
-    CONSTANT, // ... the constant-generation function
-    SUM, // ........ summation
-  };
-}
-#endiv
-#divert <hpp>
-#import std.underlying_type
-namespace tunitas::keyston::function {
-  inline constexpr auto underlying(Result r)   { return std::underlying_type_t<Result>(r); }
-  inline constexpr auto underlying(Function f) { return std::underlying_type_t<Function>(f); }
+  namespace [[nodirectory]] zero { }
+  namespace [[nodirectory]] constant { }
+  namespace [[nodirectory]] prio3 { }
+  namespace [[nodirectory]] poplar1 { }
   //
-  inline auto swap(Result &a, Result &b) noexcept -> void     { return std::swap(a, b); }
-  inline auto swap(Function &a, Function &b) noexcept -> void { return std::swap(a, b); }
+  namespace [[nodirectory]] verify { }
 }
 #endiv

@@ -32,7 +32,7 @@ namespace tunitas::keyston::protocol::query::partial {
 #divert <hpp>
 #import tunitas.keyston.protocol.query.partial.Variant
 #import tunitas.keyston.protocol.query.Type
-#import tunitas.variant.Visitor
+#import tunitas.keyston.protocol.query.Visitor
 namespace tunitas::keyston::protocol::query {
   namespace partial {
     using std::move;
@@ -41,7 +41,7 @@ namespace tunitas::keyston::protocol::query {
   class partial::Partial : public Variant {
     using Ancestor = Variant;
     friend auto swap(Partial &, Partial &) noexcept -> void;
-    template<typename... THUNKS> using Visitor = tunitas::variant::Visitor<THUNKS...>;
+    template<typename... THUNKS> using Visitor = query::Visitor<THUNKS...>;
   public:
     Partial() = default;
     using Ancestor::variant;

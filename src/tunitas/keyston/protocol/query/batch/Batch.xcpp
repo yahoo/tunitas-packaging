@@ -35,17 +35,20 @@ namespace tunitas::keyston::protocol::query::batch {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.protocol.query.batch.Variant
+#forward tunitas.keyston.protocol.query.Partial
 #import tunitas.keyston.protocol.query.Type
-#import tunitas.variant.Visitor
+#import tunitas.keyston.protocol.query.Visitor
 namespace tunitas::keyston::protocol::query {
   namespace batch {
     using std::move;
     inline auto swap(Batch &, Batch &) noexcept -> void;
+    inline auto partialize(Batch const &) -> Partial;
   }
   class batch::Batch : public Variant {
     using Ancestor = Variant;
     friend auto swap(Batch &, Batch &) noexcept -> void;
-    template<typename... THUNKS> using Visitor = tunitas::variant::Visitor<THUNKS...>;
+    friend auto partialize(Batch const &) -> Partial;
+    template<typename... THUNKS> using Visitor = query::Visitor<THUNKS...>;
   public:
     Batch() = default;
     using Ancestor::variant;
@@ -56,12 +59,21 @@ namespace tunitas::keyston::protocol::query {
 }
 #endiv
 #divert <ipp>
+#import tunitas.keyston.protocol.query.Partial
 #import tunitas.keyston.protocol.query.batch.Record
 #import tunitas.keyston.protocol.exception.Invalid
 namespace tunitas::keyston::protocol::query {
   auto batch::swap(Batch &a, Batch &b) noexcept -> void {
     Batch::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
+  }
+  auto batch::partialize(Batch const &source) -> Partial {
+    // This looks likecopy-pasta but the Record<Type>SOMETHING> is different in namespace batch and namespace partial
+    auto visitor = Visitor{[](Record<Type::RESERVED> const &)      -> Partial { return partial::Record<Type::RESERVED>{}; },
+                           [](Record<Type::TIME_INTERVAL> const &) -> Partial { return partial::Record<Type::TIME_INTERVAL>{}; },
+                           [](Record<Type::FIXED_SIZE> const &f)   -> Partial { return partial::Record<Type::FIXED_SIZE>{f}; },
+                           [](auto const &)                                   { throw exception::Invalid{"query::Batch"}; }};
+    return visit(visitor, static_cast<Batch::Ancestor const &>(source));
   }
   namespace batch {
     auto Batch::type() const -> Type {

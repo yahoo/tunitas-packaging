@@ -6,17 +6,14 @@
 #divert <fpp>
 #import tunitas.keyston.exception
 namespace tests::unit::exception::keyston {
-  namespace [[eponymous]] fixture {
-    class Fixture;
-    namespace library = ::tunitas::keyston::exception;
-    namespace feature = ::tunitas::exception::feature;
-  }
-  using fixture::Fixture;
+  class Fixture;
+  namespace library = ::tunitas::keyston::exception;
+  namespace feature = ::tunitas::exception::feature;
 }
 #endiv
 #divert <hpp>
 #import tests.unit.exception.Palette
-struct tests::unit::exception::keyston::fixture::Fixture : public rigging::suite::Fixture, protected Palette {
+struct tests::unit::exception::keyston::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
   // reminders mosly
@@ -33,7 +30,7 @@ struct tests::unit::exception::keyston::fixture::Fixture : public rigging::suite
 #endiv
 #divert <tpp>
 #import std.error_code
-namespace tests::unit::exception::keyston::fixture {
+namespace tests::unit::exception::keyston {
   template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception0() -> void       { exercise<CATCHABLE, EXCEPTION>(); }
   template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1string() -> void { exercise<CATCHABLE, EXCEPTION>("give-me-one-reason"s); }
   template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1error() -> void  { exercise<CATCHABLE, EXCEPTION>(std::error_code{}, "give-me-one-reason"s); }
@@ -46,13 +43,15 @@ namespace tests::unit::exception::keyston::fixture {
 #import tunitas.keyston.exception.Failure
 #import tunitas.keyston.exception.Invalid
 #import tunitas.keyston.exception.Invariant
-auto tests::unit::exception::keyston::fixture::Fixture::suite() -> Suite {
+#import tunitas.keyston.exception.Unimplemented
+auto tests::unit::exception::keyston::Fixture::suite() -> Suite {
   auto series = Stream{"keyston"sv};
   series << stanza1string<Fixture, feature::Bound, library::Bound>("Bound")
          << stanza1type<Fixture, feature::Cast, library::Cast>("Cast")
          << stanza1error<Fixture, feature::Failure, library::Failure>("Failure")
          << stanza1string<Fixture, feature::Invalid, library::Invalid>("Invalid")
          << stanza1string<Fixture, feature::Invariant, library::Invariant>("Invariant")
+         << stanza0<Fixture, feature::Unimplemented, library::Unimplemented>("Unimplemented")
          << END;
   return settle(series);
 }

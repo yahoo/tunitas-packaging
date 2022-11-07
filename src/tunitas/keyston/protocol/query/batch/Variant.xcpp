@@ -37,8 +37,9 @@ namespace tunitas::keyston::protocol::query::batch {
     } (std::make_index_sequence<std::variant_size_v<Variant>>{}));
 }
 // Uses of the Variant will all need these
-#import tunitas.variant.Visitor
+#import tunitas.keyston.protocol.query.Visitor
 #endiv
 #divert <hpp>
-#import tunitas.variant.visit
+// Eadem ratione
+#import tunitas.keyston.protocol.query.visit
 #endiv

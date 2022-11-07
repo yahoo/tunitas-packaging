@@ -7,4 +7,9 @@
 tests_unit_function_SUBSOURCES = \
   check/obj/src/tests/unit/function/namespace.cpp \
   check/obj/src/tests/unit/function/Fixture.cpp \
+  check/obj/src/tests/unit/function/Executor.cpp \
+  check/obj/src/tests/unit/function/zero.Fixture.cpp \
+  check/obj/src/tests/unit/function/constant.Fixture.cpp \
+  check/obj/src/tests/unit/function/prio3.Fixture.cpp \
+  check/obj/src/tests/unit/function/poplar1.Fixture.cpp \
   $(end)

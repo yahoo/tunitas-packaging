@@ -7,14 +7,14 @@
 #import tunitas.keyston.identifier
 #import tunitas.keyston.protocol.task
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.function // for function::Function
+#import tunitas.keyston.function.Definition
 namespace tests::unit::protocol::task {
   class Fixture;
   namespace library = ::tunitas::keyston::protocol::task;
   namespace identifier = ::tunitas::keyston::identifier;
   namespace id = ::tunitas::keyston::protocol::id;
   namespace protocol = ::tunitas::keyston::protocol;
-  using ::tunitas::keyston::function::Function;
+  using Function = ::tunitas::keyston::function::Definition;
 }
 #endiv
 #divert <hpp>
@@ -58,12 +58,14 @@ namespace tests::unit::protocol::task {
                                     return Record<Type::FIXED_SIZE>{Fixed_Size{generate.batch_id()}};
                                   }();
                       ret.expiration = Subject::Expiration{};
-                      ret.function = Function::SUM;
+                      ret.function = Function{};
                       return ret;
                     }();
-    require(ASSERTION, Function::SUM == subject1.function);
+    auto tid0 = subject0.id;
+    auto tid1 = subject1.id;
     swap(subject0, subject1);
-    require(ASSERTION, Function::SUM == subject0.function);
+    require(ASSERTION, tid0 == subject1.id);
+    require(ASSERTION, tid1 == subject0.id);
   }
 }
 #endiv

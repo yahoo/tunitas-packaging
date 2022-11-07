@@ -1,0 +1,20 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.function.buffer.Alternative
+#include <hpp/tunitas.keyston.function.buffer.Alternative>
+#import tunitas.keyston.hpke.Ciphertext
+namespace tunitas::keyston::function {
+  //
+  // The input, in whole or in part.
+  //
+  namespace [[eponymous]] input {
+    struct Tag;
+    template<Slice SLICE> using Input = buffer::Alternative<SLICE, hpke::Ciphertext, Tag, (1uz<<32)>;
+  }
+  using input::Input;
+}
+#endiv

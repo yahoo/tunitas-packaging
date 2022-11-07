@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::protocol::query::batch { class Batch; }
+#endiv
+#divert <hpp>
+#import tests.unit.protocol.query.similar.Object
+#import tunitas.keyston.protocol.query.batch.Batch
+#import tunitas.variant.Visitor
+struct tests::unit::protocol::query::batch::Batch : public similar::Object<library::Batch, library::Record> {
+  using Ancestor = similar::Object<library::Batch, library::Record>;
+public:
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Batch;
+  using Type = library::Type;
+  template<Type TYPE> using Record = library::Record<TYPE>;
+  template<typename... TYPES> using Visitor = ::tunitas::variant::Visitor<TYPES...>;
+  //
+  auto test_partialize_default() -> void;
+  template<Type> auto test_partialize() -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::protocol::query::batch {
+  template<library::Type TYPE> auto Batch::test_partialize() -> void {
+    auto source = Subject{Record<TYPE>{}};
+    auto subject = partialize(source);
+    require(ASSERTION, sizeof (subject));
+    require(ASSERTION, TYPE == subject.type());
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::protocol::query::batch::Batch::suite() -> Suite {
+  auto series = stanza("Batch"sv);
+  series << []{
+              auto par = Stream{"partialize"sv};
+              par << add("default", &Batch::test_partialize_default)
+                  << add("RESERVED", &Batch::test_partialize<Type::RESERVED>)
+                  << add("TIME_INTERVAL", &Batch::test_partialize<Type::TIME_INTERVAL>)
+                  << add("FIXED_SIZE", &Batch::test_partialize<Type::FIXED_SIZE>)
+                  << END;
+              return par;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::protocol::query::batch {
+  auto Batch::test_partialize_default() -> void {
+    auto specimen = Subject{};
+    auto subject = partialize(specimen);
+    require(ASSERTION, Type::RESERVED == subject.type());
+  }
+}
+#endiv

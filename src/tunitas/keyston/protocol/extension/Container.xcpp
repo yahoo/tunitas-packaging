@@ -1,0 +1,84 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::protocol::extension {
+  //
+  // The extension
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.3.3. Upload Extensions
+  //
+  //   It's a blob.
+  //
+  // Design:
+  //
+  //   Basically, it's a typed but opaque blob of bytes.
+  //   That doesn't make much for a standard now doe it?  "thaar be some bytes"
+  //
+  // Usage:
+  //
+  //   Careful with these, they are the dark matter of the operable & secure infrastructure.
+  //
+  struct Container;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Opaque
+#import tunitas.keyston.protocol.extension.Type
+namespace tunitas::keyston::protocol {
+  namespace extension {
+    using std::move;
+    inline auto swap(Container &, Container &) noexcept -> void;
+  }
+  struct extension::Container : public Opaque<(1uz<<16)> {
+    using Ancestor = Opaque<(1uz<<16)>;
+    friend auto swap(Container &, Container &) noexcept -> void;
+  public:
+    Container() = default;
+    using Ancestor::Bounded; // You "just have to know" that this is the name of the ancestor constructor
+    inline explicit Container(Type, Size);
+    inline explicit Container(Type, std::initializer_list<Octet>);
+    Type type{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::protocol {
+  auto extension::swap(Container &a, Container &b) noexcept -> void {
+    Container::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+    std::swap(a.type, b.type);
+  }
+  namespace extension {
+    Container::Container(Type type, Size count)
+      : Ancestor(count)
+      , type{type}
+    { }
+    Container::Container(Type type, std::initializer_list<Octet> init)
+      : Ancestor{init}
+      , type{type}
+    { }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::extension;
+    //
+    static_assert(std::semiregular<Container>);
+    //
+    static_assert(std::is_default_constructible_v<Container>);
+    static_assert(std::is_copy_constructible_v<Container>);
+    static_assert(std::is_move_constructible_v<Container>);
+    static_assert(std::is_copy_assignable_v<Container>);
+    static_assert(std::is_move_assignable_v<Container>);
+    static_assert(std::is_swappable_v<Container>);
+  }
+}
+#endiv
