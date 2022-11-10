@@ -10,14 +10,19 @@ namespace tests::unit::protocol { class Fixture; }
 struct tests::unit::protocol::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  auto test_usage_something() -> void;
+  auto test_usage_Parameters() -> void;
 };
 #endiv
 #divert <cpp>
+#import tests.unit.protocol.aggregation.Fixture
 #import tests.unit.protocol.batch.Fixture
+#import tests.unit.protocol.collection.Fixture
 #import tests.unit.protocol.extension.Fixture
+#import tests.unit.protocol.function.Fixture
 #import tests.unit.protocol.id.Fixture
+#import tests.unit.protocol.initialization.Fixture
 #import tests.unit.protocol.job.Fixture
+#import tests.unit.protocol.preparation.Fixture
 #import tests.unit.protocol.query.Fixture
 #import tests.unit.protocol.report.Fixture
 #import tests.unit.protocol.task.Fixture
@@ -25,28 +30,34 @@ auto tests::unit::protocol::Fixture::suite() -> Suite {
   auto series = Stream{"protocol"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("something", &Fixture::test_usage_something)
+              use << add("something", &Fixture::test_usage_Parameters)
                   << END;
               return use;
             }()
          << add<batch::Fixture>()
          << add<extension::Fixture>()
+         << add<function::Fixture>()
          << add<id::Fixture>()
          << add<job::Fixture>()
          << add<query::Fixture>()
          << add<report::Fixture>()
          << add<task::Fixture>()
-#if 0
          << add<aggregation::Fixture>()
          << add<collection::Fixture>()
+         << add<initialization::Fixture>()
          << add<preparation::Fixture>()
-#endif
          << END;
   return settle(series);
 }
+#import tunitas.keyston.protocol.Parameters
 namespace tests::unit::protocol {
-  auto Fixture::test_usage_something() -> void {
-    require(ASSERTION);
+  auto Fixture::test_usage_Parameters() -> void {
+    auto subject0 = library::Parameters{};
+    auto subject1 = library::Parameters{};
+    swap(subject0, subject1);
+    // There are no values in Parameters in prio3; but poplar1 has such.
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
   }
 }
 #endiv

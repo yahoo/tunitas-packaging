@@ -15,11 +15,13 @@ struct tests::unit::exception::Fixture : public rigging::suite::Fixture {
 #import tests.unit.exception.function.Fixture
 #import tests.unit.exception.keyston.Fixture
 #import tests.unit.exception.protocol.Fixture
+#import tests.unit.exception.vdaf.Fixture
 auto tests::unit::exception::Fixture::suite() -> Suite {
   auto series = Stream("exception"sv);
   series << add<function::Fixture>()
          << add<keyston::Fixture>()
          << add<protocol::Fixture>()
+         << add<vdaf::Fixture>()
          << END;
   return settle(series);
 }

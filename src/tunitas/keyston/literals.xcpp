@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.literals
+#import tunitas.keyston.time.literals
+#import tunitas.string.literals
+namespace tunitas::keyston::literals {
+  using namespace string::literals;
+  using namespace time::literals;
+  using namespace vdaf::literals;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::literals;
+    //
+    // strings (of course)
+    static_assert(sizeof (""s));
+    static_assert(sizeof (""sv));
+    //
+    // time (the standard ones and our own)
+    static_assert(sizeof (1s));
+    static_assert(sizeof (1ms));
+    static_assert(sizeof (1_second));
+    static_assert(sizeof (1_minute));
+    static_assert(sizeof (1_hour));
+    static_assert(sizeof (1_day));
+    static_assert(sizeof (1_week));
+    static_assert(sizeof (1_month));
+    //
+    // vdaf
+    static_assert(sizeof (1_shard));
+  }
+}
+#endiv

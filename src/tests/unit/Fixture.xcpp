@@ -18,7 +18,6 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.fmt.Fixture
-#import tests.unit.function.Fixture
 #import tests.unit.identifier.Fixture
 #import tests.unit.hpke.Fixture
 #import tests.unit.keyston.Fixture
@@ -38,7 +37,6 @@ auto tests::unit::Fixture::suite() -> Suite {
          << add<error::Fixture>()
          << add<exception::Fixture>()
          << add<fmt::Fixture>()
-         << add<function::Fixture>()
          << add<identifier::Fixture>()
          << add<hpke::Fixture>()
          << add<keyston::Fixture>()

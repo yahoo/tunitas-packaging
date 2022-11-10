@@ -4,6 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import nonstd.required.Semiregular
+#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
 namespace tunitas::keyston::array {
   //
   // A bounded array.
@@ -22,11 +24,13 @@ namespace tunitas::keyston::array {
   //
   //   We guard against Murphy, not against Machiavelli
   //
+  //   [[FIXTHIS]] such exceptions are NOT recovered and re-wrapped as vdaf::exception::Aspect descendants.
+  //
   // Usage:
   //
   //   As you would a vector; with the reduced interface.
   //
-  template<typename TYPE, Size CAPACITY> struct Bounded;
+  template<required::Semiregular TYPE, Size CAPACITY> struct Bounded;
 }
 #endiv
 #divert <hpp>
@@ -36,9 +40,9 @@ namespace tunitas::keyston::array {
 namespace tunitas::keyston {
   namespace array {
     using std::move;
-    template<typename TYPE, Size CAPACITY> inline auto swap(Bounded<TYPE, CAPACITY> &, Bounded<TYPE, CAPACITY> &) noexcept -> void;
+    template<required::Semiregular TYPE, Size CAPACITY> inline auto swap(Bounded<TYPE, CAPACITY> &, Bounded<TYPE, CAPACITY> &) noexcept -> void;
   }
-  template<typename TYPE, Size CAPACITY> class array::Bounded : public Variable<TYPE> {
+  template<required::Semiregular TYPE, Size CAPACITY> class array::Bounded : public Variable<TYPE> {
     using Ancestor = Variable<TYPE>;
     friend auto array::swap<>(Bounded &, Bounded &) noexcept -> void;
     inline auto throw_if_full(Size more) const -> void;
@@ -48,7 +52,7 @@ namespace tunitas::keyston {
     inline auto capacity() const noexcept { return CAPACITY; }
     template<required::iterator::Forward ITERATOR> inline auto push_back(ITERATOR start, ITERATOR finish) -> void;
     inline auto push_back(typename Ancestor::Value) -> void;
-    template<typename... ARGUMENTS> inline auto emplace_back(ARGUMENTS &&...) -> void;;
+    template<typename... ARGUMENTS> inline auto emplace_back(ARGUMENTS &&...) -> void;
   };
 }
 #endiv
@@ -56,7 +60,7 @@ namespace tunitas::keyston {
 #import tunitas.keyston.exception.Bound
 #import std.distance
 namespace tunitas::keyston {
-  template<typename TYPE, Size CAPACITY> auto array::swap(Bounded<TYPE, CAPACITY> &a, Bounded<TYPE, CAPACITY> &b) noexcept -> void {
+  template<required::Semiregular TYPE, Size CAPACITY> auto array::swap(Bounded<TYPE, CAPACITY> &a, Bounded<TYPE, CAPACITY> &b) noexcept -> void {
     typename Bounded<TYPE, CAPACITY>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }

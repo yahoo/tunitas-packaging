@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf::numeric::poplar1 {
+  namespace package_poplar1 {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_poplar1::interface;
+}
+#import tunitas.keyston.vdaf.numeric.components
+namespace tunitas::keyston::vdaf::numeric::poplar1::package_poplar1 {
+  using namespace numeric::components;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Count
+namespace tunitas::keyston::vdaf::numeric::poplar1::package_poplar1 {
+  namespace body::exported {
+    //
+    // the interface to the poplar1 VDAF
+    //
+    // Specification:
+    //
+    //   I-D.irtf-cfrg-vdaf
+    //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
+    //   Verifiable Distributed Aggregation Function
+    //
+    //   The interface, as stated
+    //
+    //   (a noun form)
+    //   disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement) -> (Bytes, Vec[Bytes])
+    //   initialization ........ Vdaf.prep_init(verify_key: Bytes, agg_id: Unsigned, agg_param: AggParam, nonce: Bytes, public_share: Bytes, input_share: Bytes) -> Prep
+    //   continuation .......... Vdaf.prep_next(prep: Prep, inbound: Optional[Bytes]) -> Union[Tuple[Prep, Bytes], OutShare]
+    //   amalgamation .......... Vdaf.prep_shares_to_prep(agg_param: AggParam, prep_shares: Vec[Bytes]) -> Bytes
+    //   disgorgement .......... Vdaf.out_shares_to_agg_share(agg_param: AggParam, out_shares: Vec[OutShare]) -> agg_share: Bytes
+    //   reassembly ............ Vdaf.agg_shares_to_result(agg_param: AggParam, agg_shares: Vec[Bytes], num_measurements: Unsigned) -> AggResult
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See Definition.
+    //
+    auto disassembly(Input<WHOLE>const &) -> Disassembled;
+    auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Seed<SHARE> const &, Input<SHARE> const &) -> Initialized;
+    auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
+    auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
+    auto disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.exception.Unimplemented
+namespace tunitas::keyston::vdaf::numeric::poplar1::package_poplar1 {
+  auto interface::disassembly(Input<WHOLE> const &) -> Disassembled {
+    throw exception::Unimplemented{};
+    return {};
+  }
+  auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Seed<SHARE> const &, Input<SHARE> const &) -> Initialized {
+    throw exception::Unimplemented{};
+    return {};
+  }
+  auto interface::continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued {
+    throw exception::Unimplemented{};
+    return {};
+  }
+  auto interface::amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated {
+    throw exception::Unimplemented{};
+    return {};
+  }
+  auto interface::disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged {
+    throw exception::Unimplemented{};
+    return {};
+  }
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled {
+    throw exception::Unimplemented{};
+    return {};
+  }
+}
+#endiv

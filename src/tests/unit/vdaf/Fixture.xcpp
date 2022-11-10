@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::vdaf { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::vdaf::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using enum library::Scheme;
+};
+#endiv
+#divert <cpp>
+#import tunitas.keyston.vdaf.Configuration
+#import tunitas.keyston.vdaf.Definition
+#import tunitas.keyston.vdaf.Executor
+#import tests.unit.vdaf.Configuration
+#import tests.unit.vdaf.Definition
+#import tests.unit.vdaf.Executor
+auto tests::unit::vdaf::Fixture::suite() -> Suite {
+  auto series = Stream{"vdaf"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              return use;
+            }()
+         << []{
+              auto cfg = Stream{"Configuration"sv};
+              cfg << add<Configuration<library::Configuration<NUMERIC>>>()
+                  << add<Configuration<library::Configuration<PROTOCOL>>>()
+                  << END;
+              return cfg;
+            }()
+         << []{
+              auto def = Stream{"Definition"sv};
+              def << add<Definition<library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
+                  << add<Definition<library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
+                  << END;
+              return def;
+            }()
+         << []{
+              auto exe = Stream{"Executor"sv};
+              exe << add<Executor<library::Executor<NUMERIC>, library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
+                  << add<Executor<library::Executor<PROTOCOL>, library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
+                  << END;
+              return exe;
+            }()
+         << END;
+  return settle(series);
+}
+#endiv

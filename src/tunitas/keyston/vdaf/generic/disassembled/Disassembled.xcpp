@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.generic.required.Configuration
+namespace tunitas::keyston::vdaf::generic::disassembled {
+  //
+  // Specification:
+  // 
+  //   (The usual place) I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   Basically this is
+  //     using Disassembled = Tuple<Seed<SHARE>, Shards<Input<SHARE>>>;
+  //   but make it more convenient.
+  //
+  //   Lookit all that convenience nearby with:
+  //   get<0>(...)
+  //   get<1>(...)
+  //   auto [seed, shares] = disassembly(...somehow...)
+  //
+  // Design:
+  //
+  //   Noting that std::tuple doesn't require the complete type of its components.
+  //   Create a new type to allow forward references to the Disassembled<...>
+  //
+  // Usage:
+  //
+  //   And then see Definition<...>
+  //
+  template<required::Configuration> struct Disassembled;
+}
+#import std.tuple_size.tunitas.keyston.vdaf.generic.disassembled.Disassembled.CONFIGURATION
+#import std.tuple_element.N.tunitas.keyston.vdaf.generic.disassembled.Disassembled.CONFIGURATION
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.generic.disassembled.Tuple
+#import tunitas.keyston.vdaf.generic.usage.Configuration
+#import tunitas.keyston.vdaf.Shards
+namespace tunitas::keyston::vdaf::generic {
+  template<required::Configuration CONFIGURATION> struct disassembled::Disassembled : public Tuple<CONFIGURATION> {
+    using Ancestor = Tuple<CONFIGURATION>;
+    static_assert(usage::Configuration<CONFIGURATION>);
+  public:
+    [[implicit]] Disassembled() = default;
+    using Ancestor::tuple; // and indeed, yu "just have to know" that the real ancetsor class name is 'tuple' (lower case)
+  };
+}
+#endiv

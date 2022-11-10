@@ -1,0 +1,22 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.vdaf.generic.Definition
+// NOT YET ---> #import nonstd.required.InstanceOf
+namespace tunitas::keyston::vdaf::generic::required {
+  //
+  // Is this the type DEFINITION an instance of Definition?
+  // This is MUST be diagnosable without the complete type of DEFINITION.
+  //
+  // For the remaining conditions see usage::Definition<DEFINITION> which requires the complete type at <hpp>.
+  //
+  template<typename DEFINITION> concept Definition = requires(DEFINITION) {
+    // this is InstanceOf<DEFINITION, generic::Definition>;
+    { // \exists parameters that instantiate the template
+      []<typename... TYPES>(generic::Definition<TYPES...> *) {} (static_cast<DEFINITION *>(nullptr)) };
+  };
+}
+#endiv

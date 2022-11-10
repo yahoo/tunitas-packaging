@@ -1,0 +1,25 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_vdaf_generic_SUBSOURCES = \
+  obj/src/tunitas/keyston/vdaf/generic/namespace.cpp \
+  obj/src/tunitas/keyston/vdaf/generic/Definition.template.cpp \
+  obj/src/tunitas/keyston/vdaf/generic/Definition.NUMERIC.cpp \
+  obj/src/tunitas/keyston/vdaf/generic/Definition.PROTOCOL.cpp \
+  obj/src/tunitas/keyston/vdaf/generic/Definition.cpp \
+  obj/src/tunitas/keyston/vdaf/generic/Executor.cpp \
+  $(tunitas_keyston_vdaf_generic_configuration_SUBSOURCES) \
+  $(tunitas_keyston_vdaf_generic_continued_SUBSOURCES) \
+  $(tunitas_keyston_vdaf_generic_disassembled_SUBSOURCES) \
+  $(tunitas_keyston_vdaf_generic_required_SUBSOURCES) \
+  $(tunitas_keyston_vdaf_generic_usage_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/vdaf/generic/configuration/Makefrag.am
+include src/tunitas/keyston/vdaf/generic/continued/Makefrag.am
+include src/tunitas/keyston/vdaf/generic/disassembled/Makefrag.am
+include src/tunitas/keyston/vdaf/generic/required/Makefrag.am
+include src/tunitas/keyston/vdaf/generic/usage/Makefrag.am

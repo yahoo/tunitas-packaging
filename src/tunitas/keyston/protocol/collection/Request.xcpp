@@ -27,6 +27,7 @@ namespace tunitas::keyston::protocol::collection {
 #divert <hpp>
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.protocol.id
+#import tunitas.keyston.protocol.Parameters
 #import tunitas.keyston.protocol.query.Query
 namespace tunitas::keyston::protocol {
   namespace collection {
@@ -36,7 +37,7 @@ namespace tunitas::keyston::protocol {
   struct collection::Request {
     id::Task task_id{};
     protocol::query::Query query{};
-    Opaque<(1uz<<16)> aggregation_parameters{};
+    Parameters aggregation_parameters{};
   };
 }
 #endiv

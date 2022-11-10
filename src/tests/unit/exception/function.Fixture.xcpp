@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.function.exception
+#import tunitas.keyston.protocol.function.exception
 namespace tests::unit::exception::function {
   class Fixture;
-  namespace library = ::tunitas::keyston::function::exception;
+  namespace library = ::tunitas::keyston::protocol::function::exception;
   namespace feature = ::tunitas::exception::feature;
 }
 #endiv
@@ -38,11 +38,11 @@ namespace tests::unit::exception::function {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.function.exception.Failure
-#import tunitas.keyston.function.exception.Invalid
-#import tunitas.keyston.function.exception.Invariant
-#import tunitas.keyston.function.exception.Null
-#import tunitas.keyston.function.exception.Unimplemented
+#import tunitas.keyston.protocol.function.exception.Failure
+#import tunitas.keyston.protocol.function.exception.Invalid
+#import tunitas.keyston.protocol.function.exception.Invariant
+#import tunitas.keyston.protocol.function.exception.Null
+#import tunitas.keyston.protocol.function.exception.Unimplemented
 auto tests::unit::exception::function::Fixture::suite() -> Suite {
   auto series = Stream{"function"sv};
   series << stanza1error<Fixture, feature::Failure, library::Failure>("Failure")

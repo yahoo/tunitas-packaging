@@ -1,0 +1,376 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.measurement
+#import tunitas.Optional
+#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.vdaf.Shards
+namespace tests::unit::vdaf {
+  namespace [[eponymous]] executor {
+    template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> class Executor;
+    namespace measurement = ::tunitas::keyston::measurement;
+    using ::tunitas::Optional;
+    using ::tunitas::keyston::vdaf::Shard;
+    using ::tunitas::keyston::vdaf::Shards;
+  }
+  using executor::Executor;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.Executor
+#import tunitas.keyston.vdaf.exception.Null
+#import tunitas.keyston.vdaf.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+#import tunitas.exception.Aspect
+#import tunitas.keyston.hpke.Key
+namespace tests::unit::vdaf{
+  template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> struct executor::Executor : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    using Definition = DEFINITION;
+    using Configuration = CONFIGURATION;
+    using Name = library::Name;
+    using Slice = ::tunitas::keyston::Slice;
+    using enum Slice;
+    using Key = ::tunitas::keyston::hpke::Key<::tunitas::keyston::hpke::Side::SECRET>;
+    //
+    auto test_constructor_default() -> void;
+    template<library::Name> auto test_constructor_by_Name() -> void;
+    template<library::Name> auto test_constructor_by_Definition() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_constructor_move() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    auto test_swap() -> void;
+    auto test_disassembly_good() -> void;
+    auto test_disassembly_fail() -> void;
+    auto test_initialization_good() -> void;
+    auto test_initialization_fail() -> void;
+    auto test_continuation_good() -> void;
+    auto test_continuation_fail() -> void;
+    auto test_amalgamation_good() -> void;
+    auto test_amalgamation_fail() -> void;
+    auto test_disgorgement_good() -> void;
+    auto test_disgorgement_fail() -> void;
+    auto test_reassembly_good() -> void;
+    auto test_reassembly_fail() -> void;
+  protected:
+    using Failure = library::exception::Null;
+    // unused, but reminders that they could be
+    using Backup0 = library::exception::Aspect;
+    using Backup1 = ::tunitas::keyston::exception::Aspect;
+    using Backup2 = ::tunitas::exception::Aspect;
+    static auto exercise(Subject &) -> void;
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.vdaf.Definition
+#import nonstd.exception.Unreachable // Is there a tunitas::exception:::Unreachable?  There ought to be, shouldn't there?
+namespace tests::unit::vdaf::executor {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Executor::test_constructor_default)
+                    << []{
+                         auto by = Stream{"by"sv};
+                         by << [] {
+                                 auto name = Stream{"Name"sv};
+                                 name << add("ZERO", &Executor::test_constructor_by_Name<library::Name::ZERO>)
+                                      << add("CONSTANT", &Executor::test_constructor_by_Name<library::Name::CONSTANT>)
+                                      << add("PRIO3", &Executor::test_constructor_by_Name<library::Name::PRIO3>)
+                                      << add("POPLAR1", &Executor::test_constructor_by_Name<library::Name::POPLAR1>)
+                                      << END;
+                                 return name;
+                               }()
+                            << [] {
+                                 auto def = Stream{"Definition"sv};
+                                 def << add("ZERO", &Executor::test_constructor_by_Definition<library::Name::ZERO>)
+                                     << add("CONSTANT", &Executor::test_constructor_by_Definition<library::Name::CONSTANT>)
+                                     << add("PRIO3", &Executor::test_constructor_by_Definition<library::Name::PRIO3>)
+                                     << add("POPLAR1", &Executor::test_constructor_by_Definition<library::Name::POPLAR1>)
+                                     << END;
+                                 return def;
+                               }()
+                            << END;
+                         return by;
+                       }()
+                    << add("copy", &Executor::test_constructor_copy)
+                    << add("move", &Executor::test_constructor_move)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assignment"sv};
+                ass << add("copy", &Executor::test_assignment_copy)
+                    << add("move", &Executor::test_assignment_move)
+                    << END;
+                return ass;
+              }()
+           << add("swap", &Executor::test_swap)
+           << []{
+                auto call = Stream{"disassembly"sv};
+                call << add("good", &Executor::test_disassembly_good)
+                     << add("fail", &Executor::test_disassembly_fail)
+                     << END;
+                return call;
+              }()
+           << []{
+                auto call = Stream{"initialization"sv};
+                call << add("good", &Executor::test_initialization_good)
+                     << add("fail", &Executor::test_initialization_fail)
+                     << END;
+                return call;
+              }()
+           << []{
+                auto call = Stream{"continuation"sv};
+                call << add("good", &Executor::test_continuation_good)
+                     << add("fail", &Executor::test_continuation_fail)
+                     << END;
+                return call;
+              }()
+           << []{
+                auto call = Stream{"amalgamation"sv};
+                call << add("good", &Executor::test_amalgamation_good)
+                     << add("fail", &Executor::test_amalgamation_fail)
+                     << END;
+                return call;
+              }()
+           << []{
+                auto call = Stream{"disgorgement"sv};
+                call << add("good", &Executor::test_disgorgement_good)
+                     << add("fail", &Executor::test_disgorgement_fail)
+                     << END;
+                return call;
+              }()
+           << []{
+                auto call = Stream{"reassembly"sv};
+                call << add("good", &Executor::test_reassembly_good)
+                     << add("fail", &Executor::test_reassembly_fail)
+                     << END;
+                return call;
+              }()
+           << END;
+    return settle(series);
+  }
+}
+#import tunitas.exception.feature.Unimplemented
+#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.measurement.Specimen
+namespace tests::unit::vdaf::executor {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
+    {
+      auto input = typename Configuration::template Input<WHOLE>{};
+      auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = typename Configuration::Parameters{};
+      auto key = Key{};
+      auto processor = Shard{};
+      auto nonce = typename Configuration::Nonce{};
+      auto seed = typename Configuration::template Seed<SHARE>{};
+      auto input = typename Configuration::template Input<SHARE>{};
+      auto got = subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto preparation = typename Configuration::template Preparation<WHOLE>{};
+      auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
+      auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = typename Configuration::Parameters{};
+      auto vector = Shards<typename Configuration::template Preparation<SHARE>>{};
+      auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = typename Configuration::Parameters{};
+      auto vector = Shards<typename Configuration::template Output<SHARE>>{};
+      auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = typename Configuration::Parameters{};
+      auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
+      auto count = measurement::Count{};
+      auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    }
+  } catch (::tunitas::exception::feature::Unimplemented const &) {
+    // well never mind them
+    require(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::test_constructor_by_Name() -> void {
+    auto subject = Subject{NAME}; // <-------------------- test this (the constructor)
+    exercise(subject);
+  }
+  template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::test_constructor_by_Definition() -> void {
+    // Hey man, it's a tester.  You gotta hava thick skin and expect to see unnatural acts to achieve The Testability.
+    auto deferred = [this]<typename EXECUTOR>(EXECUTOR *) {
+      static_assert(std::same_as<EXECUTOR, Subject>, "double-check, otherwise the else clause will be exercised here");
+      using enum ::tunitas::keyston::vdaf::Scheme;
+      constexpr auto const is_numeric_with_a_one_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::vdaf::Executor<NUMERIC>>;
+      constexpr auto const is_protocol_with_a_two_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::vdaf::Executor<PROTOCOL>>;
+      if constexpr (is_numeric_with_a_one_argument_constructor) {
+        auto definition = Definition{NAME};
+        auto subject = Subject{definition}; // <-------------------- test this (the constructor)
+        exercise(subject);
+      } else if constexpr (is_protocol_with_a_two_argument_constructor) {
+        auto external = ::tunitas::keyston::vdaf::Definition<PROTOCOL>{NAME};
+        auto internal = ::tunitas::keyston::vdaf::Definition<NUMERIC>{NAME};
+        auto subject = Subject{external, internal}; // <-------------------- test this (the constructor)
+        exercise(subject);
+      } else {
+        throw nonstd::exception::Unreachable{};
+      }
+    };
+    deferred(static_cast<Subject *>(nullptr));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_copy() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{specimen}; // <-------------------- test this
+    exercise(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_move() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    exercise(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_assignment_copy() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    exercise(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_assignment_move() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    exercise(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_swap() -> void {
+    auto a = Subject{Subject::ZERO};
+    auto b = Subject{Subject::CONSTANT};
+    swap(a, b); // <-------------------- test this
+    exercise(a);
+    exercise(b);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto input = typename Configuration::template Input<WHOLE>{};
+    auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto input = typename Configuration::template Input<WHOLE>{};
+    auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  } catch (Backup0 const &) {
+    impossible(ASSERTION);
+  } catch (Backup1 const &) {
+    impossible(ASSERTION);
+  } catch (Backup2 const &) {
+    impossible(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
+    auto key = Key{};
+    auto processor = Shard{};
+    auto nonce = typename Configuration::Nonce{};
+    auto seed = typename Configuration::template Seed<SHARE>{};
+    auto input = typename Configuration::template Input<SHARE>{};
+    auto got = subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
+    auto key = Key{};
+    auto processor = Shard{};
+    auto nonce = typename Configuration::Nonce{};
+    auto seed = typename Configuration::template Seed<SHARE>{};
+    auto input = typename Configuration::template Input<SHARE>{};
+    subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto preparation = typename Configuration::template Preparation<WHOLE>{};
+    auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
+    auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto preparation = typename Configuration::template Preparation<WHOLE>{};
+    auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
+    subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
+    auto vector = Shards<typename Configuration::template Preparation<SHARE>>{};
+    auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
+    auto vector = Shards<typename Configuration::template Preparation<SHARE>>{};
+    subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
+    auto vector = Shards<typename Configuration::template Output<SHARE>>{};
+    auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
+    auto vector = Shards<typename Configuration::template Output<SHARE>>{};
+    subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
+    auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
+    auto count = measurement::Count{};
+    auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
+    auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
+    auto count = measurement::Count{};
+    subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

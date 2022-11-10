@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.Semiregular
+#import tunitas.keyston.vdaf.generic.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::vdaf {
+  //
+  // An array, indexed by Shard
+
+  //
+  // Specification:
+  //
+  //   It's a fixed array at SHARD_COUNT
+  //   The index operations accept a Shard (an enum (class))
+  //
+  // Design:
+  //
+  //   Sure. it was heavily designed, why do you ask?
+  //
+  //   operator[](...) ... does not throw exceptions just as the Ancestor::operator[] does not throw exceptions
+  //   at(...) ........... DOES throw exceptions just as the Ancestor::at does not throw exceptions.
+  //
+  //   We guard against Murphy, not against Machiavelli
+  //
+  //   [[FIXTHIS]] such exceptions are NOT recovered and re-wrapped as vdaf::exception::Aspect descendants.
+  //
+  // Usage:
+  //
+  //   Use it like you would any array, like a std::array
+  //
+  template<required::Semiregular> struct Shards;
+}
+#endiv
+#divert <hpp>
+// SOON ---> #import nonstd.like
+#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.array.Fixed
+namespace tunitas::keyston {
+  namespace vdaf {
+    using std::move;
+    template<required::Semiregular TYPE> inline auto swap(Shards<TYPE> &, Shards<TYPE> &) noexcept -> void;
+  }
+  template<required::Semiregular TYPE> struct vdaf::Shards : public array::Fixed<TYPE, SHARD_COUNT> {
+    using Ancestor = array::Fixed<TYPE, SHARD_COUNT>;
+    friend auto vdaf::swap<>(Shards &, Shards &) noexcept -> void;
+  public:
+    [[implicit]] Shards() = default;
+    using Ancestor::Fixed;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto operatpr[](this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>;
+    template<typename SELF> inline auto at(this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>;
+#else
+    inline auto operator[](Shard) -> typename Ancestor::Value &;
+    inline auto operator[](Shard) const -> typename Ancestor::Value const &;
+    inline auto at(Shard) -> typename Ancestor::Value &;
+    inline auto at(Shard) const -> typename Ancestor::Value const &;
+#endif
+  };
+}
+#divert <ipp>
+namespace tunitas::keyston {
+  template<required::Semiregular TYPE> auto vdaf::swap(Shards<TYPE> &a, Shards<TYPE> &b) noexcept -> void {
+    typename Shards<TYPE>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace vdaf {
+#if 202312 < __cplusplus
+    template<required::Semiregular _> template<typename SELF> auto Shards<_>:: operatpr[](this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::operator[](index); }
+    template<required::Semiregular _> template<typename SELF> auto Shards<_>:: at(this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::at(underlying(index)); }
+#else
+    template<required::Semiregular _> auto Shards<_>:: operator[](Shard index)       -> typename Ancestor::Value &       { return Ancestor::operator[](underlying(index)); }
+    template<required::Semiregular _> auto Shards<_>:: operator[](Shard index) const -> typename Ancestor::Value const & { return Ancestor::operator[](underlying(index)); }
+    template<required::Semiregular _> auto Shards<_>:: at(Shard index)               -> typename Ancestor::Value &       { return Ancestor::at(underlying(index)); }
+    template<required::Semiregular _> auto Shards<_>:: at(Shard index) const         -> typename Ancestor::Value const & { return Ancestor::at(underlying(index)); }
+#endif
+  }
+}
+#endiv

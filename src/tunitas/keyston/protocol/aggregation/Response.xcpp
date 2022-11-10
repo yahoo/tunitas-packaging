@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::protocol::aggregation {
+  //
+  // The aggregation response
+  //
+  // Specification:
+  //  
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.5.2. Collection Aggregation
+  //
+  // Design:
+  //
+  //   As shown.
+  //
+  // Usage:
+  //
+  //   Use designated initialization.
+  //
+  struct Response;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.Ciphertext
+namespace tunitas::keyston::protocol {
+  namespace aggregation {
+    using std::move;
+    inline auto swap(Response &, Response &) noexcept -> void;
+  }
+  struct aggregation::Response {
+    hpke::Ciphertext encrypted_aggregation_share{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::protocol {
+  auto aggregation::swap(Response &a, Response &b) noexcept -> void {
+    swap(a.encrypted_aggregation_share, b.encrypted_aggregation_share);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::protocol::aggregation;
+    static_assert(std::is_default_constructible_v<Response>);
+    static_assert(std::is_copy_constructible_v<Response>);
+    static_assert(std::is_move_constructible_v<Response>);
+    static_assert(std::is_copy_assignable_v<Response>);
+    static_assert(std::is_move_assignable_v<Response>);
+    static_assert(std::is_swappable_v<Response>);
+  }
+}
+#endiv

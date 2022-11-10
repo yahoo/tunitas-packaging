@@ -13,7 +13,6 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_error_SUBSOURCES) \
   $(tests_unit_exception_SUBSOURCES) \
   check/obj/src/tests/unit/fmt.Fixture.cpp \
-  $(tests_unit_function_SUBSOURCES) \
   $(tests_unit_hpke_SUBSOURCES) \
   $(tests_unit_identifier_SUBSOURCES) \
   check/obj/src/tests/unit/keyston.Fixture.cpp \
@@ -22,6 +21,7 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_protocol_SUBSOURCES) \
   $(tests_unit_nonce_SUBSOURCES) \
   check/obj/src/tests/unit/quantity.Fixture.cpp \
+  $(tests_unit_vdaf_SUBSOURCES) \
   $(tests_unit_wire_SUBSOURCES) \
   check/obj/src/tests/unit/time.Fixture.cpp \
   check/obj/src/tests/unit/want.Fixture.cpp \
@@ -31,9 +31,9 @@ include src/tests/unit/array/Makefrag.am
 include src/tests/unit/entropy/Makefrag.am
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
-include src/tests/unit/function/Makefrag.am
 include src/tests/unit/hpke/Makefrag.am
 include src/tests/unit/identifier/Makefrag.am
 include src/tests/unit/nonce/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
+include src/tests/unit/vdaf/Makefrag.am
 include src/tests/unit/wire/Makefrag.am

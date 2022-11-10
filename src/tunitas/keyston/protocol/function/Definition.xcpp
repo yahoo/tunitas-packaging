@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.Definition
+namespace tunitas::keyston::protocol::function {
+  //
+  // The definition of a (Verifiable Distributed Aggregation) Function
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   There really are only two such functions specified at this point
+  //   PRIO3
+  //   POPLAR1
+  //
+  //   The interface, as stated
+  //
+  //   (a noun form)
+  //   disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement) -> (Bytes, Vec[Bytes])
+  //   initialization ........ Vdaf.prep_init(verify_key: Bytes, agg_id: Unsigned, agg_param: AggParam, nonce: Bytes, public_share: Bytes, input_share: Bytes) -> Prep
+  //   continuation .......... Vdaf.prep_next(prep: Prep, inbound: Optional[Bytes]) -> Union[Tuple[Prep, Bytes], OutShare]
+  //   amalgamation .......... Vdaf.prep_shares_to_prep(agg_param: AggParam, prep_shares: Vec[Bytes]) -> Bytes
+  //   disgorgement .......... Vdaf.out_shares_to_agg_share(agg_param: AggParam, out_shares: Vec[OutShare]) -> agg_share: Bytes
+  //   reassembly ............ Vdaf.agg_shares_to_result(agg_param: AggParam, agg_shares: Vec[Bytes], num_measurements: Unsigned) -> AggResult
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  //   The interface terminology in the I-D.irtf-cfrg-vdaf is clunky. clang, Clang, ClAnG, CLANG
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  using Definition = vdaf::Definition<vdaf::Scheme::PROTOCOL>;
+}
+#endiv

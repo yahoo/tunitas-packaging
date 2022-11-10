@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.protocol.preparation
+namespace tests::unit::protocol::preparation {
+  class Fixture;
+  namespace library = ::tunitas::keyston::protocol::preparation;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::preparation::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Message() -> void;
+  auto test_usage_Step() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::protocol::preparation::Fixture::suite() -> Suite {
+  auto series = Stream{"protocol"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Message", &Fixture::test_usage_Message)
+                  << add("Step", &Fixture::test_usage_Step)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.protocol.preparation.Message
+#import tunitas.keyston.protocol.preparation.Step
+namespace tests::unit::protocol::preparation {
+  auto Fixture::test_usage_Message() -> void {
+    auto subject0 = library::Message{};
+    auto subject1 = library::Message{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+  auto Fixture::test_usage_Step() -> void {
+    auto subject0 = library::Step{};
+    auto subject1 = library::Step{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+}
+#endiv

@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::protocol::function::exception {
+  //
+  // Something unimplemented has been discovered in Tunitas Keyston Function.
+  //
+  // Specification:
+  //
+  //   Yes.
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Unimplemented;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Unimplemented
+#import tunitas.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+#import tunitas.keyston.protocol.function.exception.Aspect
+class tunitas::keyston::protocol::function::exception::Unimplemented final : public complete::Basic<partial::Unimplemented, function::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Unimplemented, function::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  using Ancestor::Basic;
+};
+#endiv

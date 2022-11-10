@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.vdaf.generic.continued.cast
+namespace tunitas::keyston::vdaf::generic {
+  //
+  // For the convenience and the lulz.
+  //
+  using namespace continued::package_cast::interface;
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.vdaf.generic.continued.alternatives // for Again<CONFIGURATION> and Final<CONFIGURATION>
+#import tunitas.keyston.vdaf.generic.continued.Continued
+#import tunitas.keyston.vdaf.Configuration
+namespace {
+  namespace testate {
+    namespace continued = tunitas::keyston::vdaf::generic::continued;
+    using tunitas::keyston::vdaf::generic::cast; // <------------------------------ test this
+    using tunitas::keyston::vdaf::Configuration;
+    using enum tunitas::keyston::vdaf::Scheme;
+    //
+    using Specimen = continued::Continued<Configuration<PROTOCOL>>; // ... pick one, any one will do
+    using Again = continued::Again<Configuration<PROTOCOL>>; // .......... eadem ratione
+    using Final = continued::Final<Configuration<PROTOCOL>>; // .......... eadem ratione
+    //
+    // The constie
+    static_assert(sizeof (cast<Again const &>(Specimen{})));
+    static_assert(sizeof (cast<Final const &>(Specimen{})));
+    //
+    static_assert(sizeof (cast<Again const *>(Specimen{})));
+    static_assert(sizeof (cast<Final const *>(Specimen{})));
+    //
+    // And the mutable
+    static_assert(sizeof (cast<Again &>(Specimen{})));
+    static_assert(sizeof (cast<Final &>(Specimen{})));
+    //
+    static_assert(sizeof (cast<Again *>(Specimen{})));
+    static_assert(sizeof (cast<Final *>(Specimen{})));
+  }
+}
+#endiv

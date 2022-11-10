@@ -36,7 +36,7 @@ namespace tunitas::keyston::protocol::query::traits {
   template<required::Queryable BASIS> struct cast::Base {
     using Basis = BASIS;
     using Type [[school("New School")]] = Basis;
-    using type [[school("old_School")]] = Type;
+    using type [[school("old_school")]] = Type;
   };
   template<typename PAYLOAD> struct Cast : public Base<PAYLOAD> { };
   //

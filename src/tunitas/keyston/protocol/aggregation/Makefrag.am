@@ -7,12 +7,6 @@
 tunitas_keyston_protocol_aggregation_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/aggregation/namespace.cpp \
   obj/src/tunitas/keyston/protocol/aggregation/required.cpp \
-  obj/src/tunitas/keyston/protocol/aggregation/Parameters.cpp \
-  $(tunitas_keyston_protocol_aggregation_continuation_SUBSOURCES) \
-  $(tunitas_keyston_protocol_aggregation_initialization_SUBSOURCES) \
-  $(tunitas_keyston_protocol_aggregation_share_SUBSOURCES) \
+  obj/src/tunitas/keyston/protocol/aggregation/Request.cpp \
+  obj/src/tunitas/keyston/protocol/aggregation/Response.cpp \
   $(end)
-#
-include src/tunitas/keyston/protocol/aggregation/continuation/Makefrag.am
-include src/tunitas/keyston/protocol/aggregation/initialization/Makefrag.am
-include src/tunitas/keyston/protocol/aggregation/share/Makefrag.am

@@ -4,6 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import nonstd.required.Semiregular
+#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
 namespace tunitas::keyston::array {
   //
   // A variable array.
@@ -18,11 +20,13 @@ namespace tunitas::keyston::array {
   //   a.k.a. Variable Entity-Containing-Type [which] Owns Resources (VECTOR)
   //   https://en.cppreference.com/w/cpp/container/vector
   //
+  //   [[FIXTHIS]] such exceptions are NOT recovered and re-wrapped as vdaf::exception::Aspect descendants.
+  //
   // Usage:
   //
   //   As you would a vector; with the reduced interface.
   //
-  template<typename TYPE> struct Variable;
+  template<required::Semiregular TYPE> struct Variable;
 }
 #endiv
 #divert <hpp>
@@ -33,9 +37,9 @@ namespace tunitas::keyston::array {
 namespace tunitas::keyston {
   namespace array {
     using std::move;
-    template<typename TYPE> inline auto swap(Variable<TYPE> &, Variable<TYPE> &) noexcept -> void;
+    template<required::Semiregular TYPE> inline auto swap(Variable<TYPE> &, Variable<TYPE> &) noexcept -> void;
   }
-  template<typename TYPE> class array::Variable : private std::vector<TYPE> {
+  template<required::Semiregular TYPE> class array::Variable : private std::vector<TYPE> {
     using Ancestor = std::vector<TYPE>;
     friend auto array::swap<>(Variable &, Variable &) noexcept -> void;
   public:
@@ -67,7 +71,7 @@ namespace tunitas::keyston {
 #import tunitas.keyston.exception.Bound
 #import tunitas.keyston.array.Bounded
 namespace tunitas::keyston {
-  template<typename TYPE> auto array::swap(Variable<TYPE> &a, Variable<TYPE> &b) noexcept -> void {
+  template<required::Semiregular TYPE> auto array::swap(Variable<TYPE> &a, Variable<TYPE> &b) noexcept -> void {
     typename Variable<TYPE>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }

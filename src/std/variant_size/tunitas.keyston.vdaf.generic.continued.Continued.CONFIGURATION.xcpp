@@ -1,0 +1,15 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import std.variant_size
+#forward tunitas.keyston.vdaf.generic.continued.Continued
+namespace std {
+  template<tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> struct variant_size<tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION>>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.generic.continued.Variant
+namespace std {
+  template<tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> struct variant_size<tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION>> : public variant_size<tunitas::keyston::vdaf::generic::continued::Variant<CONFIGURATION>> { };
+}
+#endiv

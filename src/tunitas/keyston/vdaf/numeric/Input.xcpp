@@ -1,0 +1,22 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf::numeric {
+  template<Slice> struct Input;
+  template<> struct Input<WHOLE>; 
+  template<> struct Input<SHARE>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.hpke.Ciphertext
+namespace tunitas::keyston::vdaf::numeric {
+  template<> struct Input<WHOLE> {
+    measurement::Specimen specimen{};
+  };
+  template<> struct Input<SHARE> : public hpke::Ciphertext { };
+}
+#endiv

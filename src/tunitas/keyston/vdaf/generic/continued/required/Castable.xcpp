@@ -1,0 +1,71 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.generic.continued.required.Queryable
+#import nonstd.required.Pointer
+#import nonstd.required.Reference
+#import std.remove_pointer
+#import std.remove_reference
+#import std.remove_const
+namespace tunitas::keyston::vdaf::generic::continued::required {
+  //
+  // Is this type suitable as the RESULT of a cast<RESULT>(Query)
+  //
+  // To wit:
+  //
+  //   auto const &emp = generic::cast<generic::Empty const &>(candidate);
+  //   auto const &tim = generic::cast<generic::Time_Interval const &>(candidate);
+  //   auto const &fix = generic::cast<generic::Fixed_Size> const &>(candidate);
+  //
+  //   auto const *emp = generic::cast<generic::Empty const *>(candidate);
+  //   auto const *tim = generic::cast<generic::Time_Interval const *>(candidate);
+  //   auto const *fix = generic::cast<generic::Fixed_Size const *>(candidate);
+  //
+  namespace [[eponymous]] castable {
+    using namespace std;
+    template<typename INSTANCE> concept IsA_Basis = Queryable<INSTANCE>;
+    template<typename RESULT> concept IsA_Pointer = requires(RESULT) {
+      requires Pointer<RESULT>;
+      requires IsA_Basis<remove_const_t<remove_pointer_t<RESULT>>>;
+    };
+    template<typename RESULT> concept IsA_Reference = requires(RESULT) {
+      requires Reference<RESULT>;
+      requires IsA_Basis<remove_const_t<remove_reference_t<RESULT>>>;
+    };
+    template<typename RESULT> concept Castable = requires(RESULT) {
+      requires Pointer<RESULT> || Reference<RESULT>;
+      requires !Pointer<RESULT> || IsA_Pointer<RESULT>;
+      requires !Reference<RESULT> || IsA_Reference<RESULT>;
+    };
+  }
+  using castable::Castable;
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.vdaf.Configuration
+#import tunitas.keyston.vdaf.generic.continued.alternatives // for Again<CONFIGURATION> and Final<CONFIGURATION>
+namespace {
+  namespace testate {
+    using enum tunitas::keyston::vdaf::Scheme;
+    namespace required = tunitas::keyston::vdaf::generic::continued::required;
+    namespace continued = tunitas::keyston::vdaf::generic::continued;
+    using tunitas::keyston::vdaf::Configuration;
+    //
+    using Again = continued::Again<Configuration<PROTOCOL>>; // pick one, any one will do
+    using Final = continued::Final<Configuration<PROTOCOL>>; // eadem ratione
+    //
+    static_assert(required::Castable<Again &>);
+    static_assert(required::Castable<Again const &>);
+    static_assert(required::Castable<Again *>);
+    static_assert(required::Castable<Again const *>);
+    //
+    static_assert(required::Castable<Final &>);
+    static_assert(required::Castable<Final const &>);
+    static_assert(required::Castable<Final *>);
+    static_assert(required::Castable<Final const *>);
+  }
+}
+#endiv

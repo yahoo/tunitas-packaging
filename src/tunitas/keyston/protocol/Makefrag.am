@@ -7,12 +7,16 @@
 tunitas_keyston_protocol_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/namespace.cpp \
   obj/src/tunitas/keyston/protocol/constants.cpp \
-  obj/src/tunitas/keyston/protocol/Role.cpp \
   obj/src/tunitas/keyston/protocol/id.cpp \
+  obj/src/tunitas/keyston/protocol/Parameters.cpp \
+  obj/src/tunitas/keyston/protocol/Role.cpp \
   $(tunitas_keyston_protocol_aggregation_SUBSOURCES) \
   $(tunitas_keyston_protocol_collection_SUBSOURCES) \
+  $(tunitas_keyston_protocol_continuation_SUBSOURCES) \
   $(tunitas_keyston_protocol_exception_SUBSOURCES) \
   $(tunitas_keyston_protocol_extension_SUBSOURCES) \
+  $(tunitas_keyston_protocol_function_SUBSOURCES) \
+  $(tunitas_keyston_protocol_initialization_SUBSOURCES) \
   $(tunitas_keyston_protocol_preparation_SUBSOURCES) \
   $(tunitas_keyston_protocol_query_SUBSOURCES) \
   $(tunitas_keyston_protocol_report_SUBSOURCES) \
@@ -24,8 +28,11 @@ tunitas_keyston_protocol_SUBSOURCES = \
 #
 include src/tunitas/keyston/protocol/aggregation/Makefrag.am
 include src/tunitas/keyston/protocol/collection/Makefrag.am
+include src/tunitas/keyston/protocol/continuation/Makefrag.am
 include src/tunitas/keyston/protocol/exception/Makefrag.am
 include src/tunitas/keyston/protocol/extension/Makefrag.am
+include src/tunitas/keyston/protocol/function/Makefrag.am
+include src/tunitas/keyston/protocol/initialization/Makefrag.am
 include src/tunitas/keyston/protocol/preparation/Makefrag.am
 include src/tunitas/keyston/protocol/query/Makefrag.am
 include src/tunitas/keyston/protocol/report/Makefrag.am

@@ -59,7 +59,7 @@ namespace tunitas::keyston::protocol::query::batch {
       //
       // Design:
       //
-      //   Carefully to avoid copy pasta (and yet batch::cast<...>*...( abd batch::cast<...>(...) are copy-pasta in different namespaces for the ADL)
+      //   Carefully to avoid copy pasta (and yet batch::cast<...>(...) and batch::cast<...>(...) are copy-pasta in different namespaces for the ADL)
       //
       //   the predicates: is_reserved(...), is_time_interval(...), is_fixed_size(...) should be discoverable by ADL.
       //   cast<RESULT>(...) need not be discoverable by ADL because you'll be uttering query::cast<RESULT(...) anyway.
@@ -68,13 +68,13 @@ namespace tunitas::keyston::protocol::query::batch {
       //
       //   Both constie and mutable variants following this pattern of usage
       //
-      //   auto const &emp = query::cast<batch::Record<Type<RESERVED> const &>(candidate);
-      //   auto const &tim = query::cast<batch::Record<Type<TIME_INTERVAL> const &>(candidate);
-      //   auto const &fix = query::cast<batch::Record<Type<FIXED_SIZE> const &>(candidate);
+      //   auto const &emp = query::cast<batch::Record<Type::RESERVED> const &>(candidate);
+      //   auto const &tim = query::cast<batch::Record<Type::TIME_INTERVAL> const &>(candidate);
+      //   auto const &fix = query::cast<batch::Record<Type::FIXED_SIZE> const &>(candidate);
       //
-      //   auto const *emp = query::cast<batch::Record<Type<RESERVED> const *>(candidate);
-      //   auto const *tim = query::cast<batch::Record<Type<TIME_INTERVAL> const *>(candidate);
-      //   auto const *fix = query::cast<batch::Record<Type<FIXED_SIZE> const *>(candidate);
+      //   auto const *emp = query::cast<batch::Record<Type::RESERVED> const *>(candidate);
+      //   auto const *tim = query::cast<batch::Record<Type::TIME_INTERVAL> const *>(candidate);
+      //   auto const *fix = query::cast<batch::Record<Type::FIXED_SIZE> const *>(candidate);
       //
       template<required::Queryable EXACT> inline auto is(Batch const &) -> bool;
       inline auto is_reserved(Batch const &) -> bool;

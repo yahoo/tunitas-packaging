@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.vdaf.generic.configuration.required.Configuration
+#import tunitas.keyston.vdaf.generic.configuration.usage.Core
+namespace tunitas::keyston::vdaf::generic::configuration::usage {
+  //
+  // Is this CONFIGURATION sufficient?
+  // Requires the complete type of CONIGURATION
+  //
+  template<typename CONFIGURATION> concept Configuration = required::Configuration<CONFIGURATION> && requires(CONFIGURATION) {
+    // DO NOT ---> requires Core<CONFIGURATION>; <--- DO NOT (it creates a cycle)
+    //
+    typename CONFIGURATION::Disassembled;
+    typename CONFIGURATION::Disassembly;
+    //
+    typename CONFIGURATION::Initialized;
+    typename CONFIGURATION::Initialization;
+    //
+    typename CONFIGURATION::Continued;
+    typename CONFIGURATION::Continuation;
+    //
+    typename CONFIGURATION::Amalgamated;
+    typename CONFIGURATION::Amalgamation;
+    //
+    typename CONFIGURATION::Disgorged;
+    typename CONFIGURATION::Disgorgement;
+    //
+    typename CONFIGURATION::Reassembled;
+    typename CONFIGURATION::Reassembly;
+  };
+}
+#endiv

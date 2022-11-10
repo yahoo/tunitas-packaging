@@ -1,0 +1,27 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import std.visit
+#forward tunitas.keyston.vdaf.generic.continued.Continued
+namespace std {
+  namespace __detail::__variant {
+    // gcc (GCC) 11.2.1 20210827
+    // This worked to get std::visit(...) to operate on Continued<CHAR, TRAITS, DOCUMENT>
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION>>;
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION> const>;
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION> &>;
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION> const &>;
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.generic.continued.Variant
+namespace std {
+  namespace __detail::__variant {
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION>>         : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Variant<CONFIGURATION>> { };
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION> const>   : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Variant<CONFIGURATION>> { };
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION> &>       : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Variant<CONFIGURATION>> { };
+    template<typename MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::required::Configuration CONFIGURATION> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Continued<CONFIGURATION> const &> : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::keyston::vdaf::generic::continued::Variant<CONFIGURATION>> { };
+  }
+}
+#endiv

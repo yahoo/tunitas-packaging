@@ -1,0 +1,85 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf {
+  //
+  // The shard number
+  // a.k.a. the processor index
+  //
+  // Specification:
+  //
+  //   A (very) small unsigned integer that indexes the shares, the shads, the processors, the aggregators.
+  //
+  // Design:
+  //
+  //   C++23 has a type for that!
+  //   It's an enum (class)/
+  //
+  //   There is actually some subtlety here in the increment operation (operator++)
+  //   See 
+  //   https://en.cppreference.com/w/cpp/iterator/weakly_incrementable
+  //   https://en.cppreference.com/w/cpp/iterator/incrementable
+  //   Also see see
+  //   https://en.cppreference.com/w/cpp/ranges/iota_view  
+  //
+  // Usage:
+  //
+  //   You need a tutorial on how to use an enum (class)? o.rly?
+  //
+  //   for (auto shard : std::iota_view{0_shard, SHARD_COUNT}) {
+  //      something.at(shard) = something_else.at(shard);
+  //   }
+  //
+  enum class Shard : unsigned;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::vdaf {
+  inline constexpr auto underlying(Shard s) { return std::underlying_type_t<Shard>(s); }
+  inline auto swap(Shard &a, Shard &b) noexcept -> void { return std::swap(a, b); }
+  //
+  // Constants and paraphernalia in support of the Shard.
+  // Although the standard (draft) and the algorithms support more than two SHARD_COUNT, we do not.
+  //
+  inline static constexpr auto const SHARD_COUNT = 2uz;
+  //
+  // Not constexpr because they throw if the shard is out of the reasonable range.
+  // And whereas the looping requires one more value than maximum, the legal shard values are <= SHARD_COUNT.
+  //
+  inline auto operator++(Shard &) -> Shard &;
+  inline auto operator++(Shard &, int) -> Shard;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.vdaf.exception.Range
+namespace tunitas::keyston {
+  auto vdaf::operator++(Shard &lhs) -> Shard & {
+    auto old = underlying(lhs);
+    if (++old > SHARD_COUNT) {
+      throw exception::Range{"Shard"};
+    } else {
+      lhs = Shard{old};
+      return lhs;
+    }
+  }
+  auto vdaf::operator++(Shard &lhs, int) -> Shard {
+    auto old = auto{lhs};
+    ++lhs;
+    return old;
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::vdaf;
+    static_assert(sizeof (++std::declval<Shard &>()));
+    static_assert(sizeof (std::declval<Shard &>()++));
+    static_assert(sizeof (Shard{} == std::declval<Shard>()));
+    static_assert(sizeof (Shard{} != std::declval<Shard>()));
+  }
+}
+#endiv
