@@ -51,7 +51,19 @@ namespace tunitas::keyston::vdaf {
   //
   inline auto operator++(Shard &) -> Shard &;
   inline auto operator++(Shard &, int) -> Shard;
+  //
+  // weakly_incrementable requires std;:incrementable_traits<Shard>
+  // which has a specialization if there is an operator- (minus)
+  //   https://en.cppreference.com/w/cpp/iterator/incrementable_traits
+  inline constexpr auto operator-(Shard, Shard) -> signed;
+  //
+  // in support of std::views::iota<...>(...)
+  //   https://en.cppreference.com/w/cpp/concepts/equality_comparable
+  //   https://en.cppreference.com/w/cpp/ranges/iota_view
+  inline constexpr auto operator==(Shard, Size) -> bool;
+  inline constexpr auto operator==(Size, Shard) -> bool;
 }
+#import std.incrementable_traits
 #endiv
 #divert <ipp>
 #import tunitas.keyston.vdaf.exception.Range
@@ -70,16 +82,54 @@ namespace tunitas::keyston {
     ++lhs;
     return old;
   }
+  constexpr auto vdaf::operator==(Shard a, Size b) -> bool { return underlying(a) == b; }
+  constexpr auto vdaf::operator==(Size a, Shard b) -> bool { return underlying(b) == a; }
+  constexpr auto vdaf::operator-(Shard a, Shard b) -> signed {
+    auto ua{underlying(a)}, ub{underlying(b)};
+    if (ua > ub) {
+      return signed(ua - ub);
+    } else {
+      return - signed(ub - ua);
+    }
+  }
 }
 #endiv
 #divert <cpp>
+#import std.weakly_incrementable
+#import std.equality_comparable_with
+#import std.views.iota
+#import tunitas.keyston.vdaf.literals
 namespace {
   namespace testate {
-    using namespace tunitas::keyston::vdaf;
+    using tunitas::keyston::Size;
+    using tunitas::keyston::vdaf::Shard;
+    using tunitas::keyston::vdaf::SHARD_COUNT;
+    //
     static_assert(sizeof (++std::declval<Shard &>()));
     static_assert(sizeof (std::declval<Shard &>()++));
     static_assert(sizeof (Shard{} == std::declval<Shard>()));
     static_assert(sizeof (Shard{} != std::declval<Shard>()));
+    //
+    static_assert(sizeof (std::incrementable_traits<Shard>::difference_type));
+    static_assert(0 == (Shard{} - Shard{}));
+    static_assert(1 == (Shard{1} - Shard{0}));
+    static_assert(-1 == (Shard{0} - Shard{1}));
+    //
+    static_assert(std::weakly_incrementable<Shard>);
+#ifdef __GNUC__
+    static_assert(std::__detail::__weakly_eq_cmp_with<Shard, Size>); // mentioned as requires __WeaklyEqualityComparableWith<W, Bound> in https://en.cppreference.com/w/cpp/ranges/iota_view
+#if 0
+    // these are too much because they ALSO specify that the referenct types must be compatible
+    static_assert(std::equality_comparable_with<Shard, Size>);
+    static_assert(std::equality_comparable_with<Shard, decltype(SHARD_COUNT)>);
+#endif
+#endif
+    //
+    static_assert(sizeof (std::views::iota(Shard{}, Shard{1})));
+    static_assert(sizeof (std::views::iota(Shard{}, SHARD_COUNT)));
+    //
+    using namespace tunitas::keyston::vdaf::literals;
+    static_assert(sizeof (std::views::iota(0_shard, SHARD_COUNT)));
   }
 }
 #endiv

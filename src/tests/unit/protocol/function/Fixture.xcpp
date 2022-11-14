@@ -12,6 +12,7 @@ struct tests::unit::protocol::function::Fixture : public rigging::suite::Fixture
   //
   auto test_usage_Definition() -> void;
   auto test_usage_Executor() -> void;
+  auto test_usage_Parameters() -> void;
 };
 #endiv
 #divert <cpp>
@@ -26,6 +27,7 @@ auto tests::unit::protocol::function::Fixture::suite() -> Suite {
               auto use = Stream{"usage"sv};
               use << add("Definition", &Fixture::test_usage_Definition)
                   << add("Executor", &Fixture::test_usage_Executor)
+                  << add("Parameters", &Fixture::test_usage_Parameters)
                   << END;
               return use;
             }()
@@ -39,6 +41,7 @@ auto tests::unit::protocol::function::Fixture::suite() -> Suite {
 }
 #import tunitas.keyston.protocol.function.Definition
 #import tunitas.keyston.protocol.function.Executor
+#import tunitas.keyston.protocol.function.Parameters
 namespace tests::unit::protocol::function {
   auto Fixture::test_usage_Definition() -> void {
     using Subject = library::Definition;
@@ -57,6 +60,14 @@ namespace tests::unit::protocol::function {
     auto prio3 = Subject{Subject::PRIO3};
     auto poplar1 = Subject{Subject::POPLAR1};
     require(ASSERTION, sizeof (nullface) + sizeof (zero) + sizeof (constant) + sizeof (prio3) + sizeof (poplar1));
+  }
+  auto Fixture::test_usage_Parameters() -> void {
+    auto subject0 = library::Parameters{};
+    auto subject1 = library::Parameters{};
+    swap(subject0, subject1);
+    // There are no values in Parameters in prio3; but poplar1 has such.
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
   }
 }
 #endiv

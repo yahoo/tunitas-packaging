@@ -6,17 +6,19 @@
 #divert <fpp>
 namespace tunitas::keyston::vdaf::numeric {
   template<Slice> struct Input;
-  template<> struct Input<WHOLE>; 
-  template<> struct Input<SHARE>;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.hpke.Ciphertext
-namespace tunitas::keyston::vdaf::numeric {
-  template<> struct Input<WHOLE> {
-    measurement::Specimen specimen{};
+namespace tunitas::keyston::vdaf {
+  template<Slice SLICE> class numeric::Input : public hpke::Ciphertext {
+    using Ancestor = hpke::Ciphertext;
+  public:
+    [[implicit]] Input() = default;
+    using Ancestor::Ciphertext;
+    [[implicit]] Input(Ancestor a) : Ancestor{move(a)} { }
+    Input &operator=(Input const &) = default;
+    Input &operator=(Ancestor const &a) { Ancestor::operator=(a); return *this; }
   };
-  template<> struct Input<SHARE> : public hpke::Ciphertext { };
 }
 #endiv

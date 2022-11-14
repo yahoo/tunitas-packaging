@@ -41,13 +41,16 @@ namespace tunitas::keyston::protocol {
   struct report::Basis : public Metadata {
     using Ancestor = Metadata;
     friend auto swap(Basis &, Basis &) noexcept -> void;
+  public:
+    using Public_Share = Opaque<(1uz<<32)>;
+    Public_Share public_share{};
   protected:
     ~Basis() = default;
     explicit Basis() = default;
     inline explicit Basis(Metadata);
+    inline explicit Basis(Metadata, Public_Share);
     inline explicit Basis(id::Report, time::Point, extension::Array);
-  public:
-    Opaque<(1uz<<32)> public_share{};
+    inline explicit Basis(id::Report, time::Point, extension::Array, Public_Share);
   };
 }
 #endiv
@@ -60,7 +63,15 @@ namespace tunitas::keyston::protocol {
   }
   namespace report {
     Basis::Basis(Metadata m) : Ancestor{move(m)} { }
-    Basis::Basis(id::Report r, time::Point p, extension::Array e) : Ancestor{move(r), move(p), move(e)} { }
+    Basis::Basis(Metadata m, Public_Share ps)
+      : Ancestor{move(m)}
+      , public_share{move(ps)}
+    { }
+    Basis::Basis(id::Report ir, time::Point tp, extension::Array ea) : Ancestor{move(ir), move(tp), move(ea)} { }
+    Basis::Basis(id::Report ir, time::Point tp, extension::Array ea, Public_Share ps)
+      : Ancestor{move(ir), move(tp), move(ea)}
+      , public_share{move(ps)}
+    { }
   }
 }
 #endiv

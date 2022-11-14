@@ -28,7 +28,7 @@ namespace tunitas::keyston::protocol::aggregation {
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.protocol.query.Batch
-#import tunitas.keyston.protocol.Parameters
+#import tunitas.keyston.protocol.function.Parameters
 #import tunitas.keyston.quantity.Count
 namespace tunitas::keyston::protocol {
   namespace aggregation {
@@ -37,8 +37,8 @@ namespace tunitas::keyston::protocol {
   }
   struct aggregation::Request {
     id::Task task_id{};
-    query::Batch batch_selector{};
-    Parameters aggregation_parameters{};
+    protocol::query::Batch query{}; // was: batch_selector
+    function::Parameters aggregation_parameters{};
     quantity::Count report_count{};
     Opaque<32> checksum{};
   };
@@ -48,7 +48,7 @@ namespace tunitas::keyston::protocol {
 namespace tunitas::keyston::protocol {
   auto aggregation::swap(Request &a, Request &b) noexcept -> void {
     swap(a.task_id, b.task_id);
-    swap(a.batch_selector, b.batch_selector);
+    swap(a.query, b.query);
     swap(a.aggregation_parameters, b.aggregation_parameters);
     swap(a.report_count, b.report_count);
     swap(a.checksum, b.checksum);

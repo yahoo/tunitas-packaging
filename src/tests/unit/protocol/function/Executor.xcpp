@@ -10,7 +10,7 @@
 #import tunitas.keyston.vdaf.Shard
 #import tunitas.keyston.vdaf.Shards
 #import tunitas.keyston.protocol.function.components
-#import tunitas.keyston.protocol.Parameters
+#import tunitas.keyston.protocol.function.Parameters
 namespace tests::unit::protocol::function {
   namespace [[eponymous]] executor {
     class Executor;
@@ -18,7 +18,6 @@ namespace tests::unit::protocol::function {
     using ::tunitas::Optional;
     using ::tunitas::keyston::vdaf::Shard;
     using ::tunitas::keyston::vdaf::Shards;
-    using ::tunitas::keyston::protocol::Parameters;
     using Name = ::tunitas::keyston::vdaf::Name;
     using Slice = ::tunitas::keyston::Slice;
     using enum Slice;
@@ -188,17 +187,17 @@ auto tests::unit::protocol::function::executor::Executor::suite() -> Suite {
 namespace tests::unit::protocol::function::executor {
   auto Executor::exercise(Subject &subject) -> void try {
     {
-      auto input = library::Input<WHOLE>{};
-      auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+      auto measurement = library::Measurement<WHOLE>{};
+      auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
-      auto parameters = Parameters{};
+      auto parameters = library::Parameters{};
       auto key = Verify_Key{};
       auto processor = Shard{};
       auto nonce = Nonce{};
-      auto seed = library::Seed<SHARE>{};
+      auto publick = library::Public<SHARE>{};
       auto input = library::Input<SHARE>{};
-      auto got = subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+      auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto preparation = library::Preparation<WHOLE>{};
@@ -206,17 +205,17 @@ namespace tests::unit::protocol::function::executor {
       auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
-      auto parameters = Parameters{};
+      auto parameters = library::Parameters{};
       auto vector = Shards<library::Preparation<SHARE>>{};
       auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
-      auto parameters = Parameters{};
+      auto parameters = library::Parameters{};
       auto vector = Shards<library::Output<SHARE>>{};
       auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
-      auto parameters = Parameters{};
+      auto parameters = library::Parameters{};
       auto vector = Shards<library::Aggregation<SHARE>>{};
       auto count = measurement::Count{};
       auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
@@ -261,14 +260,14 @@ namespace tests::unit::protocol::function::executor {
   }
   auto Executor::test_disassembly_good() -> void {
     auto subject = Subject{Subject::ZERO};
-    auto input = library::Input<WHOLE>{};
-    auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+    auto measurement = library::Measurement<WHOLE>{};
+    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_disassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
-    auto input = library::Input<WHOLE>{};
-    auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+    auto measurement = library::Measurement<WHOLE>{};
+    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
@@ -283,24 +282,24 @@ namespace tests::unit::protocol::function::executor {
   }
   auto Executor::test_initialization_good() -> void {
     auto subject = Subject{Subject::ZERO};
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto key = Verify_Key{};
     auto processor = Shard{};
     auto nonce = Nonce{};
-    auto seed = library::Seed<SHARE>{};
+    auto publick = library::Public<SHARE>{};
     auto input = library::Input<SHARE>{};
-    auto got = subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+    auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_initialization_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto key = Verify_Key{};
     auto processor = Shard{};
     auto nonce = Nonce{};
-    auto seed = library::Seed<SHARE>{};
+    auto publick = library::Public<SHARE>{};
     auto input = library::Input<SHARE>{};
-    auto got = subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+    auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
@@ -323,14 +322,14 @@ namespace tests::unit::protocol::function::executor {
   }
   auto Executor::test_amalgamation_good() -> void {
     auto subject = Subject{Subject::ZERO};
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto vector = Shards<library::Preparation<SHARE>>{};
     auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_amalgamation_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto vector = Shards<library::Preparation<SHARE>>{};
     auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
@@ -339,14 +338,14 @@ namespace tests::unit::protocol::function::executor {
   }
   auto Executor::test_disgorgement_good() -> void {
     auto subject = Subject{Subject::ZERO};
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto vector = Shards<library::Output<SHARE>>{};
     auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_disgorgement_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto vector = Shards<library::Output<SHARE>>{};
     auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
@@ -355,7 +354,7 @@ namespace tests::unit::protocol::function::executor {
   }
   auto Executor::test_reassembly_good() -> void {
     auto subject = Subject{Subject::ZERO};
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto vector = Shards<library::Aggregation<SHARE>>{};
     auto count = measurement::Count{};
     auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
@@ -363,7 +362,7 @@ namespace tests::unit::protocol::function::executor {
   }
   auto Executor::test_reassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
-    auto parameters = Parameters{};
+    auto parameters = library::Parameters{};
     auto vector = Shards<library::Aggregation<SHARE>>{};
     auto count = measurement::Count{};
     subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)

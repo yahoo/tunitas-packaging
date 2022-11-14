@@ -4,8 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import nonstd.required.Semiregular
-#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.keyston.array.required.Arrayable
 namespace tunitas::keyston::array {
   //
   // A bounded array.
@@ -30,7 +29,7 @@ namespace tunitas::keyston::array {
   //
   //   As you would a vector; with the reduced interface.
   //
-  template<required::Semiregular TYPE, Size CAPACITY> struct Bounded;
+  template<required::Arrayable TYPE, Size CAPACITY> struct Bounded;
 }
 #endiv
 #divert <hpp>
@@ -40,9 +39,9 @@ namespace tunitas::keyston::array {
 namespace tunitas::keyston {
   namespace array {
     using std::move;
-    template<required::Semiregular TYPE, Size CAPACITY> inline auto swap(Bounded<TYPE, CAPACITY> &, Bounded<TYPE, CAPACITY> &) noexcept -> void;
+    template<required::Arrayable TYPE, Size CAPACITY> inline auto swap(Bounded<TYPE, CAPACITY> &, Bounded<TYPE, CAPACITY> &) noexcept -> void;
   }
-  template<required::Semiregular TYPE, Size CAPACITY> class array::Bounded : public Variable<TYPE> {
+  template<array::required::Arrayable TYPE, Size CAPACITY> class array::Bounded : public Variable<TYPE> {
     using Ancestor = Variable<TYPE>;
     friend auto array::swap<>(Bounded &, Bounded &) noexcept -> void;
     inline auto throw_if_full(Size more) const -> void;
@@ -60,7 +59,7 @@ namespace tunitas::keyston {
 #import tunitas.keyston.exception.Bound
 #import std.distance
 namespace tunitas::keyston {
-  template<required::Semiregular TYPE, Size CAPACITY> auto array::swap(Bounded<TYPE, CAPACITY> &a, Bounded<TYPE, CAPACITY> &b) noexcept -> void {
+  template<array::required::Arrayable TYPE, Size CAPACITY> auto array::swap(Bounded<TYPE, CAPACITY> &a, Bounded<TYPE, CAPACITY> &b) noexcept -> void {
     typename Bounded<TYPE, CAPACITY>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }

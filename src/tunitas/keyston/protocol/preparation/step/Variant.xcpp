@@ -5,6 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import std.variant
+#import tunitas.keyston.protocol.preparation.step.Undetermined
+#include <hpp/tunitas.keyston.protocol.preparation.step.Undetermined>
 #import tunitas.keyston.protocol.preparation.step.Continued
 #include <hpp/tunitas.keyston.protocol.preparation.step.Continued>
 #import tunitas.keyston.protocol.preparation.step.Finished
@@ -21,14 +23,15 @@ namespace tunitas::keyston::protocol::preparation::step {
   //
   // Design:
   //
-  //   The partial assembly.
+  //   This MUST be a type alias.
+  //   The trivial Undetermined MUST be the default construction.
   //   The std::variant requires the complete type of its components.
   //
   // Usage:
   //
-  //   No.
+  //   No (AVOID).
   //
-  using Variant = std::variant<Continued, Finished, Failed>;
+  using Variant = std::variant<Undetermined, Continued, Finished, Failed>;
 }
 #import std.integer_sequence
 #import std.make_index_sequence

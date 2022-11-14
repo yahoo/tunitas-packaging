@@ -20,7 +20,7 @@ struct tests::unit::protocol::initialization::Fixture : public rigging::suite::F
 #endiv
 #divert <cpp>
 auto tests::unit::protocol::initialization::Fixture::suite() -> Suite {
-  auto series = Stream{"protocol"sv};
+  auto series = Stream{"initialization"sv};
   series << []{
               auto use = Stream{"usage"sv};
               use << add("Request", &Fixture::test_usage_Request)

@@ -14,13 +14,13 @@ namespace tunitas::keyston::vdaf::generic::disassembled {
   //   Verifiable Distributed Aggregation Function
   //
   //   Basically this is
-  //     using Disassembled = Tuple<Seed<SHARE>, Shards<Input<SHARE>>>;
+  //     using Disassembled = Tuple<Public<SHARE>, Shards<Input<SHARE>>>;
   //   but make it more convenient.
   //
   //   Lookit all that convenience nearby with:
   //   get<0>(...)
   //   get<1>(...)
-  //   auto [seed, shares] = disassembly(...somehow...)
+  //   auto [publick, shares] = disassembly(...somehow...)
   //
   // Design:
   //

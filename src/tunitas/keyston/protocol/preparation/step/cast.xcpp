@@ -20,8 +20,8 @@ namespace tunitas::keyston::protocol::preparation::step {
 #import nonstd.required.Reference
 namespace tunitas::keyston::protocol::preparation::step::package_cast::body {
   template<typename> struct Conjugations;
-  template<> struct Conjugations<Step>;
-  template<> struct Conjugations<Step const>;
+  template<> struct Conjugations<Step<POSITIONED>>;
+  template<> struct Conjugations<Step<POSITIONED> const>;
   using namespace std; // at least same_as, remove_const, is_const and _v _t
   namespace pointer {
     template<required::Pointer RESULT, typename ACTUAL, typename MATCH> struct Each;
@@ -77,22 +77,22 @@ namespace tunitas::keyston::protocol::preparation::step {
       //   auto const *tim = step::cast<step::Finished const *>(candidate);
       //   auto const *fix = step::cast<step::Failed const *>(candidate);
       //
-      template<typename EXACT> inline auto is(Step const &) -> bool;
-      inline auto is_continued(Step const &) -> bool;
-      inline auto is_finished(Step const &) -> bool;
-      inline auto is_failed(Step const &) -> bool;
-      inline auto is_valid(Step const &) -> bool;
+      template<typename EXACT> inline auto is(Step<POSITIONED> const &) -> bool;
+      inline auto is_continued(Step<POSITIONED> const &) -> bool;
+      inline auto is_finished(Step<POSITIONED> const &) -> bool;
+      inline auto is_failed(Step<POSITIONED> const &) -> bool;
+      inline auto is_valid(Step<POSITIONED> const &) -> bool;
       //
-      template<typename RESULT> inline auto cast(Step const &) -> RESULT requires required::Castable<RESULT>;
-      template<typename RESULT> inline auto cast(Step &) -> RESULT requires required::Castable<RESULT>;
+      template<typename RESULT> inline auto cast(Step<POSITIONED> const &) -> RESULT requires required::Castable<RESULT>;
+      template<typename RESULT> inline auto cast(Step<POSITIONED> &) -> RESULT requires required::Castable<RESULT>;
     }
     template<typename CONJUGATIONS, typename RESULT, typename VARIANT> inline auto conjugate(VARIANT &) -> RESULT;
-    template<> struct Conjugations<Step> {
+    template<> struct Conjugations<Step<POSITIONED>> {
       using Continued = step::Continued;
       using Finished  = step::Finished;
       using Failed    = step::Failed;
     };
-    template<> struct Conjugations<Step const> {
+    template<> struct Conjugations<Step<POSITIONED> const> {
       using Continued = step::Continued const;
       using Finished  = step::Finished const;
       using Failed    = step::Failed const;
@@ -134,7 +134,7 @@ namespace tunitas::keyston::protocol::preparation::step {
                                                                                                                                 typename CONJUGATIONS::Failed> { };
   }
   //
-  // Must import the declarations directly so that ADL will find them from the argument Step
+  // Must import the declarations directly so that ADL will find them from the argument Step<POSITIONED>
   //
   using package_cast::body::exported::is;
   using package_cast::body::exported::is_continued;
@@ -155,23 +155,23 @@ namespace tunitas::keyston::protocol::preparation::step {
 #import nonstd.required.Pointer
 #import nonstd.required.Reference
 namespace tunitas::keyston::protocol::preparation::step::package_cast {
-  template<typename EXACT> auto interface::is(Step const &candidate) -> bool {
+  template<typename EXACT> auto interface::is(Step<POSITIONED> const &candidate) -> bool {
     auto visitor = variant::Visitor{[](EXACT const &) { return true; },
                                     [](auto const &)  { return false; }};
     return visit(visitor, candidate);
   }
-  auto interface::is_continued(Step const &candidate) -> bool { return is<Continued>(candidate); }
-  auto interface::is_finished(Step const &candidate) -> bool  { return is<Finished>(candidate); }
-  auto interface::is_failed(Step const &candidate) -> bool    { return is<Failed>(candidate); }
-  auto interface::is_valid(Step const &candidate) -> bool {
+  auto interface::is_continued(Step<POSITIONED> const &candidate) -> bool { return is<Continued>(candidate); }
+  auto interface::is_finished(Step<POSITIONED> const &candidate) -> bool  { return is<Finished>(candidate); }
+  auto interface::is_failed(Step<POSITIONED> const &candidate) -> bool    { return is<Failed>(candidate); }
+  auto interface::is_valid(Step<POSITIONED> const &candidate) -> bool {
     auto visitor = variant::Visitor{[](Continued const &) { return true; },
                                     [](Finished const &)  { return true; },
                                     [](Failed const &)    { return true; },
                                     [](auto const &)      { return false; }};
     return visit(visitor, candidate);
   }
-  template<typename RESULT> auto interface::cast(Step const &candidate) -> RESULT requires required::Castable<RESULT> { return conjugate<Conjugations<Step const>, RESULT>(candidate); }
-  template<typename RESULT> auto interface::cast(Step &candidate) -> RESULT requires required::Castable<RESULT>       { return conjugate<Conjugations<Step>, RESULT>(candidate); }
+  template<typename RESULT> auto interface::cast(Step<POSITIONED> const &candidate) -> RESULT requires required::Castable<RESULT> { return conjugate<Conjugations<Step<POSITIONED> const>, RESULT>(candidate); }
+  template<typename RESULT> auto interface::cast(Step<POSITIONED> &candidate) -> RESULT requires required::Castable<RESULT>       { return conjugate<Conjugations<Step<POSITIONED>>, RESULT>(candidate); }
   template<typename CONJUGATIONS, typename RESULT, typename VARIANT> auto body::conjugate(VARIANT &candidate) -> RESULT {
     using Actual = typename traits::Cast<RESULT>::Basis;
     if constexpr (required::Pointer<RESULT>) {
@@ -189,22 +189,22 @@ namespace {
   namespace testate {
     using namespace tunitas::keyston::protocol::preparation::step;
     // The constie
-    static_assert(sizeof (cast<Continued const &>(Step{})));
-    static_assert(sizeof (cast<Finished const &>(Step{})));
-    static_assert(sizeof (cast<Failed const &>(Step{})));
+    static_assert(sizeof (cast<Continued const &>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Finished const &>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Failed const &>(Step<POSITIONED>{})));
     //
-    static_assert(sizeof (cast<Continued const *>(Step{})));
-    static_assert(sizeof (cast<Finished const *>(Step{})));
-    static_assert(sizeof (cast<Failed const *>(Step{})));
+    static_assert(sizeof (cast<Continued const *>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Finished const *>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Failed const *>(Step<POSITIONED>{})));
     //
     // And the mutable
-    static_assert(sizeof (cast<Continued &>(Step{})));
-    static_assert(sizeof (cast<Finished &>(Step{})));
-    static_assert(sizeof (cast<Failed &>(Step{})));
+    static_assert(sizeof (cast<Continued &>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Finished &>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Failed &>(Step<POSITIONED>{})));
     //
-    static_assert(sizeof (cast<Continued *>(Step{})));
-    static_assert(sizeof (cast<Finished *>(Step{})));
-    static_assert(sizeof (cast<Failed *>(Step{})));
+    static_assert(sizeof (cast<Continued *>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Finished *>(Step<POSITIONED>{})));
+    static_assert(sizeof (cast<Failed *>(Step<POSITIONED>{})));
   }
 }
 #endiv

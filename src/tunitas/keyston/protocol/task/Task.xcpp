@@ -32,7 +32,7 @@ namespace tunitas::keyston::protocol::task {
 #import tunitas.keyston.quantity.Count
 #import tunitas.keyston.protocol.query.Query
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.function.Definition
+#import tunitas.keyston.protocol.function.Executor
 #import tunitas.keyston.time.Clock
 #import tunitas.keyston.time.Point
 #import tunitas.Optional
@@ -50,7 +50,7 @@ namespace tunitas::keyston::protocol {
       Optional<time::Point> then{time::Clock::now()};
     };
     Optional<Expiration> expiration{};
-    protocol::function::Definition function{};
+    protocol::function::Executor function{};
   };
 }
 #endiv

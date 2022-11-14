@@ -11,8 +11,9 @@ namespace tunitas::keyston::vdaf::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
-#import tunitas.keyston.protocol.Parameters
-#import tunitas.keyston.protocol.function.Seed
+#import tunitas.keyston.protocol.function.Parameters
+#import tunitas.keyston.protocol.function.Measurement
+#import tunitas.keyston.protocol.function.Public
 #import tunitas.keyston.protocol.function.Input
 #import tunitas.keyston.protocol.function.Preparation
 #import tunitas.keyston.protocol.function.Output
@@ -21,10 +22,11 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.hpke.Key
 namespace tunitas::keyston::vdaf::configuration {
   template<> struct Core<PROTOCOL> {
-    using Parameters = protocol::Parameters;
+    using Parameters = protocol::function::Parameters;
     using Nonce =  nonce::Bits<32>; // else Opaque<32>;
     using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
-    template<Slice SLICE> using Seed = protocol::function::Seed<SLICE>;
+    template<Slice SLICE> using Measurement = protocol::function::Measurement<SLICE>;
+    template<Slice SLICE> using Public = protocol::function::Public<SLICE>;
     template<Slice SLICE> using Input = protocol::function::Input<SLICE>;
     template<Slice SLICE> using Preparation = protocol::function::Preparation<SLICE>;
     template<Slice SLICE> using Output = protocol::function::Output<SLICE>;

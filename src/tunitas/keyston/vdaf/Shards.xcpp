@@ -4,8 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import nonstd.required.Semiregular
-#import tunitas.keyston.vdaf.generic.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.keyston.vdaf.required.Shardable
 namespace tunitas::keyston::vdaf {
   //
   // An array, indexed by Shard
@@ -31,50 +30,55 @@ namespace tunitas::keyston::vdaf {
   //
   //   Use it like you would any array, like a std::array
   //
-  template<required::Semiregular> struct Shards;
+  template<required::Shardable> struct Shards;
 }
 #endiv
 #divert <hpp>
 // SOON ---> #import nonstd.like
 #import tunitas.keyston.vdaf.Shard
 #import tunitas.keyston.array.Fixed
+#import std.ranges.iota_view
 namespace tunitas::keyston {
   namespace vdaf {
     using std::move;
-    template<required::Semiregular TYPE> inline auto swap(Shards<TYPE> &, Shards<TYPE> &) noexcept -> void;
+    template<required::Shardable TYPE> inline auto swap(Shards<TYPE> &, Shards<TYPE> &) noexcept -> void;
+    template<required::Shardable TYPE> inline auto iota(Shards<TYPE> const &) -> std::ranges::iota_view<Shard, Size>;
   }
-  template<required::Semiregular TYPE> struct vdaf::Shards : public array::Fixed<TYPE, SHARD_COUNT> {
+  template<vdaf::required::Shardable TYPE> struct vdaf::Shards : public array::Fixed<TYPE, SHARD_COUNT> {
     using Ancestor = array::Fixed<TYPE, SHARD_COUNT>;
     friend auto vdaf::swap<>(Shards &, Shards &) noexcept -> void;
   public:
     [[implicit]] Shards() = default;
     using Ancestor::Fixed;
 #if 202312 < __cplusplus
-    template<typename SELF> inline auto operatpr[](this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>;
+    // NO SUCH ---> template<typename SELF> inline auto operatpr[](this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>; <---- NO SUCH
     template<typename SELF> inline auto at(this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>;
 #else
-    inline auto operator[](Shard) -> typename Ancestor::Value &;
-    inline auto operator[](Shard) const -> typename Ancestor::Value const &;
+    // NO SUCH ---> inline auto operator[](Shard) -> typename Ancestor::Value &; <--------------  NO SUCH (the Ancestor doesn't have it)
+    // NO SUCH ---> inline auto operator[](Shard) const -> typename Ancestor::Value const &; <--- NO SUCH (eadem ratione)
     inline auto at(Shard) -> typename Ancestor::Value &;
     inline auto at(Shard) const -> typename Ancestor::Value const &;
 #endif
   };
 }
+#endiv
 #divert <ipp>
+#import std.views.iota
 namespace tunitas::keyston {
-  template<required::Semiregular TYPE> auto vdaf::swap(Shards<TYPE> &a, Shards<TYPE> &b) noexcept -> void {
+  template<vdaf::required::Shardable TYPE> auto vdaf::swap(Shards<TYPE> &a, Shards<TYPE> &b) noexcept -> void {
     typename Shards<TYPE>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }
+  template<vdaf::required::Shardable TYPE> auto vdaf::iota(Shards<TYPE> const &that) -> std::ranges::iota_view<Shard, Size> { return std::views::iota(Shard{}, that.size()); }
   namespace vdaf {
 #if 202312 < __cplusplus
-    template<required::Semiregular _> template<typename SELF> auto Shards<_>:: operatpr[](this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::operator[](index); }
-    template<required::Semiregular _> template<typename SELF> auto Shards<_>:: at(this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::at(underlying(index)); }
+    // NO SUCH ---> template<required::Shardable _> template<typename SELF> auto Shards<_>:: operatpr[](this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::operator[](index); }
+    template<required::Shardable _> template<typename SELF> auto Shards<_>:: at(this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::at(underlying(index)); }
 #else
-    template<required::Semiregular _> auto Shards<_>:: operator[](Shard index)       -> typename Ancestor::Value &       { return Ancestor::operator[](underlying(index)); }
-    template<required::Semiregular _> auto Shards<_>:: operator[](Shard index) const -> typename Ancestor::Value const & { return Ancestor::operator[](underlying(index)); }
-    template<required::Semiregular _> auto Shards<_>:: at(Shard index)               -> typename Ancestor::Value &       { return Ancestor::at(underlying(index)); }
-    template<required::Semiregular _> auto Shards<_>:: at(Shard index) const         -> typename Ancestor::Value const & { return Ancestor::at(underlying(index)); }
+    // NO SUCH ---> template<required::Shardable _> auto Shards<_>:: operator[](Shard index)       -> typename Ancestor::Value &       { return Ancestor::operator[](underlying(index)); }
+    // NO SUCH ---> template<required::Shardable _> auto Shards<_>:: operator[](Shard index) const -> typename Ancestor::Value const & { return Ancestor::operator[](underlying(index)); }
+    template<required::Shardable _> auto Shards<_>:: at(Shard index)               -> typename Ancestor::Value &       { return Ancestor::at(underlying(index)); }
+    template<required::Shardable _> auto Shards<_>:: at(Shard index) const         -> typename Ancestor::Value const & { return Ancestor::at(underlying(index)); }
 #endif
   }
 }

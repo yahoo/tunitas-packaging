@@ -5,14 +5,16 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 namespace tunitas::keyston::vdaf::numeric {
-  template<Slice> struct Seed;
-  template<> struct Seed<WHOLE>;
-  template<> struct Seed<SHARE>;
+  template<Slice> struct Measurement;
+  template<> struct Measurement<WHOLE>;
+  template<> struct Measurement<SHARE>; // never materialized in plaintext, see Input<SHARE>
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.measurement.Specimen
 namespace tunitas::keyston::vdaf::numeric {
-  template<> struct Seed<WHOLE> { };
-  template<> struct Seed<SHARE> { };
+  template<> struct Measurement<WHOLE> {
+    measurement::Specimen specimen{};
+  };
 }
 #endiv

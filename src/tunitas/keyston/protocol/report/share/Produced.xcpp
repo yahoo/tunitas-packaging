@@ -43,8 +43,8 @@ namespace tunitas::keyston::protocol::report {
     //
     explicit Produced() = default;
     using Ancestor::Basis;
-    inline explicit Produced(Metadata, Encrypted_Input_Share);
-    inline explicit Produced(id::Report, time::Point, extension::Array, Encrypted_Input_Share);
+    inline explicit Produced(Metadata, Public_Share, Encrypted_Input_Share);
+    inline explicit Produced(id::Report, time::Point, extension::Array, Public_Share, Encrypted_Input_Share);
   };
 }
 #endiv
@@ -56,12 +56,12 @@ namespace tunitas::keyston::protocol::report {
     swap(a.encrypted_input_share, b.encrypted_input_share);
   }
   namespace share {
-    Produced::Produced(Metadata m, Encrypted_Input_Share eis)
-      : Ancestor{move(m)}
+    Produced::Produced(Metadata m, Public_Share ps, Encrypted_Input_Share eis)
+      : Ancestor{move(m), move(ps)}
       , encrypted_input_share{move(eis)}
     { }
-    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, Encrypted_Input_Share eis)
-      : Ancestor{move(rid), move(tp), move(ea)}
+    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, Public_Share ps, Encrypted_Input_Share eis)
+      : Ancestor{move(rid), move(tp), move(ea), move(ps)}
       , encrypted_input_share{move(eis)}
     { }
   }

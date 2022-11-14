@@ -48,8 +48,8 @@ namespace tunitas::keyston::vdaf::numeric::zero::package_zero {
     //
     //   See components
     //
-    auto disassembly(Input<WHOLE> const &) -> Disassembled;
-    auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Seed<SHARE> const &, Input<SHARE> const &) -> Initialized;
+    auto disassembly(Measurement<WHOLE> const &) -> Disassembled;
+    auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
     auto disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged;
@@ -59,10 +59,10 @@ namespace tunitas::keyston::vdaf::numeric::zero::package_zero {
 #endiv
 #divert <cpp>
 namespace tunitas::keyston::vdaf::numeric::zero::package_zero {
-  auto interface::disassembly(Input<WHOLE> const &) -> Disassembled {
+  auto interface::disassembly(Measurement<WHOLE> const &) -> Disassembled {
     return {};
   }
-  auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Seed<SHARE> const &, Input<SHARE> const &) -> Initialized {
+  auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized {
     return {};
   }
   auto interface::continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued {

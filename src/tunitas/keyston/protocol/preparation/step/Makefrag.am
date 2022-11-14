@@ -8,14 +8,19 @@ tunitas_keyston_protocol_preparation_step_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/preparation/Step.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/namespace.cpp \
   $(tunitas_keyston_protocol_preparation_step_required_SUBSOURCES) \
-  obj/src/tunitas/keyston/protocol/preparation/step/Step.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/Variant.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/Result.cpp \
+  obj/src/tunitas/keyston/protocol/preparation/step/Undetermined.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/Continued.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/Finished.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/Failed.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/cast.cpp \
   obj/src/tunitas/keyston/protocol/preparation/step/traits.Cast.cpp \
+  \
+  obj/src/tunitas/keyston/protocol/preparation/step/Step.template.cpp \
+  obj/src/tunitas/keyston/protocol/preparation/step/Step.POSITIONED.cpp \
+  obj/src/tunitas/keyston/protocol/preparation/step/Step.TAGGED.cpp \
+  obj/src/tunitas/keyston/protocol/preparation/step/Step.cpp \
   $(end)
 #
 include src/tunitas/keyston/protocol/preparation/step/required/Makefrag.am

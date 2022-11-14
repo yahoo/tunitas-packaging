@@ -1,6 +1,7 @@
 // This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
 // For terms and provenance see the LICENSE file at the top of the repository.
 #divert <fpp>
+#forward tunitas.keyston.protocol.preparation.step.Undetermined
 #forward tunitas.keyston.protocol.preparation.step.Continued
 #forward tunitas.keyston.protocol.preparation.step.Finished
 #forward tunitas.keyston.protocol.preparation.step.Failed
@@ -55,6 +56,7 @@ namespace {
   namespace testate {
     using namespace tunitas::keyston::protocol::preparation::step;
     //
+    static_assert(std::same_as<Undetermined, traits::Cast<Undetermined>::Basis>);
     static_assert(std::same_as<Continued, traits::Cast<Continued>::Basis>);
     static_assert(std::same_as<Finished, traits::Cast<Finished>::Basis>);
     static_assert(std::same_as<Failed, traits::Cast<Failed>::Basis>);

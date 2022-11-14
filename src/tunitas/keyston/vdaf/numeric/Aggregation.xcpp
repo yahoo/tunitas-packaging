@@ -16,6 +16,8 @@ namespace tunitas::keyston::vdaf::numeric {
   template<> struct Aggregation<WHOLE> {
     measurement::Result result{};
   };
-  template<> struct Aggregation<SHARE> { };
+  template<> struct Aggregation<SHARE> {
+    // something (a fractional result, and what else?)
+  };
 }
 #endiv

@@ -4,17 +4,21 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.function.buffer.Alternative
-#include <hpp/tunitas.keyston.protocol.function.buffer.Alternative>
-#import tunitas.keyston.hpke.Ciphertext
 namespace tunitas::keyston::protocol::function {
-  //
-  // The input, in whole or in part.
-  //
-  namespace [[eponymous]] input {
-    struct Tag;
-    template<Slice SLICE> using Input = buffer::Alternative<SLICE, hpke::Ciphertext, Tag, (1uz<<32)>;
-  }
-  using input::Input;
+  template<Slice> struct Input;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.Ciphertext
+namespace tunitas::keyston::protocol {
+  template<Slice SLICE> struct function::Input : public hpke::Ciphertext {
+    using Ancestor = hpke::Ciphertext;
+  public:
+    [[implicit]] Input() = default;
+    using Ancestor::Ciphertext;
+    [[implicit]] Input(Ancestor a) : Ancestor{move(a)} { }
+    Input &operator=(Input const &) = default;
+    Input &operator=(Ancestor const &a) { Ancestor::operator=(a); return *this; }
+  };
 }
 #endiv

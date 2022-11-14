@@ -26,8 +26,7 @@ namespace tunitas::keyston::protocol::continuation {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.preparation.Step
-#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.protocol.preparation.Steps
 namespace tunitas::keyston::protocol {
   namespace continuation {
     using std::move;
@@ -36,7 +35,8 @@ namespace tunitas::keyston::protocol {
   struct continuation::Request {
     id::Task task_id{};
     id::Job job_id{};
-    array::Bounded<preparation::Step, (1uz<<32)> preparation_steps{};
+    using Preparation_Steps = preparation::Steps<preparation::Mark::TAGGED>;
+    Preparation_Steps preparation_steps{};
   };
 }
 #endiv

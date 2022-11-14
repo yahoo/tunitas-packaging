@@ -7,6 +7,8 @@
 tunitas_keyston_protocol_preparation_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/preparation/namespace.cpp \
   obj/src/tunitas/keyston/protocol/preparation/Message.cpp \
+  obj/src/tunitas/keyston/protocol/preparation/Mark.cpp \
+  obj/src/tunitas/keyston/protocol/preparation/Steps.cpp \
   $(tunitas_keyston_protocol_preparation_step_SUBSOURCES) \
   $(tunitas_keyston_protocol_preparation_required_SUBSOURCES) \
   $(end)

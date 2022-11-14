@@ -15,7 +15,8 @@ namespace tunitas::keyston::protocol::function::buffer {
   //
   // Design:
   //
-  //   the flavoring.
+  //   The flavoring.
+  //   There is no move semantic; because it is a descendant of Opaque<...> the flavoring is a copying act.
   //
   // Usage:
   //
@@ -35,6 +36,9 @@ namespace tunitas::keyston::protocol::function {
   public:
     Flavored() = default;
     using Ancestor::Bounded; // yes, you "just have to know" that this is the constructor name
+    Flavored(Ancestor const &a) : Ancestor{a} { }
+    Flavored &operator=(Ancestor const &a) { Ancestor::operator=(a); return *this; }
+    using Ancestor::operator=;
   };
 }
 #endiv

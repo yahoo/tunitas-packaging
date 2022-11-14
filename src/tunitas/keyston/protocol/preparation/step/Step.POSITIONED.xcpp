@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.protocol.preparation.step.Step.template
+namespace tunitas::keyston::protocol::preparation::step {
+  //
+  // The aggregation preparation step.
+  //
+  // Specification:
+  //  
+  //   The positional (untagged) form.
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.4.1.2 Helper Initialization
+  //
+  // Design:
+  //
+  //   As shown.
+  //
+  // Usage:
+  //
+  //   Use the constructor because designated initialization isn't possible.
+  //
+  template<> struct Step<POSITIONED>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.protocol.preparation.step.Result
+#import tunitas.keyston.protocol.preparation.step.Undetermined
+#import tunitas.keyston.protocol.preparation.step.Continued
+#import tunitas.keyston.protocol.preparation.step.Finished
+#import tunitas.keyston.protocol.preparation.step.Failed
+#import tunitas.keyston.protocol.preparation.step.Variant
+#import tunitas.variant.Visitor
+namespace tunitas::keyston::protocol::preparation::step {
+  using std::move;
+  inline auto swap(Step<POSITIONED> &, Step<POSITIONED> &) noexcept -> void;
+  template<> struct Step<POSITIONED> : public Variant {
+    using Ancestor = Variant;
+    friend auto step::swap(Step &, Step &) noexcept -> void;
+    template<typename... THUNKS> using Visitor = tunitas::variant::Visitor<THUNKS...>;
+  public:
+    Step() = default;
+    using Ancestor::variant; // yes, you "just have to know" that the ancestor's constructor is in std::variant
+    using Result = step::Result; // for the convenience
+    inline auto result() const -> Result;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.protocol.exception.Invalid
+namespace tunitas::keyston::protocol::preparation {
+  auto step::swap(Step<POSITIONED> &a, Step<POSITIONED> &b) noexcept -> void {
+    Step<POSITIONED>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace step {
+    auto Step<POSITIONED>::result() const -> Result {
+      auto visitor = Visitor{[](Undetermined const &) { return Result::UNDETERMINED; },
+                             [](Continued const &)    { return Result::CONTINUED; },
+                             [](Finished const &)     { return Result::FINISHED; },
+                             [](Failed const &)       { return Result::FAILED; },
+                             [](auto const ) { throw exception::Invalid{"Step"}; }};
+      return visit(visitor, static_cast<Ancestor const &>(*this));
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::keyston::protocol::preparation::step::Step;
+    using enum tunitas::keyston::protocol::preparation::Mark;
+    //
+    static_assert(std::semiregular<Step<POSITIONED>>);
+    //
+    static_assert(std::is_default_constructible_v<Step<POSITIONED>>);
+    static_assert(std::is_copy_constructible_v<Step<POSITIONED>>);
+    static_assert(std::is_move_constructible_v<Step<POSITIONED>>);
+    static_assert(std::is_copy_assignable_v<Step<POSITIONED>>);
+    static_assert(std::is_move_assignable_v<Step<POSITIONED>>);
+    static_assert(std::is_swappable_v<Step<POSITIONED>>);
+  }
+}
+#endiv

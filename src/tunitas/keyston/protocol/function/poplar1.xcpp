@@ -49,8 +49,8 @@ namespace tunitas::keyston::protocol::function::poplar1::package_poplar1 {
     //
     //   See Definition.
     //
-    auto disassembly(Input<WHOLE> const &) -> Disassembled;
-    auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Seed<SHARE> const &, Input<SHARE> const &) -> Initialized;
+    auto disassembly(Measurement<WHOLE> const &) -> Disassembled;
+    auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
     auto disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged;
@@ -61,11 +61,11 @@ namespace tunitas::keyston::protocol::function::poplar1::package_poplar1 {
 #divert <cpp>
 #import tunitas.keyston.exception.Unimplemented
 namespace tunitas::keyston::protocol::function::poplar1::package_poplar1 {
-  auto interface::disassembly(Input<WHOLE> const &) -> Disassembled {
+  auto interface::disassembly(Measurement<WHOLE> const &) -> Disassembled {
     throw exception::Unimplemented{};
     return {};
   }
-  auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Seed<SHARE> const &, Input<SHARE> const &) -> Initialized {
+  auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized {
     throw exception::Unimplemented{};
     return {};
   }

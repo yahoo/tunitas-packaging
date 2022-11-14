@@ -38,9 +38,11 @@ namespace tunitas::keyston::protocol {
     inline auto swap(Metadata &, Metadata &) noexcept -> void;
   }
   struct report::Metadata {
+    using Extensions = extension::Array;
+    //
     id::Report report_id{}; // also serves as a nonce [[why?]]
     time::Point time{};
-    extension::Array extensions{};
+    Extensions extensions{};
   };
 }
 #endiv

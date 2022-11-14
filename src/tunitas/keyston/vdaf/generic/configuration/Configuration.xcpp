@@ -51,10 +51,10 @@ namespace tunitas::keyston::vdaf::generic {
     static_assert(usage::Core<CORE>);
   public:
     using Disassembled = generic::Disassembled<Configuration>;
-    using Disassembly = Disassembled (*)(typename CORE::Input<WHOLE> const &);
+    using Disassembly = Disassembled (*)(typename CORE::Measurement<WHOLE> const &);
     //
-    using Initialized = typename CORE::template Preparation<WHOLE>;
-    using Initialization = Initialized (*)(typename CORE::Parameters const &, typename CORE::Verify_Key const &, Shard, typename CORE::Nonce const &, typename CORE::template Seed<SHARE> const &, typename CORE::template Input<SHARE> const &);
+    using Initialized = typename CORE::template Preparation<SHARE>;
+    using Initialization = Initialized (*)(typename CORE::Parameters const &, typename CORE::Verify_Key const &, Shard, typename CORE::Nonce const &, typename CORE::template Public<SHARE> const &, typename CORE::template Input<SHARE> const &);
     //
     using Continued = generic::Continued<Configuration>;
     using Continuation = Continued (*)(typename CORE::template Preparation<WHOLE> const &, Optional<typename CORE::template Preparation<SHARE>> const &);

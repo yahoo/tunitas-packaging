@@ -11,6 +11,8 @@ struct tests::unit::vdaf::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   using enum library::Scheme;
+  //
+  auto test_usage_Shards() -> void;
 };
 #endiv
 #divert <cpp>
@@ -24,6 +26,8 @@ auto tests::unit::vdaf::Fixture::suite() -> Suite {
   auto series = Stream{"vdaf"sv};
   series << []{
               auto use = Stream{"usage"sv};
+              use << add("shards", &Fixture::test_usage_Shards)
+                   << END;
               return use;
             }()
          << []{
@@ -49,5 +53,20 @@ auto tests::unit::vdaf::Fixture::suite() -> Suite {
             }()
          << END;
   return settle(series);
+}
+#import tunitas.keyston.vdaf.Shards
+namespace tests::unit::vdaf {
+  auto Fixture::test_usage_Shards() -> void {
+    using Subject = library::Shards<int>;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    auto observed_count{0uz};
+    for (auto shard: iota(subject0)) {
+      ++observed_count;
+      require(ASSERTION, sizeof (shard));
+    }
+    require(ASSERTION, library::SHARD_COUNT == observed_count);
+  }
 }
 #endiv

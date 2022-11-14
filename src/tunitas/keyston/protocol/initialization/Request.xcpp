@@ -26,7 +26,7 @@ namespace tunitas::keyston::protocol::initialization {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.Parameters
+#import tunitas.keyston.protocol.function.Parameters
 #import tunitas.keyston.protocol.query.Partial
 #import tunitas.keyston.protocol.report.Produced
 #import tunitas.keyston.array.Bounded
@@ -36,11 +36,14 @@ namespace tunitas::keyston::protocol {
     inline auto swap(Request &, Request &) noexcept -> void;
   }
   struct initialization::Request {
+    using Query = protocol::query::Partial;
+    using Report_Shares = array::Bounded<report::Produced<SHARE>, (1uz<<32)>;
+    //
     id::Task task_id{};
     id::Job job_id{};
-    Parameters aggregation_parameters{};
-    query::Partial partial_batch_selector{};
-    array::Bounded<report::Produced<SHARE>, (1uz<<32)> report_shares{};
+    function::Parameters aggregation_parameters{};
+    Query query{}; // was: partial_batch_selector
+    Report_Shares report_shares{};
   };
 }
 #endiv
@@ -50,7 +53,7 @@ namespace tunitas::keyston::protocol {
     swap(a.task_id, b.task_id);
     swap(a.job_id, b.job_id);
     swap(a.aggregation_parameters, b.aggregation_parameters);
-    swap(a.partial_batch_selector, b.partial_batch_selector);
+    swap(a.query, b.query);
     swap(a.report_shares, b.report_shares);
   }
 }

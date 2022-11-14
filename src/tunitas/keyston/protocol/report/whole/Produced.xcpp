@@ -33,7 +33,7 @@ namespace tunitas::keyston::protocol::report::whole {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.vdaf.Shards
 #import tunitas.keyston.protocol.id // for id::Task
 #import tunitas.keyston.protocol.report.Basis
 namespace tunitas::keyston::protocol::report {
@@ -46,13 +46,17 @@ namespace tunitas::keyston::protocol::report {
     friend auto swap(Produced &, Produced &) noexcept -> void;
   public:
     id::Task task_id{};
-    using Encrypted_Input_Shares = array::Bounded<hpke::Ciphertext, (1uz<<32)>;
+    using Encrypted_Input_Shares = vdaf::Shards<hpke::Ciphertext>;
     Encrypted_Input_Shares encrypted_input_shares{};
     //
     Produced() = default;
     using Ancestor::Basis;
-    inline explicit Produced(Metadata, id::Task, Encrypted_Input_Shares);
-    inline explicit Produced(id::Report, time::Point, extension::Array, id::Task, Encrypted_Input_Shares);
+    inline explicit Produced(Metadata, id::Task, Public_Share);
+    inline explicit Produced(Metadata, Public_Share, id::Task);
+    inline explicit Produced(Metadata, id::Task, Public_Share, Encrypted_Input_Shares);
+    inline explicit Produced(Metadata, Public_Share, id::Task, Encrypted_Input_Shares);
+    inline explicit Produced(id::Report, time::Point, extension::Array, id::Task, Public_Share);
+    inline explicit Produced(id::Report, time::Point, extension::Array, id::Task, Public_Share, Encrypted_Input_Shares);
   };
 }
 #endiv
@@ -65,13 +69,30 @@ namespace tunitas::keyston::protocol::report {
     swap(a.encrypted_input_shares, b.encrypted_input_shares);
   }
   namespace whole {
-    Produced::Produced(Metadata m, id::Task tid, Encrypted_Input_Shares eis)
-      : Ancestor{move(m)}
+    Produced::Produced(Metadata m, Public_Share pub, id::Task tid)
+      : Ancestor{move(m), move(pub)}
+      , task_id{move(tid)}
+    { }
+    Produced::Produced(Metadata m, id::Task tid, Public_Share pub)
+      : Ancestor{move(m), move(pub)}
+      , task_id{move(tid)}
+    { }
+    Produced::Produced(Metadata m, Public_Share pub, id::Task tid, Encrypted_Input_Shares eis)
+      : Ancestor{move(m), move(pub)}
       , task_id{move(tid)}
       , encrypted_input_shares{move(eis)}
     { }
-    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, id::Task tid, Encrypted_Input_Shares eis)
-      : Ancestor{move(rid), move(tp), move(ea)}
+    Produced::Produced(Metadata m, id::Task tid, Public_Share pub, Encrypted_Input_Shares eis)
+      : Ancestor{move(m), move(pub)}
+      , task_id{move(tid)}
+      , encrypted_input_shares{move(eis)}
+    { }
+    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, id::Task tid, Public_Share pub)
+      : Ancestor{move(rid), move(tp), move(ea), move(pub)}
+      , task_id{move(tid)}
+    { }
+    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, id::Task tid, Public_Share pub, Encrypted_Input_Shares eis)
+      : Ancestor{move(rid), move(tp), move(ea), move(pub)}
       , task_id{move(tid)}
       , encrypted_input_shares{move(eis)}
     { }

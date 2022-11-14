@@ -26,6 +26,6 @@ namespace tunitas::keyston::vdaf::generic::disassembled {
   //
   //   No.
   //
-  template<required::Configuration CONFIGURATION> using Tuple = tunitas::Tuple<typename CONFIGURATION::template Seed<SHARE>, Shards<typename CONFIGURATION::template Input<SHARE>>>;
+  template<required::Configuration CONFIGURATION> using Tuple = tunitas::Tuple<typename CONFIGURATION::template Public<SHARE>, Shards<typename CONFIGURATION::template Input<SHARE>>>;
 }
 #endiv

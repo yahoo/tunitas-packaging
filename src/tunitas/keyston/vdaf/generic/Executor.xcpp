@@ -17,9 +17,11 @@ namespace tunitas::keyston::vdaf::generic {
   //
   //   See definition for more commentariat.
   //
+  //   Executors MUST not to maintian internal state call-to-call
+  //
   // Design:
   //
-  //   Executors don't carry state.
+  //   Executors don't carry state so the member calls are constie.
   //   Be able to copy around the whole interface cluster of vdafs.
   //   We could use inheritance, but the derived classes are all "different."
   //
@@ -54,12 +56,12 @@ namespace tunitas::keyston::vdaf {
     using Ancestor::Definition;
     inline explicit Executor(Ancestor);
     //
-    inline auto disassembly(typename Ancestor::template Input<WHOLE> const &) -> typename Ancestor::Disassembled;
-    inline auto initialization(typename Ancestor::Parameters const &, typename Ancestor::Verify_Key const &, Shard, typename Ancestor::Nonce const &, typename Ancestor::template Seed<SHARE> const &, typename Ancestor::template Input<SHARE> const &) -> typename Ancestor::Initialized;
-    inline auto continuation(typename Ancestor::template Preparation<WHOLE> const &, Optional<typename Ancestor::template Preparation<SHARE>> const &) -> typename Ancestor::Continued;
-    inline auto amalgamation(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Preparation<SHARE>> const &) -> typename Ancestor::Amalgamated;
-    inline auto disgorgement(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Output<SHARE>> const &) -> typename Ancestor::Disgorged;
-    inline auto reassembly(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Aggregation<SHARE>> const &, measurement::Count) -> typename Ancestor::Reassembled;
+    inline auto disassembly(typename Ancestor::template Measurement<WHOLE> const &) const -> typename Ancestor::Disassembled;
+    inline auto initialization(typename Ancestor::Parameters const &, typename Ancestor::Verify_Key const &, Shard, typename Ancestor::Nonce const &, typename Ancestor::template Public<SHARE> const &, typename Ancestor::template Input<SHARE> const &) const -> typename Ancestor::Initialized;
+    inline auto continuation(typename Ancestor::template Preparation<WHOLE> const &, Optional<typename Ancestor::template Preparation<SHARE>> const &) const -> typename Ancestor::Continued;
+    inline auto amalgamation(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Preparation<SHARE>> const &) const -> typename Ancestor::Amalgamated;
+    inline auto disgorgement(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Output<SHARE>> const &) const -> typename Ancestor::Disgorged;
+    inline auto reassembly(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Aggregation<SHARE>> const &, measurement::Count) const -> typename Ancestor::Reassembled;
   };
 }
 #endiv
@@ -72,42 +74,42 @@ namespace tunitas::keyston::vdaf {
   }
   namespace generic {
     template<required::Configuration _> Executor<_>::Executor(Ancestor d) : Ancestor{d} { }
-    template<required::Configuration _> auto Executor<_>::disassembly(typename Ancestor::template Input<WHOLE> const &i) -> typename Ancestor::Disassembled {
+    template<required::Configuration _> auto Executor<_>::disassembly(typename Ancestor::template Measurement<WHOLE> const &i) const -> typename Ancestor::Disassembled {
       if (nullptr == Ancestor::disassembly) {
         throw exception::Null{};
       } else {
         return Ancestor::disassembly(i);
       }
     }
-    template<required::Configuration _> auto Executor<_>::initialization(typename Ancestor::Parameters const &p, typename Ancestor::Verify_Key const &k, Shard s, typename Ancestor::Nonce const &n, typename Ancestor::template Seed<SHARE> const &u, typename Ancestor::template Input<SHARE> const &i) -> typename Ancestor::Initialized {
+    template<required::Configuration _> auto Executor<_>::initialization(typename Ancestor::Parameters const &p, typename Ancestor::Verify_Key const &k, Shard s, typename Ancestor::Nonce const &n, typename Ancestor::template Public<SHARE> const &u, typename Ancestor::template Input<SHARE> const &i) const -> typename Ancestor::Initialized {
       if (nullptr == Ancestor::initialization) {
         throw exception::Null{};
       } else {
         return Ancestor::initialization(p, k, s, n, u, i);
       }
     }
-    template<required::Configuration _> auto Executor<_>::continuation(typename Ancestor::template Preparation<WHOLE> const &p, Optional<typename Ancestor::template Preparation<SHARE>> const &o) -> typename Ancestor::Continued {
+    template<required::Configuration _> auto Executor<_>::continuation(typename Ancestor::template Preparation<WHOLE> const &p, Optional<typename Ancestor::template Preparation<SHARE>> const &o) const -> typename Ancestor::Continued {
       if (nullptr == Ancestor::continuation) {
         throw exception::Null{};
       } else {
         return Ancestor::continuation(p, o);
       }
     }
-    template<required::Configuration _> auto Executor<_>::amalgamation(typename Ancestor::Parameters const &p, Shards<typename Ancestor::template Preparation<SHARE>> const &v) -> typename Ancestor::Amalgamated {
+    template<required::Configuration _> auto Executor<_>::amalgamation(typename Ancestor::Parameters const &p, Shards<typename Ancestor::template Preparation<SHARE>> const &v) const -> typename Ancestor::Amalgamated {
       if (nullptr == Ancestor::amalgamation) {
         throw exception::Null{};
       } else {
         return Ancestor::amalgamation(p, v);
       }
     }
-    template<required::Configuration _> auto Executor<_>::disgorgement(typename Ancestor::Parameters const &p, Shards<typename Ancestor::Output<SHARE>> const &v) -> typename Ancestor::Disgorged {
+    template<required::Configuration _> auto Executor<_>::disgorgement(typename Ancestor::Parameters const &p, Shards<typename Ancestor::Output<SHARE>> const &v) const -> typename Ancestor::Disgorged {
       if (nullptr == Ancestor::disgorgement) {
         throw exception::Null{};
       } else {
         return Ancestor::disgorgement(p, v);
       }
     }
-    template<required::Configuration _> auto Executor<_>::reassembly(typename Ancestor::Parameters const &p, Shards<typename Ancestor::Aggregation<SHARE>> const &v, measurement::Count c) -> typename Ancestor::Reassembled {
+    template<required::Configuration _> auto Executor<_>::reassembly(typename Ancestor::Parameters const &p, Shards<typename Ancestor::Aggregation<SHARE>> const &v, measurement::Count c) const -> typename Ancestor::Reassembled {
       if (nullptr == Ancestor::reassembly) {
         throw exception::Null{};
       } else {

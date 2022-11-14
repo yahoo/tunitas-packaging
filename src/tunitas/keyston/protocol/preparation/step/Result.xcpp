@@ -11,20 +11,23 @@ namespace tunitas::keyston::protocol::preparation::step {
   // Specification:
   //
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   Section 4.4.1.2 Helper Initialization
   //
   // Design:
   //
   //   The enum (class).
+  //   The values 0, 1, 2 are mandated by the standard.
+  //   The value 0xffu is our invention to indicate the not-yet-started (undefined) semantic. 
   //
   // Usage:
   //
   //   What, you need a tutorial on how to use an enum (class)? o.rly?
   //
   enum class Result : std::uint8_t {
-    CONTINUED = 0,
-    FINISHED = 1,
-    FAILED = 2,
+    UNDETERMINED = 0xffu,
+    CONTINUED = 0u,
+    FINISHED = 1u,
+    FAILED = 2u,
   };
 }
 #endiv

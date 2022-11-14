@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::keyston::protocol {
+namespace tunitas::keyston::protocol::function {
   //
   // The aggragation parameter as known to the VDAF
   //
@@ -30,12 +30,12 @@ namespace tunitas::keyston::protocol {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
-namespace tunitas::keyston {
-  namespace protocol {
+namespace tunitas::keyston::protocol {
+  namespace function {
     using std::move;
     inline auto swap(Parameters &, Parameters &) noexcept -> void;
   }
-  struct protocol::Parameters : public Opaque<(1uz<<16)> {
+  struct function::Parameters : public Opaque<(1uz<<16)> {
     using Ancestor = Opaque<(1uz<<16)>;
     friend auto swap(Parameters &, Parameters &) noexcept -> void;
   public:
@@ -45,8 +45,8 @@ namespace tunitas::keyston {
 }
 #endiv
 #divert <ipp>
-namespace tunitas::keyston {
-  auto protocol::swap(Parameters &a, Parameters &b) noexcept -> void {
+namespace tunitas::keyston::protocol {
+  auto function::swap(Parameters &a, Parameters &b) noexcept -> void {
     Parameters::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }
@@ -55,7 +55,7 @@ namespace tunitas::keyston {
 #divert <cpp>
 namespace {
   namespace testate {
-    using namespace tunitas::keyston::protocol;
+    using namespace tunitas::keyston::protocol::function;
     static_assert(std::is_default_constructible_v<Parameters>);
     static_assert(std::is_copy_constructible_v<Parameters>);
     static_assert(std::is_move_constructible_v<Parameters>);

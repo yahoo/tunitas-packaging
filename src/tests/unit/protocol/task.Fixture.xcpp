@@ -7,14 +7,14 @@
 #import tunitas.keyston.identifier
 #import tunitas.keyston.protocol.task
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.function.Definition
+#import tunitas.keyston.protocol.function.Executor
 namespace tests::unit::protocol::task {
   class Fixture;
   namespace library = ::tunitas::keyston::protocol::task;
   namespace identifier = ::tunitas::keyston::identifier;
   namespace id = ::tunitas::keyston::protocol::id;
   namespace protocol = ::tunitas::keyston::protocol;
-  using Function = ::tunitas::keyston::protocol::function::Definition;
+  using Function = ::tunitas::keyston::protocol::function::Executor;
 }
 #endiv
 #divert <hpp>

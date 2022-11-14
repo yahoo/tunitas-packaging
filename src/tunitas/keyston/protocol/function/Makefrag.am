@@ -6,10 +6,13 @@
 #
 tunitas_keyston_protocol_function_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/function/namespace.cpp \
+  obj/src/tunitas/keyston/protocol/function/required.cpp \
   obj/src/tunitas/keyston/protocol/function/Definition.cpp \
   obj/src/tunitas/keyston/protocol/function/Executor.cpp \
   \
-  obj/src/tunitas/keyston/protocol/function/Seed.cpp \
+  obj/src/tunitas/keyston/protocol/function/Parameters.cpp \
+  obj/src/tunitas/keyston/protocol/function/Measurement.cpp \
+  obj/src/tunitas/keyston/protocol/function/Public.cpp \
   obj/src/tunitas/keyston/protocol/function/Input.cpp \
   obj/src/tunitas/keyston/protocol/function/Preparation.cpp \
   obj/src/tunitas/keyston/protocol/function/Output.cpp \

@@ -5,5 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.protocol.preparation
-namespace tunitas::keyston::protocol::preparation::step { }
+#import tunitas.keyston.protocol.preparation.Mark
+namespace tunitas::keyston::protocol::preparation::step {
+  using enum Mark;
+}
 #endiv

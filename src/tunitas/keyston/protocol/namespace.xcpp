@@ -9,7 +9,8 @@
 namespace tunitas::keyston::protocol {
   //
   // Because it is commonly referenced from here in external & downstream usage; e.g. denniston, honsinger, ladera, nuff, woodruff
-  using keyston::Slice;
+  using keyston::Slice; // ... present the enum class
+  using enum Slice; // ....... and again the members
   //
   using hpke::Side;
   using enum Side;

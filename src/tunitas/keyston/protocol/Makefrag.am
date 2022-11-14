@@ -8,7 +8,6 @@ tunitas_keyston_protocol_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/namespace.cpp \
   obj/src/tunitas/keyston/protocol/constants.cpp \
   obj/src/tunitas/keyston/protocol/id.cpp \
-  obj/src/tunitas/keyston/protocol/Parameters.cpp \
   obj/src/tunitas/keyston/protocol/Role.cpp \
   $(tunitas_keyston_protocol_aggregation_SUBSOURCES) \
   $(tunitas_keyston_protocol_collection_SUBSOURCES) \

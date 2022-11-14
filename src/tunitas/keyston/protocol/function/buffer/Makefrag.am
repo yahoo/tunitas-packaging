@@ -9,4 +9,5 @@ tunitas_keyston_protocol_function_buffer_SUBSOURCES = \
   obj/src/tunitas/keyston/protocol/function/buffer/Alternative.cpp \
   obj/src/tunitas/keyston/protocol/function/buffer/Companion.cpp \
   obj/src/tunitas/keyston/protocol/function/buffer/Flavored.cpp \
+  obj/src/tunitas/keyston/protocol/function/buffer/Semiflavored.cpp \
   $(end)

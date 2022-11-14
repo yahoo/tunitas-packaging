@@ -4,8 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import nonstd.required.Semiregular
-#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.keyston.array.required.Arrayable
 namespace tunitas::keyston::array {
   //
   // A variable array.
@@ -26,20 +25,23 @@ namespace tunitas::keyston::array {
   //
   //   As you would a vector; with the reduced interface.
   //
-  template<required::Semiregular TYPE> struct Variable;
+  template<required::Arrayable TYPE> struct Variable;
 }
 #endiv
 #divert <hpp>
 #import nonstd.required.iterator.Forward
 #import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
 #forward tunitas.keyston.array.Bounded
+#import std.derived_from
+#import std.conditional
+#import std.is_const
 #import std.vector
 namespace tunitas::keyston {
   namespace array {
     using std::move;
-    template<required::Semiregular TYPE> inline auto swap(Variable<TYPE> &, Variable<TYPE> &) noexcept -> void;
+    template<required::Arrayable TYPE> inline auto swap(Variable<TYPE> &, Variable<TYPE> &) noexcept -> void;
   }
-  template<required::Semiregular TYPE> class array::Variable : private std::vector<TYPE> {
+  template<array::required::Arrayable TYPE> class array::Variable : private std::vector<TYPE> {
     using Ancestor = std::vector<TYPE>;
     friend auto array::swap<>(Variable &, Variable &) noexcept -> void;
   public:
@@ -47,10 +49,13 @@ namespace tunitas::keyston {
     using value_type [[school("Old")]] = Value;
     //
     Variable() = default;
+    using Ancestor::vector;
     template<Size CAPACITY> Variable(Bounded<Value, CAPACITY> const &);
     template<Size CAPACITY> Variable(Bounded<Value, CAPACITY> &&);
     //
-    using Ancestor::vector;
+    template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Variable> using Basic_Iterator = std::conditional_t<std::is_const_v<SELF>, typename Ancestor::const_iterator, typename Ancestor::iterator>;
+    using Iterator = Basic_Iterator<Variable>;
+    //
     using Ancestor::empty;
     using Ancestor::size;
     using Ancestor::data;
@@ -71,7 +76,7 @@ namespace tunitas::keyston {
 #import tunitas.keyston.exception.Bound
 #import tunitas.keyston.array.Bounded
 namespace tunitas::keyston {
-  template<required::Semiregular TYPE> auto array::swap(Variable<TYPE> &a, Variable<TYPE> &b) noexcept -> void {
+  template<array::required::Arrayable TYPE> auto array::swap(Variable<TYPE> &a, Variable<TYPE> &b) noexcept -> void {
     typename Variable<TYPE>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }

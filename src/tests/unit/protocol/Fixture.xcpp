@@ -9,14 +9,13 @@ namespace tests::unit::protocol { class Fixture; }
 #divert <hpp>
 struct tests::unit::protocol::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  //
-  auto test_usage_Parameters() -> void;
 };
 #endiv
 #divert <cpp>
 #import tests.unit.protocol.aggregation.Fixture
 #import tests.unit.protocol.batch.Fixture
 #import tests.unit.protocol.collection.Fixture
+#import tests.unit.protocol.continuation.Fixture
 #import tests.unit.protocol.extension.Fixture
 #import tests.unit.protocol.function.Fixture
 #import tests.unit.protocol.id.Fixture
@@ -30,7 +29,7 @@ auto tests::unit::protocol::Fixture::suite() -> Suite {
   auto series = Stream{"protocol"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("something", &Fixture::test_usage_Parameters)
+              use // anything?
                   << END;
               return use;
             }()
@@ -44,20 +43,10 @@ auto tests::unit::protocol::Fixture::suite() -> Suite {
          << add<task::Fixture>()
          << add<aggregation::Fixture>()
          << add<collection::Fixture>()
+         << add<continuation::Fixture>()
          << add<initialization::Fixture>()
          << add<preparation::Fixture>()
          << END;
   return settle(series);
-}
-#import tunitas.keyston.protocol.Parameters
-namespace tests::unit::protocol {
-  auto Fixture::test_usage_Parameters() -> void {
-    auto subject0 = library::Parameters{};
-    auto subject1 = library::Parameters{};
-    swap(subject0, subject1);
-    // There are no values in Parameters in prio3; but poplar1 has such.
-    require(ASSERTION, sizeof (subject0));
-    require(ASSERTION, sizeof (subject1));
-  }
 }
 #endiv

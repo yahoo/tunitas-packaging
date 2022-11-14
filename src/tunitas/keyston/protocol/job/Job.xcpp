@@ -18,6 +18,7 @@ namespace tunitas::keyston::protocol::job {
   // Design:
   //
   //   As-stated.
+  //   The manifest constructor is for the benefit of descendants which will inherit it.
   //
   // Usage:
   //
@@ -35,6 +36,8 @@ namespace tunitas::keyston::protocol {
   }
   struct job::Job {
     id::Job id{};
+    Job() = default;
+    constexpr [[implicit]] Job(id::Job id) : id{id} { }
   };
 }
 #endiv

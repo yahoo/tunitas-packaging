@@ -165,17 +165,17 @@ namespace tests::unit::vdaf::executor {
 namespace tests::unit::vdaf::executor {
   template<typename E, typename D, typename C> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
     {
-      auto input = typename Configuration::template Input<WHOLE>{};
-      auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+      auto measurement = typename Configuration::template Measurement<WHOLE>{};
+      auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = typename Configuration::Parameters{};
       auto key = Key{};
       auto processor = Shard{};
       auto nonce = typename Configuration::Nonce{};
-      auto seed = typename Configuration::template Seed<SHARE>{};
+      auto publick = typename Configuration::template Public<SHARE>{};
       auto input = typename Configuration::template Input<SHARE>{};
-      auto got = subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+      auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto preparation = typename Configuration::template Preparation<WHOLE>{};
@@ -264,14 +264,14 @@ namespace tests::unit::vdaf::executor {
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_good() -> void {
     auto subject = Subject{Subject::ZERO};
-    auto input = typename Configuration::template Input<WHOLE>{};
-    auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+    auto measurement = typename Configuration::template Measurement<WHOLE>{};
+    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
-    auto input = typename Configuration::template Input<WHOLE>{};
-    auto got = subject.disassembly(input); // <-------------------- test this (show it is callable)
+    auto measurement = typename Configuration::template Measurement<WHOLE>{};
+    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
@@ -288,9 +288,9 @@ namespace tests::unit::vdaf::executor {
     auto key = Key{};
     auto processor = Shard{};
     auto nonce = typename Configuration::Nonce{};
-    auto seed = typename Configuration::template Seed<SHARE>{};
+    auto publick = typename Configuration::template Public<SHARE>{};
     auto input = typename Configuration::template Input<SHARE>{};
-    auto got = subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+    auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_fail() -> void try {
@@ -299,9 +299,9 @@ namespace tests::unit::vdaf::executor {
     auto key = Key{};
     auto processor = Shard{};
     auto nonce = typename Configuration::Nonce{};
-    auto seed = typename Configuration::template Seed<SHARE>{};
+    auto publick = typename Configuration::template Public<SHARE>{};
     auto input = typename Configuration::template Input<SHARE>{};
-    subject.initialization(parameters, key, processor, nonce, seed, input); // <-------------------- test this (show it is callable)
+    subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);

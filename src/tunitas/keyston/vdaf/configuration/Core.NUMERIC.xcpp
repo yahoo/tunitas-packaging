@@ -12,17 +12,21 @@ namespace tunitas::keyston::vdaf::configuration {
 #divert <hpp>
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.vdaf.numeric.Parameters
-#import tunitas.keyston.vdaf.numeric.Seed
+#import tunitas.keyston.vdaf.numeric.Measurement
+#import tunitas.keyston.vdaf.numeric.Public
 #import tunitas.keyston.vdaf.numeric.Input
 #import tunitas.keyston.vdaf.numeric.Preparation
 #import tunitas.keyston.vdaf.numeric.Output
 #import tunitas.keyston.vdaf.numeric.Aggregation
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.hpke.Key
 namespace tunitas::keyston::vdaf::configuration {
   template<> struct Core<NUMERIC> {
     using Parameters = vdaf::numeric::Parameters;
-    using Nonce = Opaque<32>;
-    using Verify_Key = Opaque<(1uz<<24)>;
-    template<Slice SLICE> using Seed = vdaf::numeric::Seed<SLICE>;
+    using Nonce =  nonce::Bits<32>; // else Opaque<32>;
+    using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
+    template<Slice SLICE> using Measurement = vdaf::numeric::Measurement<SLICE>;
+    template<Slice SLICE> using Public = vdaf::numeric::Public<SLICE>;
     template<Slice SLICE> using Input = vdaf::numeric::Input<SLICE>;
     template<Slice SLICE> using Preparation = vdaf::numeric::Preparation<SLICE>;
     template<Slice SLICE> using Output = vdaf::numeric::Output<SLICE>;

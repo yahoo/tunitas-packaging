@@ -4,8 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import nonstd.required.Semiregular
-#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.keyston.array.required.Arrayable
 namespace tunitas::keyston::array {
   //
   // A fixed array.
@@ -24,7 +23,7 @@ namespace tunitas::keyston::array {
   //
   //   As you would an array
   //
-  template<required::Semiregular TYPE, Size CAPACITY> struct Fixed;
+  template<required::Arrayable TYPE, Size CAPACITY> struct Fixed;
 }
 #endiv
 #divert <hpp>
@@ -32,10 +31,12 @@ namespace tunitas::keyston::array {
 #import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
 #import std.array
 namespace tunitas::keyston {
-  template<required::Semiregular TYPE, Size CAPACITY> class array::Fixed : private std::array<TYPE, CAPACITY> {
+  template<array::required::Arrayable TYPE, Size CAPACITY> class array::Fixed : private std::array<TYPE, CAPACITY> {
     using Ancestor = std::array<TYPE, CAPACITY>;
   public:
     Fixed() = default;
+    template<typename... VALUES> requires (CAPACITY == sizeof...(VALUES)) Fixed(VALUES &&...);
+    //
     using Value [[school("New")]] = typename Ancestor::value_type;
     inline auto capacity() const noexcept { return CAPACITY; }
     using Ancestor::array;
@@ -45,7 +46,15 @@ namespace tunitas::keyston {
     using Ancestor::begin;
     using Ancestor::end;
     using Ancestor::at; // [[FIXTHIS]] capture and rethrow as "ours"
+    // using Ancestor::operator[] is denied
   };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::array {
+  template<required::Arrayable T, Size CAPACITY> template<typename... VALUES> requires (CAPACITY == sizeof...(VALUES)) Fixed<T,CAPACITY>::Fixed(VALUES &&...values)
+    : Ancestor{forward<VALUES>(values)...}
+  { }
 }
 #endiv
 #divert <cpp>

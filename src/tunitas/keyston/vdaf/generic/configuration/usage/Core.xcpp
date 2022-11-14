@@ -16,16 +16,19 @@ namespace tunitas::keyston::vdaf::generic::configuration::usage {
     typename CORE::Nonce;
     typename CORE::Verify_Key;
     //
-    requires required::Class<typename CORE::template Seed<WHOLE>>;
-    requires required::Class<typename CORE::template Seed<SHARE>>;
+    requires required::Class<typename CORE::template Measurement<WHOLE>>; // unencrypted, produced at the client
+    // NO SUCH ---> requires required::Class<typename CORE::template Measurement<SHARE>>; <--- NO SUCH (never materialized)
     //
-    requires required::Class<typename CORE::template Input<WHOLE>>;
-    requires required::Class<typename CORE::template Input<SHARE>>;
+    // NO SUCH ---> requires required::Class<typename CORE::template Input<WHOLE>>; <--- NO SUCH (never materialized)
+    requires required::Class<typename CORE::template Input<SHARE>>; // encrypted, sliced at the gateway
+    //
+    // NO SUCH ---> requires required::Class<typename CORE::template Public<WHOLE>>; <--- NO SUCH (never materialized)
+    requires required::Class<typename CORE::template Public<SHARE>>;
     //
     requires required::Class<typename CORE::template Preparation<WHOLE>>;
     requires required::Class<typename CORE::template Preparation<SHARE>>;
     //
-    // NO SUCH ---> requires required::Class<typename CORE::template Output<WHOLE>>; < --- NO SUCH (so frequenlty it is undefined)
+    // NO SUCH ---> requires required::Class<typename CORE::template Output<WHOLE>>; < --- NO SUCH (never materialized)
     requires required::Class<typename CORE::template Output<SHARE>>;
     //
     requires required::Class<typename CORE::template Aggregation<WHOLE>>;

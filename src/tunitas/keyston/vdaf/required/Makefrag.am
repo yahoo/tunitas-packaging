@@ -6,4 +6,5 @@
 #
 tunitas_keyston_vdaf_required_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/required/namespace.cpp \
+  obj/src/tunitas/keyston/vdaf/required/Shardable.cpp \
   $(end)

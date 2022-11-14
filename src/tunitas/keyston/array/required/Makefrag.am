@@ -7,4 +7,5 @@
 tunitas_keyston_array_required_SUBSOURCES = \
   obj/src/tunitas/keyston/array/required/namespace.cpp \
   obj/src/tunitas/keyston/array/required/Unique.cpp \
+  obj/src/tunitas/keyston/array/required/Arrayable.cpp \
   $(end)

@@ -4,15 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.protocol.preparation.Step
 namespace tunitas::keyston::vdaf::numeric {
-  template<Slice SLICE> struct Preparation;
-  template<> struct Preparation<WHOLE>;
-  template<> struct Preparation<SHARE>;
-}
-#endiv
-#divert <hpp>
-namespace tunitas::keyston::vdaf::numeric {
-  template<> struct Preparation<WHOLE> { };
-  template<> struct Preparation<SHARE> { };
+  template<Slice> using Preparation = protocol::preparation::Step<protocol::preparation::Mark::TAGGED>;
 }
 #endiv

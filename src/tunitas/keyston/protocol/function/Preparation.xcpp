@@ -4,16 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.function.buffer.Companion
-#include <hpp/tunitas.keyston.protocol.function.buffer.Companion>
+#import tunitas.keyston.protocol.preparation.Step
 namespace tunitas::keyston::protocol::function {
-  //
-  // The preparation, in whole or in part.
-  //
-  namespace [[eponymous]] preparation {
-    struct Tag;
-    template<Slice SLICE> using Preparation = buffer::Companion<SLICE, Tag, (1uz<<32)>;
-  }
-  using preparation::Preparation;
+  template<Slice> using Preparation = protocol::preparation::Step<protocol::preparation::Mark::TAGGED>;
 }
 #endiv

@@ -13,7 +13,8 @@ tunitas_keyston_vdaf_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/numeric/poplar1.cpp \
   \
   obj/src/tunitas/keyston/vdaf/numeric/Parameters.cpp \
-  obj/src/tunitas/keyston/vdaf/numeric/Seed.cpp \
+  obj/src/tunitas/keyston/vdaf/numeric/Measurement.cpp \
+  obj/src/tunitas/keyston/vdaf/numeric/Public.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/Input.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/Preparation.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/Output.cpp \

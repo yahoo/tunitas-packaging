@@ -25,15 +25,15 @@ namespace tunitas::keyston::protocol::initialization {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.preparation.Step
-#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.protocol.preparation.Steps
 namespace tunitas::keyston::protocol {
   namespace initialization {
     using std::move;
     inline auto swap(Response &, Response &) noexcept -> void;
   }
   struct initialization::Response {
-    array::Bounded<preparation::Step, (1uz<<32)> preparation_steps{};
+    using Preparation_Steps = preparation::Steps<preparation::Mark::TAGGED>;
+    Preparation_Steps preparation_steps{};
   };
 }
 #endiv

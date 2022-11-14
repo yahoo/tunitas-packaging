@@ -13,12 +13,16 @@ namespace tunitas::keyston::protocol::preparation {
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
   //   Section 4. Protocol Definition
   //
+  //   [[clarify]] This would be the outbound part?
+  //   [[clarify]] The return part (response part) is preparation::Step
+  //
   // Design:
   //
-  //   No. It's opaque, it?
+  //   No. It's opaque, is it?
   //
   // Usage:
   //
+  //   Only useful within protocol::preparation::step::Continued.
   //   Pass it on.  It's opaque.
   //
   struct Message;
