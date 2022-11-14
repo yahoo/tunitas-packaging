@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.variable.required.Valuable
+namespace tunitas::denniston::variable::usage {
+  //
+  // Is this type suitable for use in Variable<TYPE>?
+  // This is diagnosable WITH the complete of TYPE
+  //
+  template<typename VALUE> concept Valuable = required::Valuable<VALUE> && requires(VALUE) {
+    { Optional<VALUE>{} };
+    //
+    requires std::is_default_constructible_v<VALUE>;
+    //
+    // Not necessarily semi-regular but move-or-copy capable.
+    //
+    requires std::is_copy_constructible_v<VALUE> || std::is_move_constructible_v<VALUE>;
+    requires std::is_copy_assignable_v<VALUE> || std::is_move_assignable_v<VALUE>;
+    requires std::is_swappable_v<VALUE>;
+  };
+}
+#endiv

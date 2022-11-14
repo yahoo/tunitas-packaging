@@ -7,7 +7,13 @@
 tunitas_denniston_protocol_SUBSOURCES = \
   obj/src/tunitas/denniston/protocol/namespace.cpp \
   obj/src/tunitas/denniston/protocol/required.cpp \
+  $(tunitas_denniston_protocol_aggregation_SUBSOURCES) \
+  $(tunitas_denniston_protocol_continuation_SUBSOURCES) \
+  $(tunitas_denniston_protocol_initialization_SUBSOURCES) \
   $(tunitas_denniston_protocol_packet_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/denniston/protocol/aggregation/Makefrag.am
+include src/tunitas/denniston/protocol/continuation/Makefrag.am
+include src/tunitas/denniston/protocol/initialization/Makefrag.am
 include src/tunitas/denniston/protocol/packet/Makefrag.am

@@ -5,4 +5,6 @@
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
 fmt_SUBSOURCES = \
+  obj/src/fmt/formatter/tunitas.denniston.role.Species.cpp \
+  obj/src/fmt/formatter/tunitas.denniston.role.Genus.cpp \
   $(end)

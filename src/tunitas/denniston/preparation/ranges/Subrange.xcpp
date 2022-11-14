@@ -1,0 +1,68 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.preparation.ranges.required // ctcnr (cascade that certain 'namespace required')
+#import nonstd.required.iterator.Forward
+#import tunitas.denniston.preparation.ranges.Projection
+namespace tunitas::denniston::preparation::ranges {
+  //
+  // The range
+  //
+  // Specification:
+  //
+  //   Rhymes with std::ranges::subrange<...>
+  //   https://en.cppreference.com/w/cpp/ranges/subrange
+  //
+  // Design:
+  //
+  //   Pass the projection to the Iterator specializations take care of the rest
+  //
+  // Usage:
+  //
+  //   auto series = Series<Definition>;
+  //   auto sub = Subrange<Projection::ID, Series<Definition>::const_iterator>{series};
+  //   for (auto const &identifier : sub) {
+  //     ...do stuff with the identifier...
+  //   }
+  //
+  template<Projection, required::iterator::Forward SUBITERATOR> struct Subrange;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.preparation.ranges.Iterator
+#import tunitas.denniston.preparation.ranges.required.container.Extractible_From
+namespace tunitas::denniston::preparation {
+  template<ranges::Projection PROJECTION, ranges::required::iterator::Forward SUBITERATOR> class ranges::Subrange {
+  protected:
+    using Subiterator = SUBITERATOR;
+  public:
+    using Iterator = ranges::Iterator<PROJECTION, Subiterator>;
+    Subrange() = default;
+    template<required::container::Extractible_From<Subiterator> CONTAINER> inline [[implicit]] Subrange(CONTAINER &&);
+    inline [[implicit]] Subrange(Subiterator start, Subiterator finish);
+    inline auto empty() const -> bool;
+    inline auto begin() const -> Iterator;
+    inline auto end() const -> Iterator;
+  protected:
+    Iterator start{}, finish{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::preparation::ranges {
+  template<Projection PROJECTION, required::iterator::Forward SUBITERATOR> template<required::container::Extractible_From<SUBITERATOR> CONTAINER> Subrange<PROJECTION,SUBITERATOR>::Subrange(CONTAINER &&container)
+    : start{container.begin()}
+    , finish{container.end()}
+  { }
+  template<Projection P, required::iterator::Forward I> Subrange<P,I>::Subrange(Subiterator s, Subiterator f)
+    : start{s}
+    , finish{f}
+  { }
+  template<Projection P, required::iterator::Forward I> auto Subrange<P,I>::empty() const -> bool     { return finish == start; }
+  template<Projection P, required::iterator::Forward I> auto Subrange<P,I>::begin() const -> Iterator { return start; }
+  template<Projection P, required::iterator::Forward I> auto Subrange<P,I>::end() const -> Iterator   { return finish; }
+}
+#endiv

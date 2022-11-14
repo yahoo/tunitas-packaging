@@ -23,6 +23,9 @@ namespace tunitas::denniston::role {
   //
   //   You need a tutorial on the usage of an enum (class)?
   //
+  //   The I/O supportis separate (stringification and formatter)
+  //   #import tunitas.denniston.role.io
+  //
   enum class Species {
     CONFIGURATION = underlying(Genus::CONFIGURATION),
     DIRECTORY     = underlying(Genus::DIRECTORY),
@@ -36,6 +39,8 @@ namespace tunitas::denniston::role {
 #endiv
 #divert <hpp>
 #import tunitas.Optional
+#import tunitas.keyston.vdaf.Shard
+#import std.nothrow_t
 namespace tunitas::denniston::role {
   inline constexpr auto underlying(Species n) { return std::underlying_type_t<Species>(n); }
   inline auto swap(Species &a, Species &b) noexcept -> void { return std::swap(a, b); }
@@ -49,17 +54,40 @@ namespace tunitas::denniston::role {
   static_assert(-2 == underlying(Species::PROCESSOR2));
   static_assert(-1 == underlying(Species::PROCESSOR1));
   //
-  inline constexpr auto make_client_species(unsigned index) -> Species;
-  inline auto recover_processor_index(Species) -> Size; // throws in !is_processor
-  //
   inline auto to_genus(Species) -> Genus;
   inline constexpr auto estimate_genus(Species) -> Optional<Genus>;
+  //
+  inline constexpr auto make_client_species(unsigned index) -> Species;
+  //
+  // These are discoverable by ADL; the throwing versions check their arguments at runtime; 
+  inline auto recover_client_index(Species) -> Size; // ....................throws in !is_client
+  inline auto recover_client_number(Species) -> Size; // ....................throws in !is_client
+  inline constexpr auto recover_client_index(std::nothrow_t, Species) -> Optional<Size>;
+  inline constexpr auto recover_client_number(std::nothrow_t, Species) -> Optional<Size>;
+  //
+  // These are discoverable by ADL (eadem ratione)
+  // The processor "number" is a 1-based numbering system: PROCESSOR1, PROCESSOR2
+  // The processor "index" is a 0-based numbering system.
+  inline auto recover_processor_index(Species) -> Size; // ................... throws in !is_processor
+  inline auto recover_processor_number(Species) -> Size; // .................. same
+  inline auto recover_processor_shard(Species) -> keyston::vdaf::Shard; // ... same
+  inline constexpr auto recover_processor_index(std::nothrow_t, Species) -> Optional<Size>;
+  inline constexpr auto recover_processor_number(std::nothrow_t, Species) -> Optional<Size>;
+  inline constexpr auto recover_processor_shard(std::nothrow_t, Species) -> Optional<keyston::vdaf::Shard>;
+  //
+  // To inject into keyston for availability by ADL
+  //   #import tunitas.keyston.vdaf.tunitas.denniston.role.Species
+  inline auto recover_processor_species(keyston::vdaf::Shard) -> Species;
+  inline constexpr auto recover_processor_species(std::nothrow_t, keyston::vdaf::Shard) -> Optional<Species>;
 }
 #endiv
 #divert <ipp>
+#import std.nothrow
 #import std.same_as
 #import std.make_unsigned
 #import tunitas.denniston.exception.Invalid
+#import tunitas.denniston.exception.Range
+#import tunitas.keyston.vdaf.literals
 namespace tunitas::denniston {
   constexpr auto role::make_client_species(unsigned index) -> Species {
     static_assert(std::same_as<decltype(index), std::make_unsigned_t<std::underlying_type_t<Species>>>);
@@ -83,13 +111,120 @@ namespace tunitas::denniston {
     if (is_processor(species))     { return Genus::PROCESSOR; }
     else                           { return {}; }
   }
-  auto role::recover_processor_index(Species species) -> Size {
-    if (!is_processor(species)) {
-      throw exception::Invalid{"not a processor species"};
+  constexpr auto role::recover_client_index(std::nothrow_t, Species species) -> Optional<Size> {
+    if (!is_client(species)) {
+      return {};
     } else {
       auto raw = underlying(species);
-      return -raw - 1u;
+      auto base = underlying(Species::CLIENT);
+      return raw - base;
     }
+  }
+  auto role::recover_client_index(Species species) -> Size {
+    if (auto got=recover_client_index(std::nothrow, species); got) {
+      return *got;
+    } else {
+      throw exception::Invalid{"not a client species"};
+    }
+  }
+  constexpr auto role::recover_client_number(std::nothrow_t no, Species species) -> Optional<Size> {
+    if (auto got=recover_client_index(no, species); got) {
+      return 1u + *got;
+    } else {
+      return {};
+    }
+  }
+  auto role::recover_client_number(Species species) -> Size {
+    if (auto got=recover_client_number(std::nothrow, species); got) {
+      return *got;
+    } else {
+      throw exception::Invalid{"not a client species"};
+    }
+  }
+  constexpr auto role::recover_processor_index(std::nothrow_t, Species species) -> Optional<Size> {
+    if (!is_processor(species)) {
+      return {};
+    } else {
+      auto raw = underlying(species);
+      auto base = 1u;
+      return -raw - base;
+    }
+  }
+  auto role::recover_processor_index(Species species) -> Size {
+    if (auto got=recover_processor_index(std::nothrow, species); got) {
+      return *got;
+    } else {
+      throw exception::Invalid{"not a processor species"};
+    }
+  }
+  constexpr auto role::recover_processor_number(std::nothrow_t no, Species species) -> Optional<Size> {
+    if (auto got=recover_processor_index(no, species); got) {
+      return 1u + *got;
+    } else {
+      return {};
+    }
+  }
+  auto role::recover_processor_number(Species species) -> Size {
+    if (auto got=recover_processor_number(std::nothrow, species); got) {
+      return *got;
+    } else {
+      throw exception::Invalid{"not a processor species"};
+    }
+  }
+  constexpr auto role::recover_processor_shard(std::nothrow_t, Species species) -> Optional<keyston::vdaf::Shard> {
+    if (!is_processor(species)) {
+      return {};
+    } else {
+      switch (species) {
+        using namespace keyston::vdaf::literals;
+      case Species::PROCESSOR1: return 0_shard;
+      case Species::PROCESSOR2: return 1_shard;
+      default: return {};
+      }
+    }
+  }
+  auto role::recover_processor_shard(Species species) -> keyston::vdaf::Shard {
+    if (auto got=recover_processor_shard(std::nothrow, species); got) {
+      return *got;
+    } else {
+      throw exception::Invalid{"not a processor species"};
+    }
+  }
+  constexpr auto role::recover_processor_species(std::nothrow_t, keyston::vdaf::Shard shard) -> Optional<Species> {
+    using namespace keyston::vdaf::literals;
+    if (0_shard == shard) {
+      return Species::PROCESSOR1;
+    } else if (1_shard == shard) {
+      return Species::PROCESSOR2;
+    } else {
+      static_assert(2 == keyston::vdaf::SHARD_COUNT);
+      return {};
+    }
+  }
+  auto role::recover_processor_species(keyston::vdaf::Shard shard) -> Species {
+    if (auto got=recover_processor_species(std::nothrow, shard); got) {
+      return *got;
+    } else {
+      throw exception::Range{"shard out of range"};
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.vdaf.tunitas.denniston.role.Species // inject into their namespace
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::vdaf::literals;
+    using tunitas::denniston::role::Species;
+    // show constexpr evaluation and ADL works
+    static_assert(0 == recover_processor_index(std::nothrow, Species::PROCESSOR1));
+    static_assert(1 == recover_processor_index(std::nothrow, Species::PROCESSOR2));
+    static_assert(1 == recover_processor_number(std::nothrow, Species::PROCESSOR1));
+    static_assert(2 == recover_processor_number(std::nothrow, Species::PROCESSOR2));
+    static_assert(0_shard == recover_processor_shard(std::nothrow, Species::PROCESSOR1));
+    static_assert(1_shard == recover_processor_shard(std::nothrow, Species::PROCESSOR2));
+    static_assert(Species::PROCESSOR1 == recover_processor_species(std::nothrow, 0_shard));
+    static_assert(Species::PROCESSOR2 == recover_processor_species(std::nothrow, 1_shard));
   }
 }
 #endiv

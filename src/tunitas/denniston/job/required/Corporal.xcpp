@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.role.required.Corporal
+namespace tunitas::denniston::job::required {
+  using role::required::Corporal;
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.role.Genus
+namespace {
+  namespace testate {
+    namespace required = tunitas::denniston::job::required;
+    using tunitas::denniston::role::Genus;
+    static_assert(not required::Corporal<Genus::CLIENT>);
+    static_assert(    required::Corporal<Genus::COLLECTOR>);
+    static_assert(not required::Corporal<Genus::CONFIGURATION>);
+    static_assert(not required::Corporal<Genus::DIRECTORY>);
+    static_assert(    required::Corporal<Genus::GATEWAY>);
+    static_assert(    required::Corporal<Genus::PROCESSOR>);
+  }
+}
+#endiv

@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::exception {
+  //
+  // A value is out of range in Tunitas Denniston.
+  //
+  // Specification:
+  //
+  //   When expressing any value, use exception::Range
+  //   When expressing an an index, prefer exception::Bound (out of bounds)
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Range;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Range
+#import tunitas.exception.Aspect
+#import tunitas.denniston.exception.Aspect
+class tunitas::denniston::exception::Range final : public complete::Basic<partial::Range, denniston::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Range, denniston::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  using Ancestor::Basic;
+};
+#endiv
+#divert <cpp>
+#import std.derived_from
+namespace {
+  namespace testate {
+    using tunitas::denniston::exception::Range;
+    using std::range_error;
+    static_assert(std::derived_from<Range, range_error>);
+  }
+}
+#endiv

@@ -1,0 +1,91 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.literals
+namespace tests::unit::service::gateway {
+  namespace [[eponymous]] gather {
+    class Gather;
+    using namespace ::tunitas::keyston::vdaf::literals;
+  }
+  using gather::Gather;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.service.gateway.Gather
+struct tests::unit::service::gateway::gather::Gather : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Gather;
+  //
+  auto test_constructor_default() -> void;
+  auto test_is_complete() -> void;
+  auto test_insert_one() -> void;
+  auto test_insert_many() -> void;
+  auto test_reset() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::service::gateway::gather::Gather::suite() -> Suite {
+  auto series = Stream{"Gather"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Gather::test_constructor_default)
+                  << END;
+              return con;
+            }()
+         << add("is_complete", &Gather::test_is_complete)
+         << []{
+              auto ins = Stream{"insert"sv};
+              ins << add("one", &Gather::test_insert_one)
+                  << add("many", &Gather::test_insert_many)
+                  << END;
+              return ins;
+            }()
+         << add("reset", &Gather::test_reset)
+         << END;
+  return settle(series);
+}
+namespace tests::unit::service::gateway::gather {
+  auto Gather::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    require(ASSERTION, !subject.is_complete());
+  }
+  auto Gather::test_is_complete() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, !subject.is_complete());
+    subject.insert(0_shard, {});
+    require(ASSERTION, !subject.is_complete());
+    subject.insert(1_shard, {});
+    require(ASSERTION, subject.is_complete());
+  }
+  auto Gather::test_insert_one() -> void {
+    // the other two tests do a lot of insert(...)
+    auto subject = Subject{};
+    auto inserted1 = subject.insert(0_shard, {});
+    require(ASSERTION, Subject::Inserted::INSERTED == inserted1);
+    auto inserted2 = subject.insert(0_shard, {});
+    require(ASSERTION, Subject::Inserted::DUPLICATE == inserted2);
+  }
+  auto Gather::test_insert_many() -> void {
+    auto subject = Subject{};
+    auto stripe = library::Gather::Stripe{}; // sure it's empty.
+    auto inserted1 = subject.insert(0_shard, stripe.begin(), stripe.end());
+    require(ASSERTION, Subject::Inserted::INSERTED == inserted1);
+    auto inserted2 = subject.insert(0_shard, stripe.begin(), stripe.end());
+    require(ASSERTION, Subject::Inserted::DUPLICATE == inserted2);
+  }
+  auto Gather::test_reset() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, !subject.is_complete());
+    subject.insert(0_shard, {});
+    subject.insert(1_shard, {});
+    require(ASSERTION, subject.is_complete());
+    subject.reset();
+    require(ASSERTION, !subject.is_complete());
+  }
+}
+#endiv

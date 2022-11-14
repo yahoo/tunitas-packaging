@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::processor::subprocess {
+  //
+  // The initialization subprocess (thread)
+  //
+  // Specificiation:
+  //
+  //   Ask for the tasks.
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  // Concurrency:
+  //
+  //   Not within.
+  //   Synchronize with (others) in the Processor by the Prototype::barrier.
+  //
+  // Usage:
+  //
+  //   See service::instance::Processor
+  //
+  struct Compute;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.count
+#import tunitas.denniston.service.processor.subprocess.Prototype
+namespace tunitas::denniston::service::processor {
+  namespace subprocess {
+    inline auto swap(Compute *&a, Compute *&b) noexcept -> void { std::swap(a, b); }
+  }
+  class subprocess::Compute : public Prototype {
+    using Ancestor = Prototype;
+  public:
+    inline explicit Compute(Processor &);
+    //
+    auto run() noexcept -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.job.Corpus
+namespace tunitas::denniston::service::processor::subprocess {
+  Compute::Compute(Processor &owner) : Ancestor{owner} { }
+}
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::processor::subprocess::Compute;
+    //
+    static_assert(not std::semiregular<Compute>);
+    //
+    // because that barrier in Compute::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_default_constructible_v<Compute>);
+    static_assert(not std::is_copy_constructible_v<Compute>);
+    static_assert(not std::is_move_constructible_v<Compute>);
+    static_assert(not std::is_copy_assignable_v<Compute>);
+    static_assert(not std::is_move_assignable_v<Compute>);
+    static_assert(not std::is_swappable_v<Compute>);
+    static_assert(    std::is_swappable_v<Compute *>);
+  }
+}
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Query
+namespace tunitas::denniston::service::processor::subprocess {
+  auto Compute::run() noexcept -> void try {
+    barrier.wait([this]{ return !owner.hpke.has_value(); });
+    while (!owner.is_shutting_down()) {
+      barrier.wait([this]{ return !owner.queue.empty(); });
+      auto got = owner.queue.pop();
+#warning WRITETHIS
+    }
+    //
+    owner.log.format("compute is ending, having recovered the tasks");
+  } catch (process::companion::Shutdown) {
+    // yay!
+  } catch(...) {
+    owner.log.format("compute has an escaped exception which is suppressed");
+  }
+}
+#endiv

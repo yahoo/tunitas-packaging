@@ -30,6 +30,9 @@ namespace {
   namespace testate {
     using tunitas::denniston::task::Corpus;
     using tunitas::denniston::Genus;
+    //
+    static_assert(std::semiregular<Corpus<Genus::COLLECTOR>>);
+    //
     static_assert(std::is_default_constructible_v<Corpus<Genus::COLLECTOR>>);
     static_assert(std::is_copy_constructible_v<Corpus<Genus::COLLECTOR>>);
     static_assert(std::is_move_constructible_v<Corpus<Genus::COLLECTOR>>);

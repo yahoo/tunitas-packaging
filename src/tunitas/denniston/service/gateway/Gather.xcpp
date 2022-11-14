@@ -1,0 +1,134 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.protocol.preparation.Mark
+#import tunitas.keyston.protocol.preparation.Step
+#import tunitas.denniston.report.Status
+#import tunitas.denniston.service.gateway.required
+#import nonstd.required.iterator
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import nonstd.required.Constructible_From
+namespace tunitas::denniston::service::gateway {
+  //
+  // Gather the ppreparation from the processor.
+  //
+  // Specification:
+  //
+  //   Guard against concurrent access.
+  //   Represent "as-yet unavailable"
+  //   Detect recoveries.
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  //   Not copyable or movable; because of the mutex (locks).
+  //
+  // Usage:
+  //
+  //   See Job.
+  //
+  namespace [[eponymous]] gather {
+    namespace required {
+      using namespace tunitas::denniston::service::gateway::required;
+      namespace iterator {
+        using namespace nonstd::required::iterator; // is there a namespace tunitas::...::required::iterator that we should be using?
+        template<typename ITERATOR> concept Status = requires(ITERATOR) {
+          requires iterator::Forward<ITERATOR>;
+          // NOT THIS ---> requires iterator::Producing<ITERATOR, report::Status>;
+          requires iterator::Producing<ITERATOR, keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>>;
+          requires Constructible_From<report::Status, keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>>;
+          // though this previous statement requires the complete type of Report::Status, when evaluated
+        };
+      }
+    }
+    struct Gather;
+  }
+  using gather::Gather;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.report.Status
+#import tunitas.denniston.report.Series
+#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.vdaf.Shard
+#import std.mutex
+#import std.lock_guard
+namespace tunitas::denniston::service::gateway {
+  static_assert(nonstd::required::Constructible_From<report::Status, keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>>);
+  struct gather::Gather {
+    Gather() = default;
+    Gather(Gather const &) = delete;
+    Gather &operator=(Gather const &) = delete;
+    //
+    inline auto is_complete() const -> bool;
+    using Shard = keyston::vdaf::Shard;
+    using Stripe = report::Series<report::Status>;
+    enum class Inserted { INSERTED, DUPLICATE, REJECTED = DUPLICATE };
+    inline auto insert(Shard, Stripe &&) -> Inserted;
+    template<required::iterator::Status ITERATOR> inline auto insert(Shard, ITERATOR start, ITERATOR finish) -> Inserted;
+    inline auto reset() -> void;
+  protected:
+    keyston::vdaf::Shards<Optional<Stripe>> stripes{};
+    using Guard = std::lock_guard<std::mutex>;
+    mutable std::mutex mutex{};
+  };
+}
+#endiv
+#divert <ipp>
+#import std.all_of
+#import std.copy
+#import std.back_inserter
+namespace tunitas::denniston::service::gateway::gather {
+  auto Gather::reset() -> void {
+    auto guard = Guard{mutex};
+    for (auto &stripe : stripes) {
+      stripe.reset();
+    }
+  }
+  auto Gather::is_complete() const -> bool {
+    auto guard = Guard{mutex};
+    return std::all_of(stripes.begin(), stripes.end(), [](auto const &stripe) { return stripe.has_value(); });
+  }
+  auto Gather::insert(Shard there, Stripe &&noob) -> Inserted {
+    auto guard = Guard{mutex};
+    if (auto &at=stripes.at(there); at.has_value()) {
+      return Inserted::DUPLICATE;
+    } else {
+      at = move(noob);
+      return Inserted::INSERTED;
+    }
+  }
+  template<required::iterator::Status ITERATOR> auto Gather::insert(Shard there, ITERATOR start, ITERATOR finish) -> Inserted {
+    auto guard = Guard{mutex};
+    if (auto &at=stripes.at(there); at.has_value()) {
+      return Inserted::DUPLICATE;
+    } else {
+      at = Stripe{};;
+      std::copy(start, finish, std::back_inserter(*at));
+      return Inserted::INSERTED;
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::gateway::Gather;
+    //
+    static_assert(not std::semiregular<Gather>);
+    //
+    static_assert(    std::is_default_constructible_v<Gather>);
+    static_assert(not std::is_copy_constructible_v<Gather>);
+    static_assert(not std::is_move_constructible_v<Gather>);
+    static_assert(not std::is_copy_assignable_v<Gather>);
+    static_assert(not std::is_move_assignable_v<Gather>);
+    static_assert(not std::is_swappable_v<Gather>);
+  }
+}
+#endiv

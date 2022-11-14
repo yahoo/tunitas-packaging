@@ -1,0 +1,11 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_variable_required_SUBSOURCES = \
+  obj/src/tunitas/denniston/variable/required/namespace.cpp \
+  obj/src/tunitas/denniston/variable/required/Valuable.cpp \
+  obj/src/tunitas/denniston/variable/required/Valref.cpp \
+  $(end)

@@ -10,7 +10,7 @@ namespace tunitas::denniston::service::instance::required {
   //
   // Is this TYPE a service instance?
   // Must be answerable without the complete type of TYPE (i.e. no use of derived_from<...>)
-  // Instead we require the complete type of the Traits<INSTANCE> declaration.
+  // Instead we require the complete type of the traits::Instance<INSTANCE> declaration.
   //
   template<typename INSTANCE> concept Instance = traits::Instance<INSTANCE>::value;
 }

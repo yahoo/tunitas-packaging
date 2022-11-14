@@ -45,33 +45,39 @@ struct tunitas::denniston::report::Generator {
   using Entropy = keyston::entropy::Source;
   inline explicit Generator(Entropy &);
   using Task = keyston::protocol::id::Task;
-  using Report = keyston::protocol::report::Produced;
+  using Report = keyston::protocol::report::Produced<keyston::protocol::Slice::WHOLE>;
   auto operator()(Task const &task_id) -> Report;
 protected:
   using Clock = keyston::time::Clock;
-  class Generators {
+  class Subgenerators {
     using Policy = keyston::identifier::generator::Policy;
     template<typename UNIQUENESS, Policy POLICY> using Name = keyston::identifier::Generator<UNIQUENESS, POLICY>;
     template<typename UNIQUENESS> using Nonce = keyston::nonce::Generator<UNIQUENESS>;
     template<typename... SUBNONCES> requires (0 < sizeof...(SUBNONCES)) using Bundle = keyston::nonce::Bundle<SUBNONCES...>;
   public:
     Name<keyston::protocol::id::Report, Policy::RANDOM> report_id;
-    Nonce<Bundle<keyston::nonce::Bits<64>, keyston::nonce::Since<std::chrono::microseconds>>> nonce;
-    Generators(Entropy &e) : report_id{e}, nonce{e} { }
-  } generator;
+    Nonce<Bundle<keyston::nonce::Bits<64>, keyston::nonce::Since<std::chrono::microseconds>>> nonce; // has fallen to disuse (the report_id is the noce)
+    Subgenerators(Entropy &e) : report_id{e}, nonce{e} { }
+  } subgenerators;
 };
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::report {
-  Generator::Generator(Entropy &entropy) : generator{entropy} { }
+  Generator::Generator(Entropy &entropy) : subgenerators{entropy} { }
 }
 #endiv
 #divert <cpp>
+#import tunitas.keyston.vdaf.Shard // and SHARD_COUNT (which is constie)
+#import tunitas.keyston.vdaf.literals
 namespace tunitas::denniston::report {
   auto Generator::operator()(Task const &task_id) -> Report {
-    auto ret = Report{.task_id{task_id}, .metadata{.report_id{generator.report_id()}, .time{Clock::now()}, .extensions{}}};
-#warning fill out public_share based on the function of the task
-#warning fill out encrypted_input_shares based on the function of the task
+    auto ret = Report{subgenerators.report_id(), Clock::now(), Report::Extensions{}, task_id, Report::Public_Share{}};
+    //
+    // There being two processors in the protocol.
+    using namespace keyston::vdaf::literals;
+    static_assert(2u == keyston::vdaf::SHARD_COUNT);
+    ret.encrypted_input_shares.at(0_shard) = {};
+    ret.encrypted_input_shares.at(1_shard) = {};
     return ret;
   }
 }

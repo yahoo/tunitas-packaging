@@ -9,4 +9,9 @@ tests_unit_service_SUBSOURCES = \
   check/obj/src/tests/unit/service/Dictionary.cpp \
   check/obj/src/tests/unit/service/Fixture.cpp \
   check/obj/src/tests/unit/service/instance.Fixture.cpp \
+  $(tests_unit_service_processor_SUBSOURCES) \
+  $(tests_unit_service_gateway_SUBSOURCES) \
   $(end)
+#
+include src/tests/unit/service/gateway/Makefrag.am
+include src/tests/unit/service/processor/Makefrag.am

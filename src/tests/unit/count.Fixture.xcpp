@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.count
+namespace tests::unit::count {
+  struct Fixture;
+  namespace library = ::tunitas::denniston::count;
+}
+#endiv
+#divert <hpp>
+#import nonstd.required.Enumeration
+#import tests.unit.required // ctcnr (cascade that certain namespace required)
+struct tests::unit::count::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  template<required::Enumeration SUBJECT> auto test_count() -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::count {
+  template<required::Enumeration SUBJECT> auto Fixture::test_count() -> void {
+    using Subject = SUBJECT;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    require(ASSERTION, 1u == underlying(subject0));
+    require(ASSERTION, 0u == underlying(subject1));
+    ++subject0;
+    subject1++;
+    subject1++;
+    require(ASSERTION, subject0 == subject1);
+    require(ASSERTION, std::strong_ordering::equal == (subject0 <=> subject1));
+    require(ASSERTION, ++subject0 > subject1);
+    require(ASSERTION, subject0 != subject1);
+    require(ASSERTION, std::strong_ordering::greater == (subject0 <=> subject1));
+  }
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::count {
+  auto Fixture::suite() -> Suite {
+    auto series = Stream{"count"sv};
+    series << add("Batch", &Fixture::test_count<library::Batch>)
+           << add("Job", &Fixture::test_count<library::Job>)
+           << add("Report", &Fixture::test_count<library::Report>)
+           << END;
+    return settle(series);
+  }
+}
+#endiv

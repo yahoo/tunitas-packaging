@@ -12,3 +12,12 @@ namespace tunitas::denniston::world {
   using namespace string::literals;
 }
 #endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.Name
+namespace tunitas::denniston::world {
+  //
+  // The denniston system only does this (for now, constexpr-hard-coded)
+  //
+  inline constexpr auto VERIFIABLE_AGGREGATION_FUNCTION_NAME = keyston::vdaf::Name::ZERO; // but one day PRIO or POPLAR.
+}
+#endiv

@@ -1,0 +1,90 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::concurrent { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::concurrent::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Channel() -> void;
+  auto test_usage_Dictionary() -> void;
+  auto test_usage_Variable() -> void;
+protected:
+  enum class Index : unsigned { };
+  struct Record;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::concurrent::Fixture::suite() -> Suite {
+  auto series = Stream{"concurrent"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Channel", &Fixture::test_usage_Channel)
+                  << add("Dictionary", &Fixture::test_usage_Dictionary)
+                  << add("Variable", &Fixture::test_usage_Variable)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.concurrent.Channel
+#import tunitas.denniston.concurrent.Dictionary
+#import tunitas.denniston.concurrent.Variable
+#import tests.unit.concurrent.Fixture.Record
+namespace tests::unit::concurrent {
+  auto Fixture::test_usage_Channel() -> void {
+    using Subject = library::Channel<int>;
+    auto subject = Subject{};
+    subject.push_back(1);
+    subject.push_back(2);
+    subject.push_back(3);
+    auto a1 = subject.pop();
+    auto a2 = subject.pop();
+    auto a3 = subject.pop();
+    require(ASSERTION, 1 == a1);
+    require(ASSERTION, 2 == a2);
+    require(ASSERTION, 3 == a3);
+  }
+  auto Fixture::test_usage_Dictionary() -> void {
+    using enum ::tunitas::denniston::dictionary::Complexity;
+    using enum ::tunitas::denniston::dictionary::Concurrency;
+    using ::tunitas::denniston::dictionary::Parameters;
+    using Subject = library::Dictionary<LINEAR, SEQUENTIAL, Parameters<string::Storage, Index, Record>>;
+    auto subject = Subject{};
+    require(ASSERTION, subject.empty());
+    subject.insert("a"s);
+    subject.insert("b"s);
+    subject.insert("c"s);
+    require(ASSERTION, 3 == subject.size());
+    auto a = subject.find("a"s);
+    auto b = subject.find("b"s);
+    auto c = subject.find("c"s);
+    auto d = subject.find("d"s);
+    require(ASSERTION, true == (bool) a);
+    require(ASSERTION, true == (bool) b);
+    require(ASSERTION, true == (bool) c);
+    require(ASSERTION, false == (bool) d);
+    require(ASSERTION, "a"s == *a);
+    require(ASSERTION, "b"s == *b);
+    require(ASSERTION, "c"s == *c);
+  }
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = library::Variable<int>;
+    auto subject = Subject{};
+    auto has0 = subject.has_value();
+    require(ASSERTION, !has0);
+    subject = 1;
+    auto has1 = subject.has_value();
+    require(ASSERTION, has1);
+    { auto ref = subject.ref();
+      require(ASSERTION, 1 == *ref); }
+    { auto got = *subject;
+      require(ASSERTION, 1 == got); }
+  }
+}
+#endiv

@@ -1,0 +1,27 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_preparation_ranges_iterator_SUBSOURCES = \
+  obj/src/tunitas/denniston/preparation/ranges/Iterator.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/namespace.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Basis.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Rebase.cpp \
+  \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Iterator.template.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Iterator.ID.SUBITERATOR.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Iterator.POSITIONED.SUBITERATOR.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Iterator.RECORD.SUBITERATOR.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Iterator.cpp \
+  \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Traits.template.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Traits.PROJECTION.SUBITERATOR.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Traits.RECORD.SUBITERATOR.cpp \
+  obj/src/tunitas/denniston/preparation/ranges/iterator/Traits.cpp \
+  \
+  $(tunitas_denniston_preparation_ranges_iterator_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/preparation/ranges/iterator/required/Makefrag.am

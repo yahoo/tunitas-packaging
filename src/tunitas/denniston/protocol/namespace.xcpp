@@ -5,5 +5,9 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston
-namespace tunitas::denniston::protocol { }
+#import tunitas.keyston // for Slice
+namespace tunitas::denniston::protocol {
+  using keyston::Slice;
+  using enum Slice;
+}
 #endiv

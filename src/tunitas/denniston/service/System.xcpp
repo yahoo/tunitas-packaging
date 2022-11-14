@@ -50,8 +50,8 @@ namespace tunitas::denniston::service {
 #import tunitas.denniston.service.instance.Directory
 #import tunitas.denniston.service.instance.Gateway
 #import tunitas.denniston.service.instance.Processor
-#import std.array
-#import std.deque
+#import tunitas.keyston.vdaf.Shards
+#import std.deque // [[TODO]] don't use keyston::array::Variable but do use keyston::index::Container or something like that
 class tunitas::denniston::service::system::System {
   template<instance::required::Instance TYPE> using Pointer = instance::Pointer<TYPE>;
 public:
@@ -60,7 +60,7 @@ public:
   Pointer<Configuration> configuration{};
   Pointer<Directory> directory{};
   Pointer<Gateway> gateway{};
-  std::array<Pointer<Processor>, PROCESSOR_COUNT> processors{};
+  keyston::vdaf::Shards<Pointer<Processor>> processors{};
   //
   using Entropy = keyston::entropy::Source;
   explicit System(Entropy &, [[inout]] World &, Size initial_client_count = 0);
@@ -76,17 +76,15 @@ namespace tunitas::denniston::service::system {
     : collector{make<Collector>(world)}
     , configuration{make<Configuration>(world)}
     , directory{make<Directory>(world)}
-    , gateway{make<Gateway>(world)}
-    , processors{std::to_array({make<Processor>(world, Species::PROCESSOR1), make<Processor>(world, Species::PROCESSOR2)})}
+    , gateway{make<Gateway>(entropy, world)}
+    , processors{make<Processor>(world, Species::PROCESSOR1), make<Processor>(world, Species::PROCESSOR2)}
   {
     for (auto i{0uz}; initial_client_count != i; ++i) {
       auto role = role::make_client_species(i);
       clients.push_back(make<Client>(entropy, world, role));
     }
-    configuration->processors.resize(processors.size());
     configuration->clients.resize(clients.size());
     directory->clients.resize(clients.size());
-    gateway->processors.resize(processors.size());
     gateway->clients.resize(clients.size());
   }
 }

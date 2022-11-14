@@ -1,0 +1,46 @@
+=// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.preparation.ranges.iterator.Iterator.template
+namespace tunitas::denniston::preparation::ranges::iterator {
+  //
+  // Iterator on the REPORT_ID of the record
+  //
+  // Specification:
+  //
+  //    A projection at the 'report_id' field.
+  //    Obviously the underlying value type MUST have a report_id field.
+  //
+  // Design:
+  //
+  //   Yes.  See operator* where the projection onto field Record::report_id occurs.
+  //
+  // Usage:
+  //
+  //   You need a tutorial on how to use an iterator?  o.rly?
+  //
+  template<typename SUBITERATOR> struct Iterator<Projection::ID, SUBITERATOR>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.preparation.ranges.iterator.Rebase
+namespace tunitas::denniston::preparation::ranges::iterator {
+  template<typename SUBITERATOR> struct Iterator<Projection::ID, SUBITERATOR> : public Rebase<Projection::ID, SUBITERATOR>::Type {
+    using Ancestor = typename Rebase<Projection::ID, SUBITERATOR>::Type;
+  public:
+    [[implicit]] Iterator() = default;
+    using Ancestor::Basis;
+#if 202312 < __cplusplus
+    template<typename SELF> auto operator*(this SELF *) -> nonstd::like_t<SELF, typename Ancestor::Reference> { return Ancestor::subiterator->report_id; }
+#else
+    auto operator*() -> typename Ancestor::Reference                     { return Ancestor::subiterator->report_id; }
+    auto operator*() const -> typename Ancestor::Reference_More_Constie  { return Ancestor::subiterator->report_id; }
+    auto operator++() -> Iterator &    { return Ancestor::increment(*this); }
+    auto operator++(int i) -> Iterator { return Ancestor::increment(*this, i); }
+#endif
+  };
+}
+#endiv

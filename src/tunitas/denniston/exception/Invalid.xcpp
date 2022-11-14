@@ -34,3 +34,13 @@ public:
   using Ancestor::Basic;
 };
 #endiv
+#divert <cpp>
+#import std.derived_from
+namespace {
+  namespace testate {
+    using tunitas::denniston::exception::Invalid;
+    using std::invalid_argument;
+    static_assert(std::derived_from<Invalid, invalid_argument>);
+  }
+}
+#endiv

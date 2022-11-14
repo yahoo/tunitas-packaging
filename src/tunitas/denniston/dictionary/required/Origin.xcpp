@@ -17,7 +17,7 @@ namespace tunitas::denniston::dictionary::required {
   //
   //   What it says on the label.
   //   The 'reqwuired' step must be deducable without the complete type definition.
-  //   See usage::Origin for more conditoins.
+  //   See usage::Origin for more conditions.
   //
   // Design:
   //

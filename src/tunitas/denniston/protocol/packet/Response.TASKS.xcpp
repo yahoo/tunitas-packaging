@@ -18,6 +18,16 @@ namespace tunitas::denniston::protocol::packet {
   //   There is some small limit on the number of available tasks.
   //   Let that number be circa 256.
   //
+  //
+  // Usage:
+  //
+  //   Hack the Spew (figure it out, the constructors are pretty obvious)
+  //   See make<...>(...) for the convenient interface.
+  //
+  //   auto made = make<Response<TASKS>(move(task));
+  //   auto made = make<Response<TASKS>(move(tasks));
+  //   auto made = make<Response<TASKS>(move(start, finish));
+  //
   template<> struct Response<Get::TASKS>;
 }
 #endiv

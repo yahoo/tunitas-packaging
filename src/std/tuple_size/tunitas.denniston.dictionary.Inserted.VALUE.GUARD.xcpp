@@ -11,7 +11,7 @@ namespace std {
 }
 #endiv
 #divert <hpp>
-#import tunitas::denniston.dictionary.Inserted
+#import tunitas.denniston.dictionary.Inserted
 namespace std {
   template<tunitas::denniston::dictionary::required::Valuable VALUE, tunitas::denniston::dictionary::required::Guardian GUARD> struct tuple_size<tunitas::denniston::dictionary::Inserted<VALUE, GUARD>> : public std::tuple_size<typename tunitas::denniston::dictionary::Inserted<VALUE, GUARD>::Ancestor> { };
 }

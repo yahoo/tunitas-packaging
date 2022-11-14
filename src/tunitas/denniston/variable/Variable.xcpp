@@ -1,0 +1,144 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.variable.required.Valuable
+namespace tunitas::denniston::variable {
+  //
+  // A (concurrent) variable.
+  //
+  // Specificatoin:
+  //
+  //   References into the variable acquire and hold a lock.
+  //
+  //   For "big" variables which don't naturally work in std::atomic<...>
+  //   e.g. containers, structures, and so forth.
+  //
+  //   WATCHOUT - references are locks; the same thread can't hold two locks.
+  //   [[FIXTHIS]] add a counter
+  //
+  // Exceptions:
+  //
+  //   Accessing the variable in the unset state will throw denniston::exception::Optional{}
+  //
+  // Design:
+  //
+  //   Using the Best Available Means and Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   Rhymes with tunitas::Optional<TYPE> (a.k.a. std::optional<TYPE>)
+  //
+  //   struct Something { ... somehow... };
+  //   auto var = Variable<Something>{};
+  //
+  //   auto has = var.has_value();
+  //   var = Something{};
+  //   auto some = *var;
+  //   auto ref = var.ref();
+  //   auto field = ref->field;
+  //   auto &some = *ref;
+  //   auto const &some = *ref;
+  //
+  //   AVOID usages that use the reference-lock system in a transitory fashion.
+  //   AVOID the idiom
+  //   AVOID   auto const &field = var.ref()->field;
+  //   AVOID because, of course, that acquires the lock, returns the reference and data-race chaos will ensue.
+  //
+  template<required::Valuable> struct Variable;
+}
+#endiv
+#divert <hpp>
+#import std.enable_if
+#import std.mutex
+#import nonstd.like
+#import tunitas.denniston.variable.usage.Valuable
+#forward tunitas.denniston.variable.Reference
+namespace tunitas::denniston {
+  template<variable::required::Valuable VALUE> struct variable::Variable {
+    static_assert(usage::Valuable<VALUE>);
+    using Value = VALUE;
+    Variable() = default;
+    inline [[implicit]] Variable(Value);
+    Variable(Variable const &) = delete;
+    Variable &operator=(Variable const &) = delete;
+    auto operator=(Value) -> Variable &;
+    //
+    inline auto has_value() const -> bool;
+    inline auto reset() -> void;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto operator*(this SELF *) -> std::enable_if_t<std::is_copy_constructible_v<Value>, Value>;
+    template<typename SELF> inline auto ref(this SELF *) -> nonstd::like_t<SELF, Reference<Value>>;
+#else
+    inline auto operator*() const -> Value { return indirect(this); }
+    inline auto ref() const -> Reference<Value const>;
+    inline auto ref() -> Reference<Value>;
+  protected:
+    template<typename SELF> static auto indirect(SELF *) -> std::enable_if_t<std::is_copy_constructible_v<Value>, Value>;
+  public:
+#endif
+  protected:
+    Optional<Value> stored{};
+    struct Guard;
+    mutable std::mutex mutex{};
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.variable.Variable.Guard
+#import tunitas.denniston.variable.Reference
+#import tunitas.denniston.exception.Optional
+#import tunitas.denniston.exception.Optional
+#import substd.exception.Optional
+namespace tunitas::denniston::variable {
+  template<required::Valuable _> Variable<_>::Variable(Value value) : stored{move(value)} { }
+  template<required::Valuable _> auto Variable<_>::operator=(Value value) -> Variable & {
+    auto guard = Guard{mutex};
+    stored = move(value);
+    return *this;
+  }
+  template<required::Valuable _> auto Variable<_>::has_value() const -> bool {
+    auto guard = Guard{mutex};
+    return stored.has_value();
+  }
+  template<required::Valuable _> auto Variable<_>::reset() -> void {
+    auto guard = Guard{mutex};
+    return stored.reset();
+  }
+#if 202312 < __cplusplus
+  template<required::Valuable _> template<typename SELF> auto Variable<_>::operator*(this SELF *self) -> std::enable_if_t<std::is_copy_constructible_v<Value>, Value> try {
+    auto guard = Guard{self->mutex};
+    return self->stored.value();
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+  template<required::Valuable _> template<typename SELF> auto Variable<_>::ref(this SELF *self) -> nonstd::like_t<SELF, Reference<Value>> try {
+    auto guard = Guard{self->mutex};
+    return {move(guard), self->stored.value()};
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+#else
+  template<required::Valuable _> template<typename SELF> auto Variable<_>::indirect(SELF *self) -> std::enable_if_t<std::is_copy_constructible_v<Value>, Value> try {
+    auto guard = Guard{self->mutex};
+    return self->stored.value();
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+  template<required::Valuable _> auto Variable<_>::ref() const -> Reference<Value const> try {
+    auto guard = Guard{mutex};
+    return {move(guard), stored.value()};
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+  template<required::Valuable _> auto Variable<_>::ref() -> Reference<Value> try {
+    auto guard = Guard{mutex};
+    return {move(guard), stored.value()};
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+#endif
+}
+#endiv

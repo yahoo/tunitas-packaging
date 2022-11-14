@@ -13,6 +13,10 @@ namespace tunitas::denniston::task {
   //
   //   Outgoing communicates from run to delegate (subprocess)
   //
+  //   The aggregation parameters are not known until runtime when the Collector supplies them.
+  //   PRIO3 has empty aggregation parameters (i.e. none).
+  //   POPLAR1 has some difficult aggregation parameters.
+  //
   // Design:
   //
   //   Whereas the Outgonig is a Channel, it cannot be copied.
@@ -25,31 +29,33 @@ namespace tunitas::denniston::task {
 }
 #endiv
 #divert <hpp>
+#import tunitas.Optional
 #import tunitas.denniston.task.Definition
-#import tunitas.denniston.channel.Channel
-#import tunitas.keyston.protocol.report.Produced
-#import std.unique_ptr
+#forward tunitas.denniston.service.gateway.subprocess.Task
+#import tunitas.keyston.protocol.function.Parameters
 namespace tunitas::denniston::task {
   inline auto swap(Corpus<Genus::GATEWAY> &, Corpus<Genus::GATEWAY> &) noexcept -> void;
   template<> struct Corpus<Genus::GATEWAY> {
-    using Outgoing = channel::Channel<keyston::protocol::report::Produced>;
-    Definition definition{};
-    std::unique_ptr<Outgoing> outgoing{};
     [[implicit]] Corpus() = default;
     inline [[implicit]] Corpus(Definition);
+    //
+    Definition definition{};
+    service::gateway::subprocess::Task *subprocess{};
+    Optional<keyston::protocol::function::Parameters> aggregation_parameters{};
   };
 }
 #endiv
 #divert <ipp>
+#import tunitas.denniston.service.gateway.subprocess.Task
 namespace tunitas::denniston {
   auto task::swap(Corpus<Genus::GATEWAY> &a, Corpus<Genus::GATEWAY> &b) noexcept -> void {
     swap(a.definition, b.definition);
-    swap(a.outgoing, b.outgoing);
+    swap(a.subprocess, b.subprocess);
+    swap(a.aggregation_parameters, b.aggregation_parameters);
   }
   namespace task {
     Corpus<Genus::GATEWAY>::Corpus(Definition d)
       : definition{move(d)}
-      , outgoing{std::make_unique<Outgoing>()}
     { }
   }
 }
@@ -59,12 +65,15 @@ namespace {
   namespace testate {
     using tunitas::denniston::task::Corpus;
     using tunitas::denniston::Genus;
-    static_assert(    std::is_default_constructible_v<Corpus<Genus::GATEWAY>>);
-    static_assert(not std::is_copy_constructible_v<Corpus<Genus::GATEWAY>>);
-    static_assert(    std::is_move_constructible_v<Corpus<Genus::GATEWAY>>);
-    static_assert(not std::is_copy_assignable_v<Corpus<Genus::GATEWAY>>);
-    static_assert(    std::is_move_assignable_v<Corpus<Genus::GATEWAY>>);
-    static_assert(    std::is_swappable_v<Corpus<Genus::GATEWAY>>);
+    //
+    static_assert(std::semiregular<Corpus<Genus::GATEWAY>>);
+    //
+    static_assert(std::is_default_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_copy_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_move_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_copy_assignable_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_move_assignable_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_swappable_v<Corpus<Genus::GATEWAY>>);
   }
 }
 #endiv

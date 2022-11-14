@@ -11,6 +11,17 @@ std_SUBSOURCES = \
   obj/src/std/is_error_condition_enum/tunitas.denniston.error.condition.Unpackaged.Enumeration.cpp \
   obj/src/std/is_error_condition_enum/tunitas.denniston.network.error.condition.Unpackaged.Enumeration.cpp \
   \
+  obj/src/std/iterator_traits/tunitas.denniston.preparation.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
+  obj/src/std/iterator_traits/tunitas.denniston.report.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
+  \
   obj/src/std/tuple_size/tunitas.denniston.dictionary.Inserted.VALUE.GUARD.cpp \
+  obj/src/std/tuple_size/tunitas.denniston.role.package_io.Indexed.cpp \
+  \
   obj/src/std/tuple_element/N.tunitas.denniston.dictionary.Inserted.VALUE.GUARD.cpp \
+  obj/src/std/tuple_element/N.tunitas.denniston.role.package_io.Indexed.cpp \
+  \
+  obj/src/std/variant_alternative/N.tunitas.denniston.role.package_io.Bundled.cpp \
+  obj/src/std/variant_size/tunitas.denniston.role.package_io.Bundled.cpp \
+  \
+  obj/src/std/visit/tunitas.denniston.role.package_io.Bundled.cpp \
   $(end)

@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.variable.Variable>
+#endiv
+#divert <hpp>
+#import std.unique_lock
+#import std.mutex
+namespace tunitas::denniston::variable {
+  //
+  // A lock as a guard by RAII.
+  //
+  // Specification:
+  //
+  //   Rhymes with std::lock_guard; establishes the lock upon construction.
+  //   But is movable so the guard can become a stored lock somewhere else.
+  //
+  // Design:
+  //
+  //   RAII to operate the unique_lock
+  //
+  // Usage:
+  //
+  //   You need a tutorial on how to operate RAII?  okay then.
+  //   To wit:
+  //
+  //   auto guard = Guard{mutex};
+  //   auto moved = move(guard);
+  //
+  template<required::Valuable _> struct Variable<_>::Guard : public std::unique_lock<std::mutex> {
+    using Ancestor = std::unique_lock<std::mutex>;
+  public:
+    explicit Guard() = default;
+    inline explicit Guard(std::mutex &m) : Ancestor{m} { }
+  };
+}
+#endiv

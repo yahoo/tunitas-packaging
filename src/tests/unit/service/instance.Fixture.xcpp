@@ -14,8 +14,9 @@ namespace tests::unit::service::instance {
 }
 #endiv
 #divert <hpp>
-#forward tunitas.denniston.service.instance.Processor
 #forward tunitas.denniston.service.instance.Client
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
 namespace tests::unit::service {
   struct instance::Fixture : public rigging::suite::Fixture {
     static auto suite() -> Suite;
@@ -25,8 +26,9 @@ namespace tests::unit::service {
     inline static constexpr auto const CLIENT_COUNT = 100uz;
   };
   namespace instance {
-    template<> auto Fixture::test_make<library::Processor>() -> void;
     template<> auto Fixture::test_make<library::Client>() -> void;
+    template<> auto Fixture::test_make<library::Gateway>() -> void;
+    template<> auto Fixture::test_make<library::Processor>() -> void;
   }
 }
 #endiv
@@ -68,17 +70,6 @@ auto tests::unit::service::instance::Fixture::suite() -> Suite {
 #import tunitas.denniston.World
 #import tunitas.denniston.service.Instance
 namespace tests::unit::service::instance {
-  template<> auto Fixture::test_make<library::Processor>() -> void {
-    {
-      auto made = library::make<library::Processor>(Species::PROCESSOR1); // <---------------------------------------- test this
-      require(ASSERTION, nullptr != made.get());
-      require(ASSERTION, sizeof (made));
-    } {
-      auto made = library::make<library::Processor>(Species::PROCESSOR2); // <---------------------------------------- test this
-      require(ASSERTION, nullptr != made.get());
-      require(ASSERTION, sizeof (made));
-    }
-  }
   template<> auto Fixture::test_make<library::Client>() -> void {
     auto source = ::tunitas::keyston::entropy::Source{};
     auto world = ::tunitas::denniston::World{source};
@@ -91,6 +82,23 @@ namespace tests::unit::service::instance {
       hold.push_back(move(made));
     }
     require(ASSERTION, CLIENT_COUNT == hold.size());
+  }
+  template<> auto Fixture::test_make<library::Gateway>() -> void {
+    auto source = ::tunitas::keyston::entropy::Source{};
+    auto world = ::tunitas::denniston::World{source};
+    auto made = library::make<library::Gateway>(source, world); // <-------------------------------------------------- test this
+    require(ASSERTION, sizeof (made));
+  }
+  template<> auto Fixture::test_make<library::Processor>() -> void {
+    {
+      auto made = library::make<library::Processor>(Species::PROCESSOR1); // <---------------------------------------- test this
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    } {
+      auto made = library::make<library::Processor>(Species::PROCESSOR2); // <---------------------------------------- test this
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    }
   }
 }
 #endiv

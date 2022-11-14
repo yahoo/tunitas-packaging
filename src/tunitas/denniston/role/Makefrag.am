@@ -14,7 +14,9 @@ tunitas_denniston_role_SUBSOURCES = \
   obj/src/tunitas/denniston/role/traits.Service.cpp \
   obj/src/tunitas/denniston/role/traits.Species.cpp \
   obj/src/tunitas/denniston/role/traits.Genus.cpp \
+  $(tunitas_denniston_role_package_io_SUBSOURCES) \
   $(tunitas_denniston_role_required_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/denniston/role/package_io/Makefrag.am
 include src/tunitas/denniston/role/required/Makefrag.am

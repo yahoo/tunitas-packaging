@@ -4,15 +4,15 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.protocol.packet.Traits
-#include <hpp/tunitas.denniston.protocol.packet.Traits>
+#import tunitas.denniston.protocol.packet.traits.Packet
+#include <hpp/tunitas.denniston.protocol.packet.traits.Packet>
 namespace tunitas::denniston::protocol::packet::required {
   //
   // Is this TYPE a message packet?
   // Must be answerable without the complete type of TYPE (i.e. no use of derived_from<...>)
-  // Instead we require the complete type of the Traits<INSTANCE> declaration.
+  // Instead we require the complete type of the traits::Packet<INSTANCE> declaration.
   //
-  template<typename PACKET> concept Packet = Traits<PACKET>::value;
+  template<typename PACKET> concept Packet = traits::Packet<PACKET>::value;
 
 }
 #endiv

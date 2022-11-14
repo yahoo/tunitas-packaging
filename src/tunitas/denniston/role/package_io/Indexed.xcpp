@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::role::package_io {
+  //
+  // The tuple of types for Indexed from to_bundle(...)
+  //
+  // Specification:
+  //
+  //   Just what it says on the label.
+  //
+  // Design:
+  //
+  //   Works like a tuple (std::tuple)
+  //
+  // Usage:
+  //
+  //   auto bundle = to_bundle(species);
+  //   auto bundle = to_bundle(genus);
+  //
+  //   auto visitor = Visitor{[](Null)         { ...no name was recovered... },
+  //                          [](string::View) { ...a simple name was recovered... },
+  //                          [](Indexed const &indexed) {
+  //                             auto [word, index] = indexed;
+  //                             ...work with the word and the index...
+  //                             ...the bird, the bird, The Word is The Bird...
+  //                          }};
+  //   auto got = visit(visitor, bundle);
+  //
+  struct Indexed;
+}
+#import std.tuple_size.tunitas.denniston.role.package_io.Indexed
+#import std.tuple_element.N.tunitas.denniston.role.package_io.Indexed
+#endiv
+#divert <hpp>
+#import tunitas.denniston.role.package_io.Tuple
+#import nonstd.like
+namespace tunitas::denniston::role {
+  namespace package_io {
+    template<Size N, typename INDEX> inline constexpr auto get(INDEX &&) -> nonstd::like_t<INDEX, typename std::tuple_element<N, INDEX>::type>;
+  }
+  struct package_io::Indexed : public body::Tuple {
+    using Ancestor = body::Tuple;
+  public:
+    Indexed() = default;
+    using Ancestor::tuple; // yup, you "just have to knwo" that the constructor name is really of std::tuple
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::role {
+  template<Size N, typename INDEX> constexpr auto package_io::get(INDEX &&index) -> nonstd::like_t<INDEX, typename std::tuple_element<N, INDEX>::type> { return std::get<N>(forward<INDEX>(index)); }
+}
+#endiv
+#divert <cpp>
+#import std.declval
+namespace {
+  namespace testate {
+    using tunitas::denniston::role::package_io::Indexed;
+    //
+    // show that ADL can find it
+    static_assert(sizeof (get<0>(Indexed{})));
+    static_assert(sizeof (get<1>(Indexed{})));
+    //
+    // Show that the conjugations work
+    static_assert(sizeof (get<0>(std::declval<Indexed>())));
+    static_assert(sizeof (get<0>(std::declval<Indexed const &>())));
+    static_assert(sizeof (get<0>(std::declval<Indexed &>())));
+    static_assert(sizeof (get<0>(std::declval<Indexed &&>())));
+  }
+}
+#endiv

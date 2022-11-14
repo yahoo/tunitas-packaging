@@ -1,0 +1,183 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::gateway {
+  //
+  // A manifestation of the gateway in the network.
+  //
+  // Specification:
+  //
+  //   A router; shuffles octets; scatter-gather
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Gateway;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Pair
+#forward tunitas.denniston.World
+#import tunitas.denniston.process.Reactor
+#import tunitas.denniston.error.Code
+#import tunitas.denniston.job.Dictionary
+#import tunitas.denniston.job.Definition
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
+#import tunitas.denniston.task.Corpus
+#import tunitas.denniston.service.gateway.Subprocesses
+#import tunitas.denniston.preparation.ranges.Subrange
+#import tunitas.denniston.preparation.ranges.Projection
+#import tunitas.keyston.entropy.Source
+#import tunitas.keyston.identifier.Generator
+#import tunitas.keyston.protocol.id // for id::Job
+#import tunitas.keyston.protocol.preparation.Steps
+#import tunitas.keyston.vdaf.Shards
+class tunitas::denniston::service::gateway::Gateway : public process::Reactor {
+  using Ancestor = process::Reactor;
+protected:
+  auto react() -> void override;
+  auto catchup() -> void override;
+  auto respond([[inout]] Interface &, [[inout]] Report<protocol::WHOLE> &, string::View from_whom) -> void;
+  using Shards = keyston::vdaf::Shards<Interface>;
+  class Project_To {
+    using Steps = keyston::protocol::preparation::Steps<keyston::protocol::preparation::Mark::TAGGED>;
+    using Projection = preparation::ranges::Projection;
+    template<Projection PROJECTION, typename SUBITERATOR> using Subrange = preparation::ranges::Subrange<PROJECTION, SUBITERATOR>;
+  public:
+    using Positioned = Subrange<Projection::POSITIONED, Steps::Basic_Iterator<Steps const>>;
+  };
+public:
+  using Entropy = keyston::entropy::Source;
+  inline explicit Gateway([[inout]] Entropy &, [[inout]] World &);
+  auto launch(driver::Threads &) -> void override;
+  Interfaces clients{};
+  Interface collector{};
+  Interface configuration{};
+  Shards processors{};
+  //
+  task::Dictionary<task::Corpus<Genus::GATEWAY>> tasks{};
+  job::Dictionary<job::Corpus<Genus::GATEWAY>> jobs{};
+  Subprocesses subprocesses{};
+  class Generators {
+    using Job = keyston::identifier::Generator<keyston::protocol::id::Job, keyston::identifier::generator::Policy::RANDOM>;
+  public:
+    Job job_id;
+    Generators(Entropy &e) : job_id{e} { }
+  } generators;
+  using E = error::Code;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.World
+namespace tunitas::denniston::service::gateway {
+  Gateway::Gateway(Entropy &entropy, World &)
+    : Ancestor{Species::GATEWAY}
+    , generators{entropy}
+  { }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.exception.Invariant
+#import tunitas.denniston.protocol.packet.cast
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Report
+#import tunitas.denniston.protocol.packet.Response
+#import tunitas.denniston.role.io
+#import tunitas.denniston.service.gateway.subprocess.make
+#import tunitas.denniston.service.gateway.subprocess.Boot
+#import tunitas.denniston.service.gateway.subprocess.Task
+#import tunitas.denniston.service.gateway.subprocess.Job
+#import tunitas.keyston.vdaf.tunitas.denniston.role.Species
+namespace tunitas::denniston::service::gateway {
+  auto Gateway::launch(driver::Threads &pool) -> void {
+    pool.launch(&Gateway::run, this);
+    subprocesses.push_back(subprocess::make<subprocess::Boot>(*this));
+    // DO NOT start a subprocess::Task ... that happens in Gateway::react(...)
+    // DO NOT start a subprocess::Job ... that happens in subprocess::Task::run(...)
+  }
+  auto Gateway::catchup() -> void {
+    if (graceful_shutdown.load()) {
+      for (auto &sub : subprocesses) {
+        sub->barrier.notify();
+      }
+    }
+  }
+  auto Gateway::react() -> void {
+    for (auto &client : clients) {
+      if (auto red=client.read_if(); red) {
+        if (auto got=downcast<Report<Slice::WHOLE>>(*red); nullptr != got) {
+          respond(client, *got, "some client"sv);
+        }
+      }
+    }
+    if (auto red=collector.read_if(); red) {
+      log.format("red from collector (and ignoring it)");
+      // ... do something ...
+    }
+    if (auto red=configuration.read_if(); red) {
+      if (auto got=downcast<Status>(*red); nullptr != got) {
+        log.format("from configuration failure: {}", got->status.message());
+      } else if (auto got=downcast<Response<Get::TASKS>>(*red); nullptr != got) {
+        log.format("from configuration tasks: count {}", got->tasks.size());
+        for (auto &given : got->tasks) {
+          auto [noob, inserted] = tasks.insert({move(given)});
+          if (inserted) {
+            subprocesses.push_back(subprocess::make<subprocess::Task>(*this, noob));
+          }
+          log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.definition.id);
+        }
+        // And yet there is only the one subprocess (boot) at this point.
+        for (auto &sub : subprocesses) {
+          sub->barrier.notify();
+        }
+      } else {
+        log.format("from configuration, something else (ignored)");
+      }
+    }
+    for (auto shard : iota(processors)) {
+      auto &processor{processors.at(shard)};
+      auto role = *tunitas::keyston::vdaf::recover_processor_species(std::nothrow, shard);
+      if (auto red=processor.read_if(); red) {
+        log.format("red from a processor (and ignoring it)");
+        if (auto got=downcast<Response<Get::INITIALIZATION>>(*red); nullptr != got) {
+          if (auto found=jobs.find(got->destination); found) {
+            auto project = Project_To::Positioned{got->payload.preparation_steps};
+            if (auto inserted=(*found).subprocess->gather.insert(shard, project.begin(), project.end()); Gather::Inserted::DUPLICATE == inserted) {
+              log.format("processor {} sends a duplicate initialization response for job {} (ignoring it)", role, got->destination);
+            }
+          } else {
+            log.format("processor {} sends an initialization response for unknown job {} (ignoring it)", role, got->destination);
+          }
+        } else if (auto got=downcast<Response<Get::CONTINUATION>>(*red); nullptr != got) {
+          log.format("processor {} sends a continuation response for job {} (ignoring it)", role, got->destination);
+        } else {
+          log.format("from processor {}, something else (ignored)", role);
+        }
+      }
+    }
+  }
+  auto Gateway::respond(Interface &back, Report<Slice::WHOLE> &whole, string::View from_whom) -> void {
+    if (auto const required_processor_count=processors.size(); 2uz != required_processor_count) {
+      back.write(make<Status>(E::GATEWAY_IS_MISCONFIGURED));
+      throw exception::Invariant{"the system and algorithms only support exactly two processors"};
+    } else if (auto found=tasks.find(whole.produced.task_id); !found) {
+      back.write(make<Status>(E::NO_SUCH_TASK));
+    } else if (whole.produced.encrypted_input_shares.size() != required_processor_count) {
+      back.write(make<Status>(E::SHARE_COUNT_IS_INCORRECT_FOR_THIS_TASK));
+    } else {
+      found.value().subprocess->delegating.push_back(move(whole.produced));
+      back.write(make<Status>());
+    }
+  }
+}
+#endiv

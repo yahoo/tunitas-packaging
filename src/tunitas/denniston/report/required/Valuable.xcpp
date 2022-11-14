@@ -4,11 +4,17 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#forward tunitas.denniston.report.Manifest
+#import tunitas.keyston.protocol.id // for id::Report
+#forward tunitas.denniston.report.Definition
+#forward tunitas.denniston.report.Status
 namespace tunitas::denniston::report::required {
   //
-  // What is a value for report::Dictionary<VALUE>
+  // Is this type a VALUE for the contaniers?  report::Dictionary<VALUE> or report::Series<VALUE>
+  // This MUST be diagnosable without the complete type of VALUE
+  // So, crudely, we enumeration the allowed types by name.
   //
-  template<typename VALUE> concept Valuable = same_as<VALUE, Manifest>;
+  template<typename VALUE> concept Valuable = (same_as<VALUE, keyston::protocol::id::Report> ||
+                                               same_as<VALUE, report::Definition> ||
+                                               same_as<VALUE, report::Status>);
 }
 #endiv

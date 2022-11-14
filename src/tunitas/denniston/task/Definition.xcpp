@@ -18,13 +18,14 @@ namespace tunitas::denniston::task {
   //   Section 2. System Architecture
   //
   //   The type of each measurement.
-  //   The aggregation function to compute (e.g., sum, mean, etc.).
+  //   The aggregation function to compute (see keyston::vdaf::Name)
   //   The set of aggregators and necessary cryptographic keying material to use.
   //   The VDAF to execute, which to some extent is dictated by the previous choices.
   //   The minimum "batch size" of reports which can be aggregated.
   //   The rate at which measurements can be taken, i.e., the "minimum batch window".
   //   These parameters are distributed out of band to the clients and to the aggregators.
-  //   They are distributed by the collecting entity in some authenticated form. Each task is identified by a unique// 32-byte ID which is
+  //   They are distributed by the collecting entity in some authenticated form.
+  //   Each task is identified by a unique 32-byte ID which is <snip/>
   //
   // Design:
   //
@@ -39,8 +40,9 @@ namespace tunitas::denniston::task {
 }
 #endiv
 #divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.count
 #import tunitas.keyston.protocol.task.Task
-#import tunitas.keyston.protocol.id // for id::Task
 namespace tunitas::denniston {
   namespace task {
     using std::move;
@@ -51,9 +53,11 @@ namespace tunitas::denniston {
     using Ancestor = keyston::protocol::task::Task;
     friend auto swap(Definition &, Definition &) noexcept -> void;
   public:
+    Optional<count::Job> job_batch_size{}; // else something about a time-based job trigger
+    //
     Definition() = default;
     using Ancestor::Task;
-    inline constexpr [[implicit]] Definition(Ancestor);
+    inline [[implicit]] Definition(Ancestor);
     using Ancestor::operator=;
     inline auto operator=(Ancestor) -> Definition &;
   };
@@ -65,9 +69,10 @@ namespace tunitas::denniston {
   auto task::swap(Definition &a, Definition &b) noexcept -> void {
     Definition::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
+    swap(a.job_batch_size, b.job_batch_size);
   }
   namespace task {
-    constexpr Definition::Definition(Ancestor a) : Ancestor{move(a)} { }
+    Definition::Definition(Ancestor a) : Ancestor{move(a)} { }
     auto Definition::operator=(Ancestor a) -> Definition & {
       Ancestor::operator=(move(a));
       return *this;
@@ -79,6 +84,9 @@ namespace tunitas::denniston {
 namespace {
   namespace testate {
     using tunitas::denniston::task::Definition;
+    //
+    static_assert(std::semiregular<Definition>);
+    //
     static_assert(std::is_default_constructible_v<Definition>);
     static_assert(std::is_copy_constructible_v<Definition>);
     static_assert(std::is_move_constructible_v<Definition>);

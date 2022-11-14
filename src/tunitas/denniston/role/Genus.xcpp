@@ -22,6 +22,9 @@ namespace tunitas::denniston::role {
   //
   //   You need a tutorial on the usage of an enum (class)?
   //
+  //   The I/O supportis separate (stringification and formatter)
+  //   #import tunitas.denniston.role.io
+  //
   enum class Genus {
     CONFIGURATION = -5,
     DIRECTORY = -4,
@@ -46,4 +49,12 @@ namespace tunitas::denniston::role {
   inline constexpr auto is_gateway(Genus genus) -> bool       { return Genus::GATEWAY == genus; }
   inline constexpr auto is_processor(Genus genus) -> bool     { return Genus::PROCESSOR == genus; }
 }
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::role {
+  // any?
+}
+#endiv
+#divert <cpp>
+#warning FIXTHIS - ensmoothen keyston::protocol::Role and denniston::role::Genus
 #endiv

@@ -12,7 +12,7 @@ namespace tunitas::denniston::report {
   //
   // Scope:
   //
-  //   For bookkeeping the awaiting-outbound and awaiting-return work.  //
+  //   For bookkeeping the awaiting-outbound and awaiting-return work.
   //
   // Specification:
   //
@@ -36,11 +36,14 @@ namespace tunitas::denniston::report {
 }
 #endiv
 #divert <hpp>
+#import tunitas.denniston.index // not needed unless LINEAR
 #import tunitas.keyston.protocol.id // for id::Report
+#import tunitas.denniston.report.usage.Valuable
 #import tunitas.denniston.dictionary.Dictionary
 namespace tunitas::denniston::report {
   template<required::Valuable VALUE> struct dictionary::Dictionary : public denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Report, VALUE>> {
     using Ancestor = denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Report, VALUE>>;
+    static_assert(usage::Valuable<VALUE>);
   public:
     Dictionary() = default;
     using Ancestor::Dictionary;

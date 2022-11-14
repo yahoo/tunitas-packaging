@@ -1,0 +1,32 @@
+!// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.preparation.ranges.iterator.Traits.template
+#forward tunitas.denniston.preparation.ranges.iterator.Iterator
+namespace tunitas::denniston::preparation::ranges::iterator {
+  //
+  // When Projection::RECORD the traits follow the SUBITERATOR.
+  // Beyond cogency of the declaration, this means in practice that the Category and Concept can be better than merely iterator::Forward<...>
+  // e.g. Bidirectional<...>,  Undirected<...> or Contiguous<...>
+  //
+  template<required::iterator::Forward SUBITERATOR> struct Traits<Iterator<Projection::RECORD, SUBITERATOR>>;
+}
+#endiv
+#divert <hpp>
+#import std.same_as
+#import nonstd.iterator.Traits
+namespace tunitas::denniston::preparation::ranges::iterator {
+  template<required::iterator::Forward SUBITERATOR> class Traits<Iterator<Projection::RECORD, SUBITERATOR>> : public nonstd::iterator::Traits<SUBITERATOR> {
+    using Ancestor = nonstd::iterator::Traits<SUBITERATOR>;
+    inline static constexpr auto const LATENT_IS_CONSTIE = std::is_const_v<std::remove_reference_t<typename Ancestor::Reference>> || std::is_const_v<std::remove_pointer_t<typename Ancestor::Pointer>>;
+    using Record = std::conditional_t<LATENT_IS_CONSTIE, typename Ancestor::Value const, typename Ancestor::Value>;
+  public:
+    static_assert(std::same_as<typename Ancestor::Value, typename projection::Traits<Projection::RECORD, Record>::Value>,         "Value consistency fails");
+    static_assert(std::same_as<typename Ancestor::Reference, typename projection::Traits<Projection::RECORD, Record>::Reference>, "Reference consistency fails");
+    static_assert(std::same_as<typename Ancestor::Pointer, typename projection::Traits<Projection::RECORD, Record>::Pointer>,     "Pointer consistency fails");
+  };
+}
+#endiv

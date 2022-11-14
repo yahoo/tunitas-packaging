@@ -17,9 +17,11 @@ namespace tunitas::denniston::protocol::packet {
   //
   // Usage:
   //
+  //   See make<...>(...) for the convenient interface.
+  //
   //   auto cfg = keyston::hpke::Configuration{...somehow...};
   //
-  //   auto made = make<Request<Get::HPLE>(cfg);
+  //   auto made = make<Response<Get::HPLE>(cfg);
   //
   template<> struct Response<Get::HPKE>;
 }

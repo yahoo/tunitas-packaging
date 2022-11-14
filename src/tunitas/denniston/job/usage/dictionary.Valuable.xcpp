@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tunitas.denniston.job.Definition
+#import tunitas.denniston.job.Corpus
+#import tunitas.denniston.job.required.dictionary.Valuable
+#import tunitas.keyston.protocol.id // for id::Job
+namespace tunitas::denniston::job::usage::dictionary {
+  //
+  // Is this type suitable for the VALUE of a Dictionary<VALUE>
+  //
+  template<typename VALUE> concept Valuable = required::dictionary::Valuable<VALUE> && requires(VALUE const &value) {
+    // And because the VALU wil live in a container; e.g. std::vector<VALUE> or std::deque<VALUE> we also require
+    requires std::is_default_constructible_v<VALUE>;
+    requires std::is_copy_constructible_v<VALUE> || std::is_move_constructible_v<VALUE>;
+    requires std::is_copy_assignable_v<VALUE> || std::is_move_assignable_v<VALUE>;
+    requires std::is_swappable_v<VALUE>;
+    //
+    { key_from(value) } -> convertible_to<keyston::protocol::id::Job const &>;
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace usage = tunitas::denniston::job::usage;
+    using tunitas::denniston::job::Definition;
+    using tunitas::denniston::job::Corpus;
+    using tunitas::denniston::role::Genus;
+    static_assert(usage::dictionary::Valuable<Definition>);
+    static_assert(usage::dictionary::Valuable<Corpus<Genus::GATEWAY>>);
+    static_assert(usage::dictionary::Valuable<Corpus<Genus::PROCESSOR>>);
+    static_assert(usage::dictionary::Valuable<Corpus<Genus::COLLECTOR>>);
+  }
+}
+#endiv

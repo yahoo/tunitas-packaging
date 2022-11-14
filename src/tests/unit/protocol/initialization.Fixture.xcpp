@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.initialization
+namespace tests::unit::protocol::initialization {
+  class Fixture;
+  namespace library = ::tunitas::denniston::protocol::initialization;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::initialization::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_Slicer() -> void;
+  auto test_Processor() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::protocol::initialization::Fixture::suite() -> Suite {
+  auto series = Stream{"initialization"sv};
+  series << add("Slicer", &Fixture::test_Slicer)
+         << add("Processor", &Fixture::test_Processor)
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.exception.Aspect
+#import tunitas.denniston.protocol.initialization.Slicer
+#import tunitas.denniston.protocol.initialization.Processor
+#import tunitas.keyston.vdaf.literals
+#import std.views.iota
+namespace tests::unit::protocol::initialization {
+  auto Fixture::test_Slicer() -> void {
+    auto task_id = ::tunitas::keyston::protocol::id::Task{};
+    auto job_id = ::tunitas::keyston::protocol::id::Job{};
+    auto parameters = ::tunitas::keyston::protocol::function::Parameters{};
+    auto query = ::tunitas::keyston::protocol::query::Partial{};
+    auto reports = ::tunitas::denniston::report::Series<::tunitas::denniston::report::Definition>{};
+    using namespace ::tunitas::keyston::vdaf::literals;
+    //
+    auto subject = library::Slicer{task_id, job_id, parameters, query, reports};
+    auto count{0uz};
+    for (auto idx : std::views::iota(0_shard, ::tunitas::keyston::vdaf::SHARD_COUNT)) {
+      ++count;
+      auto got = subject(idx);
+      require(ASSERTION, sizeof (got));
+    }
+    require(ASSERTION, 2uz >= count);
+  }
+  auto Fixture::test_Processor() -> void {
+    auto index = ::tunitas::denniston::index::Processor{};
+    auto function = ::tunitas::keyston::vdaf::Executor<::tunitas::keyston::vdaf::Scheme::PROTOCOL>{::tunitas::keyston::vdaf::Name::ZERO};
+    auto verify_key = ::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::vdaf::Scheme::PROTOCOL>::Verify_Key{};
+    auto source = ::tunitas::keyston::entropy::Source{};
+    auto noncer = ::tunitas::keyston::nonce::Generator<::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::vdaf::Scheme::PROTOCOL>::Nonce>{source};
+    auto task_id = ::tunitas::keyston::protocol::id::Task{};
+    auto job_id = ::tunitas::keyston::protocol::id::Job{};
+    auto parameters = ::tunitas::keyston::protocol::function::Parameters{};
+    auto query = ::tunitas::keyston::protocol::initialization::Request::Query{};
+    auto reports = ::tunitas::keyston::protocol::initialization::Request::Report_Shares{};
+    //
+    auto subject = library::Processor{index, function, verify_key, noncer, task_id, job_id, parameters, query, reports};
+    auto got = subject();
+    require(ASSERTION, sizeof (got));
+  }
+}
+#endiv

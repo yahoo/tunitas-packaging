@@ -1,0 +1,90 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.variable.required.Valref
+namespace tunitas::denniston::variable {
+  //
+  // A reference to a (concurrent) variable.
+  //
+  // Specification:
+  //
+  //   Hold the lock.
+  //
+  //   Rhymes with std::reference_wrapper<TYPE>
+  //
+  // Invariant:
+  //
+  //   Whereas the Reference holds a lock, there can only be one reference per thread.
+  //   Additionally the Variable may not be accessed during the lifetime of the Reference.
+  //   The penalty for violating this constraint is fatal.
+  //
+  //   We're protecting against Murphy here, not Machiavelli.
+  //
+  // Design:
+  //
+  //   RAII
+  //
+  // Usage:
+  //
+  //   See the idioms listed in the documentariat of Variable.
+  //
+  template<required::Valref VALREF> struct Reference;
+}
+#endiv
+#divert <hpp>
+#import std.unique_lock
+#import std.mutex
+#import std.remove_const
+#import std.conditional
+#import std.derived_from
+#forward tunitas.denniston.variable.Variable
+#import tunitas.denniston.variable.usage.Valuable
+namespace tunitas::denniston {
+  template<variable::required::Valref VALREF> class variable::Reference {
+    using Self = Reference;
+  protected:
+    using Valref = VALREF;
+    using Value = std::remove_const_t<Valref>;
+    template<typename SELF> requires std::derived_from<SELF, Reference> struct Basic_Conjugation {
+      using Value [[comment("never constie")]] = Self::Value;
+      using Reference = std::conditional_t<std::is_const_v<SELF>, Valref &, Valref const &>;
+      using Pointer = std::conditional_t<std::is_const_v<SELF>, Valref *, Valref const *>;
+    };
+    friend class variable::Variable<Value>;
+    using Lock = std::unique_lock<std::mutex>;
+    inline [[implicit]] Reference(Lock, Valref &);
+    Lock lock{};
+    Valref &valref;
+  public:
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto operator*(this SELF *) -> typename Basic_Conjugation<SELF>::Reference;
+    template<typename SELF> inline auto operator->(this SELF *) -> typename Basic_Conjugation<SELF>::Pointer;
+#else
+    inline auto operator*() const -> typename Basic_Conjugation<Reference const>::Reference;
+    inline auto operator*()       -> typename Basic_Conjugation<Reference>::Reference;
+    inline auto operator->() const -> typename Basic_Conjugation<Reference const>::Pointer;
+    inline auto operator->()       -> typename Basic_Conjugation<Reference>::Pointer;
+#endif
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::variable {
+  template<required::Valref _> Reference<_>::Reference(Lock lock, Valref &valref)
+    : lock{move(lock)}
+    , valref{valref}
+  { }
+#if 202312 < __cplusplus
+  template<required::Valref _> template<typename SELF> auto Reference<_>::operator*(this SELF *self) -> typename Basic_Conjugation<SELF>::Reference { return self->valref; }
+  template<required::Valref _> template<typename SELF> auto Reference<_>::operator->(this SELF *self) -> typename Basic_Conjugation<SELF>::Pointer  { return &self->valref; }
+#else
+  template<required::Valref _> auto Reference<_>::operator*() const -> typename Basic_Conjugation<Reference const>::Reference { return this->valref; }
+  template<required::Valref _> auto Reference<_>::operator*()       -> typename Basic_Conjugation<Reference>::Reference       { return this->valref; }
+  template<required::Valref _> auto Reference<_>::operator->() const -> typename Basic_Conjugation<Reference const>::Pointer  { return &this->valref; }
+  template<required::Valref _> auto Reference<_>::operator->()       -> typename Basic_Conjugation<Reference>::Pointer        { return &this->valref; }
+#endif
+}
+#endiv

@@ -20,7 +20,7 @@ namespace tunitas::denniston::service::instance {
   // Usage:
   //
   //   Said it before ... unique_ptr.
-  //   see std::make_unique(...)
+  //   See std::make_unique(...)
   //
   template<required::Instance> struct Pointer;
 }
@@ -34,10 +34,8 @@ namespace tunitas::denniston::service {
     Pointer() = default;
     using Ancestor::unique_ptr;
     Pointer(Ancestor &&donor) : Ancestor{forward<Ancestor>(donor)} { }
+    using Ancestor::operator=;
     Pointer &operator=(Ancestor &&donor) { Ancestor::operator=(forward<Ancestor>(donor)); return *this; }
-#if 0 // not needed (yet)
-    template<typename TYPE> inline auto operator->*(TYPE INSTANCE::*member) -> TYPE * { return this->get()->*member; }
-#endif
   };
 }
 #endiv

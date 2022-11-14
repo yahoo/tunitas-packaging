@@ -36,7 +36,7 @@ auto tests::unit::service::Fixture::suite() -> Suite {
 #import tunitas.denniston.service.Dictionary
 #import tunitas.denniston.service.Instance
 #import tunitas.denniston.service.instance.make
-#import tunitas.denniston.service.instance.Gateway
+#import tunitas.denniston.service.instance.Collector
 #import tunitas.denniston.service.System
 #import tunitas.denniston.World
 #import tunitas.keyston.entropy.Source
@@ -52,7 +52,8 @@ namespace tests::unit::service {
     require(ASSERTION, (bool) found);
   }
   auto Fixture::test_usage_Instance() -> void {
-    auto subject = library::instance::make<library::instance::Gateway>();
+    using Subject = library::Instance;
+    Subject subject = library::instance::make<library::instance::Collector>();
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_System() -> void {

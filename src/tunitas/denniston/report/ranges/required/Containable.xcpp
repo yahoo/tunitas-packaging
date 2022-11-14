@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.container.Basic
+#import nonstd.required.iterator.Forward
+#import nonstd.container.Traits
+#include <hpp/nonstd.container.Traits>
+namespace tunitas::denniston::report::ranges::required::container {
+  //
+  //  Is this container suitable for that certain constructor rangs::Subrange::Subrange(CONTAINER &&)
+  //
+  // Specification:
+  //
+  //   Does CONTAINER have the begin() and end().
+  //   Are the iterators so produced convertaible to the SUBITERATOR.
+  //
+  //   This MUST be diagnosable without the complete type of CONTAINER.
+  //   Thus we rely upon container::Traits.
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  //   Reminder: the namespaces contanier and iterator are occluded (so qualify as required::container, etc.)
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<typename CONTAINER, typename SUBITERATOR> concept Extractible_From = requires(CONTAINER, SUBITERATOR) {
+    requires required::container::Basic<CONTAINER>;
+    requires required::iterator::Forward<SUBITERATOR>;
+    requires convertible_to<typename nonstd::container::Traits<CONTAINER>::Iterator, SUBITERATOR>;
+  };
+}
+#endiv

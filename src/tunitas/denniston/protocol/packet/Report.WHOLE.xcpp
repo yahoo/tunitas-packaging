@@ -21,17 +21,17 @@ namespace tunitas::denniston::protocol::packet {
   //
   //   On the network.
   //
-  template<> struct Report<Slice::WHOLE>;
+  template<> struct Report<WHOLE>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
 #import tunitas.keyston.protocol.report.Produced
 namespace tunitas::denniston::protocol::packet {
-  template<> class Report<Slice::WHOLE> : public Prototype {
+  template<> class Report<WHOLE> : public Prototype {
     using Ancestor = Prototype;
   public:
-    using Produced = keyston::protocol::report::Produced;
+    using Produced = keyston::protocol::report::Produced<WHOLE>;
     Produced produced{};
     explicit Report() = default;
     inline explicit Report(Produced);
@@ -40,6 +40,6 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::protocol::packet {
-  Report<Slice::WHOLE>::Report(Produced p) : produced{move(p)} { }
+  Report<WHOLE>::Report(Produced p) : produced{move(p)} { }
 }
 #endiv

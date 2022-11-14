@@ -45,6 +45,7 @@ namespace tunitas::denniston::service::instance {
 #import tunitas.denniston.task.Definition
 #import tunitas.denniston.error.Code
 #import tunitas.denniston.protocol.packet.Query
+#import tunitas.keyston.vdaf.Shards
 class tunitas::denniston::service::instance::Configuration : public process::Reactor {
   using Ancestor = process::Reactor;
   auto react() -> void;
@@ -55,7 +56,7 @@ public:
   Interfaces clients{};
   Interface collector{};
   Interface gateway{};
-  Interfaces processors{};
+  keyston::vdaf::Shards<Interface> processors{};
   task::Dictionary<task::Definition> tasks{};
   using E = error::Code;
 };

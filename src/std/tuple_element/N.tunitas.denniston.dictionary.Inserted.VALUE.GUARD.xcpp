@@ -12,7 +12,7 @@ namespace std {
 }
 #endiv
 #divert <hpp>
-#import tunitas::denniston.dictionary.Inserted
+#import tunitas.denniston.dictionary.Inserted
 namespace std {
   template<size_t N, tunitas::denniston::dictionary::required::Valuable VALUE, tunitas::denniston::dictionary::required::Guardian GUARD> struct tuple_element<N, tunitas::denniston::dictionary::Inserted<VALUE, GUARD>> : public std::tuple_element<N, typename tunitas::denniston::dictionary::Inserted<VALUE, GUARD>::Ancestor> { };
 }

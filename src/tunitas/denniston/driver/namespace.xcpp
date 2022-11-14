@@ -5,5 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston
-namespace tunitas::denniston::driver { }
+#import tunitas.keyston.vdaf.literals
+namespace tunitas::denniston::driver {
+  using namespace keyston::vdaf::literals;
+}
 #endiv

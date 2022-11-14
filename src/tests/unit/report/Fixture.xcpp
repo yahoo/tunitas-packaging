@@ -7,14 +7,22 @@
 namespace tests::unit::report { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.Species
+#import tunitas.denniston.report.ranges.Projection
+#import tunitas.denniston.report.Definition
+#import tunitas.denniston.report.Series
 struct tests::unit::report::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using Species = ::tunitas::denniston::Species;
-  //
+  auto test_usage_Definition() -> void;
+  auto test_usage_Dictionary() -> void;
   auto test_usage_Generator() -> void;
-  auto test_usage_Slicer() -> void;
+  //
+  using enum ::tunitas::denniston::report::ranges::Projection;
+  using Series = library::Series<library::Definition>;
+  using Subiterator = Series::const_iterator;
+  //
+  auto test_usage_Subrange_RECORD() -> void;
+  auto test_usage_Subrange_REPORT_ID() -> void;
 };
 #endiv
 #divert <cpp>
@@ -22,7 +30,16 @@ auto tests::unit::report::Fixture::suite() -> Suite {
   auto series = Stream{"report"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Generator", &Fixture::test_usage_Generator)
+              use << add("Definition", &Fixture::test_usage_Definition)
+                  << add("Dictionary", &Fixture::test_usage_Dictionary)
+                  << add("Generator", &Fixture::test_usage_Generator)
+                  << []{
+                       auto sub = Stream{"Subrange"sv};
+                       sub << add("RECORD", &Fixture::test_usage_Subrange_RECORD)
+                           << add("REPORT_ID", &Fixture::test_usage_Subrange_REPORT_ID)
+                           << END;
+                       return sub;
+                     }()
                   << END;
               return use;
             }()
@@ -30,10 +47,21 @@ auto tests::unit::report::Fixture::suite() -> Suite {
   return settle(series);
 }
 #import tunitas.keyston.entropy.Source
+#import tunitas.denniston.report.Definition
+#import tunitas.denniston.report.Dictionary
 #import tunitas.denniston.report.Generator
-#import tunitas.denniston.report.Slicer
-#import tunitas.denniston.exception.Aspect
+#import tunitas.denniston.report.ranges.Subrange
 namespace tests::unit::report {
+  auto Fixture::test_usage_Definition() -> void {
+    using Subject = library::Definition;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Dictionary() -> void {
+    using Subject = library::Dictionary<library::Definition>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
   auto Fixture::test_usage_Generator() -> void {
     using Subject = library::Generator;
     auto entropy = ::tunitas::keyston::entropy::Source{};
@@ -42,24 +70,27 @@ namespace tests::unit::report {
     auto generated = subject(task_id);
     require(ASSERTION, sizeof (generated));
   }
-  auto Fixture::test_usage_Slicer() -> void {
-    using Generator = library::Generator;
-    using Subject = library::Slicer;
-    auto entropy = ::tunitas::keyston::entropy::Source{};
-    auto generator = Generator{entropy};
-    auto task_id = ::tunitas::keyston::protocol::id::Task{};
-    auto generated = generator(task_id);
+  auto Fixture::test_usage_Subrange_RECORD() -> void {
+    using Subject = library::ranges::Subrange<RECORD, Subiterator>;
     auto subject = Subject{};
-    auto splat1 = subject(generated, Species::PROCESSOR1);
-    auto splat2 = subject(generated, Species::PROCESSOR2);
-    require(ASSERTION, sizeof (splat1));
-    require(ASSERTION, sizeof (splat2));
-    try {
-      subject(generated, Species::GATEWAY);
-      impossible(ASSERTION);
-    } catch (::tunitas::denniston::exception::Aspect const &) {
-      require(ASSERTION);
+    require(ASSERTION, sizeof (subject));
+    auto count{0uz};
+    for (auto const &each : subject) {
+      ++count;
+      require(ASSERTION, sizeof (each));
     }
+    require(ASSERTION, 0uz == count); // it as empty, was it not?
+  }
+  auto Fixture::test_usage_Subrange_REPORT_ID() -> void {
+    using Subject = library::ranges::Subrange<REPORT_ID, Subiterator>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto count{0uz};
+    for (auto const &each : subject) {
+      ++count;
+      require(ASSERTION, sizeof (each));
+    }
+    require(ASSERTION, 0uz == count); // it as empty, was it not?
   }
 }
 #endiv

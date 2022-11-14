@@ -7,4 +7,5 @@
 tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/hpke/key_from.cpp \
   obj/src/tunitas/keyston/protocol/report/key_from.cpp \
+  obj/src/tunitas/keyston/vdaf/tunitas.denniston.role.Species.cpp \
   $(end)

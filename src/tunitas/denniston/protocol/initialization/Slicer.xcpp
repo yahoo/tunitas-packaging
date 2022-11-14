@@ -1,0 +1,101 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::protocol::initialization {
+  //
+  // The slicer for the initialization step of the aggregation protocol
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.4.1 Aggregate Initialization
+  //
+  //   We call it "slice" because "share" is fraught in conjugation here.
+  //   to slice, the slice, a slicer
+  //   <strike>to share, the share, a sharer</strike> nope, that isn't mellifluous.
+  //
+  // Design:
+  //
+  //   How hard can this be?
+  //   Copy some fields from the left side to the right side.
+  //   Return the result; go home.
+  //
+  //   (To avoid gratuitous copying) The slicer maintains references to its components.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Slicer) < lifetime(...components...)
+  //   The lifetime of the components must be longer than that of the Slicer.
+  //
+  // Exceptions:
+  //
+  //   Throws Invalid upon Inappropriate service species.
+  //   The service species MUST be PROCESSOR1 or PROCESSOR2
+  //
+  // Usage:
+  //
+  //   [[as found in service::instance::Gateway]]
+  //   <rhymes-with>
+  //     auto slice = Slicer{corpus.definition.id, job_id, partialize(corpus.definition.query), prepared};
+  //     for (auto ith : std::views::itoa{0, origin.processors.size()}) {
+  //       origin.processors.at(ith).write(make<Request<INITIALIZATION>>(slice(ith)));
+  //     }
+  //   </rhymes-with>
+  //
+  struct Slicer;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.index // for index::Processor
+#import tunitas.denniston.report.Series
+#import tunitas.denniston.report.Definition
+#import tunitas.keyston.protocol.id // id::Task and id::Job
+#import tunitas.keyston.protocol.function.Parameters
+#import tunitas.keyston.protocol.initialization.Request
+#import tunitas.keyston.protocol.query.Partial
+#import tunitas.keyston.protocol.report.Produced
+struct tunitas::denniston::protocol::initialization::Slicer {
+  using Slice = protocol::Slice;
+  using enum Slice;
+  struct Identifier {
+    using Task = keyston::protocol::id::Task;
+    using Job = keyston::protocol::id::Job;
+  };
+  using Parameters = keyston::protocol::function::Parameters;
+  using Query = keyston::protocol::query::Partial;
+  template<Slice SLICE> using Report = keyston::protocol::report::Produced<SLICE>;
+  using Reports = report::Series<report::Definition>;
+  using Request = keyston::protocol::initialization::Request;
+  //
+  Identifier::Task const &task_id;
+  Identifier::Job const &job_id;
+  Parameters const &parameters;
+  Query const &query;
+  Reports const &reports;
+  //
+  inline [[implicit]] Slicer(Identifier::Task const &, Identifier::Job const &, Parameters const &, Query const &, Reports const &);
+  inline auto operator()(index::Processor) const -> Request;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol::initialization {
+  Slicer::Slicer(Identifier::Task const &tid, Identifier::Job const &jid, Parameters const &par, Query const &que, Reports const &rep)
+    : task_id{tid}
+    , job_id{jid}
+    , parameters{par}
+    , query{que}
+    , reports{rep}
+  { }
+  auto Slicer::operator()(index::Processor processor_idx) const -> Request {
+    auto ret = Request{.task_id{task_id}, .job_id{job_id}, .aggregation_parameters{parameters}, .query{query}};
+    for (auto &definition : reports) {
+      auto const &whole{definition.report};
+      ret.report_shares.emplace_back(whole.report_id, whole.time, whole.extensions, whole.public_share, whole.encrypted_input_shares.at(processor_idx));
+    }
+    return ret;
+  }
+}
+#endiv

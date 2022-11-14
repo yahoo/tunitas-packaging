@@ -1,0 +1,79 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::preparation { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.preparation.ranges.Projection
+#import tunitas.keyston.protocol.preparation.Steps
+struct tests::unit::preparation::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using enum ::tunitas::denniston::preparation::ranges::Projection;
+  using Steps = ::tunitas::keyston::protocol::preparation::Steps<::tunitas::keyston::protocol::preparation::Mark::TAGGED>;
+  using Subiterator = Steps::Basic_Iterator<Steps const>;
+  //
+  auto test_usage_Subrange_RECORD() -> void;
+  auto test_usage_Subrange_REPORT_ID() -> void;
+  auto test_usage_Subrange_POSITIONED() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::preparation::Fixture::suite() -> Suite {
+  auto series = Stream{"preparation"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << []{
+                       auto sub = Stream{"Subrange"sv};
+                       sub << add("RECORD", &Fixture::test_usage_Subrange_RECORD)
+                           << add("POSITIONED", &Fixture::test_usage_Subrange_POSITIONED)
+                           << add("REPORT_ID", &Fixture::test_usage_Subrange_REPORT_ID)
+                           << END;
+                       return sub;
+                     }()
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.preparation.ranges.Subrange
+namespace tests::unit::preparation {
+  auto Fixture::test_usage_Subrange_RECORD() -> void {
+    using Subject = library::ranges::Subrange<RECORD, Subiterator>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto count{0uz};
+    for (auto const &each : subject) {
+      ++count;
+      require(ASSERTION, sizeof (each));
+    }
+    require(ASSERTION, 0uz == count); // it as empty, was it not?
+  }
+  auto Fixture::test_usage_Subrange_POSITIONED() -> void {
+    using Subject = library::ranges::Subrange<POSITIONED, Subiterator>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto count{0uz};
+    for (auto const &each : subject) {
+      ++count;
+      require(ASSERTION, sizeof (each));
+    }
+    require(ASSERTION, 0uz == count); // it as empty, was it not?
+  }
+  auto Fixture::test_usage_Subrange_REPORT_ID() -> void {
+    using Subject = library::ranges::Subrange<REPORT_ID, Subiterator>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto count{0uz};
+    for (auto const &each : subject) {
+      ++count;
+      require(ASSERTION, sizeof (each));
+    }
+    require(ASSERTION, 0uz == count); // it as empty, was it not?
+  }
+}
+#endiv

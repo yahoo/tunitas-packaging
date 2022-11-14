@@ -21,17 +21,17 @@ namespace tunitas::denniston::protocol::packet {
   //
   //   On the network.
   //
-  template<> struct Report<Slice::SHARE>;
+  template<> struct Report<SHARE>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.report.share.Produced
+#import tunitas.keyston.protocol.report.Produced
 namespace tunitas::denniston::protocol::packet {
-  template<> class Report<Slice::SHARE> : public Prototype {
+  template<> class Report<SHARE> : public Prototype {
     using Ancestor = Prototype;
   public:
-    using Produced = keyston::protocol::report::share::Produced;
+    using Produced = keyston::protocol::report::Produced<SHARE>;
     Produced produced{};
     explicit Report() = default;
     inline explicit Report(Produced);
@@ -40,6 +40,6 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::protocol::packet {
-  Report<Slice::SHARE>::Report(Produced p) : produced{move(p)} { }
+  Report<SHARE>::Report(Produced p) : produced{move(p)} { }
 }
 #endiv

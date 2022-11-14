@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.service.gateway.subprocess.Prototype
+#forward tunitas.denniston.service.gateway.subprocess.Boot
+#forward tunitas.denniston.service.gateway.subprocess.Job
+#forward tunitas.denniston.service.gateway.subprocess.Task
+namespace tunitas::denniston::service::gateway::subprocess::traits {
+  //
+  // a declaration of Gateway Subprocess traits
+  // Specializations only.
+  //
+  template<typename> struct Subprocess;
+  template<> struct Subprocess<Prototype>;
+  template<> struct Subprocess<Boot>;
+  template<> struct Subprocess<Job>;
+  template<> struct Subprocess<Task>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::denniston::service::gateway::subprocess {
+  template<typename TYPE> struct traits::Subprocess : public std::false_type { };
+  namespace traits {
+    template<> struct Subprocess<Prototype> : public std::true_type { };
+    template<> struct Subprocess<Boot>      : public std::true_type { };
+    template<> struct Subprocess<Job>       : public std::true_type { };
+    template<> struct Subprocess<Task>      : public std::true_type { };
+  }
+}
+#endiv

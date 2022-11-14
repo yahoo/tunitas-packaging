@@ -8,9 +8,13 @@ tunitas_denniston_service_SUBSOURCES = \
   obj/src/tunitas/denniston/service/namespace.cpp \
   obj/src/tunitas/denniston/service/Dictionary.cpp \
   obj/src/tunitas/denniston/service/System.cpp \
+  $(tunitas_denniston_service_gateway_SUBSOURCES) \
   $(tunitas_denniston_service_instance_SUBSOURCES) \
+  $(tunitas_denniston_service_processor_SUBSOURCES) \
   $(tunitas_denniston_service_required_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/denniston/service/gateway/Makefrag.am
 include src/tunitas/denniston/service/instance/Makefrag.am
+include src/tunitas/denniston/service/processor/Makefrag.am
 include src/tunitas/denniston/service/required/Makefrag.am

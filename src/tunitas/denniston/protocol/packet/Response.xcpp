@@ -7,4 +7,6 @@
 #import tunitas.denniston.protocol.packet.Response.template
 #import tunitas.denniston.protocol.packet.Response.HPKE
 #import tunitas.denniston.protocol.packet.Response.TASKS
+#import tunitas.denniston.protocol.packet.Response.INITIALIZATION
+#import tunitas.denniston.protocol.packet.Response.CONTINUATION
 #endiv

@@ -1,0 +1,33 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import tunitas.keyston.protocol.id // for id::Report
+namespace tunitas::denniston::job::required::iterator {
+  //
+  // Is this an iterator that can return a job member name?
+  // A job member name is an id::Report.
+  //
+  // Specification:
+  //
+  //   Just what it says on the label.
+  //
+  // Design:
+  //
+  //   Whereas a job is defined by an ordered series of reports, by name,
+  //   we hardcode this to id::Report.
+  //
+  // Usage:
+  //
+  //   See report::ranges::Member
+  //
+  template<typename ITERATOR> concept Member = requires(ITERATOR) {
+    requires Forward<ITERATOR>;
+    requires Producing<ITERATOR, keyston::protocol::id::Report>;
+  };
+}
+#endiv

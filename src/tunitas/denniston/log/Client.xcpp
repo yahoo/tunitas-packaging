@@ -78,7 +78,7 @@ namespace tunitas::denniston {
 namespace tunitas::denniston::log {
   template<typename... ARGUMENTS> auto Client::format(string::View format_string, ARGUMENTS &&...rest) -> void {
     if (nullptr != concentrator) {
-      auto formatted = log::vformat(format_string, log::make_format_args(rest...));
+      auto formatted = log::vformat(format_string, log::make_format_args(forward<ARGUMENTS>(rest)...));
       concentrator->accept(role, formatted);
     }
   }

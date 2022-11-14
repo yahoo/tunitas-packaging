@@ -1,0 +1,16 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service
+#import tunitas.denniston.protocol.packet
+#import tunitas.keyston.time.literals
+#import tunitas.string.literals
+namespace tunitas::denniston::service::gateway {
+  using namespace protocol::packet;
+  using namespace string::literals;
+  using namespace keyston::time::literals;
+}
+#endiv

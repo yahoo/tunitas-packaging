@@ -1,0 +1,23 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.preparation.ranges.iterator.Traits
+#forward tunitas.denniston.preparation.ranges.iterator.Iterator
+namespace nonstd::iterator {
+  template<tunitas::denniston::preparation::ranges::Projection PROJECTION, required::iterator::Forward SUBITERATOR>
+  struct Traits<tunitas::denniston::preparation::ranges::iterator::Iterator<PROJECTION, SUBITERATOR>>;
+}
+// It is expected but not required that nonstd::iterator::Traits<...> is defined in terms of std::iterator_traits<...>
+#import std.iterator_traits.tunitas.denniston.preparation.ranges.iterator.Iterator.PROJECTION.SUBITERATOR
+#endiv
+#divert <hpp>
+namespace nonstd::iterator {
+  template<tunitas::denniston::preparation::ranges::Projection PROJECTION, required::iterator::Forward SUBITERATOR>
+  class Traits<tunitas::denniston::preparation::ranges::iterator::Iterator<PROJECTION, SUBITERATOR>>
+  : public tunitas::denniston::preparation::ranges::iterator::Traits<tunitas::denniston::preparation::ranges::iterator::Iterator<PROJECTION, SUBITERATOR>>
+  { };
+}
+#endiv

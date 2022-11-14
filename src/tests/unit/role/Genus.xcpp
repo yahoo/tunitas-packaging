@@ -19,6 +19,10 @@ struct tests::unit::role::Genus : public rigging::suite::Fixture {
   auto test_is_directory() -> void;
   auto test_is_gateway() -> void;
   auto test_is_processor() -> void;
+  //
+  auto test_to_string() -> void;
+  auto test_to_string_view_good() -> void;
+  auto test_to_string_view_fail() -> void;
 };
 #endiv
 #divert <cpp>
@@ -35,9 +39,18 @@ auto tests::unit::role::Genus::suite() -> Suite {
                  << END;
               return is;
             }()
+         << add("to_string", &Genus::test_to_string)
+         << []{
+              auto to = Stream{"to_string_view"sv};
+              to << add("good", &Genus::test_to_string_view_good)
+                 << add("fail", &Genus::test_to_string_view_fail)
+                 << END;
+              return to;
+            }()
          << END;
   return settle(series);
 }
+#import tunitas.denniston.role.io
 #import tunitas.denniston.exception.Invalid
 namespace tests::unit::role {
   auto Genus::test_is_client() -> void {
@@ -92,6 +105,26 @@ namespace tests::unit::role {
     require(ASSERTION, is_processor(Subject::PROCESSOR));
     require(ASSERTION, not is_processor(Subject::GATEWAY));
     require(ASSERTION, not is_processor(Subject::CLIENT));
+  }
+  auto Genus::test_to_string() -> void {
+    for (auto subject : {Subject::CLIENT, Subject::COLLECTOR, Subject::CONFIGURATION, Subject::DIRECTORY, Subject::GATEWAY, Subject::PROCESSOR, Subject{99}, Subject{100}, Subject{101}, Subject{-99}, Subject{-100}, Subject{-101}}) {
+        auto got = to_string(subject); // <---------------------------------------- test this
+        std::cerr << got << '\n';
+        require(ASSERTION, !got.empty());
+    }
+  }
+  auto Genus::test_to_string_view_good() -> void {
+    for (auto subject : {Subject::CLIENT, Subject::COLLECTOR, Subject::CONFIGURATION, Subject::DIRECTORY, Subject::GATEWAY, Subject::PROCESSOR}) {
+        auto got = to_string_view(subject); // <---------------------------------------- test this
+        require(ASSERTION, got.has_value());
+        std::cerr << *got << '\n';
+    }
+  }
+  auto Genus::test_to_string_view_fail() -> void {
+    for (auto subject : {Subject{-99}, Subject{-100}, Subject{-101}, Subject{99}, Subject{100}, Subject{101}}) {
+        auto got = to_string_view(subject); // <---------------------------------------- test this
+        require(ASSERTION, !got);
+    }
   }
 }
 #endiv

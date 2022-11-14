@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.ranges.Projection
+#import tunitas.denniston.report.ranges.iterator.required // ctcnr (cascade that certain 'namespace required')
+#import nonstd.required.iterator.Forward
+namespace tunitas::denniston::report::ranges::iterator {
+  //
+  // The iterator
+  //
+  // Specification:
+  //
+  //   Partial specialization on the projection
+  //   Project::RECORD........ see it all
+  //   Project::IDENTIFIER ... project out the 'id' field
+  //
+  //   Handle constie contagion too
+  //
+  // Design:
+  //
+  //   Sure, why do you ask?
+  //
+  // Usage:
+  //
+  //   see Subrange<PROJECT, ITERATOR>
+  //
+  template<Projection PROJECTION, typename SUBITERATOR> requires required::iterator::Forward<SUBITERATOR> struct Iterator;
+}
+#import nonstd.iterator.Traits.tunitas.denniston.report.ranges.iterator.Iterator.PROJECTION.SUBITERATOR
+// All specializations will need this (these)
+#import tunitas.denniston.report.ranges.projection.Traits
+#endiv

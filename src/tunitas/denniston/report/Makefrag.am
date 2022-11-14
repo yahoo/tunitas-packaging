@@ -7,10 +7,15 @@
 tunitas_denniston_report_SUBSOURCES = \
   obj/src/tunitas/denniston/report/namespace.cpp \
   obj/src/tunitas/denniston/report/Generator.cpp \
-  obj/src/tunitas/denniston/report/Slicer.cpp \
   obj/src/tunitas/denniston/report/Dictionary.cpp \
-  obj/src/tunitas/denniston/report/Manifest.cpp \
+  obj/src/tunitas/denniston/report/Definition.cpp \
+  obj/src/tunitas/denniston/report/Status.cpp \
+  obj/src/tunitas/denniston/report/Series.cpp \
+  $(tunitas_denniston_report_ranges_SUBSOURCES) \
   $(tunitas_denniston_report_required_SUBSOURCES) \
+  $(tunitas_denniston_report_usage_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/denniston/report/ranges/Makefrag.am
 include src/tunitas/denniston/report/required/Makefrag.am
+include src/tunitas/denniston/report/usage/Makefrag.am

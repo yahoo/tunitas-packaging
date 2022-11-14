@@ -6,7 +6,8 @@
 #divert <fpp>
 namespace tunitas::denniston::protocol::packet {
   //
-  // The various query types
+  // The various query types.
+  // Specializations only.
   //
   template<Get> struct Response;
 }

@@ -14,7 +14,7 @@ namespace tunitas::denniston::process {
   //   Publishes an interface by which it can be contacted.
   //   Expects to be dynamically allocated with std::make_unique<DESCENDANT>(...)
   //
-  //   Whereas this is a simulatoin, every process has a control channel (socket interface)
+  //   Whereas this is a simulation, every process has a control channel (socket interface)
   //
   //   I am the very model of a modern major process. 
   //
@@ -23,6 +23,9 @@ namespace tunitas::denniston::process {
   //   Descendants only.
   //   Something something: a thread.
   //   The destructor must be public so that std::unique_ptr can see it.
+  //
+  //   is_shutting_down() exists as a public accessor because some non-descendants need to query it; c.f. Gateway
+  //   Choice: make the (redundant) accessor, list lotsa friends, make graceful_shutdown public
   //
   // Usage:
   //
@@ -39,6 +42,8 @@ namespace tunitas::denniston::process {
 #forward tunitas.denniston.driver.Driver
 #forward tunitas.denniston.process.companion.Barrier
 #import tunitas.denniston.process.Prototype
+#import tunitas.denniston.world // for VERIFIABLE_AGGREGATION_FUNCTION_NAME
+#import tunitas.keyston.vdaf.Executor
 #import std.atomic
 #import std.vector
 class tunitas::denniston::process::Model : public Prototype {
@@ -50,10 +55,15 @@ public:
   using Interface = network::Socket::Interface;
   using Interfaces = std::vector<network::Socket::Interface>;
   Interface control{};
+  //
+  using Executor = keyston::vdaf::Executor<keyston::vdaf::Scheme::PROTOCOL>;
+  Executor executor{world::VERIFIABLE_AGGREGATION_FUNCTION_NAME};
+  //
   Model(Model const &) = delete;
   Model &operator=(Model const &) = delete;
   virtual ~Model() = default;
   virtual auto launch([[inout]] driver::Threads &) -> void = 0;
+  inline auto is_shutting_down() const -> bool;
 protected:
   inline explicit Model(Species);
   std::atomic<bool> graceful_shutdown{false}; // not clear this needs to be atomic.
@@ -67,6 +77,7 @@ namespace tunitas::denniston::process {
     : role{role}
     , log{role}
   { }
+  auto Model::is_shutting_down() const -> bool { return graceful_shutdown.load(); }
 }
 // All descendants will need this
 #import tunitas.denniston.driver.Threads

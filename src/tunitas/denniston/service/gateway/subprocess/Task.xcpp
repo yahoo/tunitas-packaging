@@ -1,0 +1,161 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::gateway::subprocess {
+  //
+  // The task management subprocess (thread)
+  //
+  // Specificiation:
+  //
+  //   Observe the accretion of the reports.
+  //   Start a new job when the trigger point is reached.
+  //
+  //   [[unimplemented]] absent a specific job batch size the initiation trigger has to be time-based [[unimplemented]]
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  // Concurrency:
+  //
+  //   Not within.
+  //   Synchronize with (others) in the Gateway by the Prototype::barrier.
+  //
+  // Usage:
+  //
+  //   See service::instance::Gateway
+  //
+  struct Task;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.channel.Channel
+#import tunitas.denniston.count // for count::Job
+#import tunitas.denniston.protocol.initialization.Slicer
+#import tunitas.denniston.report.Definition
+#import tunitas.denniston.report.Series
+#import tunitas.denniston.report.ranges.Subrange
+#import tunitas.denniston.service.gateway.subprocess.Prototype
+#forward tunitas.denniston.task.Corpus
+#import tunitas.keyston.protocol.report.Produced
+namespace tunitas::denniston::service::gateway {
+  namespace subprocess {
+    inline auto swap(Task *&a, Task *&b) noexcept -> void { std::swap(a, b); }
+  }
+  class subprocess::Task : public Prototype {
+    using Ancestor = Prototype;
+  public:
+    using Corpus = task::Corpus<Genus::GATEWAY>;
+    using Delegating = channel::Channel<keyston::protocol::report::Produced<keyston::protocol::WHOLE>>;
+    using Preparing = report::Series<report::Definition>;
+    using Prepared = Preparing;
+    //
+    Corpus &corpus;
+    Optional<count::Job> job_batch_size;
+    Delegating delegating{};
+    Preparing preparing{};
+    //
+    inline explicit Task(Gateway &, Corpus &);
+    //
+    inline auto ready() const -> bool;
+    auto run() noexcept -> void;
+  protected:
+    using Project_to_Identifier = report::ranges::Subrange<report::ranges::Projection::ID, Preparing::const_iterator>;
+    using Slicer = protocol::initialization::Slicer;
+    auto broadcast(Prepared const &) -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.task.Corpus
+namespace tunitas::denniston::service::gateway::subprocess {
+  Task::Task(Gateway &owner, Corpus &corp)
+    : Ancestor{owner}
+    , corpus{corp}  {
+    corpus.subprocess = this;
+    // expects this->barrier to already be started (locked)
+    subbie = std::jthread{&Task::run, this};
+  }
+  auto Task::ready() const -> bool {
+    if (job_batch_size) {
+      return preparing.size() >= job_batch_size.value();
+    } else {
+      // [[TODO]] something about a time interval
+      return false;
+    }
+  }
+}
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::gateway::subprocess::Task;
+    //
+    static_assert(not std::semiregular<Task>);
+    //
+    // because that barrier in Task::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_default_constructible_v<Task>);
+    static_assert(not std::is_copy_constructible_v<Task>);
+    static_assert(not std::is_move_constructible_v<Task>);
+    static_assert(not std::is_copy_assignable_v<Task>);
+    static_assert(not std::is_move_assignable_v<Task>);
+    static_assert(not std::is_swappable_v<Task>);
+    static_assert(    std::is_swappable_v<Task *>);
+  }
+}
+#import tunitas.denniston.service.gateway.subprocess.make
+#import tunitas.denniston.service.gateway.subprocess.Job
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Request
+#import tunitas.denniston.protocol.initialization.Slicer
+#import tunitas.keyston..vdaf.literals
+#import std.views.iota
+namespace tunitas::denniston::service::gateway::subprocess {
+  auto Task::run() noexcept -> void try {
+    while (!owner.is_shutting_down()) {
+      barrier.wait([this]{ return !delegating.empty(); });
+      //
+      // copy the new work delegated to us (into our thread-controlled area)
+      // start a job if there's enough work.
+      // drain a a batch of reports into the job.
+      // whee!
+      for (auto red=delegating.pop_if(); red; red=delegating.pop_if()) {
+        preparing.push_back(move(*red));
+      }
+      if (ready()) {
+        auto prepared = decltype(preparing){};
+        swap(prepared, preparing);
+        broadcast(prepared);
+      }
+      // Slow Down! [[provisionally]]
+      std::this_thread::sleep_for(250ms);
+    }
+  } catch (process::companion::Shutdown) {
+    // yay!
+  } catch(...) {
+    owner.log.format("task {} has an escaped exception which is suppressed", corpus.definition.id);
+  }
+  auto Task::broadcast(Prepared const &prepared) -> void {
+    auto anchor = Project_to_Identifier{prepared}; // [[FIXTHIS]] infer this
+    auto job_id = owner.generators.job_id();
+    static_assert(sizeof (decltype(job::Definition(job_id, anchor.begin(), anchor.end()))));
+    static_assert(sizeof (decltype(job::Corpus<Genus::GATEWAY>(job_id, anchor.begin(), anchor.end()))));
+    if (auto [noob, inserted] = owner.jobs.insert(job_id, {job_id, anchor.begin(), anchor.end()}); !inserted) {
+      owner.log.format("duplicate job id {}, which is a complete surprise", job_id);
+    } else {
+      owner.subprocesses.push_back(make<Job>(owner, noob));
+      using namespace keyston::vdaf::literals;
+      auto const &task_id = corpus.definition.id;
+      auto const parameters = corpus.aggregation_parameters.value_or(keyston::protocol::function::Parameters{}); // reminder -- copies the parameters (when they exist) to support the optional
+      auto partial = partialize(corpus.definition.query);
+      auto slicer = Slicer{task_id, job_id, parameters, partial, prepared}; 
+      for (auto ith : std::views::iota(0_shard, owner.processors.size())) {
+        owner.processors.at(ith).write(protocol::packet::make<Request<Post::INITIALIZATION>>(slicer(ith)));
+      }
+    }
+  }
+}
+#endiv

@@ -5,7 +5,9 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston
+#import tunitas.string.literals
 namespace tunitas::denniston::role {
+  using namespace tunitas::string::literals;
   namespace [[nodirectory]] traits { }
 }
 #endiv

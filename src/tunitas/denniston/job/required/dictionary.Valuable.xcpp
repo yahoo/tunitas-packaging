@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.job.Definition
+#forward tunitas.denniston.job.Corpus
+#import tunitas.denniston.job.required.Corpus
+#import nonstd.required.Class
+namespace tunitas::denniston::job::required::dictionary {
+  //
+  // Is this type suitable for the VALUE of a Dictionary<VALUE>
+  //
+  namespace [[eponymous]] valuable {
+    template<typename VALUE> concept Taskie = same_as<VALUE, job::Definition>;
+    template<typename VALUE> concept Corpie = required::Corpus<VALUE>;
+    template<typename VALUE> concept Valuable = (Taskie<VALUE> || Corpie<VALUE>) && requires(VALUE) {
+      // And because the VALUE will live in a container; e.g. std::vector<VALUE> or std::deque<VALUE>
+      // we also provide a companion usage::Valuable<VALUE>
+      // This requirement cannot be uttered here because these conditions require the complete type of VALUE
+      //
+      // See usage::dictionary::Valuable<VALUE>
+      //
+      requires Class<VALUE>;
+    };
+  }
+  using valuable::Valuable;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace required = tunitas::denniston::job::required;
+    using tunitas::denniston::job::Definition;
+    using tunitas::denniston::job::Corpus;
+    using tunitas::denniston::role::Genus;
+    static_assert(required::dictionary::Valuable<Definition>);
+    static_assert(required::dictionary::Valuable<Corpus<Genus::GATEWAY>>);
+    static_assert(required::dictionary::Valuable<Corpus<Genus::PROCESSOR>>);
+    static_assert(required::dictionary::Valuable<Corpus<Genus::COLLECTOR>>);
+  }
+}
+#endiv
