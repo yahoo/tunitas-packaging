@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.dictionary.Dictionary.template // for Complexity, Concurrency and Parameters<...>
+#import tunitas.denniston.concurrent.dictionary.Dictionary.template // for Complexity, Concurrency and Parameters<...>
 namespace tunitas::denniston::service {
   //
   // A dictionary of all the services
@@ -26,9 +26,9 @@ namespace tunitas::denniston::service {
   //
   namespace [[eponymous]] dictionary {
     struct Dictionary;
-    using denniston::dictionary::Parameters;
-    using enum denniston::dictionary::Complexity;
-    using enum denniston::dictionary::Concurrency;
+    using denniston::concurrent::dictionary::Parameters;
+    using enum denniston::concurrent::dictionary::Complexity;
+    using enum denniston::concurrent::dictionary::Concurrency;
   }
   using dictionary::Dictionary;
 }
@@ -37,10 +37,10 @@ namespace tunitas::denniston::service {
 #import tunitas.keyston.hpke.Configuration
 #import tunitas.keyston.hpke.key_from // this is ours, and it is nearby
 #import tunitas.keyston.protocol.id // for id::Service
-#import tunitas.denniston.dictionary.Dictionary
+#import tunitas.denniston.concurrent.dictionary.Dictionary
 namespace tunitas::denniston::service {
-  class dictionary::Dictionary : public denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration>> {
-    using Ancestor = denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration>>;
+  class dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration>>;
   public:
     Dictionary() = default;
     using Ancestor::Dictionary;

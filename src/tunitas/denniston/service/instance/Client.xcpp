@@ -89,9 +89,9 @@ namespace tunitas::denniston::service::instance {
   }
   auto Client::react() -> void {
     if (auto red=configuration.read_if(); red) {
-      if (auto got=downcast<Status>(*red); nullptr != got) {
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
         log.format("from configuration failure: {}", got->status.message());
-      } else if (auto got=downcast<Response<Get::TASKS>>(*red); nullptr != got) {
+      } else if (auto got=downcast_get<Response<Get::TASKS>>(*red); nullptr != got) {
         log.format("from configuration tasks: count {}", got->tasks.size());
         for (auto &given : got->tasks) {
           static_assert(std::tuple_size<decltype(tasks.insert(move(given)))>::value);
@@ -104,10 +104,10 @@ namespace tunitas::denniston::service::instance {
       }
     }
     if (auto red=directory.read_if(); red) {
-      if (auto got=downcast<Status>(*red); nullptr != got) {
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
         log.format("from directory, the failure {}", got->status.message());
         --inflight_query_count;
-      } else if (auto got=downcast<Response<Get::HPKE>>(*red); nullptr != got) {
+      } else if (auto got=downcast_get<Response<Get::HPKE>>(*red); nullptr != got) {
         log.format("from directory, got the hpke for {}", got->service_id);
         auto [noob, inserted] = services.insert(move(got->service_id), move(got->configuration));
         log.format("which is {}", (inserted ? "inserted"s : "duplicated"s));

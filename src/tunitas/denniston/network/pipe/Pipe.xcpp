@@ -25,11 +25,11 @@ namespace tunitas::denniston::network::pipe {
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.channel.Channel
+#import tunitas.denniston.concurrent.channel.Channel
 #import tunitas.denniston.network.pipe.Pollability
 namespace tunitas::denniston::network {
-  template<pipe::required::Pipeable VALUE> class pipe::Pipe : public channel::Channel<VALUE, Pollability> {
-    using Ancestor = channel::Channel<VALUE, Pollability>;
+  template<pipe::required::Pipeable VALUE> class pipe::Pipe : public concurrent::channel::Channel<VALUE, Pollability> {
+    using Ancestor = concurrent::channel::Channel<VALUE, Pollability>;
   public:
     explicit Pipe() = default;
     virtual auto is_ready_to_read() -> bool override;  // the caller MUST lock

@@ -75,7 +75,7 @@ namespace tunitas::denniston::service::instance {
     for (auto &face : clients) {
       if (auto red=face.read_if(); red) {
         log.format("red from some client");
-        if (auto got=downcast<Query<Get::HPKE>>(*red); nullptr != got) {
+        if (auto got=downcast_get<Query<Get::HPKE>>(*red); nullptr != got) {
           respond(face, *got, "some client"sv);
         }
       }

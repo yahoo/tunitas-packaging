@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.job.required.dictionary.Valuable
-#import tunitas.denniston.dictionary.Dictionary.template // for enums Complexity, Concurrency and Parameters<....>
+#import tunitas.denniston.concurrent.dictionary.Dictionary.template // for enums Complexity, Concurrency and Parameters<....>
 namespace tunitas::denniston::job {
   //
   // A (sequential) dictionary of jobs.
@@ -28,20 +28,20 @@ namespace tunitas::denniston::job {
   //
   namespace [[eponymous]] dictionary {
     template<required::dictionary::Valuable> struct Dictionary;
-    using denniston::dictionary::Parameters;
-    using enum denniston::dictionary::Complexity;
-    using enum denniston::dictionary::Concurrency;
+    using denniston::concurrent::dictionary::Parameters;
+    using enum denniston::concurrent::dictionary::Complexity;
+    using enum denniston::concurrent::dictionary::Concurrency;
   }
   using dictionary::Dictionary;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.protocol.id // for id::Job
-#import tunitas.denniston.dictionary.Dictionary
+#import tunitas.denniston.concurrent.dictionary.Dictionary
 #import tunitas.denniston.job.usage.dictionary.Valuable
 namespace tunitas::denniston::job {
-  template<required::dictionary::Valuable VALUE> struct dictionary::Dictionary : public denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Job, VALUE>> {
-    using Ancestor = denniston::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Job, VALUE>>;
+  template<required::dictionary::Valuable VALUE> struct dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Job, VALUE>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Job, VALUE>>;
     static_assert(usage::dictionary::Valuable<VALUE>);
   public:
     Dictionary() = default;

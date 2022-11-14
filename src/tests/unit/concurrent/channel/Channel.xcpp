@@ -1,0 +1,207 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.concurrent.channel.Generator
+namespace tests::unit::channel {
+  template<typename GENERATOR> class Channel;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.concurrent.channel.Channel
+#import tests.unit.concurrent.channel.Message
+namespace tests::unit {
+  template<typename GENERATOR> struct channel::Channel : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Generator = GENERATOR;
+    using Subject = library::Channel<typename Generator::Result>;
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_sized() -> void;
+    auto test_push_back_move() -> void;
+    auto test_push_back_copy() -> void;
+    auto test_push_back_first_last() -> void;
+    auto test_emplace_back() -> void;
+    auto test_pop() -> void;
+    auto test_peek() -> void;
+    auto test_empty() -> void;
+    auto test_size() -> void;
+  protected:
+    Generator generator{};
+  };
+  namespace channel {
+    template<> auto Channel<Generator<Message>>::test_pop() -> void;
+    template<> auto Channel<Generator<Message>>::test_peek() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::channel {
+  template<typename _> auto Channel<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Channel::test_constructor_default)
+                    << add("sized", &Channel::test_constructor_sized)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto pub = Stream{"push_back"sv};
+                pub << add("move", &Channel::test_push_back_move)
+                    << add("copy", &Channel::test_push_back_copy)
+                    << add("first_last", &Channel::test_push_back_first_last)
+                    << END;
+                return pub;
+              }()
+           << add("emplace_back", &Channel::test_emplace_back)
+           << add("pop", &Channel::test_pop)
+           << add("peek", &Channel::test_peek)
+           << add("empty", &Channel::test_empty)
+           << add("size", &Channel::test_size)
+           << END;
+    return settle(series);
+  }
+}
+#import nonstd.range.forward
+#import std.is_copy_constructible
+namespace tests::unit::channel {
+  template<typename _> auto Channel<_>::test_constructor_default() -> void {
+    Subject subject;
+    require(ASSERTION, subject.empty());
+  }
+  template<typename _> auto Channel<_>::test_constructor_sized() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    subject.push_back(generator());
+    require(ASSERTION, 1 == subject.size());
+  }
+  template<typename _> auto Channel<_>::test_push_back_move() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    auto generated = generator();
+    subject.push_back(std::move(generated));
+    require(ASSERTION, 1 == subject.size());
+  }
+  template<typename _> auto Channel<_>::test_push_back_copy() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    if constexpr (std::is_copy_constructible<typename Generator::Result>::value) {
+        auto const generated = generator();
+        subject.push_back(generated);
+      } else {
+      // Just do the move thing
+      subject.push_back(generator());
+    }
+    require(ASSERTION, 1 == subject.size());
+  }
+  template<typename _> auto Channel<_>::test_push_back_first_last() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    typename Generator::Result many[] = { generator(), generator(), generator(), generator(), generator(), generator(), generator() };
+    if constexpr (std::is_copy_constructible<typename Generator::Result>::value) {
+        subject.push_back(&many[0], &many[sizeof (many)/sizeof (many[0])]);
+      } else {
+      // Just do the move thing in little one-off bits and pieces (much slower)
+      for (auto &item : nonstd::range::forward(&many[0], &many[sizeof (many)/sizeof (many[0])])) {
+        subject.emplace_back(std::move(item));
+      }
+    }
+    require(ASSERTION, 0 != subject.size());
+  }
+  template<typename _> auto Channel<_>::test_emplace_back() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    subject.emplace_back(generator()); // with the move constructor
+    require(ASSERTION, 1 == subject.size());
+  }
+  template<typename _> auto Channel<_>::test_pop() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    auto specimen = generator();
+    auto const original = specimen;
+    subject.push_back(std::move(specimen));
+    require(ASSERTION, 1 == subject.size());
+    auto const popped = subject.pop(); // <-------------------------------------------- test this
+    require(ASSERTION, 0 == subject.size());
+    require(ASSERTION, popped == original);
+  }
+  template<typename _> auto Channel<_>::test_peek() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    auto specimen = generator();
+    auto const original = specimen;
+    subject.push_back(std::move(specimen));
+    require(ASSERTION, 1 == subject.size());
+    { auto const peeked = subject.peek(); // <------------------------------------------ test this
+      require(ASSERTION, *peeked == original); }
+    // WATCHOUT - we cannot query subject again while peeked is living because it holds a lock.
+    require(ASSERTION, 1 == subject.size());
+  }
+  template<typename _> auto Channel<_>::test_empty() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    subject.push_back(generator());
+    require(ASSERTION, !subject.empty());
+    subject.pop();
+    require(ASSERTION, subject.empty());
+  }
+  template<typename _> auto Channel<_>::test_size() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    subject.push_back(generator());
+    require(ASSERTION, 1 == subject.size());
+    subject.push_back(generator());
+    require(ASSERTION, 2 == subject.size());
+    subject.push_back(generator());
+    require(ASSERTION, 3 == subject.size());
+  }
+}
+#endiv
+#divert <cpp>
+#import std.ostringstream
+#import tests.unit.concurrent.channel.Message
+namespace tests::unit::channel {
+  namespace {
+    auto to_string(Message const &message) -> string::Storage {
+      std::ostringstream picture;
+      picture << format(message);
+      return picture.str();
+    };
+  }
+  template<> auto Channel<Generator<Message>>::test_pop() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    auto specimen = generator();
+    auto const original = to_string(specimen);
+    subject.push_back(std::move(specimen));
+    require(ASSERTION, 1 == subject.size());
+    auto const popped = subject.pop(); // <-------------------------------------------- test this
+    auto const popped_picture = to_string(popped);
+    require(ASSERTION, 0 == subject.size());
+    require(ASSERTION, popped_picture == original);
+  }
+  template<> auto Channel<Generator<Message>>::test_peek() -> void {
+    Subject subject{10};
+    require(ASSERTION, subject.empty());
+    //
+    auto const nope = subject.peek(); // <------------------------------------------- test this
+    require(ASSERTION, !nope.has_value());
+    //
+    auto specimen = generator();
+    auto const original = to_string(specimen);
+    subject.push_back(std::move(specimen));
+    require(ASSERTION, 1 == subject.size());
+    //
+    { auto const peeked = subject.peek(); // <----------------------------------------- test this
+      require(ASSERTION, peeked.has_value());
+      auto const peeked_picture = to_string(*peeked);
+      require(ASSERTION, peeked_picture == original); }
+    // WATCHOUT  we cannot query subject while peeked is living becaues it holds locks
+    require(ASSERTION, 1 == subject.size());
+  }
+}
+#endiv

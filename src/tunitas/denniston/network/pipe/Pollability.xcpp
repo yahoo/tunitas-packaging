@@ -25,10 +25,10 @@ namespace tunitas::denniston::network::pipe {
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.channel.Variability
+#import tunitas.denniston.concurrent.channel.Variability
 #forward tunitas.denniston.network.pipe.readable.Variable
 #forward tunitas.denniston.network.pipe.readable.Fixed
-class tunitas::denniston::network::pipe::Pollability : public channel::Variability {
+class tunitas::denniston::network::pipe::Pollability : public concurrent::channel::Variability {
 protected:
   virtual ~Pollability() = default;
   friend class readable::Variable;

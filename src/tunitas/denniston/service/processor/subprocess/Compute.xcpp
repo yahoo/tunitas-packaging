@@ -72,8 +72,8 @@ namespace tunitas::denniston::service::processor::subprocess {
   auto Compute::run() noexcept -> void try {
     barrier.wait([this]{ return !owner.hpke.has_value(); });
     while (!owner.is_shutting_down()) {
-      barrier.wait([this]{ return !owner.queue.empty(); });
-      auto got = owner.queue.pop();
+      barrier.wait([this]{ return !owner.initializations.empty() || !owner.continuations.empty(); });
+      auto got = owner.initializations.pop();
 #warning WRITETHIS
     }
     //

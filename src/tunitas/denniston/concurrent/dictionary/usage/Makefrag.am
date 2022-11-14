@@ -1,0 +1,14 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_concurrent_dictionary_usage_SUBSOURCES = \
+  obj/src/tunitas/denniston/concurrent/dictionary/usage/namespace.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/usage/Keyable.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/usage/Valuable.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/usage/Origin.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/usage/Key_From.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/usage/Comparable_From.cpp \
+  $(end)

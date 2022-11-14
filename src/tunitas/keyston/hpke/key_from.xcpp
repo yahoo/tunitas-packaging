@@ -11,7 +11,7 @@ namespace tunitas::keyston::hpke {
   //
   // Specification:
   //
-  //   As expected by denniston::dictionary::Dictionary<...>
+  //   As expected by denniston::concurrent::dictionary::Dictionary<...>
   //
   // Design:
   //
@@ -21,7 +21,7 @@ namespace tunitas::keyston::hpke {
   // Usage:
   //
   //   Obvious.
-  //   But see denniston::dictionary::usage::Key_From
+  //   But see denniston::concurrent::dictionary::usage::Key_From
   //
   inline auto key_from(Configuration const &) -> id::Configuration const &;
 }
@@ -32,11 +32,11 @@ namespace tunitas::keyston {
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.dictionary.usage.Key_From
-#import tunitas.denniston.dictionary.usage.Valuable
+#import tunitas.denniston.concurrent.dictionary.usage.Key_From
+#import tunitas.denniston.concurrent.dictionary.usage.Valuable
 namespace {
   namespace testate {
-    namespace usage = tunitas::denniston::dictionary::usage;
+    namespace usage = tunitas::denniston::concurrent::dictionary::usage;
     using tunitas::keyston::hpke::Configuration;
     static_assert(usage::Key_From<Configuration>);
     static_assert(usage::Valuable<Configuration>);

@@ -68,7 +68,7 @@ namespace tunitas::denniston::service::instance {
       }
       if (auto red=gateway.read_if(); red) {
         log.format("red from gateway");
-        if (auto down=downcast<Status>(*red); nullptr != down) {
+        if (auto down=downcast_get<Status>(*red); nullptr != down) {
           log.format("status returned {}", down->status.message());
         }
       }

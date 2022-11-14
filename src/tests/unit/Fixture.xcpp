@@ -12,11 +12,9 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
-#import tests.unit.channel.Fixture
 #import tests.unit.concurrent.Fixture
 #import tests.unit.count.Fixture
 #import tests.unit.denniston.Fixture
-#import tests.unit.dictionary.Fixture
 #import tests.unit.driver.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.index.Fixture
@@ -31,17 +29,14 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.role.Fixture
 #import tests.unit.service.Fixture
 #import tests.unit.task.Fixture
-#import tests.unit.variable.Fixture
 #import tests.unit.version.Fixture
 #import tests.unit.want.Fixture
 #import tests.unit.world.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
-  series << add<channel::Fixture>()
-         << add<concurrent::Fixture>()
+  series << add<concurrent::Fixture>()
          << add<count::Fixture>()
          << add<denniston::Fixture>()
-         << add<dictionary::Fixture>()
          << add<driver::Fixture>()
          << add<exception::Fixture>()
          << add<index::Fixture>()
@@ -56,7 +51,6 @@ auto tests::unit::Fixture::suite() -> Suite {
          << add<role::Fixture>()
          << add<service::Fixture>()
          << add<task::Fixture>()
-         << add<variable::Fixture>()
          << add<version::Fixture>()
          << add<want::Fixture>()
          << add<world::Fixture>()

@@ -11,7 +11,7 @@ namespace tunitas::keyston::protocol::report {
   //
   // Specification:
   //
-  //   As expected by denniston::dictionary::Dictionary<...>
+  //   As expected by denniston::concurrent::dictionary::Dictionary<...>
   //
   // Design:
   //
@@ -22,7 +22,7 @@ namespace tunitas::keyston::protocol::report {
   // Usage:
   //
   //   Obvious
-  //   But see denniston::dictionary::usage::Key_From
+  //   But see denniston::concurrent::dictionary::usage::Key_From
   //
   inline auto key_from(Metadata const &) -> id::Report const &;
 }
@@ -33,12 +33,12 @@ namespace tunitas::keyston::protocol {
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.dictionary.usage.Valuable
-#import tunitas.denniston.dictionary.usage.Key_From
+#import tunitas.denniston.concurrent.dictionary.usage.Valuable
+#import tunitas.denniston.concurrent.dictionary.usage.Key_From
 #import tunitas.keyston.protocol.report.Produced
 namespace {
   namespace testate {
-    namespace usage = tunitas::denniston::dictionary::usage;
+    namespace usage = tunitas::denniston::concurrent::dictionary::usage;
     using namespace tunitas::keyston::protocol::report;
     using enum tunitas::keyston::protocol::Slice;
     static_assert(usage::Key_From<Produced<WHOLE>>);

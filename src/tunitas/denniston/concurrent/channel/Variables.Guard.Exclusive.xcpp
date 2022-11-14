@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// An exclusive lock
+//
+// Specification:
+//
+//   Upon construction, lock (the mutex)
+//   Upon destruction, unlock (the mutex)
+//   Upon move, transfer control to the successor object
+//   release() drops the connection and the lock (mutex) is not released upon destruction.
+//
+// Design:
+//
+//   Use a pointer so that it an be moved
+//   The null pointer value also signals "don't unlock"
+//
+// Usage:
+//
+//   auto variables = Variables{...somehow...};
+//   {
+//     auto guard = Variables::Guard::Exclusive{variables};
+//     ...do guarded things...
+//     auto reguard = move(guard);
+//     ...do more guarded things...
+//   }
+//
+#include <hpp/tunitas.denniston.concurrent.channel.Variables>
+#endiv
+#divert <hpp>
+namespace tunitas::denniston::concurrent::channel {
+  class Variables::Guard::Exclusive {
+    Variables *variables{};
+  public:
+    inline explicit Exclusive(Variables &);
+    inline ~Exclusive();
+    inline Exclusive(Exclusive &&);
+    inline auto operator=(Exclusive &&) -> Exclusive &;;
+    inline auto release() -> void;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::concurrent::channel {
+  Variables::Guard::Exclusive::Exclusive(Variables &v) : variables{&v} { variables->lock.lock(); }
+  Variables::Guard::Exclusive::~Exclusive() {
+    if (variables) {
+      variables->lock.unlock();
+    }
+  }
+  Variables::Guard::Exclusive::Exclusive(Exclusive &&other) { swap(other.variables, this->variables); }
+  auto Variables::Guard::Exclusive::operator=(Exclusive &&other) -> Exclusive & {
+    swap(other.variables, this->variables);
+    return *this;
+  }
+  auto Variables::Guard::Exclusive::release() -> void { variables = nullptr; }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::concurrent::channel;
+    static_assert(not std::is_default_constructible_v<Variables::Guard::Exclusive>);
+    static_assert(not std::is_copy_constructible_v<Variables::Guard::Exclusive>);
+    static_assert(    std::is_move_constructible_v<Variables::Guard::Exclusive>);
+    static_assert(not std::is_copy_assignable_v<Variables::Guard::Exclusive>);
+    static_assert(    std::is_move_assignable_v<Variables::Guard::Exclusive>);
+    static_assert(    std::is_swappable_v<Variables::Guard::Exclusive>);
+  }
+}
+#endiv

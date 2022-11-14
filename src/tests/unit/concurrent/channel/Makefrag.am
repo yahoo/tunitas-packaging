@@ -1,0 +1,21 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_unit_concurrent_channel_SUBSOURCES = \
+  check/obj/src/tests/unit/concurrent/channel/namespace.cpp \
+  check/obj/src/tests/unit/concurrent/channel/Channel.cpp \
+  check/obj/src/tests/unit/concurrent/channel/Fixture.cpp \
+  \
+  check/obj/src/tests/unit/concurrent/channel/Generator.template.cpp \
+  check/obj/src/tests/unit/concurrent/channel/Generator.int.cpp \
+  check/obj/src/tests/unit/concurrent/channel/Generator.Message.cpp \
+  check/obj/src/tests/unit/concurrent/channel/Generator.string.Storage.cpp \
+  check/obj/src/tests/unit/concurrent/channel/Generator.cpp \
+  \
+  $(tests_unit_concurrent_channel_message_SUBSOURCES) \
+  $(end)
+#
+include src/tests/unit/concurrent/channel/message/Makefrag.am

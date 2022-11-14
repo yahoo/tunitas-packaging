@@ -14,10 +14,10 @@ std_SUBSOURCES = \
   obj/src/std/iterator_traits/tunitas.denniston.preparation.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
   obj/src/std/iterator_traits/tunitas.denniston.report.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
   \
-  obj/src/std/tuple_size/tunitas.denniston.dictionary.Inserted.VALUE.GUARD.cpp \
+  obj/src/std/tuple_size/tunitas.denniston.concurrent.dictionary.Inserted.VALUE.GUARD.cpp \
   obj/src/std/tuple_size/tunitas.denniston.role.package_io.Indexed.cpp \
   \
-  obj/src/std/tuple_element/N.tunitas.denniston.dictionary.Inserted.VALUE.GUARD.cpp \
+  obj/src/std/tuple_element/N.tunitas.denniston.concurrent.dictionary.Inserted.VALUE.GUARD.cpp \
   obj/src/std/tuple_element/N.tunitas.denniston.role.package_io.Indexed.cpp \
   \
   obj/src/std/variant_alternative/N.tunitas.denniston.role.package_io.Bundled.cpp \

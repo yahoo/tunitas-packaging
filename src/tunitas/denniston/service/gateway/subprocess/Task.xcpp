@@ -33,7 +33,7 @@ namespace tunitas::denniston::service::gateway::subprocess {
 #endiv
 #divert <hpp>
 #import tunitas.Optional
-#import tunitas.denniston.channel.Channel
+#import tunitas.denniston.concurrent.channel.Channel
 #import tunitas.denniston.count // for count::Job
 #import tunitas.denniston.protocol.initialization.Slicer
 #import tunitas.denniston.report.Definition
@@ -50,7 +50,7 @@ namespace tunitas::denniston::service::gateway {
     using Ancestor = Prototype;
   public:
     using Corpus = task::Corpus<Genus::GATEWAY>;
-    using Delegating = channel::Channel<keyston::protocol::report::Produced<keyston::protocol::WHOLE>>;
+    using Delegating = concurrent::channel::Channel<keyston::protocol::report::Produced<keyston::protocol::WHOLE>>;
     using Preparing = report::Series<report::Definition>;
     using Prepared = Preparing;
     //

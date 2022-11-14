@@ -59,10 +59,10 @@ namespace tunitas::denniston {
 }
 #endiv
 #divert <cpp>
-#import tunitas.denniston.dictionary.usage.Key_From
+#import tunitas.denniston.concurrent.dictionary.usage.Key_From
 namespace {
   namespace testate {
-    namespace usage = tunitas::denniston::dictionary::usage;
+    namespace usage = tunitas::denniston::concurrent::dictionary::usage;
     using namespace tunitas::denniston::job;
     //
     // At present this thing is semiregular, though we might move it to uncopyable-but-movable.

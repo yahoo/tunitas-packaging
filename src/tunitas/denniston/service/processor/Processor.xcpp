@@ -33,6 +33,8 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.denniston.concurrent.Variable
 #forward tunitas.denniston.World
 #import tunitas.denniston.process.Reactor
+#import tunitas.denniston.protocol.packet.Pointer
+#import tunitas.denniston.protocol.packet.Request
 #import tunitas.denniston.service.processor.Subprocesses
 #import tunitas.keyston.hpke.Configuration
 class tunitas::denniston::service::processor::Processor : public process::Reactor {
@@ -48,7 +50,8 @@ public:
   Subprocesses subprocesses{};
   //
   concurrent::Variable<keyston::hpke::Configuration> hpke{};
-  concurrent::Channel<int> queue{};
+  concurrent::Channel<protocol::packet::Pointer<Request<Post::INITIALIZATION>>> initializations{};
+  concurrent::Channel<protocol::packet::Pointer<Request<Post::CONTINUATION>>> continuations{};
 };
 #endiv
 #divert <ipp>
@@ -66,6 +69,12 @@ namespace tunitas::denniston::service::processor {
 }
 #endiv
 #divert <cpp>
+#import tunitas.denniston.protocol.packet.cast
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Request
+#import tunitas.denniston.protocol.packet.Response
 #import tunitas.denniston.role.io
 #import tunitas.denniston.service.processor.subprocess.make
 #import tunitas.denniston.service.processor.subprocess.Boot
@@ -86,11 +95,28 @@ namespace tunitas::denniston::service::processor {
   auto Processor::react() -> void {
     if (auto red=configuration.read_if(); red) {
       log.format("red from configuration (and ignoring it)");
-      // ... do something ...
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        log.format("from configuration failure: {}", got->status.message());
+      } else if (auto got=downcast_get<Response<Get::HPKE>>(*red); nullptr != got) {
+        hpke = got->configuration;
+        // And yet there is only the one subprocess (boot) at this point.
+        for (auto &sub : subprocesses) {
+          sub->barrier.notify();
+        }
+      } else {
+        log.format("from configuration, something else (ignored)");
+      }
     }
     if (auto red=gateway.read_if(); red) {
       log.format("red from gateway (and ignoring it)");
-      // ... do something ...
+      // if (auto got=downcast_get<Request<Post::INITIALIZATION>>(*red); nullptr != got) {
+      if (is<Request<Post::INITIALIZATION>>(*red)) {
+        initializations.push_back(downcast<Request<Post::INITIALIZATION>>(otherwise::Exception{}, move(*red)));
+      } else if (is<Request<Post::CONTINUATION>>(*red)) {
+        continuations.push_back(downcast<Request<Post::CONTINUATION>>(otherwise::Exception{}, move(*red)));
+      } else {
+        log.format("from gateway, something else (ignored)");
+      }
     }
   }
 }

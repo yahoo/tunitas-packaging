@@ -115,7 +115,7 @@ namespace tunitas::denniston::service::gateway {
   auto Gateway::react() -> void {
     for (auto &client : clients) {
       if (auto red=client.read_if(); red) {
-        if (auto got=downcast<Report<Slice::WHOLE>>(*red); nullptr != got) {
+        if (auto got=downcast_get<Report<Slice::WHOLE>>(*red); nullptr != got) {
           respond(client, *got, "some client"sv);
         }
       }
@@ -125,9 +125,9 @@ namespace tunitas::denniston::service::gateway {
       // ... do something ...
     }
     if (auto red=configuration.read_if(); red) {
-      if (auto got=downcast<Status>(*red); nullptr != got) {
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
         log.format("from configuration failure: {}", got->status.message());
-      } else if (auto got=downcast<Response<Get::TASKS>>(*red); nullptr != got) {
+      } else if (auto got=downcast_get<Response<Get::TASKS>>(*red); nullptr != got) {
         log.format("from configuration tasks: count {}", got->tasks.size());
         for (auto &given : got->tasks) {
           auto [noob, inserted] = tasks.insert({move(given)});
@@ -149,7 +149,7 @@ namespace tunitas::denniston::service::gateway {
       auto role = *tunitas::keyston::vdaf::recover_processor_species(std::nothrow, shard);
       if (auto red=processor.read_if(); red) {
         log.format("red from a processor (and ignoring it)");
-        if (auto got=downcast<Response<Get::INITIALIZATION>>(*red); nullptr != got) {
+        if (auto got=downcast_get<Response<Get::INITIALIZATION>>(*red); nullptr != got) {
           if (auto found=jobs.find(got->destination); found) {
             auto project = Project_To::Positioned{got->payload.preparation_steps};
             if (auto inserted=(*found).subprocess->gather.insert(shard, project.begin(), project.end()); Gather::Inserted::DUPLICATE == inserted) {
@@ -158,7 +158,7 @@ namespace tunitas::denniston::service::gateway {
           } else {
             log.format("processor {} sends an initialization response for unknown job {} (ignoring it)", role, got->destination);
           }
-        } else if (auto got=downcast<Response<Get::CONTINUATION>>(*red); nullptr != got) {
+        } else if (auto got=downcast_get<Response<Get::CONTINUATION>>(*red); nullptr != got) {
           log.format("processor {} sends a continuation response for job {} (ignoring it)", role, got->destination);
         } else {
           log.format("from processor {}, something else (ignored)", role);

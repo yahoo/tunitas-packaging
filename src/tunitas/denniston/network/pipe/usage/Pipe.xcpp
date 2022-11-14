@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <hpp>
 #import tunitas.denniston.network.pipe.required.Pipe
-#import tunitas.denniston.channel.usage.Channel
+#import tunitas.denniston.concurrent.channel.usage.Channel
 namespace tunitas::denniston::network::pipe::usage {
   //
   // Is the PIPE an instance of something shaped like Pipe<TYPE>, for any TYPE?
@@ -16,7 +16,7 @@ namespace tunitas::denniston::network::pipe::usage {
   //   Oh, Come On. You know how this works.
   //   
   template<typename PIPE> concept Pipe = required::Pipe<PIPE> && requires(PIPE pipe) {
-    requires channel::usage::Channel<PIPE>;
+    requires concurrent::channel::usage::Channel<PIPE>;
     { pipe.is_ready_to_read() } -> convertible_to<bool>;
   };
 }

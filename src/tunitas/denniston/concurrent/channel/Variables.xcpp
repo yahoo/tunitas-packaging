@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::concurrent::channel {
+  //
+  // The (synchronization) variables of the channel.
+  //
+  // Specification:
+  //
+  //    A "monitor"
+  //
+  // Design:
+  //
+  //   The lock is a bare mutex.
+  //   The lock is public and named 'lock'
+  //   The lock is well-known to the process::readable system in Pollability
+  //
+  //   These are all the thread synchronization primitives all in one place.
+  //   Depending, the Predicate, the monitored condition will switch between the two Condition variables.
+  // 
+  //   Because of std::mutex, Variables is neither copyable nor movable. 
+  //
+  // Usage: see Channel
+  //
+  struct Variables;
+}
+#endiv
+#divert <hpp>
+#import std.mutex
+#import std.condition_variable
+struct tunitas::denniston::concurrent::channel::Variables {
+  using Mutex = std::mutex;
+  using Condition = std::condition_variable;
+  Mutex lock{};
+  Condition nonempty{};
+  Condition nonfull{};
+  struct Guard {
+    struct Exclusive;
+    struct Condition;
+  };
+  struct Predicate;
+};
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::concurrent::channel;
+    static_assert(std::is_default_constructible_v<Variables>);
+    static_assert(not std::is_copy_constructible_v<Variables>);
+    static_assert(not std::is_move_constructible_v<Variables>);
+    static_assert(not std::is_copy_assignable_v<Variables>);
+    static_assert(not std::is_move_assignable_v<Variables>);
+    static_assert(not std::is_swappable_v<Variables>);
+  }
+}
+#endiv

@@ -43,7 +43,7 @@ namespace tunitas::denniston::network {
     template<required::iterator::Socket_Move<Value> ITERATOR> inline auto write(ITERATOR first, ITERATOR last) -> void;
     inline auto read() -> Value; // ................ blocks until there is something to read
     inline auto read_if() -> Optional<Value>; // ... does not block
-    using Peeked = channel::Peek<Value>;
+    using Peeked = concurrent::channel::Peek<Value>;
     inline auto peek() -> Peeked;
     explicit Interface() = default;
   protected:

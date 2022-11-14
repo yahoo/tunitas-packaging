@@ -19,6 +19,9 @@ protected:
 };
 #endiv
 #divert <cpp>
+#import tests.unit.concurrent.channel.Fixture
+#import tests.unit.concurrent.dictionary.Fixture
+#import tests.unit.concurrent.variable.Fixture
 auto tests::unit::concurrent::Fixture::suite() -> Suite {
   auto series = Stream{"concurrent"sv};
   series << []{
@@ -29,6 +32,9 @@ auto tests::unit::concurrent::Fixture::suite() -> Suite {
                   << END;
               return use;
             }()
+         << add<channel::Fixture>()
+         << add<dictionary::Fixture>()
+         << add<variable::Fixture>()
          << END;
   return settle(series);
 }
@@ -51,9 +57,9 @@ namespace tests::unit::concurrent {
     require(ASSERTION, 3 == a3);
   }
   auto Fixture::test_usage_Dictionary() -> void {
-    using enum ::tunitas::denniston::dictionary::Complexity;
-    using enum ::tunitas::denniston::dictionary::Concurrency;
-    using ::tunitas::denniston::dictionary::Parameters;
+    using enum ::tunitas::denniston::concurrent::dictionary::Complexity;
+    using enum ::tunitas::denniston::concurrent::dictionary::Concurrency;
+    using ::tunitas::denniston::concurrent::dictionary::Parameters;
     using Subject = library::Dictionary<LINEAR, SEQUENTIAL, Parameters<string::Storage, Index, Record>>;
     auto subject = Subject{};
     require(ASSERTION, subject.empty());

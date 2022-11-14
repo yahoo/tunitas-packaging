@@ -9,8 +9,8 @@ nonstd_SUBSOURCES = \
   obj/src/nonstd/iterator/Traits/tunitas.denniston.report.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
   obj/src/nonstd/iterator/Traits/tunitas.denniston.preparation.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
   \
-  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.linear.Concurrent.KEY.INDEX.VALUE.cpp \
-  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.linear.Sequential.KEY.INDEX.VALUE.cpp \
-  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.logarithmic.Concurrent.KEY.VALUE.cpp \
-  obj/src/nonstd/iterator/Qualified/tunitas.denniston.dictionary.logarithmic.Sequential.KEY.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.linear.Concurrent.KEY.INDEX.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.linear.Sequential.KEY.INDEX.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.logarithmic.Concurrent.KEY.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.logarithmic.Sequential.KEY.VALUE.cpp \
   $(end)

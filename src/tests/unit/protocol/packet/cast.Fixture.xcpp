@@ -1,0 +1,131 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet
+#import tunitas.denniston.protocol.Packet
+#import tunitas.otherwise
+namespace tests::unit::protocol::packet::cast {
+  class Fixture;
+  using ::tunitas::denniston::protocol::Packet;
+  namespace otherwise = ::tunitas::otherwise;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.feature.Cast
+struct tests::unit::protocol::packet::cast::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_upcast() -> void;
+  auto test_downcast_get() -> void;
+  //
+  auto test_downcast_Tuple_good() -> void;
+  auto test_downcast_Tuple_fail() -> void;
+  auto test_downcast_Exception_good() -> void;
+  auto test_downcast_Exception_fail() -> void;
+  auto test_downcast_Disposal_good() -> void;
+  auto test_downcast_Disposal_fail() -> void;
+protected:
+  using Failure = ::tunitas::exception::feature::Cast;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::protocol::packet::cast::Fixture::suite() -> Suite {
+  auto series = Stream{"cast"sv};
+  series << []{
+              auto up = Stream{"downcast"sv};
+              up << add("upcast", &Fixture::test_upcast)
+                   << END;
+              return up;
+            }()
+         << []{
+              auto down = Stream{"down"sv};
+              down << add("get", &Fixture::test_downcast_get)
+                   << []{
+                        auto other = Stream{"otherwise"sv};
+                        other << []{
+                                   auto tup = Stream{"tuple"sv};
+                                   tup << add("good", &Fixture::test_downcast_Tuple_good)
+                                       << add("good", &Fixture::test_downcast_Tuple_fail)
+                                       << END;
+                                   return tup;
+                                 }()
+                              << []{
+                                   auto exc = Stream{"Exception"sv};
+                                   exc << add("good", &Fixture::test_downcast_Exception_good)
+                                       << add("fail", &Fixture::test_downcast_Exception_fail)
+                                       << END;
+                                   return exc;
+                                 }()
+                              << []{
+                                   auto dis = Stream{"Disposal"sv};
+                                   dis << add("good", &Fixture::test_downcast_Disposal_good)
+                                       << add("fail", &Fixture::test_downcast_Disposal_fail)
+                                       << END;
+                                   return dis;
+                                 }()
+                              << END;
+                        return other;
+                      }()
+                   << END;
+              return down;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.protocol.packet.cast // upast, downcast_get, downcast
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Quit
+#import tunitas.denniston.protocol.packet.make
+namespace tests::unit::protocol::packet::cast {
+  auto Fixture::test_upcast() -> void {
+    auto self = library::make<library::Status>();
+    Packet up0 = library::make<library::Status>();
+    Packet up1 = move(self);
+    require(ASSERTION, up0 != up1);
+  }
+  auto Fixture::test_downcast_get() -> void {
+    Packet up = library::make<library::Status>();
+    auto *yes = library::downcast_get<library::Status>(up);
+    require(ASSERTION, nullptr != yes);
+    auto *no = library::downcast_get<library::Quit>(up); // <------------------------------ test this (the pointer diagnostic)
+    require(ASSERTION, nullptr == no);
+  }
+  auto Fixture::test_downcast_Tuple_good() -> void {
+    Packet up = library::make<library::Status>();
+    auto [yes, no] = library::downcast<library::Status>(otherwise::Tuple{}, move(up)); // <---------------------------- test this (successful downcast)
+    require(ASSERTION, nullptr != yes.get());
+    require(ASSERTION, nullptr == no.get());
+  }
+  auto Fixture::test_downcast_Tuple_fail() -> void {
+    Packet up = library::make<library::Status>();
+    auto [yes, no] = library::downcast<library::Quit>(otherwise::Tuple{}, move(up)); // <------------------------------ test this (fails to downcast)
+    require(ASSERTION, nullptr == yes.get());
+    require(ASSERTION, nullptr != no.get());
+  }
+  auto Fixture::test_downcast_Exception_good() -> void {
+    Packet up = library::make<library::Status>();
+    auto yes = library::downcast<library::Status>(otherwise::Exception{}, move(up)); // <------------------------ test this (successful downcast)
+    require(ASSERTION, nullptr != yes.get());
+  }
+  auto Fixture::test_downcast_Exception_fail() -> void try {
+    Packet up = library::make<library::Status>();
+    library::downcast<library::Quit>(otherwise::Exception{}, move(up)); // <------------------------------------- test this (fails to downcast)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_downcast_Disposal_good() -> void {
+    Packet up = library::make<library::Status>();
+    auto yes = library::downcast<library::Status>(otherwise::Disposal{}, move(up)); // <------------------------- test this (successful downcast)
+    require(ASSERTION, nullptr != yes.get());
+  }
+  auto Fixture::test_downcast_Disposal_fail() -> void {
+    Packet up = library::make<library::Status>();
+    auto no = library::downcast<library::Quit>(otherwise::Disposal{}, move(up)); // <---------------------------- test this (fails to downcast, adn disposal)
+    require(ASSERTION, nullptr == no.get());
+  }
+}
+#endiv

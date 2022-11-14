@@ -1,0 +1,139 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet
+#import tunitas.denniston.protocol.Packet
+#import tunitas.keyston.transport.error.Code
+namespace tests::unit::protocol::packet::make {
+  class Fixture;
+  namespace library = ::tunitas::denniston::protocol::packet;
+  namespace protocol = ::tunitas::denniston::protocol;
+  using ::tunitas::denniston::protocol::Packet;
+  using E = ::tunitas::keyston::transport::error::Code;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.protocol.packet.Status
+#forward tunitas.denniston.protocol.packet.Response
+#forward tunitas.denniston.protocol.packet.Quit
+namespace tests::unit::protocol::packet {
+  struct make::Fixture : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    template<typename SUBJECT> auto test_make() -> void;
+  };
+  namespace make {
+    template<> auto Fixture::test_make<library::Status>() -> void;
+    template<> auto Fixture::test_make<library::Request<library::Post::INITIALIZATION>>() -> void;
+    template<> auto Fixture::test_make<library::Request<library::Post::CONTINUATION>>() -> void;
+    template<> auto Fixture::test_make<library::Response<library::Get::INITIALIZATION>>() -> void;
+    template<> auto Fixture::test_make<library::Response<library::Get::CONTINUATION>>() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.denniston.protocol.packet.cast
+#import tunitas.denniston.protocol.packet.make
+namespace tests::unit::protocol::packet::make {
+  template<typename SUBJECT> auto Fixture::test_make() -> void {
+    auto made = library::make<SUBJECT>(); // <---------------------------------------- test this
+    require(ASSERTION, nullptr != made.get());
+    require(ASSERTION, sizeof (made));
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Ping
+#import tunitas.denniston.protocol.packet.Provision
+#import tunitas.denniston.protocol.packet.Quit
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Request
+#import tunitas.denniston.protocol.packet.Response
+#import tunitas.denniston.protocol.packet.Report
+auto tests::unit::protocol::packet::make::Fixture::suite() -> Suite {
+  auto series = Stream{"make"sv};
+  series << add("Ping", &Fixture::test_make<library::Ping>)
+         << add("Provision", &Fixture::test_make<library::Provision>)
+         << add("Status", &Fixture::test_make<library::Status>)
+         << []{
+              auto init = Stream{"initialization"sv};
+              init << add("Request", &Fixture::test_make<library::Request<library::Post::INITIALIZATION>>)
+                   << add("Response", &Fixture::test_make<library::Response<library::Get::INITIALIZATION>>)
+                   << END;
+              return init;
+            }()
+         << []{
+              auto cont = Stream{"continuation"sv};
+              cont << add("Request", &Fixture::test_make<library::Request<library::Post::CONTINUATION>>)
+                   << add("Response", &Fixture::test_make<library::Response<library::Get::CONTINUATION>>)
+                   << END;
+              return cont;
+            }()
+         << []{
+              auto repo = Stream{"report"sv};
+              repo << add("WHOLE", &Fixture::test_make<library::Report<library::Slice::WHOLE>>)
+                   << add("SHARE", &Fixture::test_make<library::Report<library::Slice::SHARE>>)
+                   << END;
+              return repo;
+            }()
+         << []{
+              auto hpke = Stream{"hpke"sv};
+              hpke << add("Query", &Fixture::test_make<library::Query<library::Get::HPKE>>)
+                   << add("Response", &Fixture::test_make<library::Response<library::Get::HPKE>>)
+                   << END;
+              return hpke;
+            }()
+         << []{
+              auto tasks = Stream{"tasks"sv};
+              tasks << add("Query", &Fixture::test_make<library::Query<library::Get::TASKS>>)
+                    << add("Response", &Fixture::test_make<library::Response<library::Get::TASKS>>)
+                    << END;
+              return tasks;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.protocol.id // for id::Job
+#import tunitas.keyston.protocol.initialization.Request
+#import tunitas.keyston.protocol.continuation.Request
+namespace tests::unit::protocol::packet::make {
+  template<> auto Fixture::test_make<library::Request<library::Post::INITIALIZATION>>() -> void {
+    auto payload = ::tunitas::keyston::protocol::initialization::Request{};
+    auto made = library::make<library::Request<library::Post::INITIALIZATION>>(payload);
+    require(ASSERTION, sizeof (made));
+  }
+  template<> auto Fixture::test_make<library::Request<library::Post::CONTINUATION>>() -> void {
+    auto payload = ::tunitas::keyston::protocol::continuation::Request{};
+    auto made = library::make<library::Request<library::Post::CONTINUATION>>(payload);
+    require(ASSERTION, sizeof (made));
+  }
+  template<> auto Fixture::test_make<library::Response<library::Get::INITIALIZATION>>() -> void {
+    auto destination = ::tunitas::keyston::protocol::id::Job{};
+    auto payload = ::tunitas::keyston::protocol::initialization::Response{};
+    auto made = library::make<library::Response<library::Get::INITIALIZATION>>(destination, payload);
+    require(ASSERTION, sizeof (made));
+  }
+  template<> auto Fixture::test_make<library::Response<library::Get::CONTINUATION>>() -> void {
+    auto destination = ::tunitas::keyston::protocol::id::Job{};
+    auto payload = ::tunitas::keyston::protocol::continuation::Response{};
+    auto made = library::make<library::Response<library::Get::CONTINUATION>>(destination, payload);
+    require(ASSERTION, sizeof (made));
+  }
+  template<> auto Fixture::test_make<library::Status>() -> void {
+    {
+      auto made = library::make<library::Status>(); // <---------------------------------------- test this (the default constructor)
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    } {
+      using E = ::tunitas::keyston::transport::error::Code::Enumeration;
+      auto made = library::make<library::Status>(E::FAILURE); // <---------------------------------------- test this
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    }
+  }
+}
+#endiv

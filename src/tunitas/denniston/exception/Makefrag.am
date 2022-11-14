@@ -12,6 +12,7 @@ tunitas_denniston_exception_SUBSOURCES = \
   obj/src/tunitas/denniston/exception/Failure.cpp \
   obj/src/tunitas/denniston/exception/Invalid.cpp \
   obj/src/tunitas/denniston/exception/Invariant.cpp \
+  obj/src/tunitas/denniston/exception/Null.cpp \
   obj/src/tunitas/denniston/exception/Range.cpp \
   obj/src/tunitas/denniston/exception/Optional.cpp \
   $(end)

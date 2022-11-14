@@ -89,20 +89,20 @@ namespace tunitas::denniston::service::instance {
       }
     }
     if (auto red=gateway.read_if(); red) {
-      if (auto got=downcast<Query<Get::TASKS>>(*red); nullptr != got) {
+      if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
         respond(gateway, *got, "gateway");
       }
     }
     for (auto &face : clients) {
       if (auto red=face.read_if(); red) {
-        if (auto got=downcast<Query<Get::TASKS>>(*red); nullptr != got) {
+        if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
           respond(face, *got, "some client");
         }
       }
     }
     for (auto &face : processors) {
       if (auto red=face.read_if(); red) {
-        if (auto got=downcast<Query<Get::TASKS>>(*red); nullptr != got) {
+        if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
           respond(face, *got, "some processor");
         }
       }

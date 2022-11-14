@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet
+#import tunitas.denniston.protocol.Packet
+#import tunitas.keyston.transport.error.Code
+namespace tests::unit::protocol::packet {
+  class Fixture;
+  namespace library = ::tunitas::denniston::protocol::packet;
+  namespace protocol = ::tunitas::denniston::protocol;
+  using ::tunitas::denniston::protocol::Packet;
+  using E = ::tunitas::keyston::transport::error::Code;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::packet::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.protocol.packet.cast.Fixture
+#import tests.unit.protocol.packet.is.Fixture
+#import tests.unit.protocol.packet.make.Fixture
+auto tests::unit::protocol::packet::Fixture::suite() -> Suite {
+  auto series = Stream{"packet"sv};
+  series << add<cast::Fixture>()
+         << add<is::Fixture>()
+         << add<make::Fixture>()
+         << END;
+  return settle(series);
+}
+#endiv

@@ -1,0 +1,24 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.Reference
+#import std.is_const
+namespace tunitas::denniston::concurrent::variable::required {
+  //
+  // Is this type suitable for use in Variable<TYPE>?
+  // This MUST be diagnosable without the complete of TYPE.
+  // At least, will it work in an Optional?
+  //
+  //  see usage::Valuable<TYPE> which can use the complete type of TYPE
+  //
+  // [[o.rly?]] Absent the complete type of TYPE, there is nothing to say.
+  //
+  template<typename VALUE> concept Valuable = requires(VALUE) {
+    requires !Reference<VALUE>;
+    requires !std::is_const_v<VALUE>;
+  };
+}
+#endiv

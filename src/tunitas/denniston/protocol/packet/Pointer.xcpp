@@ -28,8 +28,13 @@ namespace tunitas::denniston::protocol::packet {
 #divert <hpp>
 #import std.unique_ptr
 namespace tunitas::denniston::protocol {
+  namespace packet {
+    using std::move;
+    template<required::Packet PACKET> inline auto swap(Pointer<PACKET> &, Pointer<PACKET> &) noexcept -> void;
+  }
   template<packet::required::Packet PACKET> struct packet::Pointer : public std::unique_ptr<PACKET> {
     using Ancestor = std::unique_ptr<PACKET>;
+    friend auto packet::swap<>(Pointer &, Pointer &) noexcept -> void;
   public:
     Pointer() = default;
     using Ancestor::unique_ptr;
@@ -37,5 +42,13 @@ namespace tunitas::denniston::protocol {
     using Ancestor::operator=;
     Pointer &operator=(Ancestor &&donor) { Ancestor::operator=(forward<Ancestor>(donor)); return *this; }
   };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol {
+  template<packet::required::Packet PACKET> auto packet::swap(Pointer<PACKET> &a, Pointer<PACKET> &b) noexcept -> void {
+    typename Pointer<PACKET>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
 }
 #endiv

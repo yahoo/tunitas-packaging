@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.channel.required.Channelable
+#import tunitas.denniston.concurrent.channel.required.Channelable
 namespace tunitas::denniston::network::pipe::required {
   //
   // Is this type suitable for use as a Pipe<TYPE>
@@ -22,6 +22,6 @@ namespace tunitas::denniston::network::pipe::required {
   //
   //   You know how these things get used.
   //
-  template<typename TYPE> concept Pipeable = channel::required::Channelable<TYPE>;
+  template<typename TYPE> concept Pipeable = concurrent::channel::required::Channelable<TYPE>;
 }
 #endiv
