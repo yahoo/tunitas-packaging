@@ -6,7 +6,8 @@
 #divert <fpp>
 #forward tunitas.denniston.service.processor.subprocess.Prototype
 #forward tunitas.denniston.service.processor.subprocess.Boot
-#forward tunitas.denniston.service.processor.subprocess.Compute
+#forward tunitas.denniston.service.processor.subprocess.Initialization
+#forward tunitas.denniston.service.processor.subprocess.Continuation
 namespace tunitas::denniston::service::processor::subprocess::traits {
   //
   // a declaration of Processor Subprocess traits
@@ -15,7 +16,8 @@ namespace tunitas::denniston::service::processor::subprocess::traits {
   template<typename> struct Subprocess;
   template<> struct Subprocess<Prototype>;
   template<> struct Subprocess<Boot>;
-  template<> struct Subprocess<Compute>;
+  template<> struct Subprocess<Initialization>;
+  template<> struct Subprocess<Continuation>;
 }
 #endiv
 #divert <hpp>
@@ -24,9 +26,10 @@ namespace tunitas::denniston::service::processor::subprocess::traits {
 namespace tunitas::denniston::service::processor::subprocess {
   template<typename TYPE> struct traits::Subprocess : public std::false_type { };
   namespace traits {
-    template<> struct Subprocess<Prototype> : public std::true_type { };
-    template<> struct Subprocess<Boot>      : public std::true_type { };
-    template<> struct Subprocess<Compute>   : public std::true_type { };
+    template<> struct Subprocess<Prototype>        : public std::true_type { };
+    template<> struct Subprocess<Boot>             : public std::true_type { };
+    template<> struct Subprocess<Initialization>   : public std::true_type { };
+    template<> struct Subprocess<Continuation>     : public std::true_type { };
   }
 }
 #endiv

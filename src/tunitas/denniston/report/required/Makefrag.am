@@ -7,4 +7,5 @@
 tunitas_denniston_report_required_SUBSOURCES = \
   obj/src/tunitas/denniston/report/required/namespace.cpp \
   obj/src/tunitas/denniston/report/required/Valuable.cpp \
+  obj/src/tunitas/denniston/report/required/Entropy.cpp \
   $(end)

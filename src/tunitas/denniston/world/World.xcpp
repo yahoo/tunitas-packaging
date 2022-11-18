@@ -53,7 +53,7 @@ namespace tunitas::denniston::world {
 struct tunitas::denniston::world::World {
   struct Definitions { // plural because the contained type aliases are plural
     using Tasks = task::Dictionary<task::Definition>;
-    using Services = service::Dictionary;
+    using Services = service::Dictionary<keyston::hpke::Side::SECRET>;
   };
   using Entropy = keyston::entropy::Source;
   //

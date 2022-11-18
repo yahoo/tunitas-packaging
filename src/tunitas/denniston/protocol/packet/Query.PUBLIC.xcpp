@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet.Query.template
+namespace tunitas::denniston::protocol::packet {
+  //
+  // Semantic:
+  //
+  //  The Client is asking the Directory (service) for the public HPKE configuation of the service id (endpoint).
+  //
+  //. <quote ref="https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html"
+  //         section="Section 4.3.1 HPKE Configuration Request">
+  //    Clients MAY specify a query parameter task_id when sending an HTTP GET request to [aggregator]/hpke_config?task_id=[task-id], <snip/>
+  //    If the aggregator does not recognize the task ID, then it responds with HTTP status code 404 Not Found and an error of type unrecognizedTask.
+  //  </quote>
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Response:
+  //
+  //   Success returns a Response<PUBLIC>
+  //   Failure returns a Status
+  //
+  template<> struct Query<Get::PUBLIC>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.packet.hpke.Query
+namespace tunitas::denniston::protocol::packet {
+  template<> struct Query<Get::PUBLIC> : public hpke::Query {
+    using Ancestor = hpke::Query;
+  public:
+    inline static constexpr auto const SIDE = keyston::hpke::Side::PUBLIC;
+    Query() = default;
+    using Ancestor::Query;
+  };
+}
+#endiv

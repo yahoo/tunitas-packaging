@@ -21,6 +21,7 @@ protected:
 #divert <cpp>
 #import tests.unit.concurrent.channel.Fixture
 #import tests.unit.concurrent.dictionary.Fixture
+#import tests.unit.concurrent.entropy.Fixture
 #import tests.unit.concurrent.variable.Fixture
 auto tests::unit::concurrent::Fixture::suite() -> Suite {
   auto series = Stream{"concurrent"sv};
@@ -34,6 +35,7 @@ auto tests::unit::concurrent::Fixture::suite() -> Suite {
             }()
          << add<channel::Fixture>()
          << add<dictionary::Fixture>()
+         << add<entropy::Fixture>()
          << add<variable::Fixture>()
          << END;
   return settle(series);

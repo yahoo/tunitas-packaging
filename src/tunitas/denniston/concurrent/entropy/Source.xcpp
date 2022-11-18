@@ -1,0 +1,97 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::concurrent::entropy {
+  //
+  // A concurrent entropy source.
+  //
+  // Specification:
+  //
+  //   Shaped like keyston::entropy::Source
+  //   Models keyston::entropy::required::Entropy
+  //   Mediates the concurrent access.
+  //
+  // Design:
+  //
+  //   In stand-alone form and wrapper form
+  //
+  // Usage:
+  //
+  //   As one uses keyston::entropy::Source
+  //   e.g. in keyston::nonce::Generator<...>
+  //
+  //   auto source = Source{};
+  //   auto wrapper = Source::Wrapper{source};
+  //
+  //   auto d = source.draw();
+  //   auto d = wrapper.draw();
+  //
+  struct Source;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.entropy.Source
+#import std.mutex
+#import std.lock_guard
+#import std.is_reference
+class tunitas::denniston::concurrent::entropy::Source {
+  using Original = keyston::entropy::Source;
+  template<typename MANAGED> class Manager {
+    using Managed = MANAGED;
+    Managed managed;
+    std::mutex mutex{};
+    using Guard = std::lock_guard<std::mutex>;
+    friend class Source;
+  public:
+    template<bool = not std::is_reference_v<Managed>> Manager() : managed{} { }
+    template<bool =     std::is_reference_v<Managed>> Manager(Original &o) : managed{o} { }
+    using Bits = Original::Bits;
+    using Since = Original::Since;
+    auto entropy() const noexcept -> double { return managed.entropy(); }
+    inline auto draw() -> Bits;
+    static auto now() -> Since { return Original::now(); }
+  };
+  Manager<Original> source{};
+public:
+  class Wrapper : public Manager<Original &> {
+    using Ancestor = Manager<Original &>;
+  public:
+    using Ancestor::Manager;
+  };
+  using Bits = Original::Bits;
+  using Since = Original::Since;
+  auto entropy() const noexcept -> double { return source.entropy(); }
+  auto draw() -> Bits                     { return source.draw(); }
+  static auto now() -> Since              { return Manager<Original>::now(); }
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::concurrent::entropy {
+  template<typename _> auto Source::Manager<_>::draw() -> Bits {
+    auto guard = Guard{mutex};
+    return managed.draw();
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.entropy.required.Entropy
+#import std.default_initializable
+#import std.constructible_from
+namespace {
+  namespace testate {
+    using tunitas::denniston::concurrent::entropy::Source;
+    using Original = tunitas::keyston::entropy::Source;
+    namespace required = tunitas::keyston::entropy::required;
+    //
+    static_assert(required::Entropy<Source>);
+    static_assert(required::Entropy<Source::Wrapper>);
+    //
+    static_assert(std::default_initializable<Source>);
+    static_assert(std::constructible_from<Source>);
+    static_assert(std::constructible_from<Source::Wrapper, Original &>);
+  }
+}
+#endiv

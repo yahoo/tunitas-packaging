@@ -20,6 +20,9 @@ namespace tunitas::denniston::concurrent::dictionary {
   //   An optional reference (whatever that might mean.
   //   These things are thus useful substantially only for the return value of Dictionary::find(...)
   //
+  //   Like std::optional<...>, there is operator*, operator-> and value()
+  //   Unlike std::optional<...>, they all perform the same checks, maintain the lock and throw exceptions on invariant failure.
+  //
   // Lifetimes:
   //
   //   lifetime(Found) < lifetime(Value &)
@@ -55,15 +58,18 @@ namespace tunitas::denniston::concurrent {
     inline explicit operator bool() const;
     inline auto has_value() const -> bool;
 #if 202312 < __cplusplus
+    template<typename SELF> inline auto operator->(this SELF *) -> nonstd::like_t<SELF, Value *>;
     template<typename SELF> inline auto operator*(this SELF *) -> nonstd::like_t<SELF, Value &>;
     template<typename SELF> inline auto value(this SELF *) -> nonstd::like_t<SELF, Value &>;
 #else
+    inline auto operator->() -> Value *;
+    inline auto operator->() const -> Value const *;
     inline auto operator*() -> Value &;
     inline auto operator*() const -> Value const &;
     inline auto value() -> Value &;
     inline auto value() const -> Value const &;
   private:
-    template<typename SELF> inline static auto indirect(SELF &) -> decltype(auto);
+    template<typename SELF> inline static auto pointer(SELF &) -> decltype(auto);
   public:
 #endif
   protected:
@@ -74,35 +80,45 @@ namespace tunitas::denniston::concurrent {
 #endiv
 #divert <ipp>
 #import tunitas.denniston.exception.Optional
+#import substd.exception.Optional
 namespace tunitas::denniston::concurrent::dictionary {
   template<typename V, typename B, required::Guardian G> Found<V,B,G>::Found(Guard &&guard, Value &value) : held{Held{forward<Guard>(guard), &value}} { }
   template<typename V, typename B, required::Guardian G> Found<V,B,G>::operator bool() const          { return held.operator bool(); }
   template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::has_value() const -> bool { return held.has_value(); }
 #if 202312 < __GNUC__
-  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::operator*(this SELF *self) -> nonstd::like_t<SELF, Value &> {
+  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::operator->(this SELF *self) -> nonstd::like_t<SELF, Value *> try {
     auto &got = self->held.value();
     return got.second;
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::operator*(this SELF *self) -> nonstd::like_t<SELF, Value &> try {
+    auto &got = self->held.value();
+    return *got.second;
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
   }
   template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::value(this SELF *self) -> nonstd::like_t<SELF, Value &> {
     if (!self->held) {
       throw exception::Optional{};
     } else {
-      return **self->held;
+      return *self->held->second;
     }
   }
 #else
-  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::indirect(SELF &self) -> decltype(auto) {
+  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::pointer(SELF &self) -> decltype(auto) {
     if (!self.held) {
       throw exception::Optional{};
     } else {
-      auto &got = self.held.value();
-      return *got.second;
+      return self.held->second;
     }
   }
-  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator*() -> Value &             { return indirect(*this); }
-  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator*() const -> Value const & { return indirect(*this); }
-  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::value() -> Value &                 { return indirect(*this); }
-  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::value() const -> Value const &     { return indirect(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator->() -> Value *             { return  pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator->() const -> Value const * { return  pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator*() -> Value &              { return *pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator*() const -> Value const &  { return *pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::value() -> Value &                  { return *pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::value() const -> Value const &      { return *pointer(*this); }
 #endif
 }
 #endiv

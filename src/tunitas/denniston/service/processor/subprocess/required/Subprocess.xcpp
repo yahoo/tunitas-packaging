@@ -18,14 +18,16 @@ namespace tunitas::denniston::service::processor::subprocess::required {
 #divert <cpp>
 #forward tunitas.denniston.service.processor.subprocess.Prototype
 #forward tunitas.denniston.service.processor.subprocess.Boot
-#forward tunitas.denniston.service.processor.subprocess.Compute
+#forward tunitas.denniston.service.processor.subprocess.Initialization
+#forward tunitas.denniston.service.processor.subprocess.Continuation
 namespace {
   namespace testate {
     namespace required = tunitas::denniston::service::processor::subprocess::required;
     using namespace tunitas::denniston::service::processor::subprocess;
     static_assert(required::Subprocess<Prototype>);
     static_assert(required::Subprocess<Boot>);
-    static_assert(required::Subprocess<Compute>);
+    static_assert(required::Subprocess<Initialization>);
+    static_assert(required::Subprocess<Continuation>);
   }
 }
 #endiv

@@ -64,7 +64,7 @@ namespace tunitas::denniston::service::gateway {
     inline auto ready() const -> bool;
     auto run() noexcept -> void;
   protected:
-    using Project_to_Identifier = report::ranges::Subrange<report::ranges::Projection::ID, Preparing::const_iterator>;
+    using Project_to_Identifier = report::ranges::Subrange<report::ranges::Projection::REPORT_ID, Preparing::Basic_Iterator<Preparing const>>;
     using Slicer = protocol::initialization::Slicer;
     auto broadcast(Prepared const &) -> void;
   };
@@ -115,7 +115,8 @@ namespace {
 #import std.views.iota
 namespace tunitas::denniston::service::gateway::subprocess {
   auto Task::run() noexcept -> void try {
-    while (!owner.is_shutting_down()) {
+    owner.log.format("task {} delegation loop starting", corpus.definition.id);
+    for ( ; !owner.is_shutting_down(); barrier.start()) {
       barrier.wait([this]{ return !delegating.empty(); });
       //
       // copy the new work delegated to us (into our thread-controlled area)
@@ -123,6 +124,7 @@ namespace tunitas::denniston::service::gateway::subprocess {
       // drain a a batch of reports into the job.
       // whee!
       for (auto red=delegating.pop_if(); red; red=delegating.pop_if()) {
+        owner.log.format("task {} delegation popped something delegating->preparing", corpus.definition.id);
         preparing.push_back(move(*red));
       }
       if (ready()) {
@@ -133,6 +135,7 @@ namespace tunitas::denniston::service::gateway::subprocess {
       // Slow Down! [[provisionally]]
       std::this_thread::sleep_for(250ms);
     }
+    owner.log.format("task {} is ending", corpus.definition.id);
   } catch (process::companion::Shutdown) {
     // yay!
   } catch(...) {

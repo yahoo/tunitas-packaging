@@ -5,7 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.protocol.packet.Response.template
-#import tunitas.denniston.protocol.packet.Response.HPKE
+#import tunitas.denniston.protocol.packet.Response.PUBLIC
+#import tunitas.denniston.protocol.packet.Response.SECRET
 #import tunitas.denniston.protocol.packet.Response.TASKS
 #import tunitas.denniston.protocol.packet.Response.INITIALIZATION
 #import tunitas.denniston.protocol.packet.Response.CONTINUATION

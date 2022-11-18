@@ -22,14 +22,14 @@ namespace tunitas::denniston::preparation::ranges::iterator {
   //
   //   You need a tutorial on how to use an iterator?  o.rly?
   //
-  template<typename SUBITERATOR> struct Iterator<Projection::ID, SUBITERATOR>;
+  template<typename SUBITERATOR> struct Iterator<Projection::REPORT_ID, SUBITERATOR>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.preparation.ranges.iterator.Rebase
 namespace tunitas::denniston::preparation::ranges::iterator {
-  template<typename SUBITERATOR> struct Iterator<Projection::ID, SUBITERATOR> : public Rebase<Projection::ID, SUBITERATOR>::Type {
-    using Ancestor = typename Rebase<Projection::ID, SUBITERATOR>::Type;
+  template<typename SUBITERATOR> struct Iterator<Projection::REPORT_ID, SUBITERATOR> : public Rebase<Projection::REPORT_ID, SUBITERATOR>::Type {
+    using Ancestor = typename Rebase<Projection::REPORT_ID, SUBITERATOR>::Type;
   public:
     [[implicit]] Iterator() = default;
     using Ancestor::Basis;

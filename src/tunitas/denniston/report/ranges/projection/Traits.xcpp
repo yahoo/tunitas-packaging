@@ -14,7 +14,7 @@ namespace tunitas::denniston::report::ranges::projection {
   //
   template<Projection, typename RECORD> struct Traits;
   template<typename RECORD> struct Traits<Projection::RECORD, RECORD>;
-  template<typename RECORD> struct Traits<Projection::ID, RECORD>;
+  template<typename RECORD> struct Traits<Projection::REPORT_ID, RECORD>;
 }
 #endiv
 #divert <hpp>
@@ -27,7 +27,7 @@ namespace tunitas::denniston::report::ranges::projection {
     using Reference = Record &;
     using Pointer = Record *;
   };
-  template<typename RECORD> class Traits<Projection::ID, RECORD> {
+  template<typename RECORD> class Traits<Projection::REPORT_ID, RECORD> {
     using Replacement = keyston::protocol::id::Report;
   public:
     using Record = std::conditional<std::is_const_v<RECORD>, Replacement const, Replacement>;

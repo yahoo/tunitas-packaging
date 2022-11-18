@@ -4,18 +4,13 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.job.required.Corporal
-#forward tunitas.denniston.job.Corpus
+#import tunitas.denniston.job.required.corpus.Object
 namespace tunitas::denniston::job::required {
   //
   // Is this CORPUS a valid instantiation of Corpus<GENUS>?
   // This is InstanceOf with some extra constraints on the single GENUS parameter
   //
-  template<typename CORPUS> concept Corpus = requires(CORPUS) {
-    { // \exists an GENUS such that Corpus<GENUS> is an ancestor
-      []<auto GENUS>(job::Corpus<GENUS> *) requires required::Corporal<GENUS>
-      { } (static_cast<CORPUS *>(nullptr)) };
-  };
+  template<typename CORPUS> concept Corpus = corpus::Object<CORPUS>;
 }
 #endiv
 #divert <cpp>
@@ -27,9 +22,9 @@ namespace {
     // can't even utter tye type! ---> static_assert(not required::Corpus<Corpus<Genus::CLIENT>>);
     // can't even utter tye type! ---> static_assert(not required::Corpus<Corpus<Genus::CONFIGURATION>>);
     // can't even utter tye type! ---> static_assert(not required::Corpus<Corpus<Genus::DIRECTORY>>);
-    static_assert(    required::Corpus<Corpus<Genus::COLLECTOR>>);
-    static_assert(    required::Corpus<Corpus<Genus::GATEWAY>>);
-    static_assert(    required::Corpus<Corpus<Genus::PROCESSOR>>);
+    static_assert(required::Corpus<Corpus<Genus::COLLECTOR>>);
+    static_assert(required::Corpus<Corpus<Genus::GATEWAY>>);
+    static_assert(required::Corpus<Corpus<Genus::PROCESSOR>>);
   }
 }
 #endiv

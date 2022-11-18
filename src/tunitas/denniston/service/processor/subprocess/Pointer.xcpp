@@ -5,6 +5,9 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.service.processor.subprocess.required.Subprocess
+#import tunitas.denniston.service.processor.subprocess.Prototype
+#include <hpp/tunitas.denniston.service.processor.subprocess.Prototype> // companion::Pointer<...> requires at least this
+#import tunitas.denniston.process.companion.Pointer
 namespace tunitas::denniston::service::processor::subprocess {
   //
   // A pointer to a processor subprocess.
@@ -22,20 +25,6 @@ namespace tunitas::denniston::service::processor::subprocess {
   //   Said it before ... unique_ptr.
   //   See std::make_unique(...)
   //
-  template<required::Subprocess> struct Pointer;
-}
-#endiv
-#divert <hpp>
-#import std.unique_ptr
-namespace tunitas::denniston::service::processor {
-  template<subprocess::required::Subprocess INSTANCE> struct subprocess::Pointer : public std::unique_ptr<INSTANCE> {
-    using Ancestor = std::unique_ptr<INSTANCE>;
-  public:
-    Pointer() = default;
-    using Ancestor::unique_ptr;
-    Pointer(Ancestor &&donor) : Ancestor{forward<Ancestor>(donor)} { }
-    using Ancestor::operator=;
-    Pointer &operator=(Ancestor &&donor) { Ancestor::operator=(forward<Ancestor>(donor)); return *this; }
-  };
+  template<required::Subprocess INSTANCE> using Pointer = process::companion::Pointer<INSTANCE>;
 }
 #endiv

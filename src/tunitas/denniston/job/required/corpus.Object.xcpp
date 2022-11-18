@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.job.required.Corporal
+#forward tunitas.denniston.job.Corpus
+namespace tunitas::denniston::job::required::corpus {
+  //
+  // Is this CORPUS a valid instantiation of Corpus<GENUS>?
+  // This is InstanceOf with some extra constraints on the single GENUS parameter
+  //
+  template<typename CORPUS> concept Object = requires(CORPUS) {
+    { // \exists an GENUS such that Corpus<GENUS> is an ancestor
+      []<auto GENUS>(job::Corpus<GENUS> *) requires required::Corporal<GENUS>
+      { } (static_cast<CORPUS *>(nullptr)) };
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace subrequired = tunitas::denniston::job::required::corpus;
+    using tunitas::denniston::job::Corpus;
+    using tunitas::denniston::role::Genus;
+    // can't even utter tye type! ---> static_assert(not subrequired::Object<Corpus<Genus::CLIENT>>);
+    // can't even utter tye type! ---> static_assert(not subrequired::Object<Corpus<Genus::CONFIGURATION>>);
+    // can't even utter tye type! ---> static_assert(not subrequired::Object<Corpus<Genus::DIRECTORY>>);
+    static_assert(subrequired::Object<Corpus<Genus::COLLECTOR>>);
+    static_assert(subrequired::Object<Corpus<Genus::GATEWAY>>);
+    static_assert(subrequired::Object<Corpus<Genus::PROCESSOR>>);
+  }
+}
+#endiv

@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.client.subprocess.Prototype
+#include <hpp/tunitas.denniston.service.client.subprocess.Prototype>
+static_assert(sizeof (tunitas::denniston::service::client::subprocess::Prototype));
+#import tunitas.denniston.process.companion.Series
+namespace tunitas::denniston::service::client {
+  //
+  // A collection of subprocesses
+  //
+  // Specification:
+  //
+  //   Ordered by creation-order.
+  //   Does NOT lock.
+  //   Provides destruction at end-of-life.
+  //
+  // Design:
+  //
+  //   Whereas a Subprocess (subprocess:::Prototype descendant) is immobile, it needs to be held as such.
+  //
+  // Usage:
+  //
+  //   See Client, which is nearby.
+  //
+  static_assert(std::derived_from<subprocess::Prototype, process::companion::Prototype<Client>>);
+  using Subprocesses = process::companion::Series<subprocess::Prototype>;
+}
+#endiv

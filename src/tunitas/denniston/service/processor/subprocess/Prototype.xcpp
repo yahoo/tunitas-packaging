@@ -27,47 +27,30 @@ namespace tunitas::denniston::service::processor::subprocess {
 }
 #endiv
 #divert <hpp>
-#import std.jthread
-#forward tunitas.denniston.service.processor.Processor
-#import tunitas.denniston.process.companion.Barrier
+#forward tunitas.denniston.service.processor.Processor // DO NOT use #import
+#import tunitas.denniston.process.companion.Prototype
 namespace tunitas::denniston::service::processor {
   namespace subprocess {
     inline auto swap(Prototype *&a, Prototype *&b) noexcept -> void { std::swap(a, b); }
   }
-  class subprocess::Prototype {
+  class subprocess::Prototype : public process::companion::Prototype<Processor> {
+    using Ancestor = process::companion::Prototype<Processor>;
   protected:
-    inline explicit Prototype(Processor &);
+    using Ancestor::Prototype;
   public:
     virtual ~Prototype() = default;
-    Processor &owner;
-    process::companion::Barrier barrier;
-    std::jthread subbie{};
   };
 }
 #endiv
 #divert <ipp>
-#import tunitas.denniston.service.processor.Processor
-namespace tunitas::denniston::service::processor::subprocess {
-  Prototype::Prototype(Processor &owner)
-    : owner{owner}
-    , barrier{owner} {
-    barrier.start();
-    // the descenant's constructor performs the launch of 'run' nito the thread
-  }
-}
-// All descendants will need this (these)
-#import tunitas.denniston.process.companion.Shutdown
+#import tunitas.denniston.service.processor.Processor // the ancestor's constructor definition requires the complee type
 #endiv
 #divert <cpp>
 namespace {
   namespace testate {
     using tunitas::denniston::service::processor::subprocess::Prototype;
-    //
-    static_assert(not std::semiregular<Prototype>);
-    //
-    // because that barrier in Prototype::Ancestor (Prototype) has an immobile mutex within it.
-    static_assert(not std::is_swappable_v<Prototype>);
-    static_assert(    std::is_swappable_v<Prototype *>);
+    namespace required = tunitas::denniston::process::companion::required;
+    static_assert(required::Subprocess<Prototype>);
   }
 }
 #endiv

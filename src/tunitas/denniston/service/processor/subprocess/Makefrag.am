@@ -11,7 +11,8 @@ tunitas_denniston_service_processor_subprocess_SUBSOURCES = \
   obj/src/tunitas/denniston/service/processor/subprocess/make.cpp \
   obj/src/tunitas/denniston/service/processor/subprocess/Prototype.cpp \
   obj/src/tunitas/denniston/service/processor/subprocess/Boot.cpp \
-  obj/src/tunitas/denniston/service/processor/subprocess/Compute.cpp \
+  obj/src/tunitas/denniston/service/processor/subprocess/Initialization.cpp \
+  obj/src/tunitas/denniston/service/processor/subprocess/Continuation.cpp \
   $(tunitas_denniston_service_processor_subprocess_required_SUBSOURCES) \
   $(end)
 #

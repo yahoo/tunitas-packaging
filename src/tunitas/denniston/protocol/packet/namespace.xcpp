@@ -9,7 +9,7 @@
 namespace tunitas::denniston::protocol {
   static_assert(sizeof(Slice), "already visible");
   namespace packet {
-    enum class Get { HPKE, TASKS, INITIALIZATION, CONTINUATION };
+    enum class Get { PUBLIC, SECRET, TASKS, INITIALIZATION, CONTINUATION };
     enum class Post { INITIALIZATION, CONTINUATION };
     //
     // although it was already visible, we need it to flow with using namespace protocol::packet

@@ -6,22 +6,66 @@
 #divert <fpp>
 #import tunitas.denniston.job.Corpus.template
 namespace tunitas::denniston::job {
+  //
+  // Bookkeeping on a job.
+  //
+  // Specification:
+  //
+  //   Maintains state across the preparation steps.
+  //
+  // Design:
+  //
+  //   Pesky constructor recitation.
+  //   Because Definition is a member field not an ancestor, the constructors must be rehearsed again.
+  //
+  //   The Corpus' states are not initialized in the constructor.
+  //   The corpus' states maintained across successive calls to INITIALIZATION and CONTINUATION..
+  //
+  //   WATCHOUT - the Corpus maintains a pointer to the task to which it pertains.
+  //   WATCHOUT - thus the task::Dictionary<...> in the owning Processor MUST maintain record stability (i.e. don't use Stability::DIRECT).
+  //
+  // Usage:
+  //
+  //   See service::instance::Processor.
+  //
   template<> struct Corpus<Genus::PROCESSOR>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.job.Definition
+#import tunitas.keyston.protocol.preparation.Steps
+#forward tunitas.denniston.task.Corpus
 namespace tunitas::denniston::job {
   inline auto swap(Corpus<Genus::PROCESSOR> &, Corpus<Genus::PROCESSOR> &) noexcept -> void;
   template<> struct Corpus<Genus::PROCESSOR> {
     Definition definition{};
+    denniston::task::Corpus<Genus::PROCESSOR> *task{};
+    using Preparation_States = keyston::protocol::preparation::Steps<keyston::protocol::preparation::Mark::POSITIONED>;
+    Preparation_States states{};
+    //
+    [[implicit]] Corpus() = default;
+    [[implicit]] inline Corpus(keyston::protocol::id::Job, task::Corpus<Genus::PROCESSOR> &);
+    template<required::iterator::Member ITERATOR> inline [[implicit]] Corpus(keyston::protocol::id::Job, task::Corpus<Genus::PROCESSOR> &, ITERATOR start, ITERATOR finish);
   };
 }
 #endiv
 #divert <ipp>
+#import tunitas.denniston.task.Corpus // MUST see the implementations this to get swap(...)
 namespace tunitas::denniston {
   auto job::swap(Corpus<Genus::PROCESSOR> &a, Corpus<Genus::PROCESSOR> &b) noexcept -> void {
     swap(a.definition, b.definition);
+    swap(a.task, b.task);
+    swap(a.states, b.states);
+  }
+  namespace job {
+    Corpus<Genus::PROCESSOR>::Corpus(keyston::protocol::id::Job job_id, task::Corpus<Genus::PROCESSOR> &task_of)
+      : definition{job_id}
+      , task{&task_of}
+    { }
+    template<required::iterator::Member ITERATOR> Corpus<Genus::PROCESSOR>::Corpus(keyston::protocol::id::Job job_id, task::Corpus<Genus::PROCESSOR> &task_of, ITERATOR start, ITERATOR finish)
+      : definition{move(job_id), start, finish}
+      , task{&task_of}
+    { }
   }
 }
 #endiv

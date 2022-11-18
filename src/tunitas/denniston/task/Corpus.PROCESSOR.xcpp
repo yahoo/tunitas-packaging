@@ -6,15 +6,37 @@
 #divert <fpp>
 #import tunitas.denniston.task.Corpus.template
 namespace tunitas::denniston::task {
+  //
+  // The working storage of the tasks in a processor.
+  //
+  // Specification:
+  //
+  //   Whatever it takes.
+  //
+  // Design:
+  //
+  //   The Corpus is a record within a concurrent Dictionary.
+  //
+  // Usage:
+  //
+  //   see Processor.
+  //
   template<> struct Corpus<Genus::PROCESSOR>;
 }
 #endiv
 #divert <hpp>
+#import tunitas.Optional
 #import tunitas.denniston.task.Definition
+#import tunitas.keyston.hpke.Side
+#import tunitas.keyston.hpke.Key
+#import tunitas.keyston.hpke.Configuration
 namespace tunitas::denniston::task {
   inline auto swap(Corpus<Genus::PROCESSOR> &, Corpus<Genus::PROCESSOR> &) noexcept -> void;
   template<> struct Corpus<Genus::PROCESSOR> {
     Definition definition{};
+    using enum keyston::hpke::Side;
+    Optional<keyston::hpke::Configuration<SECRET>> verify{};
+    using Verify_Key = keyston::hpke::Key<SECRET>;
   };
 }
 #endiv

@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::protocol::packet::hpke {
+  //
+  // The commonalities among the PUBLIC and SECRET queries
+  //
+  // Semantic:
+  //
+  //  The Client is asking the Directory (service) for the public HPKE configuation of the service id (endpoint).
+  //  The Client is asking the Directory (service) for the secret HPKE configuation of the service id (endpoint).
+  //
+  //   The client ask for the PUBLIC side.
+  //   The processor(s) will ask for the SECRET side.
+  //
+  //   Success returns a Response<PUBLIC> or Esponse<SECRET>
+  //   Failure returns a Status
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Manifest constructors in lieu of agggregate or designated initialization
+  //   (a) because of the inheritance ... 
+  //   (b) applied in make<...>(...)
+  //
+  // Response:
+  //
+  //   By inheritance.
+  //
+  struct Query;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.packet.hpke.Basis
+struct tunitas::denniston::protocol::packet::hpke::Query : public Basis {
+  using Ancestor = Basis;
+protected:
+  ~Query() = default;
+public:
+  explicit Query() = default;
+  using Ancestor::Basis;
+};
+#endiv

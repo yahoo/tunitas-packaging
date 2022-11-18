@@ -90,11 +90,11 @@ namespace tunitas::denniston::network {
   // reading
   auto Socket::Interface::read() -> Value {
     validate_origin();
-    return (origin->*read_side).pop();
+    return (origin->*read_side).pop_front();
   }
   auto Socket::Interface::read_if() -> Optional<Value> {
     validate_origin();
-    return (origin->*read_side).pop_if();
+    return (origin->*read_side).pop_front_if();
   }
   auto Socket::Interface::peek() -> Peeked {
     validate_origin();

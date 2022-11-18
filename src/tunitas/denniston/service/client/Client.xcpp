@@ -1,0 +1,186 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::client {
+  //
+  // A manifestation of a client in the network.
+  //
+  // Specification:
+  //
+  //   Provides the source of a measurement.
+  //   The client namei is expected to be a positive value; e.g. Species{33}
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Client;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.Species
+#forward tunitas.denniston.World
+#import tunitas.denniston.process.Reactor
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
+#import tunitas.denniston.service.Dictionary
+#import tunitas.denniston.service.client.Subprocesses
+#import tunitas.denniston.process.companion.Barrier
+#import tunitas.denniston.concurrent.entropy.Source
+class tunitas::denniston::service::client::Client : public process::Reactor {
+  using Ancestor = process::Reactor;
+protected:
+  auto react() -> void override;
+  auto catchup() -> void override;
+public:
+  using Entropy = keyston::entropy::Source;
+  inline explicit Client([[inout]] Entropy &, [[inout]] World &, Species);
+  auto launch(driver::Threads &) -> void override;
+  Interface configuration{};
+  Interface directory{};
+  Interface gateway{};
+  Subprocesses subprocesses{}; // accessed from the boot subprocess
+  //
+  task::Dictionary<task::Definition> tasks{};
+  service::Dictionary<keyston::hpke::Side::PUBLIC> services{};
+  std::atomic<unsigned> howmany_were_recovered{0};
+  concurrent::entropy::Source::Wrapper entropy;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.World
+#import tunitas.denniston.exception.Invalid
+namespace tunitas::denniston::service::client {
+  Client::Client(Entropy &entropy, World &, Species role)
+    : Ancestor{role}
+    , entropy{entropy}
+  {
+    if (!is_client(role)) {
+      throw exception::Invalid{"invalid role for a client"};
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.client.subprocess.make
+#import tunitas.denniston.service.client.subprocess.Boot
+#import tunitas.denniston.protocol.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Response
+#import tunitas.denniston.protocol.packet.Report
+#import tunitas.denniston.process.companion.Shutdown
+#import nonstd.copy
+#import std.this_thread.sleep_for
+namespace tunitas::denniston::service::client {
+  auto Client::launch(driver::Threads &pool) -> void {
+    pool.launch(&Client::run, this);
+    subprocesses.push_back(subprocess::make<subprocess::Boot>(*this));
+  }
+  auto Client::catchup() -> void {
+    if (graceful_shutdown.load()) {
+      subprocesses.notify();
+    }
+  }
+  auto Client::react() -> void {
+    if (auto red=configuration.read_if(); red) {
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        log.format("from configuration failure: {}", got->status.message());
+      } else if (auto got=downcast_get<Response<Get::TASKS>>(*red); nullptr != got) {
+        log.format("from configuration tasks: count {}", got->tasks.size());
+        for (auto &given : got->tasks) {
+          static_assert(std::tuple_size<decltype(tasks.insert(move(given)))>::value);
+          auto [noob, inserted] = tasks.insert(move(given));
+          log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.id);
+        }
+        subprocesses.notify();
+      } else {
+        log.format("from configuration something else (ignored)");
+      }
+    }
+    if (auto red=directory.read_if(); red) {
+      auto notifiable{false};
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        ++howmany_were_recovered;
+        notifiable = true;
+        log.format("from directory, the failure {}", got->status.message());
+      } else if (auto got=downcast_get<Response<Get::PUBLIC>>(*red); nullptr != got) {
+        ++howmany_were_recovered;
+        notifiable = true;
+        log.format("from directory, got the hpke for {}", got->service_id);
+        auto [noob, inserted] = services.insert(move(got->service_id), move(got->configuration));
+        log.format("which is {}", (inserted ? "inserted"s : "duplicated"s));
+      } else {
+        log.format("from directory, something else (which is ignored)");
+      }
+      if (notifiable) {
+        subprocesses.notify();
+      }
+    }
+    if (auto red=gateway.read_if(); red) {
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        log.format("from gateway status: {}", got->status.message());
+      } else {
+        log.format("from gateway, something else (which is ignored)");
+      }
+    }
+  }
+#if 0
+  auto Client::script() noexcept -> void try {
+    log.format("starting the script");
+    //
+    // Ask for the tasks
+    //
+    barrier.start();
+    configuration.write(make<Query<Get::TASKS>>()); // ask for them all
+    log.format("wrote for some TASKS");
+    barrier.wait([this]{ return !tasks.empty(); });
+    log.format("after the barrier, there are {} tasks and {} shutdown", tasks.size(), graceful_shutdown.load());
+    //
+    // Foreach task, ask for the service specifications
+    //
+    howmany_were_recovered = [this]{
+                             auto count{0uz};
+                             for (auto locked=tasks.range(); auto const &task : locked) { count += task.services.size(); }
+                             return count;
+                           }();
+    log.format("there will be {} endpoints", howmany_were_recovered);
+    barrier.start();
+    auto howmany{0uz};
+    for (auto locked=tasks.range(); auto const &task : locked) {
+      for (auto const &endpoint : task.services) {
+        ++howmany;
+        ++howmany_were_recovered;
+        directory.write(make<Query<Get::PUBLIC>>(endpoint, task.id));
+      }
+    }
+    log.format("waiting for {} queries to return", howmany);
+    barrier.wait([this]{ return 0 == howmany_were_recovered; });
+    //
+    // Then start sending measurements
+    //
+    barrier.start();
+    while (!graceful_shutdown.load()) {
+      for (auto locked=tasks.range(); auto const &task : locked) {
+        std::this_thread::sleep_for(10ms);
+        gateway.write(make<Report<Slice::WHOLE>>(measure(task.id)));
+      }
+      std::this_thread::sleep_for(90ms);
+    }
+    log.format("script is ending, having recovered the endpoints");
+  } catch (process::companion::Shutdown) {
+    // yay!
+  } catch(...) {
+    log.format("script has an escaped exception which is suppressed");
+  }
+#endif
+}
+#endiv

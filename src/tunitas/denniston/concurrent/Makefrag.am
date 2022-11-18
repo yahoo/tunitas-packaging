@@ -9,9 +9,11 @@ tunitas_denniston_concurrent_SUBSOURCES = \
   obj/src/tunitas/denniston/concurrent/required.cpp \
   $(tunitas_denniston_concurrent_channel_SUBSOURCES) \
   $(tunitas_denniston_concurrent_dictionary_SUBSOURCES) \
+  $(tunitas_denniston_concurrent_entropy_SUBSOURCES) \
   $(tunitas_denniston_concurrent_variable_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/denniston/concurrent/channel/Makefrag.am
 include src/tunitas/denniston/concurrent/dictionary/Makefrag.am
+include src/tunitas/denniston/concurrent/entropy/Makefrag.am
 include src/tunitas/denniston/concurrent/variable/Makefrag.am

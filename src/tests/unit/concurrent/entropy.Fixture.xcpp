@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.concurrent.entropy
+namespace tests::unit::concurrent::entropy {
+  struct Fixture;
+  namespace library = ::tunitas::denniston::concurrent::entropy;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::concurrent::entropy::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Source() -> void;
+  auto test_usage_Source_Wrapper() -> void;
+protected:
+  template<typename CANDIDATE> auto exercise(CANDIDATE &) -> void;
+};
+#endiv
+#divert <ipp>
+namespace tests::unit::concurrent::entropy {
+  template<typename CANDIDATE> auto Fixture::exercise(CANDIDATE &candidate) -> void {
+    using Candidate = CANDIDATE;
+    auto e = candidate.entropy();
+    require(ASSERTION, 0.0 != e);
+    auto d = candidate.draw();
+    require(ASSERTION, typename Candidate::Bits{} != 1l+d); // because draw returns in range 0..2^32-1
+    auto n = Candidate::now();
+    require(ASSERTION, typename Candidate::Since{} != n);
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::concurrent::entropy::Fixture::suite() -> Suite {
+  auto series = Stream{"entropy"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Source", &Fixture::test_usage_Source)
+                  << add("Source::Wrapper", &Fixture::test_usage_Source_Wrapper)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.concurrent.entropy.Source
+namespace tests::unit::concurrent::entropy {
+  auto Fixture::test_usage_Source() -> void {
+    using Subject = library::Source;
+    auto subject = Subject{};
+    exercise(subject);
+  }
+  auto Fixture::test_usage_Source_Wrapper() -> void {
+    ::tunitas::keyston::entropy::Source original{};
+    using Subject = library::Source::Wrapper;
+    auto subject = Subject{original};
+    exercise(subject);
+  }
+}
+#endiv

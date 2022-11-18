@@ -57,7 +57,7 @@ namespace app::flow::package_run {
     if (testing(cfg) <= Through::SETUP) {
       throw exception::Testing{exp};
     }
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(2000ms);
     driver.shutdown();
     return OK;
   }

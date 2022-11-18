@@ -10,22 +10,29 @@ namespace tests::unit::report { class Fixture; }
 #import tunitas.denniston.report.ranges.Projection
 #import tunitas.denniston.report.Definition
 #import tunitas.denniston.report.Series
+#import tunitas.keyston.protocol.id // for id::Report, id::Job, id::Task, etc.
 struct tests::unit::report::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   auto test_usage_Definition() -> void;
   auto test_usage_Dictionary() -> void;
   auto test_usage_Generator() -> void;
+  auto test_usage_Series() -> void;
   //
   using enum ::tunitas::denniston::report::ranges::Projection;
-  using Series = library::Series<library::Definition>;
-  using Subiterator = Series::const_iterator;
+  using Subiterator = library::Series<library::Definition>::Basic_Iterator<library::Series<library::Definition> const>;
+  struct Identifier {
+    using Task = ::tunitas::keyston::protocol::id::Task;
+    using Job = ::tunitas::keyston::protocol::id::Job;
+    using Report = ::tunitas::keyston::protocol::id::Report;
+  };
   //
   auto test_usage_Subrange_RECORD() -> void;
   auto test_usage_Subrange_REPORT_ID() -> void;
 };
 #endiv
 #divert <cpp>
+#import tests.unit.report.Series
 auto tests::unit::report::Fixture::suite() -> Suite {
   auto series = Stream{"report"sv};
   series << []{
@@ -33,6 +40,7 @@ auto tests::unit::report::Fixture::suite() -> Suite {
               use << add("Definition", &Fixture::test_usage_Definition)
                   << add("Dictionary", &Fixture::test_usage_Dictionary)
                   << add("Generator", &Fixture::test_usage_Generator)
+                  << add("Series", &Fixture::test_usage_Series)
                   << []{
                        auto sub = Stream{"Subrange"sv};
                        sub << add("RECORD", &Fixture::test_usage_Subrange_RECORD)
@@ -43,14 +51,21 @@ auto tests::unit::report::Fixture::suite() -> Suite {
                   << END;
               return use;
             }()
+         << []{
+              auto ser = Stream{"Series<...>"sv};
+              ser << add<Series<library::Series<Identifier::Report>>>()
+                  << END;
+              return ser;
+            }()
          << END;
   return settle(series);
 }
-#import tunitas.keyston.entropy.Source
 #import tunitas.denniston.report.Definition
 #import tunitas.denniston.report.Dictionary
 #import tunitas.denniston.report.Generator
 #import tunitas.denniston.report.ranges.Subrange
+#import tunitas.denniston.report.Series
+#import tunitas.keyston.entropy.Source
 namespace tests::unit::report {
   auto Fixture::test_usage_Definition() -> void {
     using Subject = library::Definition;
@@ -63,12 +78,18 @@ namespace tests::unit::report {
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_Generator() -> void {
-    using Subject = library::Generator;
-    auto entropy = ::tunitas::keyston::entropy::Source{};
+    using Source = ::tunitas::keyston::entropy::Source;
+    using Subject = library::Generator<Source>;
+    auto entropy = Source{};
     auto subject = Subject{entropy};
     auto task_id = ::tunitas::keyston::protocol::id::Task{};
     auto generated = subject(task_id);
     require(ASSERTION, sizeof (generated));
+  }
+  auto Fixture::test_usage_Series() -> void {
+    using Subject = library::Series<library::Definition>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_Subrange_RECORD() -> void {
     using Subject = library::ranges::Subrange<RECORD, Subiterator>;

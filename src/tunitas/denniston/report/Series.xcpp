@@ -11,16 +11,24 @@ namespace tunitas::denniston::report {
   //
   // Specification:
   //
-  //   Arbitrary order .....-needed.
-  //   Contiguous layout ... not needed.
+  //   Arbitrary deterministic order ... needed.
+  //   Contiguous layout ............... not needed.
   //
   // Design:
   //
-  //   Make its own type so that ADL will work.
+  //   Make a new type so that ADL will work.
   //
   // Usage:
   //
-  //   See at least service::gateway::subprocess::Job
+  //   See at least ...
+  //     service::gateway::subprocess::Job
+  //     service::process::subprocess::Initialization
+  //     service::process::subprocess::Continuation
+  //
+  //   auto series = Series<Something>
+  //   for (auto const &item : subrange(series)) {
+  //      ...examine item...
+  //   }
   //
   template<required::Valuable> struct Series;
 }
@@ -28,15 +36,27 @@ namespace tunitas::denniston::report {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.report.usage.Valuable
-#import std.deque
+#import tunitas.keyston.array.Series
 namespace tunitas::denniston {
-  template<report::required::Valuable VALUE> struct report::Series : public std::deque<VALUE> {
-    using Ancestor = std::deque<VALUE>;
+  namespace report {
+    using std::move;
+    template<required::Valuable VALUE> inline auto swap(Series<VALUE> &, Series<VALUE> &) noexcept -> void;
+  }
+  template<report::required::Valuable VALUE> struct report::Series : public keyston::array::Series<VALUE> {
+    using Ancestor = keyston::array::Series<VALUE>;
     static_assert(usage::Valuable<VALUE>);
+    friend auto report::swap<>(Series &, Series &) noexcept -> void;
   public:
-    using Value [[school("New")]] = typename Ancestor::value_type;
     Series() = default;
-    using Ancestor::deque;
+    using Ancestor::Series;
   };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  template<report::required::Valuable VALUE> auto report::swap(Series<VALUE> &a, Series<VALUE> &b) noexcept -> void {
+    typename Series<VALUE>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
 }
 #endiv

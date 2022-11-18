@@ -15,20 +15,20 @@ struct tests::unit::protocol::initialization::Fixture : public rigging::suite::F
   static auto suite() -> Suite;
   //
   auto test_Slicer() -> void;
-  auto test_Processor() -> void;
+  auto test_Computer() -> void;
 };
 #endiv
 #divert <cpp>
 auto tests::unit::protocol::initialization::Fixture::suite() -> Suite {
   auto series = Stream{"initialization"sv};
   series << add("Slicer", &Fixture::test_Slicer)
-         << add("Processor", &Fixture::test_Processor)
+         << add("Computer", &Fixture::test_Computer)
          << END;
   return settle(series);
 }
 #import tunitas.denniston.exception.Aspect
 #import tunitas.denniston.protocol.initialization.Slicer
-#import tunitas.denniston.protocol.initialization.Processor
+#import tunitas.denniston.protocol.initialization.Computer
 #import tunitas.keyston.vdaf.literals
 #import std.views.iota
 namespace tests::unit::protocol::initialization {
@@ -49,19 +49,18 @@ namespace tests::unit::protocol::initialization {
     }
     require(ASSERTION, 2uz >= count);
   }
-  auto Fixture::test_Processor() -> void {
+  auto Fixture::test_Computer() -> void {
     auto index = ::tunitas::denniston::index::Processor{};
     auto function = ::tunitas::keyston::vdaf::Executor<::tunitas::keyston::vdaf::Scheme::PROTOCOL>{::tunitas::keyston::vdaf::Name::ZERO};
     auto verify_key = ::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::vdaf::Scheme::PROTOCOL>::Verify_Key{};
     auto source = ::tunitas::keyston::entropy::Source{};
     auto noncer = ::tunitas::keyston::nonce::Generator<::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::vdaf::Scheme::PROTOCOL>::Nonce>{source};
     auto task_id = ::tunitas::keyston::protocol::id::Task{};
-    auto job_id = ::tunitas::keyston::protocol::id::Job{};
     auto parameters = ::tunitas::keyston::protocol::function::Parameters{};
     auto query = ::tunitas::keyston::protocol::initialization::Request::Query{};
     auto reports = ::tunitas::keyston::protocol::initialization::Request::Report_Shares{};
     //
-    auto subject = library::Processor{index, function, verify_key, noncer, task_id, job_id, parameters, query, reports};
+    auto subject = library::Computer{index, function, verify_key, noncer, task_id, parameters, query, reports};
     auto got = subject();
     require(ASSERTION, sizeof (got));
   }

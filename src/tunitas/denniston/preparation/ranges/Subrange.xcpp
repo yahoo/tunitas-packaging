@@ -23,7 +23,7 @@ namespace tunitas::denniston::preparation::ranges {
   // Usage:
   //
   //   auto series = Series<Definition>;
-  //   auto sub = Subrange<Projection::ID, Series<Definition>::const_iterator>{series};
+  //   auto sub = Subrange<Projection::REPORT_ID, Series<Definition>::const_iterator>{series};
   //   for (auto const &identifier : sub) {
   //     ...do stuff with the identifier...
   //   }

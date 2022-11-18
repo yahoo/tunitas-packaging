@@ -47,7 +47,10 @@ namespace tunitas::denniston::service::processor {
 #divert <ipp>
 #import tunitas.denniston.job.Corpus
 namespace tunitas::denniston::service::processor::subprocess {
-  Boot::Boot(Processor &owner) : Ancestor{owner} { }
+  Boot::Boot(Processor &owner) : Ancestor{owner} {
+    // expects this->barrier to already be started (locked)
+    subbie = std::jthread{&Boot::run, this};
+  }
 }
 #divert <cpp>
 namespace {
@@ -71,19 +74,25 @@ namespace {
 namespace tunitas::denniston::service::processor::subprocess {
   auto Boot::run() noexcept -> void try {
     //
-    // Ask for the hpke configuration (the crypto goo)
+    // 1. Ask for the tasks
     //
-    owner.configuration.write(make<Query<Get::HPKE>>()); // ask for them all
-    barrier.wait([this]{ return !owner.hpke.has_value(); });
+    owner.configuration.write(make<Query<Get::TASKS>>());
+    barrier.wait([this]{ return !owner.tasks.empty(); });
     //
-    // Notify every subprocess thread *except* Boot (ourselves) to move start moving.
-    for (auto &sub : owner.subprocesses) {
-      if (auto got=sub.get(); this != got) {
-        got->barrier.notify();
+    // 2. Foreach task, ask for it's crypto goo (the SECRET)
+    //
+    barrier.start();
+    auto howmany_were_sent{0uz};
+    for (auto locked=owner.tasks.range(); auto const &task : locked) {
+      for (auto const &endpoint : task.definition.services) {
+        ++howmany_were_sent;
+        owner.directory.write(make<Query<Get::SECRET>>(endpoint, task.definition.id));
       }
     }
-    //
-    owner.log.format("boot is ending, having recovered the configuration");
+    owner.log.format("waiting for {} queries to return", howmany_were_sent);
+    barrier.wait([this, howmany_were_sent]{ return howmany_were_sent == owner.howmany_were_recovered.load(); });
+    owner.subprocesses.notify_all_except(this);
+    owner.log.format("boot is ending, having recovered some tasks and all their secrets");
   } catch (process::companion::Shutdown) {
     // yay!
   } catch(...) {

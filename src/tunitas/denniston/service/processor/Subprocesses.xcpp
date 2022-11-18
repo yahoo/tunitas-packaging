@@ -4,8 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.service.processor.Subprocess
-#import std.deque
+#import tunitas.denniston.service.processor.subprocess.Prototype
+#include <hpp/tunitas.denniston.service.processor.subprocess.Prototype>
+#import tunitas.denniston.process.companion.Series
 namespace tunitas::denniston::service::processor {
   //
   // A collection of subprocesses
@@ -24,6 +25,6 @@ namespace tunitas::denniston::service::processor {
   //
   //   See Processor, which is nearby.
   //
-  using Subprocesses = std::deque<Subprocess>;
+  using Subprocesses = process::companion::Series<subprocess::Prototype>;
 }
 #endiv

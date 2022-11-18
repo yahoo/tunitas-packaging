@@ -10,8 +10,7 @@ namespace tunitas::denniston::report::ranges::projection {
   //
   enum class Projection {
     RECORD, // ...... the whole record, as per usual.
-    REPORT_ID, // ... project out the 'id' field,
-    ID = REPORT_ID,
+    REPORT_ID, // ... project out the 'report_id' field,
     // ... other projections? ... 
   };
 }

@@ -10,7 +10,7 @@ namespace tunitas::denniston::service::instance {
   //
   // Specification:
   //
-  //   Serves network descriptions; e.g. HPKE configuations about 
+  //   Serves network descriptions; e.g. HPKE configurations about 
   //
   //   This is at variance with the specification (draft-ietf-ppm-dap-02 at least) which specifies that
   //   The HPKE configurations MUST be supplied by the aggregators (here called "processors").  We don't follow that.
@@ -30,6 +30,12 @@ namespace tunitas::denniston::service::instance {
   //
   //   Something something: a thread.
   //
+  //   Whereas this is a simulator, we're not modeling access control on the secrets here.
+  //   As in ... if some part of the system asks for the SECRET then they can have it.
+  //   We expect
+  //     the Client to ask for PUBLIC
+  //     the Processor to ask for SECRET
+  //
   // Usage:
   //
   //   In the environment..
@@ -39,20 +45,32 @@ namespace tunitas::denniston::service::instance {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.World
-#import tunitas.denniston.process.Reactor
-#import tunitas.denniston.service.Dictionary
 #import tunitas.denniston.error.Code
+#import tunitas.denniston.process.Reactor
+#import tunitas.denniston.protocol.Packet
+#import tunitas.denniston.service.Dictionary
+#import tunitas.keyston.vdaf.Shards
 #import tunitas.string.View
 class tunitas::denniston::service::instance::Directory : public process::Reactor {
   using Ancestor = process::Reactor;
+protected:
   auto react() -> void override;
-  auto respond([[inout]] Interface &, [[inout]] Query<Get::HPKE> &, string::View from_whom) -> void;
+  using Shards = keyston::vdaf::Shards<Interface>;
+  auto handle(Interface &, protocol::Packet, string::View from_whom) -> void;
+  template<protocol::packet::Get GET> auto respond([[inout]] Interface &, [[inout]] Query<GET> &, string::View from_whom) -> void;
 public:
   inline explicit Directory();
   inline explicit Directory([[inout]] World &);
   Interfaces clients{};
-  service::Dictionary services{};
+  Shards processors{};
+  service::Dictionary<keyston::hpke::Side::SECRET> services{};
+#if 12 < __GNUC__
+  // src/tunitas/denniston/service/instance/Directory.xcpp:92:34: internal compiler error: in tsubst_copy, at cp/pt.cc:16950
   using E = error::Code;
+#else
+  using E = error::Code::Enumeration;
+  using C = error::Code;
+#endif
 };
 #endiv
 #divert <ipp>
@@ -64,34 +82,53 @@ namespace tunitas::denniston::service::instance {
   }
 }
 #endiv
-#divert <cpp>
-#import tunitas.denniston.protocol.packet.cast
+#divert <tpp>
+#import tunitas.keyston.hpke.io // supports {} in format(...)
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Status
+#import tunitas.keyston.hpke.filter
+namespace tunitas::denniston::service::instance {
+  template<protocol::packet::Get GET> auto Directory::respond(Interface &back, Query<GET> &query, string::View from_whom) -> void {
+    constexpr auto const SIDE = Query<GET>::SIDE;
+    auto &service_id = query.service_id;
+    if (query.task_id) {
+      log.format("from {}, request for the {} hpke of {} task {} [[the task_id will be ignored]]", from_whom, SIDE, service_id, *query.task_id);
+    } else {
+      log.format("from {}, request for the {} hpke of {}", from_whom, SIDE, service_id);
+    }
+    if (auto found=services.find(service_id); !found) {
+      back.write(protocol::packet::make<Status>(E::NO_SUCH_SERVICE));
+    } else {
+      back.write(protocol::packet::make<Response<GET>>(move(service_id), filter<SIDE>(*found))); // see the commentariat in Design: (SECRET vs PUBLIC)
+    }
+  }
+}
+#endiv
+#endiv
+#divert <cpp>
+#import tunitas.denniston.protocol.packet.cast
 #import tunitas.denniston.protocol.packet.Query
 #import tunitas.denniston.protocol.packet.Response
 namespace tunitas::denniston::service::instance {
   auto Directory::react() -> void {
     for (auto &face : clients) {
       if (auto red=face.read_if(); red) {
-        log.format("red from some client");
-        if (auto got=downcast_get<Query<Get::HPKE>>(*red); nullptr != got) {
-          respond(face, *got, "some client"sv);
-        }
+        handle(face, move(*red), "some client"sv);
+      }
+    }
+    for (auto &face : processors) {
+      if (auto red=face.read_if(); red) {
+        handle(face, move(*red), "some processor"sv);
       }
     }
   }
-  auto Directory::respond(Interface &back, Query<Get::HPKE> &query, string::View from_whom) -> void {
-    auto &service_id = query.service_id;
-    if (query.task_id) {
-      log.format("from {}, request for the hpke of {} task {} [[the task_id will be ignored]]", from_whom, service_id, *query.task_id);
+  auto Directory::handle(Interface &back, protocol::Packet red, string::View from_whom) -> void {
+    if (auto got=downcast_get<Query<Get::PUBLIC>>(red); nullptr != got) {
+      respond(back, *got, from_whom);
+    } else if (auto got=downcast_get<Query<Get::SECRET>>(red); nullptr != got) {
+      respond(back, *got, from_whom);
     } else {
-      log.format("from {}, request for the hpke of {}", from_whom, service_id);
-    }
-    if (auto found=services.find(service_id); !found) {
-      back.write(make<Status>(E::NO_SUCH_SERVICE));
-    } else {
-      back.write(make<Response<Get::HPKE>>(move(service_id), *found));
+      log.format("unknown packet from {} (is ignored)", from_whom);
     }
   }
 }

@@ -77,7 +77,7 @@ namespace tunitas::denniston::service::system {
     , configuration{make<Configuration>(world)}
     , directory{make<Directory>(world)}
     , gateway{make<Gateway>(entropy, world)}
-    , processors{make<Processor>(world, Species::PROCESSOR1), make<Processor>(world, Species::PROCESSOR2)}
+    , processors{make<Processor>(entropy, world, Species::PROCESSOR1), make<Processor>(entropy, world, Species::PROCESSOR2)}
   {
     for (auto i{0uz}; initial_client_count != i; ++i) {
       auto role = role::make_client_species(i);

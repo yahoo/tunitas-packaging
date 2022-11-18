@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::protocol::packet::hpke {
+  //
+  // Semantic:
+  //
+  //   The shape of the response to a Query<PUBLIC> or Query<SECRET>
+  //
+  //   Both responses are the same except for the differences.
+  //   The differences being wither Configuration<PUBLIC> or Configuratin<SECRET> is returned.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Manifest constructors in lieu of agggregate or designated initialization
+  //   (a) because of the inheritance ... 
+  //   (b) applied in make<...>(...)
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  template<keyston::hpke::Side> struct Response;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.packet.hpke.Basis
+#import tunitas.keyston.hpke.Configuration
+namespace tunitas::denniston::protocol::packet {
+  template<keyston::hpke::Side THE_SIDE> struct hpke::Response : public Basis {
+    using Ancestor = Basis;
+  protected:
+    ~Response() = default;
+  public:
+    inline static constexpr auto const SIDE = THE_SIDE;
+    using Configuration = keyston::hpke::Configuration<SIDE>;
+    Configuration configuration{};
+    explicit Response() = default;
+    using Ancestor::Basis;
+    inline explicit Response(Service, Configuration);
+    inline explicit Response(Service, typename Ancestor::Task, Configuration);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol::packet::hpke {
+  template<keyston::hpke::Side _> Response<_>::Response(Service s, Configuration c)
+    : Ancestor{move(s)}
+    , configuration{move(c)}
+  { }
+  template<keyston::hpke::Side _> Response<_>::Response(Service s, typename Ancestor::Task t, Configuration c)
+    : Ancestor{move(s), move(t)}
+    , configuration{move(c)}
+  { }
+}
+#endiv

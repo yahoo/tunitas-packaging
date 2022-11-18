@@ -9,7 +9,7 @@
 #import tunitas.keyston.time.literals
 #import tunitas.string.literals
 namespace tunitas::denniston::service::instance {
-  using namespace protocol::packet;
+  using namespace protocol::packet; // and yet this will leave ambiguity among instance::make(...) and packet::make(...)
   using namespace string::literals;
   using namespace keyston::time::literals;
   namespace [[nodirectory]] traits { }

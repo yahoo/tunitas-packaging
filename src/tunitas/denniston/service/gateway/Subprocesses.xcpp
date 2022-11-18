@@ -4,8 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.service.gateway.Subprocess
-#import std.deque
+#import tunitas.denniston.service.gateway.subprocess.Prototype
+#include <hpp/tunitas.denniston.service.gateway.subprocess.Prototype>
+static_assert(sizeof (tunitas::denniston::service::gateway::subprocess::Prototype));
+#import tunitas.denniston.process.companion.Series
 namespace tunitas::denniston::service::gateway {
   //
   // A collection of subprocesses
@@ -24,6 +26,7 @@ namespace tunitas::denniston::service::gateway {
   //
   //   See Gateway, which is nearby.
   //
-  using Subprocesses = std::deque<Subprocess>;
+  static_assert(std::derived_from<subprocess::Prototype, process::companion::Prototype<Gateway>>);
+  using Subprocesses = process::companion::Series<subprocess::Prototype>;
 }
 #endiv

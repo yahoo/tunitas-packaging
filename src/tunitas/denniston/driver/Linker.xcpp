@@ -80,6 +80,9 @@ namespace tunitas::denniston::driver {
     for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
       binder.link({system.directory->clients[i], *system.directory}, {system.clients[i]->directory, *system.clients[i]});
     }
+    for (keyston::vdaf::Shard ith : std::views::iota(0_shard, keyston::vdaf::SHARD_COUNT)) {
+      binder.link({system.directory->processors.at(ith), *system.directory}, {system.processors.at(ith)->directory, *system.processors.at(ith)});
+    }
   }
   auto Linker::gateway() -> void {
     for (keyston::vdaf::Shard ith : std::views::iota(0_shard, keyston::vdaf::SHARD_COUNT)) {

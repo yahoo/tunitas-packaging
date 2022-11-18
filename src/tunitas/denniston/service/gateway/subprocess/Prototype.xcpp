@@ -27,47 +27,30 @@ namespace tunitas::denniston::service::gateway::subprocess {
 }
 #endiv
 #divert <hpp>
-#import std.jthread
-#forward tunitas.denniston.service.gateway.Gateway
-#import tunitas.denniston.process.companion.Barrier
+#forward tunitas.denniston.service.gateway.Gateway // DO NOT use #import
+#import tunitas.denniston.process.companion.Prototype
 namespace tunitas::denniston::service::gateway {
   namespace subprocess {
     inline auto swap(Prototype *&a, Prototype *&b) noexcept -> void { std::swap(a, b); }
   }
-  class subprocess::Prototype {
+  class subprocess::Prototype : public process::companion::Prototype<Gateway> {
+    using Ancestor = process::companion::Prototype<Gateway>;
   protected:
-    inline explicit Prototype(Gateway &);
+    using Ancestor::Prototype;
   public:
     virtual ~Prototype() = default;
-    Gateway &owner;
-    process::companion::Barrier barrier;
-    std::jthread subbie{};
   };
 }
 #endiv
 #divert <ipp>
-#import tunitas.denniston.service.gateway.Gateway
-namespace tunitas::denniston::service::gateway::subprocess {
-  Prototype::Prototype(Gateway &owner)
-    : owner{owner}
-    , barrier{owner} {
-    barrier.start();
-    // the descenant's constructor performs the launch of 'run' nito the thread
-  }
-}
-// All descendants will need this (these)
-#import tunitas.denniston.process.companion.Shutdown
+#import tunitas.denniston.service.gateway.Gateway // the ancestor's constructor definition requires the complete type
 #endiv
 #divert <cpp>
 namespace {
   namespace testate {
     using tunitas::denniston::service::gateway::subprocess::Prototype;
-    //
-    static_assert(not std::semiregular<Prototype>);
-    //
-    // because that barrier in Prototype::Ancestor (Prototype) has an immobile mutex within it.
-    static_assert(not std::is_swappable_v<Prototype>);
-    static_assert(    std::is_swappable_v<Prototype *>);
+    namespace required = tunitas::denniston::process::companion::required;
+    static_assert(required::Subprocess<Prototype>);
   }
 }
 #endiv

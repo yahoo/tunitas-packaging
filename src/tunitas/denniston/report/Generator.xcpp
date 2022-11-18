@@ -4,6 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
+#import tunitas.denniston.report.required.Entropy
 namespace tunitas::denniston::report {
   //
   // A report generator
@@ -20,6 +21,10 @@ namespace tunitas::denniston::report {
   //
   //   Whatever man, it's a simulator.
   //
+  //   The entropy source is a parameter.
+  //   keyston::entropy::Source
+  //   denniston::concurrent::entropy::Source
+  //
   // Usage:
   //
   //   auto &entropy = keyston::entropy::Source{...somehow...};
@@ -28,7 +33,7 @@ namespace tunitas::denniston::report {
   //   auto const &task_id = keyston::protocol::id::Task{...somehow...};
   //   auto report = generate(task_id);
   //
-  struct Generator;
+  template<required::Entropy> struct Generator;
 }
 #endiv
 #divert <hpp>
@@ -41,36 +46,34 @@ namespace tunitas::denniston::report {
 #import tunitas.keyston.nonce.Since
 #import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.time.Clock
-struct tunitas::denniston::report::Generator {
-  using Entropy = keyston::entropy::Source;
-  inline explicit Generator(Entropy &);
-  using Task = keyston::protocol::id::Task;
-  using Report = keyston::protocol::report::Produced<keyston::protocol::Slice::WHOLE>;
-  auto operator()(Task const &task_id) -> Report;
-protected:
-  using Clock = keyston::time::Clock;
-  class Subgenerators {
-    using Policy = keyston::identifier::generator::Policy;
-    template<typename UNIQUENESS, Policy POLICY> using Name = keyston::identifier::Generator<UNIQUENESS, POLICY>;
-    template<typename UNIQUENESS> using Nonce = keyston::nonce::Generator<UNIQUENESS>;
-    template<typename... SUBNONCES> requires (0 < sizeof...(SUBNONCES)) using Bundle = keyston::nonce::Bundle<SUBNONCES...>;
-  public:
-    Name<keyston::protocol::id::Report, Policy::RANDOM> report_id;
-    Nonce<Bundle<keyston::nonce::Bits<64>, keyston::nonce::Since<std::chrono::microseconds>>> nonce; // has fallen to disuse (the report_id is the noce)
-    Subgenerators(Entropy &e) : report_id{e}, nonce{e} { }
-  } subgenerators;
-};
-#endiv
-#divert <ipp>
-namespace tunitas::denniston::report {
-  Generator::Generator(Entropy &entropy) : subgenerators{entropy} { }
+namespace tunitas::denniston {
+  template<report::required::Entropy SOURCE> struct report::Generator {
+    using Entropy = SOURCE;
+    inline explicit Generator(Entropy &);
+    using Task = keyston::protocol::id::Task;
+    using Report = keyston::protocol::report::Produced<keyston::protocol::Slice::WHOLE>;
+    inline auto operator()(Task const &task_id) -> Report;
+  protected:
+    using Clock = keyston::time::Clock;
+    class Subgenerators {
+      using Policy = keyston::identifier::generator::Policy;
+      template<typename UNIQUENESS, Policy POLICY> using Name = keyston::identifier::Generator<UNIQUENESS, POLICY, Entropy>;
+      template<typename UNIQUENESS> using Nonce = keyston::nonce::Generator<UNIQUENESS, Entropy>;
+      template<typename... SUBNONCES> requires (0 < sizeof...(SUBNONCES)) using Bundle = keyston::nonce::Bundle<SUBNONCES...>;
+    public:
+      Name<keyston::protocol::id::Report, Policy::RANDOM> report_id;
+      Nonce<Bundle<keyston::nonce::Bits<64>, keyston::nonce::Since<std::chrono::microseconds>>> nonce; // has fallen to disuse (the report_id is the noce)
+      Subgenerators(Entropy &e) : report_id{e}, nonce{e} { }
+    } subgenerators;
+  };
 }
 #endiv
-#divert <cpp>
+#divert <ipp>
 #import tunitas.keyston.vdaf.Shard // and SHARD_COUNT (which is constie)
 #import tunitas.keyston.vdaf.literals
 namespace tunitas::denniston::report {
-  auto Generator::operator()(Task const &task_id) -> Report {
+  template<required::Entropy _> Generator<_>::Generator(Entropy &entropy) : subgenerators{entropy} { }
+  template<required::Entropy _> auto Generator<_>::operator()(Task const &task_id) -> Report {
     auto ret = Report{subgenerators.report_id(), Clock::now(), Report::Extensions{}, task_id, Report::Public_Share{}};
     //
     // There being two processors in the protocol.

@@ -36,7 +36,7 @@ namespace tests::unit::service::processor {
     auto source = ::tunitas::keyston::entropy::Source{};
     auto world = ::tunitas::denniston::World{source};
     using Subject = library::Processor;
-    auto subject = Subject{world, Species::PROCESSOR1};
+    auto subject = Subject{source, world, Species::PROCESSOR1};
     require(ASSERTION, sizeof (subject));
   }
 }

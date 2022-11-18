@@ -82,8 +82,10 @@ auto tests::unit::protocol::packet::make::Fixture::suite() -> Suite {
             }()
          << []{
               auto hpke = Stream{"hpke"sv};
-              hpke << add("Query", &Fixture::test_make<library::Query<library::Get::HPKE>>)
-                   << add("Response", &Fixture::test_make<library::Response<library::Get::HPKE>>)
+              hpke << add("Query", &Fixture::test_make<library::Query<library::Get::PUBLIC>>)
+                   << add("Query", &Fixture::test_make<library::Query<library::Get::SECRET>>)
+                   << add("Response", &Fixture::test_make<library::Response<library::Get::PUBLIC>>)
+                   << add("Response", &Fixture::test_make<library::Response<library::Get::SECRET>>)
                    << END;
               return hpke;
             }()

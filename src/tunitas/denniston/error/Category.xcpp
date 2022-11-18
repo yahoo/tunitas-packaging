@@ -67,8 +67,16 @@ namespace tunitas::denniston::error::package_error {
       case E::NO_SUCH_SERVICE: return "no such service identifier"sv;
       case E::NO_SUCH_TASK:    return "no such task identifier"sv;
         //
-      case E::NO_AVAILABLE_TASKS:                  return "no available tasks"sv;
+      case E::DUPLICATE_BATCH:   return "duplicate batch identifier"sv;
+      case E::DUPLICATE_JOB:     return "duplicate job identifier"sv;
+      case E::DUPLICATE_REPORT:  return "duplicate report identifier"sv;
+      case E::DUPLICATE_SERVICE: return "duplicate service identifier"sv;
+      case E::DUPLICATE_TASK:    return "duplicate task identifier"sv;
+        //
+      case E::NO_AVAILABLE_TASKS:                     return "no available tasks"sv;
       case E::SHARE_COUNT_IS_INCORRECT_FOR_THIS_TASK: return "the share count is incorrect for this task"sv;
+      case E::REPORT_SERIES_DOES_NOT_MATCH:           return "the report series does not match"sv;
+      case E::JOB_DOES_NOT_PERTAIN_TO_THAT_TASK:      return "that job does not pertain to that task"sv;
       default: return {};
       }
     }

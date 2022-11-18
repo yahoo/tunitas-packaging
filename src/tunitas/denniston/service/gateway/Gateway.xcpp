@@ -63,12 +63,12 @@ public:
   Interface collector{};
   Interface configuration{};
   Shards processors{};
+  Subprocesses subprocesses{};
   //
   task::Dictionary<task::Corpus<Genus::GATEWAY>> tasks{};
   job::Dictionary<job::Corpus<Genus::GATEWAY>> jobs{};
-  Subprocesses subprocesses{};
   class Generators {
-    using Job = keyston::identifier::Generator<keyston::protocol::id::Job, keyston::identifier::generator::Policy::RANDOM>;
+    using Job = keyston::identifier::Generator<keyston::protocol::id::Job, keyston::identifier::generator::Policy::RANDOM, keyston::entropy::Source>;
   public:
     Job job_id;
     Generators(Entropy &e) : job_id{e} { }
@@ -107,9 +107,7 @@ namespace tunitas::denniston::service::gateway {
   }
   auto Gateway::catchup() -> void {
     if (graceful_shutdown.load()) {
-      for (auto &sub : subprocesses) {
-        sub->barrier.notify();
-      }
+      subprocesses.notify();
     }
   }
   auto Gateway::react() -> void {
@@ -136,10 +134,7 @@ namespace tunitas::denniston::service::gateway {
           }
           log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.definition.id);
         }
-        // And yet there is only the one subprocess (boot) at this point.
-        for (auto &sub : subprocesses) {
-          sub->barrier.notify();
-        }
+        subprocesses.notify(); // And yet there is only the one subprocess (boot) at this point.
       } else {
         log.format("from configuration, something else (ignored)");
       }
@@ -175,7 +170,9 @@ namespace tunitas::denniston::service::gateway {
     } else if (whole.produced.encrypted_input_shares.size() != required_processor_count) {
       back.write(make<Status>(E::SHARE_COUNT_IS_INCORRECT_FOR_THIS_TASK));
     } else {
-      found.value().subprocess->delegating.push_back(move(whole.produced));
+      auto &subprocess{*found.value().subprocess};
+      subprocess.delegating.push_back(move(whole.produced));
+      subprocess.barrier.notify();
       back.write(make<Status>());
     }
   }

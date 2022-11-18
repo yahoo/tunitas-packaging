@@ -31,37 +31,57 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.Optional
 #import tunitas.denniston.concurrent.Channel
 #import tunitas.denniston.concurrent.Variable
-#forward tunitas.denniston.World
+#import tunitas.denniston.error.Code
+#import tunitas.denniston.job.Dictionary
+#import tunitas.denniston.job.Corpus
 #import tunitas.denniston.process.Reactor
 #import tunitas.denniston.protocol.packet.Pointer
 #import tunitas.denniston.protocol.packet.Request
 #import tunitas.denniston.service.processor.Subprocesses
-#import tunitas.keyston.hpke.Configuration
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Corpus
+#forward tunitas.denniston.World
+#import tunitas.keyston.entropy.Source
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.vdaf.Configuration
+#import std.atomic
 class tunitas::denniston::service::processor::Processor : public process::Reactor {
   using Ancestor = process::Reactor;
   auto react() -> void override;
   auto catchup() -> void override;
 public:
-  inline explicit Processor(Species);
-  inline explicit Processor([[inout]] World &, Species);
+  using Entropy = keyston::entropy::Source;
+  inline explicit Processor([[inout]] Entropy &, Species);
+  inline explicit Processor([[inout]] Entropy &, [[inout]] World &, Species);
   auto launch(driver::Threads &) -> void override;
   Interface configuration{};
+  Interface directory{};
   Interface gateway{};
   Subprocesses subprocesses{};
   //
-  concurrent::Variable<keyston::hpke::Configuration> hpke{};
   concurrent::Channel<protocol::packet::Pointer<Request<Post::INITIALIZATION>>> initializations{};
   concurrent::Channel<protocol::packet::Pointer<Request<Post::CONTINUATION>>> continuations{};
+  task::Dictionary<task::Corpus<Genus::PROCESSOR>> tasks{};
+  job::Dictionary<job::Corpus<Genus::PROCESSOR>> jobs{};
+  class Generators {
+    using Nonce = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>::Nonce;
+    using Noncer = keyston::nonce::Generator<Nonce>;
+  public:
+    Noncer noncer;
+    Generators(Entropy &e) : noncer{e} { }
+  } generators;
+  std::atomic<unsigned> howmany_were_recovered{0};
+  using E = error::Code;
 };
 #endiv
 #divert <ipp>
 #import tunitas.denniston.World
 #import tunitas.denniston.exception.Invalid
 namespace tunitas::denniston::service::processor {
-  Processor::Processor(World &, Species role) : Processor{role} { }
-  Processor::Processor(Species role)
+  Processor::Processor(Entropy &entropy, World &, Species role) : Processor{entropy, role} { }
+  Processor::Processor(Entropy &entropy, Species role)
     : Ancestor{role}
-  {
+    , generators{entropy} {
     if (!is_processor(role)) {
       throw exception::Invalid{"invalid role for a processor"};
     }
@@ -78,33 +98,76 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.denniston.role.io
 #import tunitas.denniston.service.processor.subprocess.make
 #import tunitas.denniston.service.processor.subprocess.Boot
-#import tunitas.denniston.service.processor.subprocess.Compute
+#import tunitas.denniston.service.processor.subprocess.Initialization
+#import tunitas.denniston.service.processor.subprocess.Continuation
 namespace tunitas::denniston::service::processor {
   auto Processor::launch(driver::Threads &pool) -> void {
     pool.launch(&Processor::run, this);
     subprocesses.push_back(subprocess::make<subprocess::Boot>(*this));
-    subprocesses.push_back(subprocess::make<subprocess::Compute>(*this));
+    subprocesses.push_back(subprocess::make<subprocess::Initialization>(*this));
+    subprocesses.push_back(subprocess::make<subprocess::Continuation>(*this));
   }
   auto Processor::catchup() -> void {
     if (graceful_shutdown.load()) {
-      for (auto &sub : subprocesses) {
-        sub->barrier.notify();
-      }
+      subprocesses.notify();
     }
   }
   auto Processor::react() -> void {
     if (auto red=configuration.read_if(); red) {
-      log.format("red from configuration (and ignoring it)");
+      log.format("red from configuration");
       if (auto got=downcast_get<Status>(*red); nullptr != got) {
         log.format("from configuration failure: {}", got->status.message());
-      } else if (auto got=downcast_get<Response<Get::HPKE>>(*red); nullptr != got) {
-        hpke = got->configuration;
-        // And yet there is only the one subprocess (boot) at this point.
-        for (auto &sub : subprocesses) {
-          sub->barrier.notify();
+      } else if (auto got=downcast_get<Response<Get::TASKS>>(*red); nullptr != got) {
+        log.format("from configuration tasks: count {}", got->tasks.size());
+        for (auto &given : got->tasks) {
+          auto [noob, inserted] = tasks.insert({move(given)});
+          log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.definition.id);
         }
+        subprocesses.notify(); // And yet there is only the one subprocess (boot) at this point.
       } else {
         log.format("from configuration, something else (ignored)");
+      }
+    }
+    if (auto red=directory.read_if(); red) {
+      log.format("red from directory");
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        ++howmany_were_recovered;
+        log.format("from directory failure: {}", got->status.message());
+      } else if (auto got=downcast_get<Response<Get::SECRET>>(*red); nullptr != got) {
+        ++howmany_were_recovered;
+        auto notifiable{false};
+        if (!got->task_id) {
+          //
+          // It applies to all tasks that have the indicated endpoint (service_id)
+          //
+          for (auto locked=tasks.range(); auto &task : locked) {
+            auto contains = [](auto const &container, auto const &match) -> bool {
+                              auto finish = container.end();
+                              return finish != std::find(container.begin(), finish, match);
+                            };
+            if (contains(task.definition.services, got->service_id)) {
+              task.verify = got->configuration;
+              notifiable = true;
+            }
+          }
+        } else {
+          //
+          // The configuration applies to just that specific task (service_id is ignored)
+          //
+          auto const &task_id{*got->task_id};
+          log.format("directory responded with a secret for task {}", task_id);
+          if (auto found=tasks.find(task_id); !found) {
+            log.format("failed to find task {} in the inventory (ignoring this secret)", task_id);
+          } else {
+            found.value().verify = got->configuration;
+            notifiable = true;
+          }
+        }
+        if (notifiable) {
+          subprocesses.notify();
+        }
+      } else {
+        log.format("from directory, something else (ignored)");
       }
     }
     if (auto red=gateway.read_if(); red) {

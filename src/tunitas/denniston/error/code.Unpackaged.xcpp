@@ -24,8 +24,16 @@ namespace tunitas::denniston::error::code {
       NO_SUCH_SERVICE,
       NO_SUCH_TASK,
       //
+      DUPLICATE_BATCH,
+      DUPLICATE_JOB,
+      DUPLICATE_REPORT,
+      DUPLICATE_SERVICE,
+      DUPLICATE_TASK,
+      //
       NO_AVAILABLE_TASKS,
       SHARE_COUNT_IS_INCORRECT_FOR_THIS_TASK,
+      REPORT_SERIES_DOES_NOT_MATCH,
+      JOB_DOES_NOT_PERTAIN_TO_THAT_TASK,
     };
     using enum Enumeration;
   };

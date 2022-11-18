@@ -1,0 +1,61 @@
+=// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.ranges.iterator.Iterator.template
+namespace tunitas::denniston::report::ranges::iterator {
+  //
+  // Iterator on the REPORT_ID of the record
+  //
+  // Specification:
+  //
+  //    A projection at the 'id' field.
+  //    Obviously the underlying value type MUST have an id field.
+  //
+  // Design:
+  //
+  //   Yes.  See operator* where the projection onto field Record::id occurs.
+  //
+  // Usage:
+  //
+  //   You need a tutorial on how to use an iterator?  o.rly?
+  //
+  template<typename SUBITERATOR> struct Iterator<Projection::REPORT_ID, SUBITERATOR>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.report.ranges.iterator.Rebase
+#import tunitas.variant.Visitor
+#import tunitas.keyston.protocol.report.Produced
+#import tunitas.denniston.report.Definition
+#import std.same_as
+#import std.remove_cvref
+#import nonstd.like
+namespace tunitas::denniston::report::ranges::iterator {
+  template<typename SUBITERATOR> struct Iterator<Projection::REPORT_ID, SUBITERATOR> : public Rebase<Projection::REPORT_ID, SUBITERATOR>::Type {
+    using Ancestor = typename Rebase<Projection::REPORT_ID, SUBITERATOR>::Type;
+    //
+    // Each member call MUST return a reference and MUST NOT return a reference to a temporary (obviously)
+    //
+    // The whole point of this Rube Goldberg Machine is to access that.report_id or that.report.report_id -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\\\\\\\\\\\\\\\\\\\\\ (here)
+    //                                                                                                                                                                                                                                                                                                                             |||||||||||||||||||||
+    //                                                                                                                                                                                                                                                                                                                             vvvvvvvvvvvvvvvvvvvvv
+    using Accessor [[hackity_hack_hack("oh the humanity!")]] = decltype(variant::Visitor{[]<typename DEFINITION>(DEFINITION &that) -> nonstd::like_t<DEFINITION, typename Ancestor::Reference> requires std::same_as<std::remove_cvref_t<DEFINITION>, report::Definition>                                                 { return that.report.report_id; },
+                                                                                         []<typename PRODUCED>(PRODUCED &that)     -> nonstd::like_t<PRODUCED, typename Ancestor::Reference>   requires std::same_as<std::remove_cvref_t<PRODUCED>, keyston::protocol::report::Produced<keyston::protocol::Slice::SHARE>> { return that.report_id; }});
+    Accessor accessor{};
+  public:
+    [[implicit]] Iterator() = default;
+    using Ancestor::Basis;
+#if 202312 < __cplusplus
+    template<typename SELF> auto operator*(this SELF *) -> nonstd::like_t<SELF, typename Ancestor::Reference> { return accessor(*Ancestor::subiterator); }
+#else
+    auto operator*() -> typename Ancestor::Reference                     { return accessor(*Ancestor::subiterator); }
+    auto operator*() const -> typename Ancestor::Reference_More_Constie  { return accessor(*Ancestor::subiterator); }
+    auto operator++() -> Iterator &    { return Ancestor::increment(*this); }
+    auto operator++(int i) -> Iterator { return Ancestor::increment(*this, i); }
+#endif
+  };
+}
+#endiv

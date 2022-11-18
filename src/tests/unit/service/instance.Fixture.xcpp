@@ -90,12 +90,14 @@ namespace tests::unit::service::instance {
     require(ASSERTION, sizeof (made));
   }
   template<> auto Fixture::test_make<library::Processor>() -> void {
+    auto source = ::tunitas::keyston::entropy::Source{};
+    auto world = ::tunitas::denniston::World{source};
     {
-      auto made = library::make<library::Processor>(Species::PROCESSOR1); // <---------------------------------------- test this
+      auto made = library::make<library::Processor>(source, world, Species::PROCESSOR1); // <---------------------------------------- test this
       require(ASSERTION, nullptr != made.get());
       require(ASSERTION, sizeof (made));
     } {
-      auto made = library::make<library::Processor>(Species::PROCESSOR2); // <---------------------------------------- test this
+      auto made = library::make<library::Processor>(source, world, Species::PROCESSOR2); // <---------------------------------------- test this
       require(ASSERTION, nullptr != made.get());
       require(ASSERTION, sizeof (made));
     }

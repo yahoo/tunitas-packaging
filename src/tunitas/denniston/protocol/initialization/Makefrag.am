@@ -6,6 +6,6 @@
 #
 tunitas_denniston_protocol_initialization_SUBSOURCES = \
   obj/src/tunitas/denniston/protocol/initialization/namespace.cpp \
+  obj/src/tunitas/denniston/protocol/initialization/Computer.cpp \
   obj/src/tunitas/denniston/protocol/initialization/Slicer.cpp \
-  obj/src/tunitas/denniston/protocol/initialization/Processor.cpp \
   $(end)

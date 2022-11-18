@@ -5,6 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.concurrent.dictionary.Dictionary.template // for Complexity, Concurrency and Parameters<...>
+#import tunitas.keyston.hpke.Side
 namespace tunitas::denniston::service {
   //
   // A dictionary of all the services
@@ -20,12 +21,16 @@ namespace tunitas::denniston::service {
   //
   //   But avoid (suppress) the ability to create-on-missing with operator[]
   //
+  //   Omitted: [[FIXTHIS?, TODO?]]
+  //   The hpke::Configuration<SIDE> is tied to the endpoint.
+  //   There is no provision for resolving individual tasks within a service endpoint.
+  //
   // Usage:
   //
-  //   As you would.
+  //   As one does.
   //
   namespace [[eponymous]] dictionary {
-    struct Dictionary;
+    template<keyston::hpke::Side> struct Dictionary;
     using denniston::concurrent::dictionary::Parameters;
     using enum denniston::concurrent::dictionary::Complexity;
     using enum denniston::concurrent::dictionary::Concurrency;
@@ -39,8 +44,8 @@ namespace tunitas::denniston::service {
 #import tunitas.keyston.protocol.id // for id::Service
 #import tunitas.denniston.concurrent.dictionary.Dictionary
 namespace tunitas::denniston::service {
-  class dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration>> {
-    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration>>;
+  template<keyston::hpke::Side SIDE> class dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration<SIDE>>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration<SIDE>>>;
   public:
     Dictionary() = default;
     using Ancestor::Dictionary;

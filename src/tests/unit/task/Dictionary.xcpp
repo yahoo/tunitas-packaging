@@ -8,6 +8,10 @@
 #import tests.unit.required // ctcnr (cascade that certain 'namespace required')
 #import tunitas.denniston.task.Dictionary
 namespace tests::unit::task {
+  //
+  // This test is substantially overkill at this point.
+  // The test rigging for concurrent::Dictionary<...> already tests each of these interfaces.
+  //
   template<required::InstanceOf<library::Dictionary> SUBJECT> struct Dictionary;
 }
 #endiv

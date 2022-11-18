@@ -8,6 +8,7 @@
 #import tunitas.denniston.required
 namespace tunitas::denniston::task::required {
   using namespace tunitas::denniston::required;
+  namespace [[nodirectory]] corpus { }
   namespace [[nodirectory]] dictionary { }
 }
 #endiv

@@ -6,4 +6,5 @@
 #
 tunitas_denniston_protocol_continuation_SUBSOURCES = \
   obj/src/tunitas/denniston/protocol/continuation/namespace.cpp \
+  obj/src/tunitas/denniston/protocol/continuation/Computer.cpp \
   $(end)

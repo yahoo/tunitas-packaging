@@ -12,7 +12,6 @@ namespace tunitas::denniston::preparation::ranges::projection {
     RECORD, // ....... the whole record, as per usual.
     POSITIONED, // ... the Step<POSITIONED> ancestor being {Undetermined, Continued, Finished, Failed}
     REPORT_ID, // .... project out the 'report_id' field,
-    ID = REPORT_ID,
     // ... other projections? ... 
   };
 }

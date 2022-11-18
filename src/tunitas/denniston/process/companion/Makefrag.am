@@ -8,4 +8,10 @@ tunitas_denniston_process_companion_SUBSOURCES = \
   obj/src/tunitas/denniston/process/companion/namespace.cpp \
   obj/src/tunitas/denniston/process/companion/Barrier.cpp \
   obj/src/tunitas/denniston/process/companion/Shutdown.cpp \
+  obj/src/tunitas/denniston/process/companion/Pointer.cpp \
+  obj/src/tunitas/denniston/process/companion/Prototype.cpp \
+  obj/src/tunitas/denniston/process/companion/Series.cpp \
+  $(tunitas_denniston_process_companion_required_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/denniston/process/companion/required/Makefrag.am

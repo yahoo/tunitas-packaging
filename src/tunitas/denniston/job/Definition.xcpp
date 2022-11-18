@@ -14,7 +14,7 @@ namespace tunitas::denniston::job {
   //
   // Usage:
   //
-  //   See service::Gateway
+  //   See service::instance::Gateway.
   //
   struct Definition;
 }

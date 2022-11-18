@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::companion {
+  //
+  // The prototype of a companion (a subprocess)
+  //
+  // Specification:
+  //
+  //   Construction starts the barrier (establishes that lock)
+  //   That lock MUST be cleared before the end-of-life of the descendant.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   The destructor MUST be public so that unique_ptr<Prototype> can see it
+  //   Therefore the constructor is made protected.
+  //
+  //   The type name of OWNER must be available at <hpp> (obviously)
+  //   The complete type of OWNER must be available at <ipp>
+  //
+  // Usage:
+  //
+  //   By inheritance
+  //   See service::{client,gateway,processor}::subprocess::Prototype
+  //
+  template<typename OWNER> struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import std.jthread
+#import tunitas.denniston.process.companion.Barrier
+namespace tunitas::denniston::process {
+  namespace companion {
+    template<typename OWNER> inline auto swap(Prototype<OWNER> *&a, Prototype<OWNER> *&b) noexcept -> void { std::swap(a, b); }
+  }
+  template<typename OWNER> struct companion::Prototype {
+    virtual ~Prototype() = default;
+    using Owner = OWNER;
+    Owner &owner;
+    process::companion::Barrier barrier;
+    std::jthread subbie{};
+  protected:
+    inline explicit Prototype(Owner &);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::companion {
+  template<typename _> Prototype<_>::Prototype(Owner &owner)
+    : owner{owner}
+    , barrier{owner} {
+    barrier.start();
+    // the descenant's constructor performs the launch of 'run' nito the thread
+  }
+}
+// All descendants will need this (these)
+#import tunitas.denniston.process.companion.Shutdown
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::process::companion::Prototype;
+    struct Something { };
+    //
+    static_assert(not std::semiregular<Prototype<Something>>);
+    //
+    // because that barrier in Prototype::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_swappable_v<Prototype<Something>>);
+    static_assert(    std::is_swappable_v<Prototype<Something> *>);
+  }
+}
+#endiv
