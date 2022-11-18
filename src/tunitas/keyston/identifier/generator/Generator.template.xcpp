@@ -27,6 +27,6 @@ namespace tunitas::keyston::identifier::generator {
   //   auto generated1 = generator();
   //
   enum class Policy { RANDOM, SERIAL, SUPPLIED };
-  template<required::Generatable IDENTIFER, Policy> struct Generator;
+  template<required::Generatable IDENTIFER, Policy, typename = void> struct Generator;
 }
 #endiv

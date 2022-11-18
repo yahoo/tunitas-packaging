@@ -11,6 +11,7 @@ tunitas_keyston_entropy_SUBSOURCES = \
   obj/src/tunitas/keyston/entropy/Source.cpp \
   obj/src/tunitas/keyston/entropy/None.cpp \
   obj/src/tunitas/keyston/entropy/Serial.cpp \
+  obj/src/tunitas/keyston/entropy/Jitter.cpp \
   $(tunitas_keyston_entropy_required_SUBSOURCES) \
   $(end)
 #

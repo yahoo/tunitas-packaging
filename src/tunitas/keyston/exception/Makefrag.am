@@ -9,8 +9,12 @@ tunitas_keyston_exception_SUBSOURCES = \
   obj/src/tunitas/keyston/exception/Aspect.cpp \
   obj/src/tunitas/keyston/exception/Bound.cpp \
   obj/src/tunitas/keyston/exception/Cast.cpp \
+  obj/src/tunitas/keyston/exception/Domain.cpp \
   obj/src/tunitas/keyston/exception/Failure.cpp \
   obj/src/tunitas/keyston/exception/Invalid.cpp \
   obj/src/tunitas/keyston/exception/Invariant.cpp \
+  obj/src/tunitas/keyston/exception/Length.cpp \
+  obj/src/tunitas/keyston/exception/Null.cpp \
+  obj/src/tunitas/keyston/exception/Range.cpp \
   obj/src/tunitas/keyston/exception/Unimplemented.cpp \
   $(end)

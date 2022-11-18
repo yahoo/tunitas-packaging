@@ -1,0 +1,257 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::array {
+  //
+  // Generic ancestor of the Variable and Series test rigging
+  // Descendants only.
+  //
+  template<typename SUBJECT> class Container;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit {
+  template<typename SUBJECT> struct array::Container : public rigging::suite::Fixture {
+  protected:
+    static auto suite(string::View name) -> Suite;
+    static auto stanza(string::View name) -> Stream;
+    static auto suite(std::type_info const &) -> Suite;
+    static auto stanza(std::type_info const &) -> Stream;
+  public:
+    static auto suite() -> Suite; // required to exist (but unused?); required by rigging::stream::required::Callable<...>
+    //
+    using Subject = SUBJECT;
+    using Value = typename Subject::Value;
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_conversion_Bounded_copy() -> void;
+    auto test_constructor_conversion_Bounded_move() -> void;
+    auto test_constructor_conversion_Fixed_copy() -> void;
+    auto test_constructor_conversion_Fixed_move() -> void;
+    auto test_constructor_conversion_Variable_copy() -> void;
+    auto test_constructor_conversion_Variable_move() -> void;
+    auto test_constructor_conversion_Series_copy() -> void;
+    auto test_constructor_conversion_Series_move() -> void;
+    //
+    auto test_swap() -> void;
+    auto test_at_constie() -> void;
+    auto test_at_mutable() -> void;
+    auto test_push_back() -> void;
+    auto test_emplace_back() -> void;
+    //
+    auto test_subrange_constie() -> void;
+    auto test_subrange_mutable() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::array {
+  template<typename _> auto Container<_>::suite() -> Suite { return suite(typeid(Subject)); }
+  template<typename _> auto Container<_>::suite(std::type_info const &info) -> Suite { return suite(info.name()); }
+  template<typename _> auto Container<_>::suite(string::View name) -> Suite {
+    auto series = stanza(name);
+    return settle(series);
+  }
+  template<typename _> auto Container<_>::stanza(std::type_info const &info) -> Stream { return stanza(info.name()); }
+  template<typename _> auto Container<_>::stanza(string::View name) -> Stream {
+    auto series = Stream{name};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Container::test_constructor_default)
+                    << []{
+                         auto ver = Stream{"conversion"sv};
+                         ver << []{
+                                  auto bou = Stream{"Bounded"sv};
+                                  bou << add("copy", &Container::test_constructor_conversion_Bounded_copy)
+                                      << add("move", &Container::test_constructor_conversion_Bounded_move)
+                                      << END;
+                                  return bou;
+                                }()
+                             << []{
+                                  auto fix = Stream{"Fixed"sv};
+                                  fix << add("copy", &Container::test_constructor_conversion_Fixed_copy)
+                                      << add("move", &Container::test_constructor_conversion_Fixed_move)
+                                      << END;
+                                  return fix;
+                                }()
+                             << []{
+                                  auto var = Stream{"Variable"sv};
+                                  var << add("copy", &Container::test_constructor_conversion_Variable_copy)
+                                      << add("move", &Container::test_constructor_conversion_Variable_move)
+                                      << END;
+                                  return var;
+                                }()
+                             << []{
+                                  auto ser = Stream{"Series"sv};
+                                  ser << add("copy", &Container::test_constructor_conversion_Series_copy)
+                                      << add("move", &Container::test_constructor_conversion_Series_move)
+                                      << END;
+                                  return ser;
+                                }()
+                             << END;
+                         return ver;
+                       }()
+                    << END;
+                return con;
+              }()
+           << add("swap", &Container::test_swap)
+           << []{
+                auto at = Stream{"at"sv};
+                at << add("constie", &Container::test_at_constie)
+                   << add("mutable", &Container::test_at_mutable)
+                   << END;
+                return at;
+              }()
+           << []{
+                auto back = Stream{"back"sv};
+                back << add("push_back", &Container::test_push_back)
+                     << add("emplace_back", &Container::test_emplace_back)
+                     << END;
+                return back;
+              }()
+           << []{
+                auto face = Stream{"subrange"sv};
+                face << add("constie", &Container::test_subrange_constie)
+                     << add("mutable", &Container::test_subrange_mutable)
+                     << END;
+                return face;
+              }()
+           << END;
+    return series;
+  }
+}
+#import tunitas.exception.feature.Bound
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.array.Series
+namespace tests::unit::array {
+  template<typename _> auto Container<_>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Bounded_copy() -> void {
+    auto const specimen = library::Bounded<Value, 4u>{{}, {}, {}, {}};
+    auto subject = Subject{specimen};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Bounded_move() -> void {
+    auto specimen = library::Bounded<Value, 4u>{{}, {}, {}, {}};
+    auto subject = Subject{move(specimen)};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Fixed_copy() -> void {
+    auto const specimen = library::Fixed<Value, 4u>(1, 2, 3, 4);
+    auto subject = Subject{specimen};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Fixed_move() -> void {
+    auto specimen = library::Fixed<Value, 4u>(1, 2, 3, 4);
+    auto subject = Subject{move(specimen)};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Variable_copy() -> void {
+    auto const specimen = library::Variable<Value>{1, 2, 3, 4};
+    auto subject = Subject{specimen};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Variable_move() -> void {
+    auto specimen = library::Variable<Value>{1, 2, 3, 4};
+    auto subject = Subject{move(specimen)};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Series_copy() -> void {
+    auto const specimen = library::Series<Value>{1, 2, 3, 4};
+    auto subject = Subject{specimen};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_conversion_Series_move() -> void {
+    auto specimen = library::Series<Value>{1, 2, 3, 4};
+    auto subject = Subject{move(specimen)};
+    require(ASSERTION, 4uz == subject.size());
+  }
+  template<typename _> auto Container<_>::test_swap() -> void {
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+  }
+  template<typename _> auto Container<_>::test_at_constie() -> void {
+    auto const subject = Subject(4); // <----- using this (constie)
+    require(ASSERTION, 4 == subject.size());
+    auto v0 = subject.at(0); // <---------------------------------------- test this
+    auto v1 = subject.at(1);
+    auto v2 = subject.at(2);
+    auto v3 = subject.at(3);
+    require(ASSERTION, sizeof (v0) + sizeof (v1) + sizeof (v2) + sizeof (v3));
+    try {
+      subject.at(4);
+      impossible(ASSERTION);
+    } catch (::tunitas::exception::feature::Bound const &) {
+      require(ASSERTION);
+    }
+  }
+  template<typename _> auto Container<_>::test_at_mutable() -> void {
+    auto subject = Subject(4); // <----- using this (mutable)
+    require(ASSERTION, 4 == subject.size());
+    subject.at(0) = subject.at(0); // <---------------------------------------- test this
+    subject.at(1) = subject.at(1);
+    subject.at(2) = subject.at(2);
+    subject.at(3) = subject.at(3);
+    try {
+      subject.at(4) = subject.at(4);
+      impossible(ASSERTION);
+    } catch (::tunitas::exception::feature::Bound const &) {
+      require(ASSERTION);
+    }
+  }
+  template<typename _> auto Container<_>::test_push_back() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+  }
+  template<typename _> auto Container<_>::test_emplace_back() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.template emplace_back<typename Subject::Value>({});
+    subject.template emplace_back<typename Subject::Value>({});
+    subject.template emplace_back<typename Subject::Value>({});
+    subject.template emplace_back<typename Subject::Value>({});
+    require(ASSERTION, 4 == subject.size());
+  }
+  template<typename _> auto Container<_>::test_subrange_constie() -> void {
+    auto specimen = Subject{}; // <------------------------------ constie
+    require(ASSERTION, 0 == specimen.size());
+    specimen.push_back({});
+    specimen.push_back({});
+    specimen.push_back({});
+    specimen.push_back({});
+    require(ASSERTION, 4 == specimen.size());
+    auto const &subject{specimen};
+    auto count{0uz};
+    for (auto const &item : subrange(subject)) { // <--------------- test this (constie)
+      count += 0 != sizeof (item);
+    }
+    require(ASSERTION, 4uz == count);
+  }
+  template<typename _> auto Container<_>::test_subrange_mutable() -> void {
+    auto subject = Subject{}; // <------------------------------------ mutable
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+    auto count{0uz};
+    for (auto const &item : subrange(subject)) { // <--------------- test this (mutable)
+      count += 0 != sizeof (item);
+    }
+    require(ASSERTION, 4uz == count);
+  }
+}
+#endiv

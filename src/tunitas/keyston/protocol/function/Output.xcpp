@@ -4,16 +4,11 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.function.buffer.Companion
-#include <hpp/tunitas.keyston.protocol.function.buffer.Companion>
+#import tunitas.keyston.vdaf.State
 namespace tunitas::keyston::protocol::function {
   //
   // The output, in whole or in part.
   //
-  namespace [[eponymous]] output {
-    struct Tag;
-    template<Slice SLICE> using Output = buffer::Companion<SLICE, Tag, 0, (1uz<<32)>;
-  }
-  using output::Output;
+  template<Slice> using Output = vdaf::State;
 }
 #endiv

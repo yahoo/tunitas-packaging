@@ -7,24 +7,91 @@
 namespace tests::unit::hpke { class Fixture; }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.hpke.Side
 struct tests::unit::hpke::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
+  //
+  using enum library::Side;
+  //
+  auto test_usage_identifiers() -> void;
+  template<typename SUBJECT> auto test_usage_Key() -> void;
+  template<typename SUBJECT> auto test_usage_Configuration() -> void;
+  //
+  auto test_format_Side() -> void;
 };
 #endiv
+#divert <tpp>
+namespace tests::unit::hpke {
+  template<typename SUBJECT> auto Fixture::test_usage_Key() -> void {
+    using Subject = SUBJECT;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename SUBJECT> auto Fixture::test_usage_Configuration() -> void {
+    using Subject = SUBJECT;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv
 #divert <cpp>
+#import tunitas.keyston.hpke.Key
+#import tunitas.keyston.hpke.Configuration
 #import tests.unit.hpke.id.Fixture
+#import tests.unit.hpke.configuration.Fixture
 #import tests.unit.hpke.key.Fixture
+#import tests.unit.hpke.Filter
 auto tests::unit::hpke::Fixture::suite() -> Suite {
   auto series = Stream{"hpke"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use // any?
-                 << END;
+              use << add("Identifiers", &Fixture::test_usage_identifiers)
+                  << []{
+                       auto key = Stream{"Key"sv};
+                       key << add("PUBLIC", &Fixture::test_usage_Key<library::Key<PUBLIC>>)
+                           << add("SECRET", &Fixture::test_usage_Key<library::Key<SECRET>>)
+                           << END;
+                       return key;
+                     }()
+                  << []{
+                       auto con = Stream{"Configuration"sv};
+                       con << add("PUBLIC", &Fixture::test_usage_Key<library::Configuration<PUBLIC>>)
+                           << add("SECRET", &Fixture::test_usage_Key<library::Configuration<SECRET>>)
+                           << END;
+                       return con;
+                     }()
+                  << END;
               return use;
+            }()
+         << []{
+              auto fmt = Stream{"fmt::format"sv};
+              fmt << add("Side", &Fixture::test_format_Side)
+                  << END;
+              return fmt;
             }()
          << add<id::Fixture>()
          << add<key::Fixture>()
+         << add<configuration::Fixture>()
+         << add<Filter>()
          << END;
   return settle(series);
+}
+#import tunitas.keyston.hpke.io
+#import fmt.format
+namespace tests::unit::hpke {
+  auto Fixture::test_usage_identifiers() -> void {
+    auto conf = library::id::Configuration{};
+    auto kem = library::id::KEM{};
+    auto kdf = library::id::KDF{};
+    auto aead = library::id::AEAD{};
+    require(ASSERTION, sizeof (conf) + sizeof (kem) + sizeof (kdf) + sizeof (aead));
+  }
+  auto Fixture::test_format_Side() -> void {
+    using Side = library::Side;
+    auto specimen = fmt::format("{} {}", Side::PUBLIC, Side::SECRET);
+    require(ASSERTION, "PUBLIC SECRET"s == specimen);
+    auto three = fmt::format("{} {} {}", Side::PUBLIC, Side::SECRET, Side{99});
+    std::cerr << three << '\n';
+  }
 }
 #endiv

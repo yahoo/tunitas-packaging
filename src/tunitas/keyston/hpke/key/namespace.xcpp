@@ -5,5 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.hpke
-namespace tunitas::keyston::hpke::key { }
+#import tunitas.keyston.hpke.Side
+namespace tunitas::keyston::hpke::key {
+  using enum Side;
+}
 #endiv

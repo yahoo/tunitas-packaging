@@ -54,7 +54,7 @@ namespace tunitas::keyston::transport::error::package_error {
     }
     auto Category::estimate(int code) const -> Optional<string::View> {
       switch (E{code}) {
-      case E::SUCCESS: return "unexpected success"sv;
+      case E::SUCCESS: return "success"sv;
       case E::FAILURE: return "failure"sv;
 
       case E::UNRECOGNIZED_MESSAGE:         return "The message type for a response was incorrect or the payload was malformed."sv;

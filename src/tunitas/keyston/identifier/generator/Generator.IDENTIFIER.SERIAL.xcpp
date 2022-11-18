@@ -16,13 +16,13 @@ namespace tunitas::keyston::identifier::generator {
   //   auto generated0 = generator();
   //   auto generated1 = generator();
   //
-  template<required::Unique IDENTIFIER> struct Generator<IDENTIFIER, Policy::SERIAL>;
+  template<required::Unique IDENTIFIER> struct Generator<IDENTIFIER, Policy::SERIAL, void>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.identifier.generator.Serializer
 namespace tunitas::keyston::identifier::generator {
-  template<required::Unique IDENTIFIER> struct Generator<IDENTIFIER, Policy::SERIAL> : public Serializer<IDENTIFIER> {
+  template<required::Unique IDENTIFIER> struct Generator<IDENTIFIER, Policy::SERIAL, void> : public Serializer<IDENTIFIER> {
     explicit Generator() = default;
   };
 }

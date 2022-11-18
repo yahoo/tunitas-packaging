@@ -4,68 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.Opaque
+#import tunitas.keyston.hpke.configuration.Configuration
 namespace tunitas::keyston::hpke {
-  //
-  // An HPKE configuration (as-packaged)
-  //
-  // Specification:
-  //
-  //   RFC 9180
-  //   https://www.ietf.org/rfc/rfc9180.html
-  //
-  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
-  //
-  // Design:
-  //
-  //   Just what you see.
-  //
-  // Usage:
-  //
-  //   Use designated initialization.
-  //
-  struct Configuration;
-}
-#endiv
-#divert <hpp>
-#import tunitas.keyston.hpke.id
-#import tunitas.keyston.hpke.key.Public
-namespace tunitas::keyston {
-  namespace hpke {
-    using std::move;
-    inline auto swap(Configuration &, Configuration &) noexcept -> void;
-  }
-  struct hpke::Configuration {
-    id::Configuration id{};
-    id::KEM kem_id{};
-    id::KDF kdf_id{};
-    id::AEAD aead_id{};
-    key::Public public_key{};
-  };
-}
-#endiv
-#divert <ipp>
-namespace tunitas::keyston {
-  auto hpke::swap(Configuration &a, Configuration &b) noexcept -> void {
-    swap(a.id, b.id);
-    swap(a.kem_id, b.kem_id);
-    swap(a.kdf_id, b.kdf_id);
-    swap(a.aead_id, b.aead_id);
-    swap(a.public_key, b.public_key);
-  }
-}
-#endiv
-#divert <cpp>
-namespace {
-  namespace testate {
-    using namespace tunitas::keyston::hpke;
-    static_assert(std::is_default_constructible_v<Configuration>);
-    static_assert(std::is_copy_constructible_v<Configuration>);
-    static_assert(std::is_move_constructible_v<Configuration>);
-    static_assert(std::is_copy_assignable_v<Configuration>);
-    static_assert(std::is_move_assignable_v<Configuration>);
-    static_assert(std::is_swappable_v<Configuration>);
-  }
+  using configuration::Configuration;
 }
 #endiv

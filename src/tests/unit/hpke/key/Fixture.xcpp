@@ -7,8 +7,11 @@
 namespace tests::unit::hpke::key { class Fixture; }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.hpke.Side
 struct tests::unit::hpke::key::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
+  //
+  using enum ::tunitas::keyston::hpke::Side;
   //
   auto test_usage_Public() -> void;
   auto test_usage_Secret() -> void;
@@ -18,8 +21,10 @@ struct tests::unit::hpke::key::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
+#import tests.unit.hpke.key.Bundle
+#import tunitas.keyston.hpke.key.Bundle
 auto tests::unit::hpke::key::Fixture::suite() -> Suite {
-  auto series = Stream{"hpke"sv};
+  auto series = Stream{"key"sv};
   series << []{
               auto use = Stream{"usage"sv};
               use << []{
@@ -40,6 +45,19 @@ auto tests::unit::hpke::key::Fixture::suite() -> Suite {
                  << END;
               return use;
             }()
+#if 1
+         << add<Bundle>()
+#else // some day ...
+         << []{
+              auto bun = Stream{"Bundle"sv};
+              bun << add<Bundle<library::Bundle<library::Key<SECRET>>>>()
+                  << add<Bundle<library::Bundle<library::Key<PUBLIC>>>>()
+                  << add<Bundle<library::Bundle<library::Key<SECRET>, library::Key<PUBLIC>>>>()
+                  << add<Bundle<library::Bundle<library::Key<PUBLIC>, library::Key<SECRET>>>>()
+                  << END;
+              return bun;
+            }()
+#endif
          << END;
   return settle(series);
 }

@@ -1,0 +1,85 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::hpke::key { class Bundle; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.Side
+#import tunitas.keyston.hpke.key.Key
+#import tunitas.keyston.hpke.key.Bundle
+namespace tests::unit::hpke {
+  struct key::Bundle : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using enum ::tunitas::keyston::hpke::Side;
+    //
+    template<typename SUBJECT> auto test_usage() -> void;
+  };
+  namespace key {
+    template<> auto Bundle::test_usage<library::Bundle<library::Key<library::PUBLIC>>>() -> void;
+    template<> auto Bundle::test_usage<library::Bundle<library::Key<library::SECRET>>>() -> void;
+    template<> auto Bundle::test_usage<library::Bundle<library::Key<library::PUBLIC>, library::Key<library::SECRET>>>() -> void;
+    template<> auto Bundle::test_usage<library::Bundle<library::Key<library::SECRET>, library::Key<library::PUBLIC>>>() -> void;
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.hpke.key.Bundle
+auto tests::unit::hpke::key::Bundle::suite() -> Suite {
+  auto series = Stream{"Bundle"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Bundle<Key<PUBLIC>>", &Bundle::test_usage<library::Bundle<library::Key<PUBLIC>>>)
+                  << add("Bundle<Key<SECRET>>", &Bundle::test_usage<library::Bundle<library::Key<PUBLIC>>>)
+                  << add("Bundle<Key<PUBLIC>,Key<SECRET>>", &Bundle::test_usage<library::Bundle<library::Key<PUBLIC>, library::Key<SECRET>>>)
+                  << add("Bundle<Key<SECRET>,Key<PUBLIC>>", &Bundle::test_usage<library::Bundle<library::Key<SECRET>, library::Key<PUBLIC>>>)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::hpke::key {
+  template<> auto Bundle::test_usage<library::Bundle<library::Key<library::PUBLIC>>>() -> void {
+    using Subject = library::Bundle<library::Key<PUBLIC>>;
+    auto subject = Subject{};
+    subject = library::Key<PUBLIC>{};
+    require(ASSERTION, sizeof (subject));
+    auto resubject = Subject{library::Key<PUBLIC>{}};
+    require(ASSERTION, sizeof (resubject));
+  }
+  template<> auto Bundle::test_usage<library::Bundle<library::Key<library::SECRET>>>() -> void {
+    using Subject = library::Bundle<library::Key<SECRET>>;
+    auto subject = Subject{};
+    subject = library::Key<SECRET>{};
+    require(ASSERTION, sizeof (subject));
+    auto resubject = Subject{library::Key<SECRET>{}};
+    require(ASSERTION, sizeof (resubject));
+  }
+  template<> auto Bundle::test_usage<library::Bundle<library::Key<library::PUBLIC>,library::Key<library::SECRET>>>() -> void {
+    using Subject = library::Bundle<library::Key<PUBLIC>,library::Key<SECRET>>;
+    auto subject = Subject{};
+    subject = library::Key<SECRET>{};
+    subject = library::Key<PUBLIC>{};
+    require(ASSERTION, sizeof (subject));
+    auto resubject = Subject{library::Key<SECRET>{},library::Key<PUBLIC>{}};
+    require(ASSERTION, sizeof (resubject));
+    auto reresubject = Subject{library::Key<PUBLIC>{},library::Key<SECRET>{}};
+    require(ASSERTION, sizeof (reresubject));
+  }
+  template<> auto Bundle::test_usage<library::Bundle<library::Key<library::SECRET>,library::Key<library::PUBLIC>>>() -> void {
+    using Subject = library::Bundle<library::Key<SECRET>,library::Key<PUBLIC>>;
+    auto subject = Subject{};
+    subject = library::Key<SECRET>{};
+    subject = library::Key<PUBLIC>{};
+    require(ASSERTION, sizeof (subject));
+    auto resubject = Subject{library::Key<SECRET>{},library::Key<PUBLIC>{}};
+    require(ASSERTION, sizeof (resubject));
+    auto reresubject = Subject{library::Key<PUBLIC>{},library::Key<SECRET>{}};
+    require(ASSERTION, sizeof (reresubject));
+  }
+}
+#endiv

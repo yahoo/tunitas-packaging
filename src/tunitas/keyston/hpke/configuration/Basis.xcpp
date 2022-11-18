@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::hpke::configuration {
+  //
+  // The basis of an HPKE configuration
+  //
+  // Specification:
+  //
+  //   RFC 9180
+  //   https://www.ietf.org/rfc/rfc9180.html
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   The commonalities among the public and secret incarnations.
+  //   Does not contain keys (descendants do that).
+  //
+  // Usage:
+  //
+  //   Use aggregate initialization.
+  //   Use designated initialization.
+  //
+  struct Basis;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.id
+namespace tunitas::keyston::hpke {
+  namespace configuration {
+    using std::move;
+    inline auto swap(Basis &, Basis &) noexcept -> void;
+  }
+  struct configuration::Basis {
+    id::Configuration id{};
+    id::KEM kem_id{};
+    id::KDF kdf_id{};
+    id::AEAD aead_id{};
+    Basis() = default;
+    inline [[implicit]] Basis(id::Configuration, id::KEM, id::KDF, id::AEAD);
+  protected:
+    ~Basis() = default;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::hpke {
+  auto configuration::swap(Basis &a, Basis &b) noexcept -> void {
+    swap(a.id, b.id);
+    swap(a.kem_id, b.kem_id);
+    swap(a.kdf_id, b.kdf_id);
+    swap(a.aead_id, b.aead_id);
+  }
+  namespace configuration {
+    Basis::Basis(id::Configuration conf, id::KEM kem, id::KDF kdf, id::AEAD aead)
+      : id{conf}
+      , kem_id{kem}
+      , kdf_id{kdf}
+      , aead_id{aead}
+    { }
+  }
+}
+#endiv

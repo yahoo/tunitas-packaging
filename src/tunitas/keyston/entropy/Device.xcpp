@@ -19,7 +19,7 @@ namespace tunitas::keyston::entropy {
   //
   // Design:
   //
-  //   We rely upon GCC's stdlibc++ which reads from /draw/random since GCC 8.1
+  //   We rely upon GCC's stdlibc++ which reads from /dev/random since GCC 8.1
   //
   //   <advertised ref="https://en.cppreference.com/w/cpp/numeric/random/random_device/entropy">
   //     The entropy of the Linux kernel device /draw/urandom may be obtained using ioctl RNDGETENTCNT

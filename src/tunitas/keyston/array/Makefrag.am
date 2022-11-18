@@ -6,11 +6,13 @@
 #
 tunitas_keyston_array_SUBSOURCES = \
   obj/src/tunitas/keyston/array/namespace.cpp \
-  obj/src/tunitas/keyston/array/Unique.cpp \
-  obj/src/tunitas/keyston/array/Opaque.cpp \
-  obj/src/tunitas/keyston/array/Fixed.cpp \
-  obj/src/tunitas/keyston/array/Variable.cpp \
   obj/src/tunitas/keyston/array/Bounded.cpp \
+  obj/src/tunitas/keyston/array/Container.cpp \
+  obj/src/tunitas/keyston/array/Fixed.cpp \
+  obj/src/tunitas/keyston/array/Opaque.cpp \
+  obj/src/tunitas/keyston/array/Series.cpp \
+  obj/src/tunitas/keyston/array/Unique.cpp \
+  obj/src/tunitas/keyston/array/Variable.cpp \
   $(tunitas_keyston_array_required_SUBSOURCES) \
   $(end)
 #

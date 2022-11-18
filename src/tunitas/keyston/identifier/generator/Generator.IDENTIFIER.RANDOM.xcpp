@@ -6,6 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.identifier.generator.Generator.template
 #import tunitas.keyston.identifier.generator.required.Unique
+#import tunitas.keyston.identifier.generator.required.Entropy
 namespace tunitas::keyston::identifier::generator {
   //
   // The serial id generators for the unique ids
@@ -16,14 +17,19 @@ namespace tunitas::keyston::identifier::generator {
   //   auto generated0 = generator();
   //   auto generated1 = generator();
   //
-  template<required::Unique IDENTIFIER> struct Generator<IDENTIFIER, Policy::RANDOM>;
+  template<required::Unique IDENTIFIER, required::Entropy SOURCE> struct Generator<IDENTIFIER, Policy::RANDOM, SOURCE>;
+  template<typename ANYTHING> requires (false) struct Generator<ANYTHING, Policy::RANDOM, void>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.identifier.generator.Randomizer
 namespace tunitas::keyston::identifier::generator {
-  template<required::Unique IDENTIFIER> struct Generator<IDENTIFIER, Policy::RANDOM> : public Randomizer<IDENTIFIER> {
-    using Ancestor = Randomizer<IDENTIFIER>;
+  template<typename ANYTHING> requires (false) struct Generator<ANYTHING, Policy::RANDOM, void> {
+    static_assert(sizeof (ANYTHING) || required::Entropy<void>, "void is not an entropy source");
+    Generator() = delete;
+  };
+  template<required::Unique IDENTIFIER, required::Entropy SOURCE> struct Generator<IDENTIFIER, Policy::RANDOM, SOURCE> : public Randomizer<IDENTIFIER, SOURCE> {
+    using Ancestor = Randomizer<IDENTIFIER, SOURCE>;
   public:
     explicit Generator(typename Ancestor::Entropy &e) : Ancestor{e} { }
   };

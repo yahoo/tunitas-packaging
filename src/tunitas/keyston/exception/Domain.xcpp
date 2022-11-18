@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::exception {
+  //
+  // A domain was problematic in Tunitas Keyston.
+  //
+  // Specification:
+  //
+  //   Yes.
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Domain;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Domain
+#import tunitas.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+class tunitas::keyston::exception::Domain final : public complete::Basic<partial::Domain, keyston::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Domain, keyston::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  using Ancestor::Basic;
+};
+#endiv
+#divert <cpp>
+#import std.derived_from
+namespace {
+  namespace testate {
+    using tunitas::keyston::exception::Domain;
+    using std::domain_error;
+    static_assert(std::derived_from<Domain, domain_error>);
+  }
+}
+#endiv

@@ -34,9 +34,10 @@ namespace tunitas::keyston::protocol {
     using std::move;
     inline auto swap(Array &, Array &) noexcept -> void;
   }
-  class extension::Array : public array::Bounded<Container, (1uz<<16)> {
-    using Ancestor = array::Bounded<Container, (1uz<<16)>;
-    friend auto swap(Array &, Array &) noexcept -> void;
+  class extension::Array : public array::Bounded<extension::Container, (1uz<<16)> {
+    // WATCHOUT - there is a 'Container' in the ancestry of Bounded<...> so that takes precedence over nearby extension::Container
+    using Ancestor = array::Bounded<extension::Container, (1uz<<16)>;
+    friend auto extension::swap(Array &, Array &) noexcept -> void;
   public:
     Array() = default;
     using Ancestor::Bounded;

@@ -7,120 +7,107 @@
 #import tunitas.keyston.array.required.Arrayable
 namespace tunitas::keyston::array {
   //
-  // A variable array.
+  // A variable-length series.
   //
   // Specification:
   //
-  //   Obvious
+  //   Obvious.
   //
   // Design:
   //
   //   Unlimited length, thus variable length
-  //   a.k.a. Variable Entity-Containing-Type [which] Owns Resources (VECTOR)
-  //   https://en.cppreference.com/w/cpp/container/vector
-  //
-  //   [[FIXTHIS]] such exceptions are NOT recovered and re-wrapped as vdaf::exception::Aspect descendants.
+  //   discontiguous storage; hence no data() member function
+  //   https://en.cppreference.com/w/cpp/container/deque
   //
   // Usage:
   //
-  //   As you would a vector; with the reduced interface.
+  //   As you would a deque; with the reduced interface.
   //
   template<required::Arrayable TYPE> struct Variable;
 }
 #endiv
 #divert <hpp>
-#import nonstd.required.iterator.Forward
-#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
-#forward tunitas.keyston.array.Bounded
-#import std.derived_from
-#import std.conditional
-#import std.is_const
+#import tunitas.keyston.array.Container
 #import std.vector
 namespace tunitas::keyston {
   namespace array {
     using std::move;
     template<required::Arrayable TYPE> inline auto swap(Variable<TYPE> &, Variable<TYPE> &) noexcept -> void;
   }
-  template<array::required::Arrayable TYPE> class array::Variable : private std::vector<TYPE> {
-    using Ancestor = std::vector<TYPE>;
+  template<array::required::Arrayable TYPE> class array::Variable : public Container<std::vector<TYPE>> {
+    using Ancestor = Container<std::vector<TYPE>>;
     friend auto array::swap<>(Variable &, Variable &) noexcept -> void;
   public:
-    using Value [[school("New")]] = typename Ancestor::value_type;
-    using value_type [[school("Old")]] = Value;
+    [[implicit]] Variable() = default;
+    using Ancestor::Container; // constructors for Fixed<...> are inherited
+    inline [[implicit]] Variable(Ancestor const &);
+    inline [[implicit]] Variable(Ancestor &&);
     //
-    Variable() = default;
-    using Ancestor::vector;
-    template<Size CAPACITY> Variable(Bounded<Value, CAPACITY> const &);
-    template<Size CAPACITY> Variable(Bounded<Value, CAPACITY> &&);
-    //
-    template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Variable> using Basic_Iterator = std::conditional_t<std::is_const_v<SELF>, typename Ancestor::const_iterator, typename Ancestor::iterator>;
-    using Iterator = Basic_Iterator<Variable>;
-    //
-    using Ancestor::empty;
-    using Ancestor::size;
     using Ancestor::data;
-    using Ancestor::begin;
-    using Ancestor::end;
-#if 202312 < __cplusplus
-    template<typename SELF> inline auto at(this SELF *, Size) -> nonstd::like_t<SELF, Value &>;
-#else
-    inline auto at(Size) const -> Value const &;
-    inline auto at(Size) -> Value &;
-#endif
-    using Ancestor::push_back;
-    using Ancestor::emplace_back;
   };
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.exception.Bound
-#import tunitas.keyston.array.Bounded
 namespace tunitas::keyston {
   template<array::required::Arrayable TYPE> auto array::swap(Variable<TYPE> &a, Variable<TYPE> &b) noexcept -> void {
     typename Variable<TYPE>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }
   namespace array {
-    template<typename _> template<Size CAPACITY> Variable<_>::Variable(Bounded<Value, CAPACITY> const &other) : Ancestor{other} { }
-    template<typename _> template<Size CAPACITY> Variable<_>::Variable(Bounded<Value, CAPACITY> &&other) : Ancestor{move(other)} { }
-#if 202312 < __cplusplus
-    template<typename _> template<typename SELF> auto Variable<_>::at(this SELF *self, Size index) -> nonstd::like_t<SELF, Value &> try {
-      return self->at(index);
-    } catch (std::out_of_range const &e) {
-      throw exception::Bound{e};
-    }
-#else
-    template<typename _> auto Variable<_>::at(Size index) const -> Value const & try {
-      return Ancestor::at(index);
-    } catch (std::out_of_range const &e) {
-      throw exception::Bound{e.what()};
-    }
-    template<typename _> auto Variable<_>::at(Size index) -> Value & try {
-      return Ancestor::at(index);
-    } catch (std::out_of_range const &e) {
-      throw exception::Bound{e.what()};
-    }
-#endif
+    template<required::Arrayable _> Variable<_>::Variable(Ancestor const &other) : Ancestor{other} { }
+    template<required::Arrayable _> Variable<_>::Variable(Ancestor &&other) : Ancestor{move(other)} { }
   }
 }
 #endiv
 #divert <cpp>
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.array.Series
+#import tunitas.keyston.array.Bounded
 namespace {
   namespace testate {
-    using namespace tunitas::keyston::array;
+    namespace array = tunitas::keyston::array;
     using tunitas::keyston::Octet;
-    using Subject = Variable<Octet>;
-    using Bounded = Bounded<Octet, (1uz<<16)>;
+    using Subject = array::Variable<Octet>;
+    using Fixed = array::Fixed<Octet, (1uz<<16)>;
+    using Bounded = array::Bounded<Octet, (1uz<<16)>;
+    using Variable = Subject;
+    using Series = array::Series<Octet>;
+    //
+    static_assert(std::semiregular<Subject>);
     static_assert(std::is_default_constructible_v<Subject>);
     static_assert(std::is_copy_constructible_v<Subject>);
     static_assert(std::is_move_constructible_v<Subject>);
     static_assert(std::is_copy_assignable_v<Subject>);
     static_assert(std::is_move_assignable_v<Subject>);
     static_assert(std::is_swappable_v<Subject>);
+    //
+    static_assert(std::constructible_from<Subject, Fixed const &>);
+    static_assert(std::constructible_from<Subject, Fixed &>);
+    static_assert(std::constructible_from<Subject, Fixed &&>);
+    //
     static_assert(std::constructible_from<Subject, Bounded const &>);
     static_assert(std::constructible_from<Subject, Bounded &>);
+    static_assert(std::constructible_from<Subject, Bounded &&>);
+    //
+    static_assert(std::constructible_from<Subject, Variable const &>);
+    static_assert(std::constructible_from<Subject, Variable &>);
+    static_assert(std::constructible_from<Subject, Variable &&>);
+    //
+    static_assert(std::constructible_from<Subject, Variable const &>);
+    static_assert(std::constructible_from<Subject, Variable &>);
+    static_assert(std::constructible_from<Subject, Variable &&>);
+    //
+    static_assert(std::assignable_from<Subject &, Fixed>);
+    static_assert(std::assignable_from<Subject &, Fixed &&>);
+    //
     static_assert(std::assignable_from<Subject &, Bounded>);
     static_assert(std::assignable_from<Subject &, Bounded &&>);
+    //
+    static_assert(std::assignable_from<Subject &, Variable>);
+    static_assert(std::assignable_from<Subject &, Variable &&>);
+    //
+    static_assert(std::assignable_from<Subject &, Variable>);
+    static_assert(std::assignable_from<Subject &, Variable &&>);
   }
 }
 #endiv

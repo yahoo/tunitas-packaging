@@ -8,12 +8,10 @@ tunitas_keyston_hpke_key_SUBSOURCES = \
   obj/src/tunitas/keyston/hpke/Key.cpp \
   obj/src/tunitas/keyston/hpke/key/namespace.cpp \
   obj/src/tunitas/keyston/hpke/key/Key.cpp \
-  obj/src/tunitas/keyston/hpke/key/Bundle.template.cpp \
-  obj/src/tunitas/keyston/hpke/key/Bundle.Public.cpp \
-  obj/src/tunitas/keyston/hpke/key/Bundle.Public.Secret.cpp \
-  obj/src/tunitas/keyston/hpke/key/Bundle.Secret.cpp \
-  obj/src/tunitas/keyston/hpke/key/Bundle.cpp \
+  $(tunitas_keyston_hpke_key_bundle_SUBSOURCES) \
   obj/src/tunitas/keyston/hpke/key/Secret.cpp \
   obj/src/tunitas/keyston/hpke/key/Public.cpp \
   obj/src/tunitas/keyston/hpke/key/required.cpp \
   $(end)
+#
+include src/tunitas/keyston/hpke/key/bundle/Makefrag.am

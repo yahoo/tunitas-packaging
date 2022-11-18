@@ -7,6 +7,7 @@
 namespace tests::unit::identifier::generator { class Fixture; }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.entropy.Source
 #import tunitas.keyston.identifier.Generator
 #import tests.unit.identifier.generator.Formatter
 #import std.integer_sequence
@@ -16,6 +17,7 @@ namespace tests::unit::identifier {
   struct generator::Fixture : public rigging::suite::Fixture, protected Formatter {
     static auto suite() -> Suite;
     //
+    using Source = ::tunitas::keyston::entropy::Source;
     template<typename SUBJECT> auto test_usage_Generator() -> void;
   protected:
     inline static constexpr auto const HOW_BIG = 16uz; // yes, just bigger than that certain power of 2 (HOW_BIG is in in bytes)
@@ -24,7 +26,7 @@ namespace tests::unit::identifier {
     using Sequence = Thin_Sequence;
   };
   namespace generator {
-    template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>>() -> void;
+    template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM, Fixture::Source>>() -> void;
     template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>>() -> void;
     template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SUPPLIED>>() -> void;
   }
@@ -38,7 +40,7 @@ auto tests::unit::identifier::generator::Fixture::suite() -> Suite {
   auto series = Stream{"Generator<...>"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Generator<id::Batch,RANDOM>", &Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>>)
+              use << add("Generator<id::Batch,RANDOM,Source>", &Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM, Source>>)
                   << add("Generator<id::Batch,SERIAL>", &Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>>)
                   << add("Generator<id::Batch,SUPPLIED>", &Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SUPPLIED>>)
                   << END;
@@ -68,7 +70,6 @@ auto tests::unit::identifier::generator::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.entropy.Source
 namespace tests::unit::identifier::generator { 
   template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>>() -> void {
     using Subject = library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::SERIAL>;
@@ -86,9 +87,9 @@ namespace tests::unit::identifier::generator {
     std::cerr << "supply: " << format(subject(4u)) << '\n';
     std::cerr << "supply: " << format(subject(8u)) << '\n';
   }
-  template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>>() -> void {
-    auto source = ::tunitas::keyston::entropy::Source{};
-    using Subject = library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM>;
+  template<> auto Fixture::test_usage_Generator<library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM, Fixture::Source>>() -> void {
+    auto source = Source{};
+    using Subject = library::Generator<::tunitas::keyston::protocol::id::Batch, library::Policy::RANDOM, Source>;
     auto subject = Subject{source};
     std::cerr << "random: " << format(subject()) << '\n';
     std::cerr << "random: " << format(subject()) << '\n';

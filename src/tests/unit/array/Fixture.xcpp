@@ -15,13 +15,16 @@ struct tests::unit::array::Fixture : public rigging::suite::Fixture {
   auto test_usage_Fixed() -> void;
   auto test_usage_Variable() -> void;
   auto test_usage_Bounded() -> void;
+  auto test_usage_Series() -> void;
 };
 #endiv
 #divert <cpp>
-#import tunitas.keyston.array.Variable
-#import tunitas.keyston.array.Bounded
-#import tests.unit.array.Variable
 #import tests.unit.array.Bounded
+#import tests.unit.array.Fixed
+#import tests.unit.array.Series
+#import tests.unit.array.Variable
+#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.array.Variable
 auto tests::unit::array::Fixture::suite() -> Suite {
   auto series = Stream{"array"sv};
   series << []{
@@ -31,8 +34,15 @@ auto tests::unit::array::Fixture::suite() -> Suite {
                   << add("Fixed", &Fixture::test_usage_Fixed)
                   << add("Variable", &Fixture::test_usage_Variable)
                   << add("Bounded", &Fixture::test_usage_Bounded)
+                  << add("Series", &Fixture::test_usage_Series)
                   << END;
               return use;
+            }()
+         << []{
+              auto ser = Stream{"Series"sv};
+              ser << add<Series<library::Series<int>>>()
+                  << END;
+              return ser;
             }()
          << []{
               auto var = Stream{"Variable"sv};
@@ -42,18 +52,25 @@ auto tests::unit::array::Fixture::suite() -> Suite {
             }()
          << []{
               auto bou = Stream{"Bounded"sv};
-              bou << add<Variable<library::Bounded<int, 4uz>>>()
+              bou << add<Bounded<library::Bounded<int, 4uz>>>()
+                  << END;
+              return bou;
+            }()
+         << []{
+              auto bou = Stream{"Fixed"sv};
+              bou << add<Fixed<library::Fixed<int, 4uz>>>()
                   << END;
               return bou;
             }()
          << END;
   return settle(series);
 }
-#import tunitas.keyston.array.Unique
-#import tunitas.keyston.array.Opaque
-#import tunitas.keyston.array.Fixed
-#import tunitas.keyston.array.Variable
 #import tunitas.keyston.array.Bounded
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.array.Opaque
+#import tunitas.keyston.array.Series
+#import tunitas.keyston.array.Unique
+#import tunitas.keyston.array.Variable
 namespace tests::unit::array {
   auto Fixture::test_usage_Unique() -> void {
     using Subject = library::Unique<4, Fixture>;
@@ -75,16 +92,6 @@ namespace tests::unit::array {
     auto subject = Subject{};
     require(ASSERTION, 4 == subject.size());
   }
-  auto Fixture::test_usage_Variable() -> void {
-    using Subject = library::Variable<int>;
-    auto subject = Subject{};
-    require(ASSERTION, 0 == subject.size());
-    subject.push_back({});
-    subject.push_back({});
-    subject.push_back({});
-    subject.push_back({});
-    require(ASSERTION, 4 == subject.size());
-  }
   auto Fixture::test_usage_Bounded() -> void {
     using Subject = library::Bounded<int, 4>;
     auto subject = Subject{};
@@ -100,6 +107,26 @@ namespace tests::unit::array {
     } catch (::tunitas::exception::feature::Bound const &) {
       require(ASSERTION);
     }
+  }
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = library::Variable<int>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Series() -> void {
+    using Subject = library::Series<int>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
   }
 }
 #endiv

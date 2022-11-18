@@ -51,9 +51,9 @@ class tunitas::keyston::entropy::Source {
 public:
   using Bits = std::random_device::result_type;
   using Since = std::chrono::nanoseconds;
-  inline auto entropy() const noexcept -> double { return the_dev_random_device.entropy(); }
-  inline auto draw() -> Bits                     { return the_dev_random_device(); }
-  inline static auto now() -> Since              { return time::Clock::now().time_since_epoch(); }
+  auto entropy() const noexcept -> double { return the_dev_random_device.entropy(); }
+  auto draw() -> Bits                     { return the_dev_random_device(); }
+  static auto now() -> Since              { return time::Clock::now().time_since_epoch(); }
   explicit Source() = default;
 };
 #endiv

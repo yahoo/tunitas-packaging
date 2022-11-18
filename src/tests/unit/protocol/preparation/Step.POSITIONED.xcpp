@@ -69,5 +69,16 @@ namespace tests::unit::protocol::preparation::step {
     require(ASSERTION, Result::UNDETERMINED == subject0.result());
     require(ASSERTION, Result::FAILED == subject1.result());
   }
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_positioned() -> void {
+    using Positioned = library::Step<POSITIONED>;
+    auto positioned = Positioned{library::Failed{}}; // any one will do
+    auto subject0 = Subject{positioned};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+    require(ASSERTION, Result::FAILED == subject1.result());
+  }
 }
 #endiv

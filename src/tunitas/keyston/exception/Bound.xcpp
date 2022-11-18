@@ -34,3 +34,13 @@ public:
   using Ancestor::Basic;
 };
 #endiv
+#divert <cpp>
+#import std.derived_from
+namespace {
+  namespace testate {
+    using tunitas::keyston::exception::Bound;
+    using std::out_of_range;
+    static_assert(std::derived_from<Bound, out_of_range>);
+  }
+}
+#endiv

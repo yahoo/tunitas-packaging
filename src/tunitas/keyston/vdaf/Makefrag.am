@@ -16,6 +16,7 @@ tunitas_keyston_vdaf_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/Executor.PROTOCOL.cpp \
   obj/src/tunitas/keyston/vdaf/Executor.cpp \
   obj/src/tunitas/keyston/vdaf/Visitor.cpp \
+  obj/src/tunitas/keyston/vdaf/State.cpp \
   $(tunitas_keyston_vdaf_configuration_SUBSOURCES) \
   $(tunitas_keyston_vdaf_exception_SUBSOURCES) \
   $(tunitas_keyston_vdaf_generic_SUBSOURCES) \

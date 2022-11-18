@@ -6,7 +6,6 @@
 #divert <fpp>
 #import tunitas.keyston
 namespace tunitas::keyston::hpke {
-  enum class Side { PUBLIC, SECRET };
   namespace [[nodirectory]] id { }
 }
 #endiv

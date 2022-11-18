@@ -5,6 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.identifier.generator.required.Unique
+#import tunitas.keyston.identifier.generator.required.Entropy
+#import tunitas.keyston.entropy.Source
 namespace tunitas::keyston::identifier::generator {
   //
   // The random source.
@@ -21,16 +23,16 @@ namespace tunitas::keyston::identifier::generator {
   //
   //   by inheritance.
   //
-  template<required::Unique IDENTIFIER> struct Randomizer;
+  template<required::Unique, required::Entropy = entropy::Source> struct Randomizer;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.entropy.Source
 namespace tunitas::keyston::identifier {
-  template<generator::required::Unique IDENTIFIER> struct generator::Randomizer {
+  template<generator::required::Unique IDENTIFIER, generator::required::Entropy SOURCE> struct generator::Randomizer {
     using Result = IDENTIFIER;
+    using Entropy = SOURCE;
     auto operator()() -> Result;
-    using Entropy = entropy::Source;
     inline explicit Randomizer(Entropy &);
    protected:
     ~Randomizer() = default;
@@ -42,12 +44,12 @@ namespace tunitas::keyston::identifier {
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::identifier::generator {
-  template<required::Unique _> Randomizer<_>::Randomizer(Entropy &e) : source{e} { }
+  template<required::Unique U, required::Entropy S> Randomizer<U,S>::Randomizer(Entropy &e) : source{e} { }
 }
 #endiv
 #divert <tpp>
 namespace tunitas::keyston::identifier::generator {
-  template<required::Unique _> auto Randomizer<_>::operator()() -> Result {
+  template<required::Unique U, required::Entropy S> auto Randomizer<U,S>::operator()() -> Result {
     auto ret = Result{};
     unsigned ith{0};
     auto cache = typename Entropy::Bits{};

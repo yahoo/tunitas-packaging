@@ -42,6 +42,7 @@ namespace tunitas::keyston::protocol::preparation::step {
     inline [[implicit]] Step(id::Report, Continued);
     inline [[implicit]] Step(id::Report, Finished);
     inline [[implicit]] Step(id::Report, Failed);
+    inline [[implicit]] Step(id::Report, Ancestor);
     id::Report report_id{};
   };
 }
@@ -67,6 +68,10 @@ namespace tunitas::keyston::protocol::preparation {
       , report_id{rid}
     { }
     Step<TAGGED>::Step(id::Report rid, Failed payload)
+      : Ancestor{move(payload)}
+      , report_id{rid}
+    { }
+    Step<TAGGED>::Step(id::Report rid, Ancestor payload)
       : Ancestor{move(payload)}
       , report_id{rid}
     { }

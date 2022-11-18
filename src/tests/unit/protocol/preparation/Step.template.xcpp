@@ -34,6 +34,7 @@ namespace tests::unit::protocol::preparation{
     auto test_constructor_continued() -> void;
     auto test_constructor_finished() -> void;
     auto test_constructor_failed() -> void;
+    auto test_constructor_positioned() -> void;
   };
 }
 #endiv
@@ -49,6 +50,7 @@ namespace tests::unit::protocol::preparation::step {
                     << add("continued", &Step::test_constructor_continued)
                     << add("finished", &Step::test_constructor_finished)
                     << add("failed", &Step::test_constructor_failed)
+                    << add("positioned", &Step::test_constructor_positioned)
                     << END;
                 return con;
               }()

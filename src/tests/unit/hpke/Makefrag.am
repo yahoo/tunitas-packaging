@@ -8,7 +8,10 @@ tests_unit_hpke_SUBSOURCES = \
   check/obj/src/tests/unit/hpke/namespace.cpp \
   check/obj/src/tests/unit/hpke/Fixture.cpp \
   check/obj/src/tests/unit/hpke/id.Fixture.cpp \
+  check/obj/src/tests/unit/hpke/Filter.cpp \
+  $(tests_unit_hpke_configuration_SUBSOURCES) \
   $(tests_unit_hpke_key_SUBSOURCES) \
   $(end)
 #
+include src/tests/unit/hpke/configuration/Makefrag.am
 include src/tests/unit/hpke/key/Makefrag.am

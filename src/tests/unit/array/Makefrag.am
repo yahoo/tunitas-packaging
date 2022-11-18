@@ -9,4 +9,7 @@ tests_unit_array_SUBSOURCES = \
   check/obj/src/tests/unit/array/Fixture.cpp \
   check/obj/src/tests/unit/array/Variable.cpp \
   check/obj/src/tests/unit/array/Bounded.cpp \
+  check/obj/src/tests/unit/array/Fixed.cpp \
+  check/obj/src/tests/unit/array/Series.cpp \
+  check/obj/src/tests/unit/array/Container.cpp \
   $(end)

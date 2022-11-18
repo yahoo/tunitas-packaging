@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.hpke // for Side
+#import tunitas.keyston.hpke.Side
 namespace tunitas::keyston::protocol {
   //
   // Because it is commonly referenced from here in external & downstream usage; e.g. denniston, honsinger, ladera, nuff, woodruff

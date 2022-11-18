@@ -14,6 +14,7 @@ struct tests::unit::entropy::Fixture : public rigging::suite::Fixture {
   auto test_usage_Device() -> void;
   auto test_usage_None() -> void;
   auto test_usage_Serial() -> void;
+  auto test_usage_Jitter() -> void;
 };
 #endiv
 #divert <cpp>
@@ -35,6 +36,7 @@ auto tests::unit::entropy::Fixture::suite() -> Suite {
                        return sou;
                      }()
                   << add("Device", &Fixture::test_usage_Device)
+                  << add("Jitter", &Fixture::test_usage_Jitter)
                   << END;
               return use;
             }()
@@ -66,6 +68,9 @@ auto tests::unit::entropy::Fixture::suite() -> Suite {
 #import tunitas.keyston.entropy.Source
 #import tunitas.keyston.entropy.None
 #import tunitas.keyston.entropy.Serial
+#import tunitas.keyston.entropy.Jitter
+#import std.views.iota
+#import tunitas.keyston.time.literals
 namespace tests::unit::entropy {
   auto Fixture::test_usage_Source() -> void {
     auto subject = library::Source{};
@@ -83,6 +88,22 @@ namespace tests::unit::entropy {
     auto source = library::None{};
     auto subject = library::Device<8, library::None>{source};
     require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Jitter() -> void {
+    using namespace tunitas::keyston::time::literals;
+    using Subject = library::Jitter<library::Source>;
+    auto source = library::Source{};
+    auto subject = Subject{source, 100ms, 10ms};
+    require(ASSERTION, sizeof (subject));
+    auto count{0};
+    auto const LIMIT{10};
+    for (auto ith : std::views::iota(0, LIMIT)) {
+      require(ASSERTION, sizeof (ith));
+      ++count;
+      auto delay = subject();
+      require(ASSERTION, 10ms <= delay && delay <= 110ms);
+    }
+    require(ASSERTION, LIMIT == count);
   }
 }
 #endiv

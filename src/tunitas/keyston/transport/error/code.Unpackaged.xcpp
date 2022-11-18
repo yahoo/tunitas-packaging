@@ -8,6 +8,12 @@ namespace tunitas::keyston::transport::error::code {
   //
   // The Unpackaged Error Codes of Tunitas Denniston Network
   //
+  // Design:
+  //
+  //   Here, SUCCESS means success (same as 200 OK)
+  //   Normally the error::Code::SUCCESS means *improper* success; here it means proper success.
+  //   For on-the-wire, this relieves us of having to support a "sum type" with a separate success hierarchy; e.g. Success = Outcome<Success>
+  //
   // Usage:
   //
   //   std::error_code ec(BAD, error::category());
@@ -15,7 +21,7 @@ namespace tunitas::keyston::transport::error::code {
   //
   struct Unpackaged {
     enum class Enumeration {
-      SUCCESS, // ........ improper success (which is a failure)
+      SUCCESS, // ........ success
       FAILURE, // ........ sic, generic failure
       //
       // per Table 1, Section 3.2. Errors

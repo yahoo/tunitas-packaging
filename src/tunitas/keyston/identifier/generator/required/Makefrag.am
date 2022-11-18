@@ -8,4 +8,5 @@ tunitas_keyston_identifier_generator_required_SUBSOURCES = \
   obj/src/tunitas/keyston/identifier/generator/required/namespace.cpp \
   obj/src/tunitas/keyston/identifier/generator/required/Unique.cpp \
   obj/src/tunitas/keyston/identifier/generator/required/Generatable.cpp \
+  obj/src/tunitas/keyston/identifier/generator/required/Entropy.cpp \
   $(end)

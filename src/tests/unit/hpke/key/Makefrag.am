@@ -7,4 +7,5 @@
 tests_unit_hpke_key_SUBSOURCES = \
   check/obj/src/tests/unit/hpke/key/namespace.cpp \
   check/obj/src/tests/unit/hpke/key/Fixture.cpp \
+  check/obj/src/tests/unit/hpke/key/Bundle.cpp \
   $(end)

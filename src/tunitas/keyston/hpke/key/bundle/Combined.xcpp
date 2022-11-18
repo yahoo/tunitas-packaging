@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::hpke::key::bundle {
+  //
+  // Combining the secret and public keys
+  //
+  // Specification:
+  //
+  //   RFC 9180
+  //   https://www.ietf.org/rfc/rfc9180.html
+  //
+  // Design:
+  //
+  //   Combine them.  Looky there.
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   AVOID; this is an implementation dteail.
+  //   Instead use Bundle<Secret,Public>
+  //   Instead use Bundle<Public,Secret>
+  //
+  struct Combined;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.Key
+#import tunitas.keyston.hpke.key.bundle.Bundle.Key.SECRET
+#import tunitas.keyston.hpke.key.bundle.Bundle.Key.PUBLIC
+namespace tunitas::keyston::hpke::key {
+  namespace bundle {
+    using std::move;
+    inline auto swap(Combined &, Combined &) noexcept -> void;
+  }
+  struct bundle::Combined : public Public_Aspect, public Secret_Aspect {
+    [[implicit]] Combined() = default;
+    inline [[implicit]] Combined(Key<SECRET> const &, Key<PUBLIC> const &);
+    inline [[implicit]] Combined(Key<PUBLIC> const &, Key<SECRET> const &);
+    auto operator=(Combined const &) -> Combined & = default;
+    inline auto operator=(Key<PUBLIC> const &) -> Combined &;
+    inline auto operator=(Key<SECRET> const &) -> Combined &;
+    // [[FIXTHIS]] ... use deduced this from C++23
+    inline constexpr [[implicit]] operator Key<PUBLIC> const &() const;
+    inline constexpr [[implicit]] operator Key<SECRET> const &() const;
+    inline constexpr [[implicit]] operator Key<PUBLIC> &();
+    inline constexpr [[implicit]] operator Key<SECRET> &();
+  protected:
+    ~Combined() = default;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::hpke::key {
+  auto bundle::swap(Combined &a, Combined &b) noexcept -> void {
+    swap(static_cast<Public_Aspect &>(a), b);
+    swap(static_cast<Secret_Aspect &>(a), b);
+  }
+  namespace bundle {
+    Combined::Combined(Key<SECRET> const &s, Key<PUBLIC> const &p) : Public_Aspect{p}, Secret_Aspect{s} { }
+    Combined::Combined(Key<PUBLIC> const &p, Key<SECRET> const &s) : Public_Aspect{p}, Secret_Aspect{s} { }
+    auto Combined::operator=(Key<PUBLIC> const &rhs) -> Combined & {
+      Public_Aspect &lhs{*this};
+      lhs.material = rhs;
+      return *this;
+    }
+    auto Combined::operator=(Key<SECRET> const &rhs) -> Combined & {
+      Secret_Aspect &lhs{*this};
+      lhs.material = rhs;
+      return *this;
+    }
+    constexpr Combined::operator Key<PUBLIC> const &() const { return static_cast<Public_Aspect const *>(this)-> material; }
+    constexpr Combined::operator Key<SECRET> const &() const { return static_cast<Secret_Aspect const *>(this)-> material; }
+    constexpr Combined::operator Key<PUBLIC> &()             { return static_cast<Public_Aspect *>(this)-> material; }
+    constexpr Combined::operator Key<SECRET> &()             { return static_cast<Secret_Aspect *>(this)-> material; }
+  }
+}
+#endiv
