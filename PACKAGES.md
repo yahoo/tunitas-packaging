@@ -1,11 +1,11 @@
 # Required Packages
 
-This document contains an estimate of the tools, components their versions which you will need to build this repository.  More details can be found upstream in the the documentation for the lead repository, the Tunitas [Packaging](https://github.com/yahoo/tunitas-packaging/blob/master/PACKAGES.md), as well as the Tunitas Build System, [Temerarious Flagship](https://github.com/yahoo/temerarious-flagship/blob/master/README.md).  The mentions in this document pertain only to this repository, _Tunitas Keyston_.
+This document contains an estimate of the tools, components their versions which you will need to build this repository.  More details can be found upstream in the the documentation for the lead repository, the Tunitas [Packaging](https://github.com/yahoo/tunitas-packaging/blob/master/PACKAGES.md), as well as the Tunitas Build System, [Temerarious Flagship](https://github.com/yahoo/tunitas-temerarious-flagship/blob/master/README.md).  The mentions in this document pertain only to this repository, _Tunitas Keyston_.
 
 ## Tunitas
 
 * [tunitas-basics](https://github.com/yahoo/tunitas-basics) >= 1.8.0, common components of the Tunitas projects.
-* [temerarious-flagship](https://github.com/yahoo/temerarious-flagship) >= 1.0.0, some build system components.
+* [temerarious-flagship](https://github.com/yahoo/tunitas-temerarious-flagship) >= 1.0.0, some build system components.
 
 The lead repository for the Tunitas suite of services is [tunitas-packaging](https://github.com/yahoo/tunitas-packaging).
 
@@ -26,7 +26,7 @@ This is a C++ project.  The project approaches the upcoming C++20 standard, wher
     * `libtool` >= 2.4
     * `make` >= 4.2
 * The Tunitas Build System
-    * [temerarious-flagship](https://github.com/yahoo/temerarious-flagship) >= 1.0.0, some build system components
+    * [temerarious-flagship](https://github.com/yahoo/tunitas-temerarious-flagship) >= 1.0.0, some build system components
 * The [S.C.O.L.D.](https://www.scold-lang.org) [toolchain](https://git.scold-lang.org/core) and modules
     * [hypogeal-twilight](https://git.scold-lang.org/core/hypogeal-twilight) >= 0.43, fundamental build system components.
     * [incendiary-sophist](https://git.scold-lang.org/core/incendiary-sophist) >= 0.1, the test harness, is optional.
