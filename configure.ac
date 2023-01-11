@@ -17,10 +17,7 @@ dnl echo OK DONE
 dnl
 AC_INIT([denniston], [0.0.0], [tunitas@yahooinc.com])
 TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
-
-dnl These options are also in the Makefile.am in AUTOMAKE_OPTIONS
-dnl AM_INIT_AUTOMAKE([no-define subdir-objects foreign])
-AM_SILENT_RULES([yes])
+AM_SILENT_RULES([yes]) dnl See the AUTOMAKE_OPTIONS in the Makefile.am
 
 AC_CONFIG_SRCDIR([src/tunitas/denniston/namespace.xcpp])
 AC_CONFIG_MACRO_DIR([m4])
