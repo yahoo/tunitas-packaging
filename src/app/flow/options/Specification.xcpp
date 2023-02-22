@@ -46,7 +46,7 @@ app::flow::options::Specification::Specification()
   //          /--------------- that one
   //          |
   //          v
-  : Ancestor{":hVVDqvwyip",
+  : Ancestor{":hVVDqvwyipl:",
              {{"help", oa::NO, oi::USAGE_SUBCOMMAND},
               {"usage", oa::NO, oi::USAGE_SUBCOMMAND},
               {"version", oa::NO, oi::VERSION_SUBCOMMAND},
@@ -58,8 +58,15 @@ app::flow::options::Specification::Specification()
               {"warnings", oa::NO, oi::WARNING_MODE},
               {"dryrun", oa::NO, oi::DRYRUN_MODE},
               {"dry-run", oa::NO, oi::DRYRUN_MODE},
+              //
               {"interactive", oa::NO, oi::INTERACTIVE_MODE},
+              //
               {"program", oa::NO, oi::PROGRAMMATIC_MODE},
-              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE}}}
+              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE},
+              //
+              {"duration", oa::REQUIRED, oi::SIMULATION_LIFETIME},
+              {"simulation-duration", oa::REQUIRED, oi::SIMULATION_LIFETIME},
+              {"lifetime", oa::REQUIRED, oi::SIMULATION_LIFETIME},
+              {"simulation-lifetime", oa::REQUIRED, oi::SIMULATION_LIFETIME}}}
 { }
 #endiv

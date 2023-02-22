@@ -4,6 +4,12 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
+//
+// The parser result is the remaining words.
+//
+// The parser is expected to process (consume) the options and return the Result.
+// Failing that, it will thrown an exception
+//
 #include <hpp/app.flow.options.Parser>
 #endiv
 #divert <hpp>
@@ -11,7 +17,7 @@
 #import nonstd.required.iterator.Producing
 #import tunitas.application.words.Strings
 #import app.flow.required
-namespace app::flow::options {
+namespace app::flow::options::parser {
   class Parser::Result : public tunitas::application::words::Strings {
     using Ancestor = tunitas::application::words::Strings;
     using Strings = Ancestor;
@@ -22,7 +28,7 @@ namespace app::flow::options {
 }
 #endiv
 #divert <ipp>
-namespace app::flow::options {
+namespace app::flow::options::parser {
   template<required::iterator::Forward ITERATOR> Parser::Result::Result(ITERATOR start, ITERATOR finish)
     requires required::iterator::Producing<ITERATOR, Strings::value_type>
     : Ancestor{start, finish}

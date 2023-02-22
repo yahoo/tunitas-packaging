@@ -4,6 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
+#import tunitas
 namespace app::flow {
   //
   // The configuration
@@ -21,18 +22,24 @@ namespace app::flow {
   //
   //   Sure.
   //
-  struct Configuration;
+  namespace [[eponymous]] configuration {
+    struct Configuration;
+    using namespace tunitas;
+  }
+  using configuration::Configuration;
 }
 #endiv
 #divert <hpp>
 #import cli.configuration.Core
 #import cli.configuration.Controllability
 #import tunitas.Optional
-struct app::flow::Configuration : public cli::configuration::Core, public cli::configuration::Controllability {
+#import tunitas.time.Duration
+struct app::flow::configuration::Configuration : public cli::configuration::Core, public cli::configuration::Controllability {
   using Ancestor = cli::configuration::Core;
 public:
   Configuration() = default;
-  tunitas::Optional<bool> interactive_mode{};
-  tunitas::Optional<bool> programmatic_mode{};
+  Optional<bool> interactive_mode{};
+  Optional<bool> programmatic_mode{};
+  Optional<time::Duration> simulation_lifetime{};
 };
 #endiv

@@ -25,7 +25,8 @@ struct tests::flow::Invocations : public rigging::app::fixture::Core<fixture::Ma
 namespace tests::flow {
   // And these definitions MUST appear before their address is taken
   template<> auto Invocations::test_interactive<0>() -> void      { exercise(UNIMPLEMENTED, "--interactive"); }
-  template<> auto Invocations::test_programmatic<0>() -> void     { exercise(UNIMPLEMENTED, "--programmatic"); }
+  template<> auto Invocations::test_programmatic<0>() -> void     { exercise(UNIMPLEMENTED, "--program"); }
+  template<> auto Invocations::test_programmatic<1>() -> void     { exercise(UNIMPLEMENTED, "--programmatic"); }
   auto Invocations::suite() -> Suite {
     auto series = Stream{"invocations"sv};
     series << add("zero", &Invocations::test_zero)
@@ -39,6 +40,7 @@ namespace tests::flow {
            << []{
                 auto act = Stream{"programmatic"sv};
                 act << add("0", &Invocations::test_programmatic<0>)
+                    << add("1", &Invocations::test_programmatic<1>)
                     << END;
                 return act;
               }()

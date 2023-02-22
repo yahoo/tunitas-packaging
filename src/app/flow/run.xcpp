@@ -44,20 +44,21 @@ namespace app::flow::package_run {
 #endiv
 #divert <ipp>
 namespace app::flow::package_run {
-  // any/.
+  // any?
 }
 #endiv
 #divert <cpp>
 #import std.cerr
 #import app.exception.Testing
 #import std.this_thread.sleep_for
+#import app.flow.defaults
 namespace app::flow::package_run {
   auto interface::run(Console &exp, Configuration const &cfg) -> Exit {
     auto driver = Driver{};
     if (testing(cfg) <= Through::SETUP) {
       throw exception::Testing{exp};
     }
-    std::this_thread::sleep_for(2000ms);
+    std::this_thread::sleep_for(cfg.simulation_lifetime.value_or(defaults::SIMULATION_LIFETIME));
     driver.shutdown();
     return OK;
   }
