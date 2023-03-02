@@ -30,14 +30,18 @@ namespace tunitas::denniston::process::readable {
 namespace tunitas::denniston::process {
   template<> class readable::Fixed<0> : public Container<std::array<std::mutex *, 1>> {
     using Ancestor = Container<std::array<std::mutex *, 1>>;
+  static_assert(std::is_abstract_v<Ancestor>); // the descendant MUST provide an implementation of is_ready_to_read() -> bool
   protected:
+    ~Fixed() = default;
     inline static constexpr auto const N = 1uz;
   public:
     [[implicit]] Fixed(Ready &r) : Ancestor{r} { }
   };
   template<Size N_OTHERS> class readable::Fixed : public Container<std::array<std::mutex *, 1+N_OTHERS>> {
     using Ancestor = Container<std::array<std::mutex *, 1+N_OTHERS>>;
+    static_assert(std::is_abstract_v<Ancestor>); // eadem ratione (ead.)
   protected:
+    ~Fixed() = default;
     inline static constexpr auto const N = 1uz+N_OTHERS;
   public:
     template<typename... MUTEXES> inline [[implicit]] Fixed(Ready &, MUTEXES &...) requires (required::Mutexes<MUTEXES...> && N-1 == sizeof...(MUTEXES));
@@ -49,5 +53,14 @@ namespace tunitas::denniston::process::readable {
   template<Size _> template<typename... MUTEXES> Fixed<_>::Fixed(Ready &first, MUTEXES &...rest) requires (required::Mutexes<MUTEXES...> && N-1 == sizeof...(MUTEXES))
     : Ancestor{first, rest...}
   { }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::process::readable;
+    static_assert(std::is_abstract_v<Fixed<0>>);
+    static_assert(std::is_abstract_v<Fixed<1>>);
+  }
 }
 #endiv

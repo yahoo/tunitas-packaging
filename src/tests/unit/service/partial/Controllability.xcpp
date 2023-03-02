@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::service::partial {
+  //
+  // Whereas subprocesses begin running immediately upon construction,
+  // Provide a convenient way to terminate them in unit test scenarios
+  //
+  // Specification:
+  //
+  //   Shut down an owning service.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Descendants call the visible (static) member
+  //
+  // Assumptions (precondition Invariants)
+  //
+  //   The owner is not already running.
+  //   This will be true of all unit tests;
+  //     processes do NOT run immediately, but must be launched by the driver system 
+  //     subprocesses run immiediately upon construction.
+  //
+  // Usage:
+  //
+  //   class my::Fixture : public rigging::suite::Fixture, protected: partial::Controllability {
+  //     auto test_something() {
+  //       auto super = supervise<Gateway>{...somehow...}; ....................... or any other major ervice
+  //       auto subject = subprocess::Something{super.ref()}; .................... begins running immediately (blocks awaiting something)
+  //       super.stop();
+  //       require(ASSERTION);
+  //     }
+  //   };
+  //
+  struct Controllability;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.Supervisor
+class tests::unit::service::partial::Controllability {
+protected:
+  virtual ~Controllability() = default;
+public:
+  template<required::Controllable SUBJECT, typename... ARGUMENT> auto supervise(ARGUMENT &&...) -> Supervisor<SUBJECT>;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::service::partial {
+  template<required::Controllable SUBJECT, typename... ARGUMENT> auto Controllability::supervise(ARGUMENT &&...argument) -> Supervisor<SUBJECT> {
+    auto super = Supervisor<SUBJECT>{move(argument)...};
+    super.start();
+    return super;
+  }
+}
+#endiv

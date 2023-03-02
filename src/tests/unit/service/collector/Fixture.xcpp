@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::service::collector { class Fixture; }
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.Controllability
+struct tests::unit::service::collector::Fixture : public rigging::suite::Fixture, protected partial::Controllability {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Collector() -> void;
+  auto test_usage_Boot() -> void;
+  auto test_usage_Measure() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::service::collector::Fixture::suite() -> Suite {
+  auto series = Stream{"collector"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Collector", &Fixture::test_usage_Collector)
+                  << add("Boot", &Fixture::test_usage_Boot)
+                  << add("Measure", &Fixture::test_usage_Measure)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.service.collector.Collector
+#import tunitas.denniston.service.collector.subprocess.Boot
+#import tunitas.denniston.service.collector.subprocess.Measure
+#import tunitas.denniston.service.collector.subprocess.make
+#import tunitas.keyston.protocol.id
+namespace tests::unit::service::collector {
+  auto Fixture::test_usage_Collector() -> void {
+    auto super = supervise<library::Collector>();
+    super.stop();
+    require(ASSERTION);
+  }
+  auto Fixture::test_usage_Boot() -> void {
+    auto super = supervise<library::Collector>();
+    // This is somewhat pedantic and specious because the Collector already runs Boot & Measure
+    // The new subprocess MUST be pushed into the subprocesses list; it CANNOT be left floating.
+    // The subprocess MUST get notified on catchup() as the top-level process terminates from graceful_shutdown.
+    auto &ref{super.ref()};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Boot>(ref));
+    super.stop();
+    require(ASSERTION);
+  }
+  auto Fixture::test_usage_Measure() -> void {
+    auto super = supervise<library::Collector>();
+    // Eadem ratione.
+    auto &ref{super.ref()};
+    auto identifier = ::tunitas::keyston::protocol::id::Task{};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Measure>(ref, identifier));
+    super.stop();
+    require(ASSERTION);
+  }
+}
+#endiv

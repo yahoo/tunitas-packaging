@@ -15,6 +15,7 @@ struct tests::unit::process::Fixture : public rigging::suite::Fixture {
 #endiv
 #divert <cpp>
 #import tests.unit.process.Ready
+#import tests.unit.process.companion.Fixture
 #import tests.unit.process.readable.Fixture
 auto tests::unit::process::Fixture::suite() -> Suite {
   auto series = Stream{"process"sv};
@@ -25,6 +26,7 @@ auto tests::unit::process::Fixture::suite() -> Suite {
               return use;
             }()
          << add<Ready>()
+         << add<companion::Fixture>()
          << add<readable::Fixture>()
          << END;
   return settle(series);

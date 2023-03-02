@@ -4,53 +4,71 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tests::flow { struct Options; }
+namespace tests::flow { struct Invocations; }
 #endiv
 #divert <hpp>
-#import app.flow.Configuration
 #import rigging.app.fixture.Core
 #import tests.fixture.Mainly
 #import tests.fixture.Combine
-class tests::flow::Options : public rigging::app::fixture::Core<fixture::Mainly<fixture::Combine<app::flow::Configuration>>> {
-  using Ancestor = rigging::app::fixture::Core<fixture::Mainly<fixture::Combine<app::flow::Configuration>>>;
-public:
+#import app.flow.Configuration
+#import tests.flow.Limits
+struct tests::flow::Invocations : public rigging::app::fixture::Core<fixture::Mainly<fixture::Combine<app::flow::Configuration>>>, protected Limits {
   static auto suite() -> Suite;
   //
-  auto test_i() -> void;
-  auto test_interactive() -> void;
+  auto test_zero() -> void;
+  auto test_empty() -> void;
   //
-  auto test_p() -> void;
-  auto test_program() -> void;
-  auto test_programmatic() -> void;
+  template<unsigned> auto test_interactive() -> void;
+  template<unsigned> auto test_programmatic() -> void;
+  template<unsigned> auto test_simulation_lifetime() -> void;
 };
 #endiv
 #divert <cpp>
 namespace tests::flow {
-  auto Options::suite() -> Suite {
-    auto series = Stream{"options"sv};
-    series << stanza("generic"sv)
-           << []{
-                auto act = Stream{"interactive"sv};
-                act << add("i", &Options::test_i)
-                    << add("interactive", &Options::test_interactive)
-                    << END;
-                return act;
-              }()
-           << []{
-                auto prog = Stream{"programmatic"sv};
-                prog << add("h", &Options::test_p)
-                     << add("program", &Options::test_program)
-                     << add("programmatic", &Options::test_programmatic)
-                     << END;
-                return prog;
-              }()
-           << END;
-    return settle(series);
+  auto Invocations::test_zero() -> void  { exercise(OK); }
+  auto Invocations::test_empty() -> void { exercise(USAGE, ""); }
+  //
+  // And these definitions MUST appear before their address is taken
+  template<> auto Invocations::test_interactive<0>() -> void { exercise(UNIMPLEMENTED, "--interactive"s); }
+  //
+  template<> auto Invocations::test_programmatic<0>() -> void { exercise(UNIMPLEMENTED, "--program"s); }
+  template<> auto Invocations::test_programmatic<1>() -> void { exercise(UNIMPLEMENTED, "--programmatic"s); }
+  //
+  template<> auto Invocations::test_simulation_lifetime<0>() -> void { exercise(OK, "-l"s, in_seconds(SOME_SHORT_TIME)); }
+  template<> auto Invocations::test_simulation_lifetime<1>() -> void { exercise(OK, "--lifetime="s + in_seconds(SOME_SHORT_TIME)); }
+  namespace {
+    constexpr auto const SIMULATION_LIFETIME_COUNT = 2uz;
   }
-  auto Options::test_i() -> void            { exercise(OK, "-i"); }
-  auto Options::test_interactive() -> void  { exercise(OK, "--interactive"); }
-  auto Options::test_p() -> void            { exercise(OK, "-p"); }
-  auto Options::test_program() -> void      { exercise(OK, "--program"); }
-  auto Options::test_programmatic() -> void { exercise(OK, "--programmatic"); }
+}
+#import std.integer_sequence
+#import std.make_index_sequence
+#import std.to_string
+#import std.size_t
+auto tests::flow::Invocations::suite() -> Suite {
+  auto series = Stream{"invocations"sv};
+  series << add("zero", &Invocations::test_zero)
+         << add("empty", &Invocations::test_empty)
+         << []{
+           auto act = Stream{"interactive"sv};
+           act << add("0", &Invocations::test_interactive<0>)
+               << END;
+           return act;
+         }()
+         << []{
+           auto act = Stream{"programmatic"sv};
+           act << add("0", &Invocations::test_programmatic<0>)
+               << add("1", &Invocations::test_programmatic<1>)
+               << END;
+           return act;
+         }()
+         << []{
+           auto life = Stream{"simulation-lifetime"sv};
+           [&life]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+             ((life << add(std::to_string(INDEX), &Invocations::test_simulation_lifetime<INDEX>)), ...);
+           }(std::make_index_sequence<SIMULATION_LIFETIME_COUNT>{});
+           return life;
+         }()
+         << END;
+  return settle(series);
 }
 #endiv

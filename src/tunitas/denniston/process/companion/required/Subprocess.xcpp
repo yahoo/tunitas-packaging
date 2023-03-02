@@ -1,17 +1,17 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc. 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import nonstd.required.InstanceOf
-#import tunitas.denniston.process.companion.required // ctcnr (cascade that certain 'namespace required')
-#forward tunitas.denniston.process.companion.Prototype
+#import nonstd.required.Class
 namespace tunitas::denniston::process::companion::required {
   //
-  // Is this TYPE a companion subprocess (prototype)?
-  // Must be answerable without the complete type of TYPE (i.e. no use of derived_from<...>)
+  // Is this TYPE a companion subprocess (type)?
+  // The remaining conditions are deferred until usage::Subprocess<SUBPROCESS> when the complete types are available.
   //
-  template<typename SUBPROCESS> concept Subprocess = InstanceOf<SUBPROCESS, Prototype>;
+  // see usage::Subprocess for the rest of the conditions
+  //
+  template<typename SUBPROCESS> concept Subprocess = Class<SUBPROCESS>;
 }
 #endiv

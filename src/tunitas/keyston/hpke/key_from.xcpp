@@ -16,7 +16,7 @@ namespace tunitas::keyston::hpke::configuration {
   // Design:
   //
   //   The key_from(...) function MUST be in this namespace so that ADL wil find it.
-  //   The key_from(...) function MUSt return a constie reference to the key within the value
+  //   The key_from(...) function MUST return a constie reference to the key within the value
   //
   // Usage:
   //

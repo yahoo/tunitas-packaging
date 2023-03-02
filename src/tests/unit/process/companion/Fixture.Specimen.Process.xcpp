@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tests.unit.process.companion.Fixture>
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.Model
+#import tunitas.denniston.Species
+struct tests::unit::process::companion::Fixture::Specimen::Process : public ::tunitas::denniston::process::Model {
+  using Ancestor = ::tunitas::denniston::process::Model;
+public:
+  using Species = ::tunitas::denniston::Species;
+  Process();
+  using Threads = ::tunitas::denniston::driver::Threads;
+  auto launch(Threads &) -> void { } // (obviously) we're not testing this here.
+};
+#endiv
+#divert <cpp>
+namespace tests::unit::process::companion {
+  Fixture::Specimen::Process::Process()
+    : Ancestor{Species{99}}
+  { }
+}
+#endiv

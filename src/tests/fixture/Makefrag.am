@@ -11,8 +11,10 @@ tests_fixture_SUBSOURCES = \
   $(tests_fixture_generic_SUBSOURCES) \
   $(tests_fixture_required_SUBSOURCES) \
   $(tests_fixture_Mainly_SUBSOURCES) \
+  $(tests_fixture_Partly_SUBSOURCES) \
   $(end)
 #
 include src/tests/fixture/generic/Makefrag.am
 include src/tests/fixture/required/Makefrag.am
 include src/tests/fixture/Mainly/Makefrag.am
+include src/tests/fixture/Partly/Makefrag.am

@@ -30,10 +30,10 @@ namespace tunitas::denniston::protocol::packet {
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.protocol.packet.hpke.Query
+#import tunitas.denniston.protocol.packet._.hpke.Query
 namespace tunitas::denniston::protocol::packet {
-  template<> struct Query<Get::PUBLIC> : public hpke::Query {
-    using Ancestor = hpke::Query;
+  template<> struct Query<Get::PUBLIC> : public _::hpke::Query {
+    using Ancestor = _::hpke::Query;
   public:
     inline static constexpr auto const SIDE = keyston::hpke::Side::PUBLIC;
     Query() = default;

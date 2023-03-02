@@ -12,6 +12,11 @@ namespace tunitas::denniston::driver {
   //
   //   Static configuration (no binding, linkage startup or shutdown)
   //
+  // Invariants:
+  //
+  //   Whereas the System destructor blocks while each of the processses finishes up,
+  //   upon destruction, the system must destruct before the thread pool destructs (else it hangs awaiting).
+  //
   // Design:
   //
   //   Descendants only.
@@ -41,12 +46,14 @@ struct tunitas::denniston::driver::Layout : public process::Prototype {
   using System =service::System;
   using World = denniston::World;
   //
+  // The order of these fields is important being "outside in"
+  //
   Entropy entropy{};
+  mutable Logs logs{};
   World world;
-  System system;
-  Logs logs{};
   Sockets sockets{};
-  Threads threads{};
+  Threads threads{}; // ... first
+  System system; // ....... second
   struct Control {
     network::Sockets::Interfaces everyone{};
     network::Sockets::Interfaces clients{};

@@ -17,6 +17,10 @@ namespace tunitas::denniston::driver {
   //
   //   Something something: a thread.
   //
+  //   Driver::shutdown() is idempotent
+  //   driver::one_shot_shut_down() is NOT idempotent and MUST be run precisely once.
+  //        WATCHOUT - if you run it multiply then it sends control messages to defunct processes (and thus hangs)
+  //
   // Usage:
   //
   //   In the environment..
@@ -33,7 +37,7 @@ namespace tunitas::denniston {
   class driver::Driver : public Layout {
     using Ancestor = Layout;
   public:
-    [[idempotent]] auto shutdown() -> void;
+    [[idempotent]] inline auto shutdown() -> void;
     //
     explicit Driver(Size = DEFAULT_INITIAL_CLIENT_COUNT);
     ~Driver();
@@ -42,7 +46,18 @@ namespace tunitas::denniston {
   protected:
     auto startup() -> void;
     auto enable_logging() -> void;
+    bool has_been_shut_down{false};
+    [[NOT_idempotent]] auto one_shot_shut_down() -> void;
   };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::driver {
+  auto Driver::shutdown() -> void {
+    if (!has_been_shut_down) {
+      one_shot_shut_down();
+    }
+  }
 }
 #endiv
 #divert <cpp>
@@ -89,8 +104,11 @@ namespace tunitas::denniston::driver {
 }
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Quit
+#import nonstd.runtime_assert
 namespace tunitas::denniston::driver {
-  auto Driver::shutdown() -> void {
+  auto Driver::one_shot_shut_down() -> void {
+    runtime_assert(!has_been_shut_down);
+    has_been_shut_down = true;
     using namespace protocol::packet;
     for (auto &face : control.everyone) {
       face.write(make<Quit>());

@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::denniston::service::processor {
   //
-  // A manifestation of an processor in the network.
+  // A manifestation of a processor in the network.
   //
   // Specification:
   //
@@ -53,6 +53,7 @@ public:
   using Entropy = keyston::entropy::Source;
   inline explicit Processor([[inout]] Entropy &, Species);
   inline explicit Processor([[inout]] Entropy &, [[inout]] World &, Species);
+  ~Processor();
   auto launch(driver::Threads &) -> void override;
   Interface configuration{};
   Interface directory{};
@@ -101,14 +102,28 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.denniston.service.processor.subprocess.Initialization
 #import tunitas.denniston.service.processor.subprocess.Continuation
 namespace tunitas::denniston::service::processor {
+  Processor::~Processor() {
+    ready.notify();
+    subprocesses.request_for_all_to_finish();
+    subprocesses.wait_for_all_to_finish();
+    disposable.acquire();
+  }
   auto Processor::launch(driver::Threads &pool) -> void {
+    disposable.acquire(); // with release() in React::run()
     pool.launch(&Processor::run, this);
+#if 1
+    subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));
+    subprocesses.spawn(subprocess::make<subprocess::Initialization>(*this));
+    subprocesses.spawn(subprocess::make<subprocess::Continuation>(*this));
+#else
     subprocesses.push_back(subprocess::make<subprocess::Boot>(*this));
     subprocesses.push_back(subprocess::make<subprocess::Initialization>(*this));
     subprocesses.push_back(subprocess::make<subprocess::Continuation>(*this));
+#endif
   }
   auto Processor::catchup() -> void {
-    if (graceful_shutdown.load()) {
+    if (is_shutting_down()) {
+      // And yet, catchup is only called from React::run() when is_shutting_down() is true
       subprocesses.notify();
     }
   }

@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::service::partial {
+  //
+  // Whereas the library Binder has privileged friend status with the Socket and Socket::Interface. 
+  // inherit from the library Binder so that we can use its protected interfaces.
+  //
+  // Specification:
+  //
+  //   Link one connection from Driver-to-Subject.
+  //   Following library::Binder::link(...), but here we have a pre-alloated socket.
+  //
+  // Design:
+  //
+  //   UBAMM (Using the Best Available Means & Methods)
+  //
+  // Usage:
+  //
+  //   Whereas this is a tester, Hack the Spew.
+  //
+  struct Binder;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.driver.binder.Linkage
+class tests::unit::service::partial::Binder : protected ::tunitas::denniston::driver::binder::Linkage {
+  using Ancestor = ::tunitas::denniston::driver::binder::Linkage;
+public:
+  Binder() = default;
+  using Ancestor::Triple;
+  using Ancestor::Socket;
+  using Ancestor::Interface;
+  auto link([[inout]] Socket &, [[inout]] Triple blue, [[inout]] Triple green) -> void;
+};
+#endiv
+#divert <cpp>
+namespace tests::unit::service::partial {
+  auto Binder::link(Socket &place, Triple blue, Triple green) -> void {
+    // recall: the Ancestor has privileged status with the Socket and Socket::Interface
+    // the left(...) and right(...) are the privileged operations of the ancestor
+    tie(green.readable, green.face) = left(place, blue.ready);
+    tie(blue.readable, blue.face) = right(place, green.ready);
+  }
+}
+#endiv

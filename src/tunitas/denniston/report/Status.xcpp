@@ -32,8 +32,9 @@ namespace tunitas::denniston {
     using std::move;
     inline auto swap(Status &, Status &) noexcept -> void;
   }
-  struct report::Status : public keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED> {
+  class report::Status : public keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED> {
     using Ancestor = keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>;
+    friend auto swap(Status &, Status &) noexcept -> void;
   public:
     Status() = default;
     using Ancestor::Step;

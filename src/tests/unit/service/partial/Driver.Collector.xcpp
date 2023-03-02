@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.service.partial.Driver.template
+#import tunitas.denniston.service.collector.Collector
+namespace tests::unit::service::partial {
+  //
+  // Specialization for the Collector
+  // The collector does not construct with an entropy source.
+  //
+  // Only the constructor is different.
+  // Could we not just specialize the constructor?
+  //
+  // See the commentariat in the template.
+  //
+  template<> struct Driver<library::collector::Collector>;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.Background
+#forward tests.unit.service.partial.Supervisor
+namespace tests::unit::service {
+  template<> struct partial::Driver<library::collector::Collector> : public Background {
+    using Ancestor = Background;
+  public:
+    using Subject = library::collector::Collector;
+    Subject subject;
+    auto start() -> void override { start_background(subject); }
+    auto stop() -> void override;
+    ~Driver();
+  protected:
+    friend class partial::Supervisor<Subject>;
+    template<typename... ARGUMENT> explicit Driver(ARGUMENT &&...);
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::service::partial {
+  template<typename... ARGUMENT> Driver<library::collector::Collector>::Driver(ARGUMENT &&...argument)
+    : subject{world, forward<ARGUMENT>(argument)...} {
+    Ancestor::linkup(subject);
+  }
+}
+#divert <cpp>
+namespace tests::unit::service::partial {
+  Driver<library::collector::Collector>::~Driver() {
+    if (running) {
+      stop();
+    }
+  }
+  auto Driver<library::collector::Collector>::stop() -> void {
+#if 0 // redundant in the subprocesses destructor
+    subject.subprocesses.request_for_all_to_finish();
+    subject.subprocesses.wait_for_all_to_finish();
+#endif
+    stop_background();
+    block_until_the_quit_packet_is_processed(subject);
+  }
+}
+#endiv

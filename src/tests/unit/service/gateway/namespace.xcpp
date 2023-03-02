@@ -6,7 +6,9 @@
 #divert <fpp>
 #import tests.unit.service
 #import tunitas.denniston.service.gateway
+#import tunitas.denniston.service.gateway.subprocess
 namespace tests::unit::service::gateway {
   namespace library = ::tunitas::denniston::service::gateway;
+  namespace sublibrary = ::tunitas::denniston::service::gateway::subprocess;
 }
 #endiv

@@ -30,6 +30,7 @@ auto tests::unit::driver::Driver::suite() -> Suite {
          << END;
   return settle(series);
 }
+#import std.this_thread.sleep_for
 namespace tests::unit::driver {
   auto Driver::test_constructor_default() -> void {
     auto subject = Subject{};
@@ -37,6 +38,9 @@ namespace tests::unit::driver {
   }
   auto Driver::test_shutdown() -> void {
     auto subject = Subject{};
+    // Give the simulation some time to start up before shutting it down.
+    // [[FIXTHIS?]] The thread management design of the Driver is ill-posed when being shut down while being started up (ahem!)
+    std::this_thread::sleep_for(200ms);
     subject.shutdown();
   }
 }

@@ -1,0 +1,132 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::companion {
+  //
+  // A synchronied (enumerated) variable
+  //
+  // Semantic:
+  //
+  //   A companion process (a subprocess) is in one of these stages.
+  //   The "undead" state models the state of std::thread::joinable(), being exhausted but not running.
+  //   As stated: https://en.cppreference.com/w/cpp/thread/thread/joinable
+  //
+  // Specification:
+  //
+  //   Unguarded lval and rval
+  //   A separable guard
+  //   Guarded lod adn store, just like an atomic.
+  //
+  // Design:
+  //
+  //   Using the Best Available Means and Methods (BAMM)
+  //
+  //   When a Guard is supplied to an accessor (setter) then rely upon currently-shown guard.
+  //
+  // Usage:
+  //
+  //   Hack the Spew.
+  //
+  //   DO NOT mix the use of Lifestage::operator= and Reference<Lifestage> (or constie)
+  //   The following WILL cause a deadlock on the current thread.
+  //
+  //     auto ref = something.lifestage;
+  //     ref = Lifestage::DOOMED;
+  //     something.lifestage = Lifestage::UNDEAD <-------------------- deadlock waiting for ref to release its lock
+  //
+  class Lifestage;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.companion.required.Referencable
+#import std.mutex
+struct tunitas::denniston::process::companion::Lifestage {
+  enum Stage {
+    UNBORN, // .... there is no managed thread (yet)
+    RUNNING, // ... the managed thread is running
+    DOOMED, // .... graceful quit of the managed thread; observed in Barrier::wait(...)
+    UNDEAD, // .... the managed thread is finished but the os thread has not joined (the destructor)
+  };
+  template<required::Referencable LIFESTAGE> struct Reference;
+  Lifestage() = default;
+  inline [[implicit]] Lifestage(Stage);
+  template<required::Referencable LIFESTAGE> inline [[implicit]] Lifestage(Reference<LIFESTAGE> const &);
+  inline Lifestage(Lifestage const &) = delete;
+  inline Lifestage(Lifestage &);
+  //
+  inline auto operator=(Stage) -> Lifestage &; // WATCHOUT - very easy to get deadlocks against nearby Reference<..,>
+  template<required::Referencable LIFESTAGE> inline auto operator=(Reference<LIFESTAGE> const &) -> Lifestage &;
+  inline auto operator=(Lifestage const &) -> Lifestage & = delete;
+  inline auto operator=(Lifestage &) -> Lifestage &;
+  //
+  struct Conjugate {
+    // rhymes with nonstd::Like
+    template<typename SELF, typename REFERENCE> struct Like;
+  private:
+    struct Decomposition;
+  };
+  template<typename SELF, typename REFERENCE> using Like = typename Conjugate::Like<SELF, REFERENCE>::Type; 
+#if 202303 <= __cplusplus
+  template<typename SELF> inline auto guarded(this SELF *) -> Like<SELF, Reference<Lifestage>>;
+#else
+  inline auto guarded() const -> Reference<Lifestage const>;
+  inline auto guarded() -> Reference<Lifestage>;
+#endif
+  struct Guard;
+  inline auto store(Guard &, Stage) -> void;
+  inline auto load(Guard &) const -> Stage;
+  inline auto is(Guard &, Stage match) const -> bool;
+private:
+  friend class Guard;
+  template<required::Referencable> friend class Reference;
+  using Mutex = std::mutex;
+  Mutex mutex{};
+  Stage held{};
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.process.companion.Lifestage.Conjugate
+#import tunitas.denniston.process.companion.Lifestage.Guard
+#import tunitas.denniston.process.companion.Lifestage.Reference
+#import std.lock
+namespace tunitas::denniston::process::companion {
+  Lifestage::Lifestage(Stage noob) : held{noob} { }
+  template<required::Referencable LIFESTAGE> Lifestage::Lifestage(Reference<LIFESTAGE> const &other)
+    : held{other.referenced.held}
+  { }
+  Lifestage::Lifestage(Lifestage &other) {
+    auto guarded = Guard{other};
+    this->held = other.held;
+  }
+  auto Lifestage::operator=(Stage noob) -> Lifestage & {
+    auto guarded = Guard{*this};
+    this->held = noob;
+    return *this;
+  }
+  template<required::Referencable LIFESTAGE> auto Lifestage::operator=(Reference<LIFESTAGE> const &other) -> Lifestage & {
+    auto guarded = Guard{*this};
+    this->held = other.referenced.held;
+    return *this;
+  }
+  auto Lifestage::operator=(Lifestage &other) -> Lifestage & {
+    if (this != &other) {
+      Guard guard_this{*this, std::defer_lock}, guard_other{other, std::defer_lock};
+      std::lock(guard_this, guard_other);
+      this->held = other.held;
+    }
+    return *this;
+  }
+  auto Lifestage::load(Guard &) const -> Stage           { return this->held; }
+  auto Lifestage::store(Guard &, Stage noob) -> void     { this->held = noob; }
+  auto Lifestage::is(Guard &, Stage match) const -> bool { return match == this->held; }
+#if 202303 <= __cplusplus
+  template<typename SELF> auto Lifestage::guarded(this SELF *self) -> Like<SELF, Reference<Lifestage>> { return Like<SELF, Reference<Lifestage>>{*self}; }
+#else
+  auto Lifestage::guarded() const -> Reference<Lifestage const> { return Reference<Lifestage const>{const_cast<Lifestage &>(*this)}; } // ahem ... we mean well
+  auto Lifestage::guarded()       -> Reference<Lifestage>       { return Reference<Lifestage>{*this}; }
+#endif
+}
+#endiv

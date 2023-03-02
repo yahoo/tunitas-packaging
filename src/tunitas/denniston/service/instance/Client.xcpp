@@ -12,7 +12,7 @@ namespace tunitas::denniston::service::instance {
   // Specification:
   //
   //   Provides the source of a measurement.
-  //   The client namei is expected to be a positive value; e.g. Species{33}
+  //   The client name is expected to be a positive value; e.g. Species{33}
   //
   // Design:
   //

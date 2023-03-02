@@ -16,7 +16,11 @@ struct tests::unit::service::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
+#import tests.unit.service.client.Fixture
+#import tests.unit.service.collector.Fixture
+#import tests.unit.service.gateway.Fixture
 #import tests.unit.service.instance.Fixture
+#import tests.unit.service.processor.Fixture
 #import tests.unit.service.Dictionary
 auto tests::unit::service::Fixture::suite() -> Suite {
   auto series = Stream{"service"sv};
@@ -29,7 +33,11 @@ auto tests::unit::service::Fixture::suite() -> Suite {
               return use;
             }()
          << add<Dictionary>()
+         << add<client::Fixture>()
+         << add<collector::Fixture>()
+         << add<gateway::Fixture>()
          << add<instance::Fixture>()
+         << add<processor::Fixture>()
          << END;
   return settle(series);
 }

@@ -4,50 +4,95 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tests::flow { struct Invocations; }
+namespace tests::flow { struct Options; }
 #endiv
 #divert <hpp>
-#import rigging.app.fixture.Core
-#import tests.fixture.Mainly
-#import tests.fixture.Combine
 #import app.flow.Configuration
-struct tests::flow::Invocations : public rigging::app::fixture::Core<fixture::Mainly<fixture::Combine<app::flow::Configuration>>> {
+#import rigging.app.fixture.Core
+#import tests.fixture.Partly.app.flow.Configuration.THROUGH
+#import tests.fixture.Partly.Entrypoint.app.flow.Configuration.THROUGH
+#import tests.fixture.Combine
+#import tests.flow.Limits
+//
+// We're only testing the options parsing here.
+// Thus Through::OPTIONS
+//
+class tests::flow::Options : public rigging::app::fixture::Core<fixture::Partly<fixture::Combine<app::flow::Configuration>, cli::controllability::Through::OPTIONS>>, protected Limits {
+  using Ancestor = rigging::app::fixture::Core<fixture::Partly<fixture::Combine<app::flow::Configuration>, cli::controllability::Through::OPTIONS>>;
+public:
   static auto suite() -> Suite;
   //
-  auto test_zero() -> void;
-  auto test_empty() -> void;
+  auto test_i() -> void;
+  auto test_interactive() -> void;
   //
-  template<unsigned> auto test_interactive() -> void;
-  template<unsigned> auto test_programmatic() -> void;
+  auto test_p() -> void;
+  auto test_program() -> void;
+  auto test_programmatic() -> void;
+  template<unsigned> auto test_simulation_lifetime() -> void;
 };
 #endiv
 #divert <cpp>
 namespace tests::flow {
-  // And these definitions MUST appear before their address is taken
-  template<> auto Invocations::test_interactive<0>() -> void      { exercise(UNIMPLEMENTED, "--interactive"); }
-  template<> auto Invocations::test_programmatic<0>() -> void     { exercise(UNIMPLEMENTED, "--program"); }
-  template<> auto Invocations::test_programmatic<1>() -> void     { exercise(UNIMPLEMENTED, "--programmatic"); }
-  auto Invocations::suite() -> Suite {
-    auto series = Stream{"invocations"sv};
-    series << add("zero", &Invocations::test_zero)
-           << add("empty", &Invocations::test_empty)
-           << []{
-                auto act = Stream{"interactive"sv};
-                act << add("0", &Invocations::test_interactive<0>)
-                    << END;
-                return act;
-              }()
-           << []{
-                auto act = Stream{"programmatic"sv};
-                act << add("0", &Invocations::test_programmatic<0>)
-                    << add("1", &Invocations::test_programmatic<1>)
-                    << END;
-                return act;
-              }()
-           << END;
-    return settle(series);
+  auto Options::test_i() -> void            { exercise(OK, "-l"s "3"s, "-i"s); }
+  auto Options::test_interactive() -> void  { exercise(OK, "--interactive"s); }
+  auto Options::test_p() -> void            { exercise(OK, "-p"s); }
+  auto Options::test_program() -> void      { exercise(OK, "--program"s); }
+  auto Options::test_programmatic() -> void { exercise(OK, "--programmatic"s); }
+
+  template<> auto Options::test_simulation_lifetime<0>() -> void { exercise(TESTING, "-l"s, "999"s); }
+  template<> auto Options::test_simulation_lifetime<1>() -> void { exercise(TESTING, "--lifetime=999"s); }
+  template<> auto Options::test_simulation_lifetime<2>() -> void { exercise(TESTING, "--simulation-lifetime", "999"s); }
+  template<> auto Options::test_simulation_lifetime<3>() -> void { exercise(TESTING, "--simulation-lifetime=999"s); }
+  template<> auto Options::test_simulation_lifetime<4>() -> void { exercise(TESTING, "--duration", "999"s); }
+  template<> auto Options::test_simulation_lifetime<5>() -> void { exercise(TESTING, "--duration=999"s); }
+  template<> auto Options::test_simulation_lifetime<6>() -> void { exercise(TESTING, "--simulation-duration", "999"s); }
+  template<> auto Options::test_simulation_lifetime<7>() -> void { exercise(TESTING, "--simulation-duration=999"s); }
+  template<> auto Options::test_simulation_lifetime<8>() -> void {
+    // Whereas the zero duration is an error.
+    exercise(CONFIGURATION, "--simulation-duration=0");
   }
-  auto Invocations::test_zero() -> void  { exercise(OK); }
-  auto Invocations::test_empty() -> void { exercise(USAGE, ""); }
+  template<> auto Options::test_simulation_lifetime<9>() -> void {
+    // Whereas the negative duration is an error.
+    exercise(CONFIGURATION, "--simulation-duration=-1");
+  }
+  template<> auto Options::test_simulation_lifetime<10>() -> void {
+    // Whereas the bogus duration is an error.
+    exercise(CONFIGURATION, "--simulation-duration=BOGON-BOGON-BOGON");
+  }
+  namespace {
+    constexpr auto const SIMULATION_LIFETIME_COUNT = 11uz;
+  }
+}
+#import std.integer_sequence
+#import std.make_index_sequence
+#import std.to_string
+#import std.size_t
+auto tests::flow::Options::suite() -> Suite {
+  auto series = Stream{"options"sv};
+  series << stanza("generic"sv)
+         << []{
+           auto act = Stream{"interactive"sv};
+           act << add("i", &Options::test_i)
+               << add("interactive", &Options::test_interactive)
+               << END;
+           return act;
+         }()
+         << []{
+           auto prog = Stream{"programmatic"sv};
+           prog << add("h", &Options::test_p)
+                << add("program", &Options::test_program)
+                << add("programmatic", &Options::test_programmatic)
+                << END;
+           return prog;
+         }()
+         << []{
+           auto life = Stream{"simulation-lifetime"sv};
+           [&life]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+             ((life << add(std::to_string(INDEX), &Options::test_simulation_lifetime<INDEX>)), ...);
+           }(std::make_index_sequence<SIMULATION_LIFETIME_COUNT>{});
+           return life;
+         }()
+         << END;
+  return settle(series);
 }
 #endiv

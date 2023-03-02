@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::protocol::packet::hpke {
+namespace tunitas::denniston::protocol::packet::_::hpke {
   //
   // The commonalities among the PUBLIC and SECRET queries
   //
@@ -34,8 +34,8 @@ namespace tunitas::denniston::protocol::packet::hpke {
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.protocol.packet.hpke.Basis
-struct tunitas::denniston::protocol::packet::hpke::Query : public Basis {
+#import tunitas.denniston.protocol.packet._.hpke.Basis
+class tunitas::denniston::protocol::packet::_::hpke::Query : public Basis {
   using Ancestor = Basis;
 protected:
   ~Query() = default;

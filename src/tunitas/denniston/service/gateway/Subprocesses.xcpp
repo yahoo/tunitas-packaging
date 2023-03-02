@@ -6,8 +6,7 @@
 #divert <fpp>
 #import tunitas.denniston.service.gateway.subprocess.Prototype
 #include <hpp/tunitas.denniston.service.gateway.subprocess.Prototype>
-static_assert(sizeof (tunitas::denniston::service::gateway::subprocess::Prototype));
-#import tunitas.denniston.process.companion.Series
+#import tunitas.denniston.process.companion.Subprocesses
 namespace tunitas::denniston::service::gateway {
   //
   // A collection of subprocesses
@@ -26,7 +25,7 @@ namespace tunitas::denniston::service::gateway {
   //
   //   See Gateway, which is nearby.
   //
-  static_assert(std::derived_from<subprocess::Prototype, process::companion::Prototype<Gateway>>);
-  using Subprocesses = process::companion::Series<subprocess::Prototype>;
+  static_assert(std::derived_from<subprocess::Prototype, process::companion::Submodel<Gateway>>);
+  using Subprocesses = process::companion::Subprocesses<subprocess::Prototype>;
 }
 #endiv

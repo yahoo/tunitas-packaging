@@ -96,6 +96,13 @@ auto tests::unit::protocol::packet::make::Fixture::suite() -> Suite {
                     << END;
               return tasks;
             }()
+         << []{
+              auto results = Stream{"results"sv};
+              results << add("Query", &Fixture::test_make<library::Query<library::Get::MEASUREMENT>>)
+                      << add("Response", &Fixture::test_make<library::Response<library::Get::MEASUREMENT>>)
+                    << END;
+              return results;
+            }()
          << END;
   return settle(series);
 }

@@ -24,7 +24,7 @@ namespace tunitas::denniston::network {
   namespace table {
     inline auto swap(Sockets::Interfaces &, Sockets::Interfaces &) noexcept -> void;
   }
-  struct Sockets::Interfaces : public std::deque<Socket::Interface> {
+  class Sockets::Interfaces : public std::deque<Socket::Interface> {
     using Ancestor = std::deque<Socket::Interface>;
     friend auto table::swap(Interfaces &, Interfaces &) noexcept -> void;
   public:

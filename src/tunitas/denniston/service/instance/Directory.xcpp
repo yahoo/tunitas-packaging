@@ -61,6 +61,7 @@ protected:
 public:
   inline explicit Directory();
   inline explicit Directory([[inout]] World &);
+  ~Directory();
   Interfaces clients{};
   Shards processors{};
   service::Dictionary<keyston::hpke::Side::SECRET> services{};
@@ -110,6 +111,11 @@ namespace tunitas::denniston::service::instance {
 #import tunitas.denniston.protocol.packet.Query
 #import tunitas.denniston.protocol.packet.Response
 namespace tunitas::denniston::service::instance {
+  Directory::~Directory() {
+    ready.notify();
+    // There are no subprocesses
+    disposable.acquire();
+  }
   auto Directory::react() -> void {
     for (auto &face : clients) {
       if (auto red=face.read_if(); red) {

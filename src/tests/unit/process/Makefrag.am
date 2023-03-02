@@ -8,7 +8,9 @@ tests_unit_process_SUBSOURCES = \
   check/obj/src/tests/unit/process/namespace.cpp \
   check/obj/src/tests/unit/process/Fixture.cpp \
   check/obj/src/tests/unit/process/Ready.cpp \
+  $(tests_unit_process_companion_SUBSOURCES) \
   $(tests_unit_process_readable_SUBSOURCES) \
   $(end)
 #
+include src/tests/unit/process/companion/Makefrag.am
 include src/tests/unit/process/readable/Makefrag.am

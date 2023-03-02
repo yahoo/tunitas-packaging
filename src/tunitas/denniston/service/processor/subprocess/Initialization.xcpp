@@ -8,7 +8,7 @@ namespace tunitas::denniston::service::processor::subprocess {
   //
   // The initialization subprocess (thread)
   //
-  // Specificiation:
+  // Specification:
   //
   //   Ask for the tasks.
   //
@@ -47,11 +47,11 @@ namespace tunitas::denniston::service::processor {
   public:
     inline explicit Initialization(Processor &);
     //
-    auto run() noexcept -> void;
+    auto run_managed_lifecycle() -> void;
   protected:
     using E = error::Code;
     using Report_Shares = keyston::protocol::initialization::Request::Report_Shares;
-    using Project_to_Identifier = report::ranges::Subrange<report::ranges::Projection::REPORT_ID, Report_Shares::Basic_Iterator<Report_Shares const>>;
+    using Project_to_Identifier [[lol("wut?")]] = report::ranges::Subrange<report::ranges::Projection::REPORT_ID, Report_Shares::Basic_Iterator<Report_Shares const>>;
     using Interface = network::Socket::Interface;
     struct Protocol {
       using Request = keyston::protocol::initialization::Request;
@@ -66,10 +66,11 @@ namespace tunitas::denniston::service::processor {
 #divert <ipp>
 #import tunitas.denniston.job.Corpus
 namespace tunitas::denniston::service::processor::subprocess {
-  Initialization::Initialization(Processor &owner) : Ancestor{owner} {
+  Initialization::Initialization(Processor &owner) : Ancestor{owner} { }
+#if 0
     // expects this->barrier to already be started (locked)
-    subbie = std::jthread{&Initialization::run, this};
-  }
+    subbie = std::jthread{&Initialization::run_managed_lifecycle, this};
+#endif
 }
 #divert <cpp>
 namespace {
@@ -94,18 +95,12 @@ namespace {
 #import tunitas.denniston.protocol.packet.Status
 #import nonstd.runtime_assert
 namespace tunitas::denniston::service::processor::subprocess {
-  auto Initialization::run() noexcept -> void try {
-    barrier.wait([this]{ return !owner.tasks.empty(); });
-    for (barrier.start(); !owner.is_shutting_down(); barrier.start()) {
-      // waiting on the barrier ALSO checks for other signalling (e.g. graceful shutdown)
+  auto Initialization::run_managed_lifecycle() -> void {
+    // waiting on the barrier ALSO checks for other signalling (e.g. graceful shutdown)
+    do {
       barrier.wait([this]{ return !owner.initializations.empty(); });
       respond(owner.gateway, owner.initializations.pop_front()->payload);
-    }
-    owner.log.format("initialization is ending");
-  } catch (process::companion::Shutdown) {
-    // yay!
-  } catch(...) {
-    owner.log.format("initialize has an escaped exception which is suppressed");
+    } while (true);
   }
   auto Initialization::respond(Interface &back, Protocol::Request const &request) -> void {
     //

@@ -19,7 +19,7 @@ namespace tunitas::denniston::task {
   //
   // Design:
   //
-  //   Whereas the Outgonig is a Channel, it cannot be copied.
+  //   Whereas the Outgoing is a Channel, it cannot be copied.
   //
   // Usage:
   //

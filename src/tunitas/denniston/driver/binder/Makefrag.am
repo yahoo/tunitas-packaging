@@ -8,6 +8,8 @@ tunitas_denniston_driver_binder_SUBSOURCES = \
   obj/src/tunitas/denniston/driver/Binder.cpp \
   obj/src/tunitas/denniston/driver/binder/namespace.cpp \
   obj/src/tunitas/denniston/driver/binder/Binder.cpp \
-  obj/src/tunitas/denniston/driver/binder/Binder.Tied.cpp \
+  obj/src/tunitas/denniston/driver/binder/Linkage.cpp \
+  obj/src/tunitas/denniston/driver/binder/Tied.cpp \
+  obj/src/tunitas/denniston/driver/binder/Untied.cpp \
   obj/src/tunitas/denniston/driver/binder/Triple.cpp \
   $(end)

@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::protocol::packet::hpke {
+namespace tunitas::denniston::protocol::packet::_::hpke {
   //
   // The commonalities among the Query and Response.
   //
@@ -27,7 +27,7 @@ namespace tunitas::denniston::protocol::packet::hpke {
 #import tunitas.Optional
 #import tunitas.denniston.protocol.packet.Prototype
 #import tunitas.keyston.protocol.id // for id::Service, id::Task
-struct tunitas::denniston::protocol::packet::hpke::Basis : public Prototype {
+class tunitas::denniston::protocol::packet::_::hpke::Basis : public Prototype {
   using Ancestor = Prototype;
 protected:
   ~Basis() = default;
@@ -43,7 +43,7 @@ public:
 };
 #endiv
 #divert <ipp>
-namespace tunitas::denniston::protocol::packet::hpke {
+namespace tunitas::denniston::protocol::packet::_::hpke {
   Basis::Basis(Service s)
     : service_id{move(s)}
   { }

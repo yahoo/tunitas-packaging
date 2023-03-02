@@ -34,7 +34,9 @@ namespace tunitas::denniston::process::readable {
 #import std.vector
 class tunitas::denniston::process::readable::Variable : public Container<std::vector<std::mutex *>> {
   using Ancestor = Container<std::vector<std::mutex *>>;
+  static_assert(std::is_abstract_v<Ancestor>); // the descendant MUST provide an implementation of is_ready_to_read() -> bool
 protected:
+  ~Variable() = default;
   template<required::Range_of_Mutex RANGE> inline auto accrete(RANGE const &) -> void;
   template<required::Mutex MUTEX> inline auto accrete(MUTEX &) -> void;
 public:
@@ -42,6 +44,7 @@ public:
   template<typename... EITHER> inline [[implicit]] Variable(Ready &, EITHER &...) requires (required::Either<EITHER> && ... );
   inline auto add(Mutex &) -> void;
 };
+static_assert(std::is_abstract_v<tunitas::denniston::process::readable::Variable>);
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::process::readable {

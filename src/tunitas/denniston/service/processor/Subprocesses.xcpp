@@ -6,7 +6,7 @@
 #divert <fpp>
 #import tunitas.denniston.service.processor.subprocess.Prototype
 #include <hpp/tunitas.denniston.service.processor.subprocess.Prototype>
-#import tunitas.denniston.process.companion.Series
+#import tunitas.denniston.process.companion.Subprocesses
 namespace tunitas::denniston::service::processor {
   //
   // A collection of subprocesses
@@ -25,6 +25,6 @@ namespace tunitas::denniston::service::processor {
   //
   //   See Processor, which is nearby.
   //
-  using Subprocesses = process::companion::Series<subprocess::Prototype>;
+  using Subprocesses = process::companion::Subprocesses<subprocess::Prototype>;
 }
 #endiv

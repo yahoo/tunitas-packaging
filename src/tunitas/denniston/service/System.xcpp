@@ -15,9 +15,23 @@ namespace tunitas::denniston::service {
   //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
   //   Section 2. System Architecture
   //
+  //   The static configuration of the processes is represented.
+  //   The dynamic operation is managed by the Driver in the context of a thread pool (not shown)
+  //
+  // Obligations:
+  //
+  //   Once constructed, the processes are neither linked nor running.
+  //   The caller is responsible for linking up the process communication channels.
+  //   The caller must launch the processes into a thread pool.
+  //   That thread pool must last longer than this system.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(system) < lifetime(...off-stage thread pool...)
+  //
   // Design:
   //
-  //   The three (no four) roles:
+  //   The three (no four, no five) roles:
   //   1. configuration & directory
   //   2. collector.
   //   3. processor; a.k.a. "helper", a.k.a. "aggregator"

@@ -10,4 +10,5 @@
 #import tunitas.denniston.protocol.packet.Response.TASKS
 #import tunitas.denniston.protocol.packet.Response.INITIALIZATION
 #import tunitas.denniston.protocol.packet.Response.CONTINUATION
+#import tunitas.denniston.protocol.packet.Response.MEASUREMENT
 #endiv

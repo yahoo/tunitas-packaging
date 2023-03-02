@@ -8,4 +8,5 @@
 #import tunitas.denniston.protocol.packet.Query.PUBLIC
 #import tunitas.denniston.protocol.packet.Query.SECRET
 #import tunitas.denniston.protocol.packet.Query.TASKS
+#import tunitas.denniston.protocol.packet.Query.MEASUREMENT
 #endiv

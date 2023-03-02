@@ -7,11 +7,15 @@
 namespace tests::unit::service::gateway { class Fixture; }
 #endiv
 #divert <hpp>
-struct tests::unit::service::gateway::Fixture : public rigging::suite::Fixture {
+#import tests.unit.service.partial.Controllability
+struct tests::unit::service::gateway::Fixture : public rigging::suite::Fixture, protected partial::Controllability {
   static auto suite() -> Suite;
   //
   auto test_usage_Gateway() -> void;
   auto test_usage_Gather() -> void;
+  auto test_usage_Boot() -> void;
+  auto test_usage_Task() -> void;
+  auto test_usage_Job() -> void;
 };
 #endiv
 #divert <cpp>
@@ -22,6 +26,9 @@ auto tests::unit::service::gateway::Fixture::suite() -> Suite {
               auto use = Stream{"usage"sv};
               use << add("Gateway", &Fixture::test_usage_Gateway)
                   << add("Gather", &Fixture::test_usage_Gather)
+                  << add("Boot", &Fixture::test_usage_Boot)
+                  << add("Task", &Fixture::test_usage_Task)
+                  << add("Job", &Fixture::test_usage_Job)
                   << END;
               return use;
             }()
@@ -31,19 +38,47 @@ auto tests::unit::service::gateway::Fixture::suite() -> Suite {
 }
 #import tunitas.denniston.service.gateway.Gateway
 #import tunitas.denniston.service.gateway.Gather
-#import tunitas.denniston.World
-#import tunitas.keyston.entropy.Source
+#import tunitas.denniston.service.gateway.subprocess.Boot
+#import tunitas.denniston.service.gateway.subprocess.Task
+#import tunitas.denniston.service.gateway.subprocess.Job
+#import tunitas.denniston.service.gateway.subprocess.make
 namespace tests::unit::service::gateway {
   auto Fixture::test_usage_Gateway() -> void {
-    auto source = ::tunitas::keyston::entropy::Source{};
-    auto world = ::tunitas::denniston::World{source};
-    using Subject = library::Gateway;
-    auto subject = Subject{source, world};
-    require(ASSERTION, sizeof (subject));
+    auto super = supervise<library::Gateway>();
+    super.stop();
+    require(ASSERTION);
   }
   auto Fixture::test_usage_Gather() -> void {
     auto subject = library::Gather{};
     require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Boot() -> void {
+    auto super = supervise<library::Gateway>();
+    // This is somewhat pedantic and specious because the Gateway already runs Boot, Tasks & Job
+    // The new subprocess MUST be pushed into the subprocesses list; it CANNOT be left floating.
+    // The subprocess MUST get notified on catchup() as the top-level process terminates from graceful_shutdown.
+    auto &ref{super.ref()};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Boot>(ref));
+    super.stop();
+    require(ASSERTION);
+  }
+  auto Fixture::test_usage_Task() -> void {
+    auto super = supervise<library::Gateway>();
+    // Eadem ratione
+    auto corpus = ::tunitas::denniston::task::Corpus<::tunitas::denniston::Genus::GATEWAY>{};
+    auto &ref{super.ref()};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Task>(ref, corpus));
+    super.stop();
+    require(ASSERTION);
+  }
+  auto Fixture::test_usage_Job() -> void {
+    auto super = supervise<library::Gateway>();
+    // Eadem ratione
+    auto corpus = ::tunitas::denniston::job::Corpus<::tunitas::denniston::Genus::GATEWAY>{};
+    auto &ref{super.ref()};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Job>(ref, corpus));
+    super.stop();
+    require(ASSERTION);
   }
 }
 #endiv

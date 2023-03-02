@@ -1,0 +1,95 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::collector {
+  //
+  // A manifestation of the collector in the network.
+  //
+  // Specification:
+  //
+  //   Initiates the measurement computation(s) and receives the measurement result(s).
+  //
+  // Invariants:
+  //
+  //   Death & Taxes.
+  //
+  // Design:
+  //
+  //   Something something, something, something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Collector;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.World
+#import tunitas.denniston.process.Model
+#import tunitas.denniston.service.collector.Subprocesses
+class tunitas::denniston::service::collector::Collector : public process::Model {
+  using Ancestor = process::Model;
+  auto lowest_level_unmanaged_run_with_nothing_done_for_us() noexcept -> void;
+public:
+  inline explicit Collector();
+  inline explicit Collector([[inout]] World &);
+  ~Collector();
+  auto launch(driver::Threads &) -> void override;
+  Interface configuration{};
+  Interface gateway{};
+  Subprocesses subprocesses{}; // accessed from the boot subprocess
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.World
+namespace tunitas::denniston::service::collector {
+  Collector::Collector(World &) : Collector{} { }
+  Collector::Collector()
+    : Ancestor{Species::COLLECTOR}
+  { }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.protocol.packet.cast
+namespace tunitas::denniston::service::collector {
+  Collector::~Collector() {
+    ready.notify();
+    subprocesses.request_for_all_to_finish();
+    subprocesses.wait_for_all_to_finish();
+    disposable.acquire();
+  }
+  auto Collector::launch(driver::Threads &pool) -> void {
+    disposable.acquire(); // with release() in that horrendously-long "run" function
+    pool.launch(&Collector::lowest_level_unmanaged_run_with_nothing_done_for_us, this);
+  }
+  auto Collector::lowest_level_unmanaged_run_with_nothing_done_for_us() noexcept -> void try {
+    log.format("begin running");
+    while (!is_shutting_down()) {
+      ready.wait(readable);
+      log.format("reading");
+      if (auto red=control.read_if(); red) {
+        log.format("red from control");
+        if (is_quit(*red)) {
+          graceful_shutdown.store(true);
+          break;
+        }
+      }
+      if (auto red=gateway.read_if(); red) {
+        log.format("red from gateway");
+        if (auto down=downcast_get<Status>(*red); nullptr != down) {
+          log.format("status returned {}", down->status.message());
+        }
+      }
+    }
+    log.format("ending");
+    disposable.release();
+  } catch(...) {
+    log.format("escaped exception is suppressed");
+    disposable.release();
+  }
+}
+#endiv

@@ -8,7 +8,7 @@ namespace tunitas::denniston::service::processor::subprocess {
   //
   // The Bootialization subprocess (thread)
   //
-  // Specificiation:
+  // Specification:
   //
   //   Ask for the tasks.
   //
@@ -40,17 +40,18 @@ namespace tunitas::denniston::service::processor {
   public:
     inline explicit Boot(Processor &);
     //
-    auto run() noexcept -> void;
+    auto run_managed_lifecycle() -> void;
   };
 }
 #endiv
 #divert <ipp>
 #import tunitas.denniston.job.Corpus
 namespace tunitas::denniston::service::processor::subprocess {
-  Boot::Boot(Processor &owner) : Ancestor{owner} {
+  Boot::Boot(Processor &owner) : Ancestor{owner} { }
+#if 0
     // expects this->barrier to already be started (locked)
-    subbie = std::jthread{&Boot::run, this};
-  }
+    subbie = std::jthread{&Boot::run_managed_lifecycle, this};
+#endif
 }
 #divert <cpp>
 namespace {
@@ -72,16 +73,15 @@ namespace {
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Query
 namespace tunitas::denniston::service::processor::subprocess {
-  auto Boot::run() noexcept -> void try {
+  auto Boot::run_managed_lifecycle() -> void {
     //
     // 1. Ask for the tasks
     //
     owner.configuration.write(make<Query<Get::TASKS>>());
     barrier.wait([this]{ return !owner.tasks.empty(); });
     //
-    // 2. Foreach task, ask for it's crypto goo (the SECRET)
+    // 2. Foreach task, ask for its crypto goo (the SECRET)
     //
-    barrier.start();
     auto howmany_were_sent{0uz};
     for (auto locked=owner.tasks.range(); auto const &task : locked) {
       for (auto const &endpoint : task.definition.services) {
@@ -93,10 +93,6 @@ namespace tunitas::denniston::service::processor::subprocess {
     barrier.wait([this, howmany_were_sent]{ return howmany_were_sent == owner.howmany_were_recovered.load(); });
     owner.subprocesses.notify_all_except(this);
     owner.log.format("boot is ending, having recovered some tasks and all their secrets");
-  } catch (process::companion::Shutdown) {
-    // yay!
-  } catch(...) {
-    owner.log.format("boot has an escaped exception which is suppressed");
   }
 }
 #endiv

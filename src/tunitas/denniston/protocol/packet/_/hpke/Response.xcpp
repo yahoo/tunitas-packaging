@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::protocol::packet::hpke {
+namespace tunitas::denniston::protocol::packet::_::hpke {
   //
   // Semantic:
   //
@@ -28,9 +28,9 @@ namespace tunitas::denniston::protocol::packet::hpke {
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.protocol.packet.hpke.Basis
+#import tunitas.denniston.protocol.packet._.hpke.Basis
 #import tunitas.keyston.hpke.Configuration
-namespace tunitas::denniston::protocol::packet {
+namespace tunitas::denniston::protocol::packet::_ {
   template<keyston::hpke::Side THE_SIDE> struct hpke::Response : public Basis {
     using Ancestor = Basis;
   protected:
@@ -47,7 +47,7 @@ namespace tunitas::denniston::protocol::packet {
 }
 #endiv
 #divert <ipp>
-namespace tunitas::denniston::protocol::packet::hpke {
+namespace tunitas::denniston::protocol::packet::_::hpke {
   template<keyston::hpke::Side _> Response<_>::Response(Service s, Configuration c)
     : Ancestor{move(s)}
     , configuration{move(c)}

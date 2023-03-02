@@ -28,7 +28,9 @@ namespace tunitas::denniston::service::instance {
   //
   // Design:
   //
-  //   Something something: a thread.
+  //   Something something, something something: a thread.
+  //
+  //   The Configuration constructor accepts the initial task list from the World.
   //
   // Usage:
   //
@@ -53,6 +55,7 @@ class tunitas::denniston::service::instance::Configuration : public process::Rea
 public:
   inline explicit Configuration();
   inline explicit Configuration([[inout]] World &);
+  ~Configuration();
   Interfaces clients{};
   Interface collector{};
   Interface gateway{};
@@ -81,22 +84,33 @@ namespace tunitas::denniston::service::instance {
 #import std.min
 #import std.cbegin
 namespace tunitas::denniston::service::instance {
+  Configuration::~Configuration() {
+    ready.notify();
+    // There are no subprocesses
+    disposable.acquire();
+  }
   auto Configuration::react() -> void try {
     if (auto red=collector.read_if(); red) {
       if (is_ping(*red)) {
-        log.format("configuration is sent a ping");
+        log.format("collector sent a ping");
         collector.write(protocol::packet::make<protocol::packet::Status>());
+      } else {
+        log.format("[the] collector sent something else (which is ignored)");
       }
     }
     if (auto red=gateway.read_if(); red) {
       if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
         respond(gateway, *got, "gateway");
+      } else {
+        log.format("[the] gateway sent something else (which is ignored)");
       }
     }
     for (auto &face : clients) {
       if (auto red=face.read_if(); red) {
         if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
           respond(face, *got, "some client");
+        } else {
+          log.format("[that] client sent something else (which is ignored)");
         }
       }
     }
@@ -104,6 +118,8 @@ namespace tunitas::denniston::service::instance {
       if (auto red=face.read_if(); red) {
         if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
           respond(face, *got, "some processor");
+        } else {
+          log.format("[that] processor sent something else (which is ignored)");
         }
       }
     }

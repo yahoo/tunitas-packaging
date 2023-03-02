@@ -104,7 +104,7 @@ namespace tests::unit::network::socket {
     auto driver = Driver{};
     auto binder = Binder{driver};
     auto socket = driver.sockets.allocate();
-    auto [ability, left] = binder.left(socket, ready);
+    auto [ability, left] = binder.left(*socket, ready);
     require(ASSERTION, sizeof (left));   
   }
 }
@@ -113,14 +113,14 @@ namespace tests::unit::network::socket {
     auto driver = Driver{};
     auto binder = Binder{driver};
     auto socket = driver.sockets.allocate();
-    auto left = binder.left(socket, ready);
-    require(ASSERTION, sizeof (left));   
+    auto right = binder.right(*socket, ready);
+    require(ASSERTION, sizeof (right));   
   }
   auto Interface::test_right_write_moving() -> void {
     auto driver = Driver{};
     auto binder = Binder{driver};
     auto socket = driver.sockets.allocate();
-    auto [ability, right] = binder.right(socket, ready);
+    auto [ability, right] = binder.right(*socket, ready);
     //
     auto specimen = packet::make<packet::Ping>();
     right.write(move(specimen)); // <---------------------- test this (moving)
@@ -130,7 +130,7 @@ namespace tests::unit::network::socket {
     auto driver = Driver{};
     auto binder = Binder{driver};
     auto socket = driver.sockets.allocate();
-    auto [ability, right] = binder.right(socket, ready);
+    auto [ability, right] = binder.right(*socket, ready);
     //
     auto delayed = [&, this]<typename VALUE>(VALUE const &specimen) {
       if constexpr (std::is_copy_constructible_v<VALUE>) {
@@ -144,8 +144,8 @@ namespace tests::unit::network::socket {
     auto driver = Driver{};
     auto binder = Binder{driver};
     auto socket = driver.sockets.allocate();
-    auto [rabilit, right] = binder.right(socket, ready);
-    auto [labilit, left] = binder.left(socket, ready);
+    auto [rabilit, right] = binder.right(*socket, ready);
+    auto [labilit, left] = binder.left(*socket, ready);
     //
     auto prepared = generate();
     require(ASSERTION, 0 < prepared.size());
@@ -164,8 +164,8 @@ namespace tests::unit::network::socket {
     auto driver = Driver{};
     auto binder = Binder{driver};
     auto socket = driver.sockets.allocate();
-    auto [rability, right] = binder.right(socket, ready);
-    auto [lability, left] = binder.left(socket, ready); // [[FIXTHIS]] shouldn't use the same ready for a different side of the socket
+    auto [rability, right] = binder.right(*socket, ready);
+    auto [lability, left] = binder.left(*socket, ready); // [[FIXTHIS]] shouldn't use the same ready for a different side of the socket
     //
     // Prep: write into the left side.
     // Show: read out of the right side.

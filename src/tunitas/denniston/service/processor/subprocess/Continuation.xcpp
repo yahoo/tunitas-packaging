@@ -8,7 +8,7 @@ namespace tunitas::denniston::service::processor::subprocess {
   //
   // The continuation subprocess (thread)
   //
-  // Specificiation:
+  // Specification:
   //
   //   Ask for the tasks.
   //
@@ -48,12 +48,12 @@ namespace tunitas::denniston::service::processor {
   public:
     inline explicit Continuation(Processor &);
     //
-    auto run() noexcept -> void;
+    auto run_managed_lifecycle() -> void;
   protected:
     using E = error::Code;
     using Members = report::Series<keyston::protocol::id::Report>;
     using Preparation_Steps = keyston::protocol::continuation::Request::Preparation_Steps;
-    using Project_to_Identifier = preparation::ranges::Subrange<preparation::ranges::Projection::REPORT_ID, Preparation_Steps::Basic_Iterator<Preparation_Steps const>>;
+    using Project_to_Identifier [[lol("wut?")]] = preparation::ranges::Subrange<preparation::ranges::Projection::REPORT_ID, Preparation_Steps::Basic_Iterator<Preparation_Steps const>>;
     using Interface = network::Socket::Interface;
     struct Protocol {
       using Request = keyston::protocol::continuation::Request;
@@ -69,10 +69,11 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.denniston.job.Corpus
 #import std.equal
 namespace tunitas::denniston::service::processor::subprocess {
-  Continuation::Continuation(Processor &owner) : Ancestor{owner} {
+  Continuation::Continuation(Processor &owner) : Ancestor{owner} { }
+#if 0
     // expects this->barrier to already be started (locked)
-    subbie = std::jthread{&Continuation::run, this};
-  }
+    subbie = std::jthread{&Continuation::run_managed_lifecycle, this};
+#endif
   auto Continuation::match(Members const &members, Preparation_Steps const &steps) -> bool {
     auto project = Project_to_Identifier{steps};
     return std::equal(members.begin(), members.end(), project.begin(), project.end());
@@ -100,19 +101,12 @@ namespace {
 #import tunitas.denniston.protocol.packet.Response
 #import tunitas.denniston.protocol.packet.Status
 namespace tunitas::denniston::service::processor::subprocess {
-  auto Continuation::run() noexcept -> void try {
-    barrier.wait([this]{ return !owner.tasks.empty(); });
-    for (barrier.start(); !owner.is_shutting_down(); barrier.start()) {
-      // waiting on the barrier ALSO checks for other signalling (e.g. graceful shutdown)
+  auto Continuation::run_managed_lifecycle() -> void {
+    // waiting on the barrier ALSO checks for other signalling (e.g. graceful shutdown)
+    do {
       barrier.wait([this]{ return !owner.continuations.empty(); });
       respond(owner.gateway, owner.continuations.pop_front()->payload);
-    }
-    //
-    owner.log.format("continuation is ending, having recovered the tasks");
-  } catch (process::companion::Shutdown) {
-    // yay!
-  } catch(...) {
-    owner.log.format("continuation has an escaped exception which is suppressed");
+    } while (true);
   }
   auto Continuation::respond(Interface &back, Protocol::Request const &request) -> void {
     //

@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc. 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
@@ -45,6 +45,7 @@ namespace tunitas::denniston::process {
 #import tunitas.denniston.world // for VERIFIABLE_AGGREGATION_FUNCTION_NAME
 #import tunitas.keyston.vdaf.Executor
 #import std.atomic
+#import std.binary_semaphore
 #import std.vector
 class tunitas::denniston::process::Model : public Prototype {
   using Ancestor = Prototype;
@@ -64,8 +65,10 @@ public:
   virtual ~Model() = default;
   virtual auto launch([[inout]] driver::Threads &) -> void = 0;
   inline auto is_shutting_down() const -> bool;
+  inline auto has_shut_down() -> bool;
 protected:
   inline explicit Model(Species);
+  std::binary_semaphore disposable{1};
   std::atomic<bool> graceful_shutdown{false}; // not clear this needs to be atomic.
   friend class companion::Barrier;
   friend class driver::Driver;
@@ -74,10 +77,18 @@ protected:
 #divert <ipp>
 namespace tunitas::denniston::process {
   Model::Model(Species role)
-    : role{role}
+    : role{role} // [[FIXTHIS]] this field is duplicated as log.role
     , log{role}
   { }
   auto Model::is_shutting_down() const -> bool { return graceful_shutdown.load(); }
+  auto Model::has_shut_down() -> bool {
+    if (disposable.try_acquire()) {
+      disposable.release();
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 // All descendants will need this
 #import tunitas.denniston.driver.Threads

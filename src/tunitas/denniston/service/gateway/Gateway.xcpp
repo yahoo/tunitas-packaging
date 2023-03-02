@@ -58,6 +58,7 @@ protected:
 public:
   using Entropy = keyston::entropy::Source;
   inline explicit Gateway([[inout]] Entropy &, [[inout]] World &);
+  ~Gateway();
   auto launch(driver::Threads &) -> void override;
   Interfaces clients{};
   Interface collector{};
@@ -99,15 +100,26 @@ namespace tunitas::denniston::service::gateway {
 #import tunitas.denniston.service.gateway.subprocess.Job
 #import tunitas.keyston.vdaf.tunitas.denniston.role.Species
 namespace tunitas::denniston::service::gateway {
+  Gateway::~Gateway() {
+    ready.notify();
+    subprocesses.request_for_all_to_finish();
+    subprocesses.wait_for_all_to_finish();
+    disposable.acquire();
+  }
   auto Gateway::launch(driver::Threads &pool) -> void {
+    disposable.acquire(); // with release() in React::run()
     pool.launch(&Gateway::run, this);
+#if 1
+    subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));
+#else
     subprocesses.push_back(subprocess::make<subprocess::Boot>(*this));
+#endif
     // DO NOT start a subprocess::Task ... that happens in Gateway::react(...)
     // DO NOT start a subprocess::Job ... that happens in subprocess::Task::run(...)
   }
   auto Gateway::catchup() -> void {
-    if (graceful_shutdown.load()) {
-      subprocesses.notify();
+    if (is_shutting_down()) {
+      subprocesses.notify(); // and the subprocesses destructor will await their termination
     }
   }
   auto Gateway::react() -> void {
@@ -130,7 +142,7 @@ namespace tunitas::denniston::service::gateway {
         for (auto &given : got->tasks) {
           auto [noob, inserted] = tasks.insert({move(given)});
           if (inserted) {
-            subprocesses.push_back(subprocess::make<subprocess::Task>(*this, noob));
+            subprocesses.spawn(subprocess::make<subprocess::Task>(*this, noob));
           }
           log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.definition.id);
         }

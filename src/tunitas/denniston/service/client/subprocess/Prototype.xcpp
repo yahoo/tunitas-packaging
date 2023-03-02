@@ -16,7 +16,7 @@ namespace tunitas::denniston::service::client::subprocess {
   // Design:
   //
   //   Descendants only.
-  //   The destructor MUSt be public so that unique_ptr<Prototype> can see it
+  //   The destructor MUST be public so that unique_ptr<Prototype> can see it
   //   Therefore the constructor is made protected.
   //
   // Usage:
@@ -28,15 +28,15 @@ namespace tunitas::denniston::service::client::subprocess {
 #endiv
 #divert <hpp>
 #forward tunitas.denniston.service.client.Client // DO NOT use #import
-#import tunitas.denniston.process.companion.Prototype
+#import tunitas.denniston.process.companion.Submodel
 namespace tunitas::denniston::service::client {
   namespace subprocess {
     inline auto swap(Prototype *&a, Prototype *&b) noexcept -> void { std::swap(a, b); }
   }
-  class subprocess::Prototype : public process::companion::Prototype<Client> {
-    using Ancestor = process::companion::Prototype<Client>;
+  class subprocess::Prototype : public process::companion::Submodel<Client> {
+    using Ancestor = process::companion::Submodel<Client>;
   protected:
-    using Ancestor::Prototype;
+    using Ancestor::Submodel;
   public:
     virtual ~Prototype() = default;
   };

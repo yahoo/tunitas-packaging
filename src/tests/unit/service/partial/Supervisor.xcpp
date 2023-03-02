@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.service.partial.required.Controllable
+namespace tests::unit::service::partial {
+  //
+  // The RAII of the Driver.
+  //
+  // Specificatoin:
+  //
+  //   You know what RAII is, right?  It does that thing.
+  //
+  // Design:
+  //
+  //   Yes.
+  //
+  // Usage:
+  //
+  //   auto Something::test_something() -> void {
+  //     auto super = launch(...arguments...); .................... performs start()
+  //     ...add subprocesses...
+  //     auto sub = Subprocess{super.reF()}; .................... . e.g. Gateway subprocess Boot
+  //     super.stop();
+  //   }
+  //
+  template<required::Controllable> struct Supervisor;
+}
+#endiv
+#divert <hpp>
+#import std.is_move_constructible
+#import std.unique_ptr
+#import tests.unit.service.partial.Driver
+#import nonstd.Like
+namespace tests::unit::service {
+  template<partial::required::Controllable SUBJECT> struct partial::Supervisor {
+    using Subject = SUBJECT;
+    template<typename... ARGUMENT> explicit Supervisor(ARGUMENT &&...);
+    Supervisor(Supervisor &&) = default; // WATCHOUT - unless the othre constructor is explicit, this is ambiguous [[o.rly?]]
+    Supervisor(Supervisor const &) = delete;
+    auto start() -> void { indirect->start(); }
+    auto stop() -> void { indirect->stop(); }
+#if 202303 <= __cplusplus
+    template<typename SELF> inline auto ref(this SELF *) -> nonstd::Like<SELF, Subject &> { return indirect->subject; }
+#else
+    inline auto ref()       -> Subject &       { return indirect->subject; }
+    inline auto ref() const -> Subject const & { return indirect->subject; }
+#endif
+  protected:
+    static_assert(not std::is_move_constructible_v<SUBJECT>, "not required, but expected");
+    using Driver = partial::Driver<SUBJECT>;
+    std::unique_ptr<Driver> indirect{};
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::service::partial {
+  template<required::Controllable _> template<typename... ARGUMENT> Supervisor<_>::Supervisor(ARGUMENT &&...argument)
+    : indirect{new Driver{forward<ARGUMENT>(argument)...}}
+  { }
+}
+#endiv

@@ -1,0 +1,71 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.fixture.required.configuration.Rigging
+#import cli.controllability.Through
+namespace tests::fixture {
+  //
+  // The commonality among the various Partly classes
+  // Instantiations and specializations
+  //
+  // Specification:
+  //
+  //   Parameterized around cli::controllability::Through
+  //   Eschew copy pasta.
+  //   Specialize only that which is distinct.
+  //
+  //   The magic happens in the specializations of Partly<C,T>::Entrypoint
+  //
+  // Design:
+  //
+  //   Yes.  And?
+  //
+  // Usage:
+  //
+  //   Hack the Spew (this is, after all, a test rig)
+  //
+  template<required::configuration::Rigging, cli::controllability::Through> class Partly;
+}
+#endiv
+#divert <hpp>
+#import cli.experience.Console
+#import cli.options.Program
+#import rigging.app.Mostly
+#import rigging.app.options.c.Anchor
+namespace tests {
+  template<fixture::required::configuration::Rigging CONFIGURATION, cli::controllability::Through CONTROLLABILITY_THROUGH> class fixture::Partly : public rigging::app::Mostly<CONFIGURATION> {
+    using Ancestor = rigging::app::Mostly<CONFIGURATION>;
+  public:
+    inline static constexpr auto const THROUGH = CONTROLLABILITY_THROUGH;
+    // These are all supplied by the ancestor
+    static_assert(sizeof (typename Ancestor::Configuration));
+    static_assert(sizeof (typename Ancestor::Exit));
+    static_assert(sizeof (typename Ancestor::Arguments));
+    using Program = ::cli::options::Program;
+    using Experience = ::cli::experience::Console;
+    struct Entrypoint {
+      //
+      // The Arguments will contain storage-strings as the arguments.
+      // The argv[0] for calling main(...) must be supplied (by the descendant)
+      //
+      // The descendant applications MUST specialize the following:
+      //
+      auto operator()([[inout]] typename Ancestor::Configuration &, typename Ancestor::Arguments) const -> typename Ancestor::Exit;
+      //
+      // Also in operator(), the descendant MUST set up the Experience as ... something something:
+      //
+      //   auto exp = Experience{cfg};
+      //   return main(exp, cfg, move(arguments))
+      //
+    };
+  protected:
+    // But we have to anchor because app::$something::main(...) accepts options::c::Argv, not options::Arguments
+    using Anchor = rigging::app::options::c::Anchor;
+  };
+}
+// All specializations will need this combiner shim
+#import tests.fixture.Combine
+#endiv

@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_service_collector_subprocess_SUBSOURCES = \
+  obj/src/tunitas/denniston/service/collector/subprocess/namespace.cpp \
+  obj/src/tunitas/denniston/service/collector/subprocess/traits.Subprocess.cpp \
+  obj/src/tunitas/denniston/service/collector/subprocess/Pointer.cpp \
+  obj/src/tunitas/denniston/service/collector/subprocess/make.cpp \
+  obj/src/tunitas/denniston/service/collector/subprocess/Prototype.cpp \
+  obj/src/tunitas/denniston/service/collector/subprocess/Boot.cpp \
+  obj/src/tunitas/denniston/service/collector/subprocess/Measure.cpp \
+  $(tunitas_denniston_service_collector_subprocess_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/service/collector/subprocess/required/Makefrag.am

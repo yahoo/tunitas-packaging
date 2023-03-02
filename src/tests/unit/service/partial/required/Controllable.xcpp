@@ -1,0 +1,21 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.service.client.Client
+#forward tunitas.denniston.service.collector.Collector
+#forward tunitas.denniston.service.gateway.Gateway
+#forward tunitas.denniston.service.processor.Processor
+namespace tests::unit::service::partial::required {
+  //
+  // What is controllable?
+  // Only certain processes (and not the subprocesses).
+  //
+  template<typename CONTROLLABLE> concept Controllable = (same_as<CONTROLLABLE, library::client::Client> ||
+                                                          same_as<CONTROLLABLE, library::collector::Collector> ||
+                                                          same_as<CONTROLLABLE, library::gateway::Gateway> ||
+                                                          same_as<CONTROLLABLE, library::processor::Processor>);
+}
+#endiv

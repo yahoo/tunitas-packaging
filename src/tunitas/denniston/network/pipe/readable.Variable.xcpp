@@ -49,6 +49,7 @@ namespace tunitas::denniston::network::pipe {
     inline auto add(Pollability &) -> void;
   };
 }
+static_assert(not std::is_abstract_v<tunitas::denniston::network::pipe::readable::Variable>);
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::network {
@@ -68,12 +69,19 @@ namespace tunitas::denniston::network {
 #divert <cpp>
 namespace tunitas::denniston::network::pipe::readable {
   auto Variable::is_ready_to_read() -> bool {
+    // The expectation is that the caller has established this->lock() with a guard (no locking here)
     for (auto place : pollabilities) {
       if (place->is_ready_to_read()) {
         return true;
       }
     }
     return false;
+  }
+}
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::pipe::readable;
+    static_assert(not std::is_abstract_v<Variable>);
   }
 }
 #endiv

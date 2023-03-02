@@ -8,7 +8,7 @@ namespace tunitas::denniston::service::gateway::subprocess {
   //
   // The job management subprocess (thread)
   //
-  // Specificiation:
+  // Specification:
   //
   //   Prepare the job.
   //   Send it out.
@@ -61,7 +61,7 @@ namespace tunitas::denniston::service::gateway {
     //
     inline explicit Job(Gateway &, Corpus &);
     //
-    auto run() noexcept -> void;
+    auto run_managed_lifecycle() -> void;
   };
 }
 #endiv
@@ -71,8 +71,9 @@ namespace tunitas::denniston::service::gateway::subprocess {
     : Ancestor{owner}
     , corpus{corp} {
     corpus.subprocess = this;
-    // expects this->barrier to already be started (locked)
-    subbie = std::jthread{&Job::run, this};
+#if 0
+    subbie = {&Job::run_managed_lifecycle, this};
+#endif
   }
 }
 #divert <cpp>
@@ -94,19 +95,18 @@ namespace {
 }
 #import tunitas.denniston.job.Corpus
 namespace tunitas::denniston::service::gateway::subprocess {
-  auto Job::run() noexcept -> void try {
+  auto Job::run_managed_lifecycle() -> void {
     count::Job process_repetition_count{};
-    while (!owner.is_shutting_down()) {
+    do {
       barrier.wait([this]{ return gather.is_complete(); });
+      owner.log.format("job {} pretends to do something for some time", corpus.definition.id);
+#warning [[FINISHTHIS]] do not delay, do something in the job ... compute something
       std::this_thread::sleep_for(250ms);
       if (++process_repetition_count >= process_repetition_limit) {
         break;
       }
-    }
-  } catch (process::companion::Shutdown) {
-    // yay!
-  } catch(...) {
-    owner.log.format("job {} has an escaped exception which is suppressed", corpus.definition.id);
+    } while (true);
+    owner.log.format("job {} is ending", corpus.definition.id);
   }
 }
 #endiv

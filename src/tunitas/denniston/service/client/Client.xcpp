@@ -42,6 +42,7 @@ protected:
 public:
   using Entropy = keyston::entropy::Source;
   inline explicit Client([[inout]] Entropy &, [[inout]] World &, Species);
+  ~Client();
   auto launch(driver::Threads &) -> void override;
   Interface configuration{};
   Interface directory{};
@@ -81,13 +82,24 @@ namespace tunitas::denniston::service::client {
 #import nonstd.copy
 #import std.this_thread.sleep_for
 namespace tunitas::denniston::service::client {
+  Client::~Client() {
+    ready.notify();
+    subprocesses.request_for_all_to_finish();
+    subprocesses.wait_for_all_to_finish();
+    disposable.acquire();
+  }
   auto Client::launch(driver::Threads &pool) -> void {
+    disposable.acquire(); // with release() in React::run()
     pool.launch(&Client::run, this);
+#if 1
+    subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));
+#else
     subprocesses.push_back(subprocess::make<subprocess::Boot>(*this));
+#endif
   }
   auto Client::catchup() -> void {
-    if (graceful_shutdown.load()) {
-      subprocesses.notify();
+    if (is_shutting_down()) {
+      subprocesses.notify(); // and the subprocesses destructor will await their termination
     }
   }
   auto Client::react() -> void {
@@ -133,54 +145,5 @@ namespace tunitas::denniston::service::client {
       }
     }
   }
-#if 0
-  auto Client::script() noexcept -> void try {
-    log.format("starting the script");
-    //
-    // Ask for the tasks
-    //
-    barrier.start();
-    configuration.write(make<Query<Get::TASKS>>()); // ask for them all
-    log.format("wrote for some TASKS");
-    barrier.wait([this]{ return !tasks.empty(); });
-    log.format("after the barrier, there are {} tasks and {} shutdown", tasks.size(), graceful_shutdown.load());
-    //
-    // Foreach task, ask for the service specifications
-    //
-    howmany_were_recovered = [this]{
-                             auto count{0uz};
-                             for (auto locked=tasks.range(); auto const &task : locked) { count += task.services.size(); }
-                             return count;
-                           }();
-    log.format("there will be {} endpoints", howmany_were_recovered);
-    barrier.start();
-    auto howmany{0uz};
-    for (auto locked=tasks.range(); auto const &task : locked) {
-      for (auto const &endpoint : task.services) {
-        ++howmany;
-        ++howmany_were_recovered;
-        directory.write(make<Query<Get::PUBLIC>>(endpoint, task.id));
-      }
-    }
-    log.format("waiting for {} queries to return", howmany);
-    barrier.wait([this]{ return 0 == howmany_were_recovered; });
-    //
-    // Then start sending measurements
-    //
-    barrier.start();
-    while (!graceful_shutdown.load()) {
-      for (auto locked=tasks.range(); auto const &task : locked) {
-        std::this_thread::sleep_for(10ms);
-        gateway.write(make<Report<Slice::WHOLE>>(measure(task.id)));
-      }
-      std::this_thread::sleep_for(90ms);
-    }
-    log.format("script is ending, having recovered the endpoints");
-  } catch (process::companion::Shutdown) {
-    // yay!
-  } catch(...) {
-    log.format("script has an escaped exception which is suppressed");
-  }
-#endif
 }
 #endiv

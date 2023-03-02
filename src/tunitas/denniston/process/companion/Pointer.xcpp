@@ -16,6 +16,7 @@ namespace tunitas::denniston::process::companion {
   // Design:
   //
   //   std::unique_ptr
+  //   typename Pointer<TYPE>::Value is referenced in required::iterator::Subprocess
   //
   // Usage:
   //
@@ -31,6 +32,8 @@ namespace tunitas::denniston::process {
   template<companion::required::Subprocess INSTANCE> struct companion::Pointer : public std::unique_ptr<INSTANCE> {
     using Ancestor = std::unique_ptr<INSTANCE>;
   public:
+    using Element = typename Ancestor::element_type;
+    using Value [[deprecated("prefer Pointer<INSTANCE>::Element because it's called Element in the case of a Pointer")]] = Element;
     Pointer() = default;
     using Ancestor::unique_ptr;
     Pointer(Ancestor &&donor) : Ancestor{forward<Ancestor>(donor)} { }

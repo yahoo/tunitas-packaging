@@ -1,0 +1,19 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.process.Ready>
+#endiv
+#divert <hpp>
+#import std.unique_lock
+namespace tunitas::denniston::process {
+  struct Ready::Guard : public std::unique_lock<Mutex> {
+    using Ancestor = std::unique_lock<Mutex>;
+  public:
+    explicit Guard(Ready &r) : Ancestor{r.mutex} { }
+    ~Guard() = default;
+  };
+}
+#endiv

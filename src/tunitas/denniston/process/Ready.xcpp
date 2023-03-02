@@ -18,10 +18,18 @@ namespace tunitas::denniston::process {
   //
   //   Right outta da books.
   //
-  //   See te recipe for using a condition variable
+  //   See the recipe for using a condition variable
   //   https://en.cppreference.com/w/cpp/thread/condition_variable
   //   1. acquire a std::unique_lock<std::mutex>, on the same mutex as used to protect the shared variable
   //   2. choices among the predicated variants of wait(...), wait_for(...), wait_until(...)
+  //
+  //   And yet
+  //   <quote ref="https://en.cppreference.com/w/cpp/thread/condition_variable">
+  //     std::condition_variable works only with std::unique_lock<std::mutex>, which allows for maximal efficiency on some platforms.
+  //     std::condition_variable_any provides a condition variable that works with any BasicLockable object, such as std::shared_lock.
+  //   </quote>
+  //
+  //   with BasicLockable being defined thus: https://en.cppreference.com/w/cpp/named_req/BasicLockable
   //
   // Usage:
   //
@@ -39,8 +47,8 @@ namespace tunitas::denniston::process {
   // Reading; e.g. within the service instance's run function
   //
   //    while (true) {
-  //      ready.wait();
-  //      ... something is ready to read ... find it (poll).
+  //      this->ready.wait(this->readable);
+  //      ... something is ready to read ... find it (poll each of the interfaces).
   //      auto red0 = some_face.read_if();
   //      auto red1 = someother_face.read_if();
   //      auto red2 = another_face.read_if();
@@ -48,8 +56,8 @@ namespace tunitas::denniston::process {
   //      ... and so on...
   //   }
   //
-  // Writing:
-  //
+  // Writing (at the process; that obligation is handled within socket::interface::write(...))
+  //   
   //   readability.notify();
   //
   struct Ready;
@@ -57,48 +65,63 @@ namespace tunitas::denniston::process {
 #endiv
 #divert <hpp>
 #import std.mutex
-#import std.lock_guard
-#import std.unique_lock
-#import std.condition_variable
+#import std.condition_variable_any
 #import tunitas.denniston.process.Readable
 #forward tunitas.denniston.process.readable.Container
 #forward tunitas.denniston.process.readable.Fixed
 #forward tunitas.denniston.process.readable.Variable
 class tunitas::denniston::process::Ready {
 protected:
+  // Container peeks into the Ready and accesses Ready::mutex upon its construction
   template<readable::required::Array> friend class readable::Container;
+#if 0 // no longer needed because only the public interface is used
   template<Size> friend class readable::Fixed;
   friend class readable::Variable;
-  std::mutex lock{};
+#endif
+  using Mutex = std::mutex;
+  using Condition = std::condition_variable_any;
+  Mutex mutex{};
   // std::unique_lock<std::mutex> lock{mutex, std::defer_lock};
-  std::condition_variable condition{};
+  Condition condition{};
   bool some_channel_is_ready_to_read{};
-  using Guard = std::lock_guard<std::mutex>;
-  using Unique = std::unique_lock<std::mutex>;
+  struct Guard;
+  friend class Guard;
 public:
   inline auto notify() -> void;
-  inline auto wait([[inout]] Readable &) -> void;
+  auto wait([[inout]] Readable &) -> void;
 };
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::process {
   auto Ready::notify() -> void {
-    { auto guard = Guard{lock};
-      some_channel_is_ready_to_read = true; }
-    // [[does it matter?]] dont' notify while in the critical section
+    some_channel_is_ready_to_read = true;
     condition.notify_all();
   }
-  auto Ready::wait(Readable &them) -> void {
-    them.lock();
-    some_channel_is_ready_to_read |= them.is_ready_to_read();
-    them.unlock_rest();
-    if (!some_channel_is_ready_to_read) {
-      auto uuu = Unique{lock, std::adopt_lock};
-      condition.wait(uuu, [&location=some_channel_is_ready_to_read]{ return location; });
-      uuu.release();
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.process.Ready.Guard
+#import tunitas.denniston.process.Readable.Guard
+namespace tunitas::denniston::process {
+  auto Ready::wait(Readable &ourselves) -> void {
+    {
+      auto sniff = Guard{*this};
+      if (some_channel_is_ready_to_read) {
+        some_channel_is_ready_to_read = false;
+        return;
+      }
     }
+    auto stop_when = [this, &ourselves]{
+      if (some_channel_is_ready_to_read) {
+        return true;
+      } else {
+        return ourselves.is_ready_to_read();
+      }
+    };
+    // reminder: Readable::Guard spans lots of locks with the first such overlaps with this->mutex
+    auto guarded = Readable::Guard{ourselves};
+    condition.wait(guarded, stop_when);
     some_channel_is_ready_to_read = false; // You MUST now go about your business reading the channels
-    them.unlock_first();
   }
 }
 #endiv

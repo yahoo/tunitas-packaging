@@ -32,6 +32,7 @@ namespace tunitas::denniston::process {
 #import tunitas.denniston.process.Model
 class tunitas::denniston::process::Reactor : public Model {
   using Ancestor = Model;
+  inline auto complain(string::View message) noexcept -> void; // called from a noexcept catch clause
 protected:
   virtual ~Reactor();
   inline explicit Reactor(Species);
@@ -45,6 +46,12 @@ public:
 #divert <ipp>
 namespace tunitas::denniston::process {
   Reactor::Reactor(Species role) : Ancestor{role} { }
+  auto Reactor::complain(string::View message) noexcept -> void try {
+    log.format("[[FIXTHIS]] an exception has escaped from a process. It is recaptured. It has the message: {}", message);
+  } catch (...) {
+    // nothing we can do at this point.
+    // Of course, we could terminate() ... sure, why not?  Or why?
+  }
 }
 #endiv
 #divert <cpp>
@@ -54,30 +61,30 @@ namespace tunitas::denniston::process {
 #import substd.exception.Exception
 namespace tunitas::denniston::process {
   Reactor::~Reactor() = default; // force the layout of the vtable right here
-  auto Reactor::launch(driver::Threads &pool) -> void { pool.launch(&Reactor::run, this); }
-  auto Reactor::run() noexcept -> void try {
-    while (!graceful_shutdown.load()) {
-      ready.wait(readable);
-      if (auto red=control.read_if(); red) {
-        if (is_quit(*red)) {
-          graceful_shutdown.store(true);
-          break;
+  auto Reactor::launch(driver::Threads &pool) -> void {
+    // WATCHOUT - descendants may typically implement their own launch(...) and DO NOT call here
+    disposable.acquire();
+    pool.launch(&Reactor::run, this);
+  }
+  auto Reactor::run() noexcept -> void {
+    try {
+      while (!is_shutting_down()) {
+        ready.wait(readable);
+        if (auto red=control.read_if(); red) {
+          if (is_quit(*red)) {
+            graceful_shutdown.store(true);
+            break;
+          }
         }
+        this->react();
       }
-      this->react();
+      catchup();
+    } catch (substd::exception::Exception const &e) {
+      complain(e.what());
+    } catch (...) {
+      complain("unknown exception");
     }
-    catchup();
-  } catch (...) {
-    auto adjective = []() -> string::Storage {
-                       // blick ... must copy the message somewhere because the exception is handled and will be going away
-                       try {
-                         throw;
-                       } catch (substd::exception::Exception const &e) {
-                         return e.what();
-                       }
-                       return "unknown";
-                     }();
-    log.format("escaped {} exception is suppressed", adjective);
+    disposable.release();
   }
 }
 #endiv

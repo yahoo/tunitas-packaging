@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.collector.subprocess.traits.Subprocess
+#include <hpp/tunitas.denniston.service.collector.subprocess.traits.Subprocess>
+namespace tunitas::denniston::service::collector::subprocess::required {
+  //
+  // Is this TYPE a collector subprocess?
+  // Must be answerable without the complete type of TYPE (i.e. no use of derived_from<...>)
+  // Instead we require the complete type of the traits::Subprocess<SUBPROCESS> declaration.
+  //
+  template<typename SUBPROCESS> concept Subprocess = traits::Subprocess<SUBPROCESS>::value;
+}
+#endiv
+#divert <cpp>
+#forward tunitas.denniston.service.collector.subprocess.Prototype
+#forward tunitas.denniston.service.collector.subprocess.Boot
+#forward tunitas.denniston.service.collector.subprocess.Measure
+namespace {
+  namespace testate {
+    namespace required = tunitas::denniston::service::collector::subprocess::required;
+    using namespace tunitas::denniston::service::collector::subprocess;
+    static_assert(required::Subprocess<Prototype>);
+    static_assert(required::Subprocess<Boot>);
+    static_assert(required::Subprocess<Measure>);
+  }
+}
+#endiv
+    

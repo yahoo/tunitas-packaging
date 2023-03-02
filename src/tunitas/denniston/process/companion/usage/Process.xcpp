@@ -1,0 +1,21 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import nonstd.required.Derived_From
+#import tunitas.denniston.process.Model
+#import tunitas.denniston.process.Prototype
+#import tunitas.denniston.process.companion.required.Process
+namespace tunitas::denniston::process::companion::usage {
+  //
+  // Is this TYPE a (full) process (a Prototype descendant)?
+  // In order to answer this question, the complete type of PROCESS must be known.
+  //
+  template<typename PROCESS> concept Process = required::Process<PROCESS> && requires(PROCESS) {
+    requires required::Derived_From<PROCESS, process::Model>;
+    requires required::Derived_From<PROCESS, process::Prototype>; // same, only moreso
+  };
+}
+#endiv
