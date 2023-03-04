@@ -59,9 +59,6 @@ namespace tunitas::denniston::service::collector::subprocess {
     : Ancestor{owner}
     , task_id{move(identifier)}
   { }
-#if 0
-    subbie = {&Measure::run_managed_lifecycle, this};
-#endif
 }
 #divert <cpp>
 namespace {

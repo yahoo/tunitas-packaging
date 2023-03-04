@@ -6,7 +6,9 @@
 #divert <fpp>
 #import tests.unit
 #import tunitas.denniston.task
+#import tunitas.denniston.role.Genus
 namespace tests::unit::task {
   namespace library = ::tunitas::denniston::task;
+  using ::tunitas::denniston::role::Genus;
 }
 #endiv

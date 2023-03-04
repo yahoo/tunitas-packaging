@@ -10,12 +10,12 @@
 #forward tunitas.denniston.service.processor.Processor
 namespace tests::unit::service::partial::required {
   //
-  // What is controllable?
+  // Is this type supervisable?  Usable in the Supervisor<PROCESS>
   // Only certain processes (and not the subprocesses).
   //
-  template<typename CONTROLLABLE> concept Controllable = (same_as<CONTROLLABLE, library::client::Client> ||
-                                                          same_as<CONTROLLABLE, library::collector::Collector> ||
-                                                          same_as<CONTROLLABLE, library::gateway::Gateway> ||
-                                                          same_as<CONTROLLABLE, library::processor::Processor>);
+  template<typename PROCESS> concept Supervisable = (same_as<PROCESS, library::client::Client> ||
+                                                     same_as<PROCESS, library::collector::Collector> ||
+                                                     same_as<PROCESS, library::gateway::Gateway> ||
+                                                     same_as<PROCESS, library::processor::Processor>);
 }
 #endiv

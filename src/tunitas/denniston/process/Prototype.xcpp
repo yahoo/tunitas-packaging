@@ -33,7 +33,7 @@ namespace tunitas::denniston::process {
 static_assert(!std::is_abstract_v<tunitas::denniston::network::pipe::readable::Variable>);
 class tunitas::denniston::process::Prototype {
 protected:
-  virtual ~Prototype() = default;
+  virtual ~Prototype() noexcept(false) = default;
 public:
   Ready ready{};
   network::pipe::readable::Variable readable{ready};

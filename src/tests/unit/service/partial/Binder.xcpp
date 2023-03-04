@@ -11,7 +11,7 @@ namespace tests::unit::service::partial {
   //
   // Specification:
   //
-  //   Link one connection from Driver-to-Subject.
+  //   Link one connection from Supervised-to-Subject.
   //   Following library::Binder::link(...), but here we have a pre-alloated socket.
   //
   // Design:

@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.scheduler.exception
+namespace tests::unit::exception::scheduler {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::denniston::scheduler::exception;
+    namespace feature = ::tunitas::exception::feature;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.exception.Palette
+struct tests::unit::exception::scheduler::fixture::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  // reminders mosly
+  using Palette::stanza0;
+  using Palette::stanza1string;
+  using Palette::stanza1error;
+  using Palette::stanza1type;
+  //
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception0() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1string() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1error() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1type() -> void;
+};
+#endiv
+#divert <tpp>
+#import std.error_code
+namespace tests::unit::exception::scheduler::fixture {
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception0() -> void       { exercise<CATCHABLE, EXCEPTION>(); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1string() -> void { exercise<CATCHABLE, EXCEPTION>("give-me-one-reason"s); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1error() -> void  { exercise<CATCHABLE, EXCEPTION>(std::error_code{}, "give-me-one-reason"s); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1type() -> void   { exercise<CATCHABLE, EXCEPTION>(typeid(CATCHABLE)); }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.scheduler.exception.Deadlock
+#import tunitas.denniston.scheduler.exception.Invalid
+#import tunitas.denniston.scheduler.exception.Timeout
+auto tests::unit::exception::scheduler::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"scheduler"sv};
+  series << stanza1string<Fixture, feature::Invalid, library::Invalid>("Invalid")
+         << stanza0<Fixture, feature::System, library::Deadlock>("Deadlock")    
+         << stanza0<Fixture, feature::System, library::Timeout>("Timeout")    
+         << END;
+  return settle(series);
+}
+#endiv

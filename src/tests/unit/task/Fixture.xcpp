@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
@@ -28,6 +28,7 @@ namespace tests::unit::task {
 #endiv
 #divert <cpp>
 #import tests.unit.task.Dictionary
+#import tests.unit.task.Corpus
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Corpus
 auto tests::unit::task::Fixture::suite() -> Suite {
@@ -57,6 +58,14 @@ auto tests::unit::task::Fixture::suite() -> Suite {
                    << END;
               return dict;
             }()
+         << []{
+           auto cor = Stream{"Corpus"sv};
+           cor << add<Corpus<library::Corpus<Genus::COLLECTOR>>>()
+               << add<Corpus<library::Corpus<Genus::GATEWAY>>>()
+               << add<Corpus<library::Corpus<Genus::PROCESSOR>>>()
+               << END;
+           return cor;
+         }()
          << END;
   return settle(series);
 }
@@ -75,3 +84,4 @@ namespace tests::unit::task {
   }
 }
 #endiv
+5

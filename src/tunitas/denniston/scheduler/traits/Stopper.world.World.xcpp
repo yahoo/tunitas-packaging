@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.scheduler.traits.Stopper.template
+#import tunitas.denniston.driver.Driver
+#include <hpp/tunitas.denniston.driver.Driver>
+namespace tunitas::denniston::scheduler::traits {
+  //
+  // The stopper of a World.  In a table
+  // Specialize as appropriate.
+  //
+  template<> struct Stopper<driver::Driver>;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.driver.Stopper
+namespace tunitas::denniston::scheduler::traits {
+  template<> struct Stopper<driver::Driver> {
+    using Type [[school("New_School")]] = Stopper;
+    using type [[school("old_school"), deprecated("prefer New_School to obey the naming convention; Stopper::WORLD>::Type")]] = Type;
+  };
+}
+#endiv

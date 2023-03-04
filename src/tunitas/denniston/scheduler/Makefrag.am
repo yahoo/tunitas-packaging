@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_scheduler_SUBSOURCES = \
+  obj/src/tunitas/denniston/scheduler/namespace.cpp \
+  obj/src/tunitas/denniston/scheduler/operate.cpp \
+  $(tunitas_denniston_scheduler_traits_SUBSOURCES) \
+  $(tunitas_denniston_scheduler_backoff_SUBSOURCES) \
+  $(tunitas_denniston_scheduler_exception_SUBSOURCES) \
+  $(tunitas_denniston_scheduler_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/scheduler/backoff/Makefrag.am
+include src/tunitas/denniston/scheduler/exception/Makefrag.am
+include src/tunitas/denniston/scheduler/required/Makefrag.am
+include src/tunitas/denniston/scheduler/traits/Makefrag.am

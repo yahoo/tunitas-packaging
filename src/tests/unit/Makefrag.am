@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
@@ -25,6 +25,7 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_protocol_SUBSOURCES) \
   $(tests_unit_report_SUBSOURCES) \
   $(tests_unit_role_SUBSOURCES) \
+  $(tests_unit_scheduler_SUBSOURCES) \
   $(tests_unit_service_SUBSOURCES) \
   $(tests_unit_task_SUBSOURCES) \
   check/obj/src/tests/unit/version.Fixture.cpp \
@@ -45,6 +46,7 @@ include src/tests/unit/process/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
 include src/tests/unit/report/Makefrag.am
 include src/tests/unit/role/Makefrag.am
+include src/tests/unit/scheduler/Makefrag.am
 include src/tests/unit/service/Makefrag.am
 include src/tests/unit/task/Makefrag.am
 include src/tests/unit/world/Makefrag.am

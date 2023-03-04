@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::driver {
+  //
+  // A stopper of The World
+  //
+  // Specification:
+  //
+  //   Shutdown the World, in the destructor or manually
+  //
+  // Design:
+  //
+  //   The destructor can throw.
+  //   So catch that.
+  //   or else run the Stopper in a constructor.
+  //
+  //   There is no provision for disarmament because the supervised's shutdown() is idempotent.
+  //
+  // Expectations:
+  //
+  //   World::shutdown() is idempotent.
+  //
+  // Usage:
+  //
+  //   see operate<...>(...)
+  //
+  struct Stopper;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.driver.Driver
+class tunitas::denniston::driver::Stopper {
+  using World = driver::Driver;
+  using Supervised = World;
+  Supervised &supervised;
+public:
+  inline explicit Stopper(Supervised &);
+  inline ~Stopper() noexcept(false);
+  inline auto stop() -> void;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.driver.Driver
+namespace tunitas::denniston::driver {
+  Stopper::Stopper(Supervised &s) : supervised{s} { }
+  Stopper::~Stopper() noexcept(false) { supervised.shutdown(); }
+  auto Stopper::stop() -> void { supervised.shutdown(); }
+}
+#endiv

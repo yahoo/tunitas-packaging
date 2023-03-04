@@ -11,11 +11,12 @@ namespace tunitas::denniston::task {
   //
   // Specification:
   //
-  //   Whatever it takes.
+  //   Whatever it takes.  We're here for you.
+  //   The Corpus is a record within a concurrent Dictionary.
   //
   // Design:
   //
-  //   The Corpus is a record within a concurrent Dictionary.
+  //   The constructors MUST be implicit to convert from the Definition upon insertion into a Dictionary.
   //
   // Usage:
   //

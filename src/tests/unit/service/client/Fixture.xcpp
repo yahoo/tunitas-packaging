@@ -7,10 +7,10 @@
 namespace tests::unit::service::client { class Fixture; }
 #endiv
 #divert <hpp>
-#import tests.unit.service.partial.Controllability
+#import tests.unit.service.partial.Operability
 #import tunitas.denniston.Species
 #include <ipp/tunitas.denniston.Species>
-struct tests::unit::service::client::Fixture : public rigging::suite::Fixture, protected partial::Controllability {
+struct tests::unit::service::client::Fixture : public rigging::suite::Fixture, protected partial::Operability {
   static auto suite() -> Suite;
   //
   auto test_usage_Client() -> void;
@@ -39,31 +39,58 @@ auto tests::unit::service::client::Fixture::suite() -> Suite {
 #import tunitas.denniston.service.client.subprocess.Measure
 #import tunitas.denniston.service.client.subprocess.make
 #import tunitas.denniston.task.Definition
+#import tests.unit.service.Supervisor
 namespace tests::unit::service::client {
   auto Fixture::test_usage_Client() -> void {
+#if 1
+    auto exercise = [](auto &world) {
+      // nothing to do but watch it shut down
+      require(ASSERTION);
+    };
+    operate<Supervisor<library::Client>>(exercise, SPECIES);
+#else
     auto super = supervise<library::Client>(SPECIES);
     super.stop();
     require(ASSERTION);
+#endif
   }
   auto Fixture::test_usage_Boot() -> void {
-    auto super = supervise<library::Client>(SPECIES);
+#if 1
     // This is somewhat pedantic and specious because the Client already runs Boot & Measure
     // The new subprocess MUST be pushed into the subprocesses list; it CANNOT be left floating.
-    // The subprocess MUST get notified on catchup() as the top-level process terminates from graceful_shutdown.
-    // [[ahem, turns out for this particular case it seems to work out either way, because run never exits]]
+    // The subprocess MUST get notified in stop() as the top-level process terminates from graceful_shutdown.
+    auto exercise = [](auto &world) {
+      auto &ref{world.ref()};
+      ref.subprocesses.spawn(sublibrary::make<sublibrary::Boot>(ref));
+      require(ASSERTION);
+    };
+    operate<Supervisor<library::Client>>(exercise, SPECIES);
+#else
+    auto super = supervise<library::Client>(SPECIES);
     auto &ref{super.ref()};
     ref.subprocesses.spawn(sublibrary::make<sublibrary::Boot>(ref));
     super.stop();
     require(ASSERTION);
+#endif
   }
   auto Fixture::test_usage_Measure() -> void {
-    auto super = supervise<library::Client>(SPECIES);
+#if 1
     // Eadem ratione.
+    auto exercise = [](auto &world) {
+      auto &ref{world.ref()};
+      auto definition = ::tunitas::denniston::task::Definition{};
+      ref.subprocesses.spawn(sublibrary::make<sublibrary::Measure>(ref, definition));
+      require(ASSERTION);
+    };
+    operate<Supervisor<library::Client>>(exercise, SPECIES);
+#else
+    auto super = supervise<library::Client>(SPECIES);
     auto &ref{super.ref()};
     auto definition = ::tunitas::denniston::task::Definition{};
     ref.subprocesses.spawn(sublibrary::make<sublibrary::Measure>(ref, definition));
     super.stop();
     require(ASSERTION);
+#endif
   }
 }
 #endiv

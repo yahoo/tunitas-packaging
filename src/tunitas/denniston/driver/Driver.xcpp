@@ -10,20 +10,53 @@ namespace tunitas::denniston::driver {
   //
   // Specification:
   //
-  //   Manages some computing.
+  //   A Driver manages Asome computing.
   //   Publishes an interface by which it can be contacted.
+  //
+  //   Starts immediately upon construction
+  //   Shutdown (stopping) must be managed to recover from schduler exceptions.
   //
   // Design:
   //
   //   Something something: a thread.
   //
+  //   Whereas we acknowledge that userland can cause scheduling problems such as deadlock-on-graceful_hutdown
+  //   we work within the scheduler operations infrastructure to map those detected prolems to exceptions.
+  //
   //   Driver::shutdown() is idempotent
   //   driver::one_shot_shut_down() is NOT idempotent and MUST be run precisely once.
   //        WATCHOUT - if you run it multiply then it sends control messages to defunct processes (and thus hangs)
   //
+  //   Driver::shutdown() can throw
+  //   Driver::~Driver() can throw if shutdown throws; this will be immediately fatal
+  //     to operate safely, guard with a Stopper (which itself throws in the destructor)
+  //     or for complete safety use scheduler::operate<Driver>(...thunk...)
+  //
   // Usage:
   //
-  //   In the environment..
+  //   try {
+  //     auto world = World{};
+  //     auto stopper = Stop{world};
+  //     ...operate upon world...
+  //     if (optionally) {
+  //       world.shutdown(); .................. else Stopper will do it for us
+  //     }
+  //   } catch (scheduler::exception::Aspect const &) {
+  //     ...remind that ther's a bug in userland so shutdown() deadlocked...
+  //   }
+  //
+  // Usage:
+  //
+  //   try {
+  //     scheduler::operate<World>([](auto &world) {
+  //       ...operate upon world...
+  //       if (optionally) {
+  //         world.shutdown(); .................. else Stopper will do it for us
+  //       }
+  //     });
+  //   } catch (scheduler::exception::Aspect const &) {
+  //     ...remind that ther's a bug in userland so shutdown() deadlocked...
+  //   }
   //
   struct Driver;
 }
@@ -78,6 +111,8 @@ namespace tunitas::denniston::driver {
     startup();
   }
   Driver::~Driver() {
+    // WATCHOUT - this can throw, which will be immediately fatal.
+    // For safety, instead guard ~Driver()  with a Driver::Stopper
     shutdown();
   }
   auto Driver::enable_logging() -> void {
@@ -104,6 +139,7 @@ namespace tunitas::denniston::driver {
 }
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Quit
+#import tunitas.denniston.scheduler.backoff.Stepper
 #import nonstd.runtime_assert
 namespace tunitas::denniston::driver {
   auto Driver::one_shot_shut_down() -> void {
@@ -112,6 +148,14 @@ namespace tunitas::denniston::driver {
     using namespace protocol::packet;
     for (auto &face : control.everyone) {
       face.write(make<Quit>());
+    }
+    // ensure that they all have run to process that quit packet.
+    for (auto step=scheduler::backoff::Stepper{}; step; ++step) {
+      for (auto &face : control.everyone) {
+        if (face.is_blocked_then_notify()) {
+          step.needs_another_iteration();
+        }
+      }
     }
     // and after the Quit packets are processed, all the run(...) functions will have exited.
   }

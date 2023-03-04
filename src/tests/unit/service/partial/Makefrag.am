@@ -5,15 +5,19 @@
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
 tests_unit_service_partial_SUBSOURCES = \
+  check/obj/src/tests/unit/service/Supervisor.cpp \
   check/obj/src/tests/unit/service/partial/namespace.cpp \
-  check/obj/src/tests/unit/service/partial/Controllability.cpp \
+  check/obj/src/tests/unit/service/partial/Operability.cpp \
   check/obj/src/tests/unit/service/partial/Supervisor.cpp \
   check/obj/src/tests/unit/service/partial/Background.cpp \
+  check/obj/src/tests/unit/service/partial/Background.Guard.Stop.cpp \
   check/obj/src/tests/unit/service/partial/Binder.cpp \
-  check/obj/src/tests/unit/service/partial/Driver.template.cpp \
-  check/obj/src/tests/unit/service/partial/Driver.Collector.cpp \
-  check/obj/src/tests/unit/service/partial/Driver.cpp \
+  check/obj/src/tests/unit/service/partial/Supervised.template.cpp \
+  check/obj/src/tests/unit/service/partial/Supervised.Collector.cpp \
+  check/obj/src/tests/unit/service/partial/Supervised.cpp \
+  check/obj/src/tests/unit/service/partial/Foreground.cpp \
   $(tests_unit_service_partial_required_SUBSOURCES) \
+  $(tunitas_denniston_scheduler_traits_Stopper_SUBSOURCES_tests_unit) \
   $(end)
 #
 include src/tests/unit/service/partial/required/Makefrag.am

@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tests.unit.service.partial.required.Controllable
+#import tests.unit.service.partial.required.Supervisable
 namespace tests::unit::service::partial {
   //
-  // The RAII of the Driver.
+  // The RAII of the Supervised.
   //
   // Specificatoin:
   //
@@ -17,29 +17,48 @@ namespace tests::unit::service::partial {
   //
   //   Yes.
   //
+  // Exceptions:
+  //
+  //   Whereas the Supervised::stop() can throw exceptions, so can this Supervisor::stop()
+  //   Thus callers MUST account for that; see the idiomatic usage in tests.unit.ervice.partial.Supervised
+  //
   // Usage:
   //
+  //   see tunitas::denniston::scheduler::operate<...>(...)
+  //
+  // Usage (moribund):
+  //
   //   auto Something::test_something() -> void {
-  //     auto super = launch(...arguments...); .................... performs start()
-  //     ...add subprocesses...
-  //     auto sub = Subprocess{super.reF()}; .................... . e.g. Gateway subprocess Boot
-  //     super.stop();
+  //     try {
+  //       auto super = launch(...arguments...); .................... returns a Supervisor<...> and has performed start()
+  //       ...add subprocesses...
+  //       auto sub = Subprocess{super.reF()}; .................... . e.g. Gateway subprocess Boot
+  //       super.stop();
+  //     } catch (scheduler::exception::Aspect const &) {
+  //       ...now outside of a destructor
+  //       impossible(ASSERTION)
+  //     }
   //   }
   //
-  template<required::Controllable> struct Supervisor;
+  template<required::Supervisable> struct Supervisor;
 }
 #endiv
 #divert <hpp>
 #import std.is_move_constructible
 #import std.unique_ptr
-#import tests.unit.service.partial.Driver
+#import tests.unit.service.partial.Supervised
 #import nonstd.Like
 namespace tests::unit::service {
-  template<partial::required::Controllable SUBJECT> struct partial::Supervisor {
+  namespace partial {
+    template<required::Supervisable SUBJECT> inline auto swap(Supervisor<SUBJECT> &, Supervisor<SUBJECT> &) noexcept -> void;
+  }
+  template<partial::required::Supervisable SUBJECT> struct partial::Supervisor {
     using Subject = SUBJECT;
     template<typename... ARGUMENT> explicit Supervisor(ARGUMENT &&...);
-    Supervisor(Supervisor &&) = default; // WATCHOUT - unless the othre constructor is explicit, this is ambiguous [[o.rly?]]
+    Supervisor(Supervisor &&) = default;
+    auto operator=(Supervisor &&) -> Supervisor & = default;
     Supervisor(Supervisor const &) = delete;
+    auto operator=(Supervisor const &) -> Supervisor & = delete;
     auto start() -> void { indirect->start(); }
     auto stop() -> void { indirect->stop(); }
 #if 202303 <= __cplusplus
@@ -49,16 +68,22 @@ namespace tests::unit::service {
     inline auto ref() const -> Subject const & { return indirect->subject; }
 #endif
   protected:
+    friend class Background::Guard::Stop;
     static_assert(not std::is_move_constructible_v<SUBJECT>, "not required, but expected");
-    using Driver = partial::Driver<SUBJECT>;
-    std::unique_ptr<Driver> indirect{};
+    using Supervised = partial::Supervised<SUBJECT>;
+    std::unique_ptr<Supervised> indirect{};
   };
 }
 #endiv
 #divert <tpp>
-namespace tests::unit::service::partial {
-  template<required::Controllable _> template<typename... ARGUMENT> Supervisor<_>::Supervisor(ARGUMENT &&...argument)
-    : indirect{new Driver{forward<ARGUMENT>(argument)...}}
-  { }
+namespace tests::unit::service {
+  template<partial::required::Supervisable SUBJECT> auto partial::swap(Supervisor<SUBJECT> &a, Supervisor<SUBJECT> &b) noexcept -> void {
+    swap(a.indirect, b.indirect);
+  }
+  namespace partial {
+    template<required::Supervisable _> template<typename... ARGUMENT> Supervisor<_>::Supervisor(ARGUMENT &&...argument)
+      : indirect{new Supervised{forward<ARGUMENT>(argument)...}}
+    { }
+  }
 }
 #endiv

@@ -14,6 +14,8 @@
 //   The read operation blocks.
 //   The read_if operation does not block but returns an optional
 //
+//   is_blocked() and notify() are used in finalization towards thread termination (not in steady state)
+//
 // Design:
 //
 //   Just what you see.
@@ -46,6 +48,10 @@ namespace tunitas::denniston::network {
     using Peeked = concurrent::channel::Peek<Value>;
     inline auto peek() -> Peeked;
     explicit Interface() = default;
+    // if the written-at process is readable then we are (still) blocked.
+    inline auto is_blocked() -> bool;
+    inline auto notify() -> void;
+    inline auto is_blocked_then_notify() -> bool;
   protected:
     friend class Socket;
     friend class driver::binder::Linkage;
@@ -99,6 +105,22 @@ namespace tunitas::denniston::network {
   auto Socket::Interface::peek() -> Peeked {
     validate_origin();
     return (origin->*read_side).peek();
+  }
+  auto Socket::Interface::is_blocked() -> bool {
+    validate_origin();
+    return ready->is_readable();
+  }
+  auto Socket::Interface::notify() -> void {
+    validate_origin();
+    return ready->notify();
+  }
+  auto Socket::Interface::is_blocked_then_notify() -> bool {
+    validate_origin();
+    auto was = ready->is_readable();
+    if (was) {
+      ready->notify();
+    }
+    return was;
   }
 }
 #endiv

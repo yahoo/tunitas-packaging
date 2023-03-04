@@ -16,6 +16,7 @@ namespace tunitas::denniston::driver {
   // Design:
   //
   //   std::jthread
+  //   Using jthread, this container doesn't need to do much because the threads join on their own.
   //
   // Usage:
   //

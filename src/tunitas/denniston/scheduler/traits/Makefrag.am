@@ -1,0 +1,22 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_scheduler_traits_SUBSOURCES = \
+  obj/src/tunitas/denniston/scheduler/traits/namespace.cpp \
+  obj/src/tunitas/denniston/scheduler/traits/Stopper.template.cpp \
+  obj/src/tunitas/denniston/scheduler/traits/Stopper.cpp \
+  $(tunitas_denniston_scheduler_traits_Stopper_SUBSOURCES_tunitas_denniston) \
+  $(end)
+
+tunitas_denniston_scheduler_traits_Stopper_SUBSOURCES_tunitas_denniston = \
+  obj/src/tunitas/denniston/scheduler/traits/Stopper.world.World.cpp \
+  $(end)
+$(tunitas_denniston_scheduler_traits_Stopper_SUBSOURCES_tunitas_denniston) : DISCOFLAGS+= --no-insert-namespace
+
+tunitas_denniston_scheduler_traits_Stopper_SUBSOURCES_tests_unit = \
+  check/obj/src/tunitas/denniston/scheduler/traits/Stopper.tests.unit.service.partial.Supervisor.SUPERVISED.cpp \
+  $(end)
+$(tunitas_denniston_scheduler_traits_Stopper_SUBSOURCES_tests_unit) : DISCOFLAGS+= --no-insert-namespace

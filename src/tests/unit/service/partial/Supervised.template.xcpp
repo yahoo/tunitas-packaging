@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.service.partial.required.Supervisable
+namespace tests::unit::service::partial {
+  //
+  // A (sub)Supervised.
+  // The (generic) owner; specializations are possible.
+  //
+  // Specification:
+  //
+  //   See the Foreground<SUBJECT>
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //   Allow the constructor to be specialized.
+  //
+  // Invariant (of operation)
+  //
+  //   stop() MUST be called before the destructor is invoked
+  //   use the Background::Guard to manage this
+  //
+  // Exceptions:
+  //
+  //   stop() thorws an exception if it cannot stop the subprocesses.  
+  //   The destructor DOES NOT throw exceptions.
+  //
+  // Usage:
+  //
+  //   auto Fixture::test_something() -> void {
+  //     try {
+  //        auto supervised = Supervise<Gateway>{}; ..................... e.g. for Gateway
+  //        ...something with supervised...
+  //        ...at close-of-scope, Supervised::<Gateway>::stop()  can be called
+  //     } catch (scheduler::exception::Aspect const &) {
+  //       ... now outside of a destructor...
+  //       ...  we can recognize the test failure in rigging (with its own exception) ...
+  //       impossible(ASSERTION);
+  //     }
+  //   }
+  //
+  template<required::Supervisable> struct Supervised;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.Foreground
+#forward tests.unit.service.partial.Supervisor
+#import tunitas.denniston.scheduler.exception.Aspect
+namespace tests::unit::service {
+  template<partial::required::Supervisable SUBJECT> class partial::Supervised : public Foreground<SUBJECT> {
+    using Ancestor = Foreground<SUBJECT>;
+  protected:
+    friend class partial::Supervisor<typename Ancestor::Subject>;
+    template<typename... ARGUMENT> explicit Supervised(ARGUMENT &&...);
+  public:
+    ~Supervised() = default;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::service::partial {
+  template<required::Supervisable _> template<typename... ARGUMENT> Supervised<_>::Supervised(ARGUMENT &&...argument)
+    : Ancestor{Ancestor::source, Ancestor::world, forward<ARGUMENT>(argument)...}
+  { }
+}
+#endiv

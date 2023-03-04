@@ -6,5 +6,7 @@
 #
 tests_unit_service_partial_required_SUBSOURCES = \
   check/obj/src/tests/unit/service/partial/required/namespace.cpp \
-  check/obj/src/tests/unit/service/partial/required/Controllable.cpp \
+  check/obj/src/tests/unit/service/partial/required/Supervisable.cpp \
+  check/obj/src/tests/unit/service/partial/required/Operable.cpp \
+  check/obj/src/tests/unit/service/partial/required/Operate.cpp \
   $(end)

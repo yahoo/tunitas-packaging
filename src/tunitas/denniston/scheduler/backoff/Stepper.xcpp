@@ -1,0 +1,107 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::scheduler::backoff {
+  //
+  // The backoff stepper
+  //
+  //   For when you really really need to know that the threads have settled.
+  //   Facilitates orderly shutdown without livelock.
+  //
+  // Specification:
+  //
+  //   Backoff linearly
+  //   Provide convenient early exit if everything is known to be settled
+  //
+  //   need_another_iteration() is a provision for early exit; it is watchdog system.
+  //   The presumption is that you want an early exit all the time; this turns it off.
+  //   Of course, the successive iteration is subject to the overall stepper limit.
+  //   operator++ is independent from this watchdog system.
+  //
+  //   delay starts off at 0 (0ns) and is incremented each iteration (operator++)
+  //   numerical overflow in the delay value is not accounted for; undefined behavior.
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //    for (auto step=schedule::backoff::Stepper{}; step; ++step) {
+  //      for (auto &controlled : control.everyone) {
+  //        if (controlled.is_ready()) {
+  //          controlled.notify();
+  //          step.need_another_iteration();
+  //        }
+  //      }
+  //    }
+  //
+  struct Stepper;
+}
+#endiv
+#divert <hpp>
+#import std.size_t
+#import tunitas.time.Duration
+struct tunitas::denniston::scheduler::backoff::Stepper {
+  struct Default {
+    inline static constexpr auto TIME = 1ns;
+    inline static constexpr auto COUNT = DEFAULT_LINEAR_BACKOFF_STEP_COUNT;
+  };
+protected:
+  using Count = std::size_t;
+  using Duration = time::Duration;
+  Duration delay{}, increment{Default::TIME};
+  Count count{Default::COUNT};
+  bool continuing{true}; // first time through is automatic (see that 'for' loop above)
+  bool next_iteration{};
+public:
+  explicit Stepper() = default;
+  inline explicit Stepper(Duration, Count = Default::COUNT);
+  inline explicit Stepper(Count, Duration = Default::TIME);
+  //
+  inline explicit operator bool() const;
+  inline auto operator!() const -> bool;
+  inline auto operator++() -> Stepper &;
+  inline auto operator++(int) -> Stepper;
+  auto needs_another_iteration() -> void { next_iteration = true; }
+  [[deprecated("good grammar behooves us")]] auto need_another_iteration() -> void { needs_another_iteration(); }
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.scheduler.exception.Invalid
+#import std.this_thread.sleep_for
+namespace tunitas::denniston::scheduler::backoff {
+  Stepper::Stepper(Duration increment, Count count)
+    : increment{increment}
+    , count{count}
+  { }
+  Stepper::Stepper(Count count, Duration increment)
+    : increment{increment}
+    , count{count}
+  { }
+  //
+  Stepper::operator bool() const { return continuing && 0 != count; }
+  auto Stepper::operator!() const -> bool { return !continuing || 0 == count; }
+  auto Stepper::operator++() -> Stepper & {
+    if (0 == count) {
+      throw exception::Invalid{"zero"};
+    } else {
+      // Indeed, this may sleep for "zero" but we desire the context switch action to free up the scheduler to run something else. 
+      std::this_thread::sleep_for(delay);
+      continuing = next_iteration;
+      next_iteration = false;
+      --count;
+      delay += increment;
+    }
+    return *this;
+  }
+  auto Stepper::operator++(int) -> Stepper {
+    auto old = auto{*this};
+    operator++();
+    return old;
+  }
+}
+#endiv

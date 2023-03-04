@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::scheduler { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::scheduler::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.scheduler.backoff.Fixture
+auto tests::unit::scheduler::Fixture::suite() -> Suite {
+  auto series = Stream{"scheduler"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use // none?
+                  << END;
+              return use;
+            }()
+         << add<backoff::Fixture>()
+         << END;
+  return settle(series);
+}
+#endiv

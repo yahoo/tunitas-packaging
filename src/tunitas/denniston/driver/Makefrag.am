@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
@@ -11,6 +11,7 @@ tunitas_denniston_driver_SUBSOURCES = \
   obj/src/tunitas/denniston/driver/Threads.cpp \
   obj/src/tunitas/denniston/driver/Layout.cpp \
   obj/src/tunitas/denniston/driver/Linker.cpp \
+  obj/src/tunitas/denniston/driver/Stopper.cpp \
   $(tunitas_denniston_driver_binder_SUBSOURCES) \
   $(end)
 #

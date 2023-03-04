@@ -26,6 +26,11 @@ namespace tunitas::denniston::process::companion {
   //   Using the Best Available Means & Methods (UBAMM)
   //   Um, wow.
   //
+  // Exceptions:
+  //
+  //   wait_for... throws Deadlock.
+  //   request_for... returns a Dispensation which allows the caller to decide.
+  //
   // Usage:
   //
   //   Use as directed.
@@ -61,8 +66,7 @@ namespace tunitas::denniston::process::companion {
     auto request_for_one_to_finish(Subprocess &) -> Dispensation; // MUST be operated under a Synchro::Guard
     auto request_for_all_to_finish(typename Synchro::Guard &) -> Dispensation;
     inline auto wait_for_all_to_finish(typename Synchro::Guard &) -> void;
-    inline static constexpr auto INCREMENTAL_BACKOFF_COUNT = 256uz;
-    public:
+  public:
     Subprocesses() = default;
     ~Subprocesses();
     template<typename MADE> inline auto spawn(Pointer<MADE>) -> void requires std::derived_from<MADE, Subprocess>;
@@ -140,32 +144,26 @@ namespace tunitas::denniston::process::companion {
 #divert <tpp>
 #import nonstd.runtime_assert
 #import nonstd.exception.Unreachable
-#import std.this_thread.sleep_for
-#import std.views.iota
-#import std.errc
-#import std.generic_category
-#import tunitas.exception.System
+#import tunitas.denniston.scheduler.backoff.Stepper
+#import tunitas.denniston.scheduler.exception.Deadlock
 namespace tunitas::denniston::process::companion {
   namespace subprocesses {
     //
     // Again ... don't get stuck waiting for events that can't occur
     //
     template<required::Subprocess _> auto Subprocesses<_>::wait_for_all_to_finish(typename Synchro::Guard &guard) -> void {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable" // no cogent way to acknowledge that __ will indeed be unused
-      for (auto delay{0ns}, increment{1ns}; auto __: std::views::iota(0uz, INCREMENTAL_BACKOFF_COUNT)) {
-        if (auto waited=synchro.wait(guard, delay, series.begin(), series.end()); done(waited)) {
+      for (auto step=scheduler::backoff::Stepper{}; step; ++step) {
+        if (auto waited=synchro.wait(guard, 0ns, series.begin(), series.end()); done(waited)) {
           return;
         } else if (auto accumulated=request_for_all_to_finish(guard); done(accumulated)) {
           return;
         } else {
-          // no need to sleep here because the synchro.wait(...) will limit longer now
-          delay += increment;
+          step.need_another_iteration();
         }
       }
       // At this point we know this will hang.  It hasn't worked so far.
 #if 1
-      throw exception::System{(int)std::errc::timed_out, std::generic_category()};
+      throw scheduler::exception::Deadlock{};
 #else
       // [[FIXTHIS]] perhaps this should throw an exception; after all we couldn't get the job done.
       synchro.wait(guard, series.begin(), series.end());
@@ -183,18 +181,16 @@ namespace tunitas::denniston::process::companion {
       // Yet the stop condition which would terminate the lock is true, it just needs to be reevaluated.
       // Our solution therefore is to delay a bit and rerun the notify-one scheme again trying again and a again until it's clear nothing will happen.
       //
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable" // no cogent way to acknowledge that __ will indeed be unused
-      for (auto delay{0ns}, increment{1ns}; auto __: std::views::iota(0uz, INCREMENTAL_BACKOFF_COUNT)) {
+      for (auto step=scheduler::backoff::Stepper{}; step; ++step) {
         auto accumulator = Dispensation{};
         for (auto &item : series) {
           accumulator += request_for_one_to_finish(*item);
         }
         if (done(accumulator)) {
           return Dispensation::DONE;
+        } else {
+          step.need_another_iteration();
         }
-        std::this_thread::sleep_for(delay);
-        delay += increment;
       }
       return Dispensation::TIMEOUT;
     }

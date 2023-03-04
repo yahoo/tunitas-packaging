@@ -7,9 +7,9 @@
 #import tunitas.time.literals
 namespace tests::unit::service::partial {
   //
-  // The minimal background needed to support the Driver. 
-  // Everything but the Controllable subject.
-  // The descendant is the Driver<SUBJECT>
+  // The minimal background needed to support the Supervised. 
+  // Everything but the Supervisable subject.
+  // The descendant is the Supervised<SUBJECT>
   //
   // Specification:
   //
@@ -22,6 +22,10 @@ namespace tests::unit::service::partial {
   //   (general) subject constructs with an entropy source
   //   (Collector) constructs without an entropy source.
   //
+  // Design:
+  //
+  //   yes.
+  //
   namespace [[eponymous]] background {
     struct Background;
     using namespace ::tunitas::time::literals;
@@ -30,13 +34,14 @@ namespace tests::unit::service::partial {
 }
 #endiv
 #divert <hpp>
-#import tests.unit.service.partial.required.Controllable
+#import tests.unit.service.partial.required.Supervisable
 #import tunitas.denniston.driver.Threads
 #import tunitas.denniston.World
 #import tunitas.denniston.network.Socket
 #import tunitas.denniston.network.Socket.Interface
 #import tunitas.denniston.process.Prototype
 #import tunitas.keyston.entropy.Source
+#import tunitas.denniston.scheduler.exception.Aspect
 struct tests::unit::service::partial::background::Background : public ::tunitas::denniston::process::Prototype {
   using Entropy = ::tunitas::keyston::entropy::Source;
   using World = ::tunitas::denniston::World;
@@ -49,16 +54,23 @@ struct tests::unit::service::partial::background::Background : public ::tunitas:
   Threads threads{};
   virtual auto start() -> void = 0;
   virtual auto stop() -> void = 0;
+  struct Guard {
+    struct Stop;
+  };
   inline Background();
   Background(Background &&) = delete;
   Background(Background const &) = delete;
 protected:
   virtual ~Background();
-  template<required::Controllable SUBJECT> inline auto linkup(SUBJECT &) -> void;
+  template<required::Supervisable SUBJECT> inline auto linkup(SUBJECT &) -> void;
+  struct Exception {
+    using Scheduler = ::tunitas::denniston::scheduler::exception::Aspect;
+  };
+  friend class Guard::Stop;
   bool running{false};
-  template<required::Controllable SUBJECT> inline auto start_background(SUBJECT &) -> void;
+  template<required::Supervisable SUBJECT> inline auto start_background(SUBJECT &) -> void;
   inline auto stop_background() -> void;
-  template<required::Controllable SUBJECT> auto block_until_the_quit_packet_is_processed(SUBJECT &) -> void;
+  template<required::Supervisable SUBJECT> auto block_until_the_quit_packet_is_processed(SUBJECT &) -> void;
   inline static constexpr auto LINEAR_BACKOFF_COUNT = 256uz;
 };
 #endiv
@@ -67,11 +79,11 @@ protected:
 #import tests.unit.service.partial.Binder
 #import tunitas.denniston.protocol.packet.Quit
 #import tunitas.denniston.protocol.packet.make
-#import std.this_thread.sleep_for
-#import std.views.iota
+#import tunitas.denniston.scheduler.backoff.Stepper
+#import tunitas.denniston.scheduler.exception.Deadlock
 namespace tests::unit::service::partial::background {
   Background::Background() : world{source} { }
-  template<required::Controllable SUBJECT> auto Background::start_background(SUBJECT &subject) -> void {
+  template<required::Supervisable SUBJECT> auto Background::start_background(SUBJECT &subject) -> void {
     runtime_assert(!running);
     subject.launch(threads);
     running = true;
@@ -89,24 +101,22 @@ namespace tests::unit::service::partial::background {
     //
     // The descendant MUST call block_until_the_quit_packet_is_processed(...)
   }
-  template<required::Controllable SUBJECT> auto Background::block_until_the_quit_packet_is_processed(SUBJECT &subject) -> void {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable" // because there is no cogent way to announce that __ will be an unused variable
-    for (auto delay{0ns}, increment{1ns}; auto __ : std::views::iota(0uz, LINEAR_BACKOFF_COUNT)) {
+  template<required::Supervisable SUBJECT> auto Background::block_until_the_quit_packet_is_processed(SUBJECT &subject) -> void {
+    using namespace ::tunitas::denniston::scheduler;
+    for (auto step=backoff::Stepper{}; step; ++step) {
       if (subject.has_shut_down()) {
         return;
       } else {
         subject.ready.notify();
-        std::this_thread::sleep_for(delay);
-        delay += increment;
+        step.needs_another_iteration();
       };
     }
-    // If we reach here the exponential backoff didn't work adn we are likely to hang.
+    // If we reach here the exponential backoff didn't work and we are likely to hang.
     // We will have to await less subtle means of recovering control (the watchdog timer)
     // [[FIXTHIS]] How can this happen?  How can this be prevented?
-#pragma GCC diagnostic pop
+    throw exception::Deadlock{};
   }
-  template<required::Controllable SUBJECT> auto Background::linkup(SUBJECT &subject) -> void {
+  template<required::Supervisable SUBJECT> auto Background::linkup(SUBJECT &subject) -> void {
     auto blue = Binder::Triple{this->readable, this->ready, this->control};
     auto green = Binder::Triple{subject.readable, subject.ready, subject.control};
     Binder{}.link(socket, blue, green);
@@ -117,6 +127,7 @@ namespace tests::unit::service::partial::background {
 namespace tests::unit::service::partial::background {
   Background::~Background() {
     // the stop() action MUST be done from the destructor of the descendant while the subject is living & linked.
+    // (obviously) throwing this exception will casue immediate termination
     runtime_assert(!running);
   }
 }

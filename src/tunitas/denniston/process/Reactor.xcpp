@@ -38,7 +38,6 @@ protected:
   inline explicit Reactor(Species);
   auto run() noexcept -> void;
   virtual auto react() -> void = 0;
-  virtual auto catchup() -> void { }
 public:
   auto launch(driver::Threads &) -> void override;
 };
@@ -78,7 +77,6 @@ namespace tunitas::denniston::process {
         }
         this->react();
       }
-      catchup();
     } catch (substd::exception::Exception const &e) {
       complain(e.what());
     } catch (...) {
