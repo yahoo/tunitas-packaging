@@ -44,7 +44,7 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <hpp>
-#forward tunitas.denniston.World
+#forward tunitas.denniston.Configuration
 #import tunitas.denniston.error.Code
 #import tunitas.denniston.process.Reactor
 #import tunitas.denniston.protocol.Packet
@@ -60,7 +60,7 @@ protected:
   template<protocol::packet::Get GET> auto respond([[inout]] Interface &, [[inout]] Query<GET> &, string::View from_whom) -> void;
 public:
   inline explicit Directory();
-  inline explicit Directory([[inout]] World &);
+  inline explicit Directory([[inout]] denniston::Configuration &);
   ~Directory();
   Interfaces clients{};
   Shards processors{};
@@ -75,11 +75,11 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 namespace tunitas::denniston::service::instance {
   Directory::Directory() : Ancestor{Species::DIRECTORY} { }
-  Directory::Directory(World &world) : Directory{} {
-    services = move(*world.services);
+  Directory::Directory(denniston::Configuration &cfg) : Directory{} {
+    services = move(*cfg.services);
   }
 }
 #endiv

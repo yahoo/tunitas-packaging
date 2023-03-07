@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::driver::binder {
+namespace tunitas::denniston::world::binder {
   //
   // The binder, green & blue.
   //
@@ -15,7 +15,7 @@ namespace tunitas::denniston::driver::binder {
   //
   // Design:
   //
-  //   An interface detail of the Driver & the Linker
+  //   An interface detail of the World & the Linker
   //   Using the Best Available Means & Methods (UBAMM)
   //
   // WATCHOUT - the ordering of the arguments here is CRITICAL else activation scheduling WILL NOT WORK
@@ -26,17 +26,17 @@ namespace tunitas::denniston::driver::binder {
   //
   // Usage:
   //
-  //   See Driver
+  //   See World
   //
   struct Binder;
 }
 #endiv
 #divert <hpp>
-#forward tunitas.denniston.driver.Layout
-#import tunitas.denniston.driver.binder.Linkage
+#forward tunitas.denniston.world.Layout
+#import tunitas.denniston.world.binder.Linkage
 #import tunitas.denniston.process.Model
 #import tunitas.denniston.network.Sockets
-class tunitas::denniston::driver::binder::Binder : public Linkage {
+class tunitas::denniston::world::binder::Binder : public Linkage {
   using Ancestor = Linkage;
 public:
   using Instance = process::Model;
@@ -53,8 +53,8 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.driver.Layout
-namespace tunitas::denniston::driver::binder {
+#import tunitas.denniston.world.Layout
+namespace tunitas::denniston::world::binder {
   auto Binder::control_userland(Instance &instance) -> void { layout.control.clients.push_back(do_control_channel({instance.control, instance})); }
   auto Binder::control_system(Instance &instance) -> void   { do_control_channel({instance.control, instance}); }
   //

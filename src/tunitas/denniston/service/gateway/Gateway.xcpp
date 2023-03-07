@@ -25,7 +25,7 @@ namespace tunitas::denniston::service::gateway {
 #endiv
 #divert <hpp>
 #import tunitas.Pair
-#forward tunitas.denniston.World
+#forward tunitas.denniston.Configuration
 #import tunitas.denniston.process.Reactor
 #import tunitas.denniston.error.Code
 #import tunitas.denniston.job.Dictionary
@@ -56,9 +56,9 @@ protected:
   };
 public:
   using Entropy = keyston::entropy::Source;
-  inline explicit Gateway([[inout]] Entropy &, [[inout]] World &);
+  inline explicit Gateway([[inout]] Entropy &, [[inout]] denniston::Configuration &);
   ~Gateway();
-  auto launch(driver::Threads &) -> void override;
+  auto launch(scheduler::Threads &) -> void override;
   Interfaces clients{};
   Interface collector{};
   Interface configuration{};
@@ -77,9 +77,9 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 namespace tunitas::denniston::service::gateway {
-  Gateway::Gateway(Entropy &entropy, World &)
+  Gateway::Gateway(Entropy &entropy, denniston::Configuration &)
     : Ancestor{Species::GATEWAY}
     , generators{entropy}
   { }
@@ -104,7 +104,7 @@ namespace tunitas::denniston::service::gateway {
     subprocesses.wait_for_all_to_finish();
     disposable.acquire();
   }
-  auto Gateway::launch(driver::Threads &pool) -> void {
+  auto Gateway::launch(scheduler::Threads &pool) -> void {
     disposable.acquire(); // with release() in React::run()
     pool.launch(&Gateway::run, this);
     subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));

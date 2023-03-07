@@ -16,7 +16,7 @@ namespace tunitas::denniston::service {
   //   Section 2. System Architecture
   //
   //   The static configuration of the processes is represented.
-  //   The dynamic operation is managed by the Driver in the context of a thread pool (not shown)
+  //   The dynamic operation is managed by the Configuration in the context of a thread pool (not shown)
   //
   // Obligations:
   //
@@ -56,7 +56,7 @@ namespace tunitas::denniston::service {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.entropy.Source
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 #import tunitas.denniston.service.instance.Pointer
 #import tunitas.denniston.service.instance.Client
 #import tunitas.denniston.service.instance.Collector
@@ -77,7 +77,7 @@ public:
   keyston::vdaf::Shards<Pointer<Processor>> processors{};
   //
   using Entropy = keyston::entropy::Source;
-  explicit System(Entropy &, [[inout]] World &, Size initial_client_count = 0);
+  explicit System(Entropy &, [[inout]] denniston::Configuration &, Size initial_client_count = 0);
   System(System const &) = delete;
   System &operator=(System const &) = delete;
 };
@@ -86,16 +86,16 @@ public:
 #import tunitas.denniston.service.instance.make
 #import std.to_array
 namespace tunitas::denniston::service::system {
-  System::System(Entropy &entropy, World &world, Size initial_client_count)
-    : collector{make<Collector>(world)}
-    , configuration{make<Configuration>(world)}
-    , directory{make<Directory>(world)}
-    , gateway{make<Gateway>(entropy, world)}
-    , processors{make<Processor>(entropy, world, Species::PROCESSOR1), make<Processor>(entropy, world, Species::PROCESSOR2)}
+  System::System(Entropy &entropy, denniston::Configuration &cfg, Size initial_client_count)
+    : collector{make<Collector>(cfg)}
+    , configuration{make<Configuration>(cfg)}
+    , directory{make<Directory>(cfg)}
+    , gateway{make<Gateway>(entropy, cfg)}
+    , processors{make<Processor>(entropy, cfg, Species::PROCESSOR1), make<Processor>(entropy, cfg, Species::PROCESSOR2)}
   {
     for (auto i{0uz}; initial_client_count != i; ++i) {
       auto role = role::make_client_species(i);
-      clients.push_back(make<Client>(entropy, world, role));
+      clients.push_back(make<Client>(entropy, cfg, role));
     }
     configuration->clients.resize(clients.size());
     directory->clients.resize(clients.size());

@@ -7,6 +7,8 @@
 tunitas_denniston_scheduler_SUBSOURCES = \
   obj/src/tunitas/denniston/scheduler/namespace.cpp \
   obj/src/tunitas/denniston/scheduler/operate.cpp \
+  obj/src/tunitas/denniston/scheduler/Threads.cpp \
+  obj/src/tunitas/denniston/scheduler/Watchdog.cpp \
   $(tunitas_denniston_scheduler_traits_SUBSOURCES) \
   $(tunitas_denniston_scheduler_backoff_SUBSOURCES) \
   $(tunitas_denniston_scheduler_exception_SUBSOURCES) \

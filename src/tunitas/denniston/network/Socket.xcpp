@@ -13,7 +13,7 @@ namespace tunitas::denniston::network {
   //   You Know.
   //   Read & Write with Socket::Interface
   //   Allocate with Sockets::allocate()
-  //   Bind to the process system with driver::Binder
+  //   Bind to the process system with world::Binder
   //
   // Design:
   //
@@ -33,7 +33,7 @@ namespace tunitas::denniston::network {
 #import tunitas.denniston.network.Pipe
 #import tunitas.denniston.network.table.Descriptor.Sockets
 #forward tunitas.denniston.process.Ready
-#forward tunitas.denniston.driver.binder.Linkage
+#forward tunitas.denniston.world.binder.Linkage
 static_assert(sizeof (tunitas::denniston::network::table::Descriptor<tunitas::denniston::network::table::Sockets>));
 struct tunitas::denniston::network::Socket {
   Socket() = default;
@@ -45,7 +45,7 @@ protected:
   Pipe right2left{};
   table::Descriptor<table::Sockets> descriptor{};
   friend class table::Sockets;
-  friend class driver::binder::Linkage;
+  friend class world::binder::Linkage;
 };
 #endiv
 #divert <ipp>

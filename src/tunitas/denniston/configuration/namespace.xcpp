@@ -1,0 +1,23 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston
+#import tunitas.keyston.time.literals
+#import tunitas.string.literals
+namespace tunitas::denniston::configuration {
+  using namespace keyston::time::literals;
+  using namespace string::literals;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.Name
+namespace tunitas::denniston::configuration {
+  //
+  // The denniston system only does this (for now, constexpr-hard-coded)
+  //
+  inline constexpr auto VERIFIABLE_AGGREGATION_FUNCTION_NAME = keyston::vdaf::Name::ZERO; // but one day PRIO or POPLAR.
+}
+#endiv

@@ -28,12 +28,12 @@ namespace tunitas::denniston::log {
 #import std.lock_guard
 #import tunitas.keyston.time.Clock
 #import tunitas.denniston.Species
-#forward tunitas.denniston.driver.Driver
+#forward tunitas.denniston.world.World
 #import tunitas.string.View
 struct tunitas::denniston::log::Concentrator {
   auto accept(Species, string::View message) -> void;
 protected:
-  friend class driver::Driver;
+  friend class world::World; // assigns into outbound to establish the actual outflow of the messages
   std::ostream *outbound{};
   std::mutex mutex{};
   using Clock = keyston::time::Clock;

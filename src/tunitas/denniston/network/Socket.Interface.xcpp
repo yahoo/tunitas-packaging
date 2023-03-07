@@ -36,7 +36,7 @@ static_assert(sizeof (tunitas::denniston::network::Socket::Interface *));
 #forward tunitas.denniston.process.Ready
 #import tunitas.Optional
 #import tunitas.denniston.network.required.iterator.Socket_Move
-#forward tunitas.denniston.driver.binder.Linkage
+#forward tunitas.denniston.world.binder.Linkage
 namespace tunitas::denniston::network {
   struct Socket::Interface {
     using Value = Socket::Value;
@@ -54,7 +54,7 @@ namespace tunitas::denniston::network {
     inline auto is_blocked_then_notify() -> bool;
   protected:
     friend class Socket;
-    friend class driver::binder::Linkage;
+    friend class world::binder::Linkage;
     inline Interface(Socket *, Pipe Socket::*read, Pipe Socket::*write, process::Ready *);
     Socket *origin{};;
     Pipe Socket::*read_side{};

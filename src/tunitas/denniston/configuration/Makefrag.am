@@ -4,9 +4,10 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
-tests_unit_driver_SUBSOURCES = \
-  check/obj/src/tests/unit/driver/namespace.cpp \
-  check/obj/src/tests/unit/driver/Fixture.cpp \
-  check/obj/src/tests/unit/driver/Driver.cpp \
-  check/obj/src/tests/unit/driver/Threads.cpp \
+tunitas_denniston_configuration_SUBSOURCES = \
+  obj/src/tunitas/denniston/Configuration.cpp \
+  obj/src/tunitas/denniston/configuration/namespace.cpp \
+  obj/src/tunitas/denniston/configuration/Configuration.cpp \
+  obj/src/tunitas/denniston/configuration/Configuration.Tasks.cpp \
+  obj/src/tunitas/denniston/configuration/Configuration.Services.cpp \
   $(end)

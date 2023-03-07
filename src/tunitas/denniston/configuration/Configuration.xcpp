@@ -1,0 +1,137 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::configuration {
+  //
+  // The definition of configuration state
+  //
+  // Semantic:
+  //
+  //   Configured from outside.
+  //   Configured  the programmatic configuration system.
+  //   Configured  interactively
+  //   Configured  the command line.
+  //   Configured  hardcoded herin
+  //
+  //   It's a palette of constructed values.
+  //
+  // Specification:
+  //
+  //   Some well known tasks, hpke and so on.
+  //   The tasks and services are prepared here (hardcoded for the simulation).
+  //   The tasks and services are moved out to their destination during World initialization.
+  //
+  // Design:
+  //
+  //   No, hack it.
+  //   Optional<...> in tasks and services means they can be moved out later; leaving "empties"
+  //
+  // Usage:
+  //
+  //   [[construction]]
+  //   auto configuration = Configuration{};
+  //
+  //   [[elsewhere]]
+  //   auto tasks = move(*configuration.tasks);
+  //   auto services = move(*configuration.services);
+  //
+  struct Configuration;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.hpke.Configuration
+#import tunitas.keyston.protocol.id // for id::Service
+#import tunitas.keyston.entropy.Source
+#import tunitas.denniston.index // for index::Service, index::Task
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
+#import tunitas.denniston.service.Dictionary
+#import std.underlying_type
+struct tunitas::denniston::configuration::Configuration {
+  struct Definitions { // plural because the contained type aliases are plural
+    using Tasks = task::Dictionary<task::Definition>;
+    using Services = service::Dictionary<keyston::hpke::Side::SECRET>;
+  };
+  using Entropy = keyston::entropy::Source;
+  //
+  std::vector<keyston::protocol::id::Service> endpoints{}; // stored according to the order
+  Optional<Definitions::Tasks> tasks{};
+  Optional<Definitions::Services> services{};
+  //
+  inline explicit Configuration(Entropy &);
+  Configuration(Configuration const &) = delete;
+  Configuration &operator=(Configuration const &) = delete;
+  struct Index {
+    using Service = index::Service;
+    using Task = index::Task;
+  };
+private:
+  struct Tasks;
+  struct Services;
+  auto fill_endpoints() -> void;
+  auto fill_tasks() -> void;
+  auto fill_hpke() -> void;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.exception.Invariant
+#import tunitas.denniston.configuration.Configuration.Tasks
+#import tunitas.denniston.configuration.Configuration.Services
+#import std.integer_sequence
+#import std.make_index_sequence
+namespace tunitas::denniston::configuration {
+  Configuration::Configuration(Entropy &source) {
+    tasks = Definitions::Tasks{};
+    services = Definitions::Services{};
+    fill_endpoints();
+    if (endpoints.size() != Services::COUNT) {
+      throw exception::Invariant{"endpoints != services"};
+    }
+    {
+      // The tasks must be sized before filling them in
+      // NO MORE ---> tasks->resize(Tasks::COUNT); <--- NO MORE (... see the dictionary insert idiom)
+      [this]<std::size_t... INDEX>(std::integer_sequence<std::size_t,  INDEX...>) {
+        // The tasks dictionary allocates the new location in place
+        //                                        vvvvvvvvvvvvvvvvvvvvvvv
+        (Tasks::template fill<Index::Task{INDEX}>(tasks->insert({}).first, *this), ...);
+      }(std::make_index_sequence<Tasks::COUNT>{});
+    } {
+      [this]<std::size_t... INDEX>(std::integer_sequence<std::size_t,  INDEX...>) {
+        // The services dictionary allocates the new location in place
+        //                                              vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+        (Services::template fill<Index::Service{INDEX}>(services->insert(endpoints.at(INDEX), {}).first, *this), ...);
+      }(std::make_index_sequence<Services::COUNT>{});
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::configuration {
+  auto Configuration::fill_endpoints() -> void {
+    endpoints.push_back("ppm://sun");
+    endpoints.push_back("ppm://mercury");
+    endpoints.push_back("ppm://venus");
+    endpoints.push_back("ppm://earth");
+    endpoints.push_back("ppm://mars");
+    endpoints.push_back("ppm://jupiter");
+    endpoints.push_back("ppm://saturn");
+    endpoints.push_back("ppm://uranus");
+    endpoints.push_back("ppm://neptune");
+    endpoints.push_back("ppm://pluto");
+  }
+}
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::configuration;
+    static_assert(not std::is_default_constructible_v<Configuration>);
+    static_assert(not std::is_copy_constructible_v<Configuration>);
+    static_assert(not std::is_move_constructible_v<Configuration>);
+    static_assert(not std::is_copy_assignable_v<Configuration>);
+    static_assert(not std::is_move_assignable_v<Configuration>);
+    static_assert(not std::is_swappable_v<Configuration>);
+  }
+}
+#endiv

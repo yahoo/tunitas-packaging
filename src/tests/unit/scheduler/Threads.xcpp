@@ -1,14 +1,14 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tests::unit::driver { class Threads; }
+namespace tests::unit::scheduler { class Threads; }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.driver.Threads
-struct tests::unit::driver::Threads : public rigging::suite::Fixture {
+#import tunitas.denniston.scheduler.Threads
+struct tests::unit::scheduler::Threads : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   using Subject = library::Threads;
@@ -21,7 +21,7 @@ protected:
 };
 #endiv
 #divert <cpp>
-auto tests::unit::driver::Threads::suite() -> Suite {
+auto tests::unit::scheduler::Threads::suite() -> Suite {
   auto series = Stream{"Threads"sv};
   series << []{
               auto con = Stream{"constructor"sv};
@@ -39,7 +39,7 @@ auto tests::unit::driver::Threads::suite() -> Suite {
          << END;
   return settle(series);
 }
-namespace tests::unit::driver {
+namespace tests::unit::scheduler {
   auto Threads::test_constructor_default() -> void {
     auto subject = Subject{};
     require(ASSERTION, sizeof (subject));

@@ -15,7 +15,7 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.concurrent.Fixture
 #import tests.unit.count.Fixture
 #import tests.unit.denniston.Fixture
-#import tests.unit.driver.Fixture
+#import tests.unit.configuration.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.index.Fixture
 #import tests.unit.job.Fixture
@@ -38,7 +38,7 @@ auto tests::unit::Fixture::suite() -> Suite {
   series << add<concurrent::Fixture>()
          << add<count::Fixture>()
          << add<denniston::Fixture>()
-         << add<driver::Fixture>()
+         << add<configuration::Fixture>()
          << add<exception::Fixture>()
          << add<index::Fixture>()
          << add<job::Fixture>()

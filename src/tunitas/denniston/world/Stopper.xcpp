@@ -4,13 +4,13 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::driver {
+namespace tunitas::denniston::world {
   //
-  // A stopper of The World
+  // A stopper of The Configuration
   //
   // Specification:
   //
-  //   Shutdown the World, in the destructor or manually
+  //   Shutdown the Configuration, in the destructor or manually
   //
   // Design:
   //
@@ -22,7 +22,7 @@ namespace tunitas::denniston::driver {
   //
   // Expectations:
   //
-  //   World::shutdown() is idempotent.
+  //   Configuration::shutdown() is idempotent.
   //
   // Usage:
   //
@@ -32,10 +32,9 @@ namespace tunitas::denniston::driver {
 }
 #endiv
 #divert <hpp>
-#forward tunitas.denniston.driver.Driver
-class tunitas::denniston::driver::Stopper {
-  using World = driver::Driver;
-  using Supervised = World;
+#forward tunitas.denniston.world.World
+class tunitas::denniston::world::Stopper {
+  using Supervised = world::World;
   Supervised &supervised;
 public:
   inline explicit Stopper(Supervised &);
@@ -44,8 +43,8 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.driver.Driver
-namespace tunitas::denniston::driver {
+#import tunitas.denniston.world.World
+namespace tunitas::denniston::world {
   Stopper::Stopper(Supervised &s) : supervised{s} { }
   Stopper::~Stopper() noexcept(false) { supervised.shutdown(); }
   auto Stopper::stop() -> void { supervised.shutdown(); }

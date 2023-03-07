@@ -9,20 +9,49 @@ namespace tests::unit::scheduler { class Fixture; }
 #divert <hpp>
 struct tests::unit::scheduler::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
+  //
+  auto test_usage_Threads() -> void;
+  auto test_usage_Watchdog() -> void;
 };
 #endiv
 #divert <cpp>
+#import tests.unit.scheduler.Threads
+#import tests.unit.scheduler.Watchdog
 #import tests.unit.scheduler.backoff.Fixture
 auto tests::unit::scheduler::Fixture::suite() -> Suite {
   auto series = Stream{"scheduler"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use // none?
+              use << add("Threads", &Fixture::test_usage_Threads)
+                  << add("Watchdog", &Fixture::test_usage_Watchdog)
                   << END;
               return use;
             }()
          << add<backoff::Fixture>()
+         << add<Threads>()
+         << add<Watchdog>()
          << END;
   return settle(series);
+}
+#import tunitas.denniston.scheduler.Threads
+#import tunitas.denniston.scheduler.Watchdog
+namespace tests::unit::scheduler {
+  auto Fixture::test_usage_Threads() -> void {
+    auto thunk_ran{false};
+    auto thunk = [&thunk_ran]() {
+                 std::cerr << "thunk!\n";
+                 thunk_ran = true;
+               };
+    using Subject = library::Threads;
+    {
+      auto subject = Subject{};
+      subject.launch(thunk);
+    }
+    require(ASSERTION, thunk_ran);
+  }
+  auto Fixture::test_usage_Watchdog() -> void {
+    using Subject = library::Watchdog;
+    auto dog = Subject{1000ns, 10ns, []{ std::cerr << "POP!\n"; }};
+  }
 }
 #endiv

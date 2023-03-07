@@ -30,7 +30,7 @@ namespace tunitas::denniston::service::instance {
   //
   //   Something something, something something: a thread.
   //
-  //   The Configuration constructor accepts the initial task list from the World.
+  //   The Configuration constructor accepts the initial task list from the Configuration.
   //
   // Usage:
   //
@@ -40,7 +40,7 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <hpp>
-#forward tunitas.denniston.World
+#forward tunitas.denniston.Configuration
 #import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.process.Reactor
 #import tunitas.denniston.task.Dictionary
@@ -54,7 +54,7 @@ class tunitas::denniston::service::instance::Configuration : public process::Rea
   auto respond([[inout]] Interface &, [[inout]] Query<Get::TASKS> &, string::View from_whom) -> void;
 public:
   inline explicit Configuration();
-  inline explicit Configuration([[inout]] World &);
+  inline explicit Configuration([[inout]] denniston::Configuration &);
   ~Configuration();
   Interfaces clients{};
   Interface collector{};
@@ -65,13 +65,13 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 namespace tunitas::denniston::service::instance {
   Configuration::Configuration()
     : Ancestor{Species::CONFIGURATION}
   { }
-  Configuration::Configuration(World &world) : Configuration{} {
-    tasks = move(*world.tasks);
+  Configuration::Configuration(denniston::Configuration &cfg) : Configuration{} {
+    tasks = move(*cfg.tasks);
   }
 }
 #endiv

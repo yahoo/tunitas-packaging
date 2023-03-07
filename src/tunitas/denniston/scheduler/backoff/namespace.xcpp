@@ -5,10 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.scheduler
-#import tunitas.time.literals
-namespace tunitas::denniston::scheduler::backoff {
-  using namespace time::literals;
-}
+namespace tunitas::denniston::scheduler::backoff { }
 #endiv
 #divert <hpp>
 namespace tunitas::denniston::scheduler::backoff {

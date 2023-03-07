@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::driver::binder {
+namespace tunitas::denniston::world::binder {
   //
   // Tied Together
   //
@@ -28,8 +28,8 @@ namespace tunitas::denniston::driver::binder {
 #import tunitas.Tuple
 #forward tunitas.denniston.network.pipe.readable.Variable
 #forward tunitas.denniston.network.Socket.Interface
-#import tunitas.denniston.driver.binder.Untied
-class tunitas::denniston::driver::binder::Tied : public Tuple<network::pipe::readable::Variable &, network::Socket::Interface &> {
+#import tunitas.denniston.world.binder.Untied
+class tunitas::denniston::world::binder::Tied : public Tuple<network::pipe::readable::Variable &, network::Socket::Interface &> {
   using Ancestor = Tuple<network::pipe::readable::Variable &, network::Socket::Interface &>;
 public:
   using Ancestor::tuple;
@@ -39,7 +39,7 @@ public:
 #divert <ipp>
 #import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.network.Socket.Interface
-namespace tunitas::denniston::driver::binder {
+namespace tunitas::denniston::world::binder {
   auto Tied::operator=(Untied untied) -> void {
     auto &[readable, face_lhs] = static_cast<Ancestor &>(*this);
     auto [pollability, face_rhs] = untied;

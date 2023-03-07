@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::driver::binder {
+namespace tunitas::denniston::world::binder {
   //
   // The triple of <readable, interface, ready>
   // As lvalue references
@@ -30,7 +30,7 @@ namespace tunitas::denniston::driver::binder {
 #forward tunitas.denniston.network.pipe.readable.Variable
 #forward tunitas.denniston.network.Socket.Interface
 #forward tunitas.denniston.process.Ready
-class tunitas::denniston::driver::binder::Triple {
+class tunitas::denniston::world::binder::Triple {
   using Process = process::Prototype;
 public:
   using Readable = network::pipe::readable::Variable;
@@ -48,7 +48,7 @@ public:
 #endiv
 #divert <ipp>
 #import tunitas.denniston.process.Prototype
-namespace tunitas::denniston::driver::binder{
+namespace tunitas::denniston::world::binder{
   Triple::Triple(Interface &f, Process &p) : Triple{p.readable, p.ready,f} { }
   Triple::Triple(Process &p, Interface &f) : Triple{p.readable, p.ready,f} { }
   Triple::Triple(Readable &r, Ready &y, Interface &f)

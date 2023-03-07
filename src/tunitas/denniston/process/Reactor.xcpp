@@ -39,7 +39,7 @@ protected:
   auto run() noexcept -> void;
   virtual auto react() -> void = 0;
 public:
-  auto launch(driver::Threads &) -> void override;
+  auto launch(scheduler::Threads &) -> void override;
 };
 #endiv
 #divert <ipp>
@@ -60,7 +60,7 @@ namespace tunitas::denniston::process {
 #import substd.exception.Exception
 namespace tunitas::denniston::process {
   Reactor::~Reactor() = default; // force the layout of the vtable right here
-  auto Reactor::launch(driver::Threads &pool) -> void {
+  auto Reactor::launch(scheduler::Threads &pool) -> void {
     // WATCHOUT - descendants may typically implement their own launch(...) and DO NOT call here
     disposable.acquire();
     pool.launch(&Reactor::run, this);

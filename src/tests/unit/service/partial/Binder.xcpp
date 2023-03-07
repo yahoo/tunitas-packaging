@@ -26,9 +26,9 @@ namespace tests::unit::service::partial {
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.driver.binder.Linkage
-class tests::unit::service::partial::Binder : protected ::tunitas::denniston::driver::binder::Linkage {
-  using Ancestor = ::tunitas::denniston::driver::binder::Linkage;
+#import tunitas.denniston.world.binder.Linkage
+class tests::unit::service::partial::Binder : protected ::tunitas::denniston::world::binder::Linkage {
+  using Ancestor = ::tunitas::denniston::world::binder::Linkage;
 public:
   Binder() = default;
   using Ancestor::Triple;

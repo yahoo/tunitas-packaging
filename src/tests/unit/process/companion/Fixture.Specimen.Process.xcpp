@@ -7,6 +7,7 @@
 #include <hpp/tests.unit.process.companion.Fixture>
 #endiv
 #divert <hpp>
+#import tunitas.denniston.scheduler.Threads
 #import tunitas.denniston.process.Model
 #import tunitas.denniston.Species
 struct tests::unit::process::companion::Fixture::Specimen::Process : public ::tunitas::denniston::process::Model {
@@ -14,7 +15,7 @@ struct tests::unit::process::companion::Fixture::Specimen::Process : public ::tu
 public:
   using Species = ::tunitas::denniston::Species;
   Process();
-  using Threads = ::tunitas::denniston::driver::Threads;
+  using Threads = ::tunitas::denniston::scheduler::Threads;
   auto launch(Threads &) -> void { } // (obviously) we're not testing this here.
 };
 #endiv

@@ -1,10 +1,10 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc. 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::driver {
+namespace tunitas::denniston::scheduler {
   //
   // The thread pool
   //
@@ -31,7 +31,7 @@ namespace tunitas::denniston::driver {
 #divert <hpp>
 #import std.deque
 #import std.jthread
-class tunitas::denniston::driver::Threads : public std::deque<std::jthread> {
+class tunitas::denniston::scheduler::Threads : public std::deque<std::jthread> {
   using Ancestor = std::deque<std::jthread>;
   using Value = Ancestor::value_type;
   friend auto swap(Threads &, Threads &) noexcept -> void = delete;
@@ -43,7 +43,7 @@ public:
 };
 #endiv
 #divert <ipp>
-namespace tunitas::denniston::driver {
+namespace tunitas::denniston::scheduler {
   template<typename FUNCTION, typename... ARGUMENTS> auto Threads::launch(FUNCTION &&function, ARGUMENTS &&...arguments) -> void {
     Ancestor::push_back(Value{forward<FUNCTION>(function), forward<ARGUMENTS>(arguments)...});
   }
@@ -52,7 +52,7 @@ namespace tunitas::denniston::driver {
 #divert <cpp>
 namespace {
   namespace testate {
-    using namespace tunitas::denniston::driver;
+    using namespace tunitas::denniston::scheduler;
     static_assert(std::is_default_constructible_v<Threads>);
     static_assert(not std::is_copy_constructible_v<Threads>);
     static_assert(not std::is_move_constructible_v<Threads>);

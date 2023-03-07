@@ -31,7 +31,7 @@ namespace tunitas::denniston::log {
 #divert <hpp>
 #forward tunitas.denniston.log.Concentrator
 #import tunitas.denniston.Species
-#forward tunitas.denniston.driver.Driver
+#forward tunitas.denniston.world.World
 #import tunitas.string.View
 namespace tunitas::denniston {
   namespace log {
@@ -47,7 +47,7 @@ namespace tunitas::denniston {
     Client &operator=(Client &&) = default;
     template<typename... ARGUMENTS> inline auto format(string::View format, ARGUMENTS &&...) -> void;
   protected:
-    friend class driver::Driver;
+    friend class world::World;
     Species role{};
     Concentrator *concentrator{};
     friend auto log::swap(Client &, Client &) noexcept -> void;

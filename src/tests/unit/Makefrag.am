@@ -10,9 +10,9 @@ tests_unit_SUBSOURCES = \
   check/obj/src/tests/unit/required.cpp \
   check/obj/src/tests/unit/Fixture.cpp \
   check/obj/src/tests/unit/denniston.Fixture.cpp \
+  $(tests_unit_configuration_SUBSOURCES) \
   $(tests_unit_concurrent_SUBSOURCES) \
   check/obj/src/tests/unit/count.Fixture.cpp \
-  $(tests_unit_driver_SUBSOURCES) \
   $(tests_unit_error_SUBSOURCES) \
   $(tests_unit_exception_SUBSOURCES) \
   check/obj/src/tests/unit/index.Fixture.cpp \
@@ -33,8 +33,8 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_world_SUBSOURCES) \
   $(end)
 #
+include src/tests/unit/configuration/Makefrag.am
 include src/tests/unit/concurrent/Makefrag.am
-include src/tests/unit/driver/Makefrag.am
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
 include src/tests/unit/job/Makefrag.am

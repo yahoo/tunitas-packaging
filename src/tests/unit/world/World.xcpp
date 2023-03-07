@@ -4,42 +4,42 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tests::unit::driver { class Driver; }
+namespace tests::unit::world { class World; }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.driver.Driver
-struct tests::unit::driver::Driver : public rigging::suite::Fixture {
+#import tunitas.denniston.world.World
+struct tests::unit::world::World : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using Subject = library::Driver;
+  using Subject = library::World;
   //
   auto test_constructor_default() -> void;
   auto test_shutdown() -> void;
 };
 #endiv
 #divert <cpp>
-auto tests::unit::driver::Driver::suite() -> Suite {
-  auto series = Stream{"Driver"sv};
+auto tests::unit::world::World::suite() -> Suite {
+  auto series = Stream{"World"sv};
   series << []{
               auto con = Stream{"constructor"sv};
-              con << add("default", &Driver::test_constructor_default)
+              con << add("default", &World::test_constructor_default)
                   << END;
               return con;
             }()
-         << add("shutdown", &Driver::test_shutdown)
+         << add("shutdown", &World::test_shutdown)
          << END;
   return settle(series);
 }
 #import std.this_thread.sleep_for
-namespace tests::unit::driver {
-  auto Driver::test_constructor_default() -> void {
+namespace tests::unit::world {
+  auto World::test_constructor_default() -> void {
     auto subject = Subject{};
     require(ASSERTION, sizeof (subject));
   }
-  auto Driver::test_shutdown() -> void {
+  auto World::test_shutdown() -> void {
     auto subject = Subject{};
     // Give the simulation some time to start up before shutting it down.
-    // [[FIXTHIS?]] The thread management design of the Driver is ill-posed when being shut down while being started up (ahem!)
+    // [[FIXTHIS?]] The thread management design of the World is ill-posed when being shut down while being started up (ahem!)
     std::this_thread::sleep_for(200ms);
     subject.shutdown();
   }

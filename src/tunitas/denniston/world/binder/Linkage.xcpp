@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::driver::binder {
+namespace tunitas::denniston::world::binder {
   //
   // The linkage, green & blue.
   //
@@ -28,20 +28,20 @@ namespace tunitas::denniston::driver::binder {
   // Usage:
   //
   //   See Binder
-  //   See Driver
+  //   See World
   //
   struct Linkage;
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.driver.binder.Triple
-#import tunitas.denniston.driver.binder.Untied
-#forward tunitas.denniston.driver.binder.Tied
+#import tunitas.denniston.world.binder.Triple
+#import tunitas.denniston.world.binder.Untied
+#forward tunitas.denniston.world.binder.Tied
 #import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.network.Socket.Interface
 #import tunitas.denniston.network.Sockets
 #import tunitas.denniston.process.Ready
-struct tunitas::denniston::driver::binder::Linkage {
+struct tunitas::denniston::world::binder::Linkage {
   using Readable = network::pipe::readable::Variable;
   using Ready = process::Ready;
   using Socket = network::Socket;
@@ -58,8 +58,8 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.driver.binder.Tied
-namespace tunitas::denniston::driver::binder {
+#import tunitas.denniston.world.binder.Tied
+namespace tunitas::denniston::world::binder {
   auto Linkage::tie(Readable &readable, Interface &face) -> Tied { return {readable, face}; }
   auto Linkage::link(Socket &place, Triple green, Triple blue) -> void {
     // when we write to blue, green must be notified that it has become ready-to-read

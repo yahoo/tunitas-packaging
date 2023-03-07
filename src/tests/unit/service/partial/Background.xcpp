@@ -14,8 +14,8 @@ namespace tests::unit::service::partial {
   // Specification:
   //
   //   The Subject is in the descendant.
-  //   There is an entropy source, but it is only used for constructing the World.
-  //   If the (descendant's) subject needs an entropy source, then it constructs with this one.
+  //   The World supplies its own entropy source.
+  //   If the (descendant's) subject (field) needs an entropy source, then it constructs with the world's entropy.
   //
   // Descendants
   //
@@ -35,8 +35,8 @@ namespace tests::unit::service::partial {
 #endiv
 #divert <hpp>
 #import tests.unit.service.partial.required.Supervisable
-#import tunitas.denniston.driver.Threads
-#import tunitas.denniston.World
+#import tunitas.denniston.scheduler.Threads
+#import tunitas.denniston.Configuration
 #import tunitas.denniston.network.Socket
 #import tunitas.denniston.network.Socket.Interface
 #import tunitas.denniston.process.Prototype
@@ -44,11 +44,11 @@ namespace tests::unit::service::partial {
 #import tunitas.denniston.scheduler.exception.Aspect
 struct tests::unit::service::partial::background::Background : public ::tunitas::denniston::process::Prototype {
   using Entropy = ::tunitas::keyston::entropy::Source;
-  using World = ::tunitas::denniston::World;
+  using Configuration = ::tunitas::denniston::Configuration;
   using Socket = ::tunitas::denniston::network::Socket;
-  using Threads = ::tunitas::denniston::driver::Threads;
+  using Threads = ::tunitas::denniston::scheduler::Threads;
   Entropy source{};
-  World world;
+  Configuration configuration;
   Socket socket{};
   Socket::Interface control{};
   Threads threads{};
@@ -57,7 +57,7 @@ struct tests::unit::service::partial::background::Background : public ::tunitas:
   struct Guard {
     struct Stop;
   };
-  inline Background();
+  inline explicit Background();
   Background(Background &&) = delete;
   Background(Background const &) = delete;
 protected:
@@ -82,7 +82,7 @@ protected:
 #import tunitas.denniston.scheduler.backoff.Stepper
 #import tunitas.denniston.scheduler.exception.Deadlock
 namespace tests::unit::service::partial::background {
-  Background::Background() : world{source} { }
+  Background::Background() : configuration{source} { }
   template<required::Supervisable SUBJECT> auto Background::start_background(SUBJECT &subject) -> void {
     runtime_assert(!running);
     subject.launch(threads);

@@ -4,9 +4,17 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston
-#import tunitas.keyston.vdaf.literals
-namespace tunitas::denniston::driver {
-  using namespace keyston::vdaf::literals;
+#import tunitas.Tuple
+#import tunitas.denniston.network.pipe.Pollability
+#import tunitas.denniston.network.Socket.Interface
+namespace tunitas::denniston::world::binder {
+  //
+  // Untied, but  together
+  //
+  // Usage:
+  //
+  //   see Tied
+  //
+  using Untied = Tuple<network::pipe::Pollability *, network::Socket::Interface>;
 }
 #endiv

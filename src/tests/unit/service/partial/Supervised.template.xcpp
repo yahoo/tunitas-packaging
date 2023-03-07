@@ -64,7 +64,7 @@ namespace tests::unit::service {
 #divert <tpp>
 namespace tests::unit::service::partial {
   template<required::Supervisable _> template<typename... ARGUMENT> Supervised<_>::Supervised(ARGUMENT &&...argument)
-    : Ancestor{Ancestor::source, Ancestor::world, forward<ARGUMENT>(argument)...}
+    : Ancestor{Ancestor::source, Ancestor::configuration, forward<ARGUMENT>(argument)...}
   { }
 }
 #endiv

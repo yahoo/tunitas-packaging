@@ -67,12 +67,12 @@ auto tests::unit::service::instance::Fixture::suite() -> Suite {
 }
 #import std.deque
 #import tunitas.keyston.entropy.Source
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 #import tunitas.denniston.service.Instance
 namespace tests::unit::service::instance {
   template<> auto Fixture::test_make<library::Client>() -> void {
     auto source = ::tunitas::keyston::entropy::Source{};
-    auto world = ::tunitas::denniston::World{source};
+    auto world = ::tunitas::denniston::Configuration{source};
     auto hold = std::deque<service::Instance>{};
     for (auto count{0uz}; CLIENT_COUNT != count; ++count) {
       auto client = Species(1+count);
@@ -85,13 +85,13 @@ namespace tests::unit::service::instance {
   }
   template<> auto Fixture::test_make<library::Gateway>() -> void {
     auto source = ::tunitas::keyston::entropy::Source{};
-    auto world = ::tunitas::denniston::World{source};
+    auto world = ::tunitas::denniston::Configuration{source};
     auto made = library::make<library::Gateway>(source, world); // <-------------------------------------------------- test this
     require(ASSERTION, sizeof (made));
   }
   template<> auto Fixture::test_make<library::Processor>() -> void {
     auto source = ::tunitas::keyston::entropy::Source{};
-    auto world = ::tunitas::denniston::World{source};
+    auto world = ::tunitas::denniston::Configuration{source};
     {
       auto made = library::make<library::Processor>(source, world, Species::PROCESSOR1); // <---------------------------------------- test this
       require(ASSERTION, nullptr != made.get());

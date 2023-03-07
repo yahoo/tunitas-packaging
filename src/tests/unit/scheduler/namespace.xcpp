@@ -6,7 +6,9 @@
 #divert <fpp>
 #import tests.unit
 #import tunitas.denniston.scheduler
+#import tunitas.time.literals
 namespace tests::unit::scheduler {
   namespace library = ::tunitas::denniston::scheduler;
+  using namespace ::tunitas::time::literals;
 }
 #endiv

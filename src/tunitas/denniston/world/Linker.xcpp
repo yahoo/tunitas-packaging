@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::denniston::driver {
+namespace tunitas::denniston::world {
   //
   // Link everything up.
   // It's complicated.
@@ -19,16 +19,16 @@ namespace tunitas::denniston::driver {
   //
   // Usage:
   //
-  //   See Driver.
+  //   See World.
   //
   struct Linker;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.service.System
-#import tunitas.denniston.driver.Binder
-#forward tunitas.denniston.driver.Layout
-struct tunitas::denniston::driver::Linker {
+#import tunitas.denniston.world.Binder
+#forward tunitas.denniston.world.Layout
+struct tunitas::denniston::world::Linker {
   service::System &system;
   Binder binder;
   inline explicit Linker(Layout &);
@@ -41,8 +41,8 @@ struct tunitas::denniston::driver::Linker {
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.driver.Layout
-namespace tunitas::denniston::driver {
+#import tunitas.denniston.world.Layout
+namespace tunitas::denniston::world {
   Linker::Linker(Layout &l)
     : system{l.system}
     , binder{l}
@@ -52,7 +52,7 @@ namespace tunitas::denniston::driver {
 #divert <cpp>
 #import std.views.iota
 #import tunitas.keyston.vdaf.Shard
-namespace tunitas::denniston::driver {
+namespace tunitas::denniston::world {
   auto Linker::collector() -> void {
     // collector<--->configuration is linked in Linker::configuration()
     // collector<--->gateway       is linked in Linker::gateway()

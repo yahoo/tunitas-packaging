@@ -7,6 +7,8 @@
 tests_unit_scheduler_SUBSOURCES = \
   check/obj/src/tests/unit/scheduler/namespace.cpp \
   check/obj/src/tests/unit/scheduler/Fixture.cpp \
+  check/obj/src/tests/unit/scheduler/Threads.cpp \
+  check/obj/src/tests/unit/scheduler/Watchdog.cpp \
   $(tests_unit_scheduler_backoff_SUBSOURCES) \
   $(end)
 #

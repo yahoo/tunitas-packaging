@@ -38,11 +38,11 @@ namespace tunitas::denniston::process {
 #import tunitas.denniston.log.Client
 #import tunitas.denniston.network.Socket.Interface
 #import tunitas.denniston.Species
-#forward tunitas.denniston.driver.Threads
-#forward tunitas.denniston.driver.Driver
+#forward tunitas.denniston.scheduler.Threads
+#import tunitas.denniston.configuration // for VERIFIABLE_AGGREGATION_FUNCTION_NAME
+#forward tunitas.denniston.configuration.Configuration
 #forward tunitas.denniston.process.companion.Barrier
 #import tunitas.denniston.process.Prototype
-#import tunitas.denniston.world // for VERIFIABLE_AGGREGATION_FUNCTION_NAME
 #import tunitas.keyston.vdaf.Executor
 #import std.atomic
 #import std.binary_semaphore
@@ -58,12 +58,12 @@ public:
   Interface control{};
   //
   using Executor = keyston::vdaf::Executor<keyston::vdaf::Scheme::PROTOCOL>;
-  Executor executor{world::VERIFIABLE_AGGREGATION_FUNCTION_NAME};
+  Executor executor{configuration::VERIFIABLE_AGGREGATION_FUNCTION_NAME};
   //
   Model(Model const &) = delete;
   Model &operator=(Model const &) = delete;
   virtual ~Model() = default;
-  virtual auto launch([[inout]] driver::Threads &) -> void = 0;
+  virtual auto launch([[inout]] scheduler::Threads &) -> void = 0;
   inline auto is_shutting_down() const -> bool;
   inline auto has_shut_down() -> bool;
 protected:
@@ -71,7 +71,7 @@ protected:
   std::binary_semaphore disposable{1};
   std::atomic<bool> graceful_shutdown{false}; // not clear this needs to be atomic.
   friend class companion::Barrier;
-  friend class driver::Driver;
+  friend class configuration::Configuration;
 };
 #endiv
 #divert <ipp>
@@ -91,5 +91,5 @@ namespace tunitas::denniston::process {
   }
 }
 // All descendants will need this
-#import tunitas.denniston.driver.Threads
+#import tunitas.denniston.scheduler.Threads
 #endiv

@@ -34,7 +34,7 @@ namespace tests::unit::service {
 #divert <tpp>
 namespace tests::unit::service::partial {
   template<typename... ARGUMENT> Supervised<library::collector::Collector>::Supervised(ARGUMENT &&...argument)
-    : Ancestor{world, forward<ARGUMENT>(argument)...}
+    : Ancestor{configuration, forward<ARGUMENT>(argument)...}
   { }
 }
 #endiv

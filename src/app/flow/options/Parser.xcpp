@@ -149,6 +149,7 @@ namespace app::flow::options::parser {
           if (0_second == cooked) {
             notice(exp) << "running the simulation for zero seconds will shut it down immediately after initialization\n";
           }
+          verbose(exp) << "the simulation lifetime will be " << cooked << '\n';
           cfg.simulation_lifetime = cooked;
         }
         break;

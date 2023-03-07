@@ -40,7 +40,7 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.denniston.service.processor.Subprocesses
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Corpus
-#forward tunitas.denniston.World
+#forward tunitas.denniston.Configuration
 #import tunitas.keyston.entropy.Source
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.vdaf.Configuration
@@ -51,9 +51,9 @@ class tunitas::denniston::service::processor::Processor : public process::Reacto
 public:
   using Entropy = keyston::entropy::Source;
   inline explicit Processor([[inout]] Entropy &, Species);
-  inline explicit Processor([[inout]] Entropy &, [[inout]] World &, Species);
+  inline explicit Processor([[inout]] Entropy &, [[inout]] denniston::Configuration &, Species);
   ~Processor();
-  auto launch(driver::Threads &) -> void override;
+  auto launch(scheduler::Threads &) -> void override;
   Interface configuration{};
   Interface directory{};
   Interface gateway{};
@@ -75,10 +75,10 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 #import tunitas.denniston.exception.Invalid
 namespace tunitas::denniston::service::processor {
-  Processor::Processor(Entropy &entropy, World &, Species role) : Processor{entropy, role} { }
+  Processor::Processor(Entropy &entropy, denniston::Configuration &, Species role) : Processor{entropy, role} { }
   Processor::Processor(Entropy &entropy, Species role)
     : Ancestor{role}
     , generators{entropy} {
@@ -106,7 +106,7 @@ namespace tunitas::denniston::service::processor {
     subprocesses.wait_for_all_to_finish();
     disposable.acquire();
   }
-  auto Processor::launch(driver::Threads &pool) -> void {
+  auto Processor::launch(scheduler::Threads &pool) -> void {
     disposable.acquire(); // with release() in React::run()
     pool.launch(&Processor::run, this);
     subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));

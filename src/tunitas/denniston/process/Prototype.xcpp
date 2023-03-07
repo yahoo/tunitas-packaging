@@ -22,7 +22,7 @@ namespace tunitas::denniston::process {
   //
   //   By inheritance
   //   in the services
-  //   in the Driver
+  //   in the World
   //
   struct Prototype;
 }
