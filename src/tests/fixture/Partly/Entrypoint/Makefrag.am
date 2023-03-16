@@ -1,0 +1,11 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tests_fixture_Partly_Entrypoint_SUBSOURCES = \
+  check/obj/src/tests/fixture/Partly/Entrypoint/app.flow.Configuration.THROUGH.cpp \
+  $(end)
+$(tests_fixture_Partly_Entrypoint_SUBSOURCES) : DISCOFLAGS=--no-insert-namespace
+$(tests_fixture_Partly_Entrypoint_SUBSOURCES) : bbDC_FLAGS=$(DISCOFLAGS)

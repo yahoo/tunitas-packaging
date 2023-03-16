@@ -1,0 +1,9 @@
+#!/bin/bash -p
+__top=${0%/*}/../..
+export PATH="${__top}/check/bin:${__top}/bin:$PATH"
+__dirname=${0%/*}
+exe=${__dirname##*/}
+name=${0##*/} ; name=${name%.test}
+path=/unit/$name # unused
+#
+${exe?} /

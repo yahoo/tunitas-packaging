@@ -1,0 +1,21 @@
+#!/bin/bash -p
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/alambique/tree/LICENSE
+#
+# Usage:
+#
+#   ./maintenance/nearby     (no options)
+#
+#   prefix=/usr/local \
+#   with_std_tunitas=/opt/tunitas \
+#   with_temerarious_flagship=/opt/tunitas \
+#   ./maintenance/nearby
+#
+cd ${0%/*}/.. || exit 70
+: ${with_build:=/build}
+: ${with_tunitas_nearby:=${with_build?}/tunitas}
+: ${with_temerarious_flagship:=${with_tunitas_nearby?}/temerarious-flagship}
+source ${with_temerarious_flagship?}/maintenance/recipe/standard-development-environment.sh || exit ${EX_SOFTWARE:-70}
+standard_idiomatic_build_recipe

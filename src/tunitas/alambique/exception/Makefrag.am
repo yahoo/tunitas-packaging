@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tunitas_alambique_exception_SUBSOURCES = \
+  obj/src/tunitas/alambique/exception/namespace.cpp \
+  obj/src/tunitas/alambique/exception/Aspect.cpp \
+  obj/src/tunitas/alambique/exception/Bound.cpp \
+  obj/src/tunitas/alambique/exception/Cast.cpp \
+  obj/src/tunitas/alambique/exception/Failure.cpp \
+  obj/src/tunitas/alambique/exception/Invalid.cpp \
+  obj/src/tunitas/alambique/exception/Invariant.cpp \
+  obj/src/tunitas/alambique/exception/Null.cpp \
+  obj/src/tunitas/alambique/exception/Range.cpp \
+  obj/src/tunitas/alambique/exception/Optional.cpp \
+  $(end)

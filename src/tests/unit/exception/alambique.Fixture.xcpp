@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.exception
+namespace tests::unit::exception::alambique {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::alambique::exception;
+    namespace feature = ::tunitas::exception::feature;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.exception.Palette
+struct tests::unit::exception::alambique::fixture::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  // reminders mosly
+  using Palette::stanza0;
+  using Palette::stanza1string;
+  using Palette::stanza1error;
+  using Palette::stanza1type;
+  //
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception0() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1string() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1error() -> void;
+  template<typename CATCHABLE, typename EXCEPTION> auto test_exception1type() -> void;
+};
+#endiv
+#divert <tpp>
+#import std.error_code
+namespace tests::unit::exception::alambique::fixture {
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception0() -> void       { exercise<CATCHABLE, EXCEPTION>(); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1string() -> void { exercise<CATCHABLE, EXCEPTION>("give-me-one-reason"s); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1error() -> void  { exercise<CATCHABLE, EXCEPTION>(std::error_code{}, "give-me-one-reason"s); }
+  template<typename CATCHABLE, typename EXCEPTION> auto Fixture::test_exception1type() -> void   { exercise<CATCHABLE, EXCEPTION>(typeid(CATCHABLE)); }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::exception::alambique::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"alambique"sv};
+  series // none yet?
+#if 0
+    << stanza1string<Fixture, feature::Bound, library::Bound>("Bound")
+         << stanza1type<Fixture, feature::Cast, library::Cast>("Cast")
+         << stanza1error<Fixture, feature::Failure, library::Failure>("Failure")
+         << stanza1string<Fixture, feature::Invalid, library::Invalid>("Invalid")
+         << stanza1string<Fixture, feature::Invariant, library::Invariant>("Invariant")
+         << stanza0<Fixture, feature::Null, library::Null>("Null")
+         << stanza0<Fixture, feature::Optional, library::Optional>("Optional")
+         << stanza1string<Fixture, feature::Range, library::Range>("Range")
+#endif
+         << END;
+  return settle(series);
+}
+#endiv

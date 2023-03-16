@@ -1,0 +1,78 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::flow {
+  namespace [[eponymous]] invocations {
+    struct Invocations;
+  }
+  using invocations::Invocations;
+}
+#endiv
+#divert <hpp>
+#import rigging.app.fixture.Core
+#import tests.fixture.Mainly
+#import tests.fixture.Combine
+#import app.flow.Configuration
+namespace tests::flow {
+  namespace invocations {
+    using Ancestor = rigging::app::fixture::Core<fixture::Mainly<fixture::Combine<app::flow::Configuration>>>;
+  }
+  struct invocations::Invocations : public Ancestor {
+    static auto suite() -> Suite;
+    //
+    auto test_zero() -> void;
+    auto test_empty() -> void;
+    //
+    template<unsigned> auto test_interactive() -> void;
+    template<unsigned> auto test_programmatic() -> void;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::flow::invocations {
+  auto Invocations::test_zero() -> void  { exercise(OK); }
+  auto Invocations::test_empty() -> void { exercise(USAGE, ""); }
+  //
+  // And these definitions MUST appear before their address is taken
+  template<> auto Invocations::test_interactive<0>() -> void { exercise(UNIMPLEMENTED, "--interactive"s); }
+  //
+  template<> auto Invocations::test_programmatic<0>() -> void { exercise(UNIMPLEMENTED, "--program"s); }
+  template<> auto Invocations::test_programmatic<1>() -> void { exercise(UNIMPLEMENTED, "--programmatic"s); }
+}
+#import std.integer_sequence
+#import std.make_index_sequence
+#import std.to_string
+#import std.size_t
+auto tests::flow::invocations::Invocations::suite() -> Suite {
+  auto series = Stream{"invocations"sv};
+  series << add("zero", &Invocations::test_zero)
+         << add("empty", &Invocations::test_empty)
+         << []{
+           auto act = Stream{"interactive"sv};
+           act << add("0", &Invocations::test_interactive<0>)
+               << END;
+           return act;
+         }()
+         << []{
+           auto act = Stream{"programmatic"sv};
+           act << add("0", &Invocations::test_programmatic<0>)
+               << add("1", &Invocations::test_programmatic<1>)
+               << END;
+           return act;
+         }()
+#if 0
+         << []{
+           auto life = Stream{"simulation-lifetime"sv};
+           [&life]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+             ((life << add(std::to_string(INDEX), &Invocations::test_simulation_lifetime<INDEX>)), ...);
+           }(std::make_index_sequence<SIMULATION_LIFETIME_COUNT>{});
+           return life;
+         }()
+#endif
+         << END;
+  return settle(series);
+}
+#endiv

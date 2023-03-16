@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import cli.required.Configuration
+namespace tests::fixture::required::configuration {
+  //
+  // The application configuration
+  // a) has a default constructor ..... DOES NOT expect a Program
+  // b) provides only configuration ... DOES NOT provide UX support
+  //
+  // The complete type of the (application) CONFIGURATION must be available.
+  //
+  template<typename CONFIGURATION> concept Application = cli::required::Configuration<CONFIGURATION> && requires(CONFIGURATION &cfg) {
+    // but belaboring the point
+    { CONFIGURATION{} };
+    //
+    // readable
+    { cfg.warning_mode } -> convertible_to<bool>;
+    { cfg.quiet_mode } -> convertible_to<bool>;
+    { cfg.verbose_mode } -> convertible_to<bool>;
+    { cfg.debug_mode } -> convertible_to<bool>;
+    { cfg.trace_mode } -> convertible_to<bool>;
+    //
+    // settable (but not necessarily directly a 'bool')
+    { cfg.warning_mode = true };
+    { cfg.quiet_mode = true };
+    { cfg.verbose_mode = true };
+    { cfg.debug_mode = true };
+    { cfg.trace_mode = true };
+  };
+}
+#endiv

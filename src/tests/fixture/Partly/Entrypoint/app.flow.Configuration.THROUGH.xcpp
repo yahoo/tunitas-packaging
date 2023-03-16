@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <hpp>
+#import tests.fixture.Partly.app.flow.Configuration.THROUGH
+#import tests.fixture.Combine
+#import app.flow.Configuration
+namespace tests::fixture {
+#if 0
+  // pointless, and it generates a warning
+  template<cli::controllability::Through THROUGH> auto Partly<Combine<app::flow::Configuration>, THROUGH>::Entrypoint::operator()([[inout]] Configuration &, Arguments) const -> Exit;
+#endif
+}
+#endiv
+#divert <tpp>
+#import app.flow.main
+namespace tests::fixture {
+  template<cli::controllability::Through THROUGH> auto Partly<Combine<app::flow::Configuration>, THROUGH>::Entrypoint::operator()(Configuration &cfg, Arguments arguments) const -> Exit {
+    cfg.test_mode = true;
+    cfg.test_level = THROUGH;
+    auto prog = Program{"a.out"};
+    arguments.push_front(prog);
+    auto exp = Experience{move(prog), cfg};
+    auto anchor = Anchor{move(arguments)}; // converting back from deque-of-strings to argv (char const *)
+    return app::flow::main(exp, cfg, anchor);
+  }
+}
+#endiv

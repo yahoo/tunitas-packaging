@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::error::package_error {
+  namespace body::exported {
+    //
+    // The network error category
+    //
+    // Usage:
+    //
+    //   auto const &cat = category();
+    //
+    class Category;
+  }
+}
+#endiv
+#divert <hpp>
+#import std.error_condition
+#import std.error_category
+#import std.string
+#import tunitas.Optional
+#import tunitas.string.View
+#import tunitas.alambique.error.category
+#import tunitas.alambique.error.code.Unpackaged
+namespace tunitas::alambique::error::package_error {
+  class interface::Category : public std::error_category {
+    using Ancestor = std::error_category;
+    Category() = default;
+    friend auto error::category() -> Category const &;
+    using E = code::Unpackaged::Enumeration;
+  public:
+    auto name() const noexcept -> char const * override;
+    auto default_error_condition(int code) const noexcept -> std::error_condition override;
+    auto message(int code) const -> std::string override;
+    auto estimate(int code) const -> Optional<string::View>;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.to_string
+namespace tunitas::alambique::error::package_error {
+  namespace body::exported {
+    auto Category::name() const noexcept -> char const * { return "tunitas-alambique"; }
+    auto Category::default_error_condition(int code) const noexcept -> std::error_condition { return std::error_condition{0 != code, *this}; }
+    auto Category::message(int code) const -> std::string {
+      if (auto got=estimate(code); got) {
+        return std::string{*got};
+      } else {
+        return std::string{name()} + " error #"s + std::to_string(code);
+      }
+    }
+    auto Category::estimate(int code) const -> Optional<string::View> {
+      switch (E{code}) {
+      case E::SUCCESS:         return "unexpected success"sv;
+      case E::FAILURE:         return "failure"sv;
+        //
+      default: return {};
+      }
+    }
+  }
+}
+#endiv

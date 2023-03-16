@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <hpp>
+#import tests.fixture.Mainly
+#import tests.fixture.Combine
+#import app.flow.Configuration
+namespace tests::fixture {
+  template<> auto Mainly<Combine<app::flow::Configuration>>::Entrypoint::operator()([[inout]] Configuration &, Arguments) const -> Exit;
+}
+#endiv
+#divert <cpp>
+#import app.flow.main
+namespace tests::fixture {
+  template<> auto Mainly<Combine<app::flow::Configuration>>::Entrypoint::operator()(Configuration &cfg, Arguments arguments) const -> Exit {
+    auto prog = Program{"a.out"};
+    arguments.push_front(prog);
+    auto exp = Experience{move(prog), cfg};
+    auto anchor = Anchor{move(arguments)}; // converting back from deque-of-strings to argv (char const *)
+    return app::flow::main(exp, cfg, anchor);
+  }
+}
+#endiv

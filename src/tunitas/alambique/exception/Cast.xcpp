@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::exception {
+  //
+  // A cast has failed in Tunitas Alambique; e.g. variant value cast.
+  //
+  // Specification:
+  //
+  //   Yes.
+  //   Rhymes with dynamic_cast<...>(...) but considering coercive casts among data types within packaet frames or such.
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Cast;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Cast
+#import tunitas.exception.Aspect
+#import tunitas.alambique.exception.Aspect
+class tunitas::alambique::exception::Cast final : public complete::Basic<partial::Cast, alambique::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Cast, alambique::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  using Ancestor::Basic;
+};
+#endiv

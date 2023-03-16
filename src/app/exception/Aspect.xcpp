@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::exception {
+  //
+  // The aspect of being an application exception
+  //
+  // Specification:
+  //
+  //   The usual.
+  //
+  // Design:
+  //
+  //   Use the Tunitas-flavored ones
+  //
+  // Usage:
+  //
+  //   You know.
+  //
+  struct Aspect;
+}
+#endiv
+#divert <hpp>
+#import std.ostream
+#import tunitas.application.exits.Code
+class app::exception::Aspect {
+protected:
+  virtual ~Aspect() = default;
+public:
+  struct Results {
+    using What = char const *;
+    using Stream = std::ostream &;
+    using Exit = tunitas::application::exits::Code;
+  };
+};
+#endiv
