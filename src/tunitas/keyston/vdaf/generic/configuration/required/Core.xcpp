@@ -9,8 +9,31 @@
 #include <hpp/tunitas.keyston.vdaf.generic.configuration.Is_Specialized_Core>
 namespace tunitas::keyston::vdaf::generic::configuration::required {
   //
-  // Is this CORE sufficient?
-  // This MUST be diagnosable without the complete type of CORE
+  // The core of a configuration.
+  //
+  // Specification:
+  //
+  //   Everything follows from these type definitions.
+  //   This MUST be diagnosable without the complete type of CORE
+  //
+  //   required::Core<CORE>
+  //   usage::Core<CORE>
+  //
+  // Design:
+  //
+  //   Specializations only
+  //
+  //   Obvious.
+  //   But is it really obvious?  Really?
+  //
+  // Reminder:
+  //
+  //   There is no universal ancestral "CORE" class; there are only classes that model required::Core<CORE> and usage::Core<CORE>
+  //   Thus, you're looking for non-generic versions; e.g. keyston::vdaf::configuration::Core<CORE>.
+  //
+  // Usage:
+  //
+  //   See Configuration<CORE>
   //
   template<typename CORE> concept Core = requires(CORE) {
     requires Class<CORE>;

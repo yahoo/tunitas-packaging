@@ -27,7 +27,20 @@ namespace tunitas::keyston::vdaf::generic {
   //
   // Usage:
   //
-  //   Yes.
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<NUMERIC>{};
+  //   auto executor = Executor<NUMERIC>{Name::ZERO};
+  //   auto executor = Executor<NUMERIC>{Name::CONSTANT};
+  //   auto executor = Executor<NUMERIC>{Name::PRIO3};
+  //   auto executor = Executor<NUMERIC>{Name::POPLAR1};
+  //
+  //   auto disassembled = executor.disassembly(...arguments...);
+  //   auto initialized = executor.initialization(...arguments...);
+  //   auto continued = executor.continuation(...arguments...);
+  //   auto amalgamated = executor.amalgamated(...arguments...);
+  //   auto disgorged = executor.disgorgement(...arguments...);
+  //   auto reassembled = executor.reassembly(...arguments...);
   //
   template<required::Configuration> struct Executor;
 }

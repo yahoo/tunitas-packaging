@@ -11,6 +11,16 @@ namespace tunitas::keyston::vdaf {
   //
   //   Executor<PROTOCOL> performs transduction from bytes and calls Executor<NUMERIC>
   //
+  // Usage:
+  //
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<PROTOCOL>{};
+  //   auto executor = Executor<PROTOCOL>{Name::ZERO};
+  //   auto executor = Executor<PROTOCOL>{Name::CONSTANT};
+  //   auto executor = Executor<PROTOCOL>{Name::PRIO3};
+  //   auto executor = Executor<PROTOCOL>{Name::POPLAR1};
+  //
   template<> struct Executor<PROTOCOL>;
 }
 #endiv

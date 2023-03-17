@@ -4,6 +4,7 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
-tunitas_keyston_vdaf_required_SUBSOURCES = \
-  obj/src/tunitas/keyston/vdaf/required/namespace.cpp \
+tunitas_keyston_vdaf_shards_required_SUBSOURCES = \
+  obj/src/tunitas/keyston/vdaf/shards/required/namespace.cpp \
+  obj/src/tunitas/keyston/vdaf/shards/required/Shardable.cpp \
   $(end)

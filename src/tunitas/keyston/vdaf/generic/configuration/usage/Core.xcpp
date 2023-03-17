@@ -8,8 +8,31 @@
 #import tunitas.keyston.vdaf.generic.configuration.required.Core
 namespace tunitas::keyston::vdaf::generic::configuration::usage {
   //
-  // Is this CORE sufficient?
-  // Requires the complete type of CORE
+  // The core of a configuration.
+  //
+  // Specification:
+  //
+  //   What does it require?
+  //   The usage::Core<CORE> expects to see the complete type definition.
+  //
+  // Design:
+  //
+  //   See the commentariat in required::Core
+  //
+  // Usage:
+  //
+  //   #divert <fpp>
+  //   namespace something::something_else {
+  //     template<required::Core CORE> struct Dark_Side;
+  //   }
+  //   #endiv
+  //   #divert <hpp>
+  //   namespace something {
+  //     template<required::Core CORE> struct something_else::Dark_Side {
+  //       static_assert(usage::Core<CORE>);
+  //     };
+  //   }
+  //   #endiv
   //
   template<typename CORE> concept Core = required::Core<CORE> && requires(CORE) {
     typename CORE::Parameters;

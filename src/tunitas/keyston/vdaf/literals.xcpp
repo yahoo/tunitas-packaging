@@ -1,109 +1,22 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::keyston::vdaf::literals {
-  namespace package_literals {
-    namespace body::exported { }
-    namespace interface = body::exported;
-  }
-  using namespace package_literals::interface;
-}
-namespace tunitas::keyston::vdaf::literals::package_literals {
-  namespace body {
-    // The digits appear in big endian order
-    namespace endian {
-      template<char...> struct Little;         
-      template<char...> struct Big;         
-      template<unsigned ACCUMULATOR, typename BIG> struct Accumulate;
-      template<unsigned ACCUMULATOR, char FIRST> struct Accumulate<ACCUMULATOR, endian::Big<FIRST>>;
-      template<unsigned ACCUMULATOR, char FIRST, char... REST> requires (0 < sizeof...(REST)) struct Accumulate<ACCUMULATOR, endian::Big<FIRST, REST...>>;
-      template<char...> struct Convert;
-    }
-    using endian::Convert;
-  }
-}
-#endiv
-#divert <hpp>
-#import tunitas.keyston.vdaf.Shard
-#import std.numeric_limits
-namespace tunitas::keyston::vdaf::literals::package_literals {
-  namespace body {
-    namespace exported {
-      //
-      // The small integers of a shard
-      //
-      // Specification:
-      //
-      //   Whereas the VDF theory only tolerates very small integers,
-      //   the literals 0..9.
-      //
-      //   Allowed literals MUST be less-than-or-equal to the magic constant SHARD_COUNT
-      //
-      // Design:
-      //
-      //   https://en.cppreference.com/w/cpp/language/user_literal
-      //   Compute the literals in constexpr space.
-      //
-      // Usage:
-      //
-      //   auto s0 = 0_shard;
-      //   auto s1 = 1_shard;
-      //   auto s2 = 2_shard;
-      //
-      template<char... CHARS> inline constexpr auto operator""_shard() -> Shard requires (0 < sizeof...(CHARS));
-    }
-    namespace endian {
-      template<unsigned PREVIOUS, char FIRST> class Accumulate<PREVIOUS, Big<FIRST>> {
-        static_assert('0' <= FIRST && FIRST <= '9');
-        static_assert(PREVIOUS < std::numeric_limits<unsigned>::max()/10);
-        inline static constexpr unsigned const ONES = unsigned(FIRST - '0');
-      public:
-        inline static constexpr unsigned const value = PREVIOUS * 10 + ONES;
-      };
-      template<unsigned PREVIOUS, char FIRST, char... REST> requires (0 < sizeof...(REST)) class Accumulate<PREVIOUS, Big<FIRST, REST...>> {
-        static_assert('0' <= FIRST && FIRST <= '9');
-        static_assert(PREVIOUS < std::numeric_limits<unsigned>::max()/10);
-        inline static constexpr unsigned const ONES = unsigned(FIRST - '0');
-        inline static constexpr unsigned const CURRENT = PREVIOUS * 10 + ONES;
-      public:
-        inline static constexpr unsigned const value = Accumulate<CURRENT, Big<REST...>>::value;
-      };
-    }
-    template<char... CHARS> struct Convert { inline static constexpr auto const value = Accumulate<0, Big<CHARS...>>::value; };
-  }
-}
-#endiv
-#divert <ipp>
-namespace tunitas::keyston::vdaf::literals::package_literals {
-  template<char... CHARS> constexpr auto interface::operator""_shard() -> Shard requires (0 < sizeof...(CHARS)) {
-    auto const value = Convert<CHARS...>::value;
-    static_assert(value <= SHARD_COUNT);
-    return Shard(value);
+#import tunitas.keyston.vdaf.shards.literals
+namespace tunitas::keyston::vdaf {
+  namespace literals {
+    using namespace shards::literals;
   }
 }
 #endiv
 #divert <cpp>
 namespace {
   namespace testate {
-    namespace frame2 {
-      using namespace tunitas::keyston::vdaf::literals::package_literals::body;
-      static_assert(0u == Convert<'0'>::value);
-      static_assert(1u == Convert<'1'>::value);
-      static_assert(10u == Convert<'1', '0'>::value);
-      static_assert(21u == Convert<'2', '1'>::value);
-      static_assert(100u == Convert<'1', '0', '0'>::value);
-      static_assert(321u == Convert<'3', '2', '1'>::value);
-    }
-    namespace frame1 {
-      using tunitas::keyston::vdaf::Shard;
-      using namespace tunitas::keyston::vdaf::literals;
-      static_assert(Shard{0} == 0_shard);
-      static_assert(Shard{1} == 1_shard);
-      static_assert(Shard{2} == 2_shard);
-    }
+    using namespace tunitas::keyston::vdaf::literals;
+    static_assert(sizeof(0_shard));
+    static_assert(sizeof(1_shard));
   }
 }
 #endiv

@@ -7,7 +7,6 @@
 tunitas_keyston_vdaf_generic_configuration_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/generic/Configuration.cpp \
   obj/src/tunitas/keyston/vdaf/generic/configuration/namespace.cpp \
-  obj/src/tunitas/keyston/vdaf/generic/configuration/Core.cpp \
   obj/src/tunitas/keyston/vdaf/generic/configuration/Configuration.cpp \
   obj/src/tunitas/keyston/vdaf/generic/configuration/Is_Specialized_Core.cpp \
   obj/src/tunitas/keyston/vdaf/generic/configuration/Is_Specialized_Configuration.cpp \

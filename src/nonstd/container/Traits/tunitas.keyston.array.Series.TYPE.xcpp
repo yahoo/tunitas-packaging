@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.container.Traits
+#forward tunitas.keyston.array.Series
+namespace nonstd::container {
+  template<typename TYPE> struct Traits<tunitas::keyston::array::Series<TYPE>>;
+  template<typename TYPE> struct Traits<tunitas::keyston::array::Series<TYPE> const>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.array.Series
+namespace nonstd::container {
+  template<typename TYPE> struct Traits<tunitas::keyston::array::Series<TYPE> const> {
+    using Container = tunitas::keyston::array::Series<TYPE> const;
+    using Type = typename Container::template Basic_Iterator<Container const>;
+  };
+  template<typename TYPE> struct Traits<tunitas::keyston::array::Series<TYPE>> {
+    using Container = tunitas::keyston::array::Series<TYPE>;
+    using Type = typename Container::template Basic_Iterator<Container>;
+  };
+}
+#endiv

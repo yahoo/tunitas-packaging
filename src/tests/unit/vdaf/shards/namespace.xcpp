@@ -4,8 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.vdaf.shards.Shards
-namespace tunitas::keyston::vdaf {
-  using shards::Shards;
+#import tests.unit.vdaf
+#import tunitas.keyston.vdaf.shards
+namespace tests::unit::vdaf::shards {
+  namespace library = ::tunitas::keyston::vdaf::shards;
 }
 #endiv

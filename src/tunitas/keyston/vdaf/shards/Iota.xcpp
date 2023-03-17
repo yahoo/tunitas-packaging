@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf::shards {
+  //
+  // What does "iota" even mean?
+  //
+  // Specification:
+  //
+  //   Rhymes with iota_view<...>(...)
+  //   https://en.cppreference.com/w/cpp/ranges/iota_view
+  //
+  //   Does NOT rhyme with iota(...)
+  //   https://en.cppreference.com/w/cpp/algorithm/iota
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Usage:
+  //
+  //   for (auto shard : Iota{}) {
+  //     something[shard] = function(shard, ...somehow...)
+  //     ...more...
+  //   }
+  //
+  struct Iota;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.shards.Shard
+#import std.ranges.iota_view
+class tunitas::keyston::vdaf::shards::Iota : public std::ranges::iota_view<Shard, Size> {
+  using Ancestor = std::ranges::iota_view<Shard, Size>;
+public:
+  constexpr Iota() : Ancestor{Shard{}, SHARD_COUNT} { }
+  constexpr Iota(Shard start, Size count) : Ancestor{start, count} { }
+};
+#endiv

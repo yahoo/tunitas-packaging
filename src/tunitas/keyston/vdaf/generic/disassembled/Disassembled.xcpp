@@ -46,7 +46,7 @@ namespace tunitas::keyston::vdaf::generic {
     static_assert(usage::Configuration<CONFIGURATION>);
   public:
     [[implicit]] Disassembled() = default;
-    using Ancestor::tuple; // and indeed, yu "just have to know" that the real ancetsor class name is 'tuple' (lower case)
+    using Ancestor::tuple; // and indeed, you "just have to know" that the real ancetsor class name is 'tuple' (lower case)
   };
 }
 #endiv

@@ -6,6 +6,17 @@
 #divert <fpp>
 #import tunitas.keyston.vdaf.Executor.template
 namespace tunitas::keyston::vdaf {
+  //
+  // Usage:
+  //
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<NUMERIC>{};
+  //   auto executor = Executor<NUMERIC>{Name::ZERO};
+  //   auto executor = Executor<NUMERIC>{Name::CONSTANT};
+  //   auto executor = Executor<NUMERIC>{Name::PRIO3};
+  //   auto executor = Executor<NUMERIC>{Name::POPLAR1};
+  //
   template<> struct Executor<NUMERIC>;
 }
 #endiv

@@ -4,7 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#forward tunitas.keyston.vdaf.generic.configuration.Core
 #forward tunitas.keyston.vdaf.configuration.Core
 namespace tunitas::keyston::vdaf::generic::configuration {
   //
@@ -18,7 +17,6 @@ namespace tunitas::keyston::vdaf::generic::configuration {
   // We have to account for that in the default template inplementation
   //
   template<typename> struct Is_Specialized_Core;
-  template<typename UNIQUENESS> struct Is_Specialized_Core<generic::configuration::Core<UNIQUENESS>>;
   template<Scheme SCHEME> struct Is_Specialized_Core<vdaf::configuration::Core<SCHEME>>;
 }
 #endiv
@@ -29,7 +27,6 @@ namespace tunitas::keyston::vdaf::generic {
   template<typename> struct configuration::Is_Specialized_Core : public std::false_type { };
   namespace configuration {
     template<Scheme SCHEME> struct Is_Specialized_Core<vdaf::configuration::Core<SCHEME>> : public std::true_type { };
-    template<typename UNIQUENESS> struct Is_Specialized_Core<generic::configuration::Core<UNIQUENESS>> : public std::true_type { };
   }
 }
 #endiv

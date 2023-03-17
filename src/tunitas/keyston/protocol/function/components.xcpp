@@ -33,7 +33,7 @@ namespace tunitas::keyston::protocol::function::components {
   using Bytes [[deprecated("AVOID; these are a euphemism for a more specific data type; use that data type instead")]] = Opaque<(1uz<<32)>;
   //
   using Processor [[deprecated("AVOID, instead use vdaf::Shard")]] = vdaf::Shard;
-  [[deprecated("AVOID, instead use vdaf::SHARD_COUNT")]] inline static constexpr auto const PROCESSOR_COUNT = vdaf::SHARD_COUNT;
+  [[deprecated("AVOID, instead use vdaf::shards::SHARD_COUNT")]] inline static constexpr auto const PROCESSOR_COUNT = vdaf::shards::SHARD_COUNT;
   template<typename TYPE> using Vector [[deprecated("AVOID, instead use vdaf::Shards<TYPE>")]] = vdaf::Shards<TYPE>;
 }
 #pragma GCC diagnostic pop

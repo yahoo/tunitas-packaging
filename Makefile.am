@@ -1,6 +1,7 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
 # Copyright Yahoo Inc, 2022.
 # Licensed under the terms of the Apache-2.0 license.
+# For terms and provenance see the LICENSE file at the top of this repository.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
@@ -17,7 +18,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = no-define subdir-objects foreign
 AM_MAKEFLAGS= \
-  MAKEFLAGS='$(MAKEFLAGS)' \
+  DO_NOT_REPASS_MAKEFLAGS='$(MAKEFLAGS)' \
   CPPFLAGS='$(CPPFLAGS)' \
   CXXFLAGS='$(CXXFLAGS)' \
   LDFLAGS='$(LDFLAGS)' \
@@ -36,6 +37,7 @@ noinst_LTLIBRARIES = \
   noinst/lib/libautotools-autoconf+tunitas-keyston.la \
   noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
+  noinst/lib/libnonstd+tunitas-keyston.la \
   $(end)
 check_PROGRAMS = \
   check/bin/unit \
@@ -103,6 +105,7 @@ include noinst/lib/libtunitas-keyston.am
 include noinst/lib/libautotools-autoconf+tunitas-keyston.am
 include noinst/lib/libfmt+tunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am
+include noinst/lib/libnonstd+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
 INSTALL_MODULES = $(error FIXTHIS) \
