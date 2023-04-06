@@ -7,10 +7,13 @@
 #import tunitas
 #import std.byte
 #import std.size_t
+#import tunitas.keyston.literals
 namespace tunitas::alambique {
   using Octet = std::byte;
   using Size = std::size_t;
   enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
+  //
+  using namespace keyston::literals;
 }
 #import std.uint8_t
 #import std.uint16_t

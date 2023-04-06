@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tests::unit::error {
   inline namespace [[eponymous]] cluster {
-    enum Name { ALAMBIQUE };
+           enum Name { ALAMBIQUE, SLURP };
     //
     // Only specializations.
     // ... which are presented separately to reduce coupling in recompilation.

@@ -15,12 +15,14 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.alambique.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
+#import tests.unit.slurp.Fixture
 #import tests.unit.version.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
   series << add<alambique::Fixture>()
          << add<error::Fixture>()
          << add<exception::Fixture>()
+         << add<slurp::Fixture>()
          << add<version::Fixture>()
          << END;
   return settle(series);

@@ -12,9 +12,11 @@ namespace app::flow {
   using namespace package_main::interface;
 }
 #import cli.exits.constants
+#import langu.age
 namespace app::flow::package_main {
   namespace body {
     using namespace cli::exits::constants;
+    using namespace langu::age;
   }
 }
 #import cli.controllability.Through
@@ -57,6 +59,7 @@ namespace app::flow::package_main {
 #import app.flow.options.Specification
 #import app.flow.options.Parser
 #import cli.exception.feature.Quitting
+#import langu.age.q
 namespace app::flow::package_main {
   auto interface::main(Argv argv) -> Exit try {
     auto program = Program{argv};
@@ -71,7 +74,7 @@ namespace app::flow::package_main {
     auto const spec = options::Specification{};
     auto parser = options::Parser{exp, spec};
     auto parsed = parser.parse(cfg, argv);
-    // parsed is unused becuase there are no words allowed after the options
+    // parsed is unused because there are no words allowed after the options
     if (cfg.interactive_mode) {
       error(exp) << "interactive mode is not implemented\n";
       throw exception::Quitting{exp, UNIMPLEMENTED};
@@ -80,11 +83,21 @@ namespace app::flow::package_main {
       error(exp) << "programmatic mode is not implemented\n";
       throw exception::Quitting{exp, UNIMPLEMENTED};
     }
-    if (testing(cfg) <= Through::OPTIONS) {
-      throw exception::Testing{exp};
+    if (!parsed.empty()) {
+      notice(exp) << "there are words after the options\n";
+      error(exp) << "there must be no extra words after the options\n";
+      return USAGE;
     }
-    debug(exp) << "running!\n";
-    return run(exp, cfg);
+    if (testing(cfg) <= Through::OPTIONS) { throw exception::Testing{exp}; }
+    // the options have been parsed.  Examining the options for consistency is part of Through::SETUP
+    if (!cfg.measurement_data_filepath) {
+      notice(exp) << "use " << q("--measurement-data-filepath=FILEPATH"sv) << " or " << q("--usage"sv) << '\n';
+      error(exp) << "the measurement-data file is not defined\n";
+      return CONFIGURATION;
+    } else {
+      debug(exp) << "running!\n";
+      return run(exp, cfg);
+    }
   } catch (cli::exception::feature::Quitting const &q) {
     q.stream() << q.what() << '\n';
     return q.exit();

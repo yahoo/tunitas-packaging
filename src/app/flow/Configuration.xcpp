@@ -28,11 +28,14 @@ namespace app::flow {
 #import cli.configuration.Core
 #import cli.configuration.Controllability
 #import tunitas.Optional
+#import tunitas.file.Path
 struct app::flow::Configuration : public cli::configuration::Core, public cli::configuration::Controllability {
   using Ancestor = cli::configuration::Core;
+  template<typename TYPE> using Optional = tunitas::Optional<TYPE>;
 public:
   Configuration() = default;
-  tunitas::Optional<bool> interactive_mode{};
-  tunitas::Optional<bool> programmatic_mode{};
+  Optional<bool> interactive_mode{};
+  Optional<bool> programmatic_mode{};
+  Optional<tunitas::file::Path> measurement_data_filepath{};
 };
 #endiv

@@ -67,9 +67,10 @@ TF_WITH_NONSTD([cppunit])
 TF_WITH_NONSTD([fmt])
 TF_WITH_NONSTD([gcc]) dnl but modern gcc-12 & beyond is fine
 
-AM_PROG_AR
+AC_PREREQ([2.71])
 LT_PREREQ([2.4.2])
 LT_INIT
+AC_LANG([C++])
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_CC_C_O

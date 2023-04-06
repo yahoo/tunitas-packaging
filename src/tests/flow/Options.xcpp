@@ -34,6 +34,15 @@ namespace tests::flow {
     auto test_p() -> void;
     auto test_program() -> void;
     auto test_programmatic() -> void;
+    //
+    auto test_f_missing() -> void;
+    auto test_f_empty() -> void;
+    auto test_f_present() -> void;
+    auto test_measurements_missing() -> void;
+    auto test_measurements_empty() -> void;
+    auto test_measurements_present() -> void;
+    auto test_measurement_data() -> void;
+    auto test_measurement_data_filepath() -> void;
   };
 }
 #endiv
@@ -41,9 +50,19 @@ namespace tests::flow {
 namespace tests::flow::options {
   auto Options::test_i() -> void            { exercise(OK, "-i"s); }
   auto Options::test_interactive() -> void  { exercise(OK, "--interactive"s); }
+  //
   auto Options::test_p() -> void            { exercise(OK, "-p"s); }
   auto Options::test_program() -> void      { exercise(OK, "--program"s); }
   auto Options::test_programmatic() -> void { exercise(OK, "--programmatic"s); }
+  //
+  auto Options::test_f_missing() -> void            { exercise(USAGE, "-f"s); }
+  auto Options::test_f_empty() -> void              { exercise(CONFIGURATION, "-f"s, ""s); }
+  auto Options::test_f_present() -> void            { exercise(OK, "-f"s, "/some/file"s); }
+  auto Options::test_measurements_missing() -> void      { exercise(USAGE, "--measurements"s); }
+  auto Options::test_measurements_empty() -> void        { exercise(CONFIGURATION, "--measurements"s, ""s); }
+  auto Options::test_measurements_present() -> void      { exercise(OK, "--measurements"s, "/some/file"s); }
+  auto Options::test_measurement_data() -> void          { exercise(OK, "--measurement-data"s, "/some/file"s); }
+  auto Options::test_measurement_data_filepath() -> void { exercise(OK, "--measurement-data-filepath"s, "/some/file"s); }
 }
 #import std.integer_sequence
 #import std.make_index_sequence
@@ -66,6 +85,29 @@ auto tests::flow::options::Options::suite() -> Suite {
                 << add("programmatic", &Options::test_programmatic)
                 << END;
            return prog;
+         }()
+         << []{
+           auto mea = Stream{"measurement-data"sv};
+           mea << []{
+                   auto eff = Stream{"-f"sv};
+                   eff << add("missing", &Options::test_f_missing)
+                     << add("empty", &Options::test_f_empty)
+                     << add("present", &Options::test_f_present)
+                       << END;
+                   return eff;
+                 }()
+               << []{
+                    auto ure = Stream{"measurements"sv};
+                    ure << add("missing", &Options::test_measurements_missing)
+                        << add("empty", &Options::test_measurements_empty)
+                        << add("present", &Options::test_measurements_present)
+                        << END;
+                    return ure;
+                  }()
+               << add("measurement-data", &Options::test_measurement_data)
+               << add("measurement-data-filepath", &Options::test_measurement_data_filepath)
+               << END;
+           return mea;
          }()
 #if 0
          << []{

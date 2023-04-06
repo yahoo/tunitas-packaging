@@ -1,0 +1,130 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.Demonstrator.template
+namespace tunitas::alambique {
+  //
+  // The (single-threaded) Distributed Aggregation Function (DAF) Demonstrator
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   Especially Figure 5 (the Python pseudo code.
+  //   <quote ref="https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#execution-of-a-daf-4-6">
+  //
+  //        def run_daf(Daf, agg_param: Daf.AggParam, measurements: Vec[Daf.Measurement]):
+  //            out_shares = [ [] for j in range(Daf.SHARES) ]
+  //            for measurement in measurements:
+  //                # Each Client shards its measurement into input shares and
+  //                # distributes them among the Aggregators.
+  //                rand = gen_rand(Daf.RAND_SIZE)
+  //                (public_share, input_shares) = Daf.measurement_to_input_shares(measurement, rand)
+  //        
+  //                # Each Aggregator prepares its input share for aggregation.
+  //                for j in range(Daf.SHARES):
+  //                    out_shares[j].append(Daf.prep(j, agg_param, public_share, input_shares[j]))
+  //        
+  //            # Each Aggregator aggregates its output shares into an aggregate
+  //            # share and sends it to the Collector.
+  //            agg_shares = []
+  //            for j in range(Daf.SHARES):
+  //                agg_share_j = Daf.out_shares_to_agg_share(agg_param, out_shares[j])
+  //                agg_shares.append(agg_share_j)
+  //        
+  //            # Collector unshards the aggregate result.
+  //            num_measurements = len(measurements)
+  //            agg_result = Daf.agg_shares_to_result(agg_param, agg_shares, num_measurements)
+  //            return agg_result
+  //
+  //   </quote>
+  //
+  template<> struct Demonstrator<Function::DAF>;
+}
+#endiv
+#divert <hpp>
+#import std.span
+#import nonstd.units.memory.scale // Bits
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import tunitas.keyston.Slice
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.entropy.Source
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.daf.Configuration
+#import tunitas.keyston.daf.Executor
+namespace tunitas::alambique {
+  template<> class Demonstrator<Function::DAF> {
+  protected:
+    struct Constants {
+      inline static constexpr auto RANDOM_SIZE = nonstd::units::memory::Bits{128uz}; // ... [[FIXTHIS]] use tuntias::units when it exists
+    };
+    using Entropy = keyston::entropy::Source;
+    using enum keyston::Slice;
+    inline static constexpr auto SCHEME = keyston::daf::Scheme::NUMERIC;
+    using Configuration = keyston::daf::Configuration<SCHEME>;
+    //
+    keyston::daf::Executor<SCHEME> executor{}; // unless initialized otherwise, this contains nulls and is not useful
+    keyston::nonce::Generator<keyston::nonce::Bits<Constants::RANDOM_SIZE.count()>, Entropy> randomizer;
+  public:
+    using Name = keyston::daf::Name;
+    using Parameters = Configuration::Parameters;
+    using Measured = Configuration::Measurement<WHOLE>;
+    using Aggregated = Configuration::Aggregation<WHOLE>;
+    //
+    inline explicit Demonstrator(Entropy &, Name);
+    Demonstrator(Demonstrator const &) = delete;
+    auto operator=(Demonstrator const &) -> Demonstrator & = delete;
+    inline auto run(Parameters const &, std::span<Measured>) -> Aggregated;
+    template<typename ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Aggregated
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>);
+    template<typename ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Aggregated
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::alambique {
+  Demonstrator<Function::DAF>::Demonstrator(Entropy &source, Name name)
+    : executor{name}
+    , randomizer{source}
+  { }
+  auto Demonstrator<Function::DAF>::run(Parameters const &p, std::span<Measured> s) -> Aggregated {
+    return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
+  }
+  template<typename ITERATOR> auto Demonstrator<Function::DAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Aggregated
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>) {
+    return run(p, std::ranges::subrange{s, f});
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.daf.numeric.components
+namespace tunitas::alambique {
+  template<typename ITERATOR> auto Demonstrator<Function::DAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Aggregated
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>) {
+    using namespace keyston::daf::numeric::components;
+    Shards<Series<Output<SHARE>>> outputs{};
+    for (auto const &measurement : measurements) {
+      auto [publick, inputs] = executor.disassembly(parameters, measurement, randomizer());
+      for (auto shard : iota(inputs)) {
+        auto computed = executor.computation(parameters, shard, publick, inputs.at(shard));
+        outputs.at(shard).push_back(move(computed));
+      }
+    }
+    Shards<Aggregation<SHARE>> aggregations{};
+    for (auto shard : iota(outputs)) {
+      auto amalgamated = executor.amalgamation(parameters, outputs.at(shard));
+      aggregations.at(shard) = move(amalgamated);
+    }
+    auto items = nonstd::units::count::Items{measurements.size()};
+    auto result = executor.reassembly(parameters, aggregations, items);
+    return result;
+  }
+}
+#endiv

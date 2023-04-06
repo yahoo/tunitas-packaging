@@ -1,0 +1,126 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique
+namespace tunitas::alambique::slurp {
+  namespace package_from_file {
+    namespace body::exported { }
+    namespace interface = body::exported; 
+  }
+  using namespace package_from_file::interface;
+}
+#import langu.age
+// nes namespaces
+namespace tunitas::alambique::slurp::package_from_file {
+  namespace body {
+    using namespace langu::age;
+  }
+}
+#import tunitas.alambique.slurp.Container
+#include <hpp/tunitas.alambique.slurp.Container>
+#import std.underlying_type
+// new types
+namespace tunitas::alambique::slurp::package_from_file {
+  namespace body {
+    using Underlying = std::underlying_type_t<Container::Value>;
+  }
+}
+#endiv
+#endiv
+#divert <hpp>
+#import std.deque
+#import tunitas.file.Path
+#import tunitas.Optional
+#import tunitas.string.Storage
+#import tunitas.string.View
+#import tunitas.alambique.slurp.error.Silence
+#import tunitas.alambique.slurp.error.Reporter
+namespace tunitas::alambique::slurp::package_from_file::body {
+  using Filepath = tunitas::file::Path;
+  namespace exported {
+    //
+    // Usage:
+    //
+    //   try {
+    //     auto specimens = slurp::from_file(some_filepath);
+    //     auto specimens = slurp::from_file(some_filepath, error::Silence{});
+    //     auto specimens = slurp::from_file(some_filepath, error::Compiler{});
+    //     ... use the specimens...
+    //   } catch (slurp::exception::Aspect const &) {
+    //     ...complain...
+    //   }
+    //
+    auto from_file(Filepath const &, error::Reporter && = error::Silence{}) -> Container;
+  }
+  inline auto subslurp(Filepath const &, error::Reporter &) -> std::deque<string::Storage>;
+  inline auto trim(string::View) -> string::View;
+  inline auto convert(string::View) -> Optional<Container::Value>;
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.slurp.exception.Open
+#import std.isspace
+#import std.make_reverse_iterator
+#import std.from_chars
+#import sys.slurp.file.read
+#import sys.slurp.exception.Failure
+namespace tunitas::alambique::slurp::package_from_file {
+  auto body::subslurp(Filepath const &filepath, error::Reporter &reporter) -> std::deque<string::Storage> try {
+    return sys::slurp::file::read<std::deque<string::Storage>>(filepath);
+  } catch (sys::slurp::exception::Failure const &e) {
+    throw exception::Open{e.path(), e.code(), "open"};
+  }
+  auto body::trim(string::View line) -> string::View {
+    auto b = line.begin();
+    auto const e = line.end();
+    while (b != e && std::isspace(*b)) { ++b; }
+    auto const re = std::make_reverse_iterator(b);
+    auto rb = std::make_reverse_iterator(e);
+    while (rb != re && std::isspace(*rb)) { ++rb; }
+    auto view = string::View{b, rb.base()};
+    if (auto lb=view.find('#'); string::View::npos != lb) {
+      return {b, b+lb};
+    } else {
+      return view;
+    }
+  }
+  auto body::convert(string::View syntax) -> Optional<Container::Value> {
+    auto filled = Underlying{};
+    if (auto from=std::from_chars(syntax.begin(), syntax.end(), filled); from.ptr != syntax.data()+syntax.size()) {
+      return {};
+    } else {
+      return Container::Value{filled};
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.alambique.slurp.exception.Open
+#import tunitas.alambique.slurp.exception.Failure
+#import tunitas.alambique.slurp.file.Context
+#import tunitas.alambique.slurp.error.Code
+namespace tunitas::alambique::slurp::package_from_file {
+  auto interface::from_file(Filepath const &filepath, error::Reporter &&reporter) -> Container {
+    auto ret = Container{};
+    auto context = file::Context{filepath};
+    for (auto lines=subslurp(filepath, reporter); auto const &line : lines) {
+      ++context;
+      auto trimmed = trim(line);
+      if (trimmed.empty()) {
+        continue;
+      } else if (auto got=convert(trimmed); got) {
+        ret.push_back(*got);
+      } else {
+        reporter.not_a_number(context, trimmed);
+      }        
+    }
+    if (! reporter.finalize() ) {
+      throw exception::Failure{error::Code::FAILURE, "slurping has failed"};
+    }
+    return ret;
+  }
+}
+#endiv

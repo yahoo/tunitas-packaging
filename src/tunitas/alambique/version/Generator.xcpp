@@ -6,6 +6,7 @@
 #divert <fpp>
 #import cli.version.Generator
 #import autotools.autoconf.Config.tunitas.alambique.CONFIG
+#include <hpp/autotools.autoconf.Config.tunitas.alambique.CONFIG>
 namespace tunitas::alambique::version {
   //
   // The package version string generator.

@@ -14,30 +14,41 @@ namespace tests::unit::alambique {
 }
 #endiv
 #divert <hpp>
+#import tunitas.alambique.Demonstrator // and library::Function
 struct tests::unit::alambique::fixture::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  auto test_usage_Demonstrator() -> void;
+  template<library::Function> auto test_usage_Demonstrator() -> void;
 };
+#endiv
+#divert <tpp>
+#import tunitas.keyston.entropy.Source
+namespace tests::unit::alambique::fixture {
+  template<library::Function FUNCTION> auto Fixture::test_usage_Demonstrator() -> void {
+    using Entropy = tunitas::keyston::entropy::Source;
+    using Subject = library::Demonstrator<FUNCTION>;
+    auto source = Entropy{};
+    auto subject = Subject{source, {}};
+    require(ASSERTION, sizeof(subject));
+  }
+}
 #endiv
 #divert <cpp>
 auto tests::unit::alambique::fixture::Fixture::suite() -> Suite {
   auto series = Stream{"alambique"sv};
   series << []{
             auto use = Stream{"usage"sv};
-            use << add("Demonstrator", &Fixture::test_usage_Demonstrator)
+            use << []{
+                    auto dem = Stream{"Demonstrator"sv};
+                    dem << add("DAF", &Fixture::test_usage_Demonstrator<library::Function::DAF>)
+                        << add("VDAF", &Fixture::test_usage_Demonstrator<library::Function::VDAF>)
+                        << END;
+                    return dem;
+                  }()
                 << END;
             return use;
           }()
          << END;
   return settle(series);
-}
-#import tunitas.alambique.Demonstrator
-namespace tests::unit::alambique::fixture {
-  auto Fixture::test_usage_Demonstrator() -> void {
-    using Subject = library::Demonstrator;
-    auto subject = Subject{};
-    require(ASSERTION, sizeof(subject));
-  }
 }
 #endiv

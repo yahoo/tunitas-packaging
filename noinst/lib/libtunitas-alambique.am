@@ -13,7 +13,7 @@ noinst_lib_libtunitas_alambique_la_LIBADD = \
   noinst/lib/libautotools-autoconf+tunitas-alambique.la \
   noinst/lib/libstd+tunitas-alambique.la \
   -ltunitas-keyston -ltunitas-application -ltunitas \
-  -lfmt -lsys++-posix -lsys++ -lnonstd++ \
+  -lfmt -lsys++-slurp -lsys++-posix -lsys++ -lnonstd++ \
   $(end)
 noinst_lib_libtunitas_alambique_la_MODULES = $(call TF_SOURCEStoMODULES, $(noinst_lib_libtunitas_alambique_la_SOURCES))
 noinst_lib_libtunitas_alambique_la_SOURCES = $(tunitas_alambique_SUBSOURCES)

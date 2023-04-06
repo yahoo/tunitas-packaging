@@ -1,0 +1,13 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tunitas_alambique_slurp_exception_SUBSOURCES = \
+  obj/src/tunitas/alambique/slurp/exception/namespace.cpp \
+  obj/src/tunitas/alambique/slurp/exception/Aspect.cpp \
+  obj/src/tunitas/alambique/slurp/exception/Open.cpp \
+  obj/src/tunitas/alambique/slurp/exception/Failure.cpp \
+  obj/src/tunitas/alambique/slurp/exception/Limit.cpp \
+  $(end)

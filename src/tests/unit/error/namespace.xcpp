@@ -6,6 +6,6 @@
 #divert<fpp>
 #import tests.unit
 namespace tests::unit::error {
-  namespace library { }
+  namespace libraries { }
 }
 #endiv

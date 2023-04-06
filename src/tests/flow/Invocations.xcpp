@@ -28,12 +28,14 @@ namespace tests::flow {
     //
     template<unsigned> auto test_interactive() -> void;
     template<unsigned> auto test_programmatic() -> void;
+    //
+    template<unsigned> auto test_sum() -> void;
   };
 }
 #endiv
 #divert <cpp>
 namespace tests::flow::invocations {
-  auto Invocations::test_zero() -> void  { exercise(OK); }
+  auto Invocations::test_zero() -> void  { exercise(CONFIGURATION); } // no direction has been given and the measurement data file is not set (what to do?)
   auto Invocations::test_empty() -> void { exercise(USAGE, ""); }
   //
   // And these definitions MUST appear before their address is taken
@@ -41,6 +43,9 @@ namespace tests::flow::invocations {
   //
   template<> auto Invocations::test_programmatic<0>() -> void { exercise(UNIMPLEMENTED, "--program"s); }
   template<> auto Invocations::test_programmatic<1>() -> void { exercise(UNIMPLEMENTED, "--programmatic"s); }
+  //
+  template<> auto Invocations::test_sum<0>() -> void { exercise(OK, "--measurements"s, "/dev/null"s); }
+  template<> auto Invocations::test_sum<1>() -> void { exercise(OK, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_sum.list"s); }
 }
 #import std.integer_sequence
 #import std.make_index_sequence
@@ -62,6 +67,13 @@ auto tests::flow::invocations::Invocations::suite() -> Suite {
                << add("1", &Invocations::test_programmatic<1>)
                << END;
            return act;
+         }()
+         << []{
+           auto sum = Stream{"sum"sv};
+           sum << add("0", &Invocations::test_sum<0>)
+               << add("1", &Invocations::test_sum<1>)
+               << END;
+           return sum;
          }()
 #if 0
          << []{

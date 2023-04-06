@@ -19,7 +19,7 @@ namespace tests::unit::exception::alambique {
 struct tests::unit::exception::alambique::fixture::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
-  // reminders mosly
+  // reminders mostly
   using Palette::stanza0;
   using Palette::stanza1string;
   using Palette::stanza1error;
@@ -41,11 +41,17 @@ namespace tests::unit::exception::alambique::fixture {
 }
 #endiv
 #divert <cpp>
+#import tunitas.alambique.exception.Bound
+#import tunitas.alambique.exception.Cast
+#import tunitas.alambique.exception.Failure
+#import tunitas.alambique.exception.Invalid
+#import tunitas.alambique.exception.Invariant
+#import tunitas.alambique.exception.Null
+#import tunitas.alambique.exception.Range
+#import tunitas.alambique.exception.Optional
 auto tests::unit::exception::alambique::fixture::Fixture::suite() -> Suite {
   auto series = Stream{"alambique"sv};
-  series // none yet?
-#if 0
-    << stanza1string<Fixture, feature::Bound, library::Bound>("Bound")
+  series << stanza1string<Fixture, feature::Bound, library::Bound>("Bound")
          << stanza1type<Fixture, feature::Cast, library::Cast>("Cast")
          << stanza1error<Fixture, feature::Failure, library::Failure>("Failure")
          << stanza1string<Fixture, feature::Invalid, library::Invalid>("Invalid")
@@ -53,7 +59,6 @@ auto tests::unit::exception::alambique::fixture::Fixture::suite() -> Suite {
          << stanza0<Fixture, feature::Null, library::Null>("Null")
          << stanza0<Fixture, feature::Optional, library::Optional>("Optional")
          << stanza1string<Fixture, feature::Range, library::Range>("Range")
-#endif
          << END;
   return settle(series);
 }

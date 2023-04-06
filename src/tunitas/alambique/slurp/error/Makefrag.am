@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tunitas_alambique_slurp_error_SUBSOURCES = \
+  obj/src/tunitas/alambique/slurp/error/namespace.cpp \
+  obj/src/tunitas/alambique/slurp/error/Reporter.cpp \
+  obj/src/tunitas/alambique/slurp/error/Silence.cpp \
+  obj/src/tunitas/alambique/slurp/error/Compiler.cpp \
+  \
+  obj/src/tunitas/alambique/slurp/error/category.cpp \
+  obj/src/tunitas/alambique/slurp/error/Category.cpp \
+  obj/src/tunitas/alambique/slurp/error/Code.cpp \
+  obj/src/tunitas/alambique/slurp/error/code.Unpackaged.cpp \
+  obj/src/tunitas/alambique/slurp/error/Condition.cpp \
+  obj/src/tunitas/alambique/slurp/error/condition.Unpackaged.cpp \
+  $(end)

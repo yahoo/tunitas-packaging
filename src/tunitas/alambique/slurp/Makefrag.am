@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tunitas_alambique_slurp_SUBSOURCES = \
+  obj/src/tunitas/alambique/slurp/namespace.cpp \
+  obj/src/tunitas/alambique/slurp/Container.cpp \
+  obj/src/tunitas/alambique/slurp/from_file.cpp \
+  $(tunitas_alambique_slurp_error_SUBSOURCES) \
+  $(tunitas_alambique_slurp_exception_SUBSOURCES) \
+  $(tunitas_alambique_slurp_file_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/alambique/slurp/error/Makefrag.am
+include src/tunitas/alambique/slurp/exception/Makefrag.am
+include src/tunitas/alambique/slurp/file/Makefrag.am

@@ -46,7 +46,7 @@ app::flow::options::Specification::Specification()
   //          /--------------- that one
   //          |
   //          v
-  : Ancestor{":hVVDqvwyip",
+  : Ancestor{":hVDqvwyipf:",
              {{"help", oa::NO, oi::USAGE_SUBCOMMAND},
               {"usage", oa::NO, oi::USAGE_SUBCOMMAND},
               {"version", oa::NO, oi::VERSION_SUBCOMMAND},
@@ -60,6 +60,9 @@ app::flow::options::Specification::Specification()
               {"dry-run", oa::NO, oi::DRYRUN_MODE},
               {"interactive", oa::NO, oi::INTERACTIVE_MODE},
               {"program", oa::NO, oi::PROGRAMMATIC_MODE},
-              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE}}}
+              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE},
+              {"measurements", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              {"measurement-data", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              {"measurement-data-filepath", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH}}}
 { }
 #endiv

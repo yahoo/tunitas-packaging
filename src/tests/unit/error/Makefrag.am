@@ -9,6 +9,7 @@ tests_unit_error_SUBSOURCES = \
   check/obj/src/tests/unit/error/Fixture.cpp \
   check/obj/src/tests/unit/error/Cluster.template.cpp \
   check/obj/src/tests/unit/error/Cluster.ALAMBIQUE.cpp \
+  check/obj/src/tests/unit/error/Cluster.SLURP.cpp \
   check/obj/src/tests/unit/error/Cluster.cpp \
   check/obj/src/tests/unit/error/Schematic.cpp \
   $(end)

@@ -13,22 +13,32 @@ namespace app::flow {
 }
 #import cli.exits.constants
 #import tunitas.keyston.time.literals
+#import tunitas.alambique.slurp
 namespace app::flow::package_run {
   namespace body {
     using namespace cli::exits::constants;
     using namespace tunitas::keyston::time::literals;
+    namespace slurp = tunitas::alambique::slurp;
   }
 }
 #import cli.controllability.Through
 #import cli.exits.Code
 #import cli.experience.Console
 #import tunitas.alambique.Demonstrator
+#include <hpp/tunitas.alambique.Demonstrator> // for Demonstrator::Name
+#import tunitas.keyston.array.Series
+#import tunitas.keyston.entropy.Source
+#import tunitas.file.Path
 namespace app::flow::package_run {
   using Exit = cli::exits::Code;
   using cli::experience::Console;
   namespace body {
     using cli::controllability::Through;
-    using tunitas::alambique::Demonstrator;
+    using Entropy = tunitas::keyston::entropy::Source;
+    using Demonstrator = tunitas::alambique::Demonstrator<tunitas::alambique::Function::DAF>;
+    using tunitas::keyston::array::Series;
+    using Filepath = tunitas::file::Path;
+    using enum Demonstrator::Name;
   }
 }
 #endiv
@@ -39,32 +49,38 @@ namespace app::flow::package_run {
     namespace exported {
       auto run([[inout]] Console &, [[inout]] Configuration const &) -> Exit;
     }
+    inline auto intake(Filepath const &) -> Series<Demonstrator::Measured>;
   }
 }
 #endiv
 #divert <ipp>
+#import tunitas.alambique.slurp.from_file
+#import std.transform
+#import std.back_inserter
 namespace app::flow::package_run {
-  // any/.
+  auto body::intake(Filepath const &datafile) -> Series<Demonstrator::Measured> {
+    auto slurped = slurp::from_file(datafile);
+    auto measured = Series<Demonstrator::Measured>{};
+    auto prepare_one_specimen = [](auto const &specimen) { return Demonstrator::Measured{specimen}; };
+    std::transform(slurped.begin(), slurped.end(), std::back_inserter(measured), prepare_one_specimen);
+    return measured;
+
+  }
 }
 #endiv
 #divert <cpp>
-#import std.cerr
+#import std.cout
 #import app.exception.Testing
-#import std.this_thread.sleep_for
 namespace app::flow::package_run {
   auto interface::run(Console &exp, Configuration const &cfg) -> Exit {
-    auto demo = Demonstrator{};
-    if (testing(cfg) <= Through::SETUP) {
-      throw exception::Testing{exp};
-    }
-#if 0
-    demo.measure();
-    demo.shard();
-    demo.prepare();
-    demo.aggregate();
-    demo.unshard();
-    demo.output();
-#endif
+    auto source = Entropy{};
+    auto demo = Demonstrator{source, SUM};
+    auto measurements = intake(cfg.measurement_data_filepath.value());
+    auto parameters = Demonstrator::Parameters{}; // there are "none" so we can reasonably choose them this way
+    //
+    if (testing(cfg) <= Through::SETUP) { throw exception::Testing{exp}; }
+    auto ran = demo.run(parameters, measurements.begin(), measurements.end());
+    std::cout << underlying(ran.value) << '\n';
     return OK;
   }
 }

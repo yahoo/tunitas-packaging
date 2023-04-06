@@ -11,7 +11,7 @@
 #import nonstd.required.iterator.Producing
 #import tunitas.application.words.Strings
 #import app.flow.required
-namespace app::flow::options {
+namespace app::flow::options::parser {
   class Parser::Result : public tunitas::application::words::Strings {
     using Ancestor = tunitas::application::words::Strings;
     using Strings = Ancestor;
@@ -22,7 +22,7 @@ namespace app::flow::options {
 }
 #endiv
 #divert <ipp>
-namespace app::flow::options {
+namespace app::flow::options::parser {
   template<required::iterator::Forward ITERATOR> Parser::Result::Result(ITERATOR start, ITERATOR finish)
     requires required::iterator::Producing<ITERATOR, Strings::value_type>
     : Ancestor{start, finish}

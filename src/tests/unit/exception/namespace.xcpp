@@ -5,5 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
 #import tests.unit
-namespace tests::unit::exception { }
+namespace tests::unit::exception {
+  namespace libraries { }
+}
 #endiv

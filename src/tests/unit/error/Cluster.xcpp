@@ -6,4 +6,5 @@
 #divert <fpp>
 #import tests.unit.error.Cluster.template
 #import tests.unit.error.Cluster.ALAMBIQUE
+#import tests.unit.error.Cluster.SLURP
 #endiv

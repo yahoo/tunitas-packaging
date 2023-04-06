@@ -6,6 +6,8 @@
 #
 std_SUBSOURCES = \
   obj/src/std/is_error_code_enum/tunitas.alambique.error.code.Unpackaged.Enumeration.cpp \
+  obj/src/std/is_error_code_enum/tunitas.alambique.slurp.error.code.Unpackaged.Enumeration.cpp \
   \
   obj/src/std/is_error_condition_enum/tunitas.alambique.error.condition.Unpackaged.Enumeration.cpp \
+  obj/src/std/is_error_condition_enum/tunitas.alambique.slurp.error.condition.Unpackaged.Enumeration.cpp \
   $(end)

@@ -4,17 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-namespace tunitas::alambique {
-  //
-  // The (single-threaded) Demonstrator
-  //
-  struct Demonstrator;
-}
-#endiv
-#divert <hpp>
-struct tunitas::alambique::Demonstrator {
-  Demonstrator() = default;
-  Demonstrator(Demonstrator const &) = delete;
-  auto operator=(Demonstrator const &) -> Demonstrator & = delete;
-};
+#import tunitas.alambique.Demonstrator.DAF
+#import tunitas.alambique.Demonstrator.VDAF
 #endiv

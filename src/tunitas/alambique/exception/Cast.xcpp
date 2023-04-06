@@ -11,7 +11,7 @@ namespace tunitas::alambique::exception {
   // Specification:
   //
   //   Yes.
-  //   Rhymes with dynamic_cast<...>(...) but considering coercive casts among data types within packaet frames or such.
+  //   Rhymes with dynamic_cast<...>(...) but considering coercive casts among data types within packet frames or such.
   //
   // Design:
   //

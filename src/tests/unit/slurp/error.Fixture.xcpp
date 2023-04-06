@@ -1,0 +1,131 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE error at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE error at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.slurp.error
+namespace tests::unit::slurp::error {
+  class Fixture;
+  namespace library = ::tunitas::alambique::slurp::error;
+}
+#endiv
+#divert <hpp>
+#import tunitas.file.Path
+#import tunitas.alambique.slurp.exception.Aspect
+#import tunitas.alambique.slurp.exception.Open
+#import tunitas.alambique.slurp.error.Reporter
+#import tunitas.alambique.slurp.error.Compiler
+#import tunitas.alambique.slurp.file.Line
+#import tunitas.alambique.slurp.file.Context
+#import std.uint64_t
+namespace tests::unit::slurp {
+  struct error::Fixture : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    template<typename REPORTER> auto test_usage_Reporter() -> void;
+    template<unsigned LIMIT> auto test_usage_Limited() -> void;
+  protected:
+    inline static constexpr auto ERROR_LIMIT = 10uz;
+    static auto exercise(library::Reporter &) -> void;
+    static auto exercise(library::Reporter &, std::uint64_t limit) -> void;
+    using Filepath = ::tunitas::file::Path;
+    using Context = ::tunitas::alambique::slurp::file::Context; 
+    using Line = ::tunitas::alambique::slurp::file::Line; 
+    struct Failure {
+      using Unspecified = ::tunitas::alambique::slurp::exception::Aspect;
+      using Open = ::tunitas::alambique::slurp::exception::Open;
+    };
+  };
+  namespace error {
+    template<> auto Fixture::test_usage_Reporter<library::Compiler>() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::slurp::error {
+  template<typename REPORTER> auto Fixture::test_usage_Reporter() -> void {
+    auto subject = REPORTER{};
+    exercise(subject);
+  }
+  template<unsigned LIMIT> auto Fixture::test_usage_Limited() -> void {
+    auto subject = library::Compiler{std::cerr, LIMIT};
+    exercise(subject, LIMIT);
+  }
+}
+#divert <cpp>
+#import tunitas.alambique.slurp.error.Compiler
+#import tunitas.alambique.slurp.error.Silence
+#import std.to_string
+#import std.index_sequence
+#import std.make_index_sequence
+auto tests::unit::slurp::error::Fixture::suite() -> Suite {
+  auto series = Stream{"error"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Silence", &Fixture::test_usage_Reporter<library::Silence>)
+                  << add("Compiler", &Fixture::test_usage_Reporter<library::Compiler>)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto com = Stream{"Compiler(with limits)"sv};
+              auto addthat = [&com]<std::size_t PREINDEX>(std::integral_constant<std::size_t, PREINDEX>) {
+                constexpr auto INDEX = 1u+PREINDEX; // because "zero errors" is not a limit (that the test can handle)
+                com << add(std::to_string(INDEX), &Fixture::test_usage_Limited<INDEX>);
+              };
+              [&addthat]<std::size_t... PREINDEX>(std::index_sequence<PREINDEX...>) {
+                (addthat(std::integral_constant<std::size_t, PREINDEX>{}), ...);
+              }(std::make_index_sequence<ERROR_LIMIT>{});
+              return com;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::slurp::error {
+  template<> auto Fixture::test_usage_Reporter<library::Compiler>() -> void {
+    auto subject = library::Compiler{std::cerr};
+    exercise(subject);
+  }
+  auto Fixture::exercise(library::Reporter &subject) -> void try {
+    auto const filepath = Filepath{"/dev/nullification"};
+    subject.cannot_open(filepath, std::error_code{});
+    auto context = Context{filepath, Line{123}};
+    subject.not_a_number(context++, "quertyuiop");
+    auto good = subject.finalize();
+    require(ASSERTION, false == good); // think about it ... we just reported some errors
+  } catch (Failure::Unspecified const &) {
+    require(ASSERTION); // or else maybe finalize threw (which is a correct behavior as well)
+  }
+  auto Fixture::exercise(library::Reporter &subject, std::uint64_t limit) -> void {
+    require(ASSERTION, 0 != limit); // because doesn't work here (see the catch clause)
+    std::uint64_t count{};
+    try {
+      auto const filepath = Filepath{"/dev/null"};
+      ++count;
+      subject.cannot_open(filepath, std::error_code{});
+      //
+      auto context = Context{filepath, Line{123}};
+      ++count;
+      subject.not_a_number(context++, "quertyuiop");
+      ++count;
+      subject.not_a_number(context++, "abcd");
+      ++count;
+      subject.not_a_number(context++, "xyz");
+      ++count;
+      subject.not_a_number(context++, "blurful");
+      try {
+        subject.finalize(); // we know this will throw because that's what Compiler does.
+        impossible(ASSERTION);
+      } catch (Failure const &) {
+        require(ASSERTION);
+      }
+    } catch (Failure::Open const &) {
+      impossible(ASSERTION); // means the file open failed, which is a surprise, and which obviates the test
+    } catch (Failure::Unspecified const &) {
+      // Of course if the limit is very hight then the test will finish out before the limit triggers
+      require(ASSERTION, count <= limit);
+    }
+  }
+}
+#endiv

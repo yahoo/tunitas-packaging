@@ -17,6 +17,17 @@ namespace app::exception::quitting {
   //
   //   The same as the generic.
   //
+  // Rationale:
+  //
+  //   For compatibility with the tunitas::application::option::get (namespace) functions that (still) expect & require the old stylings.
+  //   To wit:
+  //
+  //     cfg.measurement_data_filepath = get::filepath<exception::quitting::Programmatic>(exp, step, "measurement-data-filepath"s);
+  //                                                              ^^^^^^^^^^^^^^^^^^^^^^
+  //                                                              ||||||||||||||||||||||
+  //    see here -------------------------------------------------//////////////////////
+  //    how get::filepath<QUITTING(...) uses the old style
+  //
   // Usage:
   //
   //   You need a tutorial on how to throw a quitting exception?

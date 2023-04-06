@@ -109,10 +109,7 @@ include noinst/lib/libstd+tunitas-alambique.am
 include noinst/lib/libautotools-autoconf+tunitas-alambique.am
 include lib/libtunitas-alambique.am
 
-INSTALL_MODULES = $(error FIXTHIS) \
-  $(noinst_lib_libtunitas_alambique_la_MODULES) \
-  $(noinst_lib_libwant_la_MODULES) \
-  $(end)
+include modules/Makefrag.am # this MUST be after the various $(noinst_lib_lib${something_something_dark_side}_la_MODULES) variablses are defined
 
 # --- Mostly boilerplate beyond here
 #

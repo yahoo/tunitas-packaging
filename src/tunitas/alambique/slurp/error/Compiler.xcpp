@@ -1,0 +1,100 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import langu.age
+#import tunitas.string.literals
+namespace tunitas::alambique::slurp::error {
+  //
+  // Compiler-style error messages in the reportage of errors during file slurping
+  //
+  // Specification:
+  //
+  //   As per the ancestor.
+  //   file+line and reasonable error messages.
+  //   Up to a limit.
+  //
+  // Design:
+  //
+  //   YEs.
+  //
+  // Exceptions:
+  //
+  //   In finalize()
+  //   If the error count surpasses the stated limit.
+  //
+  // Usage:
+  //
+  //   try {
+  //     auto slurped = slurp::file(some_filepath, Compiler{300});
+  //     return slurped;
+  //   } catch (exception::Failure const &) {
+  //     ...complain and move on...
+  //   }
+  //
+  namespace [[eponymous]] compiler {
+    struct Compiler;
+    using namespace langu::age;
+    using namespace string::literals;
+  }
+  using compiler::Compiler;
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.slurp.error.Reporter
+#import std.uint64_t
+#import std.numeric_limits
+class tunitas::alambique::slurp::error::compiler::Compiler : public Reporter {
+  using Ancestor = Reporter;
+protected:
+  std::ostream &outbound;
+  using Count = std::uint64_t;
+  Count error_limit{};
+  Count error_count{};
+public:
+  inline explicit Compiler(std::ostream &, Count = std::numeric_limits<Count>::max());
+  auto cannot_open(file::Path const &, std::error_code) -> void override;
+  auto not_a_number(file::Context const &, string::View) -> void override;
+  auto finalize() -> bool override;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::alambique::slurp::error::compiler {
+  Compiler::Compiler(std::ostream &o, Count c)
+    : outbound{o}
+    , error_limit{c}
+  { }
+}
+#endiv
+#divert <cpp>
+#import tunitas.alambique.slurp.exception.Failure
+#import tunitas.alambique.slurp.exception.Limit
+#import tunitas.alambique.slurp.error.Code
+#import langu.age.dequote
+#import langu.age.q
+namespace tunitas::alambique::slurp::error::compiler {
+  auto Compiler::cannot_open(file::Path const &filepath, std::error_code ec) -> void {
+    error_accumulator = true;
+    outbound << dequote(filepath) << ": error, cannot be read (cannot be opened for reading) because " << ec.message() << '\n';
+    if (++error_count >= error_limit) {
+      throw exception::Limit{error_limit};
+    }
+  }
+  auto Compiler::not_a_number(file::Context const &context, string::View syntax) -> void {
+    error_accumulator = true;
+    outbound << context << " error, not a number " << q(syntax) << '\n';
+    if (++error_count >= error_limit) {
+      throw exception::Limit{error_limit};
+    }
+  }
+  auto Compiler::finalize() -> bool {
+    if (good()) {
+      return true;
+    } else {
+      throw exception::Failure{error::Code::FAILURE, "slurping has failed to read the file"sv};
+    }
+  }
+}
+#endiv
