@@ -17,11 +17,11 @@ namespace tunitas::keyston::array {
   //
   //   Unlimited length, thus variable length
   //   discontiguous storage; hence no data() member function
-  //   https://en.cppreference.com/w/cpp/container/deque
+  //   https://en.cppreference.com/w/cpp/container/vector
   //
   // Usage:
   //
-  //   As you would a deque; with the reduced interface.
+  //   As you would a vector; with the reduced interface.
   //
   template<required::Arrayable TYPE> struct Variable;
 }

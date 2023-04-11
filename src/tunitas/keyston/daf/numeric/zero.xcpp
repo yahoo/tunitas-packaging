@@ -1,0 +1,68 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::numeric::zero {
+  namespace package_zero {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_zero::interface;
+}
+#import tunitas.keyston.daf.numeric.components
+namespace tunitas::keyston::daf::numeric::zero::package_zero {
+  using namespace numeric::components;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::daf::numeric::zero::package_zero::body {
+  namespace exported {
+    //
+    // the interface to the zero DAF
+    //
+    // Specification:
+    //
+    //   According to the pattern of these things.
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See components
+    //
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
+    auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
+    auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.daf.exception.Invariant
+#import std.any_of
+namespace tunitas::keyston::daf::numeric::zero::package_zero {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
+    auto publick = Public<SHARE>{};
+    auto zero = Input<SHARE>{}; // that's it ... that's the "disassembly" algo for "zero".
+    auto inputs = Shards<Input<SHARE>>{zero, zero};
+    return {move(publick), move(inputs)};
+  }
+  auto interface::computation(Parameters const &a, Shard s, Public<SHARE> const &p, Input<SHARE> const &i) -> Computed {
+    if (0 != i.value) { throw exception::Invariant{"not zero"}; }
+    return Output<SHARE>{i.value}; // copy that zero from input to output
+  }
+  auto interface::amalgamation(Parameters const &a, Series<Output<SHARE>> const &so) -> Amalgamated {
+    if (std::any_of(so.begin(), so.end(), [](auto const &each) { return 0 != each.value; })) { throw exception::Invariant{"not zero"}; }
+    return Amalgamated{};
+  }
+  auto interface::reassembly(Parameters const &a, Shards<Aggregation<SHARE>> const &sa, Count c) -> Reassembled {
+    if (std::any_of(sa.begin(), sa.end(), [](auto const &each) { return 0 != each.value; })) { throw exception::Invariant{"not zero"}; }
+    return Reassembled{};
+  }
+}
+#endiv

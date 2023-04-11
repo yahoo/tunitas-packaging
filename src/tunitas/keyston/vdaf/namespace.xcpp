@@ -5,12 +5,15 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
+#import tunitas.keyston.Scheme
 namespace tunitas::keyston::vdaf {
   //
   // Specification:
   //
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
-  //   Verifiable Distributed Aggregation Functions
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-04.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Section 5. Verifiable Distributed Aggregation Functions
   //
   // Design:
   //
@@ -20,7 +23,7 @@ namespace tunitas::keyston::vdaf {
   //
   //   Yes.
   //
-  enum class Scheme { NUMERIC, PROTOCOL };
   using enum Scheme;
 }
+#import tunitas.keyston.Slice
 #endiv

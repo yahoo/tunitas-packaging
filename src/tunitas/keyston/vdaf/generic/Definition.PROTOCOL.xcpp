@@ -15,14 +15,14 @@ namespace tunitas::keyston::vdaf::generic {
 #divert <cpp>
 #import tunitas.keyston.vdaf.exception.Invalid
 #import tunitas.keyston.vdaf.exception.Unimplemented
-#import tunitas.keyston.protocol.function.zero
-#import tunitas.keyston.protocol.function.constant
-#import tunitas.keyston.protocol.function.prio3
-#import tunitas.keyston.protocol.function.poplar1
+#import tunitas.keyston.vdaf.protocol.zero
+#import tunitas.keyston.vdaf.protocol.constant
+#import tunitas.keyston.vdaf.protocol.prio3
+#import tunitas.keyston.vdaf.protocol.poplar1
 namespace tunitas::keyston::vdaf::generic {
   template<> Definition<vdaf::Configuration<PROTOCOL>>::Definition(Name name) {
     switch (name) {
-      using namespace protocol::function;
+      using namespace protocol;
     case Name::ZERO:
       disassembly = zero::disassembly;
       initialization = zero::initialization;
@@ -39,7 +39,9 @@ namespace tunitas::keyston::vdaf::generic {
       disgorgement = constant::disgorgement;
       reassembly = constant::reassembly;
       break;
-    case Name::PRIO3:
+    case Name::PRIO3_COUNT:
+    case Name::PRIO3_SUM:
+    case Name::PRIO3_HISTOGRAM:
       disassembly = prio3::disassembly;
       initialization = prio3::initialization;
       continuation = prio3::continuation;
@@ -55,11 +57,6 @@ namespace tunitas::keyston::vdaf::generic {
       disgorgement = poplar1::disgorgement;
       reassembly = poplar1::reassembly;
       break;
-    case Name::PRIO3_AES128_COUNT:
-    case Name::PRIO3_AES128_SUM:
-    case Name::PRIO3_AES128_HISTOGRAM:
-    case Name::POPLAR1_AES128:
-      throw exception::Unimplemented{};
     default:
       throw exception::Invalid{"vdaf name"};
     }

@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.shards
+namespace tests::unit::shards { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::shards::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Shard() -> void;
+  auto test_usage_Shards() -> void;
+  auto test_usage_Iota() -> void;
+  auto test_usage_literals() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.shards.Shards
+#import tests.unit.shards.Shard
+auto tests::unit::shards::Fixture::suite() -> Suite {
+  auto series = Stream{"vdaf"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Shards", &Fixture::test_usage_Shards)
+                  << add("Shard", &Fixture::test_usage_Shard)
+                  << add("Iota", &Fixture::test_usage_Iota)
+                  << add("literals", &Fixture::test_usage_literals)
+                  << END;
+              return use;
+            }()
+         << add<Shards>()
+         << add<Shard>()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.shards.Shard
+#import tunitas.keyston.shards.Shards
+#import tunitas.keyston.shards.Iota
+#import tunitas.keyston.shards.literals
+namespace tests::unit::shards {
+  auto Fixture::test_usage_Shards() -> void {
+    using Subject = library::Shards<int>;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    auto observed_count{0uz};
+    for (auto shard: iota(subject0)) {
+      ++observed_count;
+      require(ASSERTION, sizeof (shard));
+    }
+    require(ASSERTION, library::SHARD_COUNT == observed_count);
+  }
+  auto Fixture::test_usage_Shard() -> void {
+    using Subject = library::Shard;
+    auto subject0 = Subject{};
+    ++subject0;
+    auto subject1 = Subject{1};
+    require(ASSERTION, subject0 == subject1);
+    auto subject2 = Subject{2};
+    auto empty = Subject{};
+    swap(empty, subject2);
+    require(ASSERTION, Subject{} == subject2);
+    require(ASSERTION, Subject{} != empty);
+    swap(empty, subject2);
+    require(ASSERTION, Subject{} == empty);
+    require(ASSERTION, Subject{} != subject2);
+  }
+  auto Fixture::test_usage_Iota() -> void {
+    using Subject = library::Iota;
+    unsigned count{};
+    for (auto shard : Subject{}) {
+      ++count;
+      require(ASSERTION, sizeof(shard)); // just use the loop variable.
+    }
+    require(ASSERTION, library::SHARD_COUNT == count);
+  }
+  auto Fixture::test_usage_literals() -> void {
+    using library::Shard;
+    using namespace library::literals;
+    require(ASSERTION, Shard{0} == 0_shard);
+    require(ASSERTION, Shard{1} == 1_shard);
+    require(ASSERTION, Shard{2} == 2_shard); // this is the end sentinel
+  }
+}
+#endiv

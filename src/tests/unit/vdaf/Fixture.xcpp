@@ -7,12 +7,13 @@
 namespace tests::unit::vdaf { class Fixture; }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.Scheme
 struct tests::unit::vdaf::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using enum library::Scheme;
+  using enum ::tunitas::keyston::Scheme;
   //
-  auto test_usage_Shards() -> void;
+  auto test_usage_Name() -> void;
 };
 #endiv
 #divert <cpp>
@@ -22,15 +23,18 @@ struct tests::unit::vdaf::Fixture : public rigging::suite::Fixture {
 #import tests.unit.vdaf.Configuration
 #import tests.unit.vdaf.Definition
 #import tests.unit.vdaf.Executor
-#import tests.unit.vdaf.shards.Fixture
+#import tests.unit.vdaf.Name
+#import tests.unit.vdaf.numeric.Fixture
+#import tests.unit.vdaf.protocol.Fixture
 auto tests::unit::vdaf::Fixture::suite() -> Suite {
   auto series = Stream{"vdaf"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("shards", &Fixture::test_usage_Shards)
+              use << add("Name", &Fixture::test_usage_Name)
                   << END;
               return use;
             }()
+         << add<Name>()
          << []{
               auto cfg = Stream{"Configuration"sv};
               cfg << add<Configuration<library::Configuration<NUMERIC>>>()
@@ -52,23 +56,22 @@ auto tests::unit::vdaf::Fixture::suite() -> Suite {
                   << END;
               return exe;
             }()
-         << add<shards::Fixture>()
+         << add<numeric::Fixture>()
+         << add<protocol::Fixture>()
          << END;
   return settle(series);
 }
-#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.vdaf.Name
 namespace tests::unit::vdaf {
-  auto Fixture::test_usage_Shards() -> void {
-    using Subject = library::Shards<int>;
-    auto subject0 = Subject{};
-    auto subject1 = Subject{};
+  auto Fixture::test_usage_Name() -> void {
+    using Subject = library::Name;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto subject0 = Subject{0};
+    auto subject1 = Subject{1};
     swap(subject0, subject1);
-    auto observed_count{0uz};
-    for (auto shard: iota(subject0)) {
-      ++observed_count;
-      require(ASSERTION, sizeof (shard));
-    }
-    require(ASSERTION, library::shards::SHARD_COUNT == observed_count);
+    // The other testers wil examine the output value; here we just call the core function to prove it exists & is callable
+    render(subject);
   }
 }
 #endiv

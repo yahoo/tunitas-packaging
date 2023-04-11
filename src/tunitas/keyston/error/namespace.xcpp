@@ -6,7 +6,9 @@
 #divert <fpp>
 #import tunitas.keyston.transport
 #import tunitas.string.literals
+#import tunitas.error.by
 namespace tunitas::keyston::error {
+  using namespace tunitas::error; // otherwise error::Optional & error::Outcome & namespace error::by are occluded
   namespace package_error {
     namespace body {
       namespace exported { }
@@ -17,5 +19,18 @@ namespace tunitas::keyston::error {
   using namespace package_error::interface;
   namespace [[nodirectory]] code { }
   namespace [[nodirectory]] condition { }
+}
+#endiv
+#divert <cpp>
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#import tunitas.error.by.Exception
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston;
+    static_assert(sizeof(error::Optional<int>), "still visible");
+    static_assert(sizeof(error::Outcome<int>), "still visible");
+    static_assert(sizeof(error::by::Exception), "still visible");
+  }
 }
 #endiv

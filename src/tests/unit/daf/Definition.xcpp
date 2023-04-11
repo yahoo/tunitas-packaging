@@ -1,0 +1,129 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.Name
+namespace tests::unit::daf {
+  namespace [[eponymous]] definition {
+    template<typename SUBJECT, typename CONFIGURATION> class Definition;
+    using Name = library::Name;
+  }
+  using definition::Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.daf.Definition
+namespace tests::unit::daf {
+  template<typename SUBJECT, typename CONFIGURATION> struct definition::Definition : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    using Configuration = CONFIGURATION;
+    //
+    auto test_constructor_default() -> void;
+    template<Name> auto test_constructor_by_Name() -> void;
+    template<Name> auto test_constructor_by_Definition() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_constructor_move() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    auto test_swap() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::daf::definition {
+  template<typename D, typename C> auto Definition<D,C>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Definition::test_constructor_default)
+                    << []{
+                         auto by = Stream{"by"sv};
+                         by << [] {
+                                 auto name = Stream{"Name"sv};
+                                 name << add("ZERO", &Definition::test_constructor_by_Name<Name::ZERO>)
+                                      << add("CONSTANT", &Definition::test_constructor_by_Name<Name::CONSTANT>)
+                                      << add("COUNT", &Definition::test_constructor_by_Name<Name::COUNT>)
+                                      << add("SUM", &Definition::test_constructor_by_Name<Name::SUM>)
+                                      << add("HISTOGRAM", &Definition::test_constructor_by_Name<Name::HISTOGRAM>)
+                                      << add("POPULARITY", &Definition::test_constructor_by_Name<Name::POPULARITY>)
+                                      << END;
+                                 return name;
+                               }()
+                            << [] {
+                                 auto def = Stream{"Definition"sv};
+                                 def << add("ZERO", &Definition::test_constructor_by_Definition<Name::ZERO>)
+                                     << add("CONSTANT", &Definition::test_constructor_by_Definition<Name::CONSTANT>)
+                                     << add("COUNT", &Definition::test_constructor_by_Definition<Name::COUNT>)
+                                     << add("SUM", &Definition::test_constructor_by_Definition<Name::SUM>)
+                                     << add("HISTOGRAM", &Definition::test_constructor_by_Definition<Name::HISTOGRAM>)
+                                     << add("POPULARITY", &Definition::test_constructor_by_Definition<Name::POPULARITY>)
+                                     << END;
+                                 return def;
+                               }()
+                            << END;
+                         return by;
+                       }()
+                    << add("copy", &Definition::test_constructor_copy)
+                    << add("move", &Definition::test_constructor_move)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assignment"sv};
+                ass << add("copy", &Definition::test_assignment_copy)
+                    << add("move", &Definition::test_assignment_move)
+                    << END;
+                return ass;
+              }()
+           << add("swap", &Definition::test_swap)
+           << END;
+    return settle(series);
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename S> template<Name NAME> auto Definition<D,S>::test_constructor_by_Name() -> void {
+    auto subject = Subject{NAME}; // <-------------------- test this (the constructor)
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename S> template<Name NAME> auto Definition<D,S>::test_constructor_by_Definition() -> void {
+    auto definition = Subject{NAME};
+    auto subject = Subject{definition}; // <-------------------- test this (the constructor)
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_constructor_copy() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{specimen}; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_constructor_move() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_assignment_copy() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_assignment_move() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_swap() -> void {
+    auto a = Subject{Subject::ZERO};
+    auto b = Subject{Subject::CONSTANT};
+    swap(a, b); // <-------------------- test this
+    require(ASSERTION, sizeof (a));
+    require(ASSERTION, sizeof (b));
+  }
+}
+#endiv

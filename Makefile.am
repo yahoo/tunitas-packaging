@@ -108,10 +108,7 @@ include noinst/lib/libstd+tunitas-keyston.am
 include noinst/lib/libnonstd+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
-INSTALL_MODULES = $(error FIXTHIS) \
-  $(noinst_lib_libtunitas_keyston_la_MODULES) \
-  $(noinst_lib_libwant_la_MODULES) \
-  $(end)
+include modules/Makefrag.am # this MUST be after the relevant nonstd_lib_lib${something}_la_MODULES_ variables are defined
 
 # --- Mostly boilerplate beyond here
 #

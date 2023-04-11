@@ -1,0 +1,86 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::vdaf::numeric { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Slice
+struct tests::unit::vdaf::numeric::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using enum ::tunitas::keyston::Slice;
+  //
+  auto test_usage_Measurement() -> void;
+  auto test_usage_Input() -> void;
+  auto test_usage_Public() -> void;
+  auto test_usage_Output() -> void;
+  auto test_usage_Aggregation() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.vdaf.numeric.zero.Fixture
+#import tests.unit.vdaf.numeric.constant.Fixture
+#import tests.unit.vdaf.numeric.prio3.Fixture
+#import tests.unit.vdaf.numeric.poplar1.Fixture
+auto tests::unit::vdaf::numeric::Fixture::suite() -> Suite {
+  auto series = Stream{"numeric"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Measurement", &Fixture::test_usage_Measurement)
+                  << add("Input", &Fixture::test_usage_Input)
+                  << add("Public", &Fixture::test_usage_Public)
+                  << add("Output", &Fixture::test_usage_Output)
+                  << add("Aggregation", &Fixture::test_usage_Aggregation)
+                  << END;
+              return use;
+            }()
+         << add<zero::Fixture>()
+         << add<constant::Fixture>()
+         << add<prio3::Fixture>()
+         << add<poplar1::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.vdaf.numeric.Measurement
+#import tunitas.keyston.vdaf.numeric.Input
+#import tunitas.keyston.vdaf.numeric.Public
+#import tunitas.keyston.vdaf.numeric.Output
+#import tunitas.keyston.vdaf.numeric.Aggregation
+namespace tests::unit::vdaf::numeric {
+  auto Fixture::test_usage_Measurement() -> void {
+    auto whole = library::Measurement<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+#if 0 // this one is never materialized
+    auto share = library::Measurement<SHARE>{};
+    require(ASSERTION, sizeof(share));
+#endif
+  }
+  auto Fixture::test_usage_Input() -> void {
+    auto whole = library::Input<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Input<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Public() -> void {
+    auto whole = library::Public<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Public<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Output() -> void {
+    auto whole = library::Output<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Output<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Aggregation() -> void {
+    auto whole = library::Aggregation<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Aggregation<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+}
+#endiv

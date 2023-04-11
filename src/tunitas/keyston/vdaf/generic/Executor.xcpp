@@ -47,11 +47,11 @@ namespace tunitas::keyston::vdaf::generic {
 #endiv
 #divert <hpp>
 #import tunitas.Optional
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
 #import tunitas.keyston.measurement.Count
 #import tunitas.keyston.vdaf.generic.Definition
 #import tunitas.keyston.vdaf.generic.usage.Configuration
-#import tunitas.keyston.vdaf.Shard
-#import tunitas.keyston.vdaf.Shards
 namespace tunitas::keyston::vdaf {
   namespace generic {
     using std::move;

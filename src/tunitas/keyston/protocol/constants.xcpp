@@ -9,7 +9,7 @@ namespace tunitas::keyston::protocol {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.vdaf.shards.Shard // for SHARD_COUNT
+#import tunitas.keyston.shards.Shard // for SHARD_COUNT
 namespace tunitas::keyston::protocol::constants {
   //
   // The number of processors, the numer of shares, the alrogirhmic complexity of the protocol.
@@ -48,6 +48,6 @@ namespace tunitas::keyston::protocol::constants {
   //  Figure 1: System Architecture
   //  [[OPEN ISSUE: This shows two helpers, but the document only allows one for now. https://github.com/ietf-wg-ppm/draft-ietf-ppm-dap/issues/117]]
   //
-  [[deprecated("AVOID; instead prefer tunitas::keyston::vdaf::SHARD_COUNT")]] inline constexpr auto const PROCESSOR_COUNT = vdaf::shards::SHARD_COUNT;
+  [[deprecated("AVOID; instead prefer tunitas::keyston::vdaf::SHARD_COUNT")]] inline constexpr auto const PROCESSOR_COUNT = shards::SHARD_COUNT;
 }
 #endiv

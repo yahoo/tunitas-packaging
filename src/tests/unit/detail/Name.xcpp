@@ -1,0 +1,159 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.Enumeration
+#import tests.required // ctcnr (cascade that certain 'namespace required')
+namespace tests::unit::detail {
+  //
+  // The common parts of the test rigging for
+  //   af::Name,
+  //   daf::Name,
+  //   vdaf::Name,
+  //   vidaf::Name.
+  //
+  // Specification:
+  //
+  //   You know, the fixture idiom (um, I mean "pattern").
+  //
+  // Obligations:
+  //
+  //   The descendant MUST provide test functions mentioned in the stanza
+  //     test_to_string_good<...>()
+  //     test_to_string_fail<...>()
+  //     test_to_string_view_good<...>()
+  //     test_to_string_view_fail<...>()
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  //   Uses the CRTP, as one does.
+  //
+  // Usage:
+  //
+  //   By inheritance into
+  //      unit::af::Name
+  //      unit::daf::Name
+  //      unit::vdaf::Name
+  //      unit::vidaf::Name
+  //
+  //   struct test::unit::af::Name    : public detail::Name<library::Name, unit::af::Name>    { ...more... };
+  //   struct test::unit::daf::Name   : public detail::Name<library::Name, unit::daf::Name>   { ...more... };
+  //   struct test::unit::vdaf::Name  : public detail::Name<library::Name, unit::vdaf::Name>  { ...more... };
+  //   struct test::unit::vidaf::Name : public detail::Name<library::Name, unit::vidaf::Name> { ...more... };
+  //
+  // This being a test rig, go see how it's done.  We'll wait.
+  //
+  template<required::Enumeration ENUM, typename FIXTURE> struct Name;
+}
+#endiv
+#divert <hpp>
+#import tunitas.error.by.required.Indicator
+namespace tests::unit {
+  template<detail::required::Enumeration SUBJECT, typename FIXTURE> struct detail::Name : public rigging::suite::Fixture {
+  protected:
+    static auto subsuite(string::View name) -> Suite;
+    static auto stanza(string::View name) -> Stream;
+  public:
+    static auto suite() -> Suite { return subsuite("Name"sv); }
+    using Subject = SUBJECT;
+    //
+    auto test_constructor() -> void;
+    auto test_underlying() -> void;
+    auto test_swap() -> void;
+#if 0
+    // reminder: only the descendant can supply these definitions; and they MUST be supplied
+    template<required::Indicator> auto test_to_string_good() -> void;
+    template<required::Indicator> auto test_to_string_fail() -> void;
+    template<required::Indicator> auto test_to_string_view_good() -> void;
+    template<required::Indicator> auto test_to_string_view_fail() -> void;
+#endif
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::detail {
+  template<required::Enumeration _, typename FIXTURE> auto Name<_,FIXTURE>::subsuite(string::View name) -> Suite {
+    auto series = stanza(name);
+    return settle(series);
+  }
+  template<required::Enumeration _, typename FIXTURE> auto Name<_,FIXTURE>::stanza(string::View name) -> Stream {
+    auto series = Stream{name};
+    series << add("constructor", &FIXTURE::test_constructor)
+           << add("underlying", &FIXTURE::test_underlying)
+           << add("swap", &FIXTURE::test_swap)
+           << []{
+             auto tos = Stream{"to_string"sv};
+             tos << []{
+                     auto opt = Stream{"Optional"sv};
+                     opt << add("good", &FIXTURE::template test_to_string_good<by::Optional>)
+                         << add("fail", &FIXTURE::template test_to_string_fail<by::Optional>)
+                         << END;
+                     return opt;
+                   }()
+                 << []{
+                   auto out = Stream{"Outcome"sv};
+                   out << add("good", &FIXTURE::template test_to_string_good<by::Outcome>)
+                       << add("fail", &FIXTURE::template test_to_string_fail<by::Outcome>)
+                       << END;
+                   return out;
+                 }()
+                 << []{
+                   auto exc = Stream{"Exception"sv};
+                   exc << add("good", &FIXTURE::template test_to_string_good<by::Exception>)
+                       << add("fail", &FIXTURE::template test_to_string_fail<by::Exception>)
+                       << END;
+                   return exc;
+                 }()
+                 << END;
+             return tos;
+           }()
+           << []{
+             auto tov = Stream{"to_string_view"sv};
+             tov << []{
+                      auto opt = Stream{"Optional"sv};
+                      opt << add("good", &FIXTURE::template test_to_string_view_good<by::Optional>)
+                          << add("fail", &FIXTURE::template test_to_string_view_fail<by::Optional>)
+                          << END;
+                      return opt;
+                    }()
+                 << []{
+                   auto out = Stream{"Outcome"sv};
+                   out << add("good", &FIXTURE::template test_to_string_view_good<by::Outcome>)
+                       << add("fail", &FIXTURE::template test_to_string_view_fail<by::Outcome>)
+                       << END;
+                   return out;
+                 }()
+                 << []{
+                   auto exc = Stream{"Exception"sv};
+                   exc << add("good", &FIXTURE::template test_to_string_view_good<by::Exception>)
+                       << add("fail", &FIXTURE::template test_to_string_view_fail<by::Exception>)
+                       << END;
+                   return exc;
+                 }()
+                 << END;
+             return tov;
+           }()
+           << END;
+    return series;
+  }
+  template<required::Enumeration E, typename F> auto Name<E,F>::test_constructor() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<required::Enumeration E, typename F> auto Name<E,F>::test_underlying() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, 0u == underlying(subject));
+  }
+  template<required::Enumeration E, typename F> auto Name<E,F>::test_swap() -> void {
+    auto subject1 = Subject{1};
+    auto subject2 = Subject{2};
+    swap(subject1, subject2);
+    require(ASSERTION, 2u == underlying(subject1));
+    require(ASSERTION, 1u == underlying(subject2));
+  }
+}
+#endiv

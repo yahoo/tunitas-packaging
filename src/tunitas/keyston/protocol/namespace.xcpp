@@ -5,6 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
+#import tunitas.keyston.Slice
 #import tunitas.keyston.hpke.Side
 namespace tunitas::keyston::protocol {
   //

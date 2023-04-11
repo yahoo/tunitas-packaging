@@ -45,7 +45,7 @@ namespace fmt {
     // {} only
     //
     if (auto end=ctx.end(); end != ctx.begin()) {
-      throw fmt::format_error{"only the trivial fornat {} is supported"};
+      throw fmt::format_error{"only the trivial format {} is supported"};
     } else {
       return end;
     }

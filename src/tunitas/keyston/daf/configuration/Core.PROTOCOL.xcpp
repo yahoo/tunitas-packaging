@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.configuration.Core.template
+namespace tunitas::keyston::daf::configuration {
+  template<> struct Core<PROTOCOL>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Opaque
+#import tunitas.keyston.daf.constants
+#import tunitas.keyston.daf.protocol.Parameters
+#import tunitas.keyston.daf.protocol.Measurement
+#import tunitas.keyston.daf.protocol.Public
+#import tunitas.keyston.daf.protocol.Input
+#import tunitas.keyston.daf.protocol.Output
+#import tunitas.keyston.daf.protocol.Aggregation
+namespace tunitas::keyston::daf::configuration {
+  template<> struct Core<PROTOCOL> {
+    using Parameters = protocol::Parameters;
+    using Randomness = array::Fixed<Octet, constants::RANDOMNESS_BYTE_COUNT.count()>;
+    template<Slice SLICE> using Measurement = protocol::Measurement<SLICE>;
+    template<Slice SLICE> using Public = protocol::Public<SLICE>;
+    template<Slice SLICE> using Input = protocol::Input<SLICE>;
+    template<Slice SLICE> using Output = protocol::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = protocol::Aggregation<SLICE>;
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.daf.generic.configuration.usage.Core
+namespace {
+  namespace testate {
+    using enum tunitas::keyston::Scheme;
+    namespace usage = tunitas::keyston::daf::generic::configuration::usage;
+    using namespace tunitas::keyston::daf::configuration;
+    static_assert(usage::Core<Core<PROTOCOL>>);
+  }
+}
+#endiv

@@ -33,7 +33,7 @@ namespace tunitas::keyston::protocol::report::whole {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.Shards
 #import tunitas.keyston.protocol.id // for id::Task
 #import tunitas.keyston.protocol.report.Basis
 namespace tunitas::keyston::protocol::report {
@@ -46,7 +46,7 @@ namespace tunitas::keyston::protocol::report {
     friend auto swap(Produced &, Produced &) noexcept -> void;
   public:
     id::Task task_id{};
-    using Encrypted_Input_Shares = vdaf::Shards<hpke::Ciphertext>;
+    using Encrypted_Input_Shares = Shards<hpke::Ciphertext>;
     Encrypted_Input_Shares encrypted_input_shares{};
     //
     Produced() = default;

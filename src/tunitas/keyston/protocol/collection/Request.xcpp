@@ -27,8 +27,8 @@ namespace tunitas::keyston::protocol::collection {
 #divert <hpp>
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.function.Parameters
 #import tunitas.keyston.protocol.query.Query
+#import tunitas.keyston.vdaf.protocol.Parameters
 namespace tunitas::keyston::protocol {
   namespace collection {
     using std::move;
@@ -37,7 +37,7 @@ namespace tunitas::keyston::protocol {
   struct collection::Request {
     id::Task task_id{};
     protocol::query::Query query{};
-    function::Parameters aggregation_parameters{};
+    vdaf::protocol::Parameters aggregation_parameters{};
   };
 }
 #endiv

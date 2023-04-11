@@ -5,6 +5,9 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.vdaf
-#import tunitas.keyston.exception
-namespace tunitas::keyston::vdaf::exception { using namespace tunitas::keyston::exception; }
+#import tunitas.keyston.af.exception
+namespace tunitas::keyston::vdaf::exception {
+  using namespace tunitas::keyston::af::exception;
+  namespace [[nodirectory]] complete { using namespace tunitas::exception::complete; }
+}
 #endiv

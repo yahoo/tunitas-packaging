@@ -26,16 +26,15 @@ namespace tunitas::keyston::protocol::task {
 }
 #endiv
 #divert <hpp>
+#import tunitas.Optional
 #import tunitas.keyston.array.Bounded
-#import tunitas.keyston.protocol.function.Definition
 #import tunitas.keyston.identifier.Service
 #import tunitas.keyston.quantity.Count
 #import tunitas.keyston.protocol.query.Query
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.function.Executor
 #import tunitas.keyston.time.Clock
 #import tunitas.keyston.time.Point
-#import tunitas.Optional
+#import tunitas.keyston.vdaf.protocol.Executor
 namespace tunitas::keyston::protocol {
   namespace task {
     using std::move;
@@ -50,7 +49,7 @@ namespace tunitas::keyston::protocol {
       Optional<time::Point> then{time::Clock::now()};
     };
     Optional<Expiration> expiration{};
-    protocol::function::Executor function{};
+    vdaf::protocol::Executor function{};
   };
 }
 #endiv

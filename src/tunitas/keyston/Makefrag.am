@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -7,9 +7,13 @@
 tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/namespace.cpp \
   obj/src/tunitas/keyston/literals.cpp \
+  obj/src/tunitas/keyston/Function.cpp \
   obj/src/tunitas/keyston/Opaque.cpp \
+  obj/src/tunitas/keyston/Scheme.cpp \
+  obj/src/tunitas/keyston/Slice.cpp \
   obj/src/tunitas/keyston/Version.cpp \
   $(tunitas_keyston_array_SUBSOURCES) \
+  $(tunitas_keyston_detail_SUBSOURCES) \
   $(tunitas_keyston_entropy_SUBSOURCES) \
   $(tunitas_keyston_error_SUBSOURCES) \
   $(tunitas_keyston_exception_SUBSOURCES) \
@@ -17,16 +21,21 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_identifier_SUBSOURCES) \
   $(tunitas_keyston_measurement_SUBSOURCES) \
   $(tunitas_keyston_nonce_SUBSOURCES) \
+  $(tunitas_keyston_numeric_SUBSOURCES) \
   $(tunitas_keyston_protocol_SUBSOURCES) \
   $(tunitas_keyston_quantity_SUBSOURCES) \
   $(tunitas_keyston_required_SUBSOURCES) \
+  $(tunitas_keyston_shards_SUBSOURCES) \
   $(tunitas_keyston_time_SUBSOURCES) \
   $(tunitas_keyston_transport_SUBSOURCES) \
+  $(tunitas_keyston_af_SUBSOURCES) \
+  $(tunitas_keyston_daf_SUBSOURCES) \
   $(tunitas_keyston_vdaf_SUBSOURCES) \
   $(tunitas_keyston_wire_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/array/Makefrag.am
+include src/tunitas/keyston/detail/Makefrag.am
 include src/tunitas/keyston/entropy/Makefrag.am
 include src/tunitas/keyston/error/Makefrag.am
 include src/tunitas/keyston/exception/Makefrag.am
@@ -34,10 +43,14 @@ include src/tunitas/keyston/hpke/Makefrag.am
 include src/tunitas/keyston/identifier/Makefrag.am
 include src/tunitas/keyston/measurement/Makefrag.am
 include src/tunitas/keyston/nonce/Makefrag.am
+include src/tunitas/keyston/numeric/Makefrag.am
 include src/tunitas/keyston/protocol/Makefrag.am
 include src/tunitas/keyston/quantity/Makefrag.am
 include src/tunitas/keyston/required/Makefrag.am
+include src/tunitas/keyston/shards/Makefrag.am
 include src/tunitas/keyston/time/Makefrag.am
 include src/tunitas/keyston/transport/Makefrag.am
 include src/tunitas/keyston/vdaf/Makefrag.am
+include src/tunitas/keyston/af/Makefrag.am
+include src/tunitas/keyston/daf/Makefrag.am
 include src/tunitas/keyston/wire/Makefrag.am

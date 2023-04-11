@@ -1,0 +1,109 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.af.required.Configuration
+namespace tunitas::keyston::af {
+  //
+  // The executor for a ([Centralized] Aggregation) Function
+  //
+  // Design:
+  //
+  //   All this template machinery has the effect of making af::Executor<NUMERIC> look and feel rhyming-similar to daf, vdaf and vidaf executors.
+  //   It's done for cosmetic purposes; to keep the intellectual burden of remembering four (4 algorithms \times 2 encodings) different schemes.
+  //
+  //   Executors don't carry state so the member calls are constie.
+  //   Be able to copy around the whole interface cluster of afs.
+  //   We could use inheritance, but the derived classes are all "different."
+  //
+  // Usage:
+  //
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<NUMERIC>{};
+  //   auto executor = Executor<NUMERIC>{Name::ZERO};
+  //   auto executor = Executor<NUMERIC>{Name::CONSTANT};
+  //   auto executor = Executor<NUMERIC>{Name::COUNT};
+  //   auto executor = Executor<NUMERIC>{Name::SUM};
+  //   auto executor = Executor<NUMERIC>{Name::HISTOGRAM};
+  //   auto executor = Executor<NUMERIC>{Name::POPULARITY};
+  //
+  //   auto computed = executor.computation(...arguments...);
+  //   auto finalized = executor.finalization(...arguments...);
+  //
+  namespace [[eponymous]] executor {
+    template<required::Configuration> struct Executor;
+  }
+  template<Scheme> struct Executor;
+  template<> struct Executor<NUMERIC>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.af.Definition
+#import tunitas.keyston.af.usage.Configuration
+namespace tunitas::keyston::af {
+  using std::move;
+  inline auto swap(Executor<NUMERIC> &, Executor<NUMERIC> &) noexcept -> void;
+  namespace executor {
+    using std::move;
+    template<required::Configuration CONFIGURATION> inline auto swap(Executor<CONFIGURATION> &, Executor<CONFIGURATION> &) noexcept -> void;
+  }
+  template<required::Configuration CONFIGURATION> class executor::Executor : protected definition::Definition<CONFIGURATION> {
+    using Ancestor = definition::Definition<CONFIGURATION>;
+    friend auto executor::swap<>(Executor &, Executor &) noexcept -> void;
+    static_assert(usage::Configuration<CONFIGURATION>);
+  public:
+    using Name = af::Name;
+    // CANNOT ---> using enum Name; <--- CANNOT (because it is an opqaue enumerator, without en enuerator list)
+    //
+    explicit Executor() = default;
+    using Ancestor::Definition;
+    inline explicit Executor(Ancestor);
+    //
+    inline auto computation(typename Ancestor::Parameters const &, typename Ancestor::Intermediate, typename Ancestor::Measurement const &) const -> typename Ancestor::Computed;
+    inline auto finalization(typename Ancestor::Parameters const &, typename Ancestor::Intermediate const &) const -> typename Ancestor::Finalized;
+  };
+  template<> class Executor<NUMERIC> : public executor::Executor<Configuration<NUMERIC>> {
+    using Ancestor = executor::Executor<Configuration<NUMERIC>>;
+    friend auto af::swap(Executor<NUMERIC> &, Executor<NUMERIC> &) noexcept -> void;
+  public:
+    explicit Executor() = default;
+    using Ancestor::Executor;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.af.exception.Null
+namespace tunitas::keyston {
+  auto af::swap(Executor<NUMERIC> &a, Executor<NUMERIC> &b) noexcept -> void {
+    Executor<NUMERIC>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace af {
+    template<required::Configuration CONFIGURATION> auto executor::swap(Executor<CONFIGURATION> &a, Executor<CONFIGURATION> &b) noexcept -> void {
+      typename Executor<CONFIGURATION>::Ancestor &aa{a}, &bb{b};
+      swap(aa, bb);
+    }
+    namespace executor {
+      template<required::Configuration _> Executor<_>::Executor(Ancestor d) : Ancestor{d} { }
+      template<required::Configuration _> auto Executor<_>::computation(typename Ancestor::Parameters const &p, typename Ancestor::Intermediate i, typename Ancestor::Measurement const &m) const -> typename Ancestor::Computed {
+        if (nullptr == Ancestor::computation) {
+          throw exception::Null{};
+        } else {
+          return Ancestor::computation(p, move(i), m);
+        }
+      }
+      template<required::Configuration _> auto Executor<_>::finalization(typename Ancestor::Parameters const &p, typename Ancestor::Intermediate const &i) const -> typename Ancestor::Finalized {
+        if (nullptr == Ancestor::computation) {
+          throw exception::Null{};
+        } else {
+          return Ancestor::finalization(p, i);
+        }
+      }
+    }
+  }
+}
+#endiv

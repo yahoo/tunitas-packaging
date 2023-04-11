@@ -16,7 +16,7 @@ noinst_lib_libtunitas_keyston_la_LIBADD = \
   noinst/lib/libstd+tunitas-keyston.la \
   noinst/lib/libnonstd+tunitas-keyston.la \
   noinst/lib/libwant.la \
-  -ltunitas-application -lnonstd++ -lfmt \
+  -ltunitas-number -ltunitas-application -lnonstd++ -lfmt \
   $(end)
 noinst_lib_libtunitas_keyston_la_MODULES = $(call TF_SOURCEStoMODULES, $(noinst_lib_libtunitas_keyston_la_SOURCES))
 noinst_lib_libtunitas_keyston_la_SOURCES = $(tunitas_keyston_SUBSOURCES)

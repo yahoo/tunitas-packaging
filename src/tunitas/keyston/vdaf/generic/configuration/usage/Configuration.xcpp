@@ -9,7 +9,7 @@
 namespace tunitas::keyston::vdaf::generic::configuration::usage {
   //
   // Is this CONFIGURATION sufficient?
-  // Requires the complete type of CONIGURATION
+  // Requires the complete type of CONFIGURATION
   //
   template<typename CONFIGURATION> concept Configuration = required::Configuration<CONFIGURATION> && requires(CONFIGURATION) {
     // DO NOT ---> requires Core<CONFIGURATION>; <--- DO NOT (it creates a cycle)

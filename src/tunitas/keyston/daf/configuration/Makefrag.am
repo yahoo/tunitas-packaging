@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_daf_configuration_SUBSOURCES = \
+  obj/src/tunitas/keyston/daf/Configuration.cpp \
+  obj/src/tunitas/keyston/daf/configuration/namespace.cpp \
+  obj/src/tunitas/keyston/daf/configuration/Configuration.cpp \
+  obj/src/tunitas/keyston/daf/configuration/Core.template.cpp \
+  obj/src/tunitas/keyston/daf/configuration/Core.NUMERIC.cpp \
+  obj/src/tunitas/keyston/daf/configuration/Core.PROTOCOL.cpp \
+  obj/src/tunitas/keyston/daf/configuration/Core.cpp \
+  $(end)

@@ -48,7 +48,7 @@ namespace tunitas::keyston::vdaf::numeric::prio3::package_prio3 {
     //
     //   See Definition.
     //
-    auto disassembly(Measurement<WHOLE>const &) -> Disassembled;
+    auto disassembly(Measurement<WHOLE> const &) -> Disassembled;
     auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;

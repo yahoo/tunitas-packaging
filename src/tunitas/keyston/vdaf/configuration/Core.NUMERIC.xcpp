@@ -38,7 +38,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.vdaf.generic.configuration.usage.Core
 namespace {
   namespace testate {
-    using enum tunitas::keyston::vdaf::Scheme;
+    using enum tunitas::keyston::Scheme;
     namespace usage = tunitas::keyston::vdaf::generic::configuration::usage;
     using namespace tunitas::keyston::vdaf::configuration;
     static_assert(usage::Core<Core<NUMERIC>>);

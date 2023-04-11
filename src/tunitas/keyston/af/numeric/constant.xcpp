@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::af::numeric::constant {
+  namespace package_constant {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_constant::interface;
+}
+#import tunitas.keyston.af.numeric.components
+namespace tunitas::keyston::af::numeric::constant::package_constant {
+  using namespace numeric::components;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::af::numeric::constant::package_constant::body {
+  namespace exported {
+    //
+    // the interface to the constant AF
+    //
+    // Specification:
+    //
+    //   According to the pattern of these things.
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See Definition.
+    //
+    auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
+    auto finalization(Parameters const &, Intermediate const &) -> Finalized;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.numeric.ensmallen
+namespace tunitas::keyston::af::numeric::constant::package_constant {
+  auto interface::computation(Parameters const &, Intermediate i, Measurement const &) -> Computed {
+    return move(i);
+  }
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return {ensmallen(i.value)}; }
+}
+#endiv

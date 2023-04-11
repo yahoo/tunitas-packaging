@@ -24,13 +24,10 @@ namespace tunitas::keyston::vdaf::exception {
 }
 #endiv
 #divert <hpp>
-#import tunitas.exception.complete.Basic
 #import tunitas.exception.partial.Invariant
-#import tunitas.exception.Aspect
-#import tunitas.keyston.exception.Aspect
-#import tunitas.keyston.vdaf.exception.Aspect
-class tunitas::keyston::vdaf::exception::Invariant final : public complete::Basic<partial::Invariant, vdaf::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect> {
-  using Ancestor = complete::Basic<partial::Invariant, vdaf::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect>;
+#import tunitas.keyston.vdaf.exception.complete.Ancestor
+class tunitas::keyston::vdaf::exception::Invariant final : public complete::Ancestor<partial::Invariant> {
+  using Ancestor = complete::Ancestor<partial::Invariant>;
 public:
   using Ancestor::Basic;
 };

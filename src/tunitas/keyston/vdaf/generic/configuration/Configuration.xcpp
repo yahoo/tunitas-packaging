@@ -40,10 +40,10 @@ namespace tunitas::keyston::vdaf::generic::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.Optional
-#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
 #import tunitas.keyston.vdaf.generic.Continued
 #import tunitas.keyston.vdaf.generic.Disassembled
-#import tunitas.keyston.vdaf.Shards
 #import tunitas.keyston.measurement.Count
 #import tunitas.keyston.vdaf.generic.configuration.usage.Core
 namespace tunitas::keyston::vdaf::generic {

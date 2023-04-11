@@ -1,0 +1,80 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::numeric::constant {
+  namespace package_constant {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_constant::interface;
+}
+#import tunitas.keyston.daf.numeric.components
+namespace tunitas::keyston::daf::numeric::constant::package_constant {
+  using namespace numeric::components;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::daf::numeric::constant::package_constant::body {
+  namespace exported {
+    //
+    // the interface to the constant DAF
+    //
+    // Specification:
+    //
+    //   According to the pattern of these things.
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See Definition.
+    //
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
+    auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
+    auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.exception.Invariant
+#import tunitas.keyston.numeric.ensmallen
+#import std.any_of
+namespace tunitas::keyston::daf::numeric::constant::package_constant {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
+    auto publick = Public<SHARE>{};
+    auto biggie = Input<SHARE>{(int signed long long) underlying(m.value)}; // ... the constant goes here [[FIXTHIS]] with specimen being unsigned and bignums being signed.
+    auto little = Input<SHARE>{}; // ............................................. zero goes here, that's the algo, that's the tweet.
+    auto inputs = Shards<Input<SHARE>>{biggie, little};
+    return {move(publick), move(inputs)};
+  }
+  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &i) -> Computed {
+    return Output<SHARE>{i.value}; // copy that zero from input to output
+  }
+  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &so) -> Amalgamated {
+    if (so.empty()) {
+      return {};
+    } else {
+      auto representative = *so.begin();
+      auto mismatched = [&representative](auto const &each) { return representative.value != each.value; };
+      if (std::any_of(so.begin(), so.end(), mismatched)) { throw exception::Invariant{"mismatched series"}; }
+      return Amalgamated{move(representative.value)};
+    }
+  }
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &sa, Count) -> Reassembled {
+    auto b = sa.begin();
+    auto const e = sa.end();
+    auto payload = ensmallen(b->value);
+    while (++b != e) {
+      if (0 != b->value) { throw exception::Invariant{"not zero"}; }
+    }
+    return {payload};
+  }
+}
+#endiv

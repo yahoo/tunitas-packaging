@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::af::numeric::sum {
+  namespace package_sum {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_sum::interface;
+}
+#import tunitas.keyston.af.numeric.components
+#import tunitas.keyston.measurement.Specimen
+#import std.make_signed
+#import std.underlying_type
+namespace tunitas::keyston::af::numeric::sum::package_sum {
+  using namespace numeric::components;
+  namespace body {
+    // Because the bignum system only admits signed quantities (and the Specimen is unsigned)
+    using Signed = std::make_signed_t<std::underlying_type_t<measurement::Specimen>>;
+  }
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::af::numeric::sum::package_sum::body {
+  namespace exported {
+    //
+    // the interface to the sum AF
+    //
+    // Specification:
+    //
+    //   According to the pattern of these things.
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See Definition.
+    //
+    auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
+    auto finalization(Parameters const &, Intermediate const &) -> Finalized;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.numeric.ensmallen
+namespace tunitas::keyston::af::numeric::sum::package_sum {
+  auto interface::computation(Parameters const &, Intermediate i, Measurement const &m) -> Computed {
+    i.value += /*[[FIXTHIS]]*/ (Signed) underlying(m.value);
+    return move(i);
+  }
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return {ensmallen(i.value)}; }
+}
+#endiv

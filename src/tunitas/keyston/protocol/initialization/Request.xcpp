@@ -26,10 +26,10 @@ namespace tunitas::keyston::protocol::initialization {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.protocol.function.Parameters
 #import tunitas.keyston.protocol.query.Partial
 #import tunitas.keyston.protocol.report.Produced
 #import tunitas.keyston.array.Bounded
+#import tunitas.keyston.vdaf.protocol.Parameters
 namespace tunitas::keyston::protocol {
   namespace initialization {
     using std::move;
@@ -41,7 +41,7 @@ namespace tunitas::keyston::protocol {
     //
     id::Task task_id{};
     id::Job job_id{};
-    function::Parameters aggregation_parameters{};
+    vdaf::protocol::Parameters aggregation_parameters{};
     Query query{}; // was: partial_batch_selector
     Report_Shares report_shares{};
   };

@@ -6,6 +6,8 @@
 #
 tests_SUBSOURCES = \
   check/obj/src/tests/namespace.cpp \
+  check/obj/src/tests/recase.cpp \
+  check/obj/src/tests/required.cpp \
   $(tests_fixture_SUBSOURCES) \
   $(end)
 #

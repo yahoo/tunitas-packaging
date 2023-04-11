@@ -1,0 +1,106 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::numeric::sum {
+  namespace package_sum {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_sum::interface;
+}
+#import tunitas.keyston.daf.numeric.components
+#import tunitas.keyston.measurement.Result
+namespace tunitas::keyston::daf::numeric::sum::package_sum {
+  using namespace numeric::components;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+#import tunitas.number.Integer
+#import tunitas.keyston.daf.numeric.Aggregation
+#import tunitas.keyston.daf.numeric.Output
+namespace tunitas::keyston::daf::numeric::sum::package_sum::body {
+  namespace exported {
+    //
+    // the interface to the sum DAF
+    //
+    // Specification:
+    //
+    //   According to the pattern of these things.
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See Definition.
+    //
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
+    auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
+    auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
+  }
+  // don't use overloading here, it just creates unresolved ambiguitites later in the accumulate steps
+  inline auto accumulate_vertical(number::Integer &&, Output<SHARE> const &) -> number::Integer;
+  inline auto accumulate_horizontal(number::Integer &&, Aggregation<SHARE> const &) -> number::Integer;
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::daf::numeric::sum::package_sum {
+  auto body::accumulate_vertical(number::Integer &&acc, Output<SHARE> const &each) -> number::Integer {
+    acc += each.value;
+    return move(acc);
+  }
+  auto body::accumulate_horizontal(number::Integer &&acc, Aggregation<SHARE> const &each) -> number::Integer {
+    acc += each.value;
+    return move(acc);
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.daf.numeric.Input
+#import tunitas.keyston.daf.numeric.Public
+#import tunitas.keyston.numeric.ensmallen
+#import std.accumulate
+namespace tunitas::keyston::daf::numeric::sum::package_sum {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
+    auto publick = Public<SHARE>{};
+    auto lifted = number::Integer{(/*FIXTHIS*/ int long long signed) underlying(m.value)};
+#if 1
+    // Preferred.
+    auto first = Input<SHARE>{lifted / 2};
+    auto second = Input<SHARE>{lifted - lifted/2};
+#elif 0
+    // Correct.
+    auto half = number::Integer{lifted / 2};
+    auto first = Input<SHARE>{lifted - half};
+    auto second = Input<SHARE>{move(half)};
+#else
+    // WATCHOUT - this fails to get the correct answer.
+    auto half = lifted / 2;
+    auto first = Input<SHARE>{lifted - half};
+    auto second = Input<SHARE>{move(half)};
+#endif
+    auto inputs = Shards<Input<SHARE>>{move(first), move(second)};
+    return {move(publick), move(inputs)};
+  }
+  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &i) -> Computed {
+    // yup, this does nothing but shuffle the values around.
+    auto output = Output<SHARE>{i.value};
+    return {move(output)};
+  }
+  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &so) -> Amalgamated {
+    auto big = std::accumulate(so.begin(), so.end(), number::Integer{}, accumulate_vertical);
+    return Amalgamated{move(big)};
+  }
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &sa, Count) -> Reassembled {
+    auto big = std::accumulate(sa.begin(), sa.end(), number::Integer{}, accumulate_horizontal);
+    auto small = ensmallen(big);
+    return Reassembled{small};
+  }
+}
+#endiv

@@ -35,3 +35,11 @@ namespace tunitas::keyston::measurement {
   inline auto swap(Result &a, Result &b) noexcept -> void { std::swap(a, b); }
 }
 #endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::measurement;
+    static_assert(std::is_swappable_v<Result>);
+  }
+}  
+#endiv

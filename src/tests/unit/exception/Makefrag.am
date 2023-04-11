@@ -7,10 +7,10 @@
 tests_unit_exception_SUBSOURCES = \
   check/obj/src/tests/unit/exception/namespace.cpp \
   check/obj/src/tests/unit/exception/Fixture.cpp \
-  check/obj/src/tests/unit/exception/function.Fixture.cpp \
   check/obj/src/tests/unit/exception/keyston.Fixture.cpp \
   check/obj/src/tests/unit/exception/protocol.Fixture.cpp \
   check/obj/src/tests/unit/exception/vdaf.Fixture.cpp \
+  check/obj/src/tests/unit/exception/vdaf.protocol.Fixture.cpp \
   check/obj/src/tests/unit/exception/Palette.cpp \
   check/obj/src/tests/unit/exception/Palette.Generator.cpp \
   $(end)

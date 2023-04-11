@@ -5,6 +5,6 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.vdaf
-#import tunitas.keyston.required
-namespace tunitas::keyston::vdaf::required { using namespace tunitas::keyston::required; }
+#import tunitas.keyston.af.required
+namespace tunitas::keyston::vdaf::required { using namespace tunitas::keyston::af::required; }
 #endiv

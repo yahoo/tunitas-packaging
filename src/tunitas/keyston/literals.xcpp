@@ -4,13 +4,13 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.vdaf.literals
+#import tunitas.keyston.shards.literals
 #import tunitas.keyston.time.literals
 #import tunitas.string.literals
 namespace tunitas::keyston::literals {
   using namespace string::literals;
   using namespace time::literals;
-  using namespace vdaf::literals;
+  using namespace shards::literals;
 }
 #endiv
 #divert <cpp>

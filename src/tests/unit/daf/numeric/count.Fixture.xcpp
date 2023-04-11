@@ -1,0 +1,96 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.numeric.count
+namespace tests::unit::daf::numeric::count {
+  class Fixture;
+  namespace library = ::tunitas::keyston::daf::numeric::count;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.feature.Invariant
+struct tests::unit::daf::numeric::count::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_disassembly() -> void;
+  auto test_computation() -> void;
+  auto test_amalgamation() -> void;
+  auto test_reassembly() -> void;
+protected:
+  struct Exception {
+    using Invariant = ::tunitas::exception::feature::Invariant;
+  };
+  struct Observed {
+    inline static constexpr auto CANARY = Specimen{17};
+  };
+  struct Numeric {
+    inline static constexpr auto ONE = 1ll;
+    inline static constexpr auto ZERO = 0ll;
+    inline static constexpr auto FIVE = 5ll;
+  };
+  struct Derived {
+    inline static constexpr auto CANARY = Result{5};
+  };
+};
+#endiv
+#divert <cpp>
+auto tests::unit::daf::numeric::count::Fixture::suite() -> Suite {
+  auto series = Stream{"count"sv};
+  series << add("disassembly", &Fixture::test_disassembly)
+         << add("computation", &Fixture::test_computation)
+         << add("amalgamation", &Fixture::test_amalgamation)
+         << add("reassembly", &Fixture::test_reassembly)
+         << END;
+  return settle(series);
+}
+namespace tests::unit::daf::numeric::count {
+  auto Fixture::test_disassembly() -> void {
+    auto parameters = Configuration::Parameters{};
+    auto measurement = Configuration::Measurement<WHOLE>{Observed::CANARY};
+    auto randomness = Configuration::Randomness{};
+    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    require(ASSERTION, sizeof(publick)); // don't are what it is
+    // Because this is what the constants algo does on disassembly
+    require(ASSERTION, Numeric::ONE == inputs.at(0_shard).value);
+    require(ASSERTION, Numeric::ONE == inputs.at(1_shard).value);
+  }
+  auto Fixture::test_computation() -> void {
+    auto parameters = Configuration::Parameters{};
+    auto publick = Configuration::Public<SHARE>{};
+    auto input = Configuration::Input<SHARE>{Numeric::FIVE};
+    auto output = library::computation(parameters, 0_shard, publick, input);
+    require(ASSERTION, output.value == input.value);
+  }
+  auto Fixture::test_amalgamation() -> void {
+    using O = Configuration::Output<SHARE>;
+    auto parameters = Configuration::Parameters{};
+    {
+      auto outputs = Series<Configuration::Output<SHARE>>{};
+      auto amalgamated = library::amalgamation(parameters, outputs);
+      require(ASSERTION, Numeric::ZERO == amalgamated.value);
+    } {
+      auto outputs = Series<Configuration::Output<SHARE>>{O{Numeric::ONE},O{Numeric::ONE},O{Numeric::ONE}};
+      auto amalgamated = library::amalgamation(parameters, outputs);
+      require(ASSERTION, 3 == amalgamated.value);
+    }
+    try {
+      auto outputs = Series<Configuration::Output<SHARE>>{O{Numeric::ONE},O{Numeric::ZERO},O{Numeric::ONE}};
+      library::amalgamation(parameters, outputs);
+      impossible(ASSERTION);
+    } catch (Exception::Invariant const &) {
+      require(ASSERTION);
+    }
+  }
+  auto Fixture::test_reassembly() -> void {
+    auto parameters = Configuration::Parameters{};
+    using A = Configuration::Aggregation<SHARE>;
+    auto aggregations = Shards<Configuration::Aggregation<SHARE>>{A{Numeric::FIVE}, A{Numeric::FIVE}};
+    auto count = Count{11};
+    auto reassembled = library::reassembly(parameters, aggregations, count);
+    require(ASSERTION, Derived::CANARY == reassembled.value);
+  }
+}
+#endiv

@@ -1,0 +1,149 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.af.Name
+namespace tests::unit::af {
+  namespace [[eponymous]] definition {
+    template<typename SUBJECT, typename CONFIGURATION> class Definition;
+    using library::Name;
+    using library::DAF;
+  }
+  using definition::Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.af.Definition
+namespace tests::unit::af {
+  namespace definition {
+    using library::Constant;
+  }
+  template<typename SUBJECT, typename CONFIGURATION> struct definition::Definition : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    using Configuration = CONFIGURATION;
+    //
+    auto test_constructor_default() -> void;
+    template<Name> auto test_constructor_by_Name() -> void;
+    template<Name> auto test_constructor_by_Definition() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_constructor_move() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    auto test_swap() -> void;
+  protected:
+#if 12 < __GNUC__
+    // try again (this bug keeps not getting fixed ... compilers should never crash, even on IFND)
+    inline static constexpr auto SPECIMEN = library::Constant<library::DAF::ZERO>;
+    inline static constexpr auto SPECIMEN2 = library::Constant<library::DAF::CONSTANT>;
+#else
+    inline static constexpr auto SPECIMEN = library::Constant<library::DAF::Name::ZERO>;
+    inline static constexpr auto SPECIMEN2 = library::Constant<library::DAF::Name::CONSTANT>;
+#endif
+    inline static constexpr auto SPECIMEN1 = SPECIMEN;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::af::definition {
+  template<typename D, typename C> auto Definition<D,C>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Definition::test_constructor_default)
+                    << []{
+#if 12 < __GNUC__
+                      // try again (this bug keeps not getting fixed ... compilers should never crash, even on IFND)
+#else
+                      // src/tests/unit/af/Definition.xcpp:51:106: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+                      using DAF = library::DAF::Name;
+#endif  
+                         auto by = Stream{"by"sv};
+                         by << [] {
+                                 auto name = Stream{"Name"sv};
+                                 name << add("ZERO", &Definition::test_constructor_by_Name<Constant<DAF::ZERO>>)
+                                      << add("CONSTANT", &Definition::test_constructor_by_Name<Constant<DAF::CONSTANT>>)
+                                      << add("COUNT", &Definition::test_constructor_by_Name<Constant<DAF::COUNT>>)
+                                      << add("SUM", &Definition::test_constructor_by_Name<Constant<DAF::SUM>>)
+                                      << add("HISTOGRAM", &Definition::test_constructor_by_Name<Constant<DAF::HISTOGRAM>>)
+                                      << add("POPULARITY", &Definition::test_constructor_by_Name<Constant<DAF::POPULARITY>>)
+                                      << END;
+                                 return name;
+                               }()
+                            << [] {
+                                 auto def = Stream{"Definition"sv};
+                                 def << add("ZERO", &Definition::test_constructor_by_Definition<Constant<DAF::ZERO>>)
+                                     << add("CONSTANT", &Definition::test_constructor_by_Definition<Constant<DAF::CONSTANT>>)
+                                     << add("COUNT", &Definition::test_constructor_by_Definition<Constant<DAF::COUNT>>)
+                                     << add("SUM", &Definition::test_constructor_by_Definition<Constant<DAF::SUM>>)
+                                     << add("HISTOGRAM", &Definition::test_constructor_by_Definition<Constant<DAF::HISTOGRAM>>)
+                                     << add("POPULARITY", &Definition::test_constructor_by_Definition<Constant<DAF::POPULARITY>>)
+                                     << END;
+                                 return def;
+                               }()
+                            << END;
+                         return by;
+                       }()
+                    << add("copy", &Definition::test_constructor_copy)
+                    << add("move", &Definition::test_constructor_move)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assignment"sv};
+                ass << add("copy", &Definition::test_assignment_copy)
+                    << add("move", &Definition::test_assignment_move)
+                    << END;
+                return ass;
+              }()
+           << add("swap", &Definition::test_swap)
+           << END;
+    return settle(series);
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename S> template<Name NAME> auto Definition<D,S>::test_constructor_by_Name() -> void {
+    auto subject = Subject{NAME}; // <-------------------- test this (the constructor)
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename S> template<Name NAME> auto Definition<D,S>::test_constructor_by_Definition() -> void {
+    auto definition = Subject{NAME};
+    auto subject = Subject{definition}; // <-------------------- test this (the constructor)
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_constructor_copy() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{specimen}; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_constructor_move() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_assignment_copy() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_assignment_move() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename D, typename C> auto Definition<D,C>::test_swap() -> void {
+    auto a = Subject{SPECIMEN1};
+    auto b = Subject{SPECIMEN2};
+    swap(a, b); // <-------------------- test this
+    require(ASSERTION, sizeof (a));
+    require(ASSERTION, sizeof (b));
+  }
+}
+#endiv

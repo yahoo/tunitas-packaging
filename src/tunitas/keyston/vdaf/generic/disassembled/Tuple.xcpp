@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.Tuple
-#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.Shards
 #import tunitas.keyston.vdaf.generic.required.Configuration
 namespace tunitas::keyston::vdaf::generic::disassembled {
   //
@@ -17,7 +17,7 @@ namespace tunitas::keyston::vdaf::generic::disassembled {
   //
   //// Design:
   //
-  //   AOID.  This is an implementation detail.
+  //   AVOID.  This is an implementation detail.
   //   Instead use Disassembly.
   //
   //   This type alias is a convenient implementation detail for the specializations of std::tuple_size and std::tuple_alternative.

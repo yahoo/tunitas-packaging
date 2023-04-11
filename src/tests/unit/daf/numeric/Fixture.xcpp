@@ -1,0 +1,160 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::daf::numeric { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Slice
+#import tunitas.keyston.Shards
+struct tests::unit::daf::numeric::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using enum ::tunitas::keyston::Slice;
+  template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+  //
+  auto test_usage_Measurement() -> void;
+  auto test_usage_Input() -> void;
+  auto test_usage_Public() -> void;
+  auto test_usage_Output() -> void;
+  auto test_usage_Aggregation() -> void;
+  //
+  auto test_components_Disassembled() -> void;
+  auto test_components_Computed() -> void;
+  auto test_components_Amalgamated() -> void;
+  auto test_components_Reassembled() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.daf.numeric.zero.Fixture
+#import tests.unit.daf.numeric.constant.Fixture
+#import tests.unit.daf.numeric.count.Fixture
+#import tests.unit.daf.numeric.sum.Fixture
+#import tests.unit.daf.numeric.histogram.Fixture
+#import tests.unit.daf.numeric.popularity.Fixture
+auto tests::unit::daf::numeric::Fixture::suite() -> Suite {
+  auto series = Stream{"numeric"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Measurement", &Fixture::test_usage_Measurement)
+                  << add("Input", &Fixture::test_usage_Input)
+                  << add("Public", &Fixture::test_usage_Public)
+                  << add("Output", &Fixture::test_usage_Output)
+                  << add("Aggregation", &Fixture::test_usage_Aggregation)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto use = Stream{"components"sv};
+              use << add("Disassembled", &Fixture::test_components_Disassembled)
+                  << add("Computed", &Fixture::test_components_Computed)
+                  << add("Amalgamated", &Fixture::test_components_Amalgamated)
+                  << add("Reassembled", &Fixture::test_components_Reassembled)
+                  << END;
+              return use;
+            }()
+         << add<zero::Fixture>()
+         << add<constant::Fixture>()
+         << add<count::Fixture>()
+         << add<sum::Fixture>()
+         << add<histogram::Fixture>()
+         << add<popularity::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.daf.numeric.Measurement
+#import tunitas.keyston.daf.numeric.Input
+#import tunitas.keyston.daf.numeric.Public
+#import tunitas.keyston.daf.numeric.Output
+#import tunitas.keyston.daf.numeric.Aggregation
+namespace tests::unit::daf::numeric {
+  auto Fixture::test_usage_Measurement() -> void {
+    auto whole = library::Measurement<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+#if 0
+    // this one is never materialized
+    auto share = library::Measurement<SHARE>{};
+    require(ASSERTION, sizeof(share));
+#endif
+  }
+  auto Fixture::test_usage_Input() -> void {
+#if 0 // this one is never materialized as such
+    auto whole = library::Input<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+#endif
+    auto share = library::Input<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Public() -> void {
+    auto whole = library::Public<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Public<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Output() -> void {
+#if 0
+    // this one is never materialized
+    auto whole = library::Output<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+#endif
+    auto share = library::Output<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Aggregation() -> void {
+    auto whole = library::Aggregation<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Aggregation<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+}
+#import tunitas.keyston.daf.numeric.components
+namespace tests::unit::daf::numeric {
+  auto Fixture::test_components_Disassembled() -> void {
+    using namespace library::components;
+    using Subject = Disassembled;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+    //
+    auto publick = library::Public<SHARE>{};
+    auto inputs = Shards<library::Input<SHARE>>{};
+    auto subject2 = Subject{publick, inputs};
+    require(ASSERTION, sizeof(subject2));
+  }
+  auto Fixture::test_components_Computed() -> void {
+    using namespace library::components;
+    using Subject = Computed;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+    //
+    auto output = library::Output<SHARE>{};
+    auto subject1 = Subject{output};
+    require(ASSERTION, sizeof(subject1));
+  }
+  auto Fixture::test_components_Amalgamated() -> void {
+    using namespace library::components;
+    using Subject = Amalgamated;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+    //
+    auto sum = ::tunitas::number::Integer{};
+    auto subject1 = Subject{sum};
+    require(ASSERTION, sizeof(subject1));
+  }
+  auto Fixture::test_components_Reassembled() -> void {
+    using namespace library::components;
+    using Subject = Reassembled;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+    //
+    auto aggregation = library::Aggregation<WHOLE>{};
+    auto subject1 = Subject{aggregation};
+    require(ASSERTION, sizeof(subject1));
+  }
+}
+#endiv

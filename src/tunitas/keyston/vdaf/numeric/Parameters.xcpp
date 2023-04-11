@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::vdaf::numeric {
   //
-  // The aggragation parameter as known to the VDAF
+  // The aggregation parameter as known to the VDAF
   //
   // Specification:
   //

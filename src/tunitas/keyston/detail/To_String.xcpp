@@ -1,0 +1,80 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.detail.required.Renderable
+namespace tunitas::keyston::detail {
+  //
+  // The common idiom of to_string (as free functions discoverable by ADL)
+  //
+  // Specification:
+  //
+  //   You know.
+  //
+  // Obligations:
+  //
+  //   The by::Optional variant of to_string_view(by::Optional, TYPE const &) must already exist.
+  //
+  // Design:
+  //
+  //   With error:by::Optional, Outcome, Error
+  //
+  // Usage:
+  //
+  //   Hack The Spew.
+  //   But in case it isn't otherwise obvious from the extant uses
+  //
+  //    namespace tunitas::keyston {
+  //      auto xyzzy::to_string(error::by::Optional, Name) > error::Optional<string::Storage> { return detail::To_String<Name>::invoke(by, name); }
+  //      auto xyzzy::to_string(error::by::Outcome, Name) > error::Outcome<string::Storage>   { return detail::To_String<Name>::invoke(by, name); }
+  //      auto xyzzy::to_string(error::by::Exception, Name) > string::Storage                 { return detail::To_String<Name>::invoke(by, name); }
+  //    }
+  //
+  template<required::Renderable TYPE> struct To_String;
+}
+#endiv
+#divert <hpp>
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.by.Exception
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#import tunitas.string.View
+#import tunitas.string.Storage
+#import tunitas.keyston.detail.To_String_View
+namespace tunitas::keyston {
+  template<detail::required::Renderable TYPE> struct detail::To_String {
+    using Value = TYPE;
+    inline static auto invoke(error::by::Optional, Value const &) -> error::Optional<string::Storage>;
+    inline static auto invoke(error::by::Outcome, Value const &) -> error::Outcome<string::Storage>;
+    inline static auto invoke(error::by::Exception, Value const &) -> string::Storage;
+  protected:
+    using TSV = To_String_View<TYPE>;
+    inline static auto promote(error::Optional<string::View> const &) -> error::Optional<string::Storage>;
+    inline static auto promote(error::Outcome<string::View> const &) -> error::Outcome<string::Storage>;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::detail {
+  template<required::Renderable _> auto To_String<_>::promote(error::Optional<string::View> const &originl) -> error::Optional<string::Storage> {
+    if (originl) {
+      return string::Storage{*originl};
+    } else {
+      return {};
+    }
+  }
+  template<required::Renderable _> auto To_String<_>::promote(error::Outcome<string::View> const &originl) -> error::Outcome<string::Storage> {
+    if (good(originl)) {
+      return string::Storage{value(originl)};
+    } else {
+      return error_code(originl);
+    }
+  }
+  template<required::Renderable _> auto To_String<_>::invoke(error::by::Optional by, Value const &value) -> error::Optional<string::Storage> { return promote(TSV::invoke(by, value)); }
+  template<required::Renderable _> auto To_String<_>::invoke(error::by::Outcome by, Value const &value) -> error::Outcome<string::Storage>   { return promote(TSV::invoke(by, value)); }
+  template<required::Renderable _> auto To_String<_>::invoke(error::by::Exception by, Value const &value) -> string::Storage                 { return string::Storage{TSV::invoke(by, value)}; }
+}
+#endiv

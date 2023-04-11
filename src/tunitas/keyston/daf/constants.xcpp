@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf {
+  inline namespace constants { }
+}
+#endiv
+#divert <hpp>
+#import nonstd.units.memory.scale
+#import nonstd.units.quantity.cast
+namespace tunitas::keyston::daf::constants {
+  //
+  // Constants that are invariant across all implementations or within this implementation.
+  //
+  // Authorities:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
+  //   Distributed Aggregation Functions
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  namespace construct {
+    using namespace nonstd::units;
+    namespace random_count {
+      inline constexpr auto RANDOMNESS_BYTE_COUNT = memory::Bytes{16};
+      inline constexpr auto RANDOMNESS_BIT_COUNT = quantity::cast<memory::Bits>(RANDOMNESS_BYTE_COUNT);
+    }
+  }
+  using namespace construct::random_count;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::daf::constants;
+    static_assert(16 == RANDOMNESS_BYTE_COUNT.count());
+    static_assert(128 == RANDOMNESS_BIT_COUNT.count());
+  }
+}
+#endiv

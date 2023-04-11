@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -27,6 +27,10 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.quantity.Fixture
 #import tests.unit.transport.Fixture
 #import tests.unit.time.Fixture
+#import tests.unit.shards.Fixture
+#import tests.unit.af.Fixture
+#import tests.unit.daf.Fixture
+#import tests.unit.vdaf.Fixture
 #import tests.unit.wire.Fixture
 #import tests.unit.want.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
@@ -46,6 +50,10 @@ auto tests::unit::Fixture::suite() -> Suite {
          << add<quantity::Fixture>()
          << add<time::Fixture>()
          << add<transport::Fixture>()
+         << add<shards::Fixture>()
+         << add<af::Fixture>()
+         << add<daf::Fixture>()
+         << add<vdaf::Fixture>()
          << add<wire::Fixture>()
          << add<want::Fixture>()
          << END;

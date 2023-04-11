@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.daf.configuration.Core
+namespace tunitas::keyston::daf::generic::configuration {
+  //
+  // Is this type a specialized CORE?
+  // This is a traits class.
+  // Add more declarations here if there are non-obvious (out-of-namespace) specializations that qualify as Core.
+  //
+  // This declaration controls required::Core<CORE> and thus usage::Core<CORE>
+  //
+  // And since a Configuration "isa" Core,
+  // We have to account for that in the default template inplementation
+  //
+  template<typename> struct Is_Specialized_Core;
+  template<Scheme SCHEME> struct Is_Specialized_Core<daf::configuration::Core<SCHEME>>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::keyston::daf::generic {
+  template<typename> struct configuration::Is_Specialized_Core : public std::false_type { };
+  namespace configuration {
+    template<Scheme SCHEME> struct Is_Specialized_Core<daf::configuration::Core<SCHEME>> : public std::true_type { };
+  }
+}
+#endiv

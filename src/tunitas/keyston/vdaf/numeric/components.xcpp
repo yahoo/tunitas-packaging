@@ -6,15 +6,31 @@
 #divert <fpp>
 #import tunitas.keyston.vdaf.Configuration
 #include <hpp/tunitas.keyston.vdaf.Configuration>
-namespace tunitas::keyston::vdaf::numeric::components {
-  using Nonce        = Configuration<NUMERIC>::Nonce;
-  using Verify_Key   = Configuration<NUMERIC>::Verify_Key;
-  using Disassembled = Configuration<NUMERIC>::Disassembled;
-  using Initialized  = Configuration<NUMERIC>::Initialized;
-  using Continued    = Configuration<NUMERIC>::Continued;
-  using Amalgamated  = Configuration<NUMERIC>::Amalgamated;
-  using Disgorged    = Configuration<NUMERIC>::Disgorged;
-  using Reassembled  = Configuration<NUMERIC>::Reassembled;
-}
 #import tunitas.keyston.measurement.Count
+#import tunitas.keyston.array.Series
+#import tunitas.keyston.Shards
+namespace tunitas::keyston::vdaf::numeric {
+  //
+  // A bundle of types
+  //
+  namespace components {
+    using keyston::Shards;
+    template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
+    using Nonce        = Configuration<NUMERIC>::Nonce;
+    using Verify_Key   = Configuration<NUMERIC>::Verify_Key;
+    using Disassembled = Configuration<NUMERIC>::Disassembled;
+    using Initialized  = Configuration<NUMERIC>::Initialized;
+    using Continued    = Configuration<NUMERIC>::Continued;
+    using Amalgamated  = Configuration<NUMERIC>::Amalgamated;
+    using Disgorged    = Configuration<NUMERIC>::Disgorged;
+    using Reassembled  = Configuration<NUMERIC>::Reassembled;
+    using Count        = measurement::Count;
+    //
+    using numeric::Measurement;
+    using numeric::Input;
+    using numeric::Public;
+    using numeric::Output;
+    using numeric::Aggregation;
+  }
+}
 #endiv

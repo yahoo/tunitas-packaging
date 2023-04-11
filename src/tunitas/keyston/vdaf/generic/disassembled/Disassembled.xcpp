@@ -39,7 +39,6 @@ namespace tunitas::keyston::vdaf::generic::disassembled {
 #divert <hpp>
 #import tunitas.keyston.vdaf.generic.disassembled.Tuple
 #import tunitas.keyston.vdaf.generic.usage.Configuration
-#import tunitas.keyston.vdaf.Shards
 namespace tunitas::keyston::vdaf::generic {
   template<required::Configuration CONFIGURATION> struct disassembled::Disassembled : public Tuple<CONFIGURATION> {
     using Ancestor = Tuple<CONFIGURATION>;

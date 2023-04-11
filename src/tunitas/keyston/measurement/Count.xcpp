@@ -4,6 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import nonstd.units.count.scale // Items
 namespace tunitas::keyston::measurement {
   //
   // How many measurements?
@@ -25,13 +26,32 @@ namespace tunitas::keyston::measurement {
   //
   //   You need a tutorial on how to use an unscoped enumeration (a flavored integer?)? o.rly?
   //
-  enum class Count : std::uint64_t;
+  // enum class Count : std::uint64_t;
+  using Count = nonstd::units::count::Items;
 }
 #endiv
 #divert <hpp>
 #import std.underlying_type
+#if 1
 namespace tunitas::keyston::measurement {
+  inline constexpr auto underlying(Count c) { return c.count(); } // WATCHOUT - as a type alias, ADL won't find this. here
+}
+namespace nonstd::units::count {
+  using tunitas::keyston::measurement::underlying;
+}
+#else
+namespace tunitas::keyston::measurement {
+ // because we're using the units system nowadays for this sort of thing.
   inline constexpr auto underlying(Count c) { return std::underlying_type_t<Count>(c); }
   inline auto swap(Count &a, Count &b) noexcept -> void { std::swap(a, b); }
 }
+#endif
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::measurement;
+    static_assert(std::is_swappable_v<Count>);
+  }
+}  
 #endiv

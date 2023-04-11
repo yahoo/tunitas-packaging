@@ -39,7 +39,9 @@ namespace tunitas::keyston::vdaf::generic {
       disgorgement = constant::disgorgement;
       reassembly = constant::reassembly;
       break;
-    case Name::PRIO3:
+    case Name::PRIO3_COUNT:
+    case Name::PRIO3_SUM:
+    case Name::PRIO3_HISTOGRAM:
       disassembly = prio3::disassembly;
       initialization = prio3::initialization;
       continuation = prio3::continuation;
@@ -55,11 +57,6 @@ namespace tunitas::keyston::vdaf::generic {
       disgorgement = poplar1::disgorgement;
       reassembly = poplar1::reassembly;
       break;
-    case Name::PRIO3_AES128_COUNT:
-    case Name::PRIO3_AES128_SUM:
-    case Name::PRIO3_AES128_HISTOGRAM:
-    case Name::POPLAR1_AES128:
-      throw exception::Unimplemented{};
     default:
       throw exception::Invalid{"vdaf name"};
     }

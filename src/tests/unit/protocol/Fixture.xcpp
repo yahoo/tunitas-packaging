@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -17,7 +17,6 @@ struct tests::unit::protocol::Fixture : public rigging::suite::Fixture {
 #import tests.unit.protocol.collection.Fixture
 #import tests.unit.protocol.continuation.Fixture
 #import tests.unit.protocol.extension.Fixture
-#import tests.unit.protocol.function.Fixture
 #import tests.unit.protocol.id.Fixture
 #import tests.unit.protocol.initialization.Fixture
 #import tests.unit.protocol.job.Fixture
@@ -35,7 +34,6 @@ auto tests::unit::protocol::Fixture::suite() -> Suite {
             }()
          << add<batch::Fixture>()
          << add<extension::Fixture>()
-         << add<function::Fixture>()
          << add<id::Fixture>()
          << add<job::Fixture>()
          << add<query::Fixture>()

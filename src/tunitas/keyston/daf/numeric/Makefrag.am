@@ -1,0 +1,24 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_daf_numeric_SUBSOURCES = \
+  obj/src/tunitas/keyston/daf/numeric/namespace.cpp \
+  obj/src/tunitas/keyston/daf/numeric/components.cpp \
+  obj/src/tunitas/keyston/daf/numeric/zero.cpp \
+  obj/src/tunitas/keyston/daf/numeric/constant.cpp \
+  obj/src/tunitas/keyston/daf/numeric/count.cpp \
+  obj/src/tunitas/keyston/daf/numeric/sum.cpp \
+  obj/src/tunitas/keyston/daf/numeric/histogram.cpp \
+  obj/src/tunitas/keyston/daf/numeric/popularity.cpp \
+  \
+  obj/src/tunitas/keyston/daf/numeric/Parameters.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Measurement.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Public.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Input.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Number.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Output.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Aggregation.cpp \
+  $(end)

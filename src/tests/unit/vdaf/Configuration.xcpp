@@ -13,7 +13,7 @@ namespace tests::unit::vdaf {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.vdaf.Configuration
-namespace tests::unit::vdaf{
+namespace tests::unit::vdaf {
   template<typename SUBJECT> struct configuration::Configuration : public rigging::suite::Fixture {
     static auto suite() -> Suite;
     //

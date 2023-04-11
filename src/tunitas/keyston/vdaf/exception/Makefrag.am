@@ -6,6 +6,7 @@
 #
 tunitas_keyston_vdaf_exception_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/exception/namespace.cpp \
+  obj/src/tunitas/keyston/vdaf/exception/complete.Ancestor.cpp \
   obj/src/tunitas/keyston/vdaf/exception/Aspect.cpp \
   obj/src/tunitas/keyston/vdaf/exception/Bound.cpp \
   obj/src/tunitas/keyston/vdaf/exception/Cast.cpp \

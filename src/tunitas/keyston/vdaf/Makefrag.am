@@ -7,7 +7,6 @@
 tunitas_keyston_vdaf_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/namespace.cpp \
   obj/src/tunitas/keyston/vdaf/Name.cpp \
-  obj/src/tunitas/keyston/vdaf/literals.cpp \
   obj/src/tunitas/keyston/vdaf/Definition.cpp \
   obj/src/tunitas/keyston/vdaf/Executor.template.cpp \
   obj/src/tunitas/keyston/vdaf/Executor.NUMERIC.cpp \
@@ -19,13 +18,13 @@ tunitas_keyston_vdaf_SUBSOURCES = \
   $(tunitas_keyston_vdaf_exception_SUBSOURCES) \
   $(tunitas_keyston_vdaf_generic_SUBSOURCES) \
   $(tunitas_keyston_vdaf_numeric_SUBSOURCES) \
+  $(tunitas_keyston_vdaf_protocol_SUBSOURCES) \
   $(tunitas_keyston_vdaf_required_SUBSOURCES) \
-  $(tunitas_keyston_vdaf_shards_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/vdaf/configuration/Makefrag.am
 include src/tunitas/keyston/vdaf/exception/Makefrag.am
 include src/tunitas/keyston/vdaf/generic/Makefrag.am
 include src/tunitas/keyston/vdaf/numeric/Makefrag.am
+include src/tunitas/keyston/vdaf/protocol/Makefrag.am
 include src/tunitas/keyston/vdaf/required/Makefrag.am
-include src/tunitas/keyston/vdaf/shards/Makefrag.am

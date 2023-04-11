@@ -1,0 +1,98 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.Name
+#import std.underlying_type
+namespace tunitas::keyston::af {
+  //
+  // The Name of a AF (Aggregatio Function) is a (non-normative) code point (codepoint)
+  //
+  // Specification:
+  //
+  //   Aligned with af::Name.
+  //
+  //   These are the (non-distributed, i.e. centralized) aggregation functions).
+  //   The are didactic and pedantic.
+  //
+  // Design:
+  //
+  //   It's an enum (class) but follows af::Name
+  //
+  // Usage:
+  //
+  //   af:::Name name = af::Constant<DAF::SOMETHING>;
+  //   af:::Name name = af::Constant<DAF::SOMETHING_ELSE>;
+  //   af:::Name name = af::Constant<DAF::DARK_SIDE>;
+  //
+  struct DAF;
+  enum class Name : std::underlying_type_t<daf::Name>;
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import tunitas.keyston.daf.Name
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.by.Exception
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#import tunitas.string.View
+#import tunitas.string.Storage
+namespace tunitas::keyston {
+  struct af::DAF{
+    using Name = daf::Name;
+    using enum daf::Name;
+    DAF() = delete;
+    DAF(DAF const &) = delete;
+  };
+  namespace af {
+    template<DAF::Name NAME> inline constexpr auto Constant = Name{underlying(NAME)};
+    inline constexpr auto underlying(Name n) { return std::underlying_type_t<Name>(n); }
+    inline constexpr auto recode(af::Name n)  { return daf::Name{underlying(n)}; }
+    inline constexpr auto recode(daf::Name n) { return af::Name{underlying(n)}; }
+    //
+    inline auto swap(Name &a, Name &b) noexcept -> void { return std::swap(a, b); }
+    //
+    inline auto to_string(error::by::Optional, Name) -> error::Optional<string::Storage>;
+    inline auto to_string(error::by::Outcome, Name) -> error::Outcome<string::Storage>;
+    inline auto to_string(error::by::Exception, Name) -> string::Storage;
+    //
+    inline auto to_string_view(error::by::Optional, Name) -> error::Optional<string::View>;
+    inline auto to_string_view(error::by::Outcome, Name) -> error::Outcome<string::View>;
+    inline auto to_string_view(error::by::Exception, Name) -> string::View;
+    //
+    inline auto render(Name) -> error::Optional<string::View>;
+  }
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.detail.To_String
+#import tunitas.keyston.detail.To_String_View
+namespace tunitas::keyston {
+  auto af::render(Name name) -> error::Optional<string::View> { return daf::render(recode(name)); }
+  //
+  auto af::to_string(error::by::Optional by, Name name) -> error::Optional<string::Storage> { return detail::To_String<Name>::invoke(by, name); }
+  auto af::to_string(error::by::Outcome by, Name name) -> error::Outcome<string::Storage>   { return detail::To_String<Name>::invoke(by, name); }
+  auto af::to_string(error::by::Exception by, Name name) -> string::Storage                 { return detail::To_String<Name>::invoke(by, name); }
+  //
+  auto af::to_string_view(error::by::Optional by, Name name) -> error::Optional<string::View> { return detail::To_String_View<Name>::invoke(by, name); }
+  auto af::to_string_view(error::by::Outcome by, Name name) -> error::Outcome<string::View>   { return detail::To_String_View<Name>::invoke(by, name); }
+  auto af::to_string_view(error::by::Exception by, Name name) -> string::View                 { return detail::To_String_View<Name>::invoke(by, name); }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::af;
+    static_assert(sizeof(Constant<DAF::ZERO>));
+    static_assert(sizeof(Constant<DAF::CONSTANT>));
+    static_assert(sizeof(Constant<DAF::COUNT>));
+    static_assert(sizeof(Constant<DAF::SUM>));
+    static_assert(sizeof(Constant<DAF::HISTOGRAM>));
+    static_assert(sizeof(Constant<DAF::POPULARITY>));
+  }
+}
+#endiv

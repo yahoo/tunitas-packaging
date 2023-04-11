@@ -32,7 +32,7 @@ namespace tunitas::keyston {
     using std::move;
     template<Scheme SCHEME> inline auto swap(Definition<SCHEME> &, Definition<SCHEME> &) noexcept -> void;
   }
-  template<vdaf::Scheme SCHEME> struct vdaf::Definition : public generic::Definition<Configuration<SCHEME>> {
+  template<Scheme SCHEME> struct vdaf::Definition : public generic::Definition<Configuration<SCHEME>> {
     using Ancestor = generic::Definition<Configuration<SCHEME>>;
     friend auto vdaf::swap<>(Definition &, Definition &) noexcept -> void;
   public:
@@ -43,7 +43,7 @@ namespace tunitas::keyston {
 #endiv
 #divert <ipp>
 namespace tunitas::keyston {
-  template<vdaf::Scheme SCHEME> auto vdaf::swap(Definition<SCHEME> &a, Definition<SCHEME> &b) noexcept -> void {
+  template<Scheme SCHEME> auto vdaf::swap(Definition<SCHEME> &a, Definition<SCHEME> &b) noexcept -> void {
     typename Definition<SCHEME>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }
