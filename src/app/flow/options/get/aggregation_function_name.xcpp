@@ -1,0 +1,217 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-basics/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/basics/tree/LICENSE
+#divert <fpp>
+namespace app::flow::options::get {
+  namespace package_aggregation_function_name {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_aggregation_function_name::interface;
+}
+#import cli.experience.Console
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.vdaf.Name
+#import tunitas.alambique.function.Name
+#import tunitas.alambique.function.Estimates
+namespace app::flow::options::get::package_aggregation_function_name {
+  using namespace package_get;
+  static_assert(sizeof (Whence), "already visible");
+  static_assert(sizeof (Step), "already visible");
+  static_assert(sizeof (Field), "already visible");
+  static_assert(!required::exception::Quitting<int>, "already visible");
+  using tunitas::alambique::function::Name;
+  using tunitas::alambique::function::Estimates;
+  using cli::experience::Console;
+  namespace body {
+    using namespace package_get::body;
+    struct VDAF {
+      using enum tunitas::keyston::vdaf::Name;
+      using Optional = tunitas::Optional<tunitas::keyston::vdaf::Name>;
+    };
+    struct DAF {
+      using Name = tunitas::keyston::daf::Name;
+      using Optional = tunitas::Optional<tunitas::keyston::daf::Name>;
+      using enum Name; // WATCHOUT - this doesn't work for DAF::ZERO - gcc (GCC) 12.2.1 20221121 (Red Hat 12.2.1-4) internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+    };
+    static_assert(sizeof(DAF::ZERO));
+    struct AF {
+      using Name = tunitas::keyston::af::Name;
+      using Optional = tunitas::Optional<tunitas::keyston::af::Name>;
+      template<DAF::Name BASE> inline static constexpr auto Constant = tunitas::keyston::af::Constant<BASE>;
+    };
+#if 0
+    struct VIDAF { using enum tunitas::keyston::vidaf::Name; };
+#endif
+  }
+}
+static_assert(sizeof(app::flow::options::get::package_aggregation_function_name::body::DAF::ZERO));
+#endiv
+#divert <hpp>
+namespace app::flow::options::get::package_aggregation_function_name::body {
+  //
+  // Acquire an aggregation_function_name from the longish Step
+  //
+  // The estimated aggregation_function_name is returned, not an outcome.
+  // When there is an available aggregation-function-mode known then the result is collapsed to the one selection in Name
+  // When there is NO available aggregation-function-mode known, then the possibilities in Estimates is returned.
+  // On failure to resolve any name at all then the exception is thrown.
+  //
+  // Scheme:
+  //
+  //   --aggregation-function-name=NAME for NAME in the dictionaries shown below.
+  //
+  //   NAME for AF Mode (Aggregation Function Mode, [Centralized] Aggregation Function)"
+  //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+  //
+  //   NAME for DAF Function (Distributed Aggregation Function Mode)"
+  //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+  //
+  //   NAME for VDAF Function (Verifiable Distributed Aggregation Name) Mode)"
+  //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+  //       PRIO3, PRIO3-COUNT, PRIO3-SUM, PRIO3-HISTOGRAM, POPLAR1, POPLAR1-HISTOGRAM"
+  //
+  // Example:
+  //
+  //   figure it out (from the Scheme section, above)
+  //
+  // Usage:
+  //
+  //   auto exp = Experience{...somehow...}
+  //   auto step = cli::options::longish::Step{...somehow...};
+  //   using Quitting = exception::Quitting;
+  //
+  //   Mode aggregation_function_name = get::aggregation_function_name<Quitting>(cfg, step);
+  //
+  namespace exported {
+    // ease of export (see the parent scope)
+    template<required::exception::Quitting QUITTING> inline auto get_aggregation_function_name(Console &, Step const &) -> Estimates;
+    template<required::exception::Quitting QUITTING> inline auto get_aggregation_function_name(Console &, Step const &, Field) -> Estimates;
+    // by naming convention
+    template<required::exception::Quitting QUITTING> inline auto aggregation_function_name(Console &, Step const &) -> Estimates;
+    template<required::exception::Quitting QUITTING> auto aggregation_function_name(Console &, Step const &, Field) -> Estimates;
+  }
+}
+#endiv
+#divert <ipp>
+namespace app::flow::options::get::package_aggregation_function_name {
+  template<required::exception::Quitting QUITTING> auto interface::get_aggregation_function_name(Console &exp, Step const &step) -> Estimates              { return aggregation_function_name<QUITTING>(exp, step); }
+  template<required::exception::Quitting QUITTING> auto interface::get_aggregation_function_name(Console &exp, Step const &step, Field field) -> Estimates { return aggregation_function_name<QUITTING>(exp, step, field); }
+  template<required::exception::Quitting QUITTING> auto interface::aggregation_function_name(Console &exp, Step const &step) -> Estimates                  { return aggregation_function_name<QUITTING>(exp, step, "aggregation-function-name"); }
+}
+#endiv
+#divert <tpp>
+#import std.quoted
+#import tunitas.application.options.get.word
+namespace app::flow::options::get::package_aggregation_function_name {
+  template<required::exception::Quitting QUITTING> auto interface::aggregation_function_name(Console &exp, Step const &step, Field field) -> Estimates {
+    string::Storage candidate = word<QUITTING>(exp, step, field);
+    if (among(candidate, "zero"sv)) {
+      static_assert(sizeof(app::flow::options::get::package_aggregation_function_name::body::DAF::ZERO));
+      static_assert(sizeof(DAF::ZERO));
+#if 12 < __GNUC__
+      return {AF::Constant<DAF::ZERO>, DAF::ZERO, VDAF::ZERO};
+      // src/app/flow/options/get/aggregation_function_name.xcpp:113:80: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+#else
+      constexpr auto const dz = DAF::ZERO;
+      constexpr auto const vdz = VDAF::ZERO;
+      return {tunitas::keyston::af::Constant<dz>, dz, vdz};
+#endif
+    } else if (among(candidate, "constant"sv)) {
+#if 12 < __GNUC__
+      return {AF::template Constant<DAF::ZERO>, DAF::ZERO, VDAF::CONSTANT};
+      // src/app/flow/options/get/aggregation_function_name.xcpp:121:42: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+#else
+      constexpr auto const dc = DAF::CONSTANT;
+      constexpr auto const vdc = VDAF::CONSTANT;
+      return {AF::template Constant<dc>, dc, vdc};
+#endif
+    } else if (among(candidate, "count"sv)) {
+#if 12 < __GNUC__
+      return {AF::Constant<DAF::COUNT>, DAF::COUNT, VDAF::PRIO3_COUNT};
+      // src/app/flow/options/get/aggregation_function_name.xcpp:129:42: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+#else
+      constexpr auto dc = DAF::COUNT;
+      constexpr auto vdc = VDAF::PRIO3_COUNT;
+      return {AF::Constant<dc>, dc, vdc};
+#endif
+    } else if (among(candidate, "sum"sv)) {
+#if 12 < __GNUC__
+      return {AF::Constant<DAF::SUM>, DAF::SUM, VDAF::PRIO3_SUM};
+#else
+      constexpr auto ds = DAF::SUM;
+      constexpr auto vds = VDAF::PRIO3_SUM;
+      return {AF::Constant<ds>, ds, vds};
+#endif
+    } else if (among(candidate, "histogram"sv)) {
+#if 12 < __GNUC__
+      return {AF::Constant<DAF::HISTOGRAM>, DAF::HISTOGRAM, VDAF::PRIO3_HISTOGRAM};
+#else
+      constexpr auto const dh = DAF::HISTOGRAM;
+      constexpr auto const vdh = VDAF::PRIO3_HISTOGRAM;
+      return {AF::Constant<dh>, dh, vdh};
+#endif
+    } else if (among(candidate, "popularity"sv, "top-k"sv, "top-n"sv, "heavy-hitters"sv)) {
+#if 12 < __GNUC__
+      return {AF::Constant<DAF::POPULARITY>, DAF::POPULARITY, VDAF::POPLAR1};
+#else
+      constexpr auto dp = DAF::POPULARITY;
+      constexpr auto vdp = VDAF::POPLAR1;
+      return {AF::Constant<dp>, dp, vdp};
+#endif
+    } else if (among(candidate, "poplar"sv, "poplar1"sv)) {
+      notice(exp) << "instead, prefer " << std::quoted("POPULARITY", '\'') << ", which is unambiguous\n";
+      warning(exp) << "the " << field << " is specified ambiguously with " << std::quoted(candidate, '\'') << "\n";
+#if 12 < __GNUC__
+      return Estimates{{}, {}, VDAF::POPLAR1};
+#else
+      constexpr auto const vp = VDAF::POPLAR1;
+      return Estimates{{}, {}, vp};
+#endif
+    } else if (among(candidate, "prio"sv, "prio3"sv)) {
+      notice(exp) << "instead, prefer " << std::quoted("PRIO3-COUNT", '\'') << ", which is unambiguous\n";
+      warning(exp) << "the " << field << " is specified ambiguously with " << std::quoted(candidate, '\'') << "\n";
+#if 12 < __GNUC__
+      return Estimates{{}, {}, VDAF::PRIO3_COUNT};
+#else
+      constexpr auto const vc = VDAF::PRIO3_COUNT;
+      return Estimates{AF::Optional{}, DAF::Optional{}, vc};
+#endif
+    } else if (among(candidate, "prio3-count"sv)) {
+#if 12 < __GNUC__
+      return Estimates{{}, {}, VDAF::PRIO3_COUNT};
+#else
+      constexpr auto const vs = VDAF::PRIO3_COUNT;
+      return Estimates{{}, {}, vs};
+#endif
+    } else if (among(candidate, "prio3-sum"sv)) {
+#if 12 < __GNUC__
+      return Estimates{{}, {}, VDAF::PRIO3_SUM};
+#else
+      constexpr auto const vs = VDAF::PRIO3_SUM;
+      return Estimates{{}, {}, vs};
+#endif
+    } else if (among(candidate, "prio3-histogram"sv)) {
+#if 12 < __GNUC__
+      return Estimates{{}, {}, VDAF::PRIO3_HISTOGRAM};
+#else
+      constexpr auto const vh = VDAF::PRIO3_HISTOGRAM;
+      return Estimates{{}, {}, vh};
+#endif
+    } else if (among(candidate, "poplar1"sv)) {
+#if 12 < __GNUC__
+      return Estimates{{}, {}, VDAF::POPLAR1};
+#else
+      constexpr auto const vp = VDAF::POPLAR1;
+      return Estimates{{}, {}, vp};
+#endif
+    } else {
+      error(exp) << "the value " << std::quoted(candidate, '\'') << " is is not a valid " << field << "\n";
+      throw QUITTING{Whence{exp}.name(), CONFIG};
+    }
+  }
+}
+#endiv

@@ -7,7 +7,6 @@
 #import cli.exits.constants
 #import cli.experience.Console
 #import cli.options.dualie
-#import tunitas.application.options.get
 namespace app::flow::options {
   //
   // The options parser.
@@ -44,7 +43,6 @@ namespace app::flow::options {
     using namespace cli::exits::constants;
     using cli::experience::Console;
     namespace dualie = cli::options::dualie;
-    namespace get = tunitas::application::options::get;
   }
   using parser::Parser;
 }
@@ -87,6 +85,8 @@ namespace app::flow::options::parser {
 #import app.exception.Version
 #import app.flow.exception.Usage
 #import app.flow.options.indicator.constants
+#import app.flow.options.get.aggregation_function_mode
+#import app.flow.options.get.aggregation_function_name
 #import cli.options.dualie.Getter
 namespace app::flow::options::parser {
   auto Parser::parse(Configuration &cfg, Args &args) -> Result {
@@ -99,7 +99,7 @@ namespace app::flow::options::parser {
         cfg.debug_mode = true;
         break;
       case oi::OLD_DEBUG_MODE:
-        warning(exp) << "instead prefer --DEBUG (upper case)\n";
+        warning(exp) << "instead prefer " << std::quoted("--DEBUG"sv, '\'') << " (upper case)\n";
         cfg.debug_mode = true;
         break;
       case oi::CHR_h:
@@ -132,10 +132,50 @@ namespace app::flow::options::parser {
       case oi::DRYRUN_MODE:
         cfg.dry_run_mode = true;
         break;
-      case oi::CHR_f:
-      case oi::MEASUREMENT_DATA_FILEPATH:
-        cfg.measurement_data_filepath = get::filepath<exception::quitting::Programmatic>(exp, step, "measurement-data-filepath"s);
-        break;
+      {
+        using tunitas::alambique::function::Mode;
+        case oi::USE_AF_MODE:
+          cfg.aggregation_function_mode = Mode::AF;
+          break;
+        case oi::USE_DAF_MODE:
+          cfg.aggregation_function_mode = Mode::DAF;
+          break;
+        case oi::USE_VDAF_MODE:
+          cfg.aggregation_function_mode = Mode::VDAF;
+          break;
+        case oi::USE_VIDAF_MODE:
+          cfg.aggregation_function_mode = Mode::VIDAF;
+          break;
+        case oi::CHR_f:
+        case oi::MEASUREMENT_DATA_FILEPATH:
+          cfg.measurement_data_filepath = get::filepath<exception::quitting::Programmatic>(exp, step, "measurement-data-filepath"s);
+          break;
+        case oi::CHR_m:
+        case oi::AGGREGATION_FUNCTION_MODE:
+          cfg.aggregation_function_mode = get::aggregation_function_mode<exception::quitting::Programmatic>(exp, step, "aggregation-function-mode"s);
+          break;
+        case oi::CHR_n:
+        case oi::AGGREGATION_FUNCTION_NAME:
+          {
+            auto names = get::aggregation_function_name<exception::quitting::Programmatic>(exp, step, "aggregation-function-name"s);
+            cfg.aggregation_function_names = names;
+            //
+            // Because we're inferring something here, we warn and error if the inference contradicts previous work.
+            if (auto resolved=resolve(names); resolved) {
+              auto proposed = *resolved;
+              auto assessed = assess(names).value();
+              if (!cfg.aggregation_function_mode) {
+                cfg.aggregation_function_mode = assessed;
+              } else if (auto previously=*cfg.aggregation_function_mode; previously != assessed) {
+                auto q = [](auto const &item) { return std::quoted(to_string(tunitas::error::by::Exception{}, item), '\''); };
+                notice(exp) << "the aggregation-function-mode was already established as " << q(previously) << '\n';
+                error(exp) << "the function-aggregation-modes are conflicting: " << q(previously) << " and " << q(proposed) << '\n';
+                throw exception::Quitting{exp, CONFIGURATION};
+              }
+            }
+          }
+          break;
+      }
       case oi::MISSING:
         error(exp) << "missing value for " << word_in_error(step) << '\n';
         throw exception::Quitting{exp, USAGE};

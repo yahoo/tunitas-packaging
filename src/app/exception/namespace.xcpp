@@ -5,5 +5,6 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
 #import tunitas.application.exception
+#import app
 namespace app::exception { using namespace tunitas::application::exception; }
 #endiv

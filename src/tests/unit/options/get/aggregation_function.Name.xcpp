@@ -1,0 +1,107 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::options::get::aggregation_function { class Name; }
+#endiv
+#divert <hpp>
+#import std.convertible_to
+#import tunitas.exception.Aspect
+struct tests::unit::options::get::aggregation_function::Name : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_good() -> void;
+  auto test_fail() -> void;
+  auto test_universe() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+  static auto exercise(unsigned &failure_accumulator, string::View specimen) -> void;
+  template<typename... VIEW> inline static auto series(unsigned &failure_accumulator, VIEW &&...) -> void requires (std::convertible_to<VIEW, string::View> && ... );
+  static auto uppercase(string::View) -> string::Storage;
+  static auto lowercase(string::View) -> string::Storage;
+};
+#endiv
+#divert <ipp>
+namespace tests::unit::options::get::aggregation_function {
+  template<typename... VIEW> auto Name::series(unsigned &failure_accumulator, VIEW &&...rest) -> void requires (std::convertible_to<VIEW, string::View> && ... ) {
+    (exercise(failure_accumulator, uppercase(rest)), ... );
+    (exercise(failure_accumulator, lowercase(rest)), ... );
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::options::get::aggregation_function::Name::suite() -> Suite {
+  auto series = Stream{"aggregation_function_name"sv};
+  series << add("good", &Name::test_good)
+         << add("fail", &Name::test_fail)
+         << add("universe", &Name::test_universe)
+         << END;
+  return settle(series);
+}
+#import tests.unit.options.get.Configuration
+#import tests.unit.options.get.Step
+#import tests.unit.options.get.Quitting
+#import tests.unit.function.Palette
+#import app.flow.options.get.aggregation_function_name // <---------------------------------------- test this
+namespace tests::unit::options::get::aggregation_function {
+  auto Name::test_good() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_m, "ZERO"sv};
+    auto got = library::aggregation_function_name<Quitting>(exp, step); // <---------------------------------------- test this
+    auto [af, daf, vdaf] = got;
+    {
+      using tests::unit::function::Palette;
+      using enum ::tunitas::alambique::function::Mode;
+      require(ASSERTION, Palette<AF>::GOOD == af);
+      require(ASSERTION, Palette<DAF>::GOOD == daf);
+      require(ASSERTION, Palette<VDAF>::GOOD == vdaf);
+#if 0  // not yet, but soon
+      require(ASSERTION, Palette<VIDAF>::GOOD == vdaf);
+#endif
+    }
+  } catch (Failure const &e) {
+    impossible(ASSERTION);
+  }
+  auto Name::test_fail() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_f, "!@#$%"sv}; // <------------------------ there are many failing identifiers
+    library::aggregation_function_name<Quitting>(exp, step); // <---------------------------------------- test this
+    impossible(ASSERTION);
+  } catch (Failure const &e) {
+    require(ASSERTION);
+  }
+  auto Name::test_universe() -> void {
+    auto failure_accumulator{0u};
+    series(failure_accumulator, "zero"sv, "constant"sv, "count"sv, "sum"sv, "histogram"sv, "popularity"sv, "prio"sv, "prio3"sv, "poplar"sv, "prio3-count"sv, "prio3-sum"sv, "prio3-histogram"sv, "poplar1"sv);
+    require(ASSERTION, 0 == failure_accumulator);
+  }
+  auto Name::exercise(unsigned &failure_accumulator, string::View specimen) -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_x, specimen};
+    library::aggregation_function_name<Quitting>(exp, step); // <---------------------------------------- test this
+  } catch (Failure const &e) {
+    ++failure_accumulator;
+  }
+}
+#import std.transform
+#import std.back_inserter
+#import std.toupper
+#import std.tolower
+namespace tests::unit::options::get::aggregation_function {
+  auto Name::uppercase(string::View specimen) -> string::Storage {
+    auto ret = string::Storage{};
+    std::transform(specimen.begin(), specimen.end(), std::back_inserter(ret), [](auto c) { return std::toupper(c); });
+    return ret;
+  }
+  auto Name::lowercase(string::View specimen) -> string::Storage {
+    auto ret = string::Storage{};
+    std::transform(specimen.begin(), specimen.end(), std::back_inserter(ret), [](auto c) { return std::tolower(c); });
+    return ret;
+  }
+}
+#endiv

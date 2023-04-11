@@ -18,13 +18,15 @@ namespace tunitas::alambique {
   //
   // Usage:
   //
-  //   auto demo = Demonstrator<DAF>{};
-  //   auto got = demo.run(...arguments...);
+  //   auto af = Demonstrator<AF>{};
+  //   auto got = af.run(...arguments...);
   //
-  //   auto demo = Demonstrator<VDAF>{};
-  //   auto got = demo.run(...arguments...);
+  //   auto daf = Demonstrator<DAF>{};
+  //   auto got = daf.run(...arguments...);
   //
-  enum class Function { DAF, VDAF };
+  //   auto vdaf = Demonstrator<VDAF>{};
+  //   auto got = vdaf.run(...arguments...);
+  //
   template<Function> struct Demonstrator;
 }
 #endiv

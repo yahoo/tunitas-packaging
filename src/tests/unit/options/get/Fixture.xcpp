@@ -1,0 +1,110 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::options::get { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Mode
+#import tunitas.alambique.function.Estimates
+#import tunitas.exception.Aspect
+struct tests::unit::options::get::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Mode = ::tunitas::alambique::function::Mode;
+  using Estimates = ::tunitas::alambique::function::Estimates;
+  //
+  auto test_aggregation_function_mode_good() -> void;
+  auto test_aggregation_function_mode_fail() -> void;
+  auto test_aggregation_function_names_good() -> void;
+  auto test_aggregation_function_names_fail() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.options.get.aggregation_function.Mode
+#import tests.unit.options.get.aggregation_function.Name
+auto tests::unit::options::get::Fixture::suite() -> Suite {
+  auto series = Stream{"get"sv};
+  series << []{
+             auto use = Stream{"usage"sv};
+             use << []{
+                     auto get = Stream{"aggregation_function_mode"};
+                     get << add("good", &Fixture::test_aggregation_function_mode_good)
+                         << add("bad", &Fixture::test_aggregation_function_mode_fail)
+                         << END;
+                     return get;
+                   }()
+                 << []{
+                     auto get = Stream{"aggregation_function_names"};
+                     get << add("good", &Fixture::test_aggregation_function_names_good)
+                         << add("bad", &Fixture::test_aggregation_function_names_fail)
+                         << END;
+                     return get;
+                   }()
+                 << END;
+             return use;
+          }()
+         << add<aggregation_function::Mode>()
+         << add<aggregation_function::Name>()
+         << END;
+  return settle(series);
+}
+#import tests.unit.options.get.Configuration
+#import tests.unit.options.get.Step
+#import tests.unit.options.get.Quitting
+#import tests.unit.function.Palette
+#import app.flow.options.get.aggregation_function_mode // <---------------------------------------- test this
+#import app.flow.options.get.aggregation_function_name // <---------------------------------------- test this
+namespace tests::unit::options::get {
+  auto Fixture::test_aggregation_function_mode_good() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_m, "DAF"sv};
+    auto got = library::aggregation_function_mode<Quitting>(exp, step); // <---------------------------------------- test this
+    require(ASSERTION, Mode::DAF == got);
+  } catch (Failure const &e) {
+    impossible(ASSERTION);
+  }
+  auto Fixture::test_aggregation_function_mode_fail() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_f, "!@#$%"sv}; // <------------------------ there are many bad identifiers
+    library::aggregation_function_mode<Quitting>(exp, step); // <---------------------------------------- test this
+    impossible(ASSERTION);
+  } catch (Failure const &e) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_aggregation_function_names_good() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_z, "ZERO"sv};
+    auto got = library::aggregation_function_name<Quitting>(exp, step); // <---------------------------------------- test this
+    auto [af, daf, vdaf] = got;
+    {
+      using tests::unit::function::Palette;
+      using enum ::tunitas::alambique::function::Mode;
+      require(ASSERTION, Palette<AF>::GOOD == af);
+      require(ASSERTION, Palette<DAF>::GOOD == daf);
+      require(ASSERTION, Palette<VDAF>::GOOD == vdaf);
+#if 0  // not yet, but soon
+      require(ASSERTION, Palette<VIDAF>::GOOD == vdaf);
+#endif
+    }
+  } catch (Failure const &e) {
+    impossible(ASSERTION);
+  }
+  auto Fixture::test_aggregation_function_names_fail() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_f, "!@#$%"sv}; // <------------------------ there are many bad identifiers
+    library::aggregation_function_name<Quitting>(exp, step); // <---------------------------------------- test this
+    impossible(ASSERTION);
+  } catch (Failure const &e) {
+    require(ASSERTION);
+  }
+}
+#endiv

@@ -13,6 +13,7 @@ app_flow_SUBSOURCES = \
   noinst/obj/src/app/flow/exception.Usage.cpp \
   noinst/obj/src/app/flow/required.cpp \
   noinst/obj/src/app/flow/run.cpp \
+  noinst/obj/src/app/flow/usage.Message.cpp \
   $(app_flow_options_SUBSOURCES) \
   $(end)
 #

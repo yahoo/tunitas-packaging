@@ -25,11 +25,15 @@ struct tests::unit::alambique::fixture::Fixture : public rigging::suite::Fixture
 #import tunitas.keyston.entropy.Source
 namespace tests::unit::alambique::fixture {
   template<library::Function FUNCTION> auto Fixture::test_usage_Demonstrator() -> void {
-    using Entropy = tunitas::keyston::entropy::Source;
     using Subject = library::Demonstrator<FUNCTION>;
-    auto source = Entropy{};
-    auto subject = Subject{source, {}};
-    require(ASSERTION, sizeof(subject));
+    if constexpr (library::Function::AF == FUNCTION) {
+      auto subject = Subject{{}}; // no entropy needed for the AF case
+      require(ASSERTION, sizeof(subject));
+    } else {
+      auto source = ::tunitas::keyston::entropy::Source{};
+      auto subject = Subject{source, {}};
+      require(ASSERTION, sizeof(subject));
+    }
   }
 }
 #endiv
@@ -40,8 +44,12 @@ auto tests::unit::alambique::fixture::Fixture::suite() -> Suite {
             auto use = Stream{"usage"sv};
             use << []{
                     auto dem = Stream{"Demonstrator"sv};
-                    dem << add("DAF", &Fixture::test_usage_Demonstrator<library::Function::DAF>)
+                    dem << add("AF", &Fixture::test_usage_Demonstrator<library::Function::AF>)
+                        << add("DAF", &Fixture::test_usage_Demonstrator<library::Function::DAF>)
                         << add("VDAF", &Fixture::test_usage_Demonstrator<library::Function::VDAF>)
+#if 0
+                        << add("VIDAF", &Fixture::test_usage_Demonstrator<library::Function::VIDAF>)
+#endif
                         << END;
                     return dem;
                   }()

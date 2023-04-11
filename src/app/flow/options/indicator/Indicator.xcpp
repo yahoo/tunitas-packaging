@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::flow::options::indicator {
+  namespace package_indicator {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_indicator::interface;
+}
+#import std
+namespace app::flow::options::indicator::package_indicator {
+  namespace body {
+    using namespace std;
+    namespace exported {
+      //
+      // These enums are used to generate the constants
+      //
+      enum class Parsed {
+        INTERACTIVE_MODE,
+        PROGRAMMATIC_MODE,
+        MEASUREMENT_DATA_FILEPATH,
+        AGGREGATION_FUNCTION_MODE,
+        AGGREGATION_FUNCTION_NAME,
+        USE_AF_MODE,
+        USE_DAF_MODE,
+        USE_VDAF_MODE,
+        USE_VIDAF_MODE,
+      };
+    }
+  }
+}
+namespace app::flow::options::indicator {
+  static_assert(sizeof(Parsed), "is visible");
+}
+#endiv
+#divert <hpp>
+#import cli.options.indicator.Code
+#import std.underlying_type
+namespace app::flow::options::indicator::package_indicator::body {
+  //
+  // options constants that pertain to only the flow application.
+  //
+  // Usage:
+  //
+  //   switch (code) {
+  //   case Indicator<Parsed::INTERACTIVE_MODE>:   ...do something...
+  //   case Indicator<Parsed::PROGRAMMATIC_MODE>:  ...do something...
+  //   case Indicator<Parsed::MEASUREMENT_DATA_FILEPATH>: ...do something...
+  //   default: ... do something...
+  //   }
+  //
+  inline constexpr auto MAXIMUM = 199;
+  inline constexpr auto SPAN = 50;
+  inline constexpr auto MINIMUM = 1+MAXIMUM - SPAN;
+  using U = underlying_type_t<exported::Parsed>;
+  using cli::options::indicator::Code;
+  using C = underlying_type_t<Code>;
+  namespace exported {
+    inline constexpr auto indicated(Parsed u) { return Code{C(MAXIMUM - (U) u)}; }
+    template<Parsed PARSED> requires (0 <= U(PARSED) && U(PARSED) <= SPAN) inline constexpr Code Indicator = indicated(PARSED);
+  }
+}
+#endiv

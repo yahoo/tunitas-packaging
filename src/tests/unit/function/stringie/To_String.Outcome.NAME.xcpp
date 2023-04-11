@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tests.unit.function.stringie.To_String.template
+namespace tests::unit::function::stringie {
+  template<required::Name SUBJECT> struct To_String<by::Outcome, SUBJECT>;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.function.stringie.Ensuite
+namespace tests::unit::function::stringie {
+  template<required::Name SUBJECT> class To_String<by::Outcome, SUBJECT> : public rigging::suite::Fixture,
+                                                                           protected stringie::Ensuite<To_String<by::Outcome, SUBJECT>>,
+                                                                           protected function::Palette<traits::MODE<SUBJECT>> {
+    using Palette = function::Palette<traits::MODE<SUBJECT>>;
+    using Ensuite = stringie::Ensuite<To_String>;
+  public:
+    static auto suite() -> Suite { return Ensuite::subsuite("by::Outcome"sv); }
+    //
+    using Subject = SUBJECT;
+    inline static constexpr auto ERROR_BY = by::Outcome{};
+    //
+    auto test_to_string_good() -> void;
+    auto test_to_string_fail() -> void;
+    auto test_to_string_view_good() -> void;
+    auto test_to_string_view_fail() -> void;
+  protected:
+    using Failure = ::tunitas::exception::Aspect;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::function::stringie {
+  template<required::Name _> auto To_String<by::Outcome, _>::test_to_string_good() -> void {
+    auto specimen = Subject{Palette::GOOD};
+    auto subject = to_string(ERROR_BY, specimen);
+    require(ASSERTION, good(subject));
+    require(ASSERTION, Palette::literal() == value(subject));
+  }
+  template<required::Name _> auto To_String<by::Outcome, _>::test_to_string_fail() -> void try {
+    auto specimen = Subject{Palette::FAIL};
+    auto subject = to_string(ERROR_BY, specimen);
+    require(ASSERTION, fail(subject));
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<required::Name _> auto To_String<by::Outcome, _>::test_to_string_view_good() -> void {
+    auto specimen = Subject{Palette::GOOD};
+    auto subject = to_string_view(ERROR_BY, specimen);
+    require(ASSERTION, good(subject));
+    require(ASSERTION, Palette::literal() == value(subject));
+  }
+  template<required::Name _> auto To_String<by::Outcome, _>::test_to_string_view_fail() -> void try {
+    auto specimen = Subject{Palette::FAIL};
+    auto subject = to_string_view(ERROR_BY, specimen);
+    require(ASSERTION, fail(subject));
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

@@ -12,10 +12,14 @@ tests_unit_SUBSOURCES = \
   check/obj/src/tests/unit/alambique.Fixture.cpp \
   $(tests_unit_error_SUBSOURCES) \
   $(tests_unit_exception_SUBSOURCES) \
+  $(tests_unit_function_SUBSOURCES) \
+  $(tests_unit_options_SUBSOURCES) \
   $(tests_unit_slurp_SUBSOURCES) \
   check/obj/src/tests/unit/version.Fixture.cpp \
   $(end)
 #
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
+include src/tests/unit/function/Makefrag.am
+include src/tests/unit/options/Makefrag.am
 include src/tests/unit/slurp/Makefrag.am

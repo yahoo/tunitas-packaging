@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::flow::usage {
+  //
+  // The usage message generator
+  //
+  // Specification:
+  //
+  //   Generate the usage message (The usage message generator "generates the ussage message" get it?  Even a LLM can figure that out).
+  //
+  // Design:
+  //
+  //   Isolated from other functionality; e.g. exception::Usage.
+  //
+  // Usage:
+  //
+  //   In exception::Usage.
+  //   Or standalone.
+  //
+  struct Message;
+}
+#endiv
+#divert <hpp>
+class app::flow::usage::Message {
+  using String = string::Storage;
+public:
+  auto operator()() const -> String;
+};
+#endiv
+#divert <cpp>
+#import app.flow.defaults
+namespace app::flow::usage {
+  auto Message::operator()() const -> String {
+    return ("usage: ${NAME} [...options...]\n"
+            "\n"
+            "\nExhibition Options:"
+            "\n--measurement-data-filepath=FILEPATH         read the measurement data from FILEPATH"
+            "\n      alternatives: --measurement-data=FILEPATH, --measurements=FILEPATH, -f FILEPATH"
+            "\n--aggregation-function-name=NAME            compute the named aggregation function on the measurement data"
+            "\n      alternatives: (nothing, if not convenient for sloppy use)"
+            "\n      alternatives: --aggregation-function=NAME, --aggregation=NAME, --aggregate=NAME"
+            "\n                    --function-name=NAME, --function=NAME, --func=NAME"
+            "\n                    --aggfunc=NAME, ==agg=name"
+            "\n      NAME for AF Mode (Aggregation Function Mode, [Centralized] Aggregation Mode)"
+            "\n           among: ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+            "\n      NAME for DAF Mode (Distributed Aggregation Function Mode)"
+            "\n           among: ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+            "\n      NAME for VDAF Mode (Verifiable Distributed Aggregation Function) Mode)"
+            "\n           among: ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+            "\n           or with the underlying algorithm name prefixed:"
+            "\n           among: PRIO3, PRIO3-COUNT, PRIO3-SUM, PRIO3-HISTOGRAM, POPLAR1, POPLAR1-HISTOGRAM"
+            "\n"
+            "\nMode Options:"
+            "\n   generally the mode is intuited from the other options, but in cases where it is not otherwise-obvious"
+            "\n--af                                         Force AF (Aggregation Funtion) Mode, i.e. no distribution"
+            "\n--daf                                        Force DAF (Distributed Aggregation Funtion) Mode, i.e. distributivity but no verifiability"
+            "\n--vdaf                                       Force VDAF (Verifiable Distributed Aggregation Function) Mode"
+            "\n--interactive-mode                           not implemented (ambiguous)"
+            "\n--programmatic-mode                          not implemented (ambiguous)"
+            "\n"
+            "\nGeneral Options:"
+            "\n--usage, --help, -h                          emit this message, and exit"
+            "\n--version, -V                                emit the package version, and exit"
+            "\n--dry-run, --dryrun, -y                      dry run, do not start the server"
+            "\n--warnings, --warning, -w                    emit warnings"
+            "\n--quiet, -q                                  be quiet, emit no notices or warnings"
+            "\n--verbose, -v                                be verbose (independent of --quiet)"
+            "\n--DEBUG, -D                                  debug output (you should not need this)"); // no '\n'
+  }
+}
+#endiv

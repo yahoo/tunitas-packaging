@@ -44,7 +44,7 @@ namespace tunitas::alambique {
   //
   //   </quote>
   //
-  template<> struct Demonstrator<Function::DAF>;
+  template<> struct Demonstrator<DAF>;
 }
 #endiv
 #divert <hpp>
@@ -52,6 +52,7 @@ namespace tunitas::alambique {
 #import nonstd.units.memory.scale // Bits
 #import nonstd.required.iterator.Forward
 #import nonstd.required.iterator.Producing
+#import tunitas.keyston.Scheme
 #import tunitas.keyston.Slice
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.entropy.Source
@@ -59,14 +60,14 @@ namespace tunitas::alambique {
 #import tunitas.keyston.daf.Configuration
 #import tunitas.keyston.daf.Executor
 namespace tunitas::alambique {
-  template<> class Demonstrator<Function::DAF> {
+  template<> class Demonstrator<DAF> {
   protected:
     struct Constants {
-      inline static constexpr auto RANDOM_SIZE = nonstd::units::memory::Bits{128uz}; // ... [[FIXTHIS]] use tuntias::units when it exists
+      inline static constexpr auto RANDOM_SIZE = nonstd::units::memory::Bits{128uz}; // ... [[FIXTHIS]] use tunitas::units when it exists
     };
     using Entropy = keyston::entropy::Source;
     using enum keyston::Slice;
-    inline static constexpr auto SCHEME = keyston::daf::Scheme::NUMERIC;
+    inline static constexpr auto SCHEME = keyston::Scheme::NUMERIC;
     using Configuration = keyston::daf::Configuration<SCHEME>;
     //
     keyston::daf::Executor<SCHEME> executor{}; // unless initialized otherwise, this contains nulls and is not useful
@@ -74,31 +75,34 @@ namespace tunitas::alambique {
   public:
     using Name = keyston::daf::Name;
     using Parameters = Configuration::Parameters;
-    using Measured = Configuration::Measurement<WHOLE>;
-    using Aggregated = Configuration::Aggregation<WHOLE>;
+    struct Whole {
+      using Measurement = Configuration::Measurement<WHOLE>;
+      using Aggregation = Configuration::Aggregation<WHOLE>;
+    };
     //
     inline explicit Demonstrator(Entropy &, Name);
     Demonstrator(Demonstrator const &) = delete;
     auto operator=(Demonstrator const &) -> Demonstrator & = delete;
-    inline auto run(Parameters const &, std::span<Measured>) -> Aggregated;
-    template<typename ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Aggregated
-      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>);
-    template<typename ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Aggregated
-      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>);
+    inline auto run(Parameters const &, std::span<Whole::Measurement>) -> Whole::Aggregation;
+    template<typename ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Whole::Aggregation
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
+    template<typename ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Whole::Aggregation
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
   };
 }
 #endiv
 #divert <ipp>
+#import std.ranges.subrange
 namespace tunitas::alambique {
-  Demonstrator<Function::DAF>::Demonstrator(Entropy &source, Name name)
+  Demonstrator<DAF>::Demonstrator(Entropy &source, Name name)
     : executor{name}
     , randomizer{source}
   { }
-  auto Demonstrator<Function::DAF>::run(Parameters const &p, std::span<Measured> s) -> Aggregated {
+  auto Demonstrator<DAF>::run(Parameters const &p, std::span<Whole::Measurement> s) -> Whole::Aggregation {
     return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
   }
-  template<typename ITERATOR> auto Demonstrator<Function::DAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Aggregated
-    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>) {
+  template<typename ITERATOR> auto Demonstrator<DAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Whole::Aggregation
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
     return run(p, std::ranges::subrange{s, f});
   }
 }
@@ -106,8 +110,8 @@ namespace tunitas::alambique {
 #divert <tpp>
 #import tunitas.keyston.daf.numeric.components
 namespace tunitas::alambique {
-  template<typename ITERATOR> auto Demonstrator<Function::DAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Aggregated
-    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measured>) {
+  template<typename ITERATOR> auto Demonstrator<DAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
     using namespace keyston::daf::numeric::components;
     Shards<Series<Output<SHARE>>> outputs{};
     for (auto const &measurement : measurements) {

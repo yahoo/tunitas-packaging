@@ -68,27 +68,28 @@ namespace tunitas::alambique {
   //
   //   </quote>
   //
-  template<> struct Demonstrator<Function::VDAF>;
+  template<> struct Demonstrator<VDAF>;
 }
 #endiv
 #divert <hpp>
 #import std.span
 #import nonstd.units.memory.scale // Bits and Bytes
+#import tunitas.keyston.Scheme
 #import tunitas.keyston.Slice
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.entropy.Source
 #import tunitas.keyston.vdaf.Configuration
 #import tunitas.keyston.vdaf.Executor
 namespace tunitas::alambique {
-  template<> class Demonstrator<Function::VDAF> {
+  template<> class Demonstrator<VDAF> {
   protected:
     struct Constants {
-      inline static constexpr auto RANDOM_SIZE = nonstd::units::memory::Bits{128uz}; // ... [[FIXTHIS]] use tuntias::units when it exists
+      inline static constexpr auto RANDOM_SIZE = nonstd::units::memory::Bits{128uz}; // ... [[FIXTHIS]] use tunitas::units when it exists
       inline static constexpr auto NONCE_SIZE = nonstd::units::memory::Bits{32uz}; // ..... eadem ratione
     };
     using Entropy = keyston::entropy::Source;
     using enum keyston::Slice;
-    inline static constexpr auto SCHEME = keyston::vdaf::Scheme::NUMERIC;
+    inline static constexpr auto SCHEME = keyston::Scheme::NUMERIC;
     using Configuration = keyston::vdaf::Configuration<SCHEME>;
     //
     keyston::vdaf::Executor<SCHEME> executor{};
@@ -96,19 +97,21 @@ namespace tunitas::alambique {
   public:
     using Name = keyston::vdaf::Name;
     using Parameters = Configuration::Parameters;
-    using Measurement = Configuration::Measurement<WHOLE>;
-    using Aggregation = Configuration::Aggregation<WHOLE>;
+    struct Whole {
+      using Measurement = Configuration::Measurement<WHOLE>;
+      using Aggregation = Configuration::Aggregation<WHOLE>;
+    };
     //
     inline explicit Demonstrator(Entropy &, Name);
     Demonstrator(Demonstrator const &) = delete;
     auto operator=(Demonstrator const &) -> Demonstrator & = delete;
-    auto run(Parameters const &, std::span<Measurement>) -> Aggregation;
+    auto run(Parameters const &, std::span<Whole::Measurement>) -> Whole::Aggregation;
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::alambique {
-  Demonstrator<Function::VDAF>::Demonstrator(Entropy &source, Name name)
+  Demonstrator<VDAF>::Demonstrator(Entropy &source, Name name)
     : executor{name}
     , randomizer{source}
   { }
@@ -118,7 +121,7 @@ namespace tunitas::alambique {
 #import tunitas.keyston.vdaf.numeric.components
 #import nonstd.exception.Unreachable
 namespace tunitas::alambique {
-  auto Demonstrator<Function::VDAF>::run(Parameters const &parameters, std::span<Measurement> measurements) -> Aggregation {
+  auto Demonstrator<VDAF>::run(Parameters const &parameters, std::span<Whole::Measurement> measurements) -> Whole::Aggregation {
     using namespace keyston::vdaf::numeric::components;
 #if 0
     Shards<Series<Output<SHARE>>> outputs{};

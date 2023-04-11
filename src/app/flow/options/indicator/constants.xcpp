@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import cli.options.indicator.constants
+namespace app::flow::options::indicator {
+  using namespace cli::options::indicator;
+  inline namespace constants { using namespace cli::options::indicator::constants; }
+}
+#endiv
+#divert <hpp>
+#import app.flow.options.indicator.Indicator
+namespace app::flow::options::indicator::constants {
+  inline constexpr auto const INTERACTIVE_MODE = Indicator<Parsed::INTERACTIVE_MODE>;
+  inline constexpr auto const PROGRAMMATIC_MODE = Indicator<Parsed::PROGRAMMATIC_MODE>;
+  inline constexpr auto const MEASUREMENT_DATA_FILEPATH = Indicator<Parsed::MEASUREMENT_DATA_FILEPATH>;
+  inline constexpr auto const AGGREGATION_FUNCTION_MODE = Indicator<Parsed::AGGREGATION_FUNCTION_MODE>;
+  inline constexpr auto const AGGREGATION_FUNCTION_NAME = Indicator<Parsed::AGGREGATION_FUNCTION_NAME>;
+  inline constexpr auto const USE_AF_MODE = Indicator<Parsed::USE_AF_MODE>;
+  inline constexpr auto const USE_DAF_MODE = Indicator<Parsed::USE_DAF_MODE>;
+  inline constexpr auto const USE_VDAF_MODE = Indicator<Parsed::USE_VDAF_MODE>;
+  inline constexpr auto const USE_VIDAF_MODE = Indicator<Parsed::USE_VIDAF_MODE>;
+}
+#endiv

@@ -6,8 +6,12 @@
 #divert <fpp>
 #import tunitas.application
 #import tunitas.string.literals
+#import tunitas.string
 namespace app {
   using namespace tunitas::application;
   using namespace tunitas::string::literals;
+  namespace string = tunitas::string;
 }
+#import tunitas.string.Storage
+#import tunitas.string.View
 #endiv

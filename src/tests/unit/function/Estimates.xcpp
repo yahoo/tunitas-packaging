@@ -1,0 +1,126 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::function { class Estimates; }
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Estimates
+#import tunitas.alambique.function.Resolved
+#import tunitas.error.by.required.Indicator
+#import tunitas.exception.Aspect
+#import tests.unit.function.Palette
+struct tests::unit::function::Estimates : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Estimates;
+  using Resolved = library::Resolved;
+  using AF = Palette<library::Mode::AF>;
+  using DAF = Palette<library::Mode::DAF>;
+  using VDAF = Palette<library::Mode::VDAF>;
+  //
+  auto test_constructor() -> void;
+  template<bool, bool, bool> auto test_resolve() -> void;
+};
+#endiv
+#divert <cpp>
+//
+// specializations come first so that suite() can see them
+//
+namespace tests::unit::function {
+  template<> auto Estimates::test_resolve<false, false, false>() -> void {
+    constexpr auto const v1 = AF::Optional{};
+    constexpr auto const v2 = DAF::Optional{};
+    constexpr auto const v3 = VDAF::Optional{};
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, false == (bool) resolved);
+  }
+  template<> auto Estimates::test_resolve<false, false, true>() -> void {
+    constexpr auto const v1 = AF::Optional{};
+    constexpr auto const v2 = DAF::Optional{};
+    constexpr auto const v3 = VDAF::GOOD;
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, true == (bool) resolved);
+    require(ASSERTION, Resolved{v3} == *resolved);
+  }
+  template<> auto Estimates::test_resolve<false, true, false>() -> void {
+    constexpr auto const v1 = AF::Optional{};
+    constexpr auto const v2 = DAF::GOOD;
+    constexpr auto const v3 = VDAF::Optional{};
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, true == (bool) resolved);
+    require(ASSERTION, Resolved{v2} == *resolved);
+  }
+  template<> auto Estimates::test_resolve<false, true, true>() -> void {
+    constexpr auto const v1 = AF::Optional{};
+    constexpr auto const v2 = DAF::GOOD;
+    constexpr auto const v3 = VDAF::GOOD;
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, false == (bool) resolved);
+  }
+  template<> auto Estimates::test_resolve<true, false, false>() -> void {
+    constexpr auto const v1 = AF::GOOD;
+    constexpr auto const v2 = DAF::Optional{};
+    constexpr auto const v3 = VDAF::Optional{};
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, true == (bool) resolved);
+    require(ASSERTION, Resolved{v1} == *resolved);
+  }
+  template<> auto Estimates::test_resolve<true, false, true>() -> void {
+    constexpr auto const v1 = AF::GOOD;
+    constexpr auto const v2 = DAF::Optional{};
+    constexpr auto const v3 = VDAF::GOOD;
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, false == (bool) resolved);
+  }
+  template<> auto Estimates::test_resolve<true, true, false>() -> void {
+    constexpr auto const v1 = AF::GOOD;
+    constexpr auto const v2 = DAF::GOOD;
+    constexpr auto const v3 = VDAF::Optional{};
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, false == (bool) resolved);
+  }
+  template<> auto Estimates::test_resolve<true, true, true>() -> void {
+    constexpr auto const v1 = AF::GOOD;
+    constexpr auto const v2 = DAF::GOOD;
+    constexpr auto const v3 = VDAF::GOOD;
+    auto specimen = Subject{v1, v2, v3};
+    auto resolved = library::resolve(specimen);
+    require(ASSERTION, false == (bool) resolved);
+  }
+}
+auto tests::unit::function::Estimates::suite() -> Suite {
+  auto series = Stream{"Estimates"sv};
+  series << add("constructor", &Estimates::test_constructor)
+         << []{
+             auto res = Stream{"resolve"sv};
+             res << add("false,false,false", &Estimates::test_resolve<false, false, false>)
+                 << add("false,false,true", &Estimates::test_resolve<false, false, true>)
+                 << add("false,true,false", &Estimates::test_resolve<false, true, false>)
+                 << add("false,true,true", &Estimates::test_resolve<false, true, true>)
+                 << add("true,false,false", &Estimates::test_resolve<true, false, false>)
+                 << add("true,false,true", &Estimates::test_resolve<true, false, true>)
+                 << add("true,true,false", &Estimates::test_resolve<true, true, false>)
+                 << add("true,true,true", &Estimates::test_resolve<true, true, true>)
+                 << END;
+             return res;
+           }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::function {
+  auto Estimates::test_constructor() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+}
+#endiv

@@ -28,6 +28,7 @@ namespace app::flow::exception {
 #endiv
 #divert <hpp>
 #import app.exception.Aspect
+#import app.flow.usage.Message
 #import cli.exits.Code
 #import cli.exception.Aspect
 #import cli.experience.Console
@@ -57,6 +58,7 @@ public:
   auto exit() const noexcept -> Results::Exit override;
 private:
   auto unformatted() const -> std::string override;
+  usage::Message generator{};
 };
 #endiv
 #divert <ipp>
@@ -77,22 +79,7 @@ namespace app::flow::exception {
   auto Usage::code() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
   auto Usage::exit() const noexcept -> Results::Exit     { return Ancestors::Exception::exit(); }
 }
-#import std.ostringstream
-#import app.flow.defaults
-auto app::flow::exception::Usage::unformatted() const -> std::string {
-  std::ostringstream buf;
-  buf << "usage: ${NAME} [...options...]\n"
-      << "\n"
-      << "\nGeneral Options:"
-      << "\n--usage, --help, -h                emit this message, and exit"
-      << "\n--version, -V                      emit the package version, and exit"
-      << "\n--dry-run, --dryrun, -y            dry run, do not start the server"
-      << "\n--warnings, --warning, -w          emit warnings"
-      << "\n--quiet, -q                        be quiet, emit no notices or warnings"
-      << "\n--verbose, -v                      be verbose (independent of --quiet)"
-      << "\n--DEBUG, -D                        debug output (you should not need this)"; // no '\n'
-  return buf.str();
-}
+auto app::flow::exception::Usage::unformatted() const -> std::string { return generator(); }
 #import std.is_abstract
 namespace {
   namespace testate {

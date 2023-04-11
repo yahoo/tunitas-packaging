@@ -49,7 +49,7 @@ namespace app::flow::package_run {
     namespace exported {
       auto run([[inout]] Console &, [[inout]] Configuration const &) -> Exit;
     }
-    inline auto intake(Filepath const &) -> Series<Demonstrator::Measured>;
+    inline auto intake(Filepath const &) -> Series<Demonstrator::Whole::Measurement>;
   }
 }
 #endiv
@@ -58,10 +58,10 @@ namespace app::flow::package_run {
 #import std.transform
 #import std.back_inserter
 namespace app::flow::package_run {
-  auto body::intake(Filepath const &datafile) -> Series<Demonstrator::Measured> {
+  auto body::intake(Filepath const &datafile) -> Series<Demonstrator::Whole::Measurement> {
     auto slurped = slurp::from_file(datafile);
-    auto measured = Series<Demonstrator::Measured>{};
-    auto prepare_one_specimen = [](auto const &specimen) { return Demonstrator::Measured{specimen}; };
+    auto measured = Series<Demonstrator::Whole::Measurement>{};
+    auto prepare_one_specimen = [](auto const &specimen) { return Demonstrator::Whole::Measurement{specimen}; };
     std::transform(slurped.begin(), slurped.end(), std::back_inserter(measured), prepare_one_specimen);
     return measured;
 

@@ -4,16 +4,14 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import cli.options.indicator.constants
-namespace app::flow::options::indicator {
-  using namespace cli::options::indicator;
-  inline namespace constants { using namespace cli::options::indicator::constants; }
+#import std.tuple_element
+#import tunitas.alambique.function.Estimates
+namespace std {
+  template<size_t N> struct tuple_element<N, tunitas::alambique::function::Estimates>;
 }
 #endiv
 #divert <hpp>
-namespace app::flow::options::indicator::constants {
-  inline auto const INTERACTIVE_MODE = Code::CODE_254;
-  inline auto const PROGRAMMATIC_MODE = Code::CODE_253;
-  inline auto const MEASUREMENT_DATA_FILEPATH = Code::CODE_252;
+namespace std {
+  template<size_t N> struct tuple_element<N, tunitas::alambique::function::Estimates> : public tuple_element<N, tunitas::alambique::function::estimates::Ancestor> { };
 }
 #endiv

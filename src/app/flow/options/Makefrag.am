@@ -6,9 +6,12 @@
 #
 app_flow_options_SUBSOURCES = \
   noinst/obj/src/app/flow/options/namespace.cpp \
-  noinst/obj/src/app/flow/options/indicator.cpp \
-  noinst/obj/src/app/flow/options/indicator.constants.cpp \
+  $(app_flow_options_get_SUBSOURCES) \
+  $(app_flow_options_indicator_SUBSOURCES) \
   noinst/obj/src/app/flow/options/Parser.cpp \
   noinst/obj/src/app/flow/options/Parser.Result.cpp \
   noinst/obj/src/app/flow/options/Specification.cpp \
   $(end)
+#
+include src/app/flow/options/get/Makefrag.am
+include src/app/flow/options/indicator/Makefrag.am

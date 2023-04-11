@@ -1,0 +1,174 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::function { class Resolved; }
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Resolved
+#import tunitas.error.by.required.Indicator
+#import tunitas.exception.Aspect
+#import tests.unit.function.Palette
+struct tests::unit::function::Resolved : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Resolved;
+  using AF = Palette<library::Mode::AF>;
+  using DAF = Palette<library::Mode::DAF>;
+  using VDAF = Palette<library::Mode::VDAF>;
+#if 0 // not yet
+  using VIDAF = Palette<library::Mode::VIDAF>;
+#endif
+  //
+  auto test_constructor() -> void;
+  template<by::required::Indicator> auto test_to_string_good() -> void;
+  template<by::required::Indicator> auto test_to_string_fail() -> void;
+  template<by::required::Indicator> auto test_to_string_view_good() -> void;
+  template<by::required::Indicator> auto test_to_string_view_fail() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+};
+#endiv
+#divert <cpp>
+//
+// Specializations go first so that the suite() function can see t hem
+//
+namespace tests::unit::function {
+  template<> auto Resolved::test_to_string_good<by::Optional>() -> void {
+    auto specimen = Subject{AF::GOOD};
+    auto subject = to_string(OPTIONAL, specimen);
+    require(ASSERTION, true == (bool) subject);
+    require(ASSERTION, "ZERO"sv == *subject);
+  }
+  template<> auto Resolved::test_to_string_fail<by::Optional>() -> void {
+    auto specimen = Subject{AF::FAIL};
+    auto subject = to_string(OPTIONAL, specimen);
+    require(ASSERTION, false == (bool) subject);
+  }
+  template<> auto Resolved::test_to_string_good<by::Outcome>() -> void {
+    auto specimen = Subject{DAF::GOOD};
+    auto subject = to_string(OUTCOME, specimen);
+    require(ASSERTION, good(subject));
+    require(ASSERTION, "ZERO"sv == value(subject));
+  }
+  template<> auto Resolved::test_to_string_fail<by::Outcome>() -> void {
+    auto specimen = Subject{DAF::FAIL};
+    auto subject = to_string(OUTCOME, specimen);
+    require(ASSERTION, fail(subject));
+  }
+  template<> auto Resolved::test_to_string_good<by::Exception>() -> void {
+    auto specimen = Subject{VDAF::GOOD};
+    auto subject = to_string(EXCEPTION, specimen);
+    require(ASSERTION, "ZERO"sv == subject);
+  }
+  template<> auto Resolved::test_to_string_fail<by::Exception>() -> void try {
+    auto specimen = Subject{VDAF::FAIL};
+    to_string(EXCEPTION, specimen);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+namespace tests::unit::function {
+  template<> auto Resolved::test_to_string_view_good<by::Optional>() -> void {
+    auto specimen = Subject{VDAF::GOOD};
+    auto subject = to_string_view(OPTIONAL, specimen);
+    require(ASSERTION, true == (bool) subject);
+    require(ASSERTION, "ZERO"sv == *subject);
+  }
+  template<> auto Resolved::test_to_string_view_fail<by::Optional>() -> void {
+    auto specimen = Subject{VDAF::FAIL};
+    auto subject = to_string_view(OPTIONAL, specimen);
+    require(ASSERTION, false == (bool) subject);
+  }
+  template<> auto Resolved::test_to_string_view_good<by::Outcome>() -> void {
+    auto specimen = Subject{DAF::GOOD};
+    auto subject = to_string_view(OUTCOME, specimen);
+    require(ASSERTION, good(subject));
+    require(ASSERTION, "ZERO"sv == value(subject));
+  }
+  template<> auto Resolved::test_to_string_view_fail<by::Outcome>() -> void {
+    auto specimen = Subject{DAF::FAIL};
+    auto subject = to_string_view(OUTCOME, specimen);
+    require(ASSERTION, fail(subject));
+  }
+  template<> auto Resolved::test_to_string_view_good<by::Exception>() -> void {
+    auto specimen = Subject{AF::GOOD};
+    auto subject = to_string_view(EXCEPTION, specimen);
+    require(ASSERTION, "ZERO"sv == subject);
+  }
+  template<> auto Resolved::test_to_string_view_fail<by::Exception>() -> void try {
+    auto specimen = Subject{AF::FAIL};
+    to_string_view(EXCEPTION, specimen);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+auto tests::unit::function::Resolved::suite() -> Suite {
+  auto series = Stream{"Resolved"sv};
+  series << add("constructor", &Resolved::test_constructor)
+         << []{
+             auto tos = Stream{"to_string"sv};
+             tos << []{
+                     auto opt = Stream{"Optional"sv};
+                     opt << add("good", &Resolved::test_to_string_good<by::Optional>)
+                         << add("fail", &Resolved::test_to_string_fail<by::Optional>)
+                         << END;
+                     return opt;
+                   }()
+                 << []{
+                     auto out = Stream{"Outcome"sv};
+                     out << add("good", &Resolved::test_to_string_good<by::Outcome>)
+                         << add("fail", &Resolved::test_to_string_fail<by::Outcome>)
+                         << END;
+                     return out;
+                   }()
+                 << []{
+                     auto exc = Stream{"Exception"sv};
+                     exc << add("good", &Resolved::test_to_string_good<by::Exception>)
+                         << add("fail", &Resolved::test_to_string_fail<by::Exception>)
+                         << END;
+                     return exc;
+                   }()
+                 << END;
+             return tos;
+           }()
+         << []{
+             auto tos = Stream{"to_string_view"sv};
+             tos << []{
+                     auto opt = Stream{"Optional"sv};
+                     opt << add("good", &Resolved::test_to_string_view_good<by::Optional>)
+                         << add("fail", &Resolved::test_to_string_view_fail<by::Optional>)
+                         << END;
+                     return opt;
+                   }()
+                 << []{
+                     auto out = Stream{"Outcome"sv};
+                     out << add("good", &Resolved::test_to_string_view_good<by::Outcome>)
+                         << add("fail", &Resolved::test_to_string_view_fail<by::Outcome>)
+                         << END;
+                     return out;
+                   }()
+                 << []{
+                     auto exc = Stream{"Exception"sv};
+                     exc << add("good", &Resolved::test_to_string_view_good<by::Exception>)
+                         << add("fail", &Resolved::test_to_string_view_fail<by::Exception>)
+                         << END;
+                     return exc;
+                   }()
+                 << END;
+             return tos;
+           }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::function {
+  auto Resolved::test_constructor() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+}
+#endiv

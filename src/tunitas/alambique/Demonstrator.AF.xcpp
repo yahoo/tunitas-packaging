@@ -1,0 +1,89 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.Demonstrator.template
+namespace tunitas::alambique {
+  //
+  // The (single-threaded) (Centralized) Aggregation Function (AF) Demonstrator
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   There is no reference to the non-distributed variants of the aggregation functions.
+  //   So we "make them up" herein.
+  //
+  //   Should be obvious-by-construction (wherein aggrregation is "counting")
+  //  To wit:
+  //      
+  //    foreach specimen
+  //        count it
+  //    return the result
+  //
+  template<> struct Demonstrator<Function::AF>;
+}
+#endiv
+#divert <hpp>
+#import std.span
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.af.Configuration
+#import tunitas.keyston.af.Executor
+namespace tunitas::alambique {
+  template<> class Demonstrator<AF> {
+  protected:
+    inline static constexpr auto NUMERIC = keyston::af::NUMERIC;
+    using Configuration = keyston::af::Configuration<NUMERIC>;
+    using Intermediate = Configuration::Intermediate;
+    //
+    keyston::af::Executor<NUMERIC> executor{}; // unless initialized otherwise, this contains nulls and is not useful
+  public:
+    using Name = keyston::af::Name;
+    using Parameters = Configuration::Parameters;
+    using Measurement = Configuration::Measurement;
+    using Aggregation = Configuration::Aggregation;
+    //
+    inline explicit Demonstrator(Name);
+    Demonstrator(Demonstrator const &) = delete;
+    auto operator=(Demonstrator const &) -> Demonstrator & = delete;
+    inline auto run(Parameters const &, std::span<Measurement>) -> Aggregation;
+    template<typename ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Aggregation
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measurement>);
+    template<typename ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Aggregation
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measurement>);
+  };
+}
+#endiv
+#divert <ipp>
+#import std.ranges.subrange
+namespace tunitas::alambique {
+  Demonstrator<AF>::Demonstrator(Name name) : executor{name} { }
+  auto Demonstrator<AF>::run(Parameters const &p, std::span<Measurement> s) -> Aggregation {
+    return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
+  }
+  template<typename ITERATOR> auto Demonstrator<AF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Aggregation
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measurement>) {
+    return run(p, std::ranges::subrange{s, f});
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.af.numeric.components
+namespace tunitas::alambique {
+  template<typename ITERATOR> auto Demonstrator<AF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Aggregation
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Measurement>) {
+    using namespace keyston::af::numeric::components;
+    Intermediate intermediate{};
+    for (auto const &measurement : measurements) {
+      intermediate = executor.computation(parameters, move(intermediate), measurement);
+    }
+    return executor.finalization(parameters, intermediate);
+  }
+}
+#endiv

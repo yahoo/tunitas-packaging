@@ -4,6 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
+#import tunitas.alambique.Demonstrator.AF
 #import tunitas.alambique.Demonstrator.DAF
 #import tunitas.alambique.Demonstrator.VDAF
+#import tunitas.alambique.Demonstrator.VIDAF
 #endiv

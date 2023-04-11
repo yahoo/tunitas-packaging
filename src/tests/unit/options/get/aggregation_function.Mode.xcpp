@@ -1,0 +1,79 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::options::get::aggregation_function { class Mode; }
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Mode
+#import tunitas.exception.Aspect
+#import std.convertible_to
+struct tests::unit::options::get::aggregation_function::Mode : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_good() -> void;
+  auto test_fail() -> void;
+  auto test_universe() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+  static auto exercise([[inout]] unsigned &failure_accumulator, string::View specimen) -> void;
+  template<typename... VIEW> inline static auto series([[inout]] unsigned &failure_accumulator, VIEW &&...) -> void requires (std::convertible_to<VIEW, string::View> && ... );
+};
+#endiv
+#divert <ipp>
+namespace tests::unit::options::get::aggregation_function {
+  template<typename... VIEW> auto Mode::series(unsigned &failure_accumulator, VIEW &&...rest) -> void requires (std::convertible_to<VIEW, string::View> && ... ) {
+    (exercise(failure_accumulator, rest), ... );
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::options::get::aggregation_function::Mode::suite() -> Suite {
+  auto series = Stream{"aggregation_function_mode"sv};
+  series << add("good", &Mode::test_good)
+         << add("fail", &Mode::test_fail)
+         << add("universe", &Mode::test_universe)
+         << END;
+  return settle(series);
+}
+#import tests.unit.options.get.Configuration
+#import tests.unit.options.get.Step
+#import tests.unit.options.get.Quitting
+#import app.flow.options.get.aggregation_function_mode // <---------------------------------------- test this
+#import app.flow.options.get.aggregation_function_name // <---------------------------------------- test this
+namespace tests::unit::options::get::aggregation_function {
+  auto Mode::test_good() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_m, "DAF"sv};
+    auto got = library::aggregation_function_mode<Quitting>(exp, step); // <---------------------------------------- test this
+    require(ASSERTION, ::tunitas::alambique::function::Mode::DAF == got);
+  } catch (Failure const &e) {
+    impossible(ASSERTION);
+  }
+  auto Mode::test_fail() -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_f, "!@#$%"sv}; // <------------------------ there are many failing identifiers
+    library::aggregation_function_mode<Quitting>(exp, step); // <---------------------------------------- test this
+    impossible(ASSERTION);
+  } catch (Failure const &e) {
+    require(ASSERTION);
+  }
+  auto Mode::test_universe() -> void {
+    auto failure_accumulator{0u};
+    series(failure_accumulator, "af"sv, "AF"sv, "daf"sv, "DAF"sv, "vdaf"sv, "VDAF"sv);
+    require(ASSERTION, 0 == failure_accumulator);
+  }
+  auto Mode::exercise(unsigned &failure_accumulator, string::View specimen) -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_x, specimen};
+    library::aggregation_function_mode<Quitting>(exp, step); // <---------------------------------------- test this
+  } catch (Failure const &e) {
+    ++failure_accumulator;
+  }
+}
+#endiv

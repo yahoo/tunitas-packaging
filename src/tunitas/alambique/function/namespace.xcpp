@@ -1,0 +1,19 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique
+#import tunitas.keyston.af
+#import tunitas.keyston.daf
+#import tunitas.keyston.vdaf
+#import tunitas.keyston.Function
+#import tunitas
+namespace tunitas::alambique::function {
+  namespace af = tunitas::keyston::af;
+  namespace daf = tunitas::keyston::daf;
+  namespace vdaf = tunitas::keyston::vdaf;
+  using namespace tunitas;
+}
+#endiv

@@ -6,7 +6,9 @@
 #divert <fpp>
 #import app
 #import app.exception
+#import app.usage
 namespace app::flow {
-  namespace exception { using namespace app::exception; }
+  namespace [[nodirectory]] exception { using namespace app::exception; }
+  namespace [[nodirectory]] usage { using namespace app::usage; }
 }
 #endiv

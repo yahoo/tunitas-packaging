@@ -8,6 +8,8 @@ app_SUBSOURCES = \
   noinst/obj/src/app/namespace.cpp \
   noinst/obj/src/app/required/namespace.cpp \
   $(app_exception_SUBSOURCES) \
+  $(app_usage_SUBSOURCES) \
   $(end)
 #
 include src/app/exception/Makefrag.am
+include src/app/usage/Makefrag.am

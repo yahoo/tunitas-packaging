@@ -46,8 +46,36 @@ app::flow::options::Specification::Specification()
   //          /--------------- that one
   //          |
   //          v
-  : Ancestor{":hVDqvwyipf:",
-             {{"help", oa::NO, oi::USAGE_SUBCOMMAND},
+  : Ancestor{":hVDqvwyipf:m:n:",
+             {{"interactive", oa::NO, oi::INTERACTIVE_MODE},
+              {"program", oa::NO, oi::PROGRAMMATIC_MODE},
+              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE},
+              //
+              {"af", oa::NO, oi::USE_AF_MODE},
+              {"vdaf", oa::NO, oi::USE_DAF_MODE},
+              {"vdaf", oa::NO, oi::USE_VDAF_MODE},
+              {"vidaf", oa::NO, oi::USE_VIDAF_MODE},
+              // -f FILEPATH (f:)
+              {"measurements", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              {"measurement-data", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              {"measurement-data-filepath", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              // -m MODE (m:)
+              {"mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              {"function-mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              {"aggregation-mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              {"aggregation-function-mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              // -n NAME (n:)
+              {"name", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"func", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"function", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"function-name", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregate", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregation", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregation-function", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregation-function-name", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              //
+              // boilerplate standard options
+              {"help", oa::NO, oi::USAGE_SUBCOMMAND},
               {"usage", oa::NO, oi::USAGE_SUBCOMMAND},
               {"version", oa::NO, oi::VERSION_SUBCOMMAND},
               {"debug", oa::NO, oi::OLD_DEBUG_MODE},
@@ -57,12 +85,6 @@ app::flow::options::Specification::Specification()
               {"warning", oa::NO, oi::WARNING_MODE},
               {"warnings", oa::NO, oi::WARNING_MODE},
               {"dryrun", oa::NO, oi::DRYRUN_MODE},
-              {"dry-run", oa::NO, oi::DRYRUN_MODE},
-              {"interactive", oa::NO, oi::INTERACTIVE_MODE},
-              {"program", oa::NO, oi::PROGRAMMATIC_MODE},
-              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE},
-              {"measurements", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
-              {"measurement-data", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
-              {"measurement-data-filepath", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH}}}
+              {"dry-run", oa::NO, oi::DRYRUN_MODE}}}
 { }
 #endiv

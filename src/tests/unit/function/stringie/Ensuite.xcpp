@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::function::stringie {
+  //
+  // Produce the suite() function using CRTP
+  // Descendants only.
+  //
+  // Usage:
+  //
+  //   protected inheritance, you'll see.
+  //
+  template<typename FIXTURE> struct Ensuite;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::function {
+  //
+  // Produce the suite() function using CRTP
+  // Descendants only.
+  //
+  template<typename FIXTURE> struct stringie::Ensuite {
+  protected:
+    ~Ensuite() = default;
+    static auto subsuite(string::View name) -> rigging::Suite;
+    static auto stanza(string::View name) -> rigging::Stream;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::function::stringie {
+  template<typename _> auto Ensuite<_>::subsuite(string::View name) -> rigging::Suite {
+    auto series = stanza(name);
+    return settle(series);
+  }
+  template<typename FIXTURE> auto Ensuite<FIXTURE>::stanza(string::View name) -> rigging::Stream {
+    auto series = rigging::Stream{name};
+    series << []{
+               auto tos = rigging::Stream{"to_string"sv};
+               tos << add("good", &FIXTURE::template test_to_string_good)
+                   << add("fail", &FIXTURE::template test_to_string_fail)
+                   << rigging::stream::END;
+               return tos;
+             }()
+           << []{
+               auto tov = rigging::Stream{"to_string_view"sv};
+               tov << add("good", &FIXTURE::template test_to_string_view_good)
+                   << add("fail", &FIXTURE::template test_to_string_view_fail)
+                   << rigging::stream::END;
+               return tov;
+           }()
+           << rigging::stream::END;
+    return series;
+  }
+}
+#endiv

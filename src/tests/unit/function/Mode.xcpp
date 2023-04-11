@@ -1,0 +1,167 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::function { class Mode; }
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Mode
+#import tunitas.error.by.required.Indicator
+#import tunitas.exception.Aspect
+struct tests::unit::function::Mode : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Mode;
+  //
+  auto test_constructor() -> void;
+  template<by::required::Indicator> auto test_to_string_good() -> void;
+  template<by::required::Indicator> auto test_to_string_fail() -> void;
+  template<by::required::Indicator> auto test_to_string_view_good() -> void;
+  template<by::required::Indicator> auto test_to_string_view_fail() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+};
+#endiv
+#divert <cpp>
+//
+// Specializations go first so that the suite() function can see t hem
+//
+namespace tests::unit::function {
+  template<> auto Mode::test_to_string_good<by::Optional>() -> void {
+    auto specimen = Subject::AF;
+    auto subject = to_string(OPTIONAL, specimen);
+    require(ASSERTION, true == (bool) subject);
+    require(ASSERTION, "AF"sv == *subject);
+  }
+  template<> auto Mode::test_to_string_fail<by::Optional>() -> void {
+    auto specimen = Subject{-1};
+    auto subject = to_string(OPTIONAL, specimen);
+    require(ASSERTION, false == (bool) subject);
+  }
+  template<> auto Mode::test_to_string_good<by::Outcome>() -> void {
+    auto specimen = Subject::DAF;
+    auto subject = to_string(OUTCOME, specimen);
+    require(ASSERTION, good(subject));
+    require(ASSERTION, "DAF"sv == value(subject));
+  }
+  template<> auto Mode::test_to_string_fail<by::Outcome>() -> void {
+    auto specimen = Subject{-1};
+    auto subject = to_string(OUTCOME, specimen);
+    require(ASSERTION, fail(subject));
+  }
+  template<> auto Mode::test_to_string_good<by::Exception>() -> void {
+    auto specimen = Subject::VDAF;
+    auto subject = to_string(EXCEPTION, specimen);
+    require(ASSERTION, "VDAF"sv == subject);
+  }
+  template<> auto Mode::test_to_string_fail<by::Exception>() -> void try {
+    auto specimen = Subject{-1};
+    to_string(EXCEPTION, specimen);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+namespace tests::unit::function {
+  template<> auto Mode::test_to_string_view_good<by::Optional>() -> void {
+    auto specimen = Subject::AF;
+    auto subject = to_string_view(OPTIONAL, specimen);
+    require(ASSERTION, true == (bool) subject);
+    require(ASSERTION, "AF"sv == *subject);
+  }
+  template<> auto Mode::test_to_string_view_fail<by::Optional>() -> void {
+    auto specimen = Subject{-1};
+    auto subject = to_string_view(OPTIONAL, specimen);
+    require(ASSERTION, false == (bool) subject);
+  }
+  template<> auto Mode::test_to_string_view_good<by::Outcome>() -> void {
+    auto specimen = Subject::DAF;
+    auto subject = to_string_view(OUTCOME, specimen);
+    require(ASSERTION, good(subject));
+    require(ASSERTION, "DAF"sv == value(subject));
+  }
+  template<> auto Mode::test_to_string_view_fail<by::Outcome>() -> void {
+    auto specimen = Subject{-1};
+    auto subject = to_string_view(OUTCOME, specimen);
+    require(ASSERTION, fail(subject));
+  }
+  template<> auto Mode::test_to_string_view_good<by::Exception>() -> void {
+    auto specimen = Subject::VDAF;
+    auto subject = to_string_view(EXCEPTION, specimen);
+    require(ASSERTION, "VDAF"sv == subject);
+  }
+  template<> auto Mode::test_to_string_view_fail<by::Exception>() -> void try {
+    auto specimen = Subject{-1};
+    to_string_view(EXCEPTION, specimen);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+auto tests::unit::function::Mode::suite() -> Suite {
+  auto series = Stream{"Mode"sv};
+  series << add("constructor", &Mode::test_constructor)
+         << []{
+             auto tos = Stream{"to_string"sv};
+             tos << []{
+                     auto opt = Stream{"Optional"sv};
+                     opt << add("good", &Mode::test_to_string_good<by::Optional>)
+                         << add("fail", &Mode::test_to_string_fail<by::Optional>)
+                         << END;
+                     return opt;
+                   }()
+                 << []{
+                     auto out = Stream{"Outcome"sv};
+                     out << add("good", &Mode::test_to_string_good<by::Outcome>)
+                         << add("fail", &Mode::test_to_string_fail<by::Outcome>)
+                         << END;
+                     return out;
+                   }()
+                 << []{
+                     auto exc = Stream{"Exception"sv};
+                     exc << add("good", &Mode::test_to_string_good<by::Exception>)
+                         << add("fail", &Mode::test_to_string_fail<by::Exception>)
+                         << END;
+                     return exc;
+                   }()
+                 << END;
+             return tos;
+           }()
+         << []{
+             auto tos = Stream{"to_string_view"sv};
+             tos << []{
+                     auto opt = Stream{"Optional"sv};
+                     opt << add("good", &Mode::test_to_string_view_good<by::Optional>)
+                         << add("fail", &Mode::test_to_string_view_fail<by::Optional>)
+                         << END;
+                     return opt;
+                   }()
+                 << []{
+                     auto out = Stream{"Outcome"sv};
+                     out << add("good", &Mode::test_to_string_view_good<by::Outcome>)
+                         << add("fail", &Mode::test_to_string_view_fail<by::Outcome>)
+                         << END;
+                     return out;
+                   }()
+                 << []{
+                     auto exc = Stream{"Exception"sv};
+                     exc << add("good", &Mode::test_to_string_view_good<by::Exception>)
+                         << add("fail", &Mode::test_to_string_view_fail<by::Exception>)
+                         << END;
+                     return exc;
+                   }()
+                 << END;
+             return tos;
+           }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::function {
+  auto Mode::test_constructor() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+}
+#endiv

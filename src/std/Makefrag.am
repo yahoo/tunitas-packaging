@@ -10,4 +10,10 @@ std_SUBSOURCES = \
   \
   obj/src/std/is_error_condition_enum/tunitas.alambique.error.condition.Unpackaged.Enumeration.cpp \
   obj/src/std/is_error_condition_enum/tunitas.alambique.slurp.error.condition.Unpackaged.Enumeration.cpp \
+  \
+  obj/src/std/tuple_size/tunitas.alambique.function.Estimates.cpp \
+  obj/src/std/tuple_element/N.tunitas.alambique.function.Estimates.cpp \
+  \
+  obj/src/std/variant_size/tunitas.alambique.function.Resolved.cpp \
+  obj/src/std/variant_alternative/N.tunitas.alambique.function.Resolved.cpp \
   $(end)

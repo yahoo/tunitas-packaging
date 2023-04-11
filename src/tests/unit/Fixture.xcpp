@@ -15,6 +15,8 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.alambique.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
+#import tests.unit.function.Fixture
+#import tests.unit.options.Fixture
 #import tests.unit.slurp.Fixture
 #import tests.unit.version.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
@@ -22,6 +24,8 @@ auto tests::unit::Fixture::suite() -> Suite {
   series << add<alambique::Fixture>()
          << add<error::Fixture>()
          << add<exception::Fixture>()
+         << add<function::Fixture>()
+         << add<options::Fixture>()
          << add<slurp::Fixture>()
          << add<version::Fixture>()
          << END;

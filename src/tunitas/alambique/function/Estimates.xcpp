@@ -1,0 +1,89 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.Tuple
+#import tunitas.Optional
+#import tunitas.alambique.function.Name
+namespace tunitas::alambique::function {
+  //
+  // An estimate of the names in all the modes.
+  //
+  // Design:
+  //
+  //   We want ADL to find resolve(...) so Estimtes must be a new type.
+  //   With all the declartaive baggate that such entails for a Tuple-like object.
+  //
+  // Usage:
+  //
+  //   Obvious.
+  //
+  namespace [[eponymous]] estimates {
+    using Ancestor = Tuple<Optional<Name<Mode::AF>>, Optional<Name<Mode::DAF>>, Optional<Name<Mode::VDAF>>>;
+    struct Estimates;
+  }
+  using estimates::Estimates;
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Resolved
+namespace tunitas::alambique::function {
+  namespace estimates {
+    using std::move;
+    inline auto swap(Estimates &, Estimates &) noexcept -> void;
+    //
+    // If the name is one-hot then return that; else return emptiness
+    inline auto resolve(Estimates const &) -> Optional<Resolved>;
+    inline auto assess(Estimates const &) -> Optional<Mode>;
+  }
+  using estimates::resolve;
+  class estimates::Estimates : public Ancestor {
+    using Ancestor = estimates::Ancestor;
+  public:
+    Estimates() = default;
+#if 1
+    using Ancestor::tuple;
+#else
+    // This doesn't do what you think it will do ... it won't coerce the arguments.
+    // And std::tuple is allocator-aware so passing {} is ambiguous between the allocator and the optional senses.
+    template<typename... TYPE> requires (sizeof...(TYPE) == std::tuple_size_v<Ancestor>) constexpr Estimates(TYPE... rest) : Ancestor{rest...} { }
+#endif
+  };
+}
+#import std.tuple_size.tunitas.alambique.function.Estimates
+#import std.tuple_element.N.tunitas.alambique.function.Estimates
+#endiv
+#divert <ipp>
+namespace tunitas::alambique::function {
+  auto estimates::swap(Estimates &a, Estimates &b) noexcept -> void {
+    estimates::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  auto estimates::resolve(Estimates const &source) -> Optional<Resolved> {
+    auto const &[af, daf, vdaf] = source;
+    if (af && !daf && !vdaf) {
+      return {af};
+    } else if (!af && daf && !vdaf) {
+      return {daf};
+    } else if (!af && !daf && vdaf) {
+      return {vdaf};
+    } else {
+      return {};
+    };
+  }
+  auto estimates::assess(Estimates const &source) -> Optional<Mode> {
+    auto const &[af, daf, vdaf] = source;
+    if (af && !daf && !vdaf) {
+      return Mode::AF;
+    } else if (!af && daf && !vdaf) {
+      return Mode::DAF;
+    } else if (!af && !daf && vdaf) {
+      return Mode::VDAF;
+    } else {
+      return {};
+    };
+  }
+}
+#endiv

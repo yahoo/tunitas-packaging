@@ -5,6 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
 #import tunitas.application.options
+#import app.flow
 namespace app::flow::options {
   using namespace tunitas::application::options; // cascade the namespaces
 }
