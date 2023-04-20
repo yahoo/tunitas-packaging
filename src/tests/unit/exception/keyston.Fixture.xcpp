@@ -46,8 +46,10 @@ namespace tests::unit::exception::keyston {
 #import tunitas.keyston.exception.Invariant
 #import tunitas.keyston.exception.Length
 #import tunitas.keyston.exception.Null
+#import tunitas.keyston.exception.Optional
 #import tunitas.keyston.exception.Range
 #import tunitas.keyston.exception.Unimplemented
+#import tunitas.keyston.exception.Variant
 auto tests::unit::exception::keyston::Fixture::suite() -> Suite {
   auto series = Stream{"keyston"sv};
   series << stanza1string<Fixture, feature::Bound, library::Bound>("Bound")
@@ -58,8 +60,10 @@ auto tests::unit::exception::keyston::Fixture::suite() -> Suite {
          << stanza1string<Fixture, feature::Invariant, library::Invariant>("Invariant")
          << stanza1string<Fixture, feature::Length, library::Length>("Length")
          << stanza0<Fixture, feature::Null, library::Null>("Null")
+         << stanza0<Fixture, feature::Optional, library::Optional>("Optional")
          << stanza1string<Fixture, feature::Range, library::Range>("Range")
          << stanza0<Fixture, feature::Unimplemented, library::Unimplemented>("Unimplemented")
+         << stanza0<Fixture, feature::Variant, library::Variant>("Variant")
          << END;
   return settle(series);
 }

@@ -47,12 +47,12 @@ namespace tunitas::keyston::af::numeric::sum::package_sum::body {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.numeric.ensmallen
 namespace tunitas::keyston::af::numeric::sum::package_sum {
-  auto interface::computation(Parameters const &, Intermediate i, Measurement const &m) -> Computed {
-    i.value += /*[[FIXTHIS]]*/ (Signed) underlying(m.value);
-    return move(i);
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
+  auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &measurement) -> Computed {
+    auto treatment = Treatment{[&measurement](number::Integer &lhs) { lhs += enbiggen(measurement.value); }};
+    visit(treatment, intermediate);
+    return move(intermediate);
   }
-  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return {ensmallen(i.value)}; }
 }
 #endiv

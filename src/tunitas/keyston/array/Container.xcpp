@@ -19,7 +19,7 @@ namespace tunitas::keyston::array {
   //   Among at least:
   //     qualified ...... undirected variable .... std::deque
   //     qualified  ..... contiguous variable .... std::vector
-  //     disqualified ... contiguous fixed ........ std::array
+  //     disqualified ... contiguous fixed ....... std::array
   //
   //   Unlimited length, thus variable length
   //   a.k.a. Variable Entity-Containing-Type [which] Owns Resources (VECTOR)
@@ -45,7 +45,6 @@ namespace tunitas::keyston::array {
 #import std.conditional
 #import std.is_const
 #import std.ranges.subrange
-#import std.vector
 namespace tunitas::keyston {
   namespace array {
     using std::move;
@@ -55,7 +54,7 @@ namespace tunitas::keyston {
     using Ancestor = CONTAINER;
     friend auto array::swap<>(Container &, Container &) noexcept -> void;
   public:
-    using Value [[school("New")]] = typename Ancestor::value_type;
+    using Value [[school("New")]] = typename Ancestor::value_type; // [[[FIXTHIS]] potentially safer to use nonstd::container::Traits<Ancestor>::Value
     using value_type [[school("Old")]] = Value;
   protected:
     ~Container() = default;

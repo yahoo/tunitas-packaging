@@ -64,12 +64,13 @@ namespace tunitas::keyston::daf::numeric::sum::package_sum {
 #divert <cpp>
 #import tunitas.keyston.daf.numeric.Input
 #import tunitas.keyston.daf.numeric.Public
+#import tunitas.keyston.numeric.enbiggen
 #import tunitas.keyston.numeric.ensmallen
 #import std.accumulate
 namespace tunitas::keyston::daf::numeric::sum::package_sum {
   auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
     auto publick = Public<SHARE>{};
-    auto lifted = number::Integer{(/*FIXTHIS*/ int long long signed) underlying(m.value)};
+    auto lifted = enbiggen(m.value);
 #if 1
     // Preferred.
     auto first = Input<SHARE>{lifted / 2};
@@ -99,7 +100,7 @@ namespace tunitas::keyston::daf::numeric::sum::package_sum {
   }
   auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &sa, Count) -> Reassembled {
     auto big = std::accumulate(sa.begin(), sa.end(), number::Integer{}, accumulate_horizontal);
-    auto small = ensmallen(big);
+    auto small = ensmallen(Clip::SILENTLY, big);
     return Reassembled{small};
   }
 }

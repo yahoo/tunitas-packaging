@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston
+namespace tunitas::keyston::numeric {
+  //
+  // Ensmallenment the (bigint) variant value.
+  //
+  // Specification:
+  //
+  //   The moral equivalent of
+  //
+  //   auto visitor = variant::Visitor{[](auto &) [ throw exception::Variant{}; },;
+  //                                   [](number::Integer const &rhs) -> Finalized { return ensmallen(Clip::SILENTLY, rhs); }};
+  //
+  // Design:
+  //
+  //   A lambda is an implicit class with operator()(...)
+  //   A Visitor with lambdas is just a class that inherits from the types given in its initializer.
+  //   You know how that works.  It's documented in std::visit and in tunitas::variant::Visitor
+  //
+  // Usage:
+  //
+  //   return visit(Ensmallenment{}, something);
+  //
+  struct Ensmallenment;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.exception.Variant
+#import tunitas.keyston.numeric.ensmallen
+#import tunitas.keyston.measurement.Result
+#import tunitas.number.Integer
+namespace tunitas::keyston {
+  namespace numeric {
+    template<typename OTHER> inline auto visit(Ensmallenment const &, OTHER const &);
+  }
+  struct numeric::Ensmallenment {
+    using Result = measurement::Result;
+    auto operator()(number::Integer const &rhs) const -> Result           { return ensmallen(Clip::SILENTLY, rhs); }
+    template<typename TYPE> auto operator()(TYPE const &) const -> Result { throw exception::Variant{}; }
+  };
+}
+#import std.visit.tunitas.keyston.numeric.Ensmallenment
+#endiv
+#divert <ipp>
+namespace tunitas::keyston {
+  template<typename OTHER> auto numeric::visit(Ensmallenment const &self, OTHER const &other) { return self(other); }
+}
+#endiv

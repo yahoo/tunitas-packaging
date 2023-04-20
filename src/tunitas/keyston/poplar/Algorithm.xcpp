@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::poplar {
+  //
+  // The poplar system.o
+  //
+  // Authority:
+  //
+  //   From: https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Section 8 Poplar1
+  //
+  //   The "poplar" algorithm computes the population for a pre-announced specific and fixed set of prefixes within the overall populatio.
+  //   The "poplar" algorithm does NOT dynamically compute "top k" elements as one might with a sortification procedure.
+  //   The length of the prefix {list, set, bag, population} is ambiguously and vaguely known as the "VALUE_LEN" (a.k.a. "VALUE COUNT")  Gotta be a better name than "ALUE".
+  //
+  //   <quote ref="Section 8. Poplar1">
+  //      This section specifies Poplar1, a VDAF for the following task.
+  //      Each Client holds a string of length BITS and the Aggregators hold a set of l-bit strings, where l <= BITS.
+  //      We will refer to the latter as the set of "candidate prefixes".
+  //      The Aggregators' goal is to count how many inputs are prefixed by each candidate prefix.
+  //   </quote>
+  //
+  //   The top-k to discover the candidate set is derived from an iterative application of poplar [cite something].
+  //
+  // Specification:
+  //
+  //   There's a simpler interface in there somewhere (Section 8)
+  //
+  // Design:
+  //
+  //   Work in the type system.
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<Name, Size VALUE_COUNT> struct Algorithm;
+  template<Size VALUE_COUNT> struct Algorithm<ONE, VALUE_COUNT>;
+}
+#endiv
+#divert <hpp>
+// Because every specialization will need these
+#import tunitas.keyston.field.Field
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.idpf
+namespace tunitas::keyston::poplar {
+  template<Size THE_VALUE_COUNT> struct Algorithm<ONE, THE_VALUE_COUNT> {
+    inline static constexpr auto VALUE_COUNT = Items{THE_VALUE_COUNT};
+    using Measurement = measurement::Specimen;
+    using Parameters = void;
+    using Preparation = void;
+    using Output = void;
+    using Result = void; // array::Fixed<measurement::Result, idpf::Function<shard::COUNT.count(), VALUE_COUNT>;
+  };
+}
+#endiv

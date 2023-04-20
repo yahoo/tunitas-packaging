@@ -39,6 +39,17 @@ namespace tunitas::keyston::vdaf {
   //      </paraphrase>
   //    </recitation>
   //
+  // History:
+  //
+  //   From: https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prio3
+  //   <quote>
+  //     As the name implies, Prio3 is a descendant of the original Prio construction.
+  //      A second iteration was deployed in the [ENPA] system, and like the VDAF described here,
+  //      the ENPA system was built from techniques introduced in [BBCGGI19] that significantly improve communication cost.
+  //      That system was specialized for a particular aggregation function;
+  //      the goal of Prio3 is to provide the same level of generality as the original construction.
+  //   </quote>
+  //
   // Design:
   //
   //   It's an enum (class).
@@ -48,21 +59,21 @@ namespace tunitas::keyston::vdaf {
   //  You need a tutorial on how to use an enum (class)? o.rly?
   //
   enum class Name : std::uint32_t {
-    PRIO3_COUNT = 0x00000000,
+    PRIO3_COUNT = 0x0000'0000,
     Prio3Count = PRIO3_COUNT,
     //
-    PRIO3_SUM = 0x00000001,
+    PRIO3_SUM = 0x0000'0001,
     Prio3Sum = PRIO3_SUM,
     //
-    PRIO3_HISTOGRAM = 0x00000002,
+    PRIO3_HISTOGRAM = 0x0000'0002,
     Prio3Histogram = PRIO3_HISTOGRAM,
     //
-    POPLAR1 = 0x00001000,
+    POPLAR1 = 0x0000'1000,
     Poplar1 = POPLAR1,
     //
     // As known herein.
-    ZERO = 0xffff0000u, // ... the zero function
-    CONSTANT, // ............. a constant function
+    ZERO = 0xffff'0000u, // ... the zero function
+    CONSTANT, // .............. a constant function
   };
 }
 #endiv

@@ -9,4 +9,6 @@ tunitas_keyston_measurement_SUBSOURCES = \
   obj/src/tunitas/keyston/measurement/Count.cpp \
   obj/src/tunitas/keyston/measurement/Specimen.cpp \
   obj/src/tunitas/keyston/measurement/Result.cpp \
+  obj/src/tunitas/keyston/measurement/Histogram.cpp \
+  obj/src/tunitas/keyston/measurement/Population.cpp \
   $(end)

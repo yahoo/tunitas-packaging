@@ -44,10 +44,13 @@ namespace tunitas::keyston::af::numeric::zero::package_zero::body {
 #import tunitas.keyston.numeric.ensmallen
 #import tunitas.keyston.af.exception.Invariant
 namespace tunitas::keyston::af::numeric::zero::package_zero {
-  auto interface::computation(Parameters const &a, Intermediate i, Measurement const &) -> Computed {
-    if (0 != i.value) { throw exception::Invariant{"not zero"}; }
-    return move(i);
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
+  auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &) -> Computed {
+    auto treatment = Treatment{[](number::Integer const &rhs) {
+      if (0 != rhs) { throw exception::Invariant{"not zero"}; }
+    }};
+    visit(treatment, intermediate);
+    return move(intermediate);
   }
-  auto interface::finalization(Parameters const &a, Intermediate const &i) -> Finalized { return {ensmallen(i.value)}; }
 }
 #endiv

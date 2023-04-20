@@ -91,7 +91,7 @@ namespace tunitas::keyston::daf::numeric::count::package_count {
     while (++h != e) {
       if (h->value != b->value) { throw exception::Invariant{"not consistent"}; }
     }
-    return {ensmallen(b->value)};
+    return {ensmallen(Clip::SILENTLY, b->value)};
   }
 }
 #endiv

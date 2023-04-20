@@ -1,0 +1,72 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::field::get {
+  template<typename SUBJECT> struct Fits;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.field.get.Palette
+#import tunitas.keyston.field.get.Fits
+#import nonstd.int128_t
+namespace tests::unit::field {
+  template<typename SUBJECT> struct get::Fits : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    using Small = typename Subject::Value;
+    static_assert(0 == Palette::Limits<Small>::min());
+    //
+    auto test_min() -> void;
+    auto test_min_plus_1() -> void;
+    auto test_max_minus_1() -> void;
+    auto test_max() -> void;
+    auto test_negative() -> void;
+    auto test_too_big() -> void;
+  protected:
+    auto exercise(typename Subject::Value specimen) -> void;
+  };
+  namespace get {
+    template<> inline auto Fits<library::Fits<nonstd::uint128_t>>::test_too_big() -> void { /* can't fail */ }
+  }
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::field::get {
+  template<typename _> auto Fits<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("min", &Fits::test_min)
+           << add("min+1", &Fits::test_min_plus_1)
+           << add("max-1", &Fits::test_max_minus_1)
+           << add("max", &Fits::test_max)
+           << add("negative", &Fits::test_negative)
+           << add("too-big", &Fits::test_too_big)
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Fits<_>::exercise(typename Subject::Value specimen) -> void {
+    auto candidate = typename Palette::Candidate{::tunitas::number::mp::convert<mpz_class>(specimen)};
+    auto got = Subject::fit(candidate.impl);
+    require(ASSERTION, true == got);
+  }
+  template<typename _> auto Fits<_>::test_min() -> void         { exercise(Palette::Limits<Small>::min()); }
+  template<typename _> auto Fits<_>::test_min_plus_1() -> void  { exercise(Palette::Limits<Small>::min()+1); }
+  template<typename _> auto Fits<_>::test_max_minus_1() -> void { exercise(Palette::Limits<Small>::max()-1); }
+  template<typename _> auto Fits<_>::test_max() -> void         { exercise(Palette::Limits<Small>::max()); }
+  template<typename _> auto Fits<_>::test_negative() -> void {
+    auto candidate = typename Palette::Candidate{-1};
+    auto got = Subject::fit(candidate.impl);
+    require(ASSERTION, false == (bool)got);
+  }
+  template<typename _> auto Fits<_>::test_too_big() -> void {
+    auto const yikes = nonstd::int128_t{Palette::Limits<Small>::max()} + 2;
+    auto candidate = typename Palette::Candidate{yikes};
+    auto got = Subject::fit(candidate.impl);
+    require(ASSERTION, false == (bool)got);
+  }
+}
+#endiv

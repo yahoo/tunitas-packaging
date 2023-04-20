@@ -7,4 +7,12 @@
 #import tunitas.keyston.af
 #import tunitas.keyston.numeric
 namespace tunitas::keyston::af::numeric { using namespace tunitas::keyston::numeric; }
+// All the aggregation functions will need these
+#import tunitas.keyston.numeric.enbiggen
+#import tunitas.keyston.numeric.ensmallen
+#import tunitas.keyston.numeric.Ensmallenment
+#import tunitas.keyston.numeric.Treatment
+#import tunitas.keyston.exception.Variant
+#import tunitas.variant.Visitor
+#import tunitas.variant.visit
 #endiv

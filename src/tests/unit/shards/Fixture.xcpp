@@ -51,7 +51,7 @@ namespace tests::unit::shards {
       ++observed_count;
       require(ASSERTION, sizeof (shard));
     }
-    require(ASSERTION, library::SHARD_COUNT == observed_count);
+    require(ASSERTION, library::SHARD_COUNT.count() == observed_count);
   }
   auto Fixture::test_usage_Shard() -> void {
     using Subject = library::Shard;
@@ -75,7 +75,7 @@ namespace tests::unit::shards {
       ++count;
       require(ASSERTION, sizeof(shard)); // just use the loop variable.
     }
-    require(ASSERTION, library::SHARD_COUNT == count);
+    require(ASSERTION, library::SHARD_COUNT.count() == count);
   }
   auto Fixture::test_usage_literals() -> void {
     using library::Shard;

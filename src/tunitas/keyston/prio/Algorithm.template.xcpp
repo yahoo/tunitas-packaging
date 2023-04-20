@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio {
+  //
+  // The prio system.
+  //
+  // Authority:
+  //
+  //   From: https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Section 7.1.1. Encoding the Input
+  //
+  //   <quote>these <snip/> correspond roughly to the notion of "Affine-aggregatable encodings (AFEs)" from [CGB17].</quote>
+  //   <paraphrase>
+  //
+  //     Flp.encode(measurement: Measurement) -> Vec[Field]
+  //     the result is length INPUT_LEN.
+  //
+  //     Flp.truncate(input: Vec[Field]) -> Vec[Field]
+  //     the input is INPUT_LEN
+  //     the output is OUTPUT_LEN.
+  //
+  //     Flp.decode(output: Vec[Field], num_measurements: Unsigned) -> AggResult
+  //     the input is OUTPUT_LEN
+  //
+  //  <quote>
+  
+  // Specification:
+  //
+  //   encode, truncate, decode
+  //
+  // Design:
+  //
+  //   Work in the type system.
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<Name> struct Algorithm;
+}
+#endiv
+#divert <hpp>
+// Because every specialization will need these
+#import std.uint32_t
+#import std.uint64_t
+#import tunitas.keyston.field.Field
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.measurement.Count
+#endiv

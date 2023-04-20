@@ -12,8 +12,10 @@ namespace tunitas::keyston::af::numeric::histogram {
   using namespace package_histogram::interface;
 }
 #import tunitas.keyston.af.numeric.components
+#import tunitas.keyston.histogram
 namespace tunitas::keyston::af::numeric::histogram::package_histogram {
   using namespace numeric::components;
+  using namespace tunitas::keyston::histogram;
   namespace body { }
 }
 #endiv
@@ -41,12 +43,15 @@ namespace tunitas::keyston::af::numeric::histogram::package_histogram::body {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.exception.Unimplemented
-#import tunitas.keyston.numeric.ensmallen
+#import tunitas.keyston.histogram.encode
 namespace tunitas::keyston::af::numeric::histogram::package_histogram {
-  auto interface::computation(Parameters const &, Intermediate, Measurement const &) -> Computed {
-    throw exception::Unimplemented{};
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
+  auto interface::computation(Parameters const &parameters, Intermediate intermediate, Measurement const &measurement) -> Computed {
+    auto treatment = Treatment{[&parameters, &measurement](measurement::Histogram &lhs) {
+      lhs += encode(measurement.value, parameters.boundaries.value());
+    }};
+    visit(treatment, intermediate);
+    return move(intermediate);
   }
-  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return {ensmallen(i.value)}; }
 }
 #endiv

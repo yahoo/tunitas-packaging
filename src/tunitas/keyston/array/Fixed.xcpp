@@ -38,7 +38,7 @@ namespace tunitas::keyston {
   template<array::required::Arrayable TYPE, Size CAPACITY> class array::Fixed : private std::array<TYPE, CAPACITY> {
     using Ancestor = std::array<TYPE, CAPACITY>;
   public:
-    Fixed() = default;
+    inline constexpr Fixed();
     template<typename... VALUES> requires (CAPACITY == sizeof...(VALUES)) Fixed(VALUES &&...);
     //
     using Value [[school("New")]] = typename Ancestor::value_type;
@@ -66,6 +66,7 @@ namespace tunitas::keyston {
     template<required::Arrayable TYPE, Size CAPACITY> inline auto subrange(Fixed<TYPE, CAPACITY> const &) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>>;
   }
 }
+#import nonstd.container.Traits.tunitas.keyston.array.Fixed.TYPE.CAPACITY
 #endiv
 #divert <ipp>
 #import tunitas.keyston.exception.Bound
@@ -73,6 +74,7 @@ namespace tunitas::keyston {
   template<array::required::Arrayable TYPE, Size CAPACITY> auto array::subrange(Fixed<TYPE, CAPACITY> &arr)       -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY>>>       { return {arr.begin(), arr.end()}; }
   template<array::required::Arrayable TYPE, Size CAPACITY> auto array::subrange(Fixed<TYPE, CAPACITY> const &arr) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>> { return {arr.begin(), arr.end()}; }
   namespace array {
+    template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::Fixed() { Ancestor::fill({}); }
     template<required::Arrayable T, Size CAPACITY> template<typename... VALUES> requires (CAPACITY == sizeof...(VALUES)) Fixed<T,CAPACITY>::Fixed(VALUES &&...values)
       : Ancestor{forward<VALUES>(values)...}
     { }

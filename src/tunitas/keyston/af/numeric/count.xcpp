@@ -41,12 +41,12 @@ namespace tunitas::keyston::af::numeric::count::package_count::body {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.numeric.ensmallen
 namespace tunitas::keyston::af::numeric::count::package_count {
-  auto interface::computation(Parameters const &, Intermediate i, Measurement const &) -> Computed {
-    i.value += 1;
-    return move(i);
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
+  auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &) -> Computed {
+    auto treatment = Treatment{[](number::Integer &lhs) { lhs += 1; }};
+    visit(treatment, intermediate);
+    return move(intermediate);
   }
-  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return {ensmallen(i.value)}; }
 }
 #endiv

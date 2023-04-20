@@ -12,8 +12,10 @@ namespace tunitas::keyston::af::numeric::popularity {
   using namespace package_popularity::interface;
 }
 #import tunitas.keyston.af.numeric.components
+#import tunitas.keyston.popularity
 namespace tunitas::keyston::af::numeric::popularity::package_popularity {
   using namespace numeric::components;
+  using namespace tunitas::keyston::popularity;
   namespace body { }
 }
 #endiv
@@ -41,12 +43,15 @@ namespace tunitas::keyston::af::numeric::popularity::package_popularity::body {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.numeric.ensmallen
-#import tunitas.keyston.exception.Unimplemented
+#import tunitas.keyston.popularity.encode
 namespace tunitas::keyston::af::numeric::popularity::package_popularity {
-  auto interface::computation(Parameters const &, Intermediate, Measurement const &) -> Computed {
-    throw exception::Unimplemented{};
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
+  auto interface::computation(Parameters const &parameters, Intermediate intermediate, Measurement const &measurement) -> Computed {
+    auto treatment = Treatment{[&parameters, &measurement](measurement::Population &lhs) {
+      lhs += encode(measurement.value, parameters.prefix_length.value(), parameters.prefixes.value());
+    }};
+    visit(treatment, intermediate);
+    return move(intermediate);
   }
-  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return {ensmallen(i.value)}; }
 }
 #endiv

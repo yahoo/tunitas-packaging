@@ -11,46 +11,86 @@ namespace tunitas::keyston::numeric {
   }
   using namespace package_ensmallen::interface;
 }
+#import tunitas.number.Integer
 #import tunitas.keyston.measurement.Result
 #import std.underlying_type
 #import std.make_signed
 #import std.numeric_limits
+#import std.is_unsigned
 namespace tunitas::keyston::numeric::package_ensmallen {
+  using number::Integer;
   namespace body {
     using Overlaying = measurement::Result;
-    using Underlying = std::make_signed_t<std::underlying_type_t<Overlaying>>; // because number::Integer is signed but measurement::Result is not
-    using Limits = std::numeric_limits<Underlying>;
+    using Underlying = std::underlying_type_t<Overlaying>;
+    static_assert(std::is_unsigned_v<Underlying>);
+    using Encoded = std::make_signed_t<Underlying>;
+    namespace limits {
+      using Unsigned = std::numeric_limits<Underlying>;
+      using Signed = std::numeric_limits<Encoded>;
+      static_assert(Unsigned::max() == Underlying{2u} * Signed::max() + 1);
+    }
+    namespace exported {
+      enum class Clip { SILENTLY };
+    }
   }
 }
 #endiv
 #divert <hpp>
-#import tunitas.number.Integer
-#import tunitas.keyston.daf.numeric.Aggregation
-#import tunitas.keyston.daf.numeric.Output
+#import tunitas.Pair
 namespace tunitas::keyston::numeric::package_ensmallen::body {
   namespace exported {
     //
     // Convert the bignum to a smallnum to a Result
-    // Just what you see.
-    // clip-to-max if the bignum is too big.
+    //
+    // Specification:
+    //
+    //   Just what you see.
+    //   Return an indication of whether the original value was clipped.
+    //
+    // Design:
+    //
+    //   Using the Best Available Means and Methods (UBAMM!)
     //
     // Usage:
     //
     //   Obvious.  You see it, don't you?
     //
-    inline auto ensmallen(number::Integer const &) -> measurement::Result;
+    //   auto something_big = Integer{...somehow...};
+    //
+    //   auto [small, clipped] = ensmallen(something_big);
+    //
+    inline auto ensmallen(Integer const &) -> Pair<measurement::Result, bool>;
+    inline auto ensmallen(Clip, Integer const &i) -> measurement::Result { return ensmallen(i).first; }
   }
+  inline constexpr auto VALUE_WAS_CLIPPED = true;
+  inline constexpr auto VALUE_IS_CORRECT = false;
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::numeric::package_ensmallen {
-  auto interface::ensmallen(number::Integer const &big) -> measurement::Result {
-    if (big.fits<Underlying>()) {
-      if (auto got=big.get<Underlying>(); got >= 0) {
-        return Overlaying(got);
+  auto interface::ensmallen(Integer const &big) -> Pair<measurement::Result, bool> {
+    if (big.fits<Encoded>()) {
+      if (auto got=big.get<Encoded>(); got < 0) {
+        return {Overlaying{0}, VALUE_WAS_CLIPPED}; // this is unexpected (it means someone didn't true-up after modular arithmetic)
+      } else {
+        return {Overlaying(got), VALUE_IS_CORRECT};
+      }
+    } else {
+      // it may still be too big, but let's try
+      Integer shaved = big >> 1;
+      int oddness = 1 == (big % 2) ? 1 : 0;
+      if (!shaved.fits<Encoded>()) {
+        Underlying clipped = shaved < 0 ? 0u : limits::Unsigned::max();
+        return {Overlaying{clipped}, VALUE_WAS_CLIPPED};
+      } else {
+        if (auto got=shaved.get<Encoded>(); got < 0) {
+          return {Overlaying{0}, VALUE_WAS_CLIPPED}; // eadam ratione
+        } else {
+          auto reassembled = Overlaying{2u * Underlying(got) + oddness};
+          return {reassembled, VALUE_IS_CORRECT};
+        }
       }
     }
-    return Overlaying{Limits::max()};
   }
 }
 #endiv

@@ -34,19 +34,27 @@ namespace tunitas::keyston::af::numeric {
 }
 #endiv
 #divert <hpp>
+#import nonstd.units.memory.scale // Bits
+#import tunitas.keyston.Optional
+#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.popularity.Prefixes
 namespace tunitas::keyston::af {
   namespace numeric {
     using std::move;
     inline auto swap(Parameters &, Parameters &) noexcept -> void;
   }
-  struct numeric::Parameters { };
+  struct numeric::Parameters {
+    Optional<keyston::histogram::Boundaries> boundaries{};
+    Optional<nonstd::units::memory::Bits> prefix_length{};
+    Optional<keyston::popularity::Prefixes> prefixes{};
+  };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::af {
   auto numeric::swap(Parameters &a, Parameters &b) noexcept -> void {
-    // There is nothing to swap
-    // swap(aa, bb);
+    swap(a.boundaries, b.boundaries);
+    swap(a.prefixes, b.prefixes);
   }
 }
 #endiv

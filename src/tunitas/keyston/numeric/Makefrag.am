@@ -7,4 +7,10 @@
 tunitas_keyston_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/numeric/namespace.cpp \
   obj/src/tunitas/keyston/numeric/ensmallen.cpp \
+  obj/src/tunitas/keyston/numeric/enbiggen.cpp \
+  obj/src/tunitas/keyston/numeric/Ensmallenment.cpp \
+  obj/src/tunitas/keyston/numeric/Treatment.cpp \
+  $(tunitas_keyston_numeric_required_SUBSOURCES) \
   $(end)
+#
+include src/tunitas/keyston/numeric/required/Makefrag.am

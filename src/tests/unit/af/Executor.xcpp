@@ -56,7 +56,7 @@ namespace tests::unit::af {
     static_assert(std::derived_from<Failure, Backup1>);
     static_assert(std::derived_from<Failure, Backup2>);
     static_assert(std::derived_from<Failure, Backup3>);
-    static auto exercise(Subject &) -> void;
+    template<library::Name NAME> static auto exercise(Subject &) -> void;
   protected:
 #if 12 < __GNUC__
     // try again (this bug keeps not getting fixed ... compilers should never crash, even on IFND)
@@ -67,6 +67,7 @@ namespace tests::unit::af {
     inline static constexpr auto SPECIMEN2 = library::Constant<library::DAF::Name::CONSTANT>;
 #endif
     inline static constexpr auto SPECIMEN1 = SPECIMEN;
+    static auto initial_intermediate_zero() { return typename Configuration::Intermediate{0}; }
   };
 }
 #endiv
@@ -144,19 +145,26 @@ namespace tests::unit::af::executor {
   }
 }
 #import tunitas.exception.feature.Unimplemented
+#import tests.unit.af.Palette
 namespace tests::unit::af::executor {
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
-      auto parameters = typename Configuration::Parameters{};
+  template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
+    //
+    // WATCHOUT  the parameters and and the intermedate value MUST be set up appropriately.
+    // failing that, then compuation(...) and finalization(...) will throw exception::Variant, which is not the point of this test
+    // 
+    auto parameters = Palette<NAME>::generate_parameters();
     {
       auto measurement = typename Configuration::Measurement{};
-      auto intermediate = typename Configuration::Intermediate{};
+      auto intermediate = Palette<NAME>::generate_intermediate();
       auto got = subject.computation(parameters, intermediate, measurement); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
-      auto intermediate = typename Configuration::Intermediate{};
+      auto intermediate = Palette<NAME>::generate_intermediate();
       auto got = subject.finalization(parameters, intermediate); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     }
+  } catch (::tunitas::keyston::exception::Variant const &) {
+    impossible(ASSERTION);
   } catch (::tunitas::exception::feature::Unimplemented const &) {
     // well never mind them
     require(ASSERTION);
@@ -167,47 +175,47 @@ namespace tests::unit::af::executor {
   }
   template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::test_constructor_by_Name() -> void {
     auto subject = Subject{NAME}; // <-------------------- test this (the constructor)
-    exercise(subject);
+    exercise<NAME>(subject);
   }
   template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::test_constructor_by_Definition() -> void {
     auto definition = Definition{NAME};
     auto subject = Subject{definition}; // <-------------------- test this (the constructor)
-    exercise(subject);
+    exercise<NAME>(subject);
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_copy() -> void {
     auto specimen = Subject{SPECIMEN};
     auto subject = Subject{specimen}; // <-------------------- test this
-    exercise(subject);
+    exercise<SPECIMEN>(subject);
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_move() -> void {
     auto specimen = Subject{SPECIMEN};
     auto subject = Subject{move(specimen)}; // <-------------------- test this
-    exercise(subject);
+    exercise<SPECIMEN>(subject);
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_assignment_copy() -> void {
     auto specimen = Subject{SPECIMEN};
     auto subject = Subject{};
     subject = specimen; // <-------------------- test this
-    exercise(subject);
+    exercise<SPECIMEN>(subject);
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_assignment_move() -> void {
     auto specimen = Subject{SPECIMEN};
     auto subject = Subject{};
     subject = move(specimen); // <-------------------- test this
-    exercise(subject);
+    exercise<SPECIMEN>(subject);
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_swap() -> void {
     auto a = Subject{SPECIMEN1};
     auto b = Subject{SPECIMEN2};
     swap(a, b); // <-------------------- test this
-    exercise(a);
-    exercise(b);
+    exercise<SPECIMEN2>(a);
+    exercise<SPECIMEN1>(b);
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_computation_good() -> void {
     auto subject = Subject{SPECIMEN};
     auto parameters = typename Configuration::Parameters{};
     auto measurement = typename Configuration::Measurement{};
-    auto intermediate = typename Configuration::Intermediate{};
+    auto intermediate = initial_intermediate_zero();
     auto got = subject.computation(parameters, intermediate, measurement); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
@@ -215,7 +223,7 @@ namespace tests::unit::af::executor {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
     auto parameters = typename Configuration::Parameters{};
     auto measurement = typename Configuration::Measurement{};
-    auto intermediate = typename Configuration::Intermediate{};
+    auto intermediate = initial_intermediate_zero();
     auto got = subject.computation(parameters, intermediate, measurement); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
@@ -230,14 +238,14 @@ namespace tests::unit::af::executor {
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_finalization_good() -> void {
     auto subject = Subject{SPECIMEN};
     auto parameters = typename Configuration::Parameters{};
-    auto intermediate = typename Configuration::Intermediate{};
+    auto intermediate = initial_intermediate_zero();
     auto got = subject.finalization(parameters, intermediate); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_finalization_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
     auto parameters = typename Configuration::Parameters{};
-    auto intermediate = typename Configuration::Intermediate{};
+    auto intermediate = initial_intermediate_zero();
     subject.finalization(parameters, intermediate); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {

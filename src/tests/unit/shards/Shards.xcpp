@@ -65,7 +65,7 @@ auto tests::unit::shards::Shards::suite() -> Suite {
 namespace tests::unit::shards {
   auto Shards::test_constructor_default() -> void {
     auto subject = Subject{};
-    require(ASSERTION, library::SHARD_COUNT == subject.size());
+    require(ASSERTION, library::SHARD_COUNT.count() == subject.size());
   }
   auto Shards::test_at_constie_good() -> void {
     auto subject = Subject{-1,-2};
@@ -102,7 +102,7 @@ namespace tests::unit::shards {
       ++count;
       require(ASSERTION, sizeof(shard)); // gratuitously use the loop variable
     }
-    require(ASSERTION, library::SHARD_COUNT == count);
+    require(ASSERTION, library::SHARD_COUNT.count() == count);
   }
   auto Shards::test_swap() -> void {
     auto subject0 = Subject{};

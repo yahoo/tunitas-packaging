@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.numeric.required.Treatment
+namespace tunitas::keyston::numeric {
+  //
+  // Provide a trement for the  (bigint) variant value.
+  //
+  // Specification:
+  //
+  //   The moral equivalent of
+  //
+  //   auto visitor = variant::Visitor{[](auto &) [ throw exception::Variant{}; },
+  //                                   [&m](number::Integer &lhs) { lhs += enbiggen(m.value); }};
+  //
+  // Design:
+  //
+  //   A lambda is an implicit class with operator()(...)
+  //   A Visitor with lambdas is just a class that inherits from the types given in its initializer.
+  //   You know how that works.  It's documented in std::visit and in tunitas::variant::Visitor
+  //
+  // Usage:
+  //
+  //   auto treatment = Treatment{[&m](number::Integer &lhs) { lhs += enbiggen(m.value); }};
+  //   visit(treatment, i);
+  //   return move(i);
+  //
+  template<required::Treatment TREATMENT> struct Treatment;
+  template<required::Treatment TREATMENT> Treatment(TREATMENT &&) -> Treatment<TREATMENT>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.exception.Variant
+#import tunitas.number.Integer
+namespace tunitas::keyston {
+  template<numeric::required::Treatment TREATMENT> struct tunitas::keyston::numeric::Treatment : public TREATMENT {
+    using TREATMENT::operator();
+    template<typename TYPE> auto operator()(TYPE const &) const -> void { throw exception::Variant{}; }
+  };
+}
+#endiv

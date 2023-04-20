@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Algorithm.template
+namespace tunitas::keyston::prio {
+  //
+  // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prio3sum
+  // Section 7.4.2. Prio3Sum
+  //
+  template<> struct Algorithm<SUM>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::prio {
+  template<> class Algorithm<SUM> {
+    inline static constexpr auto BITS = Bits{8*sizeof(std::uint64_t)};
+  public:
+    using Field = field::Field<128>;
+    inline static constexpr auto INPUT_LENGTH = Items{BITS.count()};
+    inline static constexpr auto OUTPUT_LENGTH = Items{1u};
+    using Measurement = measurement::Specimen; // range 0, 2^bits
+    using Encoded = array::Fixed<Field::Value, OUTPUT_LENGTH.count()>;
+    using Truncated = array::Fixed<Field::Value, 1>;
+    using Result = measurement::Result; // expect: std::uint64_t
+    inline static auto encode(Measurement) -> Encoded;
+    inline static auto truncate(Encoded) -> Truncated;
+    inline static auto decode(Truncated const &t, measurement::Count) -> Result;
+  protected:
+    static_assert(INPUT_LENGTH.count() <= 8*sizeof(Measurement));
+    static constexpr auto bit_index(Measurement m, size_t i) -> bool { return 1 == ((1u<<i) & underlying(m)); }
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.array.enumerate
+#import std.views.iota
+namespace tunitas::keyston::prio {
+  auto Algorithm<SUM>::encode(Measurement measurement) -> Encoded {
+    auto encoded = Encoded{};
+    for (auto i : std::views::iota(0u, INPUT_LENGTH.count())) {
+      if (bit_index(measurement, i)) {
+        encoded.at(i) = Field::Value{1};
+      }
+    }
+    return encoded;
+  }
+  auto Algorithm<SUM>::truncate(Encoded enc) -> Truncated {
+    auto accumulator = Field::Value{};
+    for (auto [ith, bit] : array::enumerate(enc)) {
+      auto power = Field::Value{1} << ith;
+      accumulator += bit * power;
+    }
+    return accumulator;
+  }
+  auto Algorithm<SUM>::decode(Truncated const &t, measurement::Count) -> Result {
+    // The narrowing cast is safe when decode(...) is preceded by truncate(...)
+    using Narrow = std::underlying_type_t<Result>;
+    auto narrow = static_cast<Narrow>(t.at(0));
+    return Result{narrow};
+  }
+}
+#endiv

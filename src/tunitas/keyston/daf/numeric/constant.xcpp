@@ -70,7 +70,7 @@ namespace tunitas::keyston::daf::numeric::constant::package_constant {
   auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &sa, Count) -> Reassembled {
     auto b = sa.begin();
     auto const e = sa.end();
-    auto payload = ensmallen(b->value);
+    auto payload = ensmallen(Clip::SILENTLY, b->value);
     while (++b != e) {
       if (0 != b->value) { throw exception::Invariant{"not zero"}; }
     }

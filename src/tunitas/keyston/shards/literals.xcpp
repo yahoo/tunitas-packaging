@@ -80,7 +80,7 @@ namespace tunitas::keyston::shards::literals::package_literals {
 namespace tunitas::keyston::shards::literals::package_literals {
   template<char... CHARS> constexpr auto interface::operator""_shard() -> Shard requires (0 < sizeof...(CHARS)) {
     auto const value = Convert<CHARS...>::value;
-    static_assert(value <= SHARD_COUNT);
+    static_assert(value <= SHARD_COUNT.count());
     return Shard(value);
   }
 }

@@ -29,9 +29,11 @@ namespace tunitas::keyston::measurement {
 #endiv
 #divert <hpp>
 #import std.underlying_type
+#import std.strong_ordering
 namespace tunitas::keyston::measurement {
   inline constexpr auto underlying(Specimen c) { return std::underlying_type_t<Specimen>(c); }
   inline auto swap(Specimen &a, Specimen &b) noexcept -> void { std::swap(a, b); }
+  inline auto operator<=>(Specimen const &a, Specimen const &b) -> std::strong_ordering { return underlying(a) <=> underlying(b); }
 }
 #endiv
 #divert <cpp>

@@ -44,8 +44,8 @@ namespace tunitas::keyston {
     template<required::Shardable TYPE> inline auto swap(Shards<TYPE> &, Shards<TYPE> &) noexcept -> void;
     template<required::Shardable TYPE> inline auto iota(Shards<TYPE> const &) -> std::ranges::iota_view<Shard, Size>;
   }
-  template<shards::required::Shardable TYPE> struct shards::Shards : public array::Fixed<TYPE, SHARD_COUNT> {
-    using Ancestor = array::Fixed<TYPE, SHARD_COUNT>;
+  template<shards::required::Shardable TYPE> struct shards::Shards : public array::Fixed<TYPE, SHARD_COUNT.count()> {
+    using Ancestor = array::Fixed<TYPE, SHARD_COUNT.count()>;
     friend auto shards::swap<>(Shards &, Shards &) noexcept -> void;
   public:
     [[implicit]] Shards() = default;

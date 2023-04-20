@@ -16,16 +16,20 @@ namespace tests::unit::af::numeric {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.measurement.Count
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.measurement.Result
 #import tunitas.keyston.af.numeric.Intermediate
+#import tunitas.keyston.af.numeric.Parameters
 class tests::unit::af::numeric::Palette {
 protected:
   ~Palette() = default;
 public:
   struct Inventory {
     // at test sites, these types will be referenced from the nearby Configuration (but not here)
+    using Count = ::tunitas::keyston::measurement::Count;
     using Specimen = ::tunitas::keyston::measurement::Specimen;
+    using Parameters = ::tunitas::keyston::af::numeric::Parameters;
     using Intermediate = ::tunitas::keyston::af::numeric::Intermediate;
     using Aggregation = ::tunitas::keyston::measurement::Result;
   };
@@ -35,5 +39,17 @@ public:
   inline static auto const ZERO = Inventory::Aggregation{0};
   inline static auto const COUNT = Inventory::Aggregation{1};
   inline static auto const SUM = Inventory::Aggregation{7};
+  //
+  // using a slightly different naming convention
+  struct Initial {
+    inline static auto const COUNT = Inventory::Intermediate{::tunitas::number::Integer{0}};
+    inline static auto const HISTOGRAM = Inventory::Intermediate{::tunitas::keyston::measurement::Histogram{}};
+    // WATCHOUT - unless you fill the empty population to a size matching the prefixes, the thing won't hunt.
+    inline static auto const EMPTY_POPULATION = Inventory::Intermediate{::tunitas::keyston::measurement::Population{}};
+    static auto generate_population(Inventory::Parameters const &p) -> Inventory::Intermediate {
+      auto fill = ::tunitas::keyston::measurement::Population(p.prefixes.value().size(), Inventory::Count{});
+      return {fill};
+    };
+  };
 };
 #endiv

@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.popularity.Prefixes
+namespace tunitas::keyston::popularity {
+  //
+  // Encode the specimen against the prefixes
+  //
+  // Specification:
+  //
+  //   Is the title not clear?
+  //
+  // Design:
+  //
+  //   This is a for loop,  You can see that now.
+  //   Both population and prefixes are variable-length (dynamic length)
+  //
+  // Invariant:
+  //
+  //   The prefixes MUST be unique.
+  //   The prefixes MAY be zero length, but that would be silly of the caller.
+  //   The level (bit width) MAY be zero in which case any specimen match any prefix.
+  //
+  // Usage:
+  //
+  //   auto specimen = measurement::Specimen{...somehow...};
+  //   auto prefixes = popularity::Prefixes{...somehow...};
+  //   auto encoded = popularity::encode(specimen, prefixes);
+  //
+  inline auto encode(measurement::Specimen, Bits level, Prefixes const &) -> measurement::Population;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.array.enumerate
+#import tunitas.keyston.exception.Invalid
+namespace tunitas::keyston {
+  auto popularity::encode(measurement::Specimen specimen, Bits level, Prefixes const &prefixes) -> measurement::Population {
+    if (8*sizeof(specimen) <= level.count()) { throw exception::Invalid{"too many bits"}; }
+    auto const mask = (1llu<<level.count()) - 1;
+    auto const subspecimen = mask & underlying(specimen);
+    auto encoded = measurement::Population(prefixes.size(), measurement::Count{});
+    for (auto [index, prefix] : enumerate(prefixes)) {
+      if (auto subprefix=mask & underlying(prefix); subspecimen == subprefix) {
+        encoded.at(index) = measurement::Count{1};
+      }
+    }
+    return encoded;
+  }
+}
+#endiv

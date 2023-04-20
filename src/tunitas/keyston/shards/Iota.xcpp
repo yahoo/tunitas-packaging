@@ -36,7 +36,7 @@ namespace tunitas::keyston::shards {
 class tunitas::keyston::shards::Iota : public std::ranges::iota_view<Shard, Size> {
   using Ancestor = std::ranges::iota_view<Shard, Size>;
 public:
-  constexpr Iota() : Ancestor{Shard{}, SHARD_COUNT} { }
+  constexpr Iota() : Ancestor{Shard{}, SHARD_COUNT.count()} { }
   constexpr Iota(Shard start, Size count) : Ancestor{start, count} { }
 };
 #endiv

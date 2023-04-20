@@ -1,0 +1,24 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Element
+#import tunitas.keyston.field.required.Subelement
+namespace tunitas::keyston::field::required::generator {
+  //
+  // The constraints on the arguments to field::generator::Triple<...> and field::generator::Generator<...>
+  //
+  template<auto BASE, auto EXPONENT, auto MODULUS, typename SUBELEMENT> concept Triple = requires(SUBELEMENT) {
+    requires Subelement<std::remove_cv_t<decltype(BASE)>>;
+    requires Subelement<std::remove_cv_t<decltype(EXPONENT)>>;
+    requires Subelement<std::remove_cv_t<decltype(MODULUS)>>;
+    requires Subelement<SUBELEMENT>;
+  };
+  template<auto BASE, auto EXPONENT, auto MODULUS, typename SUBELEMENT, typename ELEMENT> concept Generator = requires(SUBELEMENT, ELEMENT) {
+    requires Triple<BASE, EXPONENT, MODULUS, SUBELEMENT>;
+    requires Element<ELEMENT>;
+  };
+}
+#endiv

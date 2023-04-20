@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.array.range.required.Iterator
+#import tunitas.keyston.array.range.package_enumerate.Iterotraits
+#include <hpp/tunitas.keyston.array.range.package_enumerate.Iterotraits>
+namespace tunitas::keyston::array::range::package_enumerate::body {
+  //
+  // The iterator
+  //
+  // Specification:
+  //
+  //   Make the magic happen
+  //
+  //   rhymes with std::counted_iterator but counts forward and returns a pair
+  //
+  // Design:
+  //
+  //   Why of course we designed it, why do you ask?
+  //   We didn't copilot it, you don't think that do you?
+  //   No, nothing like that.  We wouldn't do that.  We are ethical.
+  //
+  // Usage:
+  //
+  //   see #import tunitas.keyston.array.range.enumerate
+  //
+  template<required::Iterator SUBITERATOR, Mutability = Iterotraits<SUBITERATOR>::VALUE> struct Iterator;
+}
+#import nonstd.iterator.Traits.tunitas.keyston.array.range.package_enumerate.Iterator.SUBITERATOR.MUTABILITY
+#endiv
+#divert <hpp>
+// Every specialization will need this (these)
+#import tunitas.keyston.array.range.package_enumerate.Iterotype
+#endiv

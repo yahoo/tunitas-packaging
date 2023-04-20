@@ -4,6 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.number.Integer
+#import tunitas.keyston.measurement.Histogram
+#import tunitas.keyston.measurement.Population
 namespace tunitas::keyston::af::numeric {
   //
   // The numerical intermediate value.
@@ -23,14 +26,49 @@ namespace tunitas::keyston::af::numeric {
   //
   //   Yes.
   //
-  struct Intermediate;
+  //   intermediate = Intermediate{...somehow...};
+  //   auto result = finalize(intermediate);
+  //
+  namespace [[eponymous]] intermediate {
+    using Single = number::Integer;
+    using measurement::Histogram;
+    using measurement::Population;;
+    struct Intermediate;
+  }
+  using intermediate::Intermediate;
 }
 #endiv
 #divert <hpp>
-#import tunitas.number.Integer
-struct tunitas::keyston::af::numeric::Intermediate {
-  number::Integer value{};
-  Intermediate() = default;
-  explicit Intermediate(number::Integer n) : value{move(n)} { }
-};
+#import std.variant
+#forward tunitas.keyston.af.numeric.Aggregation
+namespace tunitas::keyston::af::numeric {
+  namespace intermediate {
+    using Variant = std::variant<Single, Histogram, Population>;
+    inline auto finalize(Intermediate const &) -> Aggregation;
+  }
+  class intermediate::Intermediate : public Variant {
+    using Ancestor = Variant;
+  public:
+    Intermediate() = default;
+#if 1
+    using Ancestor::variant;
+#else
+    explicit Intermediate(Single n) : Ancestor{move(n)} { }
+    explicit Intermediate(Histogram h) : Ancestor{move(h)} { }
+    explicit Intermediate(Population p) : Ancestor{move(p)} { }
+#endif
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.af.numeric.Aggregation
+#import tunitas.variant.Visitor
+#import tunitas.variant.visit
+namespace tunitas::keyston::af::numeric {
+  auto intermediate::finalize(Intermediate const &intermediate) -> Aggregation {
+    auto visitor = variant::Visitor{[](auto const &rhs)   -> Aggregation { return {rhs}; }, // [[FIXTHIS]] forcs a copy
+                                    [](Single const &rhs) -> Aggregation { return {visit(Ensmallenment{}, rhs)}; }};
+    return visit(visitor, intermediate);
+  }
+}
 #endiv

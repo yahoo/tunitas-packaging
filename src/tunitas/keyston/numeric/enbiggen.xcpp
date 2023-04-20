@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::numeric {
+  namespace package_enbiggen {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_enbiggen::interface;
+}
+#import tunitas.keyston.measurement.Specimen
+#import std.is_unsigned
+#import std.underlying_type
+#import std.make_signed
+#import std.numeric_limits
+namespace tunitas::keyston::numeric::package_enbiggen {
+  namespace body {
+    //
+    // The machinery is because number::Integer is signed but measurement::Specimen is not
+    //
+    using Overlaying = measurement::Specimen;
+    static_assert(std::is_unsigned_v<std::underlying_type_t<measurement::Specimen>>);
+    using Underlying = std::underlying_type_t<Overlaying>;
+    using Limits = std::numeric_limits<Underlying>;
+    namespace signage {
+      using Type = std::make_signed_t<Underlying>;
+      using Limits = std::numeric_limits<Type>;
+    }
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.number.Integer
+#import tunitas.keyston.daf.numeric.Aggregation
+#import tunitas.keyston.daf.numeric.Output
+namespace tunitas::keyston::numeric::package_enbiggen::body {
+  namespace exported {
+    //
+    // Convert the smallnum Specimen to a bignum for computation.
+    // Just what you see.
+    //
+    // Usage:
+    //
+    //   Obvious.  You see it, don't you?
+    //
+    inline auto enbiggen(measurement::Specimen) -> number::Integer;
+  }
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::numeric::package_enbiggen {
+  auto interface::enbiggen(measurement::Specimen small) -> number::Integer {
+    if (auto undersmall=underlying(small); undersmall <= signage::Limits::max()) {
+      return signage::Type(undersmall);
+    } else {
+      number::Integer lo = signage::Type(undersmall & 0xfu);
+      number::Integer hi = signage::Type(undersmall >> 4);
+      return (hi << 4) + lo;
+    }
+  }
+}
+#endiv

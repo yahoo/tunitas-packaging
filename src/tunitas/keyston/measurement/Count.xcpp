@@ -19,31 +19,24 @@ namespace tunitas::keyston::measurement {
   //
   // Design:
   //
-  //   Segregate away from the other forms of counts.
-  //   So that ADL will find it and its operations.
+  //   It's a standard unit of "count" "items" or "each"
   //
   // Usage:
   //
-  //   You need a tutorial on how to use an unscoped enumeration (a flavored integer?)? o.rly?
+  //   (Non-)standard stuff.  RTM.
   //
-  // enum class Count : std::uint64_t;
   using Count = nonstd::units::count::Items;
 }
 #endiv
 #divert <hpp>
 #import std.underlying_type
-#if 1
 namespace tunitas::keyston::measurement {
   inline constexpr auto underlying(Count c) { return c.count(); } // WATCHOUT - as a type alias, ADL won't find this. here
 }
+#if 0
 namespace nonstd::units::count {
+  // So that ADL will find it. [[AVOID]] - don't inject into other namespaces which do not offer a customization point
   using tunitas::keyston::measurement::underlying;
-}
-#else
-namespace tunitas::keyston::measurement {
- // because we're using the units system nowadays for this sort of thing.
-  inline constexpr auto underlying(Count c) { return std::underlying_type_t<Count>(c); }
-  inline auto swap(Count &a, Count &b) noexcept -> void { std::swap(a, b); }
 }
 #endif
 #endiv

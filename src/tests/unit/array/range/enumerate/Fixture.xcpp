@@ -1,0 +1,125 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::array::range::enumerate { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.array.range.required.Container
+struct tests::unit::array::range::enumerate::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_enumerate_constie() -> void;
+  auto test_usage_enumerate_mutable() -> void;
+protected:
+  template<required::Container CONTAINER> static auto enumerate_summation(CONTAINER &&) -> void;
+};
+#endiv
+#divert <tpp>
+#import tunitas.keyston.array.range.enumerate
+namespace tests::unit::array::range::enumerate {
+  template<required::Container CONTAINER> auto Fixture::enumerate_summation(CONTAINER &&specimen) -> void {
+    auto index_accumulator{0u};
+    auto value_accumulator{0u};
+    for (auto [i, v] : library::enumerate(specimen)) {
+      index_accumulator += i;
+      value_accumulator += v;
+    }
+    require(ASSERTION, (0+1+2+3+4+5) == index_accumulator);
+    require(ASSERTION, (1+2+3+4+5+6) == value_accumulator);
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.array.range.package_enumerate.Range
+#import tunitas.keyston.array.range.package_enumerate.Iterator
+#import tests.unit.array.range.enumerate.Range
+#import tests.unit.array.range.enumerate.Iterator
+#import std.vector // [[TODO]] instead use nonstd.vector.Container<...>
+#import nonstd.container.Traits.std.vector.TYPE.ALLOCATOR
+#import std.deque // [[TODO]] eadem ratione (nonstd::deque::Container<...>
+#import nonstd.container.Traits.std.deque.TYPE.ALLOCATOR
+auto tests::unit::array::range::enumerate::Fixture::suite() -> Suite {
+  auto series = Stream{"enumerate"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << []{
+                      auto enu = Stream{"enumerate"sv};
+                      enu << add("mutable", &Fixture::test_usage_enumerate_mutable)
+                          << add("constie", &Fixture::test_usage_enumerate_constie)
+                          << END;
+                      return enu;
+                    }()
+                  << END;
+              return use;
+            }()
+         << []{
+           auto enu = Stream{"enumerate"sv};
+           namespace library_body = enumerate::library_body;
+           enu << []{
+                   auto con = Stream{"Range"sv};
+                   con << add<enumerate::Range<library_body::Range<std::vector<int>>, std::vector<int>>>()
+                       << add<enumerate::Range<library_body::Range<std::deque<int>>, std::deque<int>>>()
+                       << END;
+                   return con;
+                 }()
+               << []{
+                 auto ite = Stream{"iterator"sv};
+                 static_assert(sizeof(std::iterator_traits<std::vector<int>::iterator>));
+                 static_assert(sizeof(library_body::Iterator<std::vector<int>::iterator>));
+                 static_assert(sizeof(std::iterator_traits<std::vector<int>::iterator>::iterator_category));
+                 static_assert(sizeof(nonstd::iterator::Traits<library_body::Iterator<std::vector<int>::iterator>>::iterator_category));
+                 ite << []{
+                          auto mut = Stream{"mutable"sv};
+                          mut << add<enumerate::Iterator<library_body::Iterator<std::vector<int>::iterator>, std::vector<int>>>()
+                            << add<enumerate::Iterator<library_body::Iterator<std::deque<int>::iterator>, std::deque<int>>>()
+                            << END;
+                          return mut;
+                        }()
+                     << []{
+                       auto con = Stream{"constie"sv};
+                       //
+                       // MUST match the constie sense of the iterator with the constie sense of the container
+                       // This can't be checked (esasily) in the enumerate::Iterator test template
+                       //
+                       // ---------------------------------------------------------------------\\\\\\\\\\\\\\--------------------\\\\\ (here)
+                       //                                                                      ||||||||||||||                    |||||
+                       //                                                                      vvvvvvvvvvvvvv                    vvvvv
+                       con << add<enumerate::Iterator<library_body::Iterator<std::vector<int>::const_iterator>, std::vector<int> const>>()
+                           << add<enumerate::Iterator<library_body::Iterator<std::deque<int>::const_iterator>, std::deque<int> const>>()
+                           << END;
+                       return con;
+                     }()
+                     << END;
+                 return ite;
+               }()
+               << END;
+           return enu;
+         }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.array.enumerate
+namespace tests::unit::array::range::enumerate {
+  auto Fixture::test_usage_enumerate_constie() -> void {
+    auto const specimen = std::vector{1, 2, 3, 4, 5, 6};
+    auto index_accumulator{0u};
+    auto value_accumulator{0u};
+    for (auto [i, v] : library::enumerate(specimen)) {
+      index_accumulator += i;
+      value_accumulator += v;
+    }
+    require(ASSERTION, (0+1+2+3+4+5) == index_accumulator);
+    require(ASSERTION, (1+2+3+4+5+6) == value_accumulator);
+  }
+  auto Fixture::test_usage_enumerate_mutable() -> void {
+    auto specimen = std::vector(6, 99);
+    for (auto [i, lhs] : library::enumerate(specimen)) {
+      lhs = 1 + i;
+    }
+    enumerate_summation(specimen); // prove that the lhs values "took"
+  }
+}
+#endiv

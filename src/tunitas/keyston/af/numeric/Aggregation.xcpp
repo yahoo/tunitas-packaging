@@ -10,7 +10,10 @@ namespace tunitas::keyston::af::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.measurement.Result
+#import tunitas.keyston.measurement.Histogram
+#import tunitas.keyston.measurement.Population
+#import std.variant
 struct tunitas::keyston::af::numeric::Aggregation {
-  measurement::Result value{};
+  std::variant<measurement::Result, measurement::Histogram, measurement::Population> value{};
 };
 #endiv

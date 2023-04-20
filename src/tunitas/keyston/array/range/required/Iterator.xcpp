@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.iterator.Forward
+namespace tunitas::keyston::array::range::required {
+  //
+  // Is this type an ITERATOR that is suitable for use in package_enumerate::Iterator<ITERATOR>
+  //
+  template<typename ITERATOR> concept Iterator = iterator::Forward<ITERATOR>;
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.array.Bounded
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.array.Variable
+#import tunitas.keyston.array.Series
+#import tunitas.keyston.array.Unique
+#import tunitas.keyston.array.Opaque
+#import std.vector
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::array::range::required;
+    using namespace tunitas::keyston::array;
+    class Stamp;
+#if 0
+    // these don't admit to iterators
+    static_assert(required::Iterator<Bounded<int, 1>::iterator>);
+    static_assert(required::Iterator<Bounded<int, 1>::const_iterator>);
+    static_assert(required::Iterator<Opaque<1>::iterator>);
+    static_assert(required::Iterator<Opaque<1>::const_iterator>);
+    static_assert(required::Iterator<Fixed<int, 1>::iterator>);
+    static_assert(required::Iterator<Fixed<int, 1>::const_iterator>);
+    static_assert(required::Iterator<Variable<int>::iterator>);
+    static_assert(required::Iterator<Variable<int>::const_iterator>);
+    static_assert(required::Iterator<Series<int>::iterator>);
+    static_assert(required::Iterator<Series<int>::const_iterator>);
+    static_assert(required::Iterator<Unique<1, Stamp>::iterator>);
+    static_assert(required::Iterator<Unique<1, Stamp>::const_iterator>);
+#endif
+    static_assert(required::Iterator<std::vector<Stamp>::iterator>);
+    static_assert(required::Iterator<std::vector<Stamp>::const_iterator>);
+  }
+}
+#endiv

@@ -32,7 +32,7 @@ namespace tunitas::keyston::detail::required {
   //   };
   //
   template<typename TYPE> concept Renderable = requires(TYPE const &value) {
-    { render(value) } -> convertible_to<Optional<string::View>>;
+    { render(value) } -> convertible_to<tunitas::Optional<string::View> const &>;
   };
 }
 #endiv

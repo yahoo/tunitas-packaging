@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::field::get {
+  //
+  // All the tests use the same palette
+  // Descendants.
+  //
+  struct Palette;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.get.required.Small
+#import tunitas.number.Integer
+#import nonstd.numeric_limits
+class tests::unit::field::get::Palette {
+protected:
+  ~Palette() = default;
+public:
+  class Candidate : public ::tunitas::number::Integer {
+    using Ancestor = ::tunitas::number::Integer;
+  public:
+    using Ancestor::Integer;
+    using Ancestor::impl; // accessible so we can test it
+  };
+  template<required::Small SMALL> using Limits = nonstd::numeric_limits<SMALL>;
+};
+#endiv

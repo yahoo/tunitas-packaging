@@ -16,11 +16,15 @@ namespace nonstd::container {
 namespace nonstd::container {
   template<typename TYPE> struct Traits<tunitas::keyston::array::Series<TYPE> const> {
     using Container = tunitas::keyston::array::Series<TYPE> const;
-    using Type = typename Container::template Basic_Iterator<Container const>;
+    using Value = typename Container::Value;
+    using Iterator = typename Container::template Basic_Iterator<Container const>;
+    using Type [[deprecated("AVOID, instead prefer the correct nomenclature which is 'Iterator' as in Traits<Series<TYPE const>>::Iterator") ]] = Iterator;
   };
   template<typename TYPE> struct Traits<tunitas::keyston::array::Series<TYPE>> {
     using Container = tunitas::keyston::array::Series<TYPE>;
-    using Type = typename Container::template Basic_Iterator<Container>;
+    using Value = typename Container::Value;
+    using Iterator = typename Container::template Basic_Iterator<Container>;
+    using Type [[deprecated("AVOID, instead prefer the correct nomenclature which is 'Iterator' as in Traits<Series<TYPE>>::Iterator") ]] = Iterator;
   };
 }
 #endiv

@@ -41,6 +41,7 @@ namespace tunitas::keyston::shards {
 }
 #endiv
 #divert <hpp>
+#import nonstd.units.count.scale // e.g. Items
 namespace tunitas::keyston::shards {
   inline constexpr auto underlying(Shard s) { return std::underlying_type_t<Shard>(s); }
   inline auto swap(Shard &a, Shard &b) noexcept -> void { return std::swap(a, b); }
@@ -48,7 +49,7 @@ namespace tunitas::keyston::shards {
   // Constants and paraphernalia in support of the Shard.
   // Although the standard (draft) and the algorithms support more than two SHARD_COUNT, we do not.
   //
-  inline static constexpr auto const SHARD_COUNT = 2uz;
+  inline static constexpr auto const SHARD_COUNT = nonstd::units::count::Items{2};
   //
   // Not constexpr because they throw if the shard is out of the reasonable range.
   // And whereas the looping requires one more value than maximum, the legal shard values are <= SHARD_COUNT.
@@ -74,7 +75,7 @@ namespace tunitas::keyston::shards {
 namespace tunitas::keyston {
   auto shards::operator++(Shard &lhs) -> Shard & {
     auto old = underlying(lhs);
-    if (++old > SHARD_COUNT) {
+    if (++old > SHARD_COUNT.count()) {
       throw exception::Range{"Shard"};
     } else {
       lhs = Shard{old};
@@ -125,15 +126,15 @@ namespace {
 #if 0
     // these are too much because they ALSO specify that the referenct types must be compatible
     static_assert(std::equality_comparable_with<Shard, Size>);
-    static_assert(std::equality_comparable_with<Shard, decltype(SHARD_COUNT)>);
+    static_assert(std::equality_comparable_with<Shard, decltype(SHARD_COUNT.count())>);
 #endif
 #endif
     //
     static_assert(sizeof (std::views::iota(Shard{}, Shard{1})));
-    static_assert(sizeof (std::views::iota(Shard{}, SHARD_COUNT)));
+    static_assert(sizeof (std::views::iota(Shard{}, SHARD_COUNT.count())));
     //
     using namespace tunitas::keyston::shards::literals;
-    static_assert(sizeof (std::views::iota(0_shard, SHARD_COUNT)));
+    static_assert(sizeof (std::views::iota(0_shard, SHARD_COUNT.count())));
   }
 }
 #endiv
