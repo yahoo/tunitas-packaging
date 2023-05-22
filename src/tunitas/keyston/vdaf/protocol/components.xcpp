@@ -21,15 +21,15 @@ namespace tunitas::keyston::vdaf::protocol {
   namespace components {
     using keyston::Shards;
     template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
-    using Nonce        = vdaf::Configuration<Scheme::PROTOCOL>::Nonce;
-    using Verify_Key   = vdaf::Configuration<Scheme::PROTOCOL>::Verify_Key;
-    using Disassembled = vdaf::Configuration<Scheme::PROTOCOL>::Disassembled;
-    using Initialized  = vdaf::Configuration<Scheme::PROTOCOL>::Initialized;
-    using Continued    = vdaf::Configuration<Scheme::PROTOCOL>::Continued;
-    using Amalgamated  = vdaf::Configuration<Scheme::PROTOCOL>::Amalgamated;
-    using Disgorged    = vdaf::Configuration<Scheme::PROTOCOL>::Disgorged;
-    using Reassembled  = vdaf::Configuration<Scheme::PROTOCOL>::Reassembled;
-    using Count        = measurement::Count;
+    using Nonce        = vdaf::Configuration<Transport::PROTOCOL>::Nonce;
+    using Verify_Key   = vdaf::Configuration<Transport::PROTOCOL>::Verify_Key;
+    using Processed    = vdaf::Configuration<Transport::PROTOCOL>::Processed;
+    using Disassembled = vdaf::Configuration<Transport::PROTOCOL>::Disassembled;
+    using Initialized  = vdaf::Configuration<Transport::PROTOCOL>::Initialized;
+    using Continued    = vdaf::Configuration<Transport::PROTOCOL>::Continued;
+    using Amalgamated  = vdaf::Configuration<Transport::PROTOCOL>::Amalgamated;
+    using Disgorged    = vdaf::Configuration<Transport::PROTOCOL>::Disgorged;
+    using Reassembled  = vdaf::Configuration<Transport::PROTOCOL>::Reassembled;
     //
     using protocol::Measurement;
     using protocol::Input;

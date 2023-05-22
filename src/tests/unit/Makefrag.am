@@ -15,12 +15,14 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_exception_SUBSOURCES) \
   check/obj/src/tests/unit/fmt.Fixture.cpp \
   $(tests_unit_field_SUBSOURCES) \
+  $(tests_unit_histogram_SUBSOURCES) \
   $(tests_unit_hpke_SUBSOURCES) \
   $(tests_unit_identifier_SUBSOURCES) \
   $(tests_unit_keyston_SUBSOURCES) \
-  check/obj/src/tests/unit/measurement.Fixture.cpp \
-  $(tests_unit_prio_SUBSOURCES) \
+  $(tests_unit_measurement_SUBSOURCES) \
   $(tests_unit_poplar_SUBSOURCES) \
+  $(tests_unit_popularity_SUBSOURCES) \
+  $(tests_unit_prio_SUBSOURCES) \
   $(tests_unit_protocol_SUBSOURCES) \
   $(tests_unit_nonce_SUBSOURCES) \
   check/obj/src/tests/unit/numeric.Fixture.cpp \
@@ -44,12 +46,15 @@ include src/tests/unit/entropy/Makefrag.am
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
 include src/tests/unit/field/Makefrag.am
+include src/tests/unit/histogram/Makefrag.am
 include src/tests/unit/hpke/Makefrag.am
 include src/tests/unit/identifier/Makefrag.am
 include src/tests/unit/keyston/Makefrag.am
+include src/tests/unit/measurement/Makefrag.am
 include src/tests/unit/nonce/Makefrag.am
 include src/tests/unit/prio/Makefrag.am
 include src/tests/unit/poplar/Makefrag.am
+include src/tests/unit/popularity/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
 include src/tests/unit/shards/Makefrag.am
 include src/tests/unit/af/Makefrag.am

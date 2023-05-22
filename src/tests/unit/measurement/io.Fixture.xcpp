@@ -1,0 +1,135 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::measurement::io { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.popularity.Prefixes
+#import nonstd.units.memory.scale // Bits
+struct tests::unit::measurement::io::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_Count() -> void;
+  auto test_Specimen() -> void;
+  auto test_Result() -> void;
+  auto test_Simple() -> void;
+  auto test_Histogram1() -> void;
+  auto test_Histogram2() -> void;
+  auto test_Population1() -> void;
+  auto test_Population2() -> void;
+protected:
+  template<typename TYPE> static auto exhibit(TYPE const &) -> string::Storage;
+  template<typename SUBJECT> static auto singleton(string::Storage expected, SUBJECT specimen) -> void;
+  using Boundaries = ::tunitas::keyston::histogram::Boundaries;
+  using Prefixes = ::tunitas::keyston::popularity::Prefixes;
+  using Bits = ::nonstd::units::memory::Bits;
+};
+#endiv
+#divert <tpp>
+#import std.ostringstream
+#import tunitas.keyston.measurement.format
+namespace tests::unit::measurement::io {
+  template<typename TYPE> auto Fixture::exhibit(TYPE const &specimen) -> string::Storage {
+    auto buf = std::ostringstream{};
+    buf << library::format(specimen); // <---------------------------------------- test this
+    return buf.str();
+  }
+  template<typename SUBJECT> auto Fixture::singleton(string::Storage expected, SUBJECT specimen) -> void {
+    auto observed = exhibit(specimen);
+    require(ASSERTION, expected == observed);
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.measurement.io.Fixture
+auto tests::unit::measurement::io::Fixture::suite() -> Suite {
+  auto series = Stream{"measurement"sv};
+  series << add("Count", &Fixture::test_Count)
+         << add("Specimen", &Fixture::test_Specimen)
+         << add("Result", &Fixture::test_Result)
+         << add("Simple", &Fixture::test_Simple)
+         << []{
+              auto his = Stream{"Histogram"sv};
+              his << add("alone", &Fixture::test_Histogram1)
+                  << add("context", &Fixture::test_Histogram2)
+                  << END;
+              return his;
+            }()
+         << []{
+              auto pop = Stream{"Population"sv};
+              pop << add("alone", &Fixture::test_Population1)
+                  << add("context", &Fixture::test_Population2)
+                  << END;
+              return pop;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.measurement.Simple
+#import tunitas.keyston.measurement.Histogram
+#import tunitas.keyston.measurement.Population
+#import std.views.iota
+namespace tests::unit::measurement::io { 
+  auto Fixture::test_Count() -> void    { singleton("1"s, library::Count{1u}); }
+  auto Fixture::test_Specimen() -> void { singleton("2"s, library::Specimen{2u}); }
+  auto Fixture::test_Result() -> void   { singleton("3"s, library::Result{3u}); }
+  auto Fixture::test_Simple() -> void   { singleton("4"s, library::Simple{4u}); }
+  auto Fixture::test_Histogram1() -> void {
+    using Subject = library::Histogram;
+    auto subject = Subject{};
+    // Gonna have to inspect these on the console
+    std::cerr << library::format(subject) << '\n'; // <---------------------------------------- test this
+    for (auto percent : std::views::iota(0u, subject.size())) {
+      subject.at(percent) = Subject::Value{1000 * percent};
+    }
+    std::cerr << library::format(subject) << '\n'; // <---------------------------------------- test this
+  }
+  auto Fixture::test_Histogram2() -> void {
+    using Histogram = library::Histogram;
+    auto boundaries = Boundaries{};
+    auto histogram = Histogram{};
+    {
+      for (auto percent : std::views::iota(0u, boundaries.size())) {
+        boundaries.at(percent) = Boundaries::Value{percent};
+        histogram.at(percent) = Histogram::Value{1000 * percent};
+      }
+    }
+    std::cerr << library::format(boundaries, histogram) << '\n'; // <---------------------------------------- test this
+  }
+  auto Fixture::test_Population1() -> void {
+    using Subject = library::Population;
+    {
+      auto subject = Subject{};
+      // Gonna have to inspect these on the console
+      std::cerr << library::format(subject) << '\n'; // <---------------------------------------- test this
+    } {
+      auto subject = Subject{};
+      for (auto percent : std::views::iota(0u, subject.size())) {
+        subject.at(percent) = Subject::Value{1000 * percent};
+      }
+      std::cerr << library::format(subject) << '\n'; // <---------------------------------------- test this
+    }
+  }
+  auto Fixture::test_Population2() -> void {
+    using Population = library::Population;
+    constexpr auto SIZE = 10u;
+    auto prefix_length = Bits{7};
+    auto prefixes = Prefixes(SIZE, Prefixes::Value{});
+    auto population = Population(SIZE, Population::Value{});
+    {
+      for (auto percent : std::views::iota(0u, prefixes.size())) {
+        prefixes.at(percent) = Prefixes::Value{100 * percent};
+        population.at(percent) = Population::Value{1000 * percent};
+      }
+    }
+    std::cerr << library::format(prefix_length, prefixes, population) << '\n'; // <---------------------------------------- test this
+  }
+}
+#endiv

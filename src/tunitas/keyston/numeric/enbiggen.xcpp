@@ -34,8 +34,6 @@ namespace tunitas::keyston::numeric::package_enbiggen {
 #endiv
 #divert <hpp>
 #import tunitas.number.Integer
-#import tunitas.keyston.daf.numeric.Aggregation
-#import tunitas.keyston.daf.numeric.Output
 namespace tunitas::keyston::numeric::package_enbiggen::body {
   namespace exported {
     //

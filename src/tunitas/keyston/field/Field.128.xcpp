@@ -17,6 +17,7 @@ namespace tunitas::keyston::field {
 namespace tunitas::keyston::field {
   template<> struct Field<128> {
     using Value = uint128_t;
+    template<Size CAPACITY> using Vector = field::Vector<Value, CAPACITY>;
     inline static constexpr Value const MODULUS = (Value{1} << 66) * 4611686018427387897 + 1;
     inline static constexpr auto const ENCODED_SIZE = Bytes{16u};
     using Generator = field::Generator<7lu, 4611686018427387897llu, MODULUS>;

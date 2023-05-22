@@ -13,6 +13,8 @@ namespace tunitas::keyston::error::code {
     enum class Enumeration {
       SUCCESS, // ........ improper success (which is a failure)
       FAILURE, // ........ sic, generic failure
+      //
+      OVERFLOW, // ....... e.g. when stuffing a variable array into a fixed array
     };
     using enum Enumeration;
   };
@@ -33,3 +35,4 @@ namespace tunitas::keyston::error {
   auto code::make_error_code(Unpackaged::Enumeration e) noexcept -> std::error_code { return {underlying(e), category()}; }
 }
 #endiv
+                  

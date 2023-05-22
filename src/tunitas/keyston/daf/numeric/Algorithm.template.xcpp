@@ -4,34 +4,26 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.Scheme
+#import tunitas.keyston.daf.Name
 namespace tunitas::keyston::daf::numeric {
   //
-  // Ancestor of the numeric intermediate values.
+  // The Distributed Aggregation Function Algorithm
   //
   // Specification:
   //
-  //   Holds a (big or little) number.
+  //   What they all do.
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
   //
   // Design:
   //
-  //   Obvious.
-  //   And yet, Using the Best Available Means and Methods (UBAMM)
-  //   Descendants only.
+  //   Right out of the manual.
   //
   // Usage:
   //
-  //   See Input, Output, Aggregation.
+  //   Within Definition<NAME> and Executor<NAME>
   //
-  struct Number;
+  template<Scheme, Name> struct Algorithm;
 }
-#endiv
-#divert <hpp>
-#import tunitas.number.Integer
-struct tunitas::keyston::daf::numeric::Number {
-  number::Integer value{};
-  Number() = default;
-  explicit Number(number::Integer n) : value{move(n)} { }
-protected:
-  ~Number() = default;
-};
 #endiv

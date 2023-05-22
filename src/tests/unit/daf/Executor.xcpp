@@ -25,6 +25,7 @@ namespace tests::unit::daf {
 #import tunitas.keyston.daf.exception.Aspect
 #import tunitas.keyston.af.exception.Aspect
 #import tunitas.keyston.exception.Aspect
+#import tunitas.number.Integer
 #import tunitas.exception.Aspect
 #import std.derived_from
 namespace tests::unit::daf {
@@ -68,9 +69,10 @@ namespace tests::unit::daf {
     static_assert(std::derived_from<Failure, Backup3>);
     static_assert(std::derived_from<Failure, Backup4>);
     static auto exercise(Subject &) -> void;
+    inline static auto const SIMPLE_ZERO = ::tunitas::number::Integer{0};
   };
 }
-#endiv
+#endiv 
 #divert <tpp>
 #import tunitas.keyston.daf.Definition
 #import nonstd.exception.Unreachable // Is there a tunitas::exception:::Unreachable?  There ought to be, shouldn't there?
@@ -155,9 +157,15 @@ namespace tests::unit::daf::executor {
 #import tunitas.exception.feature.Unimplemented
 #import tunitas.keyston.measurement.Count
 #import tunitas.keyston.measurement.Specimen
+#import tunitas.exception.feature.Optional
+#import tunitas.exception.feature.Variant
 namespace tests::unit::daf::executor {
   template<typename E, typename D, typename C> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
-      auto parameters = typename Configuration::Parameters{};
+    auto parameters = typename Configuration::Parameters{};
+    //
+    // This will ony work for ZERO and CONSTANT because SIMPLE_ZERO is the initializer
+    // We don't have anything sophisticated enough to initialize the temporariries for COUNT, SUM, HISTOGRAM or POPULARITY
+    //
     {
       auto measurement = typename Configuration::template Measurement<WHOLE>{};
       auto randomness = typename Configuration::Randomness{};
@@ -166,7 +174,7 @@ namespace tests::unit::daf::executor {
     } {
       auto processor = Shard{};
       auto publick = typename Configuration::template Public<SHARE>{};
-      auto input = typename Configuration::template Input<SHARE>{};
+      auto input = typename Configuration::template Input<SHARE>{SIMPLE_ZERO};
       auto got = subject.computation(parameters, processor, publick, input); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
@@ -179,6 +187,15 @@ namespace tests::unit::daf::executor {
       auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     }
+  } catch (::tunitas::exception::feature::Variant const &) {
+    //
+    // WATCHOUT - this is known [[TODO]] and it means that the temporaries are unsuitable so the exercise finished early.
+    // [[TODO]] develop some temporaries beyond SIMPLE_ZERO that will work here
+    //
+    require(ASSERTION);
+  } catch (::tunitas::exception::feature::Optional const &) {
+    // same as variant
+    require(ASSERTION);
   } catch (::tunitas::exception::feature::Unimplemented const &) {
     // well never mind them
     require(ASSERTION);
@@ -195,7 +212,7 @@ namespace tests::unit::daf::executor {
     // Hey man, it's a tester.  You gotta hava thick skin and expect to see unnatural acts to achieve The Testability.
     auto deferred = [this]<typename EXECUTOR>(EXECUTOR *) {
       static_assert(std::same_as<EXECUTOR, Subject>, "double-check, otherwise the else clause will be exercised here");
-      using enum ::tunitas::keyston::Scheme;
+      using enum ::tunitas::keyston::Transport;
       constexpr auto const is_numeric_with_a_one_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::daf::Executor<NUMERIC>>;
       constexpr auto const is_protocol_with_a_two_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::daf::Executor<PROTOCOL>>;
       if constexpr (is_numeric_with_a_one_argument_constructor) {
@@ -271,7 +288,7 @@ namespace tests::unit::daf::executor {
     auto parameters = typename Configuration::Parameters{};
     auto processor = Shard{};
     auto publick = typename Configuration::template Public<SHARE>{};
-    auto input = typename Configuration::template Input<SHARE>{};
+    auto input = typename Configuration::template Input<SHARE>{SIMPLE_ZERO};
     auto got = subject.computation(parameters, processor, publick, input); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }

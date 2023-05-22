@@ -11,6 +11,7 @@ namespace tunitas::keyston::daf::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
+#import tunitas.keyston.measurement.Count
 #import tunitas.keyston.daf.constants
 #import tunitas.keyston.daf.numeric.Parameters
 #import tunitas.keyston.daf.numeric.Measurement
@@ -23,6 +24,7 @@ namespace tunitas::keyston::daf::configuration {
   template<> struct Core<NUMERIC> {
     using Parameters = daf::numeric::Parameters;
     using Randomness = nonce::Bits<constants::RANDOMNESS_BIT_COUNT.count()>;
+    using Processed = measurement::Count;
     template<Slice SLICE> using Measurement = daf::numeric::Measurement<SLICE>;
     template<Slice SLICE> using Public = daf::numeric::Public<SLICE>;
     template<Slice SLICE> using Input = daf::numeric::Input<SLICE>;
@@ -35,7 +37,7 @@ namespace tunitas::keyston::daf::configuration {
 #import tunitas.keyston.daf.generic.configuration.usage.Core
 namespace {
   namespace testate {
-    using enum tunitas::keyston::Scheme;
+    using enum tunitas::keyston::Transport;
     namespace usage = tunitas::keyston::daf::generic::configuration::usage;
     using namespace tunitas::keyston::daf::configuration;
     static_assert(usage::Core<Core<NUMERIC>>);

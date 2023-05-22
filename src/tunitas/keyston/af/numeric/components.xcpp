@@ -30,6 +30,7 @@ namespace tunitas::keyston::af::numeric {
   //   }
   //
   namespace components {
+    using Initialized  = Configuration<NUMERIC>::Initialized;
     using Computed  = Configuration<NUMERIC>::Computed;
     using Finalized = Configuration<NUMERIC>::Finalized;
     using Count     = measurement::Count;

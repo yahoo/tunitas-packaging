@@ -7,6 +7,8 @@
 tunitas_keyston_daf_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/daf/numeric/namespace.cpp \
   obj/src/tunitas/keyston/daf/numeric/components.cpp \
+  $(tunitas_keyston_daf_numeric_package_format_SUBSOURCES) \
+  \
   obj/src/tunitas/keyston/daf/numeric/zero.cpp \
   obj/src/tunitas/keyston/daf/numeric/constant.cpp \
   obj/src/tunitas/keyston/daf/numeric/count.cpp \
@@ -14,11 +16,18 @@ tunitas_keyston_daf_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/daf/numeric/histogram.cpp \
   obj/src/tunitas/keyston/daf/numeric/popularity.cpp \
   \
+  obj/src/tunitas/keyston/daf/numeric/traits.Algorithm.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Algorithm.template.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Algorithm.PRIO.NAME.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Algorithm.POPLAR.POPULARITY.cpp \
+  obj/src/tunitas/keyston/daf/numeric/Algorithm.cpp \
+  \
   obj/src/tunitas/keyston/daf/numeric/Parameters.cpp \
   obj/src/tunitas/keyston/daf/numeric/Measurement.cpp \
   obj/src/tunitas/keyston/daf/numeric/Public.cpp \
   obj/src/tunitas/keyston/daf/numeric/Input.cpp \
-  obj/src/tunitas/keyston/daf/numeric/Number.cpp \
   obj/src/tunitas/keyston/daf/numeric/Output.cpp \
   obj/src/tunitas/keyston/daf/numeric/Aggregation.cpp \
   $(end)
+#
+include src/tunitas/keyston/daf/numeric/package_format/Makefrag.am

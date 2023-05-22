@@ -39,7 +39,7 @@ namespace tunitas::keyston {
     friend auto array::swap<>(Variable &, Variable &) noexcept -> void;
   public:
     [[implicit]] Variable() = default;
-    using Ancestor::Container; // constructors for Container<...> are inherited from its ancestor
+    using Ancestor::Container; // constructors for Container<...> are inherited from its ancestor (maybe)
     inline [[implicit]] Variable(Ancestor const &);
     inline [[implicit]] Variable(Ancestor &&);
     //

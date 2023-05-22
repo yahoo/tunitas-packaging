@@ -20,7 +20,7 @@ namespace {
     using tunitas::keyston::daf::get; // <------------------------------ test this
     //
     using tunitas::keyston::daf::Configuration;
-    using enum tunitas::keyston::Scheme;
+    using enum tunitas::keyston::Transport;
     using Specimen = tunitas::keyston::daf::generic::disassembled::Disassembled<Configuration<PROTOCOL>>; // ... pick one, any one will do
     //
     static_assert(sizeof(get<0>(std::declval<Specimen>())));

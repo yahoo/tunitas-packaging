@@ -58,12 +58,13 @@ namespace tests::unit::array {
     require(ASSERTION, 0 == subject.size());
   }
   template<typename _> auto Bounded<_>::test_at_constie() -> void {
+    // (this test) needs to work for const-capable and move-only types
     auto const subject = Subject(4); // <----- using this (constie)
     require(ASSERTION, 4 == subject.size());
-    auto v0 = subject.at(0); // <---------------------------------------- test this
-    auto v1 = subject.at(1);
-    auto v2 = subject.at(2);
-    auto v3 = subject.at(3);
+    auto const &v0 = subject.at(0); // <---------------------------------------- test this
+    auto const &v1 = subject.at(1);
+    auto const &v2 = subject.at(2);
+    auto const &v3 = subject.at(3);
     require(ASSERTION, sizeof(v0) + sizeof(v1) + sizeof(v2) + sizeof(v3));
     try {
       subject.at(4);
@@ -73,14 +74,16 @@ namespace tests::unit::array {
     }
   }
   template<typename _> auto Bounded<_>::test_at_mutable() -> void {
+    // (this test) needs to work for const-capable and move-only types
     auto subject = Subject(4); // <----- using this (mutable)
     require(ASSERTION, 4 == subject.size());
-    subject.at(0) = subject.at(0); // <---------------------------------------- test this
-    subject.at(1) = subject.at(1);
-    subject.at(2) = subject.at(2);
-    subject.at(3) = subject.at(3);
+    auto tmp = std::move(subject.at(0));
+    subject.at(0) = std::move(subject.at(1)); // <---------------------------------------- test this
+    subject.at(1) = std::move(subject.at(2));
+    subject.at(2) = std::move(subject.at(3));
+    subject.at(3) = std::move(tmp);
     try {
-      subject.at(4) = subject.at(4);
+      subject.at(4) = std::move(subject.at(4));
       impossible(ASSERTION);
     } catch (::tunitas::exception::feature::Bound const &) {
       require(ASSERTION);

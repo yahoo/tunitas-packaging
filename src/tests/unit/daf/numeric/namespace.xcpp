@@ -19,7 +19,7 @@ namespace tests::unit::daf::numeric {
   namespace library = ::tunitas::keyston::daf::numeric;
   //
   using namespace ::tunitas::keyston::shards::literals;
-  using Configuration = ::tunitas::keyston::daf::Configuration<Scheme::NUMERIC>;
+  using Configuration = ::tunitas::keyston::daf::Configuration<Transport::NUMERIC>;
   template<::tunitas::keyston::shards::required::Shardable TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
   template<::tunitas::keyston::array::required::Arrayable TYPE> using Series = ::tunitas::keyston::array::Series<TYPE>;
   using enum ::tunitas::keyston::Slice;

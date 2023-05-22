@@ -1,0 +1,42 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tests.unit.daf.numeric.histogram.Fixture>
+#endiv
+#divert <hpp>
+#import tests.unit.daf.numeric.Palette
+#include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Sum{...}
+#import tunitas.keyston.numeric.Treatment
+namespace tests::unit::daf::numeric::histogram {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsubobject-linkage"
+  struct Fixture::Expected : public Palette {
+    class Disassembly {
+      class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Sum const &that) -> Configuration::Input<SHARE>::Sum { return that; })> { };
+    public:
+      _Treatment treatment{};
+    };
+    class Computation {
+      class _iTreatment : public Treatment<decltype([](Configuration::Input<SHARE>::Sum const &that) -> Configuration::Input<SHARE>::Sum { return that; })> { };
+      class _oTreatment : public Treatment<decltype([](Configuration::Output<SHARE>::Sum const &that) -> Configuration::Output<SHARE>::Sum { return that; })> { };
+    public:
+      _iTreatment itreatment{};
+      _oTreatment otreatment{};
+    };
+    class Amalgamation {
+      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<SHARE>::Sum const &that) -> Configuration::Aggregation<SHARE>::Sum { return that; })> { };
+    public:
+      _Treatment treatment{};
+    };
+    class Reassembly {
+      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<WHOLE>::Sum const &that) -> Configuration::Aggregation<WHOLE>::Sum { return that; })> { };
+    public:
+      _Treatment treatment{};
+    };
+  };
+#pragma GCC diagnostic pop
+}
+#endiv

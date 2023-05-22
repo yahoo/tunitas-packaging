@@ -66,7 +66,7 @@ namespace tunitas::keyston::vdaf::generic {
     using Disgorgement = Disgorged (*)(typename CORE::Parameters const &, Shards<typename CORE::template Output<SHARE>> const &);
     //
     using Reassembled = typename CORE::Aggregation<WHOLE>;
-    using Reassembly = Reassembled (*)(typename CORE::Parameters const &, Shards<typename CORE::template Aggregation<SHARE>> const &, measurement::Count);
+    using Reassembly = Reassembled (*)(typename CORE::Parameters const &, Shards<typename CORE::template Aggregation<SHARE>> const &, typename CORE::Processed);
   };
 }
 #endiv

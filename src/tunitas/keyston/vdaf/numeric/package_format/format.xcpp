@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.vdaf.numeric.package_format.Formatter
+#import tunitas.keyston.vdaf.numeric.Aggregation
+namespace tunitas::keyston::vdaf::numeric::package_format::body {
+  namespace exported {
+    //
+    // Construct the formatter
+    //
+    // Specification:
+    //
+    //   What fun!
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   auto thing = somehow...;
+    //
+    //   cout << format(thing)
+    //
+    inline auto format(Aggregation<WHOLE> const &) -> Formatter<Aggregation<WHOLE>, Aggregation<WHOLE> const &>;
+  }
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::vdaf::numeric::package_format {
+  auto interface::format(Aggregation<WHOLE> const &item) -> Formatter<Aggregation<WHOLE>, Aggregation<WHOLE> const &> { return {item}; }
+}
+#import tunitas.keyston.vdaf.numeric.package_format.io
+#endiv

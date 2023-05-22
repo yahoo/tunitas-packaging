@@ -22,7 +22,7 @@ namespace tunitas::keyston::af {
   namespace [[eponymous]] definition {
     template<required::Configuration> struct Definition;
   }
-  template<Scheme> struct Definition;
+  template<Transport> struct Definition;
   template<> struct Definition<NUMERIC>;
 }
 #endiv
@@ -48,6 +48,9 @@ namespace tunitas::keyston::af {
     using Intermediate = typename CONFIGURATION::Intermediate;
     using Aggregation = typename CONFIGURATION::Aggregation;
     //
+    using Initialized = typename CONFIGURATION::Initialized;
+    using Initialization = typename CONFIGURATION::Initialization;
+    //
     using Computed = typename CONFIGURATION::Computed;
     using Computation = typename CONFIGURATION::Computation;
     //
@@ -58,6 +61,7 @@ namespace tunitas::keyston::af {
     explicit Definition(Name); // callers MUST specialize this
   protected:
     friend auto definition::swap<>(Definition &, Definition &) noexcept -> void;
+    Initialization initialization{};
     Computation computation{};
     Finalization finalization{};
   };
@@ -79,6 +83,7 @@ namespace tunitas::keyston {
   namespace af { 
     template<required::Configuration CONFIGURATION> auto definition::swap(Definition<CONFIGURATION> &a, Definition<CONFIGURATION> &b) noexcept -> void {
       // These are pointers so the standard swap will be fone; the ADL-found swap(s) will be dubious-ambiguous-whatever.
+      std::swap(a.initialization, b.initialization);
       std::swap(a.computation, b.computation);
       std::swap(a.finalization, b.finalization);
     }

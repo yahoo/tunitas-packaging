@@ -5,22 +5,22 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import nonstd.container.Traits
-#forward tunitas.keyston.measurement.Population
+#forward tunitas.keyston.popularity.Prefixes
 namespace nonstd::container {
-  template<> struct Traits<tunitas::keyston::measurement::Population>;
-  template<> struct Traits<tunitas::keyston::measurement::Population const>;
+  template<> struct Traits<tunitas::keyston::popularity::Prefixes>;
+  template<> struct Traits<tunitas::keyston::popularity::Prefixes const>;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.popularity.Prefixes
 namespace nonstd::container {
-  template<> struct Traits<tunitas::keyston::measurement::Population const> {
-    using Container = tunitas::keyston::measurement::Population const;
+  template<> struct Traits<tunitas::keyston::popularity::Prefixes const> {
+    using Container = tunitas::keyston::popularity::Prefixes const;
     using Value = typename Container::Value;
     using Iterator = typename Container::Basic_Iterator<Container>;
   };
-  template<> struct Traits<tunitas::keyston::measurement::Population> {
-    using Container = tunitas::keyston::measurement::Population;
+  template<> struct Traits<tunitas::keyston::popularity::Prefixes> {
+    using Container = tunitas::keyston::popularity::Prefixes;
     using Value = typename Container::Value;
     using Iterator = typename Container::Basic_Iterator<Container>;
   };

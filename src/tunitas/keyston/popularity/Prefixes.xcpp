@@ -13,3 +13,6 @@ namespace tunitas::keyston::popularity {
   using Prefixes = array::Variable<measurement::Specimen>;
 }
 #endiv
+#divert <hpp>
+#import nonstd.container.Traits.tunitas.keyston.popularity.Prefixes
+#endiv

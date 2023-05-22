@@ -228,7 +228,7 @@ namespace tests::unit::vdaf::executor {
     // Hey man, it's a tester.  You gotta hava thick skin and expect to see unnatural acts to achieve The Testability.
     auto deferred = [this]<typename EXECUTOR>(EXECUTOR *) {
       static_assert(std::same_as<EXECUTOR, Subject>, "double-check, otherwise the else clause will be exercised here");
-      using enum ::tunitas::keyston::Scheme;
+      using enum ::tunitas::keyston::Transport;
       constexpr auto const is_numeric_with_a_one_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::vdaf::Executor<NUMERIC>>;
       constexpr auto const is_protocol_with_a_two_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::vdaf::Executor<PROTOCOL>>;
       if constexpr (is_numeric_with_a_one_argument_constructor) {

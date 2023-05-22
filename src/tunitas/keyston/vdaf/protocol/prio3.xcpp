@@ -56,7 +56,7 @@ namespace tunitas::keyston::vdaf::protocol::prio3::package_prio3 {
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
     auto disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
@@ -83,7 +83,7 @@ namespace tunitas::keyston::vdaf::protocol::prio3::package_prio3 {
     throw exception::Unimplemented{};
     return {};
   }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled {
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled {
     throw exception::Unimplemented{};
     return {};
   }

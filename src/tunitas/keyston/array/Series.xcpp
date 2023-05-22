@@ -39,7 +39,7 @@ namespace tunitas::keyston {
     friend auto array::swap<>(Series &, Series &) noexcept -> void;
   public:
     [[implicit]] Series() = default;
-    using Ancestor::Container; // constructors for Fixed are inherited
+    using Ancestor::Container; // constructors for deque are inherited
     inline [[implicit]] Series(Ancestor const &);
     inline [[implicit]] Series(Ancestor &&);
   };

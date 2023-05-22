@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::daf::configuration {
   //
-  // The configuration, conveniently indexed by the Scheme
+  // The configuration, conveniently indexed by the Transport
   //
   // Specification:
   //
@@ -20,13 +20,13 @@ namespace tunitas::keyston::daf::configuration {
   //
   //   And where do you think it might be used?
   //
-  template<Scheme SCHEME> struct Configuration;
+  template<Transport> struct Configuration;
 }
 #endiv
 #divert<hpp>
 #import tunitas.keyston.daf.configuration.Core
 #import tunitas.keyston.daf.generic.Configuration
 namespace tunitas::keyston::daf {
-  template<Scheme SCHEME> struct configuration::Configuration : public generic::Configuration<Core<SCHEME>> { };
+  template<Transport TRANSPORT> struct configuration::Configuration : public generic::Configuration<Core<TRANSPORT>> { };
 }
 #endiv

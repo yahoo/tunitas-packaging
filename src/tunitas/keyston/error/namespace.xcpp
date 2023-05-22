@@ -1,14 +1,14 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc. 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.transport
 #import tunitas.string.literals
-#import tunitas.error.by
+#import tunitas.error.convenience // otherwise error::Optional & error::Outcome & namespace error::by are occluded
 namespace tunitas::keyston::error {
-  using namespace tunitas::error; // otherwise error::Optional & error::Outcome & namespace error::by are occluded
+  using namespace tunitas::error::convenience;
   namespace package_error {
     namespace body {
       namespace exported { }

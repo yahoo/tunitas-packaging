@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::vdaf {
   //
-  // The executor, conveniently indexed by the Scheme
+  // The executor, conveniently indexed by the Transport
   //
   // Specification:
   //
@@ -20,6 +20,6 @@ namespace tunitas::keyston::vdaf {
   //
   //   And where do you think it might be used?
   //
-  template<Scheme SCHEME> struct Executor;
+  template<Transport> struct Executor;
 }
 #endiv

@@ -4,20 +4,51 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.number.Integer
+#import tunitas.keyston.prio.Algorithm
+#include <hpp/tunitas.keyston.prio.Algorithm>
+#import tunitas.keyston.poplar.Algorithm
+#include <hpp/tunitas.keyston.poplar.Algorithm>
 namespace tunitas::keyston::daf::numeric {
-  template<Slice> struct Input;
-  template<> struct Input<WHOLE>; // never materialized; see Measurement<WHOLE>
-  template<> struct Input<SHARE>;
+  namespace [[eponymous]] input {
+    template<Slice> struct Input;
+    template<> struct Input<WHOLE>; // never materialized; see Measurement<WHOLE>
+    template<> struct Input<SHARE>;
+    using Simple = number::Integer;
+    using Count = prio::Algorithm<prio::Name::COUNT>::Encoded;
+    using Sum = prio::Algorithm<prio::Name::SUM>::Encoded;
+    using Histogram = prio::Algorithm<prio::Name::HISTOGRAM>::Encoded;
+    using Population = poplar::Algorithm<poplar::Name::ONE>::Preparation;
+  }
+  using input::Input;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.daf.numeric.Number
-namespace tunitas::keyston::daf {
-  template<> class numeric::Input<SHARE> : public Number {
-    using Ancestor = Number;
+namespace tunitas::keyston::daf::numeric::input {
+  using std::move;
+  // swap is trivial and taken by an ancestor
+  using Variant = std::variant<Simple, Count, Sum, Histogram, Population>;
+  template<> class Input<SHARE> : public Variant {
+    using Ancestor = Variant;
   public:
     Input() = default;
-    using Ancestor::Number;
+    using Ancestor::variant; // yep, you "just have to know" that the constructor name is 'variant' therein
+    using Simple = input::Simple;
+    using Count = input::Count;
+    using Sum = input::Sum;
+    using Histogram = input::Histogram;
+    using Population = input::Population;
   };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::daf::numeric;
+    using enum tunitas::keyston::Slice;
+    //
+    static_assert(std::semiregular<Input<SHARE>>);
+    static_assert(std::swappable<Input<SHARE>>);
+  }
 }
 #endiv

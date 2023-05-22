@@ -30,4 +30,5 @@ namespace tunitas::keyston::field {
 #divert <hpp>
 #import tunitas.number.Integer
 #import tunitas.keyston.field.Generator
+#import tunitas.keyston.field.Vector
 #endiv

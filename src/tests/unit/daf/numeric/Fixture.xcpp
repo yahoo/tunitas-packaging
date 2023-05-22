@@ -69,6 +69,8 @@ auto tests::unit::daf::numeric::Fixture::suite() -> Suite {
 #import tunitas.keyston.daf.numeric.Public
 #import tunitas.keyston.daf.numeric.Output
 #import tunitas.keyston.daf.numeric.Aggregation
+#import tunitas.keyston.daf.numeric.format
+#import std.ostringstream
 namespace tests::unit::daf::numeric {
   auto Fixture::test_usage_Measurement() -> void {
     auto whole = library::Measurement<WHOLE>{};
@@ -107,6 +109,12 @@ namespace tests::unit::daf::numeric {
     require(ASSERTION, sizeof(whole));
     auto share = library::Aggregation<SHARE>{};
     require(ASSERTION, sizeof(share));
+    {
+      auto buf = std::ostringstream{};
+      buf << library::format(whole); // <------------------------------ test this
+      auto str = buf.str();
+      require(ASSERTION, !str.empty());
+    }
   }
 }
 #import tunitas.keyston.daf.numeric.components

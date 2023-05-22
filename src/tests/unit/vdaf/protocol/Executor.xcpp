@@ -41,7 +41,7 @@ struct tests::unit::vdaf::protocol::executor::Executor : public rigging::suite::
   //
   using Subject = library::Executor;
   class Definition {
-    using enum ::tunitas::keyston::Scheme;
+    using enum ::tunitas::keyston::Transport;
   public:
     using External = ::tunitas::keyston::vdaf::Definition<PROTOCOL>;
     using Internal = tunitas::keyston::vdaf::Definition<NUMERIC>;

@@ -35,6 +35,7 @@ namespace tunitas::keyston::af::numeric::count::package_count::body {
     //
     //   See Definition.
     //
+    auto initialization(Parameters const &) -> Initialized;
     auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
     auto finalization(Parameters const &, Intermediate const &) -> Finalized;
   }
@@ -42,6 +43,7 @@ namespace tunitas::keyston::af::numeric::count::package_count::body {
 #endiv
 #divert <cpp>
 namespace tunitas::keyston::af::numeric::count::package_count {
+  auto interface::initialization(Parameters const &) -> Initialized { return (intermediate::Single{}); }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &) -> Computed {
     auto treatment = Treatment{[](number::Integer &lhs) { lhs += 1; }};

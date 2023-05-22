@@ -16,7 +16,8 @@ namespace tests::unit {
     using Subject = SUBJECT;
     using Value = typename Subject::Value;
     //
-    auto test_constructor_default() -> void;
+    auto test_constructor_default_runnytime() -> void;
+    auto test_constructor_default_constexpr() -> void;
     //
     auto test_swap() -> void;
     auto test_at_constie() -> void;
@@ -33,7 +34,13 @@ namespace tests::unit::array {
     auto series = Stream{typeid(Subject)};
     series << []{
                 auto con = Stream{"constructor"sv};
-                con << add("default", &Fixed::test_constructor_default)
+                con << []{
+                  auto def = Stream{"default"sv};
+                  def << add("runnytime", &Fixed::test_constructor_default_runnytime)
+                      << add("constexpr", &Fixed::test_constructor_default_constexpr)
+                      << END;
+                  return def;
+                }()
                     << END;
                 return con;
               }()
@@ -58,9 +65,17 @@ namespace tests::unit::array {
 }
 #import tunitas.exception.feature.Bound
 namespace tests::unit::array {
-  template<typename _> auto Fixed<_>::test_constructor_default() -> void {
+  template<typename _> auto Fixed<_>::test_constructor_default_runnytime() -> void {
     auto subject = Subject{};
     require(ASSERTION, subject.capacity() == subject.size());
+  }
+  template<typename _> auto Fixed<_>::test_constructor_default_constexpr() -> void {
+    //
+    // is constexpr; can be used constexpr in evaluated contexts    
+    // This capability is used to size other arrays, so it must work.
+    // This capability mut work for copy-capable and move-only types.
+    //
+    static_assert(Subject{}.capacity() == Subject{}.size());
   }
   template<typename _> auto Fixed<_>::test_swap() -> void {
     auto subject0 = Subject{};
@@ -68,27 +83,27 @@ namespace tests::unit::array {
     swap(subject0, subject1);
   }
   template<typename _> auto Fixed<_>::test_at_constie() -> void {
-    auto const subject = Subject{0, 1, 2, 3}; // <----- using this (constie)
+    auto const subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <----- using this (constie)
     require(ASSERTION, 4 == subject.size());
     try {
-      subject.at(400);
+      subject.at(4);
       impossible(ASSERTION);
     } catch (::tunitas::exception::feature::Bound const &) {
       require(ASSERTION);
     }
   }
   template<typename _> auto Fixed<_>::test_at_mutable() -> void {
-    auto subject = Subject{0, 1, 2, 3}; // <----- using this (mutable)
+    auto subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <----- using this (mutable)
     require(ASSERTION, 4 == subject.size());
     try {
-      subject.at(0) = subject.at(400);
+      subject.at(0) = std::move(subject.at(400));
       impossible(ASSERTION);
     } catch (::tunitas::exception::feature::Bound const &) {
       require(ASSERTION);
     }
   }
   template<typename _> auto Fixed<_>::test_subrange_constie() -> void {
-    auto const subject = Subject{0, 1, 2, 3}; // <------------------------------ constie
+    auto const subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <------------------------------ constie
     require(ASSERTION, 4 == subject.size());
     auto count{0uz};
     for (auto const &item : subrange(subject)) { // <--------------- test this (constie)
@@ -97,7 +112,7 @@ namespace tests::unit::array {
     require(ASSERTION, 4uz == count);
   }
   template<typename _> auto Fixed<_>::test_subrange_mutable() -> void {
-    auto subject = Subject{0, 1, 2, 3}; // <------------------------------------ mutable
+    auto subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <------------------------------------ mutable
     require(ASSERTION, 4 == subject.size());
     auto count{0uz};
     for (auto const &item : subrange(subject)) { // <--------------- test this (mutable)

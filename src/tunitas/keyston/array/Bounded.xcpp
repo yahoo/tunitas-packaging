@@ -33,9 +33,12 @@ namespace tunitas::keyston::array {
 }
 #endiv
 #divert <hpp>
+#import nonstd.required.Convertible_To
 #import nonstd.required.iterator.Forward
-#import std.initializer_list
-#import tunitas.keyston.required // ctcnr (cascade that certain 'namespace required')
+#import nonstd.required.iterator.Producing
+#import std.remove_cvref
+#import std.initializer_list // [[REMOVETHIS]]
+#import tunitas.keyston.array.required.Initializers
 #import tunitas.keyston.array.Variable
 #forward tunitas.keyston.array.Fixed
 namespace tunitas::keyston {
@@ -47,12 +50,23 @@ namespace tunitas::keyston {
     using Ancestor = Variable<TYPE>;
     friend auto array::swap<>(Bounded &, Bounded &) noexcept -> void;
     inline auto throw_if_full(Size more) const -> void;
-    template<typename INIT> inline auto check_initializer_size(std::initializer_list<INIT> const &) const -> decltype(auto);
   public:
     Bounded() = default;
     inline explicit Bounded(Size);
+    inline explicit Bounded(Size, typename Ancestor::Value const &);
+#if 1
+    template<typename... VALUES> inline [[implicit]] Bounded(VALUES &&...)                             requires (sizeof...(VALUES) <= CAPACITY && required::Initializers<typename Ancestor::Value, VALUES...>);
+    template<typename... VALUES> inline [[implicit]] Bounded(typename Ancestor::Inplace, VALUES &&...) requires (sizeof...(VALUES) <= CAPACITY && required::Initializers<typename Ancestor::Value, VALUES...>);
+#else
     inline [[implicit]] Bounded(std::initializer_list<typename Ancestor::Value>);
+  protected:
+    template<typename INIT> inline auto check_initializer_size(std::initializer_list<INIT> const &) const -> decltype(auto);
+  public:
+#endif
     template<Size RECAPACITY> inline [[implicit]] Bounded(Fixed<typename Ancestor::Value, RECAPACITY> const &) requires (RECAPACITY <= CAPACITY);
+    template<Size RECAPACITY> inline [[implicit]] Bounded(Fixed<typename Ancestor::Value, RECAPACITY> &&) requires (RECAPACITY <= CAPACITY);
+    template<required::iterator::Forward ITERATOR> inline [[implicit]] Bounded(ITERATOR start, ITERATOR finish) requires required::iterator::Producing<ITERATOR, typename Ancestor::Value>;
+    //
     inline auto capacity() const noexcept { return CAPACITY; }
     template<required::iterator::Forward ITERATOR> inline auto push_back(ITERATOR start, ITERATOR finish) -> void;
     inline auto push_back(typename Ancestor::Value) -> void;
@@ -62,9 +76,11 @@ namespace tunitas::keyston {
 #endiv
 #divert <ipp>
 #import tunitas.keyston.array.Fixed
+#import tunitas.keyston.array.required.Reservable
 #import tunitas.keyston.exception.Bound
 #import tunitas.keyston.exception.Length
 #import std.distance
+#import std.make_move_iterator
 namespace tunitas::keyston {
   template<array::required::Arrayable TYPE, Size CAPACITY> auto array::swap(Bounded<TYPE, CAPACITY> &a, Bounded<TYPE, CAPACITY> &b) noexcept -> void {
     typename Bounded<TYPE, CAPACITY>::Ancestor &aa{a}, &bb{b};
@@ -74,6 +90,9 @@ namespace tunitas::keyston {
     template<typename T, Size CAPACITY> template<Size RECAPACITY> Bounded<T,CAPACITY>::Bounded(Fixed<typename Ancestor::Value, RECAPACITY> const &other) requires (RECAPACITY <= CAPACITY)
       : Ancestor{other.begin(), other.end()}
     { }
+    template<typename T, Size CAPACITY> template<Size RECAPACITY> Bounded<T,CAPACITY>::Bounded(Fixed<typename Ancestor::Value, RECAPACITY> &&other) requires (RECAPACITY <= CAPACITY)
+      : Ancestor{std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())}
+    { }
     template<typename T, Size C> Bounded<T,C>::Bounded(Size initial_size) {
       if (this->size() > this->capacity()) {
         throw exception::Length{"too big"};
@@ -81,6 +100,19 @@ namespace tunitas::keyston {
         this->resize(initial_size);
       }
     }
+    template<typename T, Size C> Bounded<T,C>::Bounded(Size initial_size, typename Ancestor::Value const &initial_value)
+      : Bounded{initial_size} {{
+        std::fill_n(Ancestor::begin(), initial_size, initial_value);
+      }
+    }
+#if 1
+    template<typename T, Size CAPACITY> template<typename... VALUES> Bounded<T,CAPACITY>::Bounded(VALUES &&...values) requires (sizeof...(VALUES) <= CAPACITY && required::Initializers<typename Ancestor::Value, VALUES...>)
+      : Bounded{typename Ancestor::Inplace{}, forward<VALUES>(values)...}
+    { }
+    template<typename T, Size CAPACITY> template<typename... VALUES> Bounded<T,CAPACITY>::Bounded(typename Ancestor::Inplace inplace, VALUES &&...values) requires (sizeof...(VALUES) <= CAPACITY && required::Initializers<typename Ancestor::Value, VALUES...>)
+      : Ancestor{inplace, forward<VALUES>(values)...}
+    { }
+#else
     template<typename T, Size C> Bounded<T,C>::Bounded(std::initializer_list<typename Ancestor::Value> init) : Ancestor{check_initializer_size(init)} { }
     template<typename T, Size C> template<typename INIT> auto Bounded<T,C>::check_initializer_size(std::initializer_list<INIT> const &init) const -> decltype(auto) {
       if (init.size() > this->capacity()) {
@@ -89,18 +121,26 @@ namespace tunitas::keyston {
         return init;
       }
     }
+#endif
+    template<typename T, Size C> template<required::iterator::Forward ITERATOR> Bounded<T,C>::Bounded(ITERATOR start, ITERATOR finish) requires required::iterator::Producing<ITERATOR, typename Ancestor::Value> { push_back(start, finish); }
     template<typename T, Size C> auto Bounded<T,C>::throw_if_full(Size more) const -> void {
       if (this->size()+more > this->capacity()) {
         throw exception::Bound{"full"};
       }
     }
     template<typename T, Size C> template<required::iterator::Forward ITERATOR> auto Bounded<T,C>::push_back(ITERATOR start, ITERATOR finish) -> void {
-      throw_if_full(std::distance(start, finish));
-      Ancestor::push_back(start, finish);
+      auto more = std::distance(start, finish);
+      throw_if_full(more);
+      if constexpr (required::Reservable<typename Ancestor::Value>) {
+        Ancestor::reserve(Ancestor::size() + more);
+      }
+      for (auto here=start; finish != here; ++here) {
+        Ancestor::push_back(*here);
+      }
     }
     template<typename T, Size C> auto Bounded<T,C>::push_back(typename Ancestor::Value one) -> void {
       throw_if_full(1uz);
-      Ancestor::push_back(one);
+      Ancestor::push_back(std::move(one));
     }
     template<typename T, Size C> template<typename... ARGUMENTS> auto Bounded<T,C>::emplace_back(ARGUMENTS &&...arguments) -> void {
       throw_if_full(1uz);

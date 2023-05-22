@@ -1,0 +1,24 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.measurement.package_format.format
+namespace tunitas::keyston::measurement {
+  using package_format::interface::format; // so that ADL will find it (them) here.
+}
+#if 0
+// NOT YET ---> #import tunitas.keyston.histogram.format <---- eadem ratione (so that ADL will find them against the type alias)
+// NOT YET ---> #import tunitas.keyston.popularity.format <--- eadem ratione
+#else
+// Whereas ADL MUST find format(...)
+// else hack it ... s inject format into the namespace whence cometh the originals
+namespace tunitas::keyston::histogram {
+  using measurement::package_format::interface::format;
+}
+namespace tunitas::keyston::popularity {
+  using measurement::package_format::interface::format;
+}
+#endif
+#endiv

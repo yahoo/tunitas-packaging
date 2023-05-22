@@ -37,6 +37,7 @@ namespace tunitas::keyston::af::numeric::popularity::package_popularity::body {
     //
     //   See Definition.
     //
+    auto initialization(Parameters const &) -> Initialized;
     auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
     auto finalization(Parameters const &, Intermediate const &) -> Finalized;
   }
@@ -45,9 +46,14 @@ namespace tunitas::keyston::af::numeric::popularity::package_popularity::body {
 #divert <cpp>
 #import tunitas.keyston.popularity.encode
 namespace tunitas::keyston::af::numeric::popularity::package_popularity {
+  auto interface::initialization(Parameters const &parameters) -> Initialized {
+    auto size = parameters.prefixes.value().size();
+    auto fill = intermediate::Population::Value{};
+    return intermediate::Population(size, fill);
+  }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &parameters, Intermediate intermediate, Measurement const &measurement) -> Computed {
-    auto treatment = Treatment{[&parameters, &measurement](measurement::Population &lhs) {
+    auto treatment = Treatment{[&parameters, &measurement](measurement::Population &lhs) -> void {
       lhs += encode(measurement.value, parameters.prefix_length.value(), parameters.prefixes.value());
     }};
     visit(treatment, intermediate);

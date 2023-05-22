@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.Scheme
+#import tunitas.keyston.Transport
 namespace tunitas::keyston::af {
   //
   // Specification:
@@ -14,8 +14,8 @@ namespace tunitas::keyston::af {
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
   //   Verifiable Distributed Aggregation Functions
   //
-  //   For the (centralized) Aggregation Protocol there is no Scheme::PROTOCOL because it's centralized.
-  //   There is only Scheme::NUMERIC
+  //   For the (centralized) Aggregation Protocol there is no Transport::PROTOCOL because it's centralized.
+  //   There is only Transport::NUMERIC
   //
   // Design:
   //
@@ -25,6 +25,6 @@ namespace tunitas::keyston::af {
   //
   //   Yes.
   //
-  using enum Scheme;
+  using enum Transport;
 }
 #endiv

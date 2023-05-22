@@ -6,5 +6,10 @@
 #divert <fpp>
 #import tunitas.keyston.daf
 #import tunitas.keyston.numeric
-namespace tunitas::keyston::daf::numeric { using namespace tunitas::keyston::numeric; }
+#import tunitas.keyston.Scheme
+namespace tunitas::keyston::daf::numeric {
+  using namespace tunitas::keyston::numeric;
+  using enum Scheme;
+  namespace [[nodirectory]] traits { }
+}
 #endiv

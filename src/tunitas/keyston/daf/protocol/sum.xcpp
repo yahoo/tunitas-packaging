@@ -38,7 +38,7 @@ namespace tunitas::keyston::daf::protocol::sum::package_sum {
     auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
     auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
     auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
@@ -57,7 +57,7 @@ namespace tunitas::keyston::daf::protocol::sum::package_sum {
     throw exception::Unimplemented{};
     return {};
   }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled {
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled {
     throw exception::Unimplemented{};
     return {};
   }

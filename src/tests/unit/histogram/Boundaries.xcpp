@@ -1,0 +1,150 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::histogram { class Boundaries; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.array.Variable
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.error.by.required.Indicator
+#import tunitas.keyston.exception.Aspect
+namespace tests::unit {
+  struct histogram::Boundaries : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = Boundaries;
+    //
+    auto test_constructor() -> void;
+    template<error::by::required::Indicator> auto test_extend_good() -> void;
+    template<error::by::required::Indicator> auto test_extend_fail() -> void;
+    using Variable = ::tunitas::keyston::array::Variable<::tunitas::keyston::measurement::Specimen>;
+  protected:
+    using Failure = ::tunitas::keyston::exception::Aspect;
+    enum class Generate { DEFAULT, GOOD, FAIL };
+    template<typename RESULT> static auto generate(Generate = {}) -> RESULT = delete;
+  };
+  namespace histogram {
+    template<> auto Boundaries::generate<Boundaries::Subject>(Generate) -> Subject;
+    template<> auto Boundaries::generate<Boundaries::Variable>(Generate which) -> Variable;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+//
+// The specializations MUST occur before suite() so that their address is known
+//
+namespace tests::unit::histogram {
+  template<> auto Boundaries::generate<Boundaries::Subject>(Generate) -> Subject { return Subject{}; }
+  template<> auto Boundaries::generate<Boundaries::Variable>(Generate which) -> Variable {
+    switch (which) {
+    case Generate::GOOD:
+      {
+        auto variable = Variable{};
+        require(ASSERTION, 0 == variable.size());
+        variable.push_back(Variable::Value{1});
+        variable.push_back(Variable::Value{2});
+        variable.push_back(Variable::Value{3});
+        return variable;
+      }
+    case Generate::FAIL:
+      return Variable(1+library::Boundaries{}.size(), library::Boundaries::Value{99});;
+    case Generate::DEFAULT:
+    default:
+      return Variable{};
+    }
+  }
+}
+namespace tests::unit::histogram {
+  template<> auto Boundaries::test_extend_good<error::by::Exception>() -> void {
+    auto variable = generate<Variable>(Generate::GOOD);
+    auto extended = library::Boundaries::extend(error::by::Exception{}, variable); // <----- test this
+    require(ASSERTION, 0 < extended.size());
+    require(ASSERTION, library::Boundaries::Value{3} == extended.at(extended.size()-1));
+  }
+  template<> auto Boundaries::test_extend_fail<error::by::Exception>() -> void try {
+    auto variable = generate<Variable>(Generate::FAIL);
+    library::Boundaries::extend(error::by::Exception{}, variable); // <----- test this
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<> auto Boundaries::test_extend_good<error::by::Optional>() -> void {
+    auto variable = generate<Variable>(Generate::GOOD);
+    auto extended = library::Boundaries::extend(error::by::Optional{}, variable); // <---- test this
+    require(ASSERTION, true == (bool) extended);
+    require(ASSERTION, 0 < extended->size());
+    require(ASSERTION, library::Boundaries::Value{3} == extended->at(extended->size()-1));
+  }
+  template<> auto Boundaries::test_extend_fail<error::by::Optional>() -> void {
+    auto variable = generate<Variable>(Generate::FAIL);
+    auto extended = library::Boundaries::extend(error::by::Optional{}, variable);
+    require(ASSERTION, false == (bool) extended);
+  }
+  template<> auto Boundaries::test_extend_good<error::by::Outcome>() -> void {
+    auto variable = generate<Variable>(Generate::GOOD);
+    auto extended = library::Boundaries::extend(error::by::Outcome{}, variable); // <---- test this
+    require(ASSERTION, good(extended));
+    auto const &inside{value(extended)};
+    require(ASSERTION, 0 < inside.size());
+    require(ASSERTION, library::Boundaries::Value{3} == inside.at(inside.size()-1));
+  }
+  template<> auto Boundaries::test_extend_fail<error::by::Outcome>() -> void {
+    auto variable = generate<Variable>(Generate::FAIL);
+    auto extended = library::Boundaries::extend(error::by::Outcome{}, variable);
+    require(ASSERTION, fail(extended));
+  }
+}
+auto tests::unit::histogram::Boundaries::suite() -> Suite {
+  auto series = Stream{"histogram"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Boundaries::test_constructor)
+                  << END;
+              return con;
+            }()
+         << []{
+             auto ext = Stream{"extend"sv};
+             ext << []{
+                      auto exc = Stream{"Exception"sv};
+                      exc << add("good", &Boundaries::test_extend_good<error::by::Exception>)
+                          << add("fail", &Boundaries::test_extend_fail<error::by::Exception>)
+                          << END;
+                        return exc;
+                    }()
+                 << []{
+                      auto opt = Stream{"Exception"sv};
+                      opt << add("good", &Boundaries::test_extend_good<error::by::Optional>)
+                          << add("fail", &Boundaries::test_extend_fail<error::by::Optional>)
+                          << END;
+                        return opt;
+                    }()
+                 << []{
+                      auto out = Stream{"Outcome"sv};
+                      out << add("good", &Boundaries::test_extend_good<error::by::Outcome>)
+                          << add("fail", &Boundaries::test_extend_fail<error::by::Outcome>)
+                          << END;
+                        return out;
+                    }()
+                  << END;
+              return ext;
+           }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::histogram {
+  auto Boundaries::test_constructor() -> void {
+    using Subject = library::Boundaries;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+    // these things come already filled-to-size
+    require(ASSERTION, 0 < subject.size());
+  }
+}
+#endiv

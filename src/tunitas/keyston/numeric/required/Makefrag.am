@@ -7,4 +7,5 @@
 tunitas_keyston_numeric_required_SUBSOURCES = \
   obj/src/tunitas/keyston/numeric/required/namespace.cpp \
   obj/src/tunitas/keyston/numeric/required/Treatment.cpp \
+  obj/src/tunitas/keyston/numeric/required/Augmentment.cpp \
   $(end)

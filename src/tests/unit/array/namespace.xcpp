@@ -6,7 +6,9 @@
 #divert <fpp>
 #import tests.unit
 #import tunitas.keyston.array
+#import tunitas.keyston.array.required
 namespace tests::unit::array {
   namespace library = ::tunitas::keyston::array;
+  namespace required = ::tunitas::keyston::array::required;
 }
 #endiv

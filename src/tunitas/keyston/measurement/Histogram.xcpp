@@ -4,74 +4,28 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.histogram.Histogram
 namespace tunitas::keyston::measurement {
   //
-  // A histogram (of counrs) of the results relative to the buckets (stored separately)
+  // A histogram is counts relative to the buckets (stored separately)
   //
   // Specification:
   //
   //   I-D.irtf-cfrg-vdaf
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
   //   Verifiable Distributed Aggregation Function
+  //   7.1.1 Encoding the Input
+  //   <quote>The type of measurement being aggregated is defined by the FLP.</quote>
   //
   // Design:
   //
   //   A new type so that ADL will find the associated operators.
+  //   These rae self-sizing (i.e. the array length is a compile-time constant).
   // 
   // Usage:
   //
   //   auto histogram = Histogram{};
   //
-  struct Histogram;
-}
-#endiv
-#divert <hpp>
-#import tunitas.keyston.measurement.Count
-#import tunitas.keyston.array.Fixed
-#import tunitas.keyston.histogram.Buckets
-namespace tunitas::keyston {
-  namespace measurement {
-    inline auto operator+(Histogram &&, Histogram &&) -> Histogram;
-    inline auto operator+(Histogram &&, Histogram const &) -> Histogram;
-    inline auto operator+(Histogram const &, Histogram &&) -> Histogram;
-    inline auto operator+(Histogram const &, Histogram const &) -> Histogram;
-  }
-  class measurement::Histogram : public array::Fixed<measurement::Count, histogram::Buckets::COUNT.count()> {
-    using Ancestor = keyston::array::Fixed<measurement::Count, histogram::Buckets::COUNT.count()>; // WATCHOUT for the std::array constructor in thens
-    public:
-      Histogram() = default;
-      using Ancestor::Fixed;
-      using Ancestor::operator=;
-      inline auto operator+=(Histogram const &) -> Histogram &;
-    };
-}
-#import nonstd.container.Traits.tunitas.keyston.measurement.Histogram
-#endiv
-#divert <ipp>
-#import tunitas.keyston.exception.Length
-#import tunitas.keyston.array.enumerate
-namespace tunitas::keyston {
-  auto measurement::operator+(Histogram &&a, Histogram &&b) -> Histogram      { return move(a += b); }
-  auto measurement::operator+(Histogram &&a, Histogram const &b) -> Histogram { return move(a += b); }
-  auto measurement::operator+(Histogram const &a, Histogram &&b) -> Histogram { return move(b += a); }
-  auto measurement::operator+(Histogram const &a, Histogram const &b) -> Histogram {
-    auto c{a};
-    c += b;
-    return c;
-  }
-  auto measurement::Histogram::operator+=(Histogram const &other) -> Histogram & {
-    if (this->size() != other.size()) {
-      throw exception::Length{"size mismatch"};
-    }
-    for (auto [index, location] : enumerate(*this)) {
-#if 1
-      // [[FIXTHIS]] nonstd::units::count::Unit<> should admit to operator+ (one can add and subtract counts)
-      location = Value{location.count() + other.at(index).count()};
-#else
-      location = location + other.at(index);
-#endif
-    }
-    return *this;
-  }
+  using histogram::Histogram;
 }
 #endiv

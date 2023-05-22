@@ -8,8 +8,6 @@
 #import nonstd.units.count.scale // Items
 #import nonstd.units.memory.scale // Bits
 namespace tunitas::keyston::prio {
-  enum class Name { COUNT, SUM, HISTOGRAM };
-  using enum Name;
   using nonstd::units::memory::scale::Bits;
   using nonstd::units::count::scale::Items;
 }

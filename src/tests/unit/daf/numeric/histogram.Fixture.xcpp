@@ -9,41 +9,71 @@ namespace tests::unit::daf::numeric::histogram { class Fixture; }
 #divert <hpp>
 #import tunitas.keyston.daf.Configuration
 #import tunitas.keyston.daf.Name
-struct tests::unit::daf::numeric::histogram::Fixture : public rigging::suite::Fixture {
+#import tests.unit.daf.numeric.Palette
+#import tunitas.exception.feature.Invariant
+struct tests::unit::daf::numeric::histogram::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
-  using Configuration = ::tunitas::keyston::daf::Configuration<Scheme::NUMERIC>;
+  using Configuration = ::tunitas::keyston::daf::Configuration<Transport::NUMERIC>;
   //
-  auto test_disassembly() -> void;
-  auto test_computation() -> void;
-  auto test_amalgamation() -> void;
-  auto test_reassembly() -> void;
+  auto test_disassembly_good() -> void;
+  auto test_computation_good() -> void;
+  auto test_amalgamation_good() -> void;
+  auto test_reassembly_good() -> void;
+protected:
+  struct Provided;
+  struct Expected;
+  struct Exception {
+    using Invariant = ::tunitas::exception::feature::Invariant;
+  };
 };
 #endiv
 #divert <cpp>
 auto tests::unit::daf::numeric::histogram::Fixture::suite() -> Suite {
   auto series = Stream{"histogram"sv};
-  series << add("disassembly", &Fixture::test_disassembly)
-         << add("computation", &Fixture::test_computation)
-         << add("amalgamation", &Fixture::test_amalgamation)
-         << add("reassembly", &Fixture::test_reassembly)
+  series << []{
+              auto dis = Stream{"disassembly"sv};
+              dis << add("good", &Fixture::test_disassembly_good)
+                  << END;
+              return dis;
+            }()
+         << []{
+             auto com = Stream{"computation"sv};
+             com << add("good", &Fixture::test_computation_good)
+                 << END;
+             return com;
+           }()
+         << []{
+             auto ama = Stream{"amalgamation"sv};
+             ama << add("good", &Fixture::test_amalgamation_good)
+                 << END;
+             return ama;
+           }()
+         << []{
+             auto rea = Stream{"reassembly"sv};
+             rea << add("good", &Fixture::test_reassembly_good)
+                 << END;
+             return rea;
+           }()
          << END;
   return settle(series);
 }
+#import tests.unit.daf.numeric.histogram.Fixture.Provided
+#import tests.unit.daf.numeric.histogram.Fixture.Expected
 namespace tests::unit::daf::numeric::histogram {
-  auto Fixture::test_disassembly() -> void {
+  auto Fixture::test_disassembly_good() -> void {
 #warning WRITETHIS 
     require(ASSERTION);
   }
-  auto Fixture::test_computation() -> void {
+  auto Fixture::test_computation_good() -> void {
 #warning WRITETHIS 
     require(ASSERTION);
   }
-  auto Fixture::test_amalgamation() -> void {
+  auto Fixture::test_amalgamation_good() -> void {
 #warning WRITETHIS 
     require(ASSERTION);
   }
-  auto Fixture::test_reassembly() -> void {
+  auto Fixture::test_reassembly_good() -> void {
 #warning WRITETHIS 
     require(ASSERTION);
   }

@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::numeric::package_format::body {
+  //
+  // The formatter
+  //
+  // Specification:
+  //
+  //   One of those formatter thingies.
+  //   All the magic happens in operator<<
+  //
+  // Design:
+  //
+  //   Capture by value or capture by const-reference.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Formatter) < lifetime(formatted)
+  //
+  // Usage:
+  //
+  //   see format(...)
+  //
+  template<typename TYPE, typename CAPTURED = TYPE> struct Formatter;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::daf::numeric::package_format {
+  template<typename TYPE, typename CAPTURED> struct body::Formatter {
+    using Value = TYPE;
+    using Captured = CAPTURED;
+    constexpr Formatter(Captured c) : captured{c} { }
+    Captured captured;
+  };
+}
+#endiv

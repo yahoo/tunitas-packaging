@@ -11,79 +11,134 @@ namespace tests::unit::daf::numeric::sum {
 }
 #endiv
 #divert <hpp>
-struct tests::unit::daf::numeric::sum::Fixture : public rigging::suite::Fixture {
+#import tunitas.exception.feature.Invariant
+#import tests.unit.daf.numeric.Palette
+struct tests::unit::daf::numeric::sum::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
-  auto test_disassembly() -> void;
-  auto test_computation() -> void;
-  auto test_amalgamation() -> void;
-  auto test_reassembly() -> void;
+  auto test_disassembly_good() -> void;
+  auto test_computation_good() -> void;
+  auto test_amalgamation_empty() -> void;
+  auto test_amalgamation_good() -> void;
+  auto test_amalgamation_fail() -> void;
+  auto test_reassembly_good() -> void;
 protected:
-  struct Observed {
-    inline static constexpr auto ONE = Specimen{1};
-    inline static constexpr auto TWO = Specimen{2};
-    inline static constexpr auto THREE = Specimen{3};
+  struct Exception {
+    using Invariant = ::tunitas::exception::feature::Invariant;
   };
-  struct Numeric {
-    inline static constexpr auto ZERO = 0ll;
-    inline static constexpr auto ONE = 1ll;
-    inline static constexpr auto TWO = 2ll;
-    inline static constexpr auto THREE = 3ll;
-    inline static constexpr auto SIX = 6ll;
-  };
-  struct Derived {
-    inline static constexpr auto FIVE = Result{5};
-  };
+  struct Expected;
+  struct Provided;
 };
 #endiv
 #divert <cpp>
 auto tests::unit::daf::numeric::sum::Fixture::suite() -> Suite {
   auto series = Stream{"sum"sv};
-  series << add("disassembly", &Fixture::test_disassembly)
-         << add("computation", &Fixture::test_computation)
-         << add("amalgamation", &Fixture::test_amalgamation)
-         << add("reassembly", &Fixture::test_reassembly)
+  series << []{
+            auto dis = Stream{"disassembly"sv};
+            dis << add("good", &Fixture::test_disassembly_good)
+                << END;
+            return dis;
+          }()
+         << []{
+           auto com = Stream{"computation"sv};
+           com << add("good", &Fixture::test_computation_good)
+               << END;
+           return com;
+         }()
+         << []{
+           auto ama = Stream{"amalgamation"sv};
+           ama << add("empty", &Fixture::test_amalgamation_empty)
+               << add("good", &Fixture::test_amalgamation_good)
+               << add("fail", &Fixture::test_amalgamation_fail)
+               << END;
+           return ama;
+         }()
+         << []{
+           auto rea = Stream{"reassembly"sv};
+           rea << add("good", &Fixture::test_reassembly_good)
+               << END;
+           return rea;
+         }()
          << END;
   return settle(series);
 }
+#import tests.unit.daf.numeric.sum.Fixture.Expected
+#import tests.unit.daf.numeric.sum.Fixture.Provided
 namespace tests::unit::daf::numeric::sum {
-  auto Fixture::test_disassembly() -> void {
+  auto Fixture::test_disassembly_good() -> void {
+    using Provided = Fixture::Provided::Disassembly;
+    using Expected = Fixture::Expected::Disassembly;
+    auto expected = Expected{};
+    //
     auto parameters = Configuration::Parameters{};
-    auto measurement = Configuration::Measurement<WHOLE>{Observed::THREE};
+    auto measurement = Configuration::Measurement<WHOLE>{Provided::THREE};
     auto randomness = Configuration::Randomness{};
     auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
-    require(ASSERTION, sizeof(publick)); // don't are what it is
-    // Because this is what the constants algo does on disassembly
-    require(ASSERTION, Numeric::ONE == inputs.at(0_shard).value);
-    require(ASSERTION, Numeric::TWO == inputs.at(1_shard).value); // this one is the residual
+    //
+    require(ASSERTION, sizeof(publick)); // don't care what it is
+    //
+    // Because the sharding algorithm isn't implemented (yet) ... something banal happens here.
+    require(ASSERTION, Expected::THREE == visit(expected.treatment, inputs.at(0_shard)));
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(1_shard)));
   }
-  auto Fixture::test_computation() -> void {
+  auto Fixture::test_computation_good() -> void {
+    using Provided = Fixture::Provided::Computation;
+    using Expected = Fixture::Expected::Computation;
+    auto expected = Expected{};
+    //
     auto parameters = Configuration::Parameters{};
     auto publick = Configuration::Public<SHARE>{};
-    auto input = Configuration::Input<SHARE>{Numeric::SIX};
+    auto input = Configuration::Input<SHARE>{Provided::CANARY};
     auto output = library::computation(parameters, 0_shard, publick, input);
-    require(ASSERTION, output.value == input.value);
+    //
+    require(ASSERTION, Provided::CANARY == visit(expected.itreatment, input));
+    require(ASSERTION, Expected::CANARY == visit(expected.otreatment, output));
   }
-  auto Fixture::test_amalgamation() -> void {
-    using O = Configuration::Output<SHARE>;
+  auto Fixture::test_amalgamation_empty() -> void try {
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
     auto parameters = Configuration::Parameters{};
-    {
-      auto outputs = Series<Configuration::Output<SHARE>>{};
-      auto amalgamated = library::amalgamation(parameters, outputs);
-      require(ASSERTION, Numeric::ZERO == amalgamated.value);
-    } {
-      auto outputs = Series<Configuration::Output<SHARE>>{O{Numeric::ONE},O{Numeric::TWO},O{Numeric::THREE}};
-      auto amalgamated = library::amalgamation(parameters, outputs);
-      require(ASSERTION, Numeric::SIX == amalgamated.value);
-    }
+    auto outputs = Series<Configuration::Output<SHARE>>{};// <------------------------------ empty, see?
+    auto amalgamated = library::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, amalgamated));
+  } catch (Exception::Invariant const &) {
+    require(ASSERTION);
   }
-  auto Fixture::test_reassembly() -> void {
+  auto Fixture::test_amalgamation_good() -> void {
+    using Provided = Fixture::Provided::Amalgamation;
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
     auto parameters = Configuration::Parameters{};
-    using A = Configuration::Aggregation<SHARE>;
-    auto aggregations = Shards<Configuration::Aggregation<SHARE>>{A{Numeric::TWO}, A{Numeric::THREE}};
-    auto count = Count{41};
-    auto reassembled = library::reassembly(parameters, aggregations, count);
-    require(ASSERTION, Derived::FIVE == reassembled.value);
+    auto outputs = []{
+      auto one = Configuration::Output<SHARE>{Provided::ONE};
+      auto two = Configuration::Output<SHARE>{Provided::TWO};
+      auto three = Configuration::Output<SHARE>{Provided::THREE};
+      return Series<Configuration::Output<SHARE>>{one, two, three};
+    }();
+    auto amalgamated = library::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::AMALGAMATED == visit(expected.treatment, amalgamated));
+  }
+  auto Fixture::test_amalgamation_fail() -> void {
+    // can amalgamation fail?
+    require(ASSERTION);
+  }
+  auto Fixture::test_reassembly_good() -> void {
+    using Provided = Fixture::Provided::Reassembly;
+    using Expected = Fixture::Expected::Reassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto aggregations = []{
+      auto two = Configuration::Aggregation<SHARE>{Provided::TWO};
+      auto three = Configuration::Aggregation<SHARE>{Provided::THREE};
+      return Shards<Configuration::Aggregation<SHARE>>{two, three};
+    }();
+    auto processed = Configuration::Processed{41};
+    auto reassembled = library::reassembly(parameters, aggregations, processed);
+    //
+    require(ASSERTION, Expected::FIVE == visit(expected.treatment, reassembled));
   }
 }
 #endiv

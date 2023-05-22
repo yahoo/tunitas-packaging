@@ -8,7 +8,7 @@
 namespace tunitas::keyston::prio {
   //
   // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prio3sum
-  // Section 7.4.2. Prio3Sum
+  // Section 7.4.2. Prio3Histogram
   //
   // Invariant:
   //
@@ -20,6 +20,7 @@ namespace tunitas::keyston::prio {
 #divert <hpp>
 #import tunitas.keyston.histogram.Buckets
 #import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.measurement.Histogram
 namespace tunitas::keyston::prio {
   template<> class Algorithm<HISTOGRAM> {
     using Buckets = histogram::Buckets;
@@ -30,26 +31,28 @@ namespace tunitas::keyston::prio {
     inline static constexpr auto INPUT_LENGTH  = ENCODED_LENGTH;
     inline static constexpr auto OUTPUT_LENGTH = ENCODED_LENGTH;
     using Measurement = measurement::Specimen; // "any integer" but here: std::uint64_t;
-    using Encoded = array::Fixed<Field::Value, ENCODED_LENGTH.count()>;
+    using Encoded = Field::Vector<ENCODED_LENGTH.count()>;
     using Truncated = Encoded;
-    using Result = array::Fixed<measurement::Result, Buckets::COUNT.count()>;
+    using Decoded = measurement::Histogram;
+    using Processed = measurement::Count; // ... the record count itself
+    using Result [[deprecated("instead use Algorithm<HISTOGRAM>::Decoded")]] = Decoded;
     using Boundaries = histogram::Boundaries;
     inline static auto encode(Measurement, Boundaries const &) -> Encoded;
     inline static auto truncate(Encoded e) -> Truncated { return move(e); }
-    inline static auto decode(Truncated const &, measurement::Count) -> Result;
+    inline static auto decode(Truncated const &, Processed) -> Decoded;
   protected:
-    inline static constexpr auto narrow(Field::Value wide) -> Result::Value;
+    inline static constexpr auto narrow(Field::Value wide) -> Decoded::Value;
   };
 }
 #endiv
 #divert <ipp>
 #import std.views.iota
 namespace tunitas::keyston::prio {
-  constexpr auto Algorithm<HISTOGRAM>::narrow(Field::Value wide) -> Result::Value {
+  constexpr auto Algorithm<HISTOGRAM>::narrow(Field::Value wide) -> Decoded::Value {
     // The narrowing cast is safe when decode(...) is preceded by truncate(...)
-    using Narrow = std::underlying_type_t<Result::Value>;
+    using Narrow = Decoded::Value::Representation;
     auto narrow = static_cast<Narrow>(wide);
-    return Result::Value{narrow};
+    return Decoded::Value{narrow};
   }
   auto Algorithm<HISTOGRAM>::encode(Measurement specimen, Boundaries const &boundaries) -> Encoded {
     auto encoded = Encoded{};
@@ -62,9 +65,9 @@ namespace tunitas::keyston::prio {
     encoded.at(INDEX_INFINITY) = 1u;
     return encoded;
   }
-  auto Algorithm<HISTOGRAM>::decode(Truncated const &encoded, measurement::Count) -> Result {
+  auto Algorithm<HISTOGRAM>::decode(Truncated const &encoded, Processed) -> Decoded {
     return [&encoded]<Buckets::Index... INDEX>(Buckets::Sequence<INDEX...>) {
-      return Result{narrow(encoded.at(INDEX))...};
+      return Decoded{narrow(encoded.at(INDEX))...};
     }(Buckets::sequence());
   }
 }

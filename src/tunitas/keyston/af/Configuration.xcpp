@@ -39,7 +39,7 @@ namespace tunitas::keyston::af {
   //
   //   The various templates of namespace generic
   //
-  template<Scheme> struct Configuration;
+  template<Transport> struct Configuration;
   template<> struct Configuration<NUMERIC>;
 }
 #endiv
@@ -55,6 +55,9 @@ namespace tunitas::keyston::af {
     using Measurement = numeric::Measurement;
     using Intermediate = numeric::Intermediate;
     using Aggregation = numeric::Aggregation;
+    //
+    using Initialized = Intermediate;
+    using Initialization = Initialized (*)(Parameters const &);
     //
     using Computed = Intermediate;
     using Computation = Computed (*)(Parameters const &, Intermediate previous, Measurement const &);

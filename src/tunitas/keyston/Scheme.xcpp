@@ -6,23 +6,31 @@
 #divert <fpp>
 namespace tunitas::keyston {
   //
-  // Are we simulating pure computaton or on-the-wire transfers
+  // The broad class of algorithms (algorithm families?)
+  //
+  // Specifiation:
+  //
+  //   These are the Affine Aggregatable Encodings (AFEs) of CGB2017
   //
   // Usage:
+  //
+  //   Do you not know how to use an enum?
   //
   //   namespace tunitas::keyston {
   //     namespace xyzabc {
   //       using enum Scheme
   //       template<Scheme> struct Something;
-  //       template<> struct Something<NUMERIC>;
-  //       template<> struct Something<PROTOCOL>;
+  //       template<> struct Something<ADHOC>;
+  //       template<> struct Something<PRIO>;
+  //       template<> struct Something<POPLAR>;
   //       ...more...
   //     }
   //   }
   //
   enum class Scheme {
-    NUMERIC, // .......... pass integers in memory
-    PROTOCOL, // ......... pass buffers with on-the-wire syntax (which denotes those integers)
+    ADHOC, // ......... no specific genre ... the metaphorical wild west (of algorithms)
+    PRIO, // .......... Private Robuts I<something> O<something>
+    POPLAR, // ........ gotta be a pun on "popularity"
   };
 }
 #endiv

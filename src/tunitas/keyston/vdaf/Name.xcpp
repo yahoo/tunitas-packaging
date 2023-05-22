@@ -25,7 +25,7 @@ namespace tunitas::keyston::vdaf {
   //   able Name that 0xFFFF0000 through reserved for private us.
   //   able Note that 0xFFFF0000 through 0xFFFFFFFF are reserved for private use.
   //
-  //       Value                         Scheme                  Type        Reference
+  //       Value                         Transport                  Type        Reference
   //       --------------------------------------------------------------------------------
   //       0x00000000                    Prio3Count              VDAF        Section 7.4.1
   //       0x00000001                    Prio3Sum                VDAF        Section 7.4.2

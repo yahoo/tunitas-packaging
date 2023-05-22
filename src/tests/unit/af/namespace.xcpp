@@ -6,12 +6,12 @@
 #divert <fpp>
 #import tests.unit
 #import tunitas.keyston.af
-#import tunitas.keyston.Scheme
+#import tunitas.keyston.Transport
 #import tests.required
 #import tunitas.error.by.required
 namespace tests::unit::af {
   namespace library = ::tunitas::keyston::af;
-  using ::tunitas::keyston::Scheme;
+  using ::tunitas::keyston::Transport;
   namespace [[nodirectory]] required {
     using namespace tests::required; // ambiguities can happen when blending indiscriminately like this
     using namespace ::tunitas::error::by::required;

@@ -7,11 +7,11 @@
 namespace tests::unit::daf { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.Scheme
+#import tunitas.keyston.Transport
 struct tests::unit::daf::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using enum ::tunitas::keyston::Scheme;
+  using enum ::tunitas::keyston::Transport;
   //
   auto test_usage_Name() -> void;
 };

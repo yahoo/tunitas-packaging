@@ -37,6 +37,7 @@ namespace tunitas::keyston::af::numeric::histogram::package_histogram::body {
     //
     //   See Definition.
     //
+    auto initialization(Parameters const &) -> Initialized;
     auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
     auto finalization(Parameters const &, Intermediate const &) -> Finalized;
   }
@@ -45,9 +46,15 @@ namespace tunitas::keyston::af::numeric::histogram::package_histogram::body {
 #divert <cpp>
 #import tunitas.keyston.histogram.encode
 namespace tunitas::keyston::af::numeric::histogram::package_histogram {
+  auto interface::initialization(Parameters const &parameters) -> Initialized {
+    // because computation(...) won't get called if there is no date, we explore the parameters here
+    // the boundaries must exist; else value() will throw something, something wonderful
+    parameters.boundaries.value();
+    return (intermediate::Histogram{});
+  }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &parameters, Intermediate intermediate, Measurement const &measurement) -> Computed {
-    auto treatment = Treatment{[&parameters, &measurement](measurement::Histogram &lhs) {
+    auto treatment = Treatment{[&parameters, &measurement](measurement::Histogram &lhs) -> void {
       lhs += encode(measurement.value, parameters.boundaries.value());
     }};
     visit(treatment, intermediate);

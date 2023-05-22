@@ -1,0 +1,48 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tests.unit.daf.numeric.constant.Fixture>
+#endiv
+#divert <hpp>
+#import tests.unit.daf.numeric.Palette
+#include <ipp/tunitas.keyston.daf.Configuration> // gratuitous, NOT needed the non-constexpr constructors for Simple{...}
+#import tunitas.keyston.numeric.Treatment
+namespace tests::unit::daf::numeric::constant {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsubobject-linkage"
+  struct Fixture::Expected : public Palette {
+    class Disassembly {
+      class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Simple const &that) -> Configuration::Input<SHARE>::Simple { return that; })> { };
+    public:
+      inline static auto const ZERO = Configuration::Input<SHARE>::Simple{0};
+      inline static auto const CANARY = Configuration::Input<SHARE>::Simple{14795};
+      _Treatment treatment{};
+    };
+    class Computation {
+      class _iTreatment : public Treatment<decltype([](Configuration::Input<SHARE>::Simple const &that) -> Configuration::Input<SHARE>::Simple { return that; })> { };
+      class _oTreatment : public Treatment<decltype([](Configuration::Output<SHARE>::Simple const &that) -> Configuration::Output<SHARE>::Simple { return that; })> { };
+    public:
+      _iTreatment itreatment{};
+      _oTreatment otreatment{};
+    };
+    class Amalgamation {
+      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<SHARE>::Simple const &that) -> Configuration::Aggregation<SHARE>::Simple { return that; })> { };
+    public:
+      inline static auto const ZERO = Configuration::Aggregation<SHARE>::Simple{0};
+      inline static auto const CANARY = Configuration::Aggregation<SHARE>::Simple{27950};
+      inline static auto const BIGGER = Configuration::Aggregation<SHARE>::Simple{27951};
+      _Treatment treatment{};
+    };
+    class Reassembly {
+      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<WHOLE>::Simple const &that) -> Configuration::Aggregation<WHOLE>::Simple { return that; })> { };
+    public:
+      inline static auto const CANARY = Configuration::Aggregation<WHOLE>::Simple{4642};
+      _Treatment treatment{};
+    };
+  };
+#pragma GCC diagnostic pop
+}
+#endiv

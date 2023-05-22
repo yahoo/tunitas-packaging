@@ -18,13 +18,13 @@ namespace tunitas::keyston::vdaf::numeric {
     template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
     using Nonce        = Configuration<NUMERIC>::Nonce;
     using Verify_Key   = Configuration<NUMERIC>::Verify_Key;
+    using Processed    = Configuration<NUMERIC>::Processed;
     using Disassembled = Configuration<NUMERIC>::Disassembled;
     using Initialized  = Configuration<NUMERIC>::Initialized;
     using Continued    = Configuration<NUMERIC>::Continued;
     using Amalgamated  = Configuration<NUMERIC>::Amalgamated;
     using Disgorged    = Configuration<NUMERIC>::Disgorged;
     using Reassembled  = Configuration<NUMERIC>::Reassembled;
-    using Count        = measurement::Count;
     //
     using numeric::Measurement;
     using numeric::Input;

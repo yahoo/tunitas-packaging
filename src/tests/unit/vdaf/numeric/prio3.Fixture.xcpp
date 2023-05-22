@@ -12,7 +12,7 @@ namespace tests::unit::vdaf::numeric::prio3 { class Fixture; }
 struct tests::unit::vdaf::numeric::prio3::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using Configuration = ::tunitas::keyston::vdaf::Configuration<Scheme::NUMERIC>;
+  using Configuration = ::tunitas::keyston::vdaf::Configuration<Transport::NUMERIC>;
   //
   auto test_disassembly() -> void;
   auto test_initialization() -> void;

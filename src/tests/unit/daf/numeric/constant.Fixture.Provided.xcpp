@@ -1,0 +1,29 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tests.unit.daf.numeric.constant.Fixture>
+#endiv
+#divert <hpp>
+#import tests.unit.daf.numeric.Palette
+#include <ipp/tunitas.keyston.daf.Configuration> // gratuitous, NOT needed the non-constexpr constructors for Simple{...}
+namespace tests::unit::daf::numeric::constant {
+  struct Fixture::Provided : public Palette {
+    struct Disassembly {
+      inline static auto const CANARY = Specimen{14795}; // doesn't matter what this number is (it goes to zero)
+    };
+    struct Computation {
+      inline static auto const CANARY = Configuration::Input<SHARE>::Simple{17535};
+    };
+    struct Amalgamation {
+      inline static auto const CANARY = Configuration::Output<SHARE>::Simple{27950};
+      inline static auto const OTHER = Configuration::Output<SHARE>::Simple{1+CANARY}; // any larger number will cause a failure
+    };
+    struct Reassembly {
+      inline static auto const CANARY = Configuration::Aggregation<SHARE>::Simple{4642};
+    };
+  };
+}
+#endiv

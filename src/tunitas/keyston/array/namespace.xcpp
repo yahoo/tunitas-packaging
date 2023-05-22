@@ -5,5 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-namespace tunitas::keyston::array { }
+#import std.in_place_t
+namespace tunitas::keyston::array {
+  using Inplace = std::in_place_t;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::array {
+  inline constexpr auto const INPLACE = Inplace{};
+}
 #endiv

@@ -74,7 +74,7 @@ namespace tunitas::keyston::vdaf {
     inline auto continuation(typename Ancestor::template Preparation<WHOLE> const &, Optional<typename Ancestor::template Preparation<SHARE>> const &) const -> typename Ancestor::Continued;
     inline auto amalgamation(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Preparation<SHARE>> const &) const -> typename Ancestor::Amalgamated;
     inline auto disgorgement(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Output<SHARE>> const &) const -> typename Ancestor::Disgorged;
-    inline auto reassembly(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Aggregation<SHARE>> const &, measurement::Count) const -> typename Ancestor::Reassembled;
+    inline auto reassembly(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Aggregation<SHARE>> const &, typename Ancestor::Processed) const -> typename Ancestor::Reassembled;
   };
 }
 #endiv
@@ -122,7 +122,7 @@ namespace tunitas::keyston::vdaf {
         return Ancestor::disgorgement(p, v);
       }
     }
-    template<required::Configuration _> auto Executor<_>::reassembly(typename Ancestor::Parameters const &p, Shards<typename Ancestor::Aggregation<SHARE>> const &v, measurement::Count c) const -> typename Ancestor::Reassembled {
+    template<required::Configuration _> auto Executor<_>::reassembly(typename Ancestor::Parameters const &p, Shards<typename Ancestor::Aggregation<SHARE>> const &v, typename Ancestor::Processed c) const -> typename Ancestor::Reassembled {
       if (nullptr == Ancestor::reassembly) {
         throw exception::Null{};
       } else {

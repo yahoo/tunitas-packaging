@@ -12,20 +12,19 @@ namespace tunitas::keyston::daf::numeric::sum {
   using namespace package_sum::interface;
 }
 #import tunitas.keyston.daf.numeric.components
-#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.daf.numeric.Algorithm
 namespace tunitas::keyston::daf::numeric::sum::package_sum {
   using namespace numeric::components;
-  namespace body { }
+  namespace body {
+    using Algorithm = numeric::Algorithm<Scheme::PRIO, Name::SUM>;
+  }
 }
 #endiv
 #divert <hpp>
-#import tunitas.number.Integer
-#import tunitas.keyston.daf.numeric.Aggregation
-#import tunitas.keyston.daf.numeric.Output
 namespace tunitas::keyston::daf::numeric::sum::package_sum::body {
   namespace exported {
     //
-    // the interface to the sum DAF
+    // The interface to the (PRIO SUM) DAF
     //
     // Specification:
     //
@@ -42,66 +41,16 @@ namespace tunitas::keyston::daf::numeric::sum::package_sum::body {
     auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
     auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
     auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
-  }
-  // don't use overloading here, it just creates unresolved ambiguitites later in the accumulate steps
-  inline auto accumulate_vertical(number::Integer &&, Output<SHARE> const &) -> number::Integer;
-  inline auto accumulate_horizontal(number::Integer &&, Aggregation<SHARE> const &) -> number::Integer;
-}
-#endiv
-#divert <ipp>
-namespace tunitas::keyston::daf::numeric::sum::package_sum {
-  auto body::accumulate_vertical(number::Integer &&acc, Output<SHARE> const &each) -> number::Integer {
-    acc += each.value;
-    return move(acc);
-  }
-  auto body::accumulate_horizontal(number::Integer &&acc, Aggregation<SHARE> const &each) -> number::Integer {
-    acc += each.value;
-    return move(acc);
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.daf.numeric.Input
-#import tunitas.keyston.daf.numeric.Public
-#import tunitas.keyston.numeric.enbiggen
-#import tunitas.keyston.numeric.ensmallen
-#import std.accumulate
 namespace tunitas::keyston::daf::numeric::sum::package_sum {
-  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
-    auto publick = Public<SHARE>{};
-    auto lifted = enbiggen(m.value);
-#if 1
-    // Preferred.
-    auto first = Input<SHARE>{lifted / 2};
-    auto second = Input<SHARE>{lifted - lifted/2};
-#elif 0
-    // Correct.
-    auto half = number::Integer{lifted / 2};
-    auto first = Input<SHARE>{lifted - half};
-    auto second = Input<SHARE>{move(half)};
-#else
-    // WATCHOUT - this fails to get the correct answer.
-    auto half = lifted / 2;
-    auto first = Input<SHARE>{lifted - half};
-    auto second = Input<SHARE>{move(half)};
-#endif
-    auto inputs = Shards<Input<SHARE>>{move(first), move(second)};
-    return {move(publick), move(inputs)};
-  }
-  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &i) -> Computed {
-    // yup, this does nothing but shuffle the values around.
-    auto output = Output<SHARE>{i.value};
-    return {move(output)};
-  }
-  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &so) -> Amalgamated {
-    auto big = std::accumulate(so.begin(), so.end(), number::Integer{}, accumulate_vertical);
-    return Amalgamated{move(big)};
-  }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &sa, Count) -> Reassembled {
-    auto big = std::accumulate(sa.begin(), sa.end(), number::Integer{}, accumulate_horizontal);
-    auto small = ensmallen(Clip::SILENTLY, big);
-    return Reassembled{small};
-  }
+  // These are called by a function pointer so there is no point in trying to inline them.
+  auto interface::disassembly(Parameters const &p, Measurement<WHOLE> const &m, Randomness const &r) -> Disassembled   { return Algorithm::disassembly(p, m, r); }
+  auto interface::computation(Parameters const &p, Shard s, Public<SHARE> const &k, Input<SHARE> const &i) -> Computed { return Algorithm::computation(p, s, k, i); }
+  auto interface::amalgamation(Parameters const &p, Series<Output<SHARE>> const &so) -> Amalgamated                    { return Algorithm::amalgamation(p, so); }
+  auto interface::reassembly(Parameters const &p, Shards<Aggregation<SHARE>> const &sa, Processed c) -> Reassembled    { return Algorithm::reassembly(p, sa, c); }
 }
 #endiv

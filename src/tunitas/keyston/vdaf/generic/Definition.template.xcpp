@@ -64,6 +64,7 @@ namespace tunitas::keyston::vdaf {
     using Parameters = typename CONFIGURATION::Parameters;
     using Nonce = typename CONFIGURATION::Nonce;
     using Verify_Key = typename CONFIGURATION::Verify_Key;
+    using Processed = typename CONFIGURATION::Processed;;
     template<Slice SLICE> using Measurement = typename CONFIGURATION::template Measurement<SLICE>;
     template<Slice SLICE> using Public = typename CONFIGURATION::template Public<SLICE>;
     template<Slice SLICE> using Input = typename CONFIGURATION::template Input<SLICE>;

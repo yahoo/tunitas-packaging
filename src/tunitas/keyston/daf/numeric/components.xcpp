@@ -37,11 +37,11 @@ namespace tunitas::keyston::daf::numeric {
     using keyston::Shards;
     template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
     using Randomness   = Configuration<NUMERIC>::Randomness;
+    using Processed    = Configuration<NUMERIC>::Processed;
     using Disassembled = Configuration<NUMERIC>::Disassembled;
     using Computed     = Configuration<NUMERIC>::Computed;
     using Amalgamated  = Configuration<NUMERIC>::Amalgamated;
     using Reassembled  = Configuration<NUMERIC>::Reassembled;
-    using Count        = measurement::Count;
     //
     using numeric::Measurement;
     using numeric::Input;

@@ -25,6 +25,9 @@ namespace tunitas::keyston {
 #import std.is_move_assignable
 #import std.is_swappable
 #import std.is_abstract
+#import std.semiregular
+#import std.regular
+#import std.swappable
 // as concepts
 #import std.copy_constructible
 #import std.move_constructible

@@ -29,6 +29,6 @@ namespace tunitas::keyston::vdaf::protocol {
   //
   //   Yes.
   //
-  using Executor = vdaf::Executor<Scheme::PROTOCOL>;
+  using Executor = vdaf::Executor<Transport::PROTOCOL>;
 }
 #endiv

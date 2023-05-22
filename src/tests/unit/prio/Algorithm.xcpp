@@ -16,23 +16,53 @@ namespace tests::unit {
     //
     using Subject = SUBJECT;
     //
-    auto test_encode() -> void;
-    auto test_truncate() -> void;
-    auto test_decode() -> void;
+    auto test_call_encode() -> void;
+    auto test_call_truncate() -> void;
+    auto test_call_decode() -> void;
+    //
+    auto test_known_encode() -> void;
+    auto test_known_truncate() -> void;
+    auto test_known_decode() -> void;
   };
+  namespace prio {
+    template<> auto Algorithm<library::Algorithm<COUNT>>::test_known_encode() -> void;
+    template<> auto Algorithm<library::Algorithm<COUNT>>::test_known_truncate() -> void;
+    template<> auto Algorithm<library::Algorithm<COUNT>>::test_known_decode() -> void;
+    //
+    template<> auto Algorithm<library::Algorithm<SUM>>::test_known_encode() -> void;
+    template<> auto Algorithm<library::Algorithm<SUM>>::test_known_truncate() -> void;
+    template<> auto Algorithm<library::Algorithm<SUM>>::test_known_decode() -> void;
+    //
+    template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_encode() -> void;
+    template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_truncate() -> void;
+    template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_decode() -> void;
+  }
 }
 #endiv
 #divert <tpp>
 namespace tests::unit::prio {
   template<typename _> auto Algorithm<_>::suite() -> Suite { 
     auto series = Stream{typeid(Subject)};
-    series << add("encode", &Algorithm::test_encode)
-           << add("truncate", &Algorithm::test_truncate)
-           << add("decode", &Algorithm::test_decode)
+    series << []{
+               auto call = Stream{"call"sv};
+               call << add("encode", &Algorithm::test_call_encode)
+                    << add("truncate", &Algorithm::test_call_truncate)
+                    << add("decode", &Algorithm::test_call_decode)
+                    << END;
+               return call;
+             }()
+           << []{
+               auto kno = Stream{"known"sv};
+               kno << add("encode", &Algorithm::test_known_encode)
+                   << add("truncate", &Algorithm::test_known_truncate)
+                   << add("decode", &Algorithm::test_known_decode)
+                   << END;
+               return kno;
+             }()
            << END;
     return settle(series);
   }
-  template<typename _> auto Algorithm<_>::test_encode() -> void {
+  template<typename _> auto Algorithm<_>::test_call_encode() -> void {
     auto measurement = typename Subject::Measurement{};
     auto encoded = [measurement]{
       if constexpr (std::same_as<Subject, library::Algorithm<library::Name::HISTOGRAM>>) {
@@ -44,16 +74,78 @@ namespace tests::unit::prio {
     }();
     require(ASSERTION, sizeof (encoded));
   }
-  template<typename _> auto Algorithm<_>::test_truncate() -> void { 
+  template<typename _> auto Algorithm<_>::test_call_truncate() -> void { 
     auto encoded = typename Subject::Encoded{};
     auto truncated = Subject::truncate(encoded);
     require(ASSERTION, sizeof (truncated));
   }
-  template<typename _> auto Algorithm<_>::test_decode() -> void { 
+  template<typename _> auto Algorithm<_>::test_call_decode() -> void { 
     auto truncated = typename Subject::Truncated{};
-    auto count = ::tunitas::keyston::measurement::Count{};
-    auto decoded = Subject::decode(truncated, count);
+    auto processed = typename Subject::Processed{};
+    auto decoded = Subject::decode(truncated, processed);
     require(ASSERTION, sizeof (decoded));
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.prio.Algorithm
+namespace tests::unit::prio {
+  template<> auto Algorithm<library::Algorithm<COUNT>>::test_known_encode() -> void {
+    auto specimen = Subject::Measurement{5};
+    auto expected = Subject::Encoded{1u};
+    auto observed = Subject::encode(specimen);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<COUNT>>::test_known_truncate() -> void {
+    auto specimen = Subject::Encoded{99u};
+    auto expected = Subject::Truncated{99u};
+    auto observed = Subject::truncate(specimen);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<COUNT>>::test_known_decode() -> void {
+    auto specimen = Subject::Truncated{101u};
+    auto expected = Subject::Decoded{101u};
+    auto observed = Subject::decode(specimen, Subject::Processed{});
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<SUM>>::test_known_encode() -> void {
+    auto specimen = Subject::Measurement{5};
+    auto expected = Subject::Encoded{1u, 0u, 1u, 0u, 0u, 0u, 0u};
+    auto observed = Subject::encode(specimen);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<SUM>>::test_known_truncate() -> void {
+    auto specimen = Subject::Encoded{1u, 0u, 1u, 0u, 1u};
+    auto expected = Subject::Truncated{21u};
+    auto observed = Subject::truncate(specimen);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<SUM>>::test_known_decode() -> void {
+    auto specimen = Subject::Truncated{23u};
+    auto expected = Subject::Decoded{23u};
+    auto observed = Subject::decode(specimen, Subject::Processed{});
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_encode() -> void {
+    auto make = [](auto... values) { return Subject::Boundaries{Subject::Boundaries::Value{values}...}; };
+    auto boundaries = make(1u, 3u, 5u, 7u);
+    auto specimen = Subject::Measurement{5u};
+    auto expected = Subject::Encoded{0u, 0u, 1u, 0u, 0u, 0u, 0u};
+    auto observed = Subject::encode(specimen, boundaries);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_truncate() -> void {
+    auto specimen = Subject::Encoded{0u, 1u, 0u, 1u};
+    auto expected = Subject::Truncated{0u, 1u, 0u, 1u, 0u, 0u, 0u, 0u};
+    auto observed = Subject::truncate(specimen);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_decode() -> void {
+    auto specimen = Subject::Truncated{0u, 1u, 0u, 1u};
+    auto histogram = [](auto... values) { return Subject::Decoded{Subject::Decoded::Value{values}...}; };
+    auto expected = histogram(0u, 1u, 0u, 1u, 0u, 0u, 0u);
+    auto observed = Subject::decode(specimen, Subject::Processed{});
+    require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));
   }
 }
 #endiv

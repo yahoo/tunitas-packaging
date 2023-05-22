@@ -11,7 +11,7 @@ namespace tunitas::keyston::vdaf::numeric {
   // Specification:
   //
   //   I-D.irtf-cfrg-vdaf
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-04.html
   //   Verifiable Distributed Aggregation Function
   //
   // Design:
@@ -29,19 +29,25 @@ namespace tunitas::keyston::vdaf::numeric {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.numeric.general.Parameters
 namespace tunitas::keyston::vdaf {
   namespace numeric {
     using std::move;
     inline auto swap(Parameters &, Parameters &) noexcept -> void;
   }
-  struct numeric::Parameters { };
+  class numeric::Parameters : public general::Parameters {
+    using Ancestor = general::Parameters;
+    friend auto numeric::swap(Parameters &, Parameters &) noexcept -> void;
+  public:
+    Parameters() = default;
+  };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::vdaf {
   auto numeric::swap(Parameters &a, Parameters &b) noexcept -> void {
-    // There is nothing to swap
-    // swap(aa, bb);
+    Parameters::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
   }
 }
 #endiv

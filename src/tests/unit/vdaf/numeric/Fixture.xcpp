@@ -49,6 +49,8 @@ auto tests::unit::vdaf::numeric::Fixture::suite() -> Suite {
 #import tunitas.keyston.vdaf.numeric.Public
 #import tunitas.keyston.vdaf.numeric.Output
 #import tunitas.keyston.vdaf.numeric.Aggregation
+#import tunitas.keyston.vdaf.numeric.format
+#import std.ostringstream
 namespace tests::unit::vdaf::numeric {
   auto Fixture::test_usage_Measurement() -> void {
     auto whole = library::Measurement<WHOLE>{};
@@ -81,6 +83,12 @@ namespace tests::unit::vdaf::numeric {
     require(ASSERTION, sizeof(whole));
     auto share = library::Aggregation<SHARE>{};
     require(ASSERTION, sizeof(share));
+    {
+      auto buf = std::ostringstream{};
+      buf << library::format(whole); // <------------------------------ test this
+      auto str = buf.str();
+      require(ASSERTION, !str.empty());
+    }
   }
 }
 #endiv

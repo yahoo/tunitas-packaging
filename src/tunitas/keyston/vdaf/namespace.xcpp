@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.Scheme
+#import tunitas.keyston.Transport
 namespace tunitas::keyston::vdaf {
   //
   // Specification:
@@ -23,7 +23,7 @@ namespace tunitas::keyston::vdaf {
   //
   //   Yes.
   //
-  using enum Scheme;
+  using enum Transport;
 }
 #import tunitas.keyston.Slice
 #endiv

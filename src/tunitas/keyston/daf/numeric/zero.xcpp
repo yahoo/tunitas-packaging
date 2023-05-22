@@ -38,13 +38,16 @@ namespace tunitas::keyston::daf::numeric::zero::package_zero::body {
     auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
     auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
     auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
 #divert <cpp>
+#import std.accumulate
 #import tunitas.keyston.daf.exception.Invariant
-#import std.any_of
+#import tunitas.keyston.numeric.Augmentment
+#import tunitas.keyston.numeric.Treatment
+#import tunitas.keyston.numeric.ensmallen
 namespace tunitas::keyston::daf::numeric::zero::package_zero {
   auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
     auto publick = Public<SHARE>{};
@@ -52,17 +55,45 @@ namespace tunitas::keyston::daf::numeric::zero::package_zero {
     auto inputs = Shards<Input<SHARE>>{zero, zero};
     return {move(publick), move(inputs)};
   }
-  auto interface::computation(Parameters const &a, Shard s, Public<SHARE> const &p, Input<SHARE> const &i) -> Computed {
-    if (0 != i.value) { throw exception::Invariant{"not zero"}; }
-    return Output<SHARE>{i.value}; // copy that zero from input to output
+  auto interface::computation(Parameters const &, Shard s, Public<SHARE> const &, Input<SHARE> const &input) -> Computed {
+    // the compute phase is trivial here
+    auto treatment = Treatment{[](input::Simple const &value) -> Output<SHARE>::Simple {
+        if (0 != value) { throw exception::Invariant{"not zero"}; }
+        return value; // copy that zero from input to output
+      }};
+    return {visit(treatment, input)};
   }
-  auto interface::amalgamation(Parameters const &a, Series<Output<SHARE>> const &so) -> Amalgamated {
-    if (std::any_of(so.begin(), so.end(), [](auto const &each) { return 0 != each.value; })) { throw exception::Invariant{"not zero"}; }
-    return Amalgamated{};
+  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &outputs) -> Amalgamated {
+    if (outputs.empty()) { throw exception::Invariant{"empty amalgamation"}; }
+    auto accumulate = [](Aggregation<SHARE> &&accumulator, Output<SHARE> const &each) -> Aggregation<SHARE> {
+      auto augmentment = Augmentment{[](Aggregation<SHARE>::Simple &&accumulator, Output<SHARE>::Simple const &each) -> Aggregation<SHARE>::Simple {
+        if (0 != each) {
+          throw exception::Invariant{"not zero"};
+        } else {
+          accumulator += each; // pro forma
+        }
+        return move(accumulator);
+      }};
+      return {visit(augmentment, move(accumulator), each)};
+    };
+    return std::accumulate(outputs.begin(), outputs.end(), Aggregation<SHARE>{}, accumulate);
   }
-  auto interface::reassembly(Parameters const &a, Shards<Aggregation<SHARE>> const &sa, Count c) -> Reassembled {
-    if (std::any_of(sa.begin(), sa.end(), [](auto const &each) { return 0 != each.value; })) { throw exception::Invariant{"not zero"}; }
-    return Reassembled{};
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &aggregations, Processed count) -> Reassembled {
+    if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }
+    auto accumulate = [count](Aggregation<WHOLE>::Simple &&accumulator, Aggregation<SHARE> const &increment) -> Aggregation<WHOLE>::Simple {
+      // indeed, count is never used in this variant of the algorithm
+      auto treatment = Treatment{[count](Aggregation<SHARE>::Simple const &each) -> Aggregation<WHOLE>::Simple {
+        if (0 != each) {
+          throw exception::Invariant{"not zero"};
+        } else {
+          return ensmallen(Clip::SILENTLY, each);
+        }
+        }};
+      accumulator += visit(treatment, increment);
+      return move(accumulator);
+    };
+    auto accumulated = std::accumulate(aggregations.begin(), aggregations.end(), Aggregation<WHOLE>::Simple{}, accumulate);
+    return Aggregation<WHOLE>{accumulated};
   }
 }
 #endiv

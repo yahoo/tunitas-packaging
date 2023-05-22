@@ -7,14 +7,14 @@
 #import tunitas.keyston.numeric.required.Treatment
 namespace tunitas::keyston::numeric {
   //
-  // Provide a trement for the  (bigint) variant value.
+  // Provide a treatment for the variant value; in a unary operation scenario.
   //
   // Specification:
   //
   //   The moral equivalent of
   //
-  //   auto visitor = variant::Visitor{[](auto &) [ throw exception::Variant{}; },
-  //                                   [&m](number::Integer &lhs) { lhs += enbiggen(m.value); }};
+  //   auto visitor = variant::Visitor{[](auto &) [ throw exception::Variant{}; }, .................. otherwise
+  //                                   [&m](number::Integer &lhs) { lhs += enbiggen(m.value); }}; ... caller-provided
   //
   // Design:
   //
@@ -24,9 +24,10 @@ namespace tunitas::keyston::numeric {
   //
   // Usage:
   //
+  //   auto integer = number::Integer{};
   //   auto treatment = Treatment{[&m](number::Integer &lhs) { lhs += enbiggen(m.value); }};
-  //   visit(treatment, i);
-  //   return move(i);
+  //   visit(treatment, integer);
+  //   return move(integer);
   //
   template<required::Treatment TREATMENT> struct Treatment;
   template<required::Treatment TREATMENT> Treatment(TREATMENT &&) -> Treatment<TREATMENT>;
@@ -34,11 +35,10 @@ namespace tunitas::keyston::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.exception.Variant
-#import tunitas.number.Integer
 namespace tunitas::keyston {
   template<numeric::required::Treatment TREATMENT> struct tunitas::keyston::numeric::Treatment : public TREATMENT {
     using TREATMENT::operator();
-    template<typename TYPE> auto operator()(TYPE const &) const -> void { throw exception::Variant{}; }
+    template<typename TYPE> auto operator()(TYPE const &) const -> typename traits::Result<decltype(&TREATMENT::operator())>::Type { throw exception::Variant{}; }
   };
 }
 #endiv

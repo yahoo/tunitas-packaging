@@ -49,7 +49,7 @@ namespace tunitas::keyston::vdaf::generic::continued::required {
 #import tunitas.keyston.vdaf.generic.continued.alternatives // for Again<CONFIGURATION> and Final<CONFIGURATION>
 namespace {
   namespace testate {
-    using enum tunitas::keyston::Scheme;
+    using enum tunitas::keyston::Transport;
     namespace required = tunitas::keyston::vdaf::generic::continued::required;
     namespace continued = tunitas::keyston::vdaf::generic::continued;
     using tunitas::keyston::vdaf::Configuration;

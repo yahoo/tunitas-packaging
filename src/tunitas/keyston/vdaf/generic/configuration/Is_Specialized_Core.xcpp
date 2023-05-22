@@ -17,7 +17,7 @@ namespace tunitas::keyston::vdaf::generic::configuration {
   // We have to account for that in the default template inplementation
   //
   template<typename> struct Is_Specialized_Core;
-  template<Scheme SCHEME> struct Is_Specialized_Core<vdaf::configuration::Core<SCHEME>>;
+  template<Transport TRANSPORT> struct Is_Specialized_Core<vdaf::configuration::Core<TRANSPORT>>;
 }
 #endiv
 #divert <hpp>
@@ -26,7 +26,7 @@ namespace tunitas::keyston::vdaf::generic::configuration {
 namespace tunitas::keyston::vdaf::generic {
   template<typename> struct configuration::Is_Specialized_Core : public std::false_type { };
   namespace configuration {
-    template<Scheme SCHEME> struct Is_Specialized_Core<vdaf::configuration::Core<SCHEME>> : public std::true_type { };
+    template<Transport TRANSPORT> struct Is_Specialized_Core<vdaf::configuration::Core<TRANSPORT>> : public std::true_type { };
   }
 }
 #endiv

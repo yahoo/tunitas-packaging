@@ -10,5 +10,25 @@ namespace tunitas::keyston::numeric {
   // Numerical Methods
   // Working with tunitas::number::Integer
   //
+  // namespace general is used to separate certain names from the general namespace.
+  // Whereas namespace keyston::numeric cascades down into namespaces af::numeric, daf::numeric, vdaf::numeric and vidaf::numeric,
+  // allowing the general versions of Parameters, Aggregation and other classes to blend it here will caus ambiguities down there.
+  //
+  namespace [[nodirectory]] general { }
+  namespace [[nodirectory]] traits {
+    template<typename> struct Result;
+    template<typename RESULT, typename OBJECT, typename... ARGUMENTS> struct Result<RESULT (OBJECT::*)(ARGUMENTS...)>;
+    template<typename RESULT, typename OBJECT, typename... ARGUMENTS> struct Result<RESULT (OBJECT::*)(ARGUMENTS...) const>;
+  }
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::numeric::traits {
+  template<typename RESULT, typename OBJECT, typename... ARGUMENTS> struct Result<RESULT (OBJECT::*)(ARGUMENTS...)> {
+    using Type = RESULT;
+  };
+  template<typename RESULT, typename OBJECT, typename... ARGUMENTS> struct Result<RESULT (OBJECT::*)(ARGUMENTS...) const> {
+    using Type = RESULT;
+  };
 }
 #endiv

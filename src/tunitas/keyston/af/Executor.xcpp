@@ -36,7 +36,7 @@ namespace tunitas::keyston::af {
   namespace [[eponymous]] executor {
     template<required::Configuration> struct Executor;
   }
-  template<Scheme> struct Executor;
+  template<Transport> struct Executor;
   template<> struct Executor<NUMERIC>;
 }
 #endiv
@@ -63,6 +63,7 @@ namespace tunitas::keyston::af {
     using Ancestor::Definition;
     inline explicit Executor(Ancestor);
     //
+    inline auto initialization(typename Ancestor::Parameters const &) const -> typename Ancestor::Initialized;
     inline auto computation(typename Ancestor::Parameters const &, typename Ancestor::Intermediate, typename Ancestor::Measurement const &) const -> typename Ancestor::Computed;
     inline auto finalization(typename Ancestor::Parameters const &, typename Ancestor::Intermediate const &) const -> typename Ancestor::Finalized;
   };
@@ -89,6 +90,13 @@ namespace tunitas::keyston {
     }
     namespace executor {
       template<required::Configuration _> Executor<_>::Executor(Ancestor d) : Ancestor{d} { }
+      template<required::Configuration _> auto Executor<_>::initialization(typename Ancestor::Parameters const &p) const -> typename Ancestor::Initialized {
+        if (nullptr == Ancestor::initialization) {
+          throw exception::Null{};
+        } else {
+          return Ancestor::initialization(p);
+        }
+      }
       template<required::Configuration _> auto Executor<_>::computation(typename Ancestor::Parameters const &p, typename Ancestor::Intermediate i, typename Ancestor::Measurement const &m) const -> typename Ancestor::Computed {
         if (nullptr == Ancestor::computation) {
           throw exception::Null{};

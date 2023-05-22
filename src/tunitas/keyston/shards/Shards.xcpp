@@ -38,6 +38,7 @@ namespace tunitas::keyston::shards {
 #import tunitas.keyston.shards.Shard
 #import tunitas.keyston.array.Fixed
 #import std.ranges.iota_view
+#import std.common_type
 namespace tunitas::keyston {
   namespace shards {
     using std::move;
@@ -48,7 +49,12 @@ namespace tunitas::keyston {
     using Ancestor = array::Fixed<TYPE, SHARD_COUNT.count()>;
     friend auto shards::swap<>(Shards &, Shards &) noexcept -> void;
   public:
+#if 0
     [[implicit]] Shards() = default;
+#else
+    // because 
+    constexpr [[implicit]] Shards() : Ancestor{typename Ancestor::Value{}, typename Ancestor::Value{}} { }
+#endif
     using Ancestor::Fixed;
 #if 202312 < __cplusplus
     // NO SUCH ---> template<typename SELF> inline auto operatpr[](this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>; <---- NO SUCH
@@ -60,6 +66,9 @@ namespace tunitas::keyston {
     inline auto at(Shard) const -> typename Ancestor::Value const &;
 #endif
   };
+  namespace shards {
+    template<typename... TYPES> requires (required::Shardable<std::common_type_t<TYPES...>> && SHARD_COUNT.count() == sizeof...(TYPES)) Shards(TYPES &&...) -> Shards<std::common_type_t<TYPES...>>;
+  }
 }
 #endiv
 #divert <ipp>

@@ -10,21 +10,14 @@ namespace tunitas::keyston::daf::numeric {
   //
   // Specification:
   //
-  //   I-D.irtf-cfrg-daf
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-03.html
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-04.html
+  //   I-D.irtf-cfrg-vdaf
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
   //   Verifiable Distributed Aggregation Function
   //   Section 4. Definition of a DAF (Distributed Aggregation Function)
   //
-  //   Pro Forma and perfunctory.
-  //
   // Design:
   //
-  //   Obvious
-  //
-  //   Most of the functions have no parameters.
-  //   This is perfunctory.  It makes more sense in DAF (POPLAR1)
+  //   Obvious (by inheritance)
   //
   // Usage:
   //
@@ -34,19 +27,25 @@ namespace tunitas::keyston::daf::numeric {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.numeric.general.Parameters
 namespace tunitas::keyston::daf {
   namespace numeric {
     using std::move;
     inline auto swap(Parameters &, Parameters &) noexcept -> void;
   }
-  struct numeric::Parameters { };
+  class numeric::Parameters : public general::Parameters {
+    using Ancestor = general::Parameters;
+    friend auto numeric::swap(Parameters &, Parameters &) noexcept -> void;
+  public:
+    Parameters() = default;
+  };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::daf {
   auto numeric::swap(Parameters &a, Parameters &b) noexcept -> void {
-    // There is nothing to swap
-    // swap(aa, bb);
+    Parameters::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
   }
 }
 #endiv

@@ -62,7 +62,7 @@ namespace tunitas::keyston::daf::generic {
     using Amalgamation = Amalgamated (*)(typename CORE::Parameters const &, Series<typename CORE::template Output<SHARE>> const &);
     //
     using Reassembled = typename CORE::Aggregation<WHOLE>;
-    using Reassembly = Reassembled (*)(typename CORE::Parameters const &, Shards<typename CORE::template Aggregation<SHARE>> const &, measurement::Count);
+    using Reassembly = Reassembled (*)(typename CORE::Parameters const &, Shards<typename CORE::template Aggregation<SHARE>> const &, typename CORE::Processed);
   };
 }
 #endiv

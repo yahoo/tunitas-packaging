@@ -41,6 +41,7 @@ namespace tunitas::keyston::af::numeric::sum::package_sum::body {
     //
     //   See Definition.
     //
+    auto initialization(Parameters const &) -> Initialized;
     auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
     auto finalization(Parameters const &, Intermediate const &) -> Finalized;
   }
@@ -48,6 +49,8 @@ namespace tunitas::keyston::af::numeric::sum::package_sum::body {
 #endiv
 #divert <cpp>
 namespace tunitas::keyston::af::numeric::sum::package_sum {
+  // These are called by a function pointer so there is no point in trying to inline them.
+  auto interface::initialization(Parameters const &) -> Initialized { return (intermediate::Single{}); }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &measurement) -> Computed {
     auto treatment = Treatment{[&measurement](number::Integer &lhs) { lhs += enbiggen(measurement.value); }};

@@ -7,6 +7,7 @@
 tunitas_keyston_prio_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/namespace.cpp \
   $(tunitas_keyston_prio_required_SUBSOURCES) \
+  obj/src/tunitas/keyston/prio/Name.cpp \
   obj/src/tunitas/keyston/prio/Algorithm.template.cpp \
   obj/src/tunitas/keyston/prio/Algorithm.COUNT.cpp \
   obj/src/tunitas/keyston/prio/Algorithm.SUM.cpp \

@@ -11,10 +11,14 @@ namespace tunitas::keyston::daf::numeric::histogram {
   }
   using namespace package_histogram::interface;
 }
+// namespaces
 #import tunitas.keyston.daf.numeric.components
+#import tunitas.keyston.daf.numeric.Algorithm
 namespace tunitas::keyston::daf::numeric::histogram::package_histogram {
   using namespace numeric::components;
-  namespace body { }
+  namespace body {
+    using Algorithm = numeric::Algorithm<Scheme::PRIO, Name::HISTOGRAM>;
+  }
 }
 #endiv
 #divert <hpp>
@@ -38,28 +42,16 @@ namespace tunitas::keyston::daf::numeric::histogram::package_histogram::body {
     auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
     auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
     auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.exception.Unimplemented
 namespace tunitas::keyston::daf::numeric::histogram::package_histogram {
-  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled {
-    throw exception::Unimplemented{};
-    return {};
-  }
-  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed {
-    throw exception::Unimplemented{};
-    return {};
-  }
-  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated {
-    throw exception::Unimplemented{};
-    return {};
-  }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled {
-    throw exception::Unimplemented{};
-    return {};
-  }
+  // These are called by a function pointer so there is no point in trying to inline them.
+  auto interface::disassembly(Parameters const &p, Measurement<WHOLE> const &m, Randomness const &r) -> Disassembled   { return Algorithm::disassembly(p, m, r); }
+  auto interface::computation(Parameters const &p, Shard s, Public<SHARE> const &k, Input<SHARE> const &i) -> Computed { return Algorithm::computation(p, s, k, i); }
+  auto interface::amalgamation(Parameters const &p, Series<Output<SHARE>> const &so) -> Amalgamated                    { return Algorithm::amalgamation(p, so); }
+  auto interface::reassembly(Parameters const &p, Shards<Aggregation<SHARE>> const &sa, Processed c) -> Reassembled    { return Algorithm::reassembly(p, sa, c); }
 }
 #endiv

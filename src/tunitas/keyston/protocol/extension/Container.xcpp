@@ -60,7 +60,7 @@ namespace tunitas::keyston::protocol {
       , type{type}
     { }
     Container::Container(Type type, std::initializer_list<Octet> init)
-      : Ancestor{init}
+      : Ancestor{init.begin(), init.end()}
       , type{type}
     { }
   }

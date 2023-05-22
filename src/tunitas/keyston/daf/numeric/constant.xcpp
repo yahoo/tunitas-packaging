@@ -12,6 +12,7 @@ namespace tunitas::keyston::daf::numeric::constant {
   using namespace package_constant::interface;
 }
 #import tunitas.keyston.daf.numeric.components
+#import tunitas.keyston.daf.numeric.Algorithm
 namespace tunitas::keyston::daf::numeric::constant::package_constant {
   using namespace numeric::components;
   namespace body { }
@@ -38,43 +39,54 @@ namespace tunitas::keyston::daf::numeric::constant::package_constant::body {
     auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
     auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
     auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Count) -> Reassembled;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.exception.Invariant
+#import std.accumulate
+#import tunitas.keyston.daf.exception.Invariant
+#import tunitas.keyston.numeric.Augmentment
+#import tunitas.keyston.numeric.Treatment
+#import tunitas.keyston.numeric.enbiggen
 #import tunitas.keyston.numeric.ensmallen
-#import std.any_of
 namespace tunitas::keyston::daf::numeric::constant::package_constant {
   auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
     auto publick = Public<SHARE>{};
-    auto biggie = Input<SHARE>{(int signed long long) underlying(m.value)}; // ... the constant goes here [[FIXTHIS]] with specimen being unsigned and bignums being signed.
+    auto biggie = Input<SHARE>{enbiggen(m.value)};
     auto little = Input<SHARE>{}; // ............................................. zero goes here, that's the algo, that's the tweet.
-    auto inputs = Shards<Input<SHARE>>{biggie, little};
-    return {move(publick), move(inputs)};
+    return {move(publick), Shards(biggie, little)};
   }
-  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &i) -> Computed {
-    return Output<SHARE>{i.value}; // copy that zero from input to output
+  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &input) -> Computed {
+    // the compute phase is trivial here
+    auto treatment = Treatment{[](input::Simple const &value) -> Output<SHARE>::Simple { return value; }};
+    return Output<SHARE>{visit(treatment, input)};
   }
-  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &so) -> Amalgamated {
-    if (so.empty()) {
-      return {};
-    } else {
-      auto representative = *so.begin();
-      auto mismatched = [&representative](auto const &each) { return representative.value != each.value; };
-      if (std::any_of(so.begin(), so.end(), mismatched)) { throw exception::Invariant{"mismatched series"}; }
-      return Amalgamated{move(representative.value)};
-    }
+  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &outputs) -> Amalgamated {
+    if (outputs.empty()) { throw exception::Invariant{"empty amalgamation"}; }
+    auto accumulate = [](Aggregation<SHARE> &&accumulator, Output<SHARE> const &each) -> Aggregation<SHARE> {
+      auto augmentment = Augmentment{[](Aggregation<SHARE>::Simple &&accumulator, Output<SHARE>::Simple const &each) -> Aggregation<SHARE>::Simple {
+        if (each > accumulator) {
+          accumulator = each; // max
+        }
+        return move(accumulator);
+      }};
+      return {visit(augmentment, move(accumulator), each)};
+    };
+    return std::accumulate(outputs.begin(), outputs.end(), Aggregation<SHARE>{}, accumulate);
   }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &sa, Count) -> Reassembled {
-    auto b = sa.begin();
-    auto const e = sa.end();
-    auto payload = ensmallen(Clip::SILENTLY, b->value);
-    while (++b != e) {
-      if (0 != b->value) { throw exception::Invariant{"not zero"}; }
-    }
-    return {payload};
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &aggregations, Processed count) -> Reassembled {
+    if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }
+    auto accumulate = [count](Aggregation<WHOLE>::Simple &&accumulator, Aggregation<SHARE> const &increment) -> Aggregation<WHOLE>::Simple {
+      // indeed, count is never used in this variant of the algorithm
+      auto treatment = Treatment{[count](Aggregation<SHARE>::Simple const &each) -> Aggregation<WHOLE>::Simple { return ensmallen(Clip::SILENTLY, each); }};
+      if (auto each=visit(treatment, increment); each > accumulator) {
+        accumulator = each; // max
+      }
+      return move(accumulator);
+    };
+    auto accumulated = std::accumulate(aggregations.begin(), aggregations.end(), Aggregation<WHOLE>::Simple{}, accumulate);
+    return Aggregation<WHOLE>{accumulated};
   }
 }
 #endiv

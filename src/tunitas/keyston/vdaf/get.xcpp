@@ -20,7 +20,7 @@ namespace {
     namespace disassembled = tunitas::keyston::vdaf::generic::disassembled;
     using tunitas::keyston::vdaf::get; // <------------------------------ test this
     using tunitas::keyston::vdaf::Configuration;
-    using enum tunitas::keyston::Scheme;
+    using enum tunitas::keyston::Transport;
     //
     using Specimen = disassembled::Disassembled<Configuration<PROTOCOL>>; // ... pick one, any one will do
     //

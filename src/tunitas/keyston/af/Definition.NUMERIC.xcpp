@@ -23,26 +23,32 @@ namespace tunitas::keyston::af::definition {
     switch (name) {
       using namespace af::numeric;
     case Constant<DAF::ZERO>:
+      initialization = zero::initialization;
       computation = zero::computation;
       finalization = zero::finalization;
       break;
     case Constant<DAF::CONSTANT>:
+      initialization = constant::initialization;
       computation = constant::computation;
       finalization = constant::finalization;
       break;
     case Constant<DAF::COUNT>:
+      initialization = count::initialization;
       computation = count::computation;
       finalization = count::finalization;
       break;
     case Constant<DAF::SUM>:
+      initialization = sum::initialization;
       computation = sum::computation;
       finalization = sum::finalization;
       break;
     case Constant<DAF::HISTOGRAM>:
+      initialization = histogram::initialization;
       computation = histogram::computation;
       finalization = histogram::finalization;
       break;
     case Constant<DAF::POPULARITY>:
+      initialization = popularity::initialization;
       computation = popularity::computation;
       finalization = popularity::finalization;
       break;

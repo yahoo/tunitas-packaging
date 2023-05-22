@@ -21,7 +21,7 @@ namespace {
     namespace continued = tunitas::keyston::vdaf::generic::continued;
     using tunitas::keyston::vdaf::cast; // <------------------------------ test this
     using tunitas::keyston::vdaf::Configuration;
-    using enum tunitas::keyston::Scheme;
+    using enum tunitas::keyston::Transport;
     //
     using Specimen = continued::Continued<Configuration<PROTOCOL>>; // ... pick one, any one will do
     using Again = continued::Again<Configuration<PROTOCOL>>; // .......... eadem ratione

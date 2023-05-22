@@ -4,7 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import nonstd.units.count.scale // Items
+#import tunitas.keyston.measurement.Simple
+#import nonstd.units.quantity.Quantity
+#import std.uint64_t
 namespace tunitas::keyston::measurement {
   //
   // How many measurements?
@@ -20,12 +22,18 @@ namespace tunitas::keyston::measurement {
   // Design:
   //
   //   It's a standard unit of "count" "items" or "each"
+  //   The use of 'enum Simple' as the quantity Name means that Count is ADL-capable for namespace measurement.
+  //   The format(...) function relies upon this.
   //
   // Usage:
   //
   //   (Non-)standard stuff.  RTM.
   //
-  using Count = nonstd::units::count::Items;
+  // the representation of the quantity ---------------------------------\\\\\\\\\\\\\\ (here)
+  // the tag for uniqueness ----------------------\\\\\\ (here)          ||||||||||||||
+  //                                              ||||||                 ||||||||||||||
+  //                                              vvvvvv                 vvvvvvvvvvvvvv
+  using Count = nonstd::units::quantity::Quantity<Simple, std::ratio<1>, std::uint64_t>; // [[FIXTHIS]] should be nonstd::coordinate::Coordinate because this is an (unsigned) position, not a (signed) delta
 }
 #endiv
 #divert <hpp>

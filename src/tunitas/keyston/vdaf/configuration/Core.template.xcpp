@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::vdaf::configuration {
   //
-  // The core of a configuration, indexed by Scheme
+  // The core of a configuration, indexed by Transport
   //
   // Specification:
   //
@@ -20,6 +20,6 @@ namespace tunitas::keyston::vdaf::configuration {
   //
   //   See Definition<CONFIGURATION> or Executor<CONFIGURATION>
   //
-  template<Scheme> struct Core;
+  template<Transport> struct Core;
 }
 #endiv

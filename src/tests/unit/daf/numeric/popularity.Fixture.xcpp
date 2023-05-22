@@ -9,10 +9,11 @@ namespace tests::unit::daf::numeric::popularity { class Fixture; }
 #divert <hpp>
 #import tunitas.keyston.daf.Configuration
 #import tunitas.keyston.daf.Name
-struct tests::unit::daf::numeric::popularity::Fixture : public rigging::suite::Fixture {
+#import tests.unit.daf.numeric.Palette
+struct tests::unit::daf::numeric::popularity::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
-  using Configuration = ::tunitas::keyston::daf::Configuration<Scheme::NUMERIC>;
+  using Configuration = ::tunitas::keyston::daf::Configuration<Transport::NUMERIC>;
   //
   auto test_disassembly() -> void;
   auto test_computation() -> void;

@@ -37,11 +37,11 @@ namespace tunitas::keyston::daf::protocol {
     using keyston::Shards;
     template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
     using Randomness   = Configuration<PROTOCOL>::Randomness;
+    using Processed    = Configuration<PROTOCOL>::Processed;
     using Disassembled = Configuration<PROTOCOL>::Disassembled;
     using Computed     = Configuration<PROTOCOL>::Computed;
     using Amalgamated  = Configuration<PROTOCOL>::Amalgamated;
     using Reassembled  = Configuration<PROTOCOL>::Reassembled;
-    using Count        = measurement::Count;
     //
     using protocol::Measurement;
     using protocol::Input;

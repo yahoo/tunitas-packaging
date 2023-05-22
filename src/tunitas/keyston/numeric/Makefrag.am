@@ -10,6 +10,9 @@ tunitas_keyston_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/numeric/enbiggen.cpp \
   obj/src/tunitas/keyston/numeric/Ensmallenment.cpp \
   obj/src/tunitas/keyston/numeric/Treatment.cpp \
+  obj/src/tunitas/keyston/numeric/Augmentment.cpp \
+  obj/src/tunitas/keyston/numeric/general.Parameters.cpp \
+  obj/src/tunitas/keyston/numeric/general.Aggregation.cpp \
   $(tunitas_keyston_numeric_required_SUBSOURCES) \
   $(end)
 #

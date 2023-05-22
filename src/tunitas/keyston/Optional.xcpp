@@ -23,7 +23,7 @@ namespace tunitas::keyston {
   //   Yes.
   //
   namespace [[eponymous]] optional {
-    template<typename TYPE> using Optional = nonstd::optional::Flavored<TYPE, tunitas::keyston::exception::Optional>;
+    template<typename TYPE> using Optional = tunitas::optional::Flavored<TYPE, tunitas::keyston::exception::Optional>;
   }
   using optional::Optional;
 }

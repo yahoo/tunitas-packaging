@@ -53,13 +53,14 @@ namespace tunitas::keyston::vdaf::numeric::prio3::package_prio3 {
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
     auto disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
 #divert <cpp>
 #import tunitas.keyston.exception.Unimplemented
 namespace tunitas::keyston::vdaf::numeric::prio3::package_prio3 {
+  // These are called by a function pointer so there is no point in trying to inline them.
   auto interface::disassembly(Measurement<WHOLE> const &) -> Disassembled {
     throw exception::Unimplemented{};
     return {};
@@ -80,7 +81,7 @@ namespace tunitas::keyston::vdaf::numeric::prio3::package_prio3 {
     throw exception::Unimplemented{};
     return {};
   }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled {
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled {
     throw exception::Unimplemented{};
     return {};
   }

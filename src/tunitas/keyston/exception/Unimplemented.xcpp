@@ -16,6 +16,8 @@ namespace tunitas::keyston::exception {
   //
   //   More than a type alias.  There is no design.
   //
+  //   The default_conversoin constructor MUST be repeated to capture the current source location.
+  //
   // Usage:
   //
   //   Throw it!
@@ -31,6 +33,7 @@ namespace tunitas::keyston::exception {
 class tunitas::keyston::exception::Unimplemented final : public complete::Basic<partial::Unimplemented, keyston::exception::Aspect, tunitas::exception::Aspect> {
   using Ancestor = complete::Basic<partial::Unimplemented, keyston::exception::Aspect, tunitas::exception::Aspect>;
 public:
+  explicit Unimplemented(Location location = Location::current()) : Ancestor{location} { }
   using Ancestor::Basic;
 };
 #endiv

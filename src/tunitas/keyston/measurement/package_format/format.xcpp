@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import nonstd.required.Enumeration
+#import nonstd.required.InstanceOf
+#import tunitas.Tuple
+#import tunitas.keyston.measurement.package_format.Formatter
+namespace tunitas::keyston::measurement::package_format::body {
+  namespace exported {
+    //
+    // Construct the formatter
+    //
+    // Specification:
+    //
+    //   What fun!
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   auto thing = somehow...;
+    //
+    //   cout << format(thing)
+    //
+    // reminder: ADL won't find these here, there MUST be a 'using' statement which injuects these declarations into another namespace
+    template<required::Enumeration ENUM> inline auto format(ENUM) -> Formatter<ENUM>;
+    template<required::InstanceOf<Quantity> QUANTITY> inline auto format(QUANTITY) -> Formatter<QUANTITY>;
+    //
+    // [[FIXTHIS]] ADL won't find these here
+    inline auto format(Histogram const &) -> Formatter<Histogram, Histogram const &>;
+    inline auto format(Population const &) -> Formatter<Population, Population const &>;
+    inline auto format(Tuple<Boundaries const &, Histogram const &>) -> Formatter<Tuple<Boundaries const &, Histogram const &>>;
+    inline auto format(Tuple<Bits, Prefixes const &, Population const &>) -> Formatter<Tuple<Bits, Prefixes const &, Population const &>>;
+    inline auto format(Boundaries const &, Histogram const &) -> Formatter<Tuple<Boundaries const &, Histogram const &>>;
+    inline auto format(Bits, Prefixes const &, Population const &) -> Formatter<Tuple<Bits, Prefixes const &, Population const &>>;
+  }
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::measurement::package_format {
+  template<required::Enumeration ENUM> auto interface::format(ENUM item) -> Formatter<ENUM> { return {item}; }
+  template<required::InstanceOf<Quantity> QUANTITY> auto interface::format(QUANTITY item) -> Formatter<QUANTITY> { return {item}; }
+  auto interface::format(Histogram const &item) -> Formatter<Histogram, Histogram const &> { return {item}; }
+  auto interface::format(Population const &item) -> Formatter<Population, Population const  &> { return {item}; }
+  auto interface::format(Tuple<Boundaries const &, Histogram const &> item) -> Formatter<Tuple<Boundaries const &, Histogram const &>> { return {item}; }
+  auto interface::format(Tuple<Bits, Prefixes const &, Population const &> item) -> Formatter<Tuple<Bits, Prefixes const &, Population const &>> { return {item}; }
+  auto interface::format(Boundaries const &b, Histogram const &h) -> Formatter<Tuple<Boundaries const &, Histogram const &>> { return Tuple<Boundaries const &, Histogram const &>{b, h}; }
+  auto interface::format(Bits b, Prefixes const &p, Population const &h) -> Formatter<Tuple<Bits, Prefixes const &, Population const &>> { return Tuple<Bits, Prefixes const &, Population const &>{b, p, h}; }
+}
+#import tunitas.keyston.measurement.package_format.io
+#endiv

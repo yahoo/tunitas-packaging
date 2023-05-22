@@ -11,6 +11,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
+#import tunitas.keyston.measurement.Count
 #import tunitas.keyston.vdaf.protocol.Parameters
 #import tunitas.keyston.vdaf.protocol.Measurement
 #import tunitas.keyston.vdaf.protocol.Public
@@ -25,6 +26,7 @@ namespace tunitas::keyston::vdaf::configuration {
     using Parameters = protocol::Parameters;
     using Nonce =  nonce::Bits<32>; // else Opaque<32>;
     using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
+    using Processed = measurement::Count;
     template<Slice SLICE> using Measurement = protocol::Measurement<SLICE>;
     template<Slice SLICE> using Public = protocol::Public<SLICE>;
     template<Slice SLICE> using Input = protocol::Input<SLICE>;
@@ -38,7 +40,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.vdaf.generic.configuration.usage.Core
 namespace {
   namespace testate {
-    using enum tunitas::keyston::Scheme;
+    using enum tunitas::keyston::Transport;
     namespace usage = tunitas::keyston::vdaf::generic::configuration::usage;
     using namespace tunitas::keyston::vdaf::configuration;
     static_assert(usage::Core<Core<PROTOCOL>>);

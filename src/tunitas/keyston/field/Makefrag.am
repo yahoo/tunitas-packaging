@@ -12,6 +12,7 @@ tunitas_keyston_field_SUBSOURCES = \
   obj/src/tunitas/keyston/field/Field.128.cpp \
   obj/src/tunitas/keyston/field/Field.255.cpp \
   obj/src/tunitas/keyston/field/Field.cpp \
+  obj/src/tunitas/keyston/field/Vector.cpp \
   obj/src/tunitas/keyston/field/Generator.cpp \
   obj/src/tunitas/keyston/field/powm.cpp \
   $(tunitas_keyston_field_required_SUBSOURCES) \

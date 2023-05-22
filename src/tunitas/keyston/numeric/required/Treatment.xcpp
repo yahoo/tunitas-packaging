@@ -12,6 +12,7 @@ namespace tunitas::keyston::numeric::required {
   // Is this type a (class) functor suitable for use with numeric::Treatment<FUNCTOR>?
   //
   namespace [[eponymous]] treatment {
+#if 0
     template<typename TREATMENT> concept Alternative_Is_Single = requires(TREATMENT treatment, number::Integer &lhs) {
       { treatment(lhs) };
     };
@@ -21,9 +22,15 @@ namespace tunitas::keyston::numeric::required {
     template<typename TREATMENT> concept Alternative_Is_Population = requires(TREATMENT treatment, measurement::Population &lhs) {
       { treatment(lhs) };
     };
+#endif
     template<typename TREATMENT> concept Treatment = requires(TREATMENT) {
       requires Class<TREATMENT>;
+#if 1
+      { []<typename ANY, typename XHS>(ANY (TREATMENT::*)(XHS) const) // either an rvalue or lvalue
+        {} (&TREATMENT::operator()) };
+#else
       requires Alternative_Is_Single<TREATMENT> || Alternative_Is_Histogram<TREATMENT> || Alternative_Is_Population<TREATMENT>;
+#endif
     };
   }
   using treatment::Treatment;

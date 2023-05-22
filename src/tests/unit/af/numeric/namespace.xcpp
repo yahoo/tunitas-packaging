@@ -14,7 +14,7 @@
 namespace tests::unit::af::numeric {
   namespace library = ::tunitas::keyston::af::numeric;
   //
-  using Configuration = ::tunitas::keyston::af::Configuration<Scheme::NUMERIC>;
+  using Configuration = ::tunitas::keyston::af::Configuration<Transport::NUMERIC>;
   using ::tunitas::keyston::measurement::Result;
   using ::tunitas::keyston::measurement::Specimen;
   using ::tunitas::keyston::measurement::Count;

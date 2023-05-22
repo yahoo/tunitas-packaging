@@ -7,6 +7,7 @@
 namespace tests::unit::array { class Fixture; }
 #endiv
 #divert <hpp>
+#import std.unique_ptr
 struct tests::unit::array::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -16,6 +17,13 @@ struct tests::unit::array::Fixture : public rigging::suite::Fixture {
   auto test_usage_Variable() -> void;
   auto test_usage_Bounded() -> void;
   auto test_usage_Series() -> void;
+protected:
+  struct Specimen {
+    using Regular = int;
+    struct Semiregular { };
+    // Uncopyable but moveable
+    using Irregular = std::unique_ptr<Semiregular>;
+  };
 };
 #endiv
 #divert <cpp>
@@ -41,25 +49,33 @@ auto tests::unit::array::Fixture::suite() -> Suite {
             }()
          << []{
               auto ser = Stream{"Series"sv};
-              ser << add<Series<library::Series<int>>>()
+              ser << add<Series<library::Series<Specimen::Regular>>>()
+                  << add<Series<library::Series<Specimen::Semiregular>>>()
+                  << add<Series<library::Series<Specimen::Irregular>>>()
                   << END;
               return ser;
             }()
          << []{
               auto var = Stream{"Variable"sv};
-              var << add<Variable<library::Variable<int>>>()
+              var << add<Variable<library::Variable<Specimen::Regular>>>()
+                  << add<Variable<library::Variable<Specimen::Semiregular>>>()
+                  << add<Variable<library::Variable<Specimen::Irregular>>>()
                   << END;
               return var;
             }()
          << []{
               auto bou = Stream{"Bounded"sv};
-              bou << add<Bounded<library::Bounded<int, 4uz>>>()
+              bou << add<Bounded<library::Bounded<Specimen::Regular, 4uz>>>()
+                  << add<Bounded<library::Bounded<Specimen::Semiregular, 4uz>>>()
+                  << add<Bounded<library::Bounded<Specimen::Irregular, 4uz>>>()
                   << END;
               return bou;
             }()
          << []{
               auto bou = Stream{"Fixed"sv};
-              bou << add<Fixed<library::Fixed<int, 4uz>>>()
+              bou << add<Fixed<library::Fixed<Specimen::Regular, 4uz>>>()
+                  << add<Fixed<library::Fixed<Specimen::Semiregular, 4uz>>>()
+                  << add<Fixed<library::Fixed<Specimen::Irregular, 4uz>>>()
                   << END;
               return bou;
             }()

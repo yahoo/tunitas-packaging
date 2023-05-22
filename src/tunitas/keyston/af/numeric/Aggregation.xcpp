@@ -5,15 +5,48 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 namespace tunitas::keyston::af::numeric {
+  //
+  // The final aggregation
+  //
+  // Specification:
+  //
+  //   The usual variant-record machinery
+  //   Also presentation UX machinery.
+  //
+  // Design:
+  //
+  //   Sure, why do you ask?  You don't think we got this off ChatGEEPEETEE do you?
+  //
+  // Usage:
+  //
+  //   As one does.
+  //
   struct Aggregation;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Result
-#import tunitas.keyston.measurement.Histogram
-#import tunitas.keyston.measurement.Population
-#import std.variant
-struct tunitas::keyston::af::numeric::Aggregation {
-  std::variant<measurement::Result, measurement::Histogram, measurement::Population> value{};
-};
+#import tunitas.keyston.numeric.general.Aggregation
+namespace tunitas::keyston::af {
+  namespace numeric {
+    using std::move;
+  }
+  struct numeric::Aggregation : public general::Aggregation {
+    using Ancestor = general::Aggregation;
+  public:
+    Aggregation() = default;
+    using Ancestor::Aggregation;
+  };
+  static_assert(std::semiregular<numeric::Aggregation>);
+}
+static_assert(std::semiregular<tunitas::keyston::af::numeric::Aggregation>);
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::af::numeric;
+    static_assert(std::semiregular<tunitas::keyston::af::numeric::Aggregation>);
+    static_assert(std::semiregular<Aggregation>);
+    static_assert(std::swappable<Aggregation>);
+  }
+}
 #endiv

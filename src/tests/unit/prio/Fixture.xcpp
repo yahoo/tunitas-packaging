@@ -18,9 +18,9 @@ auto tests::unit::prio::Fixture::suite() -> Suite {
   auto series = Stream{"prio"sv};
   series << []{
              auto sys = Stream{"Algorithm"sv};
-             sys << add<Algorithm<library::Algorithm<library::Name::COUNT>>>()
-                 << add<Algorithm<library::Algorithm<library::Name::SUM>>>()
-                 << add<Algorithm<library::Algorithm<library::Name::HISTOGRAM>>>()
+             sys << add<Algorithm<library::Algorithm<COUNT>>>()
+                 << add<Algorithm<library::Algorithm<SUM>>>()
+                 << add<Algorithm<library::Algorithm<HISTOGRAM>>>()
                  << END;
              return sys;
            }()

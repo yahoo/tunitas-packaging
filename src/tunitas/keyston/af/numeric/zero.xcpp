@@ -1,4 +1,4 @@
-// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+)// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
@@ -35,6 +35,7 @@ namespace tunitas::keyston::af::numeric::zero::package_zero::body {
     //
     //   See components
     //
+    auto initialization(Parameters const &) -> Initialized;
     auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
     auto finalization(Parameters const &, Intermediate const &) -> Finalized;
   }
@@ -44,9 +45,10 @@ namespace tunitas::keyston::af::numeric::zero::package_zero::body {
 #import tunitas.keyston.numeric.ensmallen
 #import tunitas.keyston.af.exception.Invariant
 namespace tunitas::keyston::af::numeric::zero::package_zero {
+  auto interface::initialization(Parameters const &) -> Initialized { return (intermediate::Single{}); }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &) -> Computed {
-    auto treatment = Treatment{[](number::Integer const &rhs) {
+    auto treatment = Treatment{[](number::Integer const &rhs) -> void {
       if (0 != rhs) { throw exception::Invariant{"not zero"}; }
     }};
     visit(treatment, intermediate);

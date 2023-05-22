@@ -6,25 +6,19 @@
 #divert <fpp>
 namespace tunitas::keyston::af::numeric {
   //
-  // The aggregation parameter(s) as known to the DAF
+  // The aggregation parameter(s) as known to the AF
   //
   // Specification:
   //
-  //   I-D.irtf-cfrg-af
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-af-03.html
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-af-04.html
+  //   I-D.irtf-cfrg-vdaf
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-af-05.html
   //   Verifiable Distributed Aggregation Function
-  //   Section 4. Definition of a DAF (Distributed Aggregation Function)
-  //
-  //   Pro Forma and perfunctory.
+  //   ... this is just the Aggregation Function part (not even the "Distributed" sense
+  //   ... see Section 4. Definition of a DAF (Distributed Aggregation Function)
   //
   // Design:
   //
-  //   Obvious
-  //
-  //   Most of the functions have no parameters.
-  //   This is perfunctory.  It makes more sense in DAF (POPLAR1)
+  //   Obvious (by inheritance)
   //
   // Usage:
   //
@@ -34,27 +28,25 @@ namespace tunitas::keyston::af::numeric {
 }
 #endiv
 #divert <hpp>
-#import nonstd.units.memory.scale // Bits
-#import tunitas.keyston.Optional
-#import tunitas.keyston.histogram.Boundaries
-#import tunitas.keyston.popularity.Prefixes
+#import tunitas.keyston.numeric.general.Parameters
 namespace tunitas::keyston::af {
   namespace numeric {
     using std::move;
     inline auto swap(Parameters &, Parameters &) noexcept -> void;
   }
-  struct numeric::Parameters {
-    Optional<keyston::histogram::Boundaries> boundaries{};
-    Optional<nonstd::units::memory::Bits> prefix_length{};
-    Optional<keyston::popularity::Prefixes> prefixes{};
+  class numeric::Parameters : public general::Parameters {
+    using Ancestor = general::Parameters;
+    friend auto numeric::swap(Parameters &, Parameters &) noexcept -> void;
+  public:
+    Parameters() = default;
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::af {
   auto numeric::swap(Parameters &a, Parameters &b) noexcept -> void {
-    swap(a.boundaries, b.boundaries);
-    swap(a.prefixes, b.prefixes);
+    Parameters::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
   }
 }
 #endiv

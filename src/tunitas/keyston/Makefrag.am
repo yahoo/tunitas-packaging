@@ -10,6 +10,7 @@ tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/Function.cpp \
   obj/src/tunitas/keyston/Opaque.cpp \
   obj/src/tunitas/keyston/Optional.cpp \
+  obj/src/tunitas/keyston/Transport.cpp \
   obj/src/tunitas/keyston/Scheme.cpp \
   obj/src/tunitas/keyston/Slice.cpp \
   obj/src/tunitas/keyston/Version.cpp \
@@ -19,6 +20,7 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_error_SUBSOURCES) \
   $(tunitas_keyston_exception_SUBSOURCES) \
   $(tunitas_keyston_field_SUBSOURCES) \
+  $(tunitas_keyston_formatter_SUBSOURCES) \
   $(tunitas_keyston_histogram_SUBSOURCES) \
   $(tunitas_keyston_hpke_SUBSOURCES) \
   $(tunitas_keyston_identifier_SUBSOURCES) \
@@ -38,6 +40,7 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_af_SUBSOURCES) \
   $(tunitas_keyston_daf_SUBSOURCES) \
   $(tunitas_keyston_vdaf_SUBSOURCES) \
+  $(tunitas_keyston_vidaf_SUBSOURCES) \
   $(tunitas_keyston_wire_SUBSOURCES) \
   $(tunitas_keyston_pf_SUBSOURCES) \
   $(tunitas_keyston_dpf_SUBSOURCES) \
@@ -50,6 +53,7 @@ include src/tunitas/keyston/entropy/Makefrag.am
 include src/tunitas/keyston/error/Makefrag.am
 include src/tunitas/keyston/exception/Makefrag.am
 include src/tunitas/keyston/field/Makefrag.am
+include src/tunitas/keyston/formatter/Makefrag.am
 include src/tunitas/keyston/histogram/Makefrag.am
 include src/tunitas/keyston/hpke/Makefrag.am
 include src/tunitas/keyston/identifier/Makefrag.am
@@ -70,6 +74,7 @@ include src/tunitas/keyston/wire/Makefrag.am
 include src/tunitas/keyston/af/Makefrag.am
 include src/tunitas/keyston/daf/Makefrag.am
 include src/tunitas/keyston/vdaf/Makefrag.am
+include src/tunitas/keyston/vidaf/Makefrag.am
 include src/tunitas/keyston/pf/Makefrag.am
 include src/tunitas/keyston/dpf/Makefrag.am
 include src/tunitas/keyston/idpf/Makefrag.am

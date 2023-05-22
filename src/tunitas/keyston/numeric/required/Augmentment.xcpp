@@ -1,0 +1,29 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Vector
+namespace tunitas::keyston::numeric::required {
+  //
+  // Is this type a (class) functor suitable for use with numeric::Augmentment<FUNCTOR>?
+  //
+  namespace [[eponymous]] augmentment {
+    template<typename LHS> concept Left = field::required::Vector<LHS> || Same_As<LHS, number::Integer>;
+    template<typename RHS> concept Right = field::required::Vector<RHS> || Same_As<RHS, number::Integer>;
+    template<typename AUGMENTMENT, typename LHS, typename RHS> concept Callable_As_Such = requires(AUGMENTMENT augmentment, LHS &&lhs, RHS const &rhs) {
+      requires Left<LHS>;
+      requires Right<RHS>;
+      { augmentment(static_cast<LHS &&>(lhs), rhs) };
+    };
+    template<typename AUGMENTMENT> concept Augmentment = requires(AUGMENTMENT) {
+      requires Class<AUGMENTMENT>;
+      { []<typename ANY, typename LHS, typename RHS>(ANY (AUGMENTMENT::*)(LHS &&, RHS const &) const)
+        requires Callable_As_Such<AUGMENTMENT, LHS, RHS>
+        {} (&AUGMENTMENT::operator()) };
+    };
+  }
+  using augmentment::Augmentment;
+}
+#endiv

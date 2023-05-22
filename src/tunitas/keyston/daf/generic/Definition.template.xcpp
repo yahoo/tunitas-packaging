@@ -64,6 +64,7 @@ namespace tunitas::keyston::daf {
     // Descendants will need these
     using Parameters = typename CONFIGURATION::Parameters;
     using Randomness = typename CONFIGURATION::Randomness;;
+    using Processed = typename CONFIGURATION::Processed;;
     template<Slice SLICE> using Measurement = typename CONFIGURATION::template Measurement<SLICE>;
     template<Slice SLICE> using Public = typename CONFIGURATION::template Public<SLICE>;
     template<Slice SLICE> using Input = typename CONFIGURATION::template Input<SLICE>;

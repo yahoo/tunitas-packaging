@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::daf::numeric {
   //
-  // The aggregation parameter(s) as known to the DAF
+  // The public key (of the FLP) as known to the DAF
   //
   // Specification:
   //
