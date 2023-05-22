@@ -4,13 +4,20 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tests.unit.options
-#import app.flow.options.get
-#import cli.experience.Console
-namespace tests::unit::options::get {
-  namespace library = ::app::flow::options::get;
-  using cli::experience::Console;
-  namespace [[nodirectory]] aggregation_function { }
-  namespace [[nodirectory]] specimen { }
+#import tunitas.alambique.demonstrator.Demonstrator.template
+namespace tunitas::alambique::demonstrator {
+  //
+  // nope, not yet.
+  //
+  template<> struct Demonstrator<VIDAF>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::alambique::demonstrator {
+  template<> struct Demonstrator<VIDAF> {
+    //
+    // nope, not yet.
+    //
+  };
 }
 #endiv

@@ -55,7 +55,7 @@ namespace {
     static_assert(sizeof(Name<Mode::VDAF>{}));
     //
 #if 0
-    static_assert(sizeof(Name<Mode::AF>::ZERO));
+    static_assert(sizeof(Name<Mode::AF>::ZERO)); // this is computed as Constant<DAF::ZERO>
 #endif
     static_assert(sizeof(Name<Mode::DAF>::ZERO));
     static_assert(sizeof(Name<Mode::VDAF>::ZERO));

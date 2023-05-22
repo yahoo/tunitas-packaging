@@ -4,9 +4,8 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #
-tunitas_alambique_function_required_SUBSOURCES = \
-  obj/src/tunitas/alambique/function/required/namespace.cpp \
-  obj/src/tunitas/alambique/function/required/Name.cpp \
-  obj/src/tunitas/alambique/function/required/project.Result.cpp \
-  obj/src/tunitas/alambique/function/required/project.Arguments.cpp \
+app_exits_SUBSOURCES = \
+  noinst/obj/src/app/exits/namespace.cpp \
+  noinst/obj/src/app/exits/Code.cpp \
+  noinst/obj/src/app/exits/constants.cpp \
   $(end)

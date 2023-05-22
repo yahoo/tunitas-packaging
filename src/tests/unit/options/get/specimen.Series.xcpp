@@ -1,0 +1,134 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::options::get::specimen { class Series; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.array.Variable
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.exception.Aspect
+#import std.numeric_limits
+#import std.underlying_type
+struct tests::unit::options::get::specimen::Series : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_good_min() -> void;
+  auto test_good_something() -> void;
+  auto test_good_max() -> void;
+  auto test_good_one() -> void;
+  auto test_good_two() -> void;
+  auto test_good_three() -> void;
+  auto test_fail_empty() -> void;
+  auto test_fail_other() -> void;
+  auto test_fail_negative() -> void;
+  auto test_fail_too_big() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+  using Got = ::tunitas::keyston::array::Variable<::tunitas::keyston::measurement::Specimen>;
+  using Limits = std::numeric_limits<std::underlying_type_t<Got::Value>>;
+  static auto call(string::View specimen) -> Got;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::options::get::specimen::Series::suite() -> Suite {
+  auto series = Stream{"specimen_series"sv};
+  series << []{
+             auto good = Stream{"good"sv};
+             good << add("min", &Series::test_good_min)
+                  << add("something", &Series::test_good_something)
+                  << add("max", &Series::test_good_max)
+                  << add("one", &Series::test_good_one)
+                  << add("two", &Series::test_good_two)
+                  << add("three", &Series::test_good_three)
+                  << END;
+             return good;
+          }()
+         << []{
+             auto fail = Stream{"fail"sv};
+             fail << add("empty", &Series::test_fail_empty)
+                  << add("other", &Series::test_fail_other)
+                  << add("negative", &Series::test_fail_negative)
+                  << add("too_big", &Series::test_fail_too_big)
+                  << END;
+             return fail;
+            }()
+         << END;
+  return settle(series);
+}
+#import tests.unit.options.get.Configuration
+#import tests.unit.options.get.Step
+#import tests.unit.options.get.Quitting
+#import app.flow.options.get.specimen_series // <---------------------------------------- test this
+namespace tests::unit::options::get::specimen {
+  auto Series::call(string::View specimen) -> Got {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_b, specimen}; // <------------------------------------------ with this specimen
+    return library::specimen_series<Quitting>(exp, step); // <---------------------------------------- test this
+  }
+  auto Series::test_good_min() -> void {
+    auto got = call("0"sv);
+    require(ASSERTION, 1 == got.size());
+    require(ASSERTION, Got::Value{Limits::min()} == got.at(0));
+  }
+  auto Series::test_good_something() -> void {
+    auto got = call("99"sv);
+    require(ASSERTION, 1 == got.size());
+    require(ASSERTION, Got::Value{99} == got.at(0));
+  }
+  auto Series::test_good_max() -> void {
+    // echo 2^64-1 | bc
+    // 18446744073709551615
+    auto got = call("18446744073709551615"sv);
+    require(ASSERTION, 1 == got.size());
+    require(ASSERTION, Got::Value{Limits::max()} == got.at(0));
+  }
+  auto Series::test_good_one() -> void {
+    auto got = call("1"sv);
+    require(ASSERTION, 1 == got.size());
+    require(ASSERTION, Got::Value{1} == got.at(0));
+  }
+  auto Series::test_good_two() -> void {
+    auto got = call("1,2"sv);
+    require(ASSERTION, 2 == got.size());
+    require(ASSERTION, Got::Value{1} == got.at(0));
+    require(ASSERTION, Got::Value{2} == got.at(1));
+  }
+  auto Series::test_good_three() -> void {
+    auto got = call("1,2,3"sv);
+    require(ASSERTION, 3 == got.size());
+    require(ASSERTION, Got::Value{1} == got.at(0));
+    require(ASSERTION, Got::Value{2} == got.at(1));
+    require(ASSERTION, Got::Value{3} == got.at(2));
+  }
+  auto Series::test_fail_empty() -> void try {
+    call(""sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Series::test_fail_other() -> void try {
+    call(" !@#$% "sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Series::test_fail_negative() -> void try {
+    call("-1"sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Series::test_fail_too_big() -> void try {
+    // echo 2^64 | bc
+    // 18446744073709551616
+    call("18446744073709551616"sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

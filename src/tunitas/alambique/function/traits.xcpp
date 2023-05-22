@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.function.required // ctcnr (cascade that certain 'namespace required')
+#import nonstd.required.Enumeration
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.vdaf.Name
+// SOON #import tunitas.keyston.vidaf.Name
+namespace tunitas::alambique::function::traits {
+  template<Function> struct Name;
+  template<> struct Name<AF>;
+  template<> struct Name<DAF>;
+  template<> struct Name<VDAF>;
+  template<> struct Name<VIDAF>;
+  //
+  template<required::Enumeration> struct Mode;
+  template<> struct Mode<af::Name>;
+  template<> struct Mode<daf::Name>;
+  template<> struct Mode<vdaf::Name>;
+#if 0 // soon
+  template<> struct Mode<vidaf::Name>;
+#endif
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Mode
+namespace tunitas::alambique::function::traits {
+  template<> struct Name<AF>    { using Type = af::Name; };
+  template<> struct Name<DAF>   { using Type = daf::Name; };
+  template<> struct Name<VDAF>  { using Type = vdaf::Name; };
+#if 0 // soon
+  template<> struct Name<VIDAF> { using Type = vidaf::Name; };
+#endif
+  //
+  // old_school (everything else does it this way) -----------------------------------------------------------------------------------------\\\\\ (here)
+  // New School (constants are capitalized) -------------------------------\\\\\                                                            |||||
+  //                                                                       |||||                                                            |||||
+  //                                                                       vvvvv                                                            vvvvv
+  template<> struct Mode<af::Name>    { inline static constexpr auto const VALUE = function::Mode::AF;    inline static constexpr auto const value = VALUE; };
+  template<> struct Mode<daf::Name>   { inline static constexpr auto const VALUE = function::Mode::DAF;   inline static constexpr auto const value = VALUE; };
+  template<> struct Mode<vdaf::Name>  { inline static constexpr auto const VALUE = function::Mode::VDAF;  inline static constexpr auto const value = VALUE; };
+#if 0 // soon
+  template<> struct Mode<vidaf::Name> { inline static constexpr auto const VALUE = function::Mode::VIDAF; inline static constexpr auto const value = VALUE; };
+#endif
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::alambique::function::traits;
+    static_assert(std::same_as<tunitas::keyston::af::Name,    Name<Mode<tunitas::keyston::af::Name>::VALUE>::Type>,    "round trip");
+    static_assert(std::same_as<tunitas::keyston::daf::Name,   Name<Mode<tunitas::keyston::daf::Name>::VALUE>::Type>,   "round trip");
+    static_assert(std::same_as<tunitas::keyston::vdaf::Name,  Name<Mode<tunitas::keyston::vdaf::Name>::VALUE>::Type>,  "round trip");
+#if 0 // soon
+    static_assert(std::same_as<tunitas::keyston::vidaf::Name, Name<Mode<tunitas::keyston::vidaf::Name>::VALUE>::Type>, "round trip");
+#endif
+  }
+}
+#endiv

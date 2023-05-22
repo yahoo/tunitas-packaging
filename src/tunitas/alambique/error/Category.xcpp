@@ -54,9 +54,12 @@ namespace tunitas::alambique::error::package_error {
     }
     auto Category::estimate(int code) const -> Optional<string::View> {
       switch (E{code}) {
-      case E::SUCCESS:         return "unexpected success"sv;
-      case E::FAILURE:         return "failure"sv;
+      case E::SUCCESS: return "unexpected success"sv;
+      case E::FAILURE: return "failure"sv;
         //
+      case E::VACUOUS:   return "no choioce was made"sv;
+      case E::AMBIGUOUS: return "there is ambiguity (multiple candidates apply)"sv;
+      case E::CONFLICT:  return "there are conflicting choices choice"sv;
       default: return {};
       }
     }

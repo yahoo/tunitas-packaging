@@ -9,18 +9,25 @@ namespace tests::unit::options::get::aggregation_function { class Name; }
 #divert <hpp>
 #import std.convertible_to
 #import tunitas.exception.Aspect
+#import tunitas.Optional
+#import tunitas.alambique.function.Estimates
 struct tests::unit::options::get::aggregation_function::Name : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   auto test_good() -> void;
   auto test_fail() -> void;
   auto test_universe() -> void;
+  template<unsigned> auto test_call_each() -> void;
 protected:
   using Failure = ::tunitas::exception::Aspect;
   static auto exercise(unsigned &failure_accumulator, string::View specimen) -> void;
   template<typename... VIEW> inline static auto series(unsigned &failure_accumulator, VIEW &&...) -> void requires (std::convertible_to<VIEW, string::View> && ... );
   static auto uppercase(string::View) -> string::Storage;
   static auto lowercase(string::View) -> string::Storage;
+  using Estimates = ::tunitas::alambique::function::Estimates;
+  template<typename TYPE> using Optional = ::tunitas::Optional<TYPE>;
+  static auto perform_call(string::Storage specimen) -> Optional<Estimates>;
+  static auto exercise_call_good(string::Storage specimen, bool af = true, bool daf = true, bool vdaf = true, bool vidaf = true) -> void;
 };
 #endiv
 #divert <ipp>
@@ -32,11 +39,39 @@ namespace tests::unit::options::get::aggregation_function {
 }
 #endiv
 #divert <cpp>
+namespace tests::unit::options::get::aggregation_function {
+  template<> auto Name::test_call_each<0>() -> void {
+    auto got = perform_call("!@#$BOGUS!@#$"s);
+    require(ASSERTION, false == (bool) got);
+  }
+  template<> auto Name::test_call_each<1>() -> void { exercise_call_good("zero"); }
+  template<> auto Name::test_call_each<2>() -> void { exercise_call_good("count"s); }
+  template<> auto Name::test_call_each<3>() -> void { exercise_call_good("sum"s); }
+  template<> auto Name::test_call_each<4>() -> void { exercise_call_good("histogram"s); }
+  template<> auto Name::test_call_each<5>() -> void { exercise_call_good("popularity"s); }
+  template<> auto Name::test_call_each<6>() -> void { exercise_call_good("prio"s, false, false, true, true); }
+  template<> auto Name::test_call_each<7>() -> void { exercise_call_good("prio3"s, false, false, true, true); }
+  template<> auto Name::test_call_each<8>() -> void { exercise_call_good("prio3-count"s, false, false, true, true); }
+  template<> auto Name::test_call_each<9>() -> void { exercise_call_good("prio3-sum"s, false, false, true, true); }
+  template<> auto Name::test_call_each<10>() -> void { exercise_call_good("prio3-histogram"s, false, false, true, true); }
+  template<> auto Name::test_call_each<11>() -> void { exercise_call_good("poplar"s, false, false, true, true); }
+  template<> auto Name::test_call_each<12>() -> void { exercise_call_good("poplar1"s, false, false, true, true); }
+  namespace {
+    inline constexpr auto CALL_COUNT{13uz};
+  }
+}
 auto tests::unit::options::get::aggregation_function::Name::suite() -> Suite {
   auto series = Stream{"aggregation_function_name"sv};
   series << add("good", &Name::test_good)
          << add("fail", &Name::test_fail)
          << add("universe", &Name::test_universe)
+         << []{
+             auto call = Stream{"call"sv};
+             [&call]<std::size_t... INDEX>(std::index_sequence<INDEX...>) {
+               ((call << add(std::to_string(INDEX), &Name::test_call_each<INDEX>)), ... );
+             }(std::make_index_sequence<CALL_COUNT>{});
+             return call;
+            }()
          << END;
   return settle(series);
 }
@@ -102,6 +137,25 @@ namespace tests::unit::options::get::aggregation_function {
     auto ret = string::Storage{};
     std::transform(specimen.begin(), specimen.end(), std::back_inserter(ret), [](auto c) { return std::tolower(c); });
     return ret;
+  }
+  auto Name::perform_call(string::Storage specimen) -> Optional<Estimates> try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_m, specimen};
+    return library::aggregation_function_name<Quitting>(exp, step); // <---------------------------------------- test this
+  } catch (Quitting const &) {
+    return {};
+  }
+  auto Name::exercise_call_good(string::Storage specimen, bool expected_af, bool expected_daf, bool expected_vdaf, bool expected_vidaf) -> void {
+    auto got = perform_call(move(specimen));
+    require(ASSERTION, true == (bool) got);
+    auto [af, daf, vdaf] = *got;
+    require(ASSERTION, expected_af == (bool)af);
+    require(ASSERTION, expected_daf == (bool)daf);
+    require(ASSERTION, expected_vdaf == (bool)vdaf);
+#if 0 // not yet, but soon
+    require(ASSERTION, expected_vidaf == (bool)vidaf);
+#endif
   }
 }
 #endiv

@@ -22,5 +22,12 @@ namespace app::flow::options::indicator::constants {
   inline constexpr auto const USE_DAF_MODE = Indicator<Parsed::USE_DAF_MODE>;
   inline constexpr auto const USE_VDAF_MODE = Indicator<Parsed::USE_VDAF_MODE>;
   inline constexpr auto const USE_VIDAF_MODE = Indicator<Parsed::USE_VIDAF_MODE>;
+  inline constexpr auto const PREFIX_LENGTH = Indicator<Parsed::PREFIX_LENGTH>;
+  inline constexpr auto const PREFIXES_AMBIGUOUS = Indicator<Parsed::PREFIXES_AMBIGUOUS>;
+  inline constexpr auto const PREFIXES_SERIES = Indicator<Parsed::PREFIXES_SERIES>;
+  inline constexpr auto const PREFIXES_SINGLE = Indicator<Parsed::PREFIXES_SINGLE>;
+  inline constexpr auto const BOUNDARIES_AMBIGUOUS = Indicator<Parsed::BOUNDARIES_AMBIGUOUS>;
+  inline constexpr auto const BOUNDARIES_SERIES = Indicator<Parsed::BOUNDARIES_SERIES>;
+  inline constexpr auto const BOUNDARIES_SINGLE = Indicator<Parsed::BOUNDARIES_SINGLE>;
 }
 #endiv

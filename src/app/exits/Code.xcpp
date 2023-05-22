@@ -4,13 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tests.unit.options
-#import app.flow.options.get
-#import cli.experience.Console
-namespace tests::unit::options::get {
-  namespace library = ::app::flow::options::get;
-  using cli::experience::Console;
-  namespace [[nodirectory]] aggregation_function { }
-  namespace [[nodirectory]] specimen { }
+#import cli.exits.Code
+namespace app::exits {
+  static_assert(sizeof(Code), "already visible");
 }
 #endiv

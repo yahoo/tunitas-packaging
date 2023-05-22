@@ -11,7 +11,7 @@ namespace app::flow::options {
   // The options specification
   //
   // Usage:
-  //
+  //x
   //   Specification const spec{};
   //   Parser parser{spec};
   //   ...etc...
@@ -52,7 +52,7 @@ app::flow::options::Specification::Specification()
               {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE},
               //
               {"af", oa::NO, oi::USE_AF_MODE},
-              {"vdaf", oa::NO, oi::USE_DAF_MODE},
+              {"daf", oa::NO, oi::USE_DAF_MODE},
               {"vdaf", oa::NO, oi::USE_VDAF_MODE},
               {"vidaf", oa::NO, oi::USE_VIDAF_MODE},
               // -f FILEPATH (f:)
@@ -73,6 +73,17 @@ app::flow::options::Specification::Specification()
               {"aggregation", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
               {"aggregation-function", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
               {"aggregation-function-name", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              //
+              {"prefix-length", oa::REQUIRED, oi::PREFIX_LENGTH},
+              {"prefix",        oa::REQUIRED, oi::PREFIXES_SINGLE},
+              {"prefix-value",  oa::REQUIRED, oi::PREFIXES_SINGLE},
+              {"prefixes",      oa::REQUIRED, oi::PREFIXES_SERIES},
+              {"prefix-series", oa::REQUIRED, oi::PREFIXES_SERIES},
+              //
+              {"boundary",        oa::REQUIRED, oi::BOUNDARIES_SINGLE},
+              {"boundary-value",  oa::REQUIRED, oi::BOUNDARIES_SINGLE},
+              {"boundaries",      oa::REQUIRED, oi::BOUNDARIES_SERIES},
+              {"boundary-series", oa::REQUIRED, oi::BOUNDARIES_SERIES},
               //
               // boilerplate standard options
               {"help", oa::NO, oi::USAGE_SUBCOMMAND},

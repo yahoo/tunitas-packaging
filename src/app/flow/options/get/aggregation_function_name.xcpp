@@ -11,14 +11,18 @@ namespace app::flow::options::get {
   }
   using namespace package_aggregation_function_name::interface;
 }
+#import app.flow.options.inference
+namespace app::flow::options::get::package_aggregation_function_name {
+  using namespace package_get;
+  namespace body {
+    using namespace package_get::body;
+    using namespace inference;
+  }
+}
 #import cli.experience.Console
-#import tunitas.keyston.af.Name
-#import tunitas.keyston.daf.Name
-#import tunitas.keyston.vdaf.Name
 #import tunitas.alambique.function.Name
 #import tunitas.alambique.function.Estimates
 namespace app::flow::options::get::package_aggregation_function_name {
-  using namespace package_get;
   static_assert(sizeof (Whence), "already visible");
   static_assert(sizeof (Step), "already visible");
   static_assert(sizeof (Field), "already visible");
@@ -26,67 +30,46 @@ namespace app::flow::options::get::package_aggregation_function_name {
   using tunitas::alambique::function::Name;
   using tunitas::alambique::function::Estimates;
   using cli::experience::Console;
-  namespace body {
-    using namespace package_get::body;
-    struct VDAF {
-      using enum tunitas::keyston::vdaf::Name;
-      using Optional = tunitas::Optional<tunitas::keyston::vdaf::Name>;
-    };
-    struct DAF {
-      using Name = tunitas::keyston::daf::Name;
-      using Optional = tunitas::Optional<tunitas::keyston::daf::Name>;
-      using enum Name; // WATCHOUT - this doesn't work for DAF::ZERO - gcc (GCC) 12.2.1 20221121 (Red Hat 12.2.1-4) internal compiler error: in tsubst_copy, at cp/pt.cc:17004
-    };
-    static_assert(sizeof(DAF::ZERO));
-    struct AF {
-      using Name = tunitas::keyston::af::Name;
-      using Optional = tunitas::Optional<tunitas::keyston::af::Name>;
-      template<DAF::Name BASE> inline static constexpr auto Constant = tunitas::keyston::af::Constant<BASE>;
-    };
-#if 0
-    struct VIDAF { using enum tunitas::keyston::vidaf::Name; };
-#endif
-  }
+  namespace body { }
 }
-static_assert(sizeof(app::flow::options::get::package_aggregation_function_name::body::DAF::ZERO));
 #endiv
 #divert <hpp>
 namespace app::flow::options::get::package_aggregation_function_name::body {
-  //
-  // Acquire an aggregation_function_name from the longish Step
-  //
-  // The estimated aggregation_function_name is returned, not an outcome.
-  // When there is an available aggregation-function-mode known then the result is collapsed to the one selection in Name
-  // When there is NO available aggregation-function-mode known, then the possibilities in Estimates is returned.
-  // On failure to resolve any name at all then the exception is thrown.
-  //
-  // Scheme:
-  //
-  //   --aggregation-function-name=NAME for NAME in the dictionaries shown below.
-  //
-  //   NAME for AF Mode (Aggregation Function Mode, [Centralized] Aggregation Function)"
-  //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
-  //
-  //   NAME for DAF Function (Distributed Aggregation Function Mode)"
-  //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
-  //
-  //   NAME for VDAF Function (Verifiable Distributed Aggregation Name) Mode)"
-  //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
-  //       PRIO3, PRIO3-COUNT, PRIO3-SUM, PRIO3-HISTOGRAM, POPLAR1, POPLAR1-HISTOGRAM"
-  //
-  // Example:
-  //
-  //   figure it out (from the Scheme section, above)
-  //
-  // Usage:
-  //
-  //   auto exp = Experience{...somehow...}
-  //   auto step = cli::options::longish::Step{...somehow...};
-  //   using Quitting = exception::Quitting;
-  //
-  //   Mode aggregation_function_name = get::aggregation_function_name<Quitting>(cfg, step);
-  //
   namespace exported {
+    //
+    // Acquire an aggregation_function_name from the longish Step
+    //
+    // The estimated aggregation_function_name is returned, not an outcome.
+    // When there is an available aggregation-function-mode known then the result is collapsed to the one selection in Name
+    // When there is NO available aggregation-function-mode known, then the possibilities in Estimates is returned.
+    // On failure to resolve any name at all then the exception is thrown.
+    //
+    // Scheme:
+    //
+    //   --aggregation-function-name=NAME for NAME in the dictionaries shown below.
+    //
+    //   NAME for AF Mode (Aggregation Function Mode, [Centralized] Aggregation Function)"
+    //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+    //
+    //   NAME for DAF Function (Distributed Aggregation Function Mode)"
+    //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+    //
+    //   NAME for VDAF Function (Verifiable Distributed Aggregation Name) Mode)"
+    //       ZERO, CONSTANT, COUNT, SUM, HISTOGRAM"
+    //       PRIO3, PRIO3-COUNT, PRIO3-SUM, PRIO3-HISTOGRAM, POPLAR1, POPLAR1-HISTOGRAM"
+    //
+    // Example:
+    //
+    //   figure it out (from the Scheme section, above)
+    //
+    // Usage:
+    //
+    //   auto exp = Console{...somehow...}
+    //   auto step = cli::options::longish::Step{...somehow...};
+    //   using Quitting = exception::Quitting;
+    //
+    //   Mode aggregation_function_name = get::aggregation_function_name<Quitting>(cfg, step);
+    //
     // ease of export (see the parent scope)
     template<required::exception::Quitting QUITTING> inline auto get_aggregation_function_name(Console &, Step const &) -> Estimates;
     template<required::exception::Quitting QUITTING> inline auto get_aggregation_function_name(Console &, Step const &, Field) -> Estimates;
@@ -141,10 +124,19 @@ namespace app::flow::options::get::package_aggregation_function_name {
     } else if (among(candidate, "sum"sv)) {
 #if 12 < __GNUC__
       return {AF::Constant<DAF::SUM>, DAF::SUM, VDAF::PRIO3_SUM};
-#else
+#elif 1
       constexpr auto ds = DAF::SUM;
       constexpr auto vds = VDAF::PRIO3_SUM;
+      constexpr auto est = Estimates{AF::Constant<ds>, ds, vds};
+      static_assert(true == (bool)std::get<0>(est));
+      static_assert(true == (bool)std::get<1>(est));
+      static_assert(true == (bool)std::get<2>(est));
       return {AF::Constant<ds>, ds, vds};
+#else
+      constexpr auto s = AF::Constant<ds>;
+      constexpr auto ds = DAF::SUM;
+      constexpr auto vds = VDAF::PRIO3_SUM;
+      return {s, ds, vds};
 #endif
     } else if (among(candidate, "histogram"sv)) {
 #if 12 < __GNUC__

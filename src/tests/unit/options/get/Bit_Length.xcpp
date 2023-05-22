@@ -1,0 +1,91 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::options::get { class Bit_Length; }
+#endiv
+#divert <hpp>
+#import nonstd.units.memory.scale // Bits
+#import tunitas.exception.Aspect
+struct tests::unit::options::get::Bit_Length : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_good() -> void;
+  auto test_fail_empty() -> void;
+  auto test_fail_other() -> void;
+  auto test_fail_zero() -> void;
+  auto test_fail_negative() -> void;
+  auto test_fail_too_big() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+  using Got = ::nonstd::units::memory::Bits;
+  static auto call(string::View specimen) -> Got;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::options::get::Bit_Length::suite() -> Suite {
+  auto series = Stream{"bit_length"sv};
+  series << add("good", &Bit_Length::test_good)
+         << []{
+             auto fail = Stream{"fail"sv};
+             fail << add("empty", &Bit_Length::test_fail_empty)
+                  << add("other", &Bit_Length::test_fail_other)
+                  << add("zero", &Bit_Length::test_fail_zero)
+                  << add("negative", &Bit_Length::test_fail_negative)
+                  << add("too_big", &Bit_Length::test_fail_too_big)
+                  << END;
+             return fail;
+            }()
+         << END;
+  return settle(series);
+}
+#import tests.unit.options.get.Configuration
+#import tests.unit.options.get.Step
+#import tests.unit.options.get.Quitting
+#import app.flow.options.get.bit_length // <---------------------------------------- test this
+namespace tests::unit::options::get {
+  auto Bit_Length::call(string::View specimen) -> Got {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_b, specimen}; // <------------------------------------------ with this specimen
+    return library::bit_length<Quitting>(exp, step); // <---------------------------------------- test this
+  }
+  auto Bit_Length::test_good() -> void {
+    auto got = call("8"sv);
+    require(ASSERTION, Got{8} == got);
+  }
+  auto Bit_Length::test_fail_empty() -> void try {
+    call(""sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Bit_Length::test_fail_other() -> void try {
+    call(" !@#$% "sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Bit_Length::test_fail_zero() -> void try {
+    auto got = call("0"sv);
+    // NOT ---> impossible(ASSERTION); <-- -NOT (not a failure, merely a warning delegated to the caller)
+    require(ASSERTION, Got{0} == got);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Bit_Length::test_fail_negative() -> void try {
+    call("-1"sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Bit_Length::test_fail_too_big() -> void try {
+    call("129"sv);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

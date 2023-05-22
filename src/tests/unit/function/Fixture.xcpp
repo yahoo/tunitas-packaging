@@ -7,17 +7,26 @@
 namespace tests::unit::function { class Fixture; }
 #endiv
 #divert <hpp>
+#import tunitas.error.by.Optional
+#import tests.unit.function.Palette
+#import tests.unit.function.Mode
 struct tests::unit::function::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   auto test_usage_Mode() -> void;
-  auto test_usage_Estimates() -> void;
+  auto test_usage_Estimates_constructor() -> void;
+  auto test_usage_Estimates_resolve() -> void;
+  auto test_usage_Estimates_assess() -> void;
   auto test_usage_Name() -> void;
+protected:
+  inline static constexpr auto OPTIONAL = ::tunitas::error::by::Optional{};
+  using AF = Palette<library::Mode::AF>;
+  using DAF = Palette<library::Mode::DAF>;
+  using VDAF = Palette<library::Mode::VDAF>;
 };
 #endiv
 #divert <cpp>
 #import tunitas.alambique.function.Mode
-#import tests.unit.function.Mode
 #import tests.unit.function.Name
 #import tests.unit.function.Estimates
 #import tests.unit.function.Resolved
@@ -27,7 +36,14 @@ auto tests::unit::function::Fixture::suite() -> Suite {
              auto use = Stream{"usage"sv};
              use << add("Mode", &Fixture::test_usage_Mode)
                  << add("Name", &Fixture::test_usage_Name)
-                 << add("Estimates", &Fixture::test_usage_Estimates)
+                 << []{
+                   auto est = Stream{"Estimates"sv};
+                   est << add("constructor", &Fixture::test_usage_Estimates_constructor)
+                       << add("resolve", &Fixture::test_usage_Estimates_resolve)
+                       << add("assess", &Fixture::test_usage_Estimates_assess)
+                       << END;
+                   return est;
+                 }()
                  << END;
              return use;
            }()
@@ -52,7 +68,8 @@ auto tests::unit::function::Fixture::suite() -> Suite {
 #import tunitas.alambique.function.Mode
 #import tunitas.alambique.function.Name
 #import tunitas.alambique.function.Estimates
-#import tests.unit.function.Palette
+#import tunitas.alambique.function.resolve
+#import tunitas.alambique.function.assess
 namespace tests::unit::function {
   auto Fixture::test_usage_Mode() -> void {
     using Subject = library::Mode;
@@ -73,30 +90,49 @@ namespace tests::unit::function {
     to_string_view(OUTCOME, subject);
     to_string_view(EXCEPTION, subject);
   }
-  auto Fixture::test_usage_Estimates() -> void {
+  auto Fixture::test_usage_Estimates_constructor() -> void {
     using Subject = library::Estimates;
-    using AF = Palette<library::Mode::AF>;
-    using DAF = Palette<library::Mode::DAF>;
-    using VDAF = Palette<library::Mode::VDAF>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Estimates_resolve() -> void {
+    using Subject = library::Estimates;
     {
-      auto subject = Subject{};
-      require(ASSERTION, sizeof(subject));
-    } {
       auto specimen = Subject{};
-      auto resolved = library::resolve(specimen);
+      auto resolved = library::resolve(OPTIONAL, specimen);
       require(ASSERTION, false == (bool)resolved);
     } {
       auto specimen = Subject{AF::GOOD, {}, {}};
-      auto resolved = library::resolve(specimen);
+      auto resolved = library::resolve(OPTIONAL, specimen);
       require(ASSERTION, true == (bool)resolved);
     } {
       auto specimen = Subject{AF::Optional{}, DAF::GOOD, VDAF::Optional{}};
-      auto resolved = library::resolve(specimen);
+      auto resolved = library::resolve(OPTIONAL, specimen);
       require(ASSERTION, true == (bool)resolved);
     } {
       auto specimen = Subject{AF::Optional{}, DAF::Optional{}, VDAF::GOOD};
-      auto resolved = library::resolve(specimen);
+      auto resolved = library::resolve(OPTIONAL, specimen);
       require(ASSERTION, true == (bool)resolved);
+    }
+  }
+  auto Fixture::test_usage_Estimates_assess() -> void {
+    using Subject = library::Estimates;
+    {
+      auto specimen = Subject{};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, false == (bool)assessd);
+    } {
+      auto specimen = Subject{AF::GOOD, {}, {}};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)assessd);
+    } {
+      auto specimen = Subject{AF::Optional{}, DAF::GOOD, VDAF::Optional{}};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)assessd);
+    } {
+      auto specimen = Subject{AF::Optional{}, DAF::Optional{}, VDAF::GOOD};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)assessd);
     }
   }
 }

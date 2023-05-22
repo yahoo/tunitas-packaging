@@ -8,6 +8,7 @@ app_flow_options_SUBSOURCES = \
   noinst/obj/src/app/flow/options/namespace.cpp \
   $(app_flow_options_get_SUBSOURCES) \
   $(app_flow_options_indicator_SUBSOURCES) \
+  noinst/obj/src/app/flow/options/inference.cpp \
   noinst/obj/src/app/flow/options/Parser.cpp \
   noinst/obj/src/app/flow/options/Parser.Result.cpp \
   noinst/obj/src/app/flow/options/Specification.cpp \

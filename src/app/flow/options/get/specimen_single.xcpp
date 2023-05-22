@@ -1,0 +1,90 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-basics/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/basics/tree/LICENSE
+#divert <fpp>
+namespace app::flow::options::get {
+  namespace package_specimen_single {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_specimen_single::interface;
+}
+namespace app::flow::options::get::package_specimen_single {
+  using namespace package_get;
+  namespace body {
+    using namespace package_get::body;
+  }
+}
+#import cli.experience.Console
+#import tunitas.keyston.measurement.Specimen
+namespace app::flow::options::get::package_specimen_single {
+  static_assert(sizeof (Whence), "already visible");
+  static_assert(sizeof (Step), "already visible");
+  static_assert(sizeof (Field), "already visible");
+  static_assert(!required::exception::Quitting<int>, "already visible");
+  using tunitas::keyston::measurement::Specimen;
+  using cli::experience::Console;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+#import nonstd.to_integer
+namespace app::flow::options::get::package_specimen_single::body {
+  namespace exported {
+    //
+    // Acquire a specimen (something something unsigned integer) from the longish Step
+    //
+    // Scheme:
+    //
+    //   --prefix-value=VALUE
+    //
+    // Constraints:
+    //
+    //   This is luser input so it must be checked thoroughly
+    //   The value cannot be negative or too big.
+    //
+    // Design (implementation details)
+    //
+    //   The use of Whence{exp}.name() occurs because some quitting exceptions obey the older interface; and some obey the newer interface.
+    //   See Whence for details on the differences between the two interfaces.
+    //
+    // Usage:
+    //
+    //   auto exp = Console{...somehow...}
+    //   auto step = cli::options::longish::Step{...somehow...};
+    //
+    //   Specimen specimen = get::specimen_single<Quitting>(exp, step);
+    //
+    template<required::exception::Quitting QUITTING> inline auto get_specimen_single(Console &, Step const &) -> Specimen;
+    template<required::exception::Quitting QUITTING> inline auto get_specimen_single(Console &, Step const &, Field) -> Specimen;
+    //
+    template<required::exception::Quitting QUITTING> inline auto specimen_single(Console &, Step const &) -> Specimen;
+    template<required::exception::Quitting QUITTING> auto specimen_single(Console &, Step const &, Field) -> Specimen;
+  }
+  using nonstd::to_integer;
+}
+#endiv
+#divert <ipp>
+namespace app::flow::options::get::package_specimen_single {
+  template<required::exception::Quitting QUITTING> auto interface::get_specimen_single(Console &exp, Step const &step) -> Specimen              { return specimen_single<QUITTING>(exp, step); }
+  template<required::exception::Quitting QUITTING> auto interface::get_specimen_single(Console &exp, Step const &step, Field field) -> Specimen { return specimen_single<QUITTING>(exp, step, field); }
+  template<required::exception::Quitting QUITTING> auto interface::specimen_single(Console &exp, Step const &step) -> Specimen                  { return specimen_single<QUITTING>(exp, step, "specimen-length"); }
+}
+#endiv
+#divert <tpp>
+#import tunitas.application.options.get.word
+#import std.quoted
+namespace app::flow::options::get::package_specimen_single {
+  template<required::exception::Quitting QUITTING> auto interface::specimen_single(Console &exp, Step const &step, Field field) -> Specimen {
+    string::Storage candidate = word<QUITTING>(exp, step, field);
+    if (auto got=to_integer<std::underlying_type_t<Specimen>>(candidate); fail(got)) {
+      error(exp) << "the value " << std::quoted(candidate, '\'') << " is is not a valid " << field << " because " << error_code(got).message() << "\n";
+      throw QUITTING{Whence{exp}.name(), CONFIGURATION};
+    } else {
+      return Specimen{value(got)};
+    }
+  }
+}
+#endiv

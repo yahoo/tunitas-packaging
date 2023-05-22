@@ -4,10 +4,12 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tunitas.alambique.function
-#import tunitas.alambique.required
-namespace tunitas::alambique::function::required {
-  using namespace tunitas::required;
-  namespace [[nodirectory]] project { }
+#forward tunitas.alambique.function.Mode
+#forward tunitas.alambique.function.Resolved
+namespace tunitas::alambique::function::required::project {
+  //
+  // Is this type suitable for the return type of Estimates::project<RESULT>(...)?
+  //
+  template<typename RESULT> concept Result = same_as<RESULT, Mode> || same_as<RESULT, Resolved>;
 }
 #endiv

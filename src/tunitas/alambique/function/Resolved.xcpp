@@ -19,6 +19,7 @@ namespace tunitas::alambique::function {
   // Usage:
   //
   //   Obvious.
+  //   But, if necessary, see #import tunitas.alambique.function.resolved
   //
   namespace [[eponymous]] resolved {
     using Ancestor = Variant<af::Name, daf::Name, vdaf::Name>;

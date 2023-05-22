@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tunitas.alambique.Demonstrator.template
-namespace tunitas::alambique {
+#import tunitas.alambique.demonstrator.Demonstrator.template
+namespace tunitas::alambique::demonstrator {
   //
   // The (single-threaded) Distributed Aggregation Function (DAF) Demonstrator
   //
@@ -52,14 +52,14 @@ namespace tunitas::alambique {
 #import nonstd.units.memory.scale // Bits
 #import nonstd.required.iterator.Forward
 #import nonstd.required.iterator.Producing
-#import tunitas.keyston.Scheme
+#import tunitas.keyston.Transport
 #import tunitas.keyston.Slice
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.entropy.Source
 #import tunitas.keyston.daf.Name
 #import tunitas.keyston.daf.Configuration
 #import tunitas.keyston.daf.Executor
-namespace tunitas::alambique {
+namespace tunitas::alambique::demonstrator {
   template<> class Demonstrator<DAF> {
   protected:
     struct Constants {
@@ -67,10 +67,10 @@ namespace tunitas::alambique {
     };
     using Entropy = keyston::entropy::Source;
     using enum keyston::Slice;
-    inline static constexpr auto SCHEME = keyston::Scheme::NUMERIC;
-    using Configuration = keyston::daf::Configuration<SCHEME>;
+    inline static constexpr auto TRANSPORT = keyston::Transport::NUMERIC;
+    using Configuration = keyston::daf::Configuration<TRANSPORT>;
     //
-    keyston::daf::Executor<SCHEME> executor{}; // unless initialized otherwise, this contains nulls and is not useful
+    keyston::daf::Executor<TRANSPORT> executor{}; // unless initialized otherwise, this contains nulls and is not useful
     keyston::nonce::Generator<keyston::nonce::Bits<Constants::RANDOM_SIZE.count()>, Entropy> randomizer;
   public:
     using Name = keyston::daf::Name;
@@ -93,7 +93,7 @@ namespace tunitas::alambique {
 #endiv
 #divert <ipp>
 #import std.ranges.subrange
-namespace tunitas::alambique {
+namespace tunitas::alambique::demonstrator {
   Demonstrator<DAF>::Demonstrator(Entropy &source, Name name)
     : executor{name}
     , randomizer{source}
@@ -109,7 +109,7 @@ namespace tunitas::alambique {
 #endiv
 #divert <tpp>
 #import tunitas.keyston.daf.numeric.components
-namespace tunitas::alambique {
+namespace tunitas::alambique::demonstrator {
   template<typename ITERATOR> auto Demonstrator<DAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation
     requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
     using namespace keyston::daf::numeric::components;
@@ -126,8 +126,9 @@ namespace tunitas::alambique {
       auto amalgamated = executor.amalgamation(parameters, outputs.at(shard));
       aggregations.at(shard) = move(amalgamated);
     }
-    auto items = nonstd::units::count::Items{measurements.size()};
-    auto result = executor.reassembly(parameters, aggregations, items);
+    // reminder: some algorithms cannot tolerate zero records (they throw)
+    auto processed = Processed{measurements.size()};
+    auto result = executor.reassembly(parameters, aggregations, processed);
     return result;
   }
 }

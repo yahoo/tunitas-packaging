@@ -15,5 +15,6 @@ namespace tunitas::alambique::function {
   namespace daf = tunitas::keyston::daf;
   namespace vdaf = tunitas::keyston::vdaf;
   using namespace tunitas;
+  namespace [[nodirectory]] traits { }
 }
 #endiv

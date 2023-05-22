@@ -44,7 +44,6 @@ namespace {
     static_assert(required::exception::Quitting<thisone::Quitting>);
   }
 }
-#import cli.exits.constants
 namespace tests::unit::options::get {
   Quitting::Quitting(Program const &program, Exit code)
     : Ancestors::Feature{code}

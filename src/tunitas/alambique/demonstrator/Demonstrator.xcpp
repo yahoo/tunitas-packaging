@@ -4,20 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tunitas.alambique.Demonstrator.template
-namespace tunitas::alambique {
-  //
-  // nope, not yet.
-  //
-  template<> struct Demonstrator<VIDAF>;
-}
-#endiv
-#divert <hpp>
-namespace tunitas::alambique {
-  template<> struct Demonstrator<VIDAF> {
-    //
-    // nope, not yet.
-    //
-  };
-}
+#import tunitas.alambique.demonstrator.Demonstrator.AF
+#import tunitas.alambique.demonstrator.Demonstrator.DAF
+#import tunitas.alambique.demonstrator.Demonstrator.VDAF
+#import tunitas.alambique.demonstrator.Demonstrator.VIDAF
 #endiv

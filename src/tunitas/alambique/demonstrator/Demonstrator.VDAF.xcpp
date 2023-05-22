@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tunitas.alambique.Demonstrator.template
-namespace tunitas::alambique {
+#import tunitas.alambique.demonstrator.Demonstrator.template
+namespace tunitas::alambique::demonstrator {
   //
   // The (single-threaded) Verified Distributed Aggregation Function (DAF) Demonstrator
   //
@@ -74,13 +74,15 @@ namespace tunitas::alambique {
 #divert <hpp>
 #import std.span
 #import nonstd.units.memory.scale // Bits and Bytes
-#import tunitas.keyston.Scheme
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import tunitas.keyston.Transport
 #import tunitas.keyston.Slice
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.entropy.Source
 #import tunitas.keyston.vdaf.Configuration
 #import tunitas.keyston.vdaf.Executor
-namespace tunitas::alambique {
+namespace tunitas::alambique::demonstrator {
   template<> class Demonstrator<VDAF> {
   protected:
     struct Constants {
@@ -89,10 +91,10 @@ namespace tunitas::alambique {
     };
     using Entropy = keyston::entropy::Source;
     using enum keyston::Slice;
-    inline static constexpr auto SCHEME = keyston::Scheme::NUMERIC;
-    using Configuration = keyston::vdaf::Configuration<SCHEME>;
+    inline static constexpr auto TRANSPORT = keyston::Transport::NUMERIC;
+    using Configuration = keyston::vdaf::Configuration<TRANSPORT>;
     //
-    keyston::vdaf::Executor<SCHEME> executor{};
+    keyston::vdaf::Executor<TRANSPORT> executor{};
     keyston::nonce::Generator<keyston::nonce::Bits<Constants::NONCE_SIZE.count()>, Entropy> randomizer;
   public:
     using Name = keyston::vdaf::Name;
@@ -105,23 +107,35 @@ namespace tunitas::alambique {
     inline explicit Demonstrator(Entropy &, Name);
     Demonstrator(Demonstrator const &) = delete;
     auto operator=(Demonstrator const &) -> Demonstrator & = delete;
-    auto run(Parameters const &, std::span<Whole::Measurement>) -> Whole::Aggregation;
+    inline auto run(Parameters const &, std::span<Whole::Measurement>) -> Whole::Aggregation;
+    template<typename ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Whole::Aggregation
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
+    template<typename ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Whole::Aggregation
+      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
   };
 }
 #endiv
 #divert <ipp>
-namespace tunitas::alambique {
+namespace tunitas::alambique::demonstrator {
   Demonstrator<VDAF>::Demonstrator(Entropy &source, Name name)
     : executor{name}
     , randomizer{source}
   { }
+  auto Demonstrator<VDAF>::run(Parameters const &p, std::span<Whole::Measurement> s) -> Whole::Aggregation {
+    return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
+  }
+  template<typename ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Whole::Aggregation
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
+    return run(p, std::ranges::subrange{s, f});
+  }
 }
 #endiv
-#divert <cpp>
+#divert <tpp>
 #import tunitas.keyston.vdaf.numeric.components
 #import nonstd.exception.Unreachable
-namespace tunitas::alambique {
-  auto Demonstrator<VDAF>::run(Parameters const &parameters, std::span<Whole::Measurement> measurements) -> Whole::Aggregation {
+namespace tunitas::alambique::demonstrator {
+  template<typename ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation
+    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
     using namespace keyston::vdaf::numeric::components;
 #if 0
     Shards<Series<Output<SHARE>>> outputs{};
@@ -146,7 +160,7 @@ namespace tunitas::alambique {
             visit(visitor, either);
           } else {
             auto visitor = Visitor{[](auto const &) { throw exception::Invalid{}; },
-                                   [&&outbound](Output<SHARE>> &final) {
+                                   [&outbound](Output<SHARE>> &final) {
                                      outbound.push_back(move(final));
                                    }};
             visit(visitor, either);

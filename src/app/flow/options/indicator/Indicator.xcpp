@@ -29,6 +29,13 @@ namespace app::flow::options::indicator::package_indicator {
         USE_DAF_MODE,
         USE_VDAF_MODE,
         USE_VIDAF_MODE,
+        PREFIX_LENGTH,
+        PREFIXES_AMBIGUOUS,
+        PREFIXES_SERIES,
+        PREFIXES_SINGLE,
+        BOUNDARIES_AMBIGUOUS,
+        BOUNDARIES_SERIES,
+        BOUNDARIES_SINGLE,
       };
     }
   }

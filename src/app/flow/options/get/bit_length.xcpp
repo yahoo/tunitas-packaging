@@ -1,0 +1,108 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-basics/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/basics/tree/LICENSE
+#divert <fpp>
+namespace app::flow::options::get {
+  namespace package_bit_length {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_bit_length::interface;
+}
+namespace app::flow::options::get::package_bit_length {
+  using namespace package_get;
+  namespace body {
+    using namespace package_get::body;
+  }
+}
+#import cli.experience.Console
+#import nonstd.units.memory.scale // Bits
+namespace app::flow::options::get::package_bit_length {
+  static_assert(sizeof (Whence), "already visible");
+  static_assert(sizeof (Step), "already visible");
+  static_assert(sizeof (Field), "already visible");
+  static_assert(!required::exception::Quitting<int>, "already visible");
+  using nonstd::units::memory::Bits;
+  using cli::experience::Console;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+#import nonstd.to_integer
+#import tunitas.keyston.measurement.Specimen
+#import std.underlying_type
+namespace app::flow::options::get::package_bit_length::body {
+  namespace exported {
+    //
+    // Acquire a bit length (prefix length) from the longish Step
+    //
+    // Scheme:
+    //
+    //   --prefix-length=LENGTH
+    //
+    // Constraints:
+    //
+    //   This is luser input so it must be checked thoroughly
+    //   The value cannot be negative, zero or too big.
+    //
+    // Design (implementation details)
+    //
+    //   The use of Whence{exp}.name() occurs because some quitting exceptions obey the older interface; and some obey the newer interface.
+    //   See Whence for details on the differences between the two interfaces.
+    //
+    // Usage:
+    //
+    //   auto exp = Console{...somehow...}
+    //   auto step = cli::options::longish::Step{...somehow...};
+    //
+    //   Bits length = get::bit_length<Quitting>(exp, step);
+    //
+    template<required::exception::Quitting QUITTING> inline auto get_bit_length(Console &, Step const &) -> Bits;
+    template<required::exception::Quitting QUITTING> inline auto get_bit_length(Console &, Step const &, Field) -> Bits;
+    //
+    template<required::exception::Quitting QUITTING> inline auto bit_length(Console &, Step const &) -> Bits;
+    template<required::exception::Quitting QUITTING> auto bit_length(Console &, Step const &, Field) -> Bits;
+  }
+  using nonstd::to_integer;
+  inline constexpr auto const MAXIMUM_BIT_LENGTH = 8*sizeof (std::underlying_type_t<tunitas::keyston::measurement::Specimen>);
+}
+#endiv
+#divert <ipp>
+namespace app::flow::options::get::package_bit_length {
+  template<required::exception::Quitting QUITTING> auto interface::get_bit_length(Console &exp, Step const &step) -> Bits              { return bit_length<QUITTING>(exp, step); }
+  template<required::exception::Quitting QUITTING> auto interface::get_bit_length(Console &exp, Step const &step, Field field) -> Bits { return bit_length<QUITTING>(exp, step, field); }
+  template<required::exception::Quitting QUITTING> auto interface::bit_length(Console &exp, Step const &step) -> Bits                  { return bit_length<QUITTING>(exp, step, "bit-length"); }
+}
+#endiv
+#divert <tpp>
+#import tunitas.application.options.get.word
+#import std.quoted
+namespace app::flow::options::get::package_bit_length {
+  template<required::exception::Quitting QUITTING> auto interface::bit_length(Console &exp, Step const &step, Field field) -> Bits {
+    string::Storage candidate = word<QUITTING>(exp, step, field);
+    if (auto got=to_integer<int>(candidate); fail(got)) {
+      error(exp) << "the value " << std::quoted(candidate, '\'') << " is is not a valid " << field << " because " << error_code(got).message() << "\n";
+      throw QUITTING{Whence{exp}.name(), CONFIGURATION};
+    } else if (auto signed_length=value(got); signed_length < 0) {
+      notice(exp) << "the " << field << " value is " << std::quoted(candidate, '\'') << '\n';
+      error(exp) << "the " << field << " value cannot be negative\n";
+      throw QUITTING{Whence{exp}.name(), CONFIGURATION};
+    } else {
+      auto length = unsigned(signed_length);
+      if (MAXIMUM_BIT_LENGTH < length) {
+        notice(exp) << "the maximum " << field << " value is " << MAXIMUM_BIT_LENGTH << '\n';
+        notice(exp) << "the provided " << field << " value is " << length << '\n';
+        error(exp) << "the " << field << " is wider than the maximum allowed\n";
+        throw QUITTING{Whence{exp}.name(), CONFIGURATION};
+      } else {
+        if (0u == length) {
+          warning(exp) << "the " << field << " value is zero, which will cause unexpected problems later\n";
+        }
+        return Bits{length};
+      }
+    }
+  }
+}
+#endiv

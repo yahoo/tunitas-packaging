@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-basics/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/basics/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.vdaf.Name
+namespace app::flow::options::inference {
+  //
+  // The inference constants
+  //
+  // Specification:
+  //
+  //   Presented conveniently.
+  //   The full estimates of HISTOGRAM and POPULARITY represented directly (the others are not)
+  //   (because histogram and popularity have indica in the command-line options)
+  //
+  // Usage:
+  //
+  //   auto z = VDAF::ZERO;
+  //   auto z = DAF::ZERO;
+  //   auto z = AF::ZERO;
+  //   ... and so on
+  //
+  struct VDAF {
+    using Name = tunitas::keyston::vdaf::Name;
+    using enum tunitas::keyston::vdaf::Name;
+    using Optional = tunitas::Optional<tunitas::keyston::vdaf::Name>;
+  };
+  struct DAF {
+    using Name = tunitas::keyston::daf::Name;
+    using Optional = tunitas::Optional<tunitas::keyston::daf::Name>;
+    using enum Name; // WATCHOUT - this doesn't work for DAF::ZERO - gcc (GCC) 12.2.1 20221121 (Red Hat 12.2.1-4) internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+  };
+  static_assert(sizeof(DAF::ZERO));
+  struct AF {
+    using Name = tunitas::keyston::af::Name;
+    using Optional = tunitas::Optional<tunitas::keyston::af::Name>;
+    template<DAF::Name BASE> inline static constexpr auto Constant = tunitas::keyston::af::Constant<BASE>;
+  };
+#if 0
+  struct VIDAF { using enum tunitas::keyston::vidaf::Name; };
+#endif
+}
+static_assert(sizeof(app::flow::options::inference::DAF::ZERO));
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Estimates
+namespace app::flow::options::inference {
+  inline constexpr auto HISTOGRAM = tunitas::alambique::function::Estimates{AF::Constant<DAF::HISTOGRAM>, DAF::HISTOGRAM, VDAF::PRIO3_HISTOGRAM};
+  inline constexpr auto POPULARITY = tunitas::alambique::function::Estimates{AF::Constant<DAF::POPULARITY>, DAF::POPULARITY, VDAF::POPLAR1};
+}
+#endiv

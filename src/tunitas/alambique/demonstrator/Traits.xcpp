@@ -1,0 +1,80 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#forward tunitas.alambique.demonstrator.Demonstrator
+namespace tunitas::alambique::demonstrator {
+  //
+  // The traits of the Demonstrators.
+  // They are mostly aligned with each other, but their constructors differ.
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //   Avoid requiring the complete type of the Demonstrator<FUNCTION> to define Traits<FUNCTION>.
+  //
+  template<Function> struct Traits;
+  template<> struct Traits<AF>;
+  template<> struct Traits<DAF>;
+  template<> struct Traits<VDAF>;
+  template<> struct Traits<VIDAF>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.af.numeric.Measurement
+#import tunitas.keyston.af.numeric.Aggregation
+#import tunitas.keyston.daf.numeric.Measurement
+#import tunitas.keyston.daf.numeric.Aggregation
+#import tunitas.keyston.vdaf.numeric.Measurement
+#import tunitas.keyston.vdaf.numeric.Aggregation
+// soon? #import tunitas.keyston.vidaf.numeric.Measurement
+// soon? #import tunitas.keyston.vidaf.numeric.Aggregation
+#import tunitas.keyston.Scheme
+#import tunitas.keyston.Slice
+namespace tunitas::alambique::demonstrator {
+  template<> struct Traits<AF> {
+    using Demonstrator = demonstrator::Demonstrator<AF>;
+    using Measurement = keyston::af::numeric::Measurement;
+  };
+  template<> class Traits<DAF> {
+    inline static constexpr auto WHOLE = keyston::Slice::WHOLE;
+  public:
+    using Demonstrator = demonstrator::Demonstrator<DAF>;
+    using Measurement = keyston::daf::numeric::Measurement<WHOLE>;
+  };
+  template<> struct Traits<VDAF> {
+    inline static constexpr auto WHOLE = keyston::Slice::WHOLE;
+  public:
+    using Demonstrator = demonstrator::Demonstrator<VDAF>;
+    using Measurement = keyston::vdaf::numeric::Measurement<WHOLE>;
+  };
+  template<> struct Traits<VIDAF> {
+    inline static constexpr auto WHOLE = keyston::Slice::WHOLE;
+  public:
+    using Demonstrator = demonstrator::Demonstrator<VIDAF>;
+#if 0 // not yet, but soon
+    using Measurement = keyston::vidaf::numeric::Measurement<WHOLE>;
+#endif
+  };
+}
+#endiv
+#divert <cpp>
+// Now we can work with the complete type of Demonstrator<FUNCTION>
+#import std.same_as
+#import tunitas.alambique.Demonstrator
+namespace {
+  namespace testate {
+    using enum tunitas::alambique::Function;
+    using namespace tunitas::alambique::demonstrator;
+    using std::same_as;
+    static_assert(same_as<Traits<AF>::Measurement, Demonstrator<AF>::Measurement>);
+    static_assert(same_as<Traits<DAF>::Measurement, Demonstrator<DAF>::Whole::Measurement>);
+    static_assert(same_as<Traits<VDAF>::Measurement, Demonstrator<VDAF>::Whole::Measurement>);
+#if 0 // not now but soon
+    static_assert(same_as<Traits<VIDAF>::Measurement, Demonstrator<VIDAF>::Whole::Measurement>);
+#endif
+  }
+}
+#endiv

@@ -12,6 +12,7 @@ namespace tests::flow {
 }
 #endiv
 #divert <hpp>
+#import cli.exits.Code
 #import app.flow.Configuration
 #import rigging.app.fixture.Core
 #import tests.fixture.Partly.app.flow.Configuration.THROUGH
@@ -43,9 +44,112 @@ namespace tests::flow {
     auto test_measurements_present() -> void;
     auto test_measurement_data() -> void;
     auto test_measurement_data_filepath() -> void;
+    //
+    auto test_af() -> void;
+    auto test_daf() -> void;
+    auto test_vdaf() -> void;
+    auto test_vidaf() -> void;
+    //
+    auto test_aggregation_function_name_zero() -> void;
+    auto test_aggregation_function_name_constant() -> void;
+    auto test_aggregation_function_name_count() -> void;
+    auto test_aggregation_function_name_sum() -> void;
+    auto test_aggregation_function_name_histogram() -> void;
+    auto test_aggregation_function_name_popularity() -> void;
+    //
+    auto test_ambiguous_prio() -> void;
+    auto test_ambiguous_prio3() -> void;
+    auto test_ambiguous_poplar() -> void;
+    auto test_ambiguous_poplar1() -> void;
+    //
+    auto test_variant_name() -> void;
+    auto test_variant_func() -> void;
+    auto test_variant_function() -> void;
+    auto test_variant_function_name() -> void;
+    auto test_variant_aggregate() -> void;
+    auto test_variant_aggregation() -> void;
+    auto test_variant_aggregation_function() -> void;
+    auto test_variant_aggregation_function_name() -> void;
+    //
+    auto test_already_af_poplar1() -> void;
+    auto test_already_daf_poplar1() -> void;
+    //
+    auto test_prefix_length_good() -> void;
+    auto test_prefix_length_zero() -> void;
+    auto test_prefix_length_negative() -> void;
+    auto test_prefix_length_too_big() -> void;
+    //
+    auto test_prefix_good() -> void;
+    auto test_prefix_value_good() -> void;
+    auto test_prefix_value_zero() -> void;
+    auto test_prefix_value_negative() -> void;
+    auto test_prefix_value_too_few() -> void;
+    auto test_prefix_value_too_big() -> void;
+    auto test_prefix_value_exact() -> void;
+    auto test_prefix_value_too_many() -> void;
+    //
+    auto test_prefixes_good() -> void;
+    auto test_prefix_series_good() -> void;
+    auto test_prefix_series_empty() -> void;
+    auto test_prefix_series_negative() -> void;
+    auto test_prefix_series_duplicated() -> void;
+    auto test_prefix_series_too_few() -> void;
+    auto test_prefix_series_too_big() -> void;
+    auto test_prefix_series_exact() -> void;
+    auto test_prefix_series_too_many() -> void;
+    //
+    auto test_boundary_good() -> void;
+    auto test_boundary_value_good() -> void;
+    auto test_boundary_value_zero() -> void;
+    auto test_boundary_value_negative() -> void;
+    auto test_boundary_value_too_big() -> void;
+    auto test_boundary_value_too_few() -> void;
+    auto test_boundary_value_exact() -> void;
+    auto test_boundary_value_too_many() -> void;
+    //
+    auto test_boundaries_good() -> void;
+    auto test_boundary_series_good() -> void;
+    auto test_boundary_series_empty() -> void;
+    auto test_boundary_series_negative() -> void;
+    auto test_boundary_series_too_few() -> void;
+    auto test_boundary_series_too_big() -> void;
+    auto test_boundary_series_exact() -> void;
+    auto test_boundary_series_too_many() -> void;
+    auto test_boundary_series_duplicated() -> void;
+    //
+    auto test_conflict_prefix_then_boundary() -> void;
+    auto test_conflict_boundary_then_prefix() -> void;
+    auto test_conflict_sum_then_boundary() -> void;
+    auto test_conflict_sum_then_prefix() -> void;
+  protected:
+    using Exit = cli::exits::Code;
+    template<unsigned EXCESS> auto exercise_boundary_value_excess(Exit) -> void;
+    template<unsigned EXCESS> auto exercise_boundary_series_excess(Exit) -> void;
   };
 }
 #endiv
+#divert <tpp>
+#import std.make_integer_sequence
+#import std.integer_sequence
+#import std.to_string
+#import tunitas.keyston.histogram.Boundaries
+namespace tests::flow::options {
+  template<unsigned EXCESS> auto Options::exercise_boundary_value_excess(Exit expected) -> void {
+    using Prefix_Value = int signed long;
+    constexpr auto const EXACT = tunitas::keyston::histogram::Boundaries{}.size();
+    [expected, this]<Prefix_Value... VALUE>(std::integer_sequence<Prefix_Value, VALUE...>) {
+      exercise(expected, "--prefix-value=" + std::to_string(VALUE)...);
+    }(std::make_integer_sequence<Prefix_Value, EXCESS + EXACT>{});
+  }
+  template<unsigned EXCESS> auto Options::exercise_boundary_series_excess(Exit expected) -> void {
+    using Prefix_Value = int signed long;
+    constexpr auto const EXACT = tunitas::keyston::histogram::Boundaries{}.size();
+    auto series = [this]<Prefix_Value... VALUE>(std::integer_sequence<Prefix_Value, VALUE...>) {
+      return (std::string{"0"} + ... + (","s + std::to_string(VALUE)));
+    }(std::make_integer_sequence<Prefix_Value, EXCESS + EXACT>{});
+    exercise(expected, "--prefix-series=" + series);
+  }
+}
 #divert <cpp>
 namespace tests::flow::options {
   auto Options::test_i() -> void            { exercise(OK, "-i"s); }
@@ -55,14 +159,91 @@ namespace tests::flow::options {
   auto Options::test_program() -> void      { exercise(OK, "--program"s); }
   auto Options::test_programmatic() -> void { exercise(OK, "--programmatic"s); }
   //
-  auto Options::test_f_missing() -> void            { exercise(USAGE, "-f"s); }
-  auto Options::test_f_empty() -> void              { exercise(CONFIGURATION, "-f"s, ""s); }
-  auto Options::test_f_present() -> void            { exercise(OK, "-f"s, "/some/file"s); }
+  auto Options::test_f_missing() -> void { exercise(USAGE, "-f"s); }
+  auto Options::test_f_empty() -> void   { exercise(CONFIGURATION, "-f"s, ""s); }
+  auto Options::test_f_present() -> void { exercise(OK, "-f"s, "/some/file"s); }
   auto Options::test_measurements_missing() -> void      { exercise(USAGE, "--measurements"s); }
   auto Options::test_measurements_empty() -> void        { exercise(CONFIGURATION, "--measurements"s, ""s); }
   auto Options::test_measurements_present() -> void      { exercise(OK, "--measurements"s, "/some/file"s); }
   auto Options::test_measurement_data() -> void          { exercise(OK, "--measurement-data"s, "/some/file"s); }
   auto Options::test_measurement_data_filepath() -> void { exercise(OK, "--measurement-data-filepath"s, "/some/file"s); }
+  //
+  auto Options::test_af() -> void    { exercise(OK, "--af"s); }
+  auto Options::test_daf() -> void   { exercise(OK, "--daf"s); }
+  auto Options::test_vdaf() -> void  { exercise(OK, "--vdaf"s); }
+  auto Options::test_vidaf() -> void { exercise(OK, "--vidaf"s); }
+  //
+  auto Options::test_aggregation_function_name_zero() -> void { exercise(OK, "--aggregation-function-name=zero"s); }
+  auto Options::test_aggregation_function_name_constant() -> void { exercise(OK, "--aggregation-function-name=constant"s); }
+  auto Options::test_aggregation_function_name_count() -> void { exercise(OK, "--aggregation-function-name=count"s); }
+  auto Options::test_aggregation_function_name_sum() -> void { exercise(OK, "--aggregation-function-name=sum"s); }
+  auto Options::test_aggregation_function_name_histogram() -> void { exercise(OK, "--aggregation-function-name=histogram"s); }
+  auto Options::test_aggregation_function_name_popularity() -> void { exercise(OK, "--aggregation-function-name=popularity"s); }
+    //
+  auto Options::test_ambiguous_prio() -> void    { exercise(OK, "--vdaf"s, "--aggregation-function-name=prio"s); }
+  auto Options::test_ambiguous_prio3() -> void   { exercise(OK, "--vdaf"s, "--aggregation-function-name=prio3"s); }
+  auto Options::test_ambiguous_poplar() -> void  { exercise(OK, "--vdaf"s, "--aggregation-function-name=poplar"s); }
+  auto Options::test_ambiguous_poplar1() -> void { exercise(OK, "--vdaf"s, "--aggregation-function-name=poplar1"s); }
+    //
+  auto Options::test_variant_name() -> void                      { exercise(OK, "--name=ZERO"s); }
+  auto Options::test_variant_func() -> void                      { exercise(OK, "--func=ZERO"s); }
+  auto Options::test_variant_function() -> void                  { exercise(OK, "--function=ZERO"s); }
+  auto Options::test_variant_function_name() -> void             { exercise(OK, "--function-name=ZERO"s); }
+  auto Options::test_variant_aggregate() -> void                 { exercise(OK, "--aggregate=ZERO"s); }
+  auto Options::test_variant_aggregation() -> void               { exercise(OK, "--aggregation=ZERO"s); }
+  auto Options::test_variant_aggregation_function() -> void      { exercise(OK, "--aggregation-function=ZERO"s); }
+  auto Options::test_variant_aggregation_function_name() -> void { exercise(OK, "--aggregation-function-name=ZERO"s); }
+  //
+  auto Options::test_already_af_poplar1() -> void  { exercise(CONFIGURATION, "--af"s, "--aggregation-function-name=POPLAR1"s); }
+  auto Options::test_already_daf_poplar1() -> void { exercise(CONFIGURATION, "--daf"s, "--aggregation-function-name=POPLAR1"s); }
+  //
+  auto Options::test_prefix_length_good() -> void     { exercise(OK, "--prefix-length=3"s); }
+  auto Options::test_prefix_length_zero() -> void     { exercise(CONFIGURATION, "--prefix-length=0"s); }
+  auto Options::test_prefix_length_negative() -> void { exercise(CONFIGURATION, "--prefix-length=-1"s); }
+  auto Options::test_prefix_length_too_big() -> void  { exercise(CONFIGURATION, "--prefix-length=9999"s); }
+    //
+  auto Options::test_prefix_good() -> void           { exercise(OK, "--prefix=123"s); }
+  auto Options::test_prefix_value_good() -> void     { exercise(OK, "--prefix-value=123"s); }
+  auto Options::test_prefix_value_zero() -> void     { exercise(OK, "--prefix-value=0"s); }
+  auto Options::test_prefix_value_negative() -> void { exercise(CONFIGURATION, "--prefix-value=-123"s); }
+  auto Options::test_prefix_value_too_big() -> void  { exercise(CONFIGURATION, "--prefix-value=1234567891234567891235467890123456789"s); }
+  auto Options::test_prefix_value_too_few() -> void  { } // can't fail because there is no notion of "too few" prefixes
+  auto Options::test_prefix_value_exact() -> void    { } // eadem ratione
+  auto Options::test_prefix_value_too_many() -> void { } // eadem ratione
+    //
+  auto Options::test_prefixes_good() -> void            { exercise(OK, "--prefixes=1,2,3,4,5,6,7,8,9,10,11,12"s); }
+  auto Options::test_prefix_series_good() -> void       { exercise(OK, "--prefix-series=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"s); }
+  auto Options::test_prefix_series_empty() -> void      { exercise(CONFIGURATION, "--prefix-series="s); }
+  auto Options::test_prefix_series_negative() -> void   { exercise(CONFIGURATION, "--prefix-series=-1,0,1,2"s); }
+  auto Options::test_prefix_series_duplicated() -> void { exercise(OK, "--prefix-series=1,2,3"s, "--prefix-series=4,5,6"s); }
+  auto Options::test_prefix_series_too_big() -> void    { exercise(CONFIGURATION, "--prefix-series=1,234567891234567891234567890123456789,3,4,5,6,7,8,9"s); }
+  auto Options::test_prefix_series_too_few() -> void    { } // can't fail because there is no notion of "too few" prefixes
+  auto Options::test_prefix_series_exact() -> void      { } // eadem ratione
+  auto Options::test_prefix_series_too_many() -> void   { } // eadem ratione
+    //
+  auto Options::test_boundary_good() -> void           { exercise(OK, "--boundary=123"s); }
+  auto Options::test_boundary_value_good() -> void     { exercise(OK, "--boundary-value=123"s); }
+  auto Options::test_boundary_value_zero() -> void     { exercise(OK, "--boundary-value=0"s); }
+  auto Options::test_boundary_value_negative() -> void { exercise(OK, "--boundary-value=123"s); }
+  auto Options::test_boundary_value_too_big() -> void  { exercise(CONFIGURATION, "--boundary-value=123456789012345678901234567890123456789"s); }
+  auto Options::test_boundary_value_too_few() -> void  { exercise(CONFIGURATION, "--boundary-value=1"s, "--boundary-value=2"s, "--boundary-value=3"s); }
+  auto Options::test_boundary_value_exact() -> void    { exercise_boundary_value_excess<0u>(OK); }
+  auto Options::test_boundary_value_too_many() -> void { exercise_boundary_value_excess<1u>(CONFIGURATION); }
+    //
+  auto Options::test_boundaries_good() -> void            { exercise(OK, "--boundaries=123"s); }
+  auto Options::test_boundary_series_good() -> void       { exercise(OK, "--boundary-series=1,2,3,4,5,6,7,8"s); }
+  auto Options::test_boundary_series_empty() -> void      { exercise(CONFIGURATION, "--boundary-series="s); }
+  auto Options::test_boundary_series_negative() -> void   { exercise(CONFIGURATION, "--boundary-series=5,4,3,2,1,0,-1,-2"s); }
+  auto Options::test_boundary_series_too_big() -> void    { exercise(CONFIGURATION, "--boundary-series=0,1,2,3,4,56789012345678901234567890123456789,6,7,8,9"s); }
+  auto Options::test_boundary_series_duplicated() -> void { exercise(OK, "--boundary-series=0,1,2,3,4,5,6,7,8,9"s, "--boundary-series=10,11,12,13,14,15,16,17,18,19"s); }
+  auto Options::test_boundary_series_too_few() -> void    { exercise(OK, "--boundary-series=1,2,3,4,5,6,7,8,9,10"s); }
+  auto Options::test_boundary_series_exact() -> void      { exercise_boundary_series_excess<0u>(OK); }
+  auto Options::test_boundary_series_too_many() -> void   { exercise_boundary_series_excess<1u>(CONFIGURATION); }
+    //
+  auto Options::test_conflict_prefix_then_boundary() -> void { exercise(CONFIGURATION, "--prefix=123"s, "--boundary=123"s); }
+  auto Options::test_conflict_boundary_then_prefix() -> void { exercise(CONFIGURATION, "--boundary=123"s, "--prefix=123"s); }
+  auto Options::test_conflict_sum_then_boundary() -> void    { exercise(CONFIGURATION, "--aggregation-function=SUM"s, "--boundary=123"s); }
+  auto Options::test_conflict_sum_then_prefix() -> void      { exercise(CONFIGURATION, "--aggregation-function=SUM"s, "--prefix=123"s); }
 }
 #import std.integer_sequence
 #import std.make_index_sequence
@@ -72,27 +253,81 @@ auto tests::flow::options::Options::suite() -> Suite {
   auto series = Stream{"options"sv};
   series << stanza("generic"sv)
          << []{
-           auto act = Stream{"interactive"sv};
-           act << add("i", &Options::test_i)
-               << add("interactive", &Options::test_interactive)
-               << END;
-           return act;
-         }()
+              auto act = Stream{"interactive"sv};
+              act << add("i", &Options::test_i)
+                  << add("interactive", &Options::test_interactive)
+                  << END;
+              return act;
+            }()
          << []{
-           auto prog = Stream{"programmatic"sv};
-           prog << add("h", &Options::test_p)
-                << add("program", &Options::test_program)
-                << add("programmatic", &Options::test_programmatic)
+              auto prog = Stream{"programmatic"sv};
+              prog << add("h", &Options::test_p)
+                   << add("program", &Options::test_program)
+                   << add("programmatic", &Options::test_programmatic)
+                   << END;
+              return prog;
+            }()
+         << []{
+              auto mode = Stream{"mode"sv};
+              mode << add("af", &Options::test_af)
+                   << add("daf", &Options::test_daf)
+                   << add("vdaf", &Options::test_vdaf)
+                   << add("vidaf", &Options::test_vidaf)
+                   << END;
+              return mode;
+            }()
+         << []{
+           auto name = Stream{"aggregation-function-name"sv};
+           name << []{
+                    auto can = Stream{"canonical"sv};
+                    can << add("zero", &Options::test_aggregation_function_name_zero)
+                        << add("constant", &Options::test_aggregation_function_name_constant)
+                        << add("count", &Options::test_aggregation_function_name_count)
+                        << add("sum", &Options::test_aggregation_function_name_sum)
+                        << add("histogram", &Options::test_aggregation_function_name_histogram)
+                        << add("popularity", &Options::test_aggregation_function_name_popularity)
+                        << END;
+                    return can;
+                    }()
+                << []{
+                    auto amb = Stream{"ambiguous"sv};
+                    amb << add("prio", &Options::test_ambiguous_prio)
+                        << add("prio3", &Options::test_ambiguous_prio3)
+                        << add("poplar", &Options::test_ambiguous_poplar)
+                        << add("poplar1", &Options::test_ambiguous_poplar1)
+                        << END;
+                    return amb;
+                    }()
+                << []{
+                    auto var = Stream{"variants"sv};
+                    var << add("name", &Options::test_variant_name)
+                        << add("func", &Options::test_variant_func)
+                        << add("function", &Options::test_variant_function)
+                        << add("function-name", &Options::test_variant_function_name)
+                        << add("aggregate", &Options::test_variant_aggregate)
+                        << add("aggregation", &Options::test_variant_aggregation)
+                        << add("aggregation-function", &Options::test_variant_aggregation_function)
+                        << add("aggregation-function-name", &Options::test_variant_aggregation_function_name)
+                        << END;
+                    return var;
+                    }()
+                << []{
+                    auto amb = Stream{"already"sv};
+                    amb << add("af,poplar1", &Options::test_already_af_poplar1)
+                        << add("daf,poplar1", &Options::test_already_daf_poplar1)
+                        << END;
+                    return amb;
+                    }()
                 << END;
-           return prog;
+           return name;
          }()
          << []{
            auto mea = Stream{"measurement-data"sv};
            mea << []{
                    auto eff = Stream{"-f"sv};
                    eff << add("missing", &Options::test_f_missing)
-                     << add("empty", &Options::test_f_empty)
-                     << add("present", &Options::test_f_present)
+                       << add("empty", &Options::test_f_empty)
+                       << add("present", &Options::test_f_present)
                        << END;
                    return eff;
                  }()
@@ -109,15 +344,104 @@ auto tests::flow::options::Options::suite() -> Suite {
                << END;
            return mea;
          }()
-#if 0
          << []{
-           auto life = Stream{"simulation-lifetime"sv};
-           [&life]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
-             ((life << add(std::to_string(INDEX), &Options::test_simulation_lifetime<INDEX>)), ...);
-           }(std::make_index_sequence<SIMULATION_LIFETIME_COUNT>{});
-           return life;
+              auto hi = Stream{"histogram"sv};
+              hi << []{
+                      auto pv = Stream{"boundary"sv};
+                      pv << add("good", &Options::test_boundary_good)
+                         << END;
+                      return pv;
+                    }()
+                 << []{
+                      auto pv = Stream{"boundary-value"sv};
+                      pv << add("good", &Options::test_boundary_value_good)
+                         << add("zero", &Options::test_boundary_value_zero)
+                         << add("negative", &Options::test_boundary_value_negative)
+                         << add("too-big", &Options::test_boundary_value_too_big)
+                         << add("too-few", &Options::test_boundary_value_too_few)
+                         << add("exact", &Options::test_boundary_value_exact)
+                         << add("too-many", &Options::test_boundary_value_too_many)
+                         << END;
+                      return pv;
+                    }()
+                 << []{
+                      auto ps = Stream{"boundaries"sv};
+                      ps << add("good", &Options::test_boundaries_good)
+                         << END;
+                      return ps;
+                    }()
+                 << []{
+                      auto ps = Stream{"boundary-series"sv};
+                      ps << add("good", &Options::test_boundary_series_good)
+                         << add("empty", &Options::test_boundary_series_empty)
+                         << add("negative", &Options::test_boundary_series_negative)
+                         << add("too-big", &Options::test_boundary_series_too_big)
+                         << add("too-many", &Options::test_boundary_series_too_many)
+                         << END;
+                      return ps;
+                    }()
+                 << END;
+              return hi;
+           }()
+         << []{
+              auto po = Stream{"popularity"sv};
+              po << []{
+                     auto pl = Stream{"prefix-length"sv};
+                     pl << add("good", &Options::test_prefix_length_good)
+                        << add("zero", &Options::test_prefix_length_zero)
+                        << add("negative", &Options::test_prefix_length_negative)
+                        << add("too-big", &Options::test_prefix_length_too_big)
+                        << END;
+                     return pl;
+                   }()
+                 << []{
+                      auto pv = Stream{"prefix"sv};
+                      pv << add("good", &Options::test_prefix_good)
+                         << END;
+                      return pv;
+                    }()
+                 << []{
+                      auto pv = Stream{"prefix-value"sv};
+                      pv << add("good", &Options::test_prefix_value_good)
+                         << add("zero", &Options::test_prefix_value_zero)
+                         << add("negative", &Options::test_prefix_value_negative)
+                         << add("too-big", &Options::test_prefix_value_too_big)
+                         << add("exact", &Options::test_prefix_value_exact)
+                         << add("too-many", &Options::test_prefix_value_too_many)
+                         << END;
+                      return pv;
+                    }()
+                 << []{
+                      auto ps = Stream{"prefixes"sv};
+                      ps << add("good", &Options::test_prefixes_good)
+                         << END;
+                      return ps;
+                    }()
+                 << []{
+                      auto ps = Stream{"prefix-series"sv};
+                      ps << add("good", &Options::test_prefix_series_good)
+                         << add("empty", &Options::test_prefix_series_empty)
+                         << add("negative", &Options::test_prefix_series_negative)
+                         << add("too-big", &Options::test_prefix_series_too_big)
+                         << add("duplicated", &Options::test_prefix_series_duplicated)
+                         << add("too-many", &Options::test_prefix_series_too_few)
+                         << add("too-many", &Options::test_prefix_series_exact)
+                         << add("too-many", &Options::test_prefix_series_too_many)
+                         << END;
+                      return ps;
+                    }()
+                 << END;
+              return po;
+           }()
+         << []{
+           auto con = Stream{"conflict"sv};
+           con << add("prefix-then-boundary", &Options::test_conflict_prefix_then_boundary)
+               << add("boundary-then-prefix", &Options::test_conflict_boundary_then_prefix)
+               << add("sum-then-prefix", &Options::test_conflict_sum_then_prefix)
+               << add("sum-then-boundary", &Options::test_conflict_sum_then_boundary)
+               << END;
+           return con;
          }()
-#endif
          << END;
   return settle(series);
 }

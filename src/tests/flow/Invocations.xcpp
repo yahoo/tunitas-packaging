@@ -4,9 +4,18 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
+#import tests.required // ctcnr
+#import nonstd.required.Convertible_To
 namespace tests::flow {
   namespace [[eponymous]] invocations {
     struct Invocations;
+    namespace required {
+      using namespace tests::required;
+      template<typename ADDRESSER> concept Addresser = requires(ADDRESSER) {
+        { ADDRESSER::template MEMBER<0> } -> Convertible_To<void (Invocations::*)()>;
+        { ADDRESSER::COUNT } -> Convertible_To<unsigned>;
+      };
+    }
   }
   using invocations::Invocations;
 }
@@ -29,11 +38,62 @@ namespace tests::flow {
     template<unsigned> auto test_interactive() -> void;
     template<unsigned> auto test_programmatic() -> void;
     //
+    // shows that the aggregation-mode adn
+    template<unsigned> auto test_each_af_null() -> void;
+    template<unsigned> auto test_each_daf_null() -> void;
+    template<unsigned> auto test_each_vdaf_null() -> void;
+    template<unsigned> auto test_each_vidaf_null() -> void;
+    //
+    template<unsigned> auto test_each_af_list() -> void;
+    template<unsigned> auto test_each_daf_list() -> void;
+    //
     template<unsigned> auto test_sum() -> void;
+  protected:
+    struct Addresser;
+    template<required::Addresser ADDRESSER> static auto stanza(string::View name) -> Stream;
   };
+  namespace invocations {
+    struct Invocations::Addresser {
+      struct Each {
+        struct AF {
+          struct Null;
+          struct List;
+        };
+        struct DAF {
+          struct Null;
+          struct List;
+        };
+        struct VDAF {
+          struct Null;
+        };
+        struct VIDAF {
+          struct Null;
+        };
+      };
+      struct Sum;
+    };
+  }
+}
+#endiv
+#divert <tpp>
+#import std.index_sequence
+#import std.make_index_sequence
+#import std.to_string
+#import std.size_t
+namespace tests::flow::invocations {
+  template<required::Addresser ADDRESSER> auto Invocations::stanza(string::View name) -> Stream {
+    auto sub = Stream{name};
+    [&sub]<std::size_t... INDEX>(std::index_sequence<INDEX...>) {
+      ((sub << add(std::to_string(INDEX), ADDRESSER::template MEMBER<INDEX>)), ...);
+    }(std::make_index_sequence<ADDRESSER::COUNT>{});
+    return sub;
+  }
 }
 #endiv
 #divert <cpp>
+//
+// Specializations must be presented before suite() so that it can see them before taking their address
+//
 namespace tests::flow::invocations {
   auto Invocations::test_zero() -> void  { exercise(CONFIGURATION); } // no direction has been given and the measurement data file is not set (what to do?)
   auto Invocations::test_empty() -> void { exercise(USAGE, ""); }
@@ -44,13 +104,77 @@ namespace tests::flow::invocations {
   template<> auto Invocations::test_programmatic<0>() -> void { exercise(UNIMPLEMENTED, "--program"s); }
   template<> auto Invocations::test_programmatic<1>() -> void { exercise(UNIMPLEMENTED, "--programmatic"s); }
   //
-  template<> auto Invocations::test_sum<0>() -> void { exercise(OK, "--measurements"s, "/dev/null"s); }
-  template<> auto Invocations::test_sum<1>() -> void { exercise(OK, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_sum.list"s); }
+  template<> auto Invocations::test_each_af_null<0>() -> void { exercise(OK, "--af"s, "--measurements"s, "/dev/null"s, "--function=ZERO"s); }
+  template<> auto Invocations::test_each_af_null<1>() -> void { exercise(OK, "--af"s, "--measurements"s, "/dev/null"s, "--function=CONSTANT"s); }
+  template<> auto Invocations::test_each_af_null<2>() -> void { exercise(OK, "--af"s, "--measurements"s, "/dev/null"s, "--function=COUNT"s); }
+  template<> auto Invocations::test_each_af_null<3>() -> void { exercise(OK, "--af"s, "--measurements"s, "/dev/null"s, "--function=SUM"s); }
+  template<> auto Invocations::test_each_af_null<4>() -> void { exercise(OK, "--af"s, "--measurements"s, "/dev/null"s, "--function=HISTOGRAM"s, "--boundaries=1,3,5,7,9,11"s); }
+  template<> auto Invocations::test_each_af_null<5>() -> void { exercise(OK, "--af"s, "--measurements"s, "/dev/null"s, "--function=POPULARITY"s, "--prefix-length=7"s, "--prefixes=1,3,5,7,9,11"s); }
+  struct Invocations::Addresser::Each::AF::Null {
+    template<unsigned INDEX> inline static constexpr auto MEMBER = &Invocations::test_each_af_null<INDEX>;
+    inline static constexpr auto COUNT{6uz};
+  };
+  template<> auto Invocations::test_each_af_list<0>() -> void { exercise(OK, "--af"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=ZERO"s); }
+  template<> auto Invocations::test_each_af_list<1>() -> void { exercise(OK, "--af"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=CONSTANT"s); }
+  template<> auto Invocations::test_each_af_list<2>() -> void { exercise(OK, "--af"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=COUNT"s); }
+  template<> auto Invocations::test_each_af_list<3>() -> void { exercise(OK, "--af"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=SUM"s); }
+  template<> auto Invocations::test_each_af_list<4>() -> void { exercise(OK, "--af"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=HISTOGRAM"s, "--boundaries=1,3,5,7,9,11"s); }
+  template<> auto Invocations::test_each_af_list<5>() -> void { exercise(OK, "--af"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=POPULARITY"s, "--prefix-length=3"s, "--prefixes=1,3,5"s); }
+  struct Invocations::Addresser::Each::AF::List {
+    template<unsigned INDEX> inline static constexpr auto MEMBER = &Invocations::test_each_af_list<INDEX>;
+    inline static constexpr auto COUNT{6uz};
+  };
+  // the DAF cannot tolerate empty input (nothing to aggregate, nothing to reassemble)
+  template<> auto Invocations::test_each_daf_null<0>() -> void { exercise(ALGORITHM, "--daf"s, "--measurements"s, "/dev/null"s, "--function=ZERO"s); }
+  template<> auto Invocations::test_each_daf_null<1>() -> void { exercise(ALGORITHM, "--daf"s, "--measurements"s, "/dev/null"s, "--function=CONSTANT"s); }
+  template<> auto Invocations::test_each_daf_null<2>() -> void { exercise(ALGORITHM, "--daf"s, "--measurements"s, "/dev/null"s, "--function=COUNT"s); }
+  template<> auto Invocations::test_each_daf_null<3>() -> void { exercise(ALGORITHM, "--daf"s, "--measurements"s, "/dev/null"s, "--function=SUM"s); }
+  template<> auto Invocations::test_each_daf_null<4>() -> void { exercise(ALGORITHM, "--daf"s, "--measurements"s, "/dev/null"s, "--function=HISTOGRAM"s, "--boundaries=1,3,5,7,9,11"s); }
+  template<> auto Invocations::test_each_daf_null<5>() -> void { exercise(UNIMPLEMENTED, "--daf"s, "--measurements"s, "/dev/null"s, "--function=POPULARITY"s, "--prefix-length=3"s, "--prefixes=1,3,5"s); }
+  struct Invocations::Addresser::Each::DAF::Null {
+    template<unsigned INDEX> inline static constexpr auto MEMBER = &Invocations::test_each_daf_null<INDEX>;
+    inline static constexpr auto COUNT{6uz};
+  };
+  template<> auto Invocations::test_each_daf_list<0>() -> void { exercise(OK, "--daf"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=ZERO"s); }
+  template<> auto Invocations::test_each_daf_list<1>() -> void { exercise(OK, "--daf"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=CONSTANT"s); }
+  template<> auto Invocations::test_each_daf_list<2>() -> void { exercise(OK, "--daf"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=COUNT"s); }
+  template<> auto Invocations::test_each_daf_list<3>() -> void { exercise(OK, "--daf"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=SUM"s); }
+  template<> auto Invocations::test_each_daf_list<4>() -> void { exercise(OK, "--daf"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=HISTOGRAM"s, "--boundaries=1,3,5,7,9,11"s); }
+  template<> auto Invocations::test_each_daf_list<5>() -> void { exercise(UNIMPLEMENTED, "--daf"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_123.list"s, "--function=POPULARITY"s, "--prefix-length=3"s, "--prefixes=1,3,5"s); }
+  struct Invocations::Addresser::Each::DAF::List {
+    template<unsigned INDEX> inline static constexpr auto MEMBER = &Invocations::test_each_daf_list<INDEX>;
+    inline static constexpr auto COUNT{6uz};
+  };
+  template<> auto Invocations::test_each_vdaf_null<0>() -> void { exercise(OK, "--vdaf"s, "--measurements"s, "/dev/null"s, "--function=ZERO"s); }
+  template<> auto Invocations::test_each_vdaf_null<1>() -> void { exercise(OK, "--vdaf"s, "--measurements"s, "/dev/null"s, "--function=CONSTANT"s); }
+  template<> auto Invocations::test_each_vdaf_null<2>() -> void { exercise(OK, "--vdaf"s, "--measurements"s, "/dev/null"s, "--function=COUNT"s); }
+  template<> auto Invocations::test_each_vdaf_null<3>() -> void { exercise(OK, "--vdaf"s, "--measurements"s, "/dev/null"s, "--function=SUM"s); }
+  template<> auto Invocations::test_each_vdaf_null<4>() -> void { exercise(OK, "--vdaf"s, "--measurements"s, "/dev/null"s, "--function=HISTOGRAM"s, "--boundaries=1,3,5,7,9,11"s); }
+  template<> auto Invocations::test_each_vdaf_null<5>() -> void { exercise(OK, "--vdaf"s, "--measurements"s, "/dev/null"s, "--function=POPULARITY"s, "--prefix-length=3"s, "--prefixes=1,3,5"s); }
+  struct Invocations::Addresser::Each::VDAF::Null {
+    template<unsigned INDEX> inline static constexpr auto MEMBER = &Invocations::test_each_vdaf_null<INDEX>;
+    inline static constexpr auto COUNT{0uz};
+  };
+  template<> auto Invocations::test_each_vidaf_null<0>() -> void { exercise(OK, "--vidaf"s, "--measurements"s, "/dev/null"s, "--function=ZERO"s); }
+  template<> auto Invocations::test_each_vidaf_null<1>() -> void { exercise(OK, "--vidaf"s, "--measurements"s, "/dev/null"s, "--function=CONSTANT"s); }
+  template<> auto Invocations::test_each_vidaf_null<2>() -> void { exercise(OK, "--vidaf"s, "--measurements"s, "/dev/null"s, "--function=COUNT"s); }
+  template<> auto Invocations::test_each_vidaf_null<3>() -> void { exercise(OK, "--vidaf"s, "--measurements"s, "/dev/null"s, "--function=SUM"s); }
+  template<> auto Invocations::test_each_vidaf_null<4>() -> void { exercise(OK, "--vidaf"s, "--measurements"s, "/dev/null"s, "--function=HISTOGRAM"s, "--boundaries=1,3,5,7,9,11"s); }
+  template<> auto Invocations::test_each_vidaf_null<5>() -> void { exercise(OK, "--vidaf"s, "--measurements"s, "/dev/null"s, "--function=POPULARITY"s, "--prefix-length=3"s, "--prefixes=1,3,5"s); }
+  struct Invocations::Addresser::Each::VIDAF::Null {
+#if 0
+    template<unsigned INDEX> inline static constexpr auto MEMBER = &Invocations::test_each_vidaf_null<INDEX>;
+#endif
+    inline static constexpr auto COUNT{0uz};
+  };
+  //
+  template<> auto Invocations::test_sum<0>() -> void { exercise(OK, "--af"s, "--function=SUM"s, "--measurements"s, "/dev/null"s); }
+  template<> auto Invocations::test_sum<1>() -> void { exercise(OK, "--af"s, "--function=SUM"s, "--measurements"s, "tests/flow-alambique/tests.flow.invocations.Invocations.test_sum.list"s); }
+  struct Invocations::Addresser::Sum {
+    template<unsigned INDEX> inline static constexpr auto MEMBER = &Invocations::test_sum<INDEX>;
+    inline static constexpr auto COUNT{2uz};
+  };
 }
-#import std.integer_sequence
-#import std.make_index_sequence
-#import std.to_string
-#import std.size_t
 auto tests::flow::invocations::Invocations::suite() -> Suite {
   auto series = Stream{"invocations"sv};
   series << add("zero", &Invocations::test_zero)
@@ -69,12 +193,39 @@ auto tests::flow::invocations::Invocations::suite() -> Suite {
            return act;
          }()
          << []{
-           auto sum = Stream{"sum"sv};
-           sum << add("0", &Invocations::test_sum<0>)
-               << add("1", &Invocations::test_sum<1>)
-               << END;
-           return sum;
+           auto each = Stream{"each"sv};
+           each << []{
+                    auto af = Stream{"af"sv};
+                    af << stanza<Addresser::Each::AF::Null>("null"sv)
+                       << stanza<Addresser::Each::AF::List>("list"sv)
+                       << END;
+                    return af;
+                  }()
+                << []{
+                     auto daf = Stream{"daf"sv};
+                     daf << stanza<Addresser::Each::DAF::Null>("null"sv)
+                         << stanza<Addresser::Each::DAF::List>("list"sv)
+                        << END;
+                     return daf;
+                   }()
+                << []{
+                     auto vdaf = Stream{"vdaf"sv};
+                     vdaf << stanza<Addresser::Each::VDAF::Null>("null"sv)
+                        << END;
+                     return vdaf;
+                   }()
+                << []{
+                     auto vidaf = Stream{"vidaf"sv};
+#if 0
+                     vidaf << stanza<Addresser::Each::VIDAF::Null>("null"sv)
+                           << END;
+#endif
+                     return vidaf;
+                   }()
+                << END;
+           return each;
          }()
+         << stanza<Addresser::Sum>("sum"sv)
 #if 0
          << []{
            auto life = Stream{"simulation-lifetime"sv};

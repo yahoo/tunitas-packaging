@@ -4,10 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tunitas.alambique.function
-#import tunitas.alambique.required
-namespace tunitas::alambique::function::required {
-  using namespace tunitas::required;
-  namespace [[nodirectory]] project { }
-}
+#import tunitas.alambique
+namespace tunitas::alambique::demonstrator { }
 #endiv

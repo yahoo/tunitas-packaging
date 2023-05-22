@@ -5,9 +5,9 @@
 // For terms, see the LICENSE file at https://git.tflowas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
 #import tests
-#import cli.exits.constants // or app.exits.constants if that becomes available
+#import app.exits.constants // or app.exits.constants if that becomes available
 namespace tests::flow {
-  using namespace cli::exits::constants;
+  using namespace app::exits::constants;
 }
 #endiv
 #divert <hpp>

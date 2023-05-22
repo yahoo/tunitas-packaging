@@ -6,12 +6,7 @@
 #
 tunitas_alambique_SUBSOURCES = \
   obj/src/tunitas/alambique/namespace.cpp \
-  obj/src/tunitas/alambique/Demonstrator.template.cpp \
-  obj/src/tunitas/alambique/Demonstrator.VIDAF.cpp \
-  obj/src/tunitas/alambique/Demonstrator.VDAF.cpp \
-  obj/src/tunitas/alambique/Demonstrator.DAF.cpp \
-  obj/src/tunitas/alambique/Demonstrator.AF.cpp \
-  obj/src/tunitas/alambique/Demonstrator.cpp \
+  $(tunitas_alambique_demonstrator_SUBSOURCES) \
   $(tunitas_alambique_error_SUBSOURCES) \
   $(tunitas_alambique_exception_SUBSOURCES) \
   $(tunitas_alambique_function_SUBSOURCES) \
@@ -20,6 +15,7 @@ tunitas_alambique_SUBSOURCES = \
   $(tunitas_alambique_version_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/alambique/demonstrator/Makefrag.am
 include src/tunitas/alambique/error/Makefrag.am
 include src/tunitas/alambique/exception/Makefrag.am
 include src/tunitas/alambique/function/Makefrag.am

@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-namespace tunitas::alambique {
+namespace tunitas::alambique::demonstrator {
   //
   // The demonstrators of DAF and VDAF
   //

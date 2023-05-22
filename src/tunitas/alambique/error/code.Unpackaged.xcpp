@@ -15,6 +15,9 @@ namespace tunitas::alambique::error::code {
       FAILURE, // ........ sic, generic failure
       //
       // Add new entries here and in Category
+      VACUOUS,
+      AMBIGUOUS,
+      CONFLICT,
     };
     using enum Enumeration;
   };

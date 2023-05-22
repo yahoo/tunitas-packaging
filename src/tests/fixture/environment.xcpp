@@ -13,7 +13,7 @@
 //     using namespace ::cli::exits::constants; .......... because there MAY be a namespace tests::something::app
 //   }
 //
-#import cli.exits.constants
+#import app.exits.constants
 #endiv
 #divert <hpp>
 //

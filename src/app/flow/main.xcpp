@@ -1,4 +1,4 @@
-// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+OPTION// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
@@ -36,14 +36,18 @@ namespace app::flow::package_main {
 #endiv
 #divert <hpp>
 #import app.flow.Configuration
-namespace app::flow::package_main {
-  namespace body {
-    namespace exported {
-      inline auto main(int, char *[]) -> Exit;
-      auto main(Argv) -> Exit;
-      auto main([[inout]] Console &, [[inout]] Configuration &, Argv) -> Exit;
-    }
+#import tunitas.alambique.function.resolve
+#import tunitas.error.by.Outcome
+#import tunitas.error.by.Exception
+namespace app::flow::package_main::body {
+  namespace exported {
+    inline auto main(int, char *[]) -> Exit;
+    auto main(Argv) -> Exit;
+    auto main([[inout]] Console &, [[inout]] Configuration &, Argv) -> Exit;
   }
+  using tunitas::alambique::function::resolve;
+  inline constexpr auto OUTCOME = tunitas::error::by::Outcome{};
+  inline constexpr auto EXCEPTION = tunitas::error::by::Exception{};
 }
 #endiv
 #divert <ipp>
@@ -94,9 +98,16 @@ namespace app::flow::package_main {
       notice(exp) << "use " << q("--measurement-data-filepath=FILEPATH"sv) << " or " << q("--usage"sv) << '\n';
       error(exp) << "the measurement-data file is not defined\n";
       return CONFIGURATION;
+    } else if (!cfg.aggregation_function_names) {
+      error(exp) << "an aggregation-function has not been named\n";
+      return CONFIGURATION;
+    } else if (auto resolved=resolve(OUTCOME, cfg.aggregation_function_mode, *cfg.aggregation_function_names); fail(resolved)) {
+      debug(exp) << "aggregation-function-mode " << q(to_string(EXCEPTION, *cfg.aggregation_function_mode)) << '\n';
+      error(exp) << "cannot intuit the aggregation-function mode and name because " << error_code(resolved).message() << '\n';
+      return CONFIGURATION;
     } else {
       debug(exp) << "running!\n";
-      return run(exp, cfg);
+      return run(exp, cfg, *cfg.measurement_data_filepath, value(resolved));
     }
   } catch (cli::exception::feature::Quitting const &q) {
     q.stream() << q.what() << '\n';

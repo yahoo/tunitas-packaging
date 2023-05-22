@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <hpp>
+#import tunitas.alambique.function.Resolved
+#import tunitas.alambique.function.Estimates
+#import tunitas.alambique.function.Mode
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+namespace tunitas::alambique::function {
+  namespace estimates {
+    //
+    // If the name is one-hot then return that; else return emptiness
+    //
+    // Specification:
+    //
+    // Design:
+    //
+    //   In this namespace so that ADL will find them.
+    //
+    // Usage:
+    //
+    //
+    //   auto estimates = Estimates{...somehow...};
+    //   auto forced    = Mode{...somehow...};
+    //   auto maybe     = Optional<Mode>{...somehow...};
+    //  
+    //   auto resolved = resolve(estimates);
+    //   auto resolved = resolve(forced, estimates);
+    //   auto resolved = resolve(maybe, estimates);
+    //
+    inline auto resolve(error::by::Optional, Estimates const &) -> error::Optional<Resolved>;
+    inline auto resolve(error::by::Optional, Mode constraint, Estimates const &source) -> error::Optional<Resolved> { return source.project<Resolved>(constraint); }
+    inline auto resolve(error::by::Optional, Optional<Mode>, Estimates const &) -> error::Optional<Resolved>;
+    //
+    inline auto resolve(error::by::Outcome, Estimates const &) -> error::Outcome<Resolved>;
+    inline auto resolve(error::by::Outcome, Mode, Estimates const &) -> error::Outcome<Resolved>;
+    inline auto resolve(error::by::Outcome, Optional<Mode>, Estimates const &) -> error::Outcome<Resolved>;
+  }
+  //
+  // Where they re expected to be.
+  using estimates::resolve;
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.function.explain
+namespace tunitas::alambique::function {
+  auto estimates::resolve(error::by::Optional, Estimates const &source) -> error::Optional<Resolved> {
+    auto const &[af, daf, vdaf] = source;
+    if (af && !daf && !vdaf) {
+      return {af};
+    } else if (!af && daf && !vdaf) {
+      return {daf};
+    } else if (!af && !daf && vdaf) {
+      return {vdaf};
+    } else {
+      return {};
+    };
+  }
+  auto estimates::resolve(error::by::Optional by, Optional<Mode> constraint, Estimates const &source ) -> error::Optional<Resolved> {
+    if (constraint) {
+      return resolve(by, *constraint, source);
+    } else {
+      return resolve(by, source);
+    }
+  }
+  //
+  auto estimates::resolve(error::by::Outcome by, Estimates const &source) -> error::Outcome<Resolved>                               { return explain(resolve(error::by::Optional{}, source), source); }
+  auto estimates::resolve(error::by::Outcome by, Mode constraint, Estimates const &source) -> error::Outcome<Resolved>              { return explain(resolve(error::by::Optional{}, constraint, source), constraint, source); }
+  auto estimates::resolve(error::by::Outcome by, Optional<Mode> constraint, Estimates const &source) -> error::Outcome<Resolved>    { return explain(resolve(error::by::Optional{}, constraint, source), constraint, source); }
+}
+#endiv
