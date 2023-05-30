@@ -6,7 +6,7 @@
 #divert <fpp>
 #import nonstd.required.Same_As
 #import nonstd.required.Convertible_To
-#import nonstd.required.Integer
+#import tunitas.integer.required.Integer
 #import tunitas.tuple.Element
 #import tunitas.tuple.Tuple
 #import std.remove_cvref
@@ -19,7 +19,7 @@ namespace tunitas::keyston::array::required {
   //   Whereas the convention is to put the control channel and the data channel together in the constructor without ceremony;
   //   Herewith find some ceremony to disambiguate the size-inducing conversion constructor and the initializer list constructor.
   //
-  //   Ambiguity arises in the descendants when Integer<VALUE>
+  //   Ambiguity arises in the descendants when the initializer list contains integers; e.g. int8_t ... uint8192_t
   //   e.g. consider Container<int>
   //
   //     Container{3};            ... an array of three elemnets, value initialized (to zero)

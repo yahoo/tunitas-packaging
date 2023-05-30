@@ -15,9 +15,10 @@ namespace tests::unit::daf::numeric::count {
   struct Fixture::Expected : public Palette {
     class Disassembly {
       class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Count const &that) -> Configuration::Input<SHARE>::Count { return that; })> { };
+      using El = Element<64>;
     public:
-      inline static constexpr auto const ZERO = Configuration::Input<SHARE>::Count{0u};
-      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Count{1u}; // because 9876 counts as one (1) record; see prio::Algorithm<COUNT>::encode(...)
+      inline static constexpr auto const ZERO = Configuration::Input<SHARE>::Count{El{0u}};
+      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Count{El{1u}}; // because 9876 counts as one (1) record; see prio::Algorithm<COUNT>::encode(...)
       _Treatment treatment{};
     };
     class Computation {
@@ -29,9 +30,10 @@ namespace tests::unit::daf::numeric::count {
     };
     class Amalgamation {
       class _Treatment : public Treatment<decltype([](Configuration::Aggregation<SHARE>::Count const &that) -> Configuration::Aggregation<SHARE>::Count { return that; })> { };
+      using El = Element<64>;
     public:
-      inline static constexpr auto const ZERO = Configuration::Aggregation<SHARE>::Count{0u};
-      inline static constexpr auto const AMALGAMATED = Configuration::Aggregation<SHARE>::Count{3u};
+      inline static constexpr auto const ZERO = Configuration::Aggregation<SHARE>::Count{El{0u}};
+      inline static constexpr auto const AMALGAMATED = Configuration::Aggregation<SHARE>::Count{El{3u}};
       _Treatment treatment{};
     };
     class Reassembly {

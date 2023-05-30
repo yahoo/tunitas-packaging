@@ -34,7 +34,7 @@ namespace tunitas::keyston::prio {
     using Encoded = Field::Vector<ENCODED_LENGTH.count()>;
     using Truncated = Encoded;
     using Decoded = measurement::Histogram;
-    using Processed = measurement::Count; // ... the record count itself
+    using Processed = measurement::Records; // ... the record count itself
     using Result [[deprecated("instead use Algorithm<HISTOGRAM>::Decoded")]] = Decoded;
     using Boundaries = histogram::Boundaries;
     inline static auto encode(Measurement, Boundaries const &) -> Encoded;
@@ -56,13 +56,14 @@ namespace tunitas::keyston::prio {
   }
   auto Algorithm<HISTOGRAM>::encode(Measurement specimen, Boundaries const &boundaries) -> Encoded {
     auto encoded = Encoded{};
+    constexpr auto const ONE = Field::Element{1u};
     for (auto index : std::views::iota(0u, Buckets::COUNT.count())) {
       if (specimen <= boundaries.at(index)) {
-        encoded.at(index) = 1u;
+        encoded.at(index) = ONE;
         return encoded;
       }
     }
-    encoded.at(INDEX_INFINITY) = 1u;
+    encoded.at(INDEX_INFINITY) = ONE;
     return encoded;
   }
   auto Algorithm<HISTOGRAM>::decode(Truncated const &encoded, Processed) -> Decoded {

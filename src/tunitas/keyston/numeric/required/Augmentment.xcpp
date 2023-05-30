@@ -5,15 +5,17 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.field.required.Vector
+#import nonstd.required.Class
 namespace tunitas::keyston::numeric::required {
   //
   // Is this type a (class) functor suitable for use with numeric::Augmentment<FUNCTOR>?
   //
   namespace [[eponymous]] augmentment {
-    template<typename LHS> concept Left = field::required::Vector<LHS> || Same_As<LHS, number::Integer>;
-    template<typename RHS> concept Right = field::required::Vector<RHS> || Same_As<RHS, number::Integer>;
+    template<typename RHS> concept Right = field::required::Vector<RHS> || field::required::Element<RHS>;
+    template<typename LHS, typename RHS> concept Left = ((field::required::Vector<LHS> && field::required::Vector<RHS>) ||
+                                                         (field::required::Element<LHS> && Right<RHS>));
     template<typename AUGMENTMENT, typename LHS, typename RHS> concept Callable_As_Such = requires(AUGMENTMENT augmentment, LHS &&lhs, RHS const &rhs) {
-      requires Left<LHS>;
+      requires Left<LHS, RHS>;
       requires Right<RHS>;
       { augmentment(static_cast<LHS &&>(lhs), rhs) };
     };

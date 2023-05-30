@@ -6,8 +6,7 @@
 #
 tunitas_keyston_field_required_SUBSOURCES = \
   obj/src/tunitas/keyston/field/required/namespace.cpp \
-  obj/src/tunitas/keyston/field/required/generator.Generator.cpp \
+  obj/src/tunitas/keyston/field/required/Field.cpp \
   obj/src/tunitas/keyston/field/required/Element.cpp \
-  obj/src/tunitas/keyston/field/required/Subelement.cpp \
   obj/src/tunitas/keyston/field/required/Vector.cpp \
   $(end)

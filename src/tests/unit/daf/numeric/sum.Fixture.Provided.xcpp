@@ -11,6 +11,7 @@
 #include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Count{...}
 namespace tests::unit::daf::numeric::sum {
   struct Fixture::Provided : public Palette {
+    using El = Element<128>;
     struct Disassembly {
       inline static constexpr auto ONE = Specimen{1};
       inline static constexpr auto TWO = Specimen{2};
@@ -18,17 +19,17 @@ namespace tests::unit::daf::numeric::sum {
     };
     struct Computation {
       // CANARY=3296; ( echo obase=2; echo $CANARY ) | bc | rev | sed -e 's/./&u, /g'
-      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Sum{0u, 0u, 0u, 0u, 0u, 1u, 1u, 1u, 0u, 0u, 1u, 1u};
+      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Sum{El{0u}, El{0u}, El{0u}, El{0u}, El{0u}, El{1u}, El{1u}, El{1u}, El{0u}, El{0u}, El{1u}, El{1u}};
     };
     struct Amalgamation {
-      inline static constexpr auto const ZERO = Configuration::Output<SHARE>::Sum{0u};
-      inline static constexpr auto const ONE = Configuration::Output<SHARE>::Sum{1u};
-      inline static constexpr auto const TWO = Configuration::Output<SHARE>::Sum{2u};
-      inline static constexpr auto const THREE = Configuration::Output<SHARE>::Sum{3u};
+      inline static constexpr auto const ZERO = Configuration::Output<SHARE>::Sum{El{0u}};
+      inline static constexpr auto const ONE = Configuration::Output<SHARE>::Sum{El{1u}};
+      inline static constexpr auto const TWO = Configuration::Output<SHARE>::Sum{El{2u}};
+      inline static constexpr auto const THREE = Configuration::Output<SHARE>::Sum{El{3u}};
     };
     struct Reassembly {
-      inline static constexpr auto const TWO = Configuration::Aggregation<SHARE>::Sum{2u};
-      inline static constexpr auto const THREE = Configuration::Aggregation<SHARE>::Sum{3u};
+      inline static constexpr auto const TWO = Configuration::Aggregation<SHARE>::Sum{El{2u}};
+      inline static constexpr auto const THREE = Configuration::Aggregation<SHARE>::Sum{El{3u}};
     };
   };
 }

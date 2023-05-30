@@ -4,35 +4,15 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.number.Integer
-#import tunitas.keyston.measurement.Histogram
-#import tunitas.keyston.measurement.Population
+#import nonstd.required.Class
 namespace tunitas::keyston::numeric::required {
   //
   // Is this type a (class) functor suitable for use with numeric::Treatment<FUNCTOR>?
   //
-  namespace [[eponymous]] treatment {
-#if 0
-    template<typename TREATMENT> concept Alternative_Is_Single = requires(TREATMENT treatment, number::Integer &lhs) {
-      { treatment(lhs) };
-    };
-    template<typename TREATMENT> concept Alternative_Is_Histogram = requires(TREATMENT treatment, measurement::Histogram &lhs) {
-      { treatment(lhs) };
-    };
-    template<typename TREATMENT> concept Alternative_Is_Population = requires(TREATMENT treatment, measurement::Population &lhs) {
-      { treatment(lhs) };
-    };
-#endif
-    template<typename TREATMENT> concept Treatment = requires(TREATMENT) {
-      requires Class<TREATMENT>;
-#if 1
-      { []<typename ANY, typename XHS>(ANY (TREATMENT::*)(XHS) const) // either an rvalue or lvalue
+  template<typename TREATMENT> concept Treatment = requires(TREATMENT) {
+    requires Class<TREATMENT>;
+    { []<typename ANY, typename XHS>(ANY (TREATMENT::*)(XHS) const) // either an rvalue or lvalue
         {} (&TREATMENT::operator()) };
-#else
-      requires Alternative_Is_Single<TREATMENT> || Alternative_Is_Histogram<TREATMENT> || Alternative_Is_Population<TREATMENT>;
-#endif
-    };
-  }
-  using treatment::Treatment;
+  };
 }
 #endiv

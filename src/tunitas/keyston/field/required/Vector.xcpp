@@ -12,7 +12,7 @@ namespace tunitas::keyston::field::required {
   //
   // Design:
   //
-  //   Whereas there is a NTTP (Non-Type Template Parameter), the usual nonstd::required::InstanceOf will not work.
+  //   Whereas there is an NTTP (Non-Type Template Parameter), the usual nonstd::required::InstanceOf will not work.
   //
   // Usage:
   //

@@ -6,5 +6,9 @@
 #divert <fpp>
 #import tunitas.keyston.numeric
 #import tunitas.keyston.required
-namespace tunitas::keyston::numeric::required { using namespace tunitas::keyston::required; }
+#import tunitas.integer.required
+namespace tunitas::keyston::numeric::required {
+  using namespace tunitas::keyston::required;
+  namespace [[nodirectory]] integer { using namespace tunitas::integer::required; }
+}
 #endiv

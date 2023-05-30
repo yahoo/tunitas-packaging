@@ -1,0 +1,29 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tests.unit.field.Element>
+#import tunitas.keyston.field.Field
+namespace tests::unit::field {
+  // any specializations?
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import tunitas.keyston.field.traits.Element
+namespace tests::unit::field {
+  template<typename _> struct Element<_>::Expected {
+    using Field = library::traits::Element<Subject>::Field;
+    using Element = typename Field::Element;
+    using Underlying = typename Field::Underlying;
+    static constexpr auto pos() -> Underlying { return 3u; }
+    static constexpr auto neg() -> Underlying { return Field::MODULUS - 3u; }
+    static constexpr auto add() -> Underlying { return 8u; }
+    static constexpr auto sub() -> Underlying { return Field::MODULUS + 3u - 5u; }
+    static constexpr auto mul() -> Underlying { return 3u * 5u; }
+    static constexpr auto pow() -> Underlying { return 3u * 3u * 3u * 3u * 3u; }
+  };
+}
+#endiv

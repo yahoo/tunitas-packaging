@@ -4,32 +4,28 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.field.required.Subelement
-#import tunitas.number.Integer
+#import tunitas.keyston.field.traits.Element
+#include <hpp/tunitas.keyston.field.traits.Element>
 namespace tunitas::keyston::field::required {
   //
-  // An element in the field is an (unsigned) "integer".
-  // allowed: uint128_t when compiler-managed.
-  // allowed: number::Integer when library-managed.
+  // An element in the field is a flavored (unsigned) "integer".
+  // allowed: enum-of-uint64_t ........... when compiler-managed.
+  // allowed: enum-of-uint128_t .......... when compiler-managed.
+  // allowed: class-of-uint$NNN .......... when library-managed.
   //
-  template<typename INTEGER> concept Element = (same_as<INTEGER, number::Integer> || integer::Unsigned<INTEGER>);
+  template<typename ELEMENT> concept Element = traits::Element<ELEMENT>::value;
 }
 #endiv
 #divert <cpp>
-#import nonstd.integers.
-#import tunitas.number.Integer
+#import tunitas.keyston.field.Field
 namespace {
   namespace testate {
-    using namespace nonstd::integers;
+    using tunitas::keyston::field::Field;
     namespace required = tunitas::keyston::field::required;
     //
-    static_assert(required::Element<tunitas::number::Integer>);
-    //
-    static_assert(required::Element<uint8_t>);
-    static_assert(required::Element<uint16_t>);
-    static_assert(required::Element<uint32_t>);
-    static_assert(required::Element<uint64_t>);
-    static_assert(required::Element<uint128_t>);
+    static_assert(required::Element<Field<64>::Element>);
+    static_assert(required::Element<Field<128>::Element>);
+    static_assert(required::Element<Field<255>::Element>);
   }
 }
 #endiv

@@ -125,12 +125,20 @@ namespace tests::unit::daf::numeric::constant {
     auto outputs = []{
       auto smaller = Configuration::Output<SHARE>{Provided::CANARY};
       auto bigger = Configuration::Output<SHARE>{Provided::OTHER};
+      // whereas the modular vectors do not have operator>, we must rely on operator!= for consistency
+      // so herein we will find that the "last one wins" -------------------\\\\\\\ (here)
+      //                                                                    |||||||
+      //                                                                    vvvvvvv
       return Series<Configuration::Output<SHARE>>{smaller, smaller, bigger, smaller};
     }();
     //
     // reminder: this won't (can't) fail by exception, rather it just returns 'bigger'
     auto amalgamated = library::amalgamation(parameters, outputs);
-    require(ASSERTION, Expected::BIGGER == visit(expected.treatment, amalgamated));
+    //
+    //                           ///////------------------------------ "last one wins"
+    //                           |||||||
+    //                           vvvvvvv
+    require(ASSERTION, Expected::SMALLER == visit(expected.treatment, amalgamated));
   } catch (Exception::Invariant const &) {
     impossible(ASSERTION);
   }

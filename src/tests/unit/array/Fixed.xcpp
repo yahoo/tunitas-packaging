@@ -20,8 +20,10 @@ namespace tests::unit {
     auto test_constructor_default_constexpr() -> void;
     //
     auto test_swap() -> void;
-    auto test_at_constie() -> void;
-    auto test_at_mutable() -> void;
+    auto test_at_constie_checked() -> void;
+    auto test_at_mutable_checked() -> void;
+    auto test_at_constie_unchecked() -> void;
+    auto test_at_mutable_unchecked() -> void;
     //
     auto test_subrange_constie() -> void;
     auto test_subrange_mutable() -> void;
@@ -47,11 +49,23 @@ namespace tests::unit::array {
            << add("swap", &Fixed::test_swap)
            << []{
                 auto at = Stream{"at"sv};
-                at << add("constie", &Fixed::test_at_constie)
-                   << add("mutable", &Fixed::test_at_mutable)
+                at << []{
+                       auto ch = Stream{"checked"sv};
+                       ch << add("constie", &Fixed::test_at_constie_checked)
+                          << add("mutable", &Fixed::test_at_mutable_checked)
+                          << END;
+                       return ch;
+                    }()
+                   << []{
+                       auto un = Stream{"unchecked"sv};
+                       un << add("constie", &Fixed::test_at_constie_unchecked)
+                          << add("mutable", &Fixed::test_at_mutable_unchecked)
+                          << END;
+                       return un;
+                   }()
                    << END;
                 return at;
-              }()
+             }()
            << []{
                 auto face = Stream{"subrange"sv};
                 face << add("constie", &Fixed::test_subrange_constie)
@@ -82,7 +96,7 @@ namespace tests::unit::array {
     auto subject1 = Subject{};
     swap(subject0, subject1);
   }
-  template<typename _> auto Fixed<_>::test_at_constie() -> void {
+  template<typename _> auto Fixed<_>::test_at_constie_checked() -> void {
     auto const subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <----- using this (constie)
     require(ASSERTION, 4 == subject.size());
     try {
@@ -92,7 +106,7 @@ namespace tests::unit::array {
       require(ASSERTION);
     }
   }
-  template<typename _> auto Fixed<_>::test_at_mutable() -> void {
+  template<typename _> auto Fixed<_>::test_at_mutable_checked() -> void {
     auto subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <----- using this (mutable)
     require(ASSERTION, 4 == subject.size());
     try {
@@ -101,6 +115,18 @@ namespace tests::unit::array {
     } catch (::tunitas::exception::feature::Bound const &) {
       require(ASSERTION);
     }
+  }
+  template<typename _> auto Fixed<_>::test_at_constie_unchecked() -> void {
+    auto const subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <----- using this (constie)
+    require(ASSERTION, 4 == subject.size());
+    auto const &got = subject.at(std::nothrow, 3);
+    require(ASSERTION, sizeof(got));
+  }
+  template<typename _> auto Fixed<_>::test_at_mutable_unchecked() -> void {
+    auto subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <----- using this (mutable)
+    require(ASSERTION, 4 == subject.size());
+    subject.at(std::nothrow, 0) = std::move(subject.at(std::nothrow, 3));
+    require(ASSERTION);
   }
   template<typename _> auto Fixed<_>::test_subrange_constie() -> void {
     auto const subject = Subject{Value{}, Value{}, Value{}, Value{}}; // <------------------------------ constie

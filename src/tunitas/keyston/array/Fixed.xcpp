@@ -64,6 +64,7 @@ namespace tunitas::keyston::array {
 #import std.ranges.subrange
 #import std.array
 #import std.common_type
+#import std.nothrow
 namespace tunitas::keyston {
   template<array::required::Arrayable TYPE, Size CAPACITY> class array::Fixed : private std::array<TYPE, CAPACITY> {
     using Ancestor = std::array<TYPE, CAPACITY>;
@@ -85,9 +86,12 @@ namespace tunitas::keyston {
     using Ancestor::end;
 #if 202312 < __cplusplus
     template<typename SELF> inline auto at(this SELF *, Size) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline auto at(this SELF *, std::nothrow_t, Size) -> nonstd::like_t<SELF, Value &>;
 #else
     inline auto at(Size) const -> Value const &;
     inline auto at(Size) -> Value &;
+    inline auto at(std::nothrow_t, Size) const -> Value const &;
+    inline auto at(std::nothrow_t, Size) -> Value &;
 #endif
   protected:
     // using Ancestor::operator[] is denied except to descendants (who are supposed to know what they are doing)
@@ -120,12 +124,15 @@ namespace tunitas::keyston {
       : Ancestor{forward<VALUES>(values)...}
     { }
 #if 202312 < __cplusplus
+    template<required::Arrayable T, Size C> template<typename SELF> auto Fixed<T,C>::at(this SELF *self, std::nothrow_t, Size index) -> nonstd::like_t<SELF, Value &> try { return self[index]; }
     template<required::Arrayable T, Size C> template<typename SELF> auto Fixed<T,C>::at(this SELF *self, Size index) -> nonstd::like_t<SELF, Value &> try {
       return self->at(index);
     } catch (std::out_of_range const &e) {
       throw exception::Bound{e};
     }
 #else
+    template<required::Arrayable T, Size C> auto Fixed<T,C>::at(std::nothrow_t, Size index) const -> Value const & { return operator[](index); }
+    template<required::Arrayable T, Size C> auto Fixed<T,C>::at(std::nothrow_t, Size index)       -> Value &       { return operator[](index); }
     template<required::Arrayable T, Size C> auto Fixed<T,C>::at(Size index) const -> Value const & try {
       return Ancestor::at(index);
     } catch (std::out_of_range const &e) {

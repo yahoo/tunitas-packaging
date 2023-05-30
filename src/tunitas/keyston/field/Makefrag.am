@@ -6,18 +6,19 @@
 #
 tunitas_keyston_field_SUBSOURCES = \
   obj/src/tunitas/keyston/field/namespace.cpp \
-  obj/src/tunitas/keyston/field/traits.Common.cpp \
+  obj/src/tunitas/keyston/field/traits.Is_Element.cpp \
+  obj/src/tunitas/keyston/field/traits.Element.cpp \
+  obj/src/tunitas/keyston/field/traits.Field.cpp \
+  obj/src/tunitas/keyston/field/traits.Underlying.cpp \
   obj/src/tunitas/keyston/field/Field.template.cpp \
   obj/src/tunitas/keyston/field/Field.64.cpp \
   obj/src/tunitas/keyston/field/Field.128.cpp \
   obj/src/tunitas/keyston/field/Field.255.cpp \
   obj/src/tunitas/keyston/field/Field.cpp \
   obj/src/tunitas/keyston/field/Vector.cpp \
-  obj/src/tunitas/keyston/field/Generator.cpp \
-  obj/src/tunitas/keyston/field/powm.cpp \
+  obj/src/tunitas/keyston/field/Limits.cpp \
+  obj/src/tunitas/keyston/field/Element.cpp \
   $(tunitas_keyston_field_required_SUBSOURCES) \
-  $(tunitas_keyston_field_get_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/field/required/Makefrag.am
-include src/tunitas/keyston/field/get/Makefrag.am

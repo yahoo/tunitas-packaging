@@ -11,85 +11,81 @@ namespace tunitas::keyston::numeric {
   }
   using namespace package_ensmallen::interface;
 }
-#import tunitas.number.Integer
-#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.measurement.Simple
+#import tunitas.keyston.numeric.narrow
 #import std.underlying_type
-#import std.make_signed
-#import std.numeric_limits
-#import std.is_unsigned
 namespace tunitas::keyston::numeric::package_ensmallen {
-  using number::Integer;
+  using measurement::Simple;
   namespace body {
-    using Overlaying = measurement::Result;
-    using Underlying = std::underlying_type_t<Overlaying>;
-    static_assert(std::is_unsigned_v<Underlying>);
-    using Encoded = std::make_signed_t<Underlying>;
-    namespace limits {
-      using Unsigned = std::numeric_limits<Underlying>;
-      using Signed = std::numeric_limits<Encoded>;
-      static_assert(Unsigned::max() == Underlying{2u} * Signed::max() + 1);
-    }
+    using Underlying = std::underlying_type_t<Simple>;
     namespace exported {
-      enum class Clip { SILENTLY };
+      static_assert(sizeof(Clip), "already visible");
     }
   }
 }
 #endiv
 #divert <hpp>
+#import tunitas.integer.required.Large
+#import tunitas.integer.required.Unsigned
+#import tunitas.keyston.numeric.required // appears as required::integer::Large
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
 #import tunitas.Pair
 namespace tunitas::keyston::numeric::package_ensmallen::body {
   namespace exported {
     //
-    // Convert the bignum to a smallnum to a Result
+    // Convert the bignum to a smallnum to a Simple
     //
     // Specification:
     //
-    //   Just what you see.
-    //   Return an indication of whether the original value was clipped.
+    //   See tunitas.keyston.numeric.narrow
     //
     // Design:
     //
-    //   Using the Best Available Means and Methods (UBAMM!)
+    //   See tunitas::keyston::numeric::narrow<SMALL>(Integer const &)
+    //   Obviously, what was once herein was more complicated; and such has been moved elsewhere.
     //
     // Usage:
     //
     //   Obvious.  You see it, don't you?
     //
-    //   auto something_big = Integer{...somehow...};
+    //   auto something_big = uint128_t{...somehow...};
+    //   auto something_big = uint256_t{...somehow...};
     //
     //   auto [small, clipped] = ensmallen(something_big);
+    //   auto small = ensmallen(Clip::SILENTLY, something_big);
     //
-    inline auto ensmallen(Integer const &) -> Pair<measurement::Result, bool>;
-    inline auto ensmallen(Clip, Integer const &i) -> measurement::Result { return ensmallen(i).first; }
+    template<required::integer::Large SOURCE> inline auto ensmallen(error::by::Exception, SOURCE const &) -> Simple requires required::integer::Unsigned<SOURCE>;
+    template<required::integer::Large SOURCE> inline auto ensmallen(error::by::Optional, SOURCE const &) -> error::Optional<Simple> requires required::integer::Unsigned<SOURCE>;
+    template<required::integer::Large SOURCE> inline auto ensmallen(error::by::Outcome, SOURCE const &) -> error::Outcome<Simple> requires required::integer::Unsigned<SOURCE>;
+    template<required::integer::Large SOURCE> inline auto ensmallen(SOURCE const &) -> Pair<Simple, bool> requires required::integer::Unsigned<SOURCE>;
+    template<required::integer::Large SOURCE> inline auto ensmallen(Clip, SOURCE const &i) -> Simple requires required::integer::Unsigned<SOURCE>;
   }
-  inline constexpr auto VALUE_WAS_CLIPPED = true;
-  inline constexpr auto VALUE_IS_CORRECT = false;
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::numeric::package_ensmallen {
-  auto interface::ensmallen(Integer const &big) -> Pair<measurement::Result, bool> {
-    if (big.fits<Encoded>()) {
-      if (auto got=big.get<Encoded>(); got < 0) {
-        return {Overlaying{0}, VALUE_WAS_CLIPPED}; // this is unexpected (it means someone didn't true-up after modular arithmetic)
-      } else {
-        return {Overlaying(got), VALUE_IS_CORRECT};
-      }
+  template<required::integer::Large SOURCE> auto interface::ensmallen(Clip c, SOURCE const &i) -> Simple requires required::integer::Unsigned<SOURCE>                  { return Simple{narrow<Underlying>(c, i)}; }
+  template<required::integer::Large SOURCE> auto interface::ensmallen(error::by::Exception by, SOURCE const &i) -> Simple requires required::integer::Unsigned<SOURCE> { return Simple{narrow<Underlying>(by, i)}; }
+  template<required::integer::Large SOURCE> auto interface::ensmallen(SOURCE const &i) -> Pair<Simple, bool> requires required::integer::Unsigned<SOURCE> {
+    auto [narrowed, clipped] = narrow<Underlying>(i);
+    return {Simple{narrowed}, clipped};
+  }
+  template<required::integer::Large SOURCE> auto interface::ensmallen(error::by::Optional by, SOURCE const &i) -> error::Optional<Simple> requires required::integer::Unsigned<SOURCE> {
+    if (auto got=narrow<Underlying>(by, i); got) {
+      return Simple{*got};
     } else {
-      // it may still be too big, but let's try
-      Integer shaved = big >> 1;
-      int oddness = 1 == (big % 2) ? 1 : 0;
-      if (!shaved.fits<Encoded>()) {
-        Underlying clipped = shaved < 0 ? 0u : limits::Unsigned::max();
-        return {Overlaying{clipped}, VALUE_WAS_CLIPPED};
-      } else {
-        if (auto got=shaved.get<Encoded>(); got < 0) {
-          return {Overlaying{0}, VALUE_WAS_CLIPPED}; // eadam ratione
-        } else {
-          auto reassembled = Overlaying{2u * Underlying(got) + oddness};
-          return {reassembled, VALUE_IS_CORRECT};
-        }
-      }
+      return {};
+    }
+  }
+  template<required::integer::Large SOURCE> auto interface::ensmallen(error::by::Outcome by, SOURCE const &i) -> error::Outcome<Simple> requires required::integer::Unsigned<SOURCE> {
+    if (auto got=narrow<Underlying>(by, i); good(got)) {
+      return Simple{value(got)};
+    } else {
+      return error_code(got);
     }
   }
 }

@@ -149,7 +149,7 @@ namespace tests::unit::daf::numeric {
     auto subject0 = Subject{};
     require(ASSERTION, sizeof(subject0));
     //
-    auto sum = ::tunitas::number::Integer{};
+    auto sum = ::tunitas::keyston::prio::Algorithm<tunitas::keyston::prio::Name::SUM>::Truncated{};
     auto subject1 = Subject{sum};
     require(ASSERTION, sizeof(subject1));
   }

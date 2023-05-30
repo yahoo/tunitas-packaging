@@ -124,10 +124,10 @@ namespace tests::unit::daf::numeric::zero {
     //
     auto parameters = Configuration::Parameters{};
     auto aggregations = Shards<Configuration::Aggregation<SHARE>>{}; // <------------------------------ empty
-    auto count = Count{3456}; // recall: this count is the number of samples that this aggregation contains
+    auto records = Records{3456}; // recall: this count is the number of samples that this aggregation contains
     //
     // yup, it turns out that reassembly on "empty" cannot fail (not for Invariant and not for Variant)
-    auto reassembled = library::reassembly(parameters, aggregations, count);
+    auto reassembled = library::reassembly(parameters, aggregations, records);
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, reassembled));
   } catch (Exception::Exception::Variant const &) {
     impossible(ASSERTION);
@@ -142,8 +142,8 @@ namespace tests::unit::daf::numeric::zero {
     auto parameters = Configuration::Parameters{};
     auto zero = Configuration::Aggregation<SHARE>{Provided::ZERO};
     auto aggregations = Shards<Configuration::Aggregation<SHARE>>{zero, zero};
-    auto count = Count{3456}; // recall: this count is the number of samples that this aggregation contains
-    auto reassembled = library::reassembly(parameters, aggregations, count);
+    auto records = Records{3456}; // recall: this count is the number of samples that this aggregation contains
+    auto reassembled = library::reassembly(parameters, aggregations, records);
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, reassembled));
   }
 }

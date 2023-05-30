@@ -6,5 +6,9 @@
 #divert <fpp>
 #import tunitas.keyston.vdaf
 #import tunitas.keyston.numeric
-namespace tunitas::keyston::vdaf::numeric { using namespace tunitas::keyston::numeric; }
+#import tunitas.keyston.numeric.generic
+namespace tunitas::keyston::vdaf::numeric {
+  using namespace tunitas::keyston::numeric;
+  namespace generic { using namespace tunitas::keyston::numeric::generic; } // occlude namespace daf::generic
+}
 #endiv

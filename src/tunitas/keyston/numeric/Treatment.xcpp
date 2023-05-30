@@ -13,8 +13,8 @@ namespace tunitas::keyston::numeric {
   //
   //   The moral equivalent of
   //
-  //   auto visitor = variant::Visitor{[](auto &) [ throw exception::Variant{}; }, .................. otherwise
-  //                                   [&m](number::Integer &lhs) { lhs += enbiggen(m.value); }}; ... caller-provided
+  //   auto visitor = variant::Visitor{[](auto &)           { throw exception::Variant{}; }, .................. otherwise
+  //                                   [&m](uint256_t &lhs) { lhs += enbiggen(m.value); }}; ... caller-provided
   //
   // Design:
   //
@@ -24,8 +24,8 @@ namespace tunitas::keyston::numeric {
   //
   // Usage:
   //
-  //   auto integer = number::Integer{};
-  //   auto treatment = Treatment{[&m](number::Integer &lhs) { lhs += enbiggen(m.value); }};
+  //   auto integer = Integer{};
+  //   auto treatment = Treatment{[&m](Integer &lhs) { lhs += enbiggen(m.value); }};
   //   visit(treatment, integer);
   //   return move(integer);
   //
@@ -35,6 +35,7 @@ namespace tunitas::keyston::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.exception.Variant
+#import tunitas.keyston.numeric.traits.Result
 namespace tunitas::keyston {
   template<numeric::required::Treatment TREATMENT> struct tunitas::keyston::numeric::Treatment : public TREATMENT {
     using TREATMENT::operator();

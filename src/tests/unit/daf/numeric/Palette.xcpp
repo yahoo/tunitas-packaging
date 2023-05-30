@@ -14,21 +14,12 @@ namespace tests::unit::daf::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.numeric.Treatment
-#import tunitas.number.Integer
 #import tunitas.keyston.measurement.Specimen
 class tests::unit::daf::numeric::Palette {
 protected:
   ~Palette() = default;
 public:
   template<typename LAMBDA> using Treatment = ::tunitas::keyston::numeric::Treatment<LAMBDA>;
-  using Integer = ::tunitas::number::Integer;
   using Specimen = ::tunitas::keyston::measurement::Specimen;
-  inline static auto enbiggen(Specimen) -> Integer; // make it convenient for descendants to find it.
 };
-#endiv
-#divert <ipp>
-#import tunitas.keyston.numeric.enbiggen
-namespace tests::unit::daf::numeric {
-  auto Palette::enbiggen(Specimen specimen) -> Integer { return ::tunitas::keyston::numeric::enbiggen(specimen); }
-}
 #endiv

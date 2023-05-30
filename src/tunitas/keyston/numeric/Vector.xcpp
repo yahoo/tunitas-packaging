@@ -1,0 +1,167 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.numeric.required.Element
+namespace tunitas::keyston::numeric {
+  //
+  // A vector over the numeric types (those certain integers)
+  //
+  // Specification:
+  //
+  //   SIMD operations
+  //   semiregular
+  //
+  // Design:
+  //
+  //   Fixed length.
+  //   Use a new type so that ADL will find the operations. 
+  //
+  //   Is constexpr, as are the underlying elements (which are those certain nitegers)
+  //
+  // Usage:
+  //
+  //   Yes
+  //.
+  template<required::Element, Size CAPACITY> struct Vector;
+}
+#endiv
+#divert <hpp>
+#import std.strong_ordering
+#import tunitas.keyston.array.Fixed
+namespace tunitas::keyston {
+  namespace numeric {
+    using std::move;
+    template<required::Element ELEMENT, Size CAPACITY> inline auto swap(Vector<ELEMENT, CAPACITY> &, Vector<ELEMENT, CAPACITY> &) noexcept -> void;
+    //
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator==(Vector<ELEMENT, CAPACITY> const &, Vector<ELEMENT, CAPACITY> const &) -> bool;
+#if 0 // [[REMOVETHIS]] because vectors do not have a lexicographic sense
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator<=>(Vector<ELEMENT, CAPACITY> const &, Vector<ELEMENT, CAPACITY> const &) -> std::strong_ordering;
+#endif
+    //
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator+(Vector<ELEMENT, CAPACITY> const &a) -> Vector<ELEMENT, CAPACITY> { return a; }
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator-(Vector<ELEMENT, CAPACITY> const &) -> Vector<ELEMENT, CAPACITY>;
+    //
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator+(Vector<ELEMENT, CAPACITY> const &, Vector<ELEMENT, CAPACITY> const &) -> Vector<ELEMENT, CAPACITY>;
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator-(Vector<ELEMENT, CAPACITY> const &, Vector<ELEMENT, CAPACITY> const &) -> Vector<ELEMENT, CAPACITY>;
+    //
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(Vector<ELEMENT, CAPACITY> const &, Vector<ELEMENT, CAPACITY> const &) -> Vector<ELEMENT, CAPACITY>;
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(ELEMENT a, Vector<ELEMENT, CAPACITY> const &b) -> Vector<ELEMENT, CAPACITY> { return b * a; }
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(Vector<ELEMENT, CAPACITY> const &, ELEMENT) -> Vector<ELEMENT, CAPACITY>;
+    //
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator/(Vector<ELEMENT, CAPACITY> const &, ELEMENT) -> Vector<ELEMENT, CAPACITY>;
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator%(Vector<ELEMENT, CAPACITY> const &, ELEMENT) -> Vector<ELEMENT, CAPACITY>;
+  }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> struct numeric::Vector : public array::Fixed<ELEMENT, CAPACITY> {
+    using Ancestor = array::Fixed<ELEMENT, CAPACITY>;
+  public:
+    constexpr Vector() = default;
+    using Ancestor::Fixed;
+    constexpr [[implicit]] Vector(Ancestor const &);
+    //
+    auto operator=(Vector const &) -> Vector & = default;
+    using Ancestor::operator=;
+    //
+    inline constexpr auto operator+=(Vector const &) -> Vector &;
+    inline constexpr auto operator-=(Vector const &) -> Vector &;
+    inline constexpr auto operator*=(typename Ancestor::Value) -> Vector &;
+    inline constexpr auto operator/=(typename Ancestor::Value) -> Vector &;
+    inline constexpr auto operator%=(typename Ancestor::Value) -> Vector &;
+#if 0 // these can't be defaulted (think about it ... how would the compiler know what to do?)
+    auto operator==(Vector const &) const -> bool = default;
+    auto operator<=>(Vector const &) const -> std::strong_ordering = default;
+#endif
+  };
+}
+#import nonstd.container.Traits.tunitas.keyston.numeric.Vector.ELEMENT.CAPACITY
+#endiv
+#divert <ipp>
+#import std.equal
+#import std.lexicographical_compare_three_way
+#import std.nothrow
+#import tunitas.keyston.exception.Domain
+#import tunitas.keyston.numeric.generic.cosine_similarity
+namespace tunitas::keyston {
+  template<numeric::required::Element ELEMENT, Size CAPACITY> auto numeric::swap(Vector<ELEMENT, CAPACITY> &a, Vector<ELEMENT, CAPACITY> &b) noexcept -> void {
+    typename Vector<ELEMENT, CAPACITY>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator==(Vector<ELEMENT, CAPACITY> const &a, Vector<ELEMENT, CAPACITY> const &b) -> bool { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
+#if 0 // [[REMOVETHIS]] because vectors do not have a lexicographic sense
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator<=>(Vector<ELEMENT, CAPACITY> const &a, Vector<ELEMENT, CAPACITY> const &b) -> std::strong_ordering { return std::lexicographical_compare_three_way(a.begin(), a.end(), b.begin(), b.end()); }
+#endif
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator-(Vector<ELEMENT, CAPACITY> const &a) -> Vector<ELEMENT, CAPACITY> { return Vector<ELEMENT, CAPACITY>{} - a; }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator+(Vector<ELEMENT, CAPACITY> const &a, Vector<ELEMENT, CAPACITY> const &b) -> Vector<ELEMENT, CAPACITY> {
+    auto c{a};
+    c += b;
+    return c;
+  }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator-(Vector<ELEMENT, CAPACITY> const &a, Vector<ELEMENT, CAPACITY> const &b) -> Vector<ELEMENT, CAPACITY> {
+    auto c{a};
+    c -= b;
+    return c;
+  }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator*(Vector<ELEMENT, CAPACITY> const &a, Vector<ELEMENT, CAPACITY> const &b) -> Vector<ELEMENT, CAPACITY> { return generic::cosine_similarity(a, b); }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator*(Vector<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Vector<ELEMENT, CAPACITY> {
+    auto c{a};
+    c *= b;
+    return c;
+  }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator/(Vector<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Vector<ELEMENT, CAPACITY> {
+    auto c{a};
+    c /= b;
+    return c;
+  }
+  template<numeric::required::Element ELEMENT, Size CAPACITY> constexpr auto numeric::operator%(Vector<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Vector<ELEMENT, CAPACITY> {
+    auto c{a};
+    c %= b;
+    return c;
+  }
+  namespace numeric {
+    template<required::Element E, Size C> constexpr Vector<E,C>::Vector(Ancestor const &a) : Ancestor{a} { }
+    template<required::Element E, Size C> constexpr auto Vector<E,C>::operator+=(Vector const &other) -> Vector & {
+      auto &self{*this};
+      for (auto i : std::views::iota(0u, Ancestor::size())) {
+        self[i] += other[i]; // [[FIXTHIS]] - check for overflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
+      }
+      return self;
+    }
+    template<required::Element E, Size C> constexpr auto Vector<E,C>::operator-=(Vector const &other) -> Vector & {
+      auto &self{*this};
+      for (auto i : std::views::iota(0u, Ancestor::size())) {
+        self[i] -= other[i]; // [[FIXTHIS]] - check for underflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
+      }
+      return self;
+    }
+    template<required::Element E, Size C> constexpr auto Vector<E,C>::operator*=(typename Ancestor::Value other) -> Vector & {
+      auto &self{*this};
+      for (auto &item : self) {
+        item *= other; // [[FIXTHIS]] - check for overflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
+      }
+      return self;
+    }
+    template<required::Element E, Size C> constexpr auto Vector<E,C>::operator/=(typename Ancestor::Value other) -> Vector & {
+      if (0 == other) {
+        throw exception::Domain{"division by zero"};
+      }
+      auto &self{*this};
+      for (auto &item : self) {
+        item /= other;
+      }
+      return self;
+    }
+    template<required::Element E, Size C> constexpr auto Vector<E,C>::operator%=(typename Ancestor::Value other) -> Vector & {
+      if (0 == other) {
+        throw exception::Domain{"division by zero"};
+      }
+      auto &self{*this};
+      for (auto &item : self) {
+        item %= other;
+      }
+      return self;
+    }
+  }
+}
+#endiv

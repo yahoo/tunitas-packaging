@@ -36,6 +36,7 @@ namespace tunitas::keyston::daf::numeric {
   template<Name NAME> class Algorithm<PRIO, NAME> : public prio::Algorithm<traits::Algorithm<NAME>::PRIO> {
     using Ancestor = prio::Algorithm<traits::Algorithm<NAME>::PRIO>;
   public:
+    using Encoded = typename Ancestor::Encoded;
     template<shards::required::Shardable TYPE> using Shards = keyston::Shards<TYPE>;
     template<array::required::Arrayable TYPE> using Series = components::Series<TYPE>;
     using Randomness   = components::Randomness;
@@ -60,34 +61,34 @@ namespace tunitas::keyston::daf::numeric {
 #endiv
 #divert <tpp>
 #import std.accumulate
+#import tunitas.Tuple
 #import tunitas.keyston.daf.exception.Invariant
 #import tunitas.keyston.numeric.Augmentment
 #import tunitas.keyston.numeric.Treatment
-#import tunitas.keyston.numeric.Treatment
 namespace tunitas::keyston::daf::numeric {
   template<Name NAME> auto Algorithm<PRIO, NAME>::disassembly(Parameters const &parameters, Measurement<WHOLE> const &wrapped, Randomness const &) -> Disassembled {
-#warning FIXTHIS this needs to do the sharding too
-    auto shard = [&parameters](measurement::Specimen specimen) -> Input<SHARE> {
+    auto split = [&parameters](Encoded single) -> Tuple<Encoded, Encoded> {
+      return {single, Encoded{}};
+    };
+    auto encode = [&parameters](measurement::Specimen specimen) -> Encoded {
       if constexpr (Name::HISTOGRAM == NAME) {
         return Ancestor::encode(specimen, parameters.boundaries.value());
       } else {
         return Ancestor::encode(specimen);
       }
     };
+    auto [one, two] = split(encode(wrapped.value));
     auto publick = Public<SHARE>{};
-    auto one = shard(wrapped.value);
-    auto two = shard(measurement::Specimen{});
     return {move(publick), Shards<Input<SHARE>>(move(one), move(two))};
   }
   template<Name _> auto Algorithm<PRIO, _>::computation(Parameters const &parameters, Shard, Public<SHARE> const &, Input<SHARE> const &input) -> Computed {
-    auto treatment = Treatment{[&parameters](typename Ancestor::Encoded const &encoded) -> typename Ancestor::Truncated {
+    auto treatment = Treatment{[&parameters](Encoded const &encoded) -> typename Ancestor::Truncated {
       return Ancestor::truncate(encoded);
     }};
     return Output<SHARE>{visit(treatment, input)};
   }
   template<Name _> auto Algorithm<PRIO, _>::amalgamation(Parameters const &, Series<Output<SHARE>> const &outputs) -> Amalgamated {
     if (outputs.empty()) { throw exception::Invariant{"empty amalgamation"}; }
-#if 1
     auto accumulate = [](typename Ancestor::Truncated &&accumulator, Output<SHARE> const &each) -> typename Ancestor::Truncated {
       auto treatment = Treatment{[](typename Ancestor::Truncated const &truncated) -> typename Ancestor::Truncated { return truncated; }};
       accumulator += visit(treatment, each);
@@ -95,17 +96,6 @@ namespace tunitas::keyston::daf::numeric {
     };
     auto accumulated = std::accumulate(outputs.begin(), outputs.end(), typename Ancestor::Truncated{}, accumulate);
     return Aggregation<SHARE>{move(accumulated)};
-#else
-    // Because we don't know what's in Aggregation<SHARE> or Output<SHARE>, we have to do this fully-generally.  Of course at runtime this is known.
-    auto accumulate = [](Aggregation<SHARE> &&accumulator, Output<SHARE> const &each) -> Aggregation<SHARE> {
-      auto augmentment = Augmentment{[](typename Ancestor::Truncated &&accumulator, typename Ancestor::Truncated const &each) -> typename Ancestor::Truncated {
-        accumulator += each;
-        return move(accumulator);
-      }};
-      return {visit(augmentment, move(accumulator), each)};
-    };
-    return std::accumulate(outputs.begin(), outputs.end(), Aggregation<SHARE>{/*FIXTHIS*/ Ancestor::Truncated{}}, accumulate);
-#endif
   }
   template<Name _> auto Algorithm<PRIO, _>::reassembly(Parameters const &parameters, Shards<Aggregation<SHARE>> const &aggregations, Processed count) -> Reassembled {
     if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }

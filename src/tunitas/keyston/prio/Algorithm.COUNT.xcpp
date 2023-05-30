@@ -30,15 +30,15 @@ namespace tunitas::keyston::prio {
     using Field = field::Field<64>;
     inline static constexpr auto INPUT_LENGTH = ENCODED_LENGTH;
     inline static constexpr auto OUTPUT_LENGTH = ENCODED_LENGTH;
-    using Measurement = measurement::Specimen; // range 0, 2
+    using Measurement = measurement::Specimen; // range [0, 2) i.e. zero or one
     using Encoded = Field::Vector<ENCODED_LENGTH.count()>; // lol-wut?
     using Truncated = Encoded;
-    using Decoded = measurement::Count; // ..... the payload
-    using Processed = measurement::Count; // ... the record count itself
+    using Decoded = measurement::Count; // ....... the payload
+    using Processed = measurement::Records; // ... the record count itself
     using Result [[deprecated("instead use Algorithm<COUNT>::Decoded")]] = Decoded;
-    static auto encode(Measurement m) -> Encoded                 { return {0 != underlying(m)}; }
+    static auto encode(Measurement m) -> Encoded                 { return {Field::Element{0 != underlying(m)}}; }
     static auto truncate(Encoded e) -> Truncated                 { return move(e); }
-    static auto decode(Truncated const &t, Processed) -> Decoded { return Decoded{t.at(0)}; }
+    static auto decode(Truncated const &t, Processed) -> Decoded { return Decoded{underlying(t.at(0))}; }
   };
 }
 #endiv

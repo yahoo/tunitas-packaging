@@ -67,7 +67,7 @@ namespace tests::unit::af {
     inline static constexpr auto SPECIMEN2 = library::Constant<library::DAF::Name::CONSTANT>;
 #endif
     inline static constexpr auto SPECIMEN1 = SPECIMEN;
-    static auto initial_intermediate_zero() { return typename Configuration::Intermediate{0}; }
+    static auto initial_intermediate_zero() { return typename Configuration::Intermediate{::tunitas::keyston::measurement::Count{0}}; }
   };
 }
 #endiv

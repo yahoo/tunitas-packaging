@@ -5,13 +5,12 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import std.int64_t
-#import nonstd.int128_t
 #import nonstd.units.memory.scale
+#import tunitas.keyston.integers
 namespace tunitas::keyston::field {
-  using std::uint64_t;
-  using nonstd::uint128_t;
   using nonstd::units::memory::scale::Bytes;
-  namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] element {
+    using namespace keyston::integers;
+  }
 }
 #endiv

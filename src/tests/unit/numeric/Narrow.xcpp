@@ -1,0 +1,171 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.integer.required.Unsigned // manifests as required::integer::Unsigned
+namespace tests::unit::numeric {
+  template<typename SMALL> requires required::integer::Unsigned<SMALL> struct Narrow;
+}
+#endiv
+#divert <hpp>
+#import tunitas.integer.integers // uint256_t
+#import std.numeric_limits
+#import tunitas.keyston.numeric.narrow // for Clip
+#import tunitas.keyston.exception.Aspect
+namespace tests::unit {
+  template<typename SMALL> requires numeric::required::integer::Unsigned<SMALL> struct numeric::Narrow : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Small = SMALL;
+    using Bigge = tunitas::integer::integers::uint256_t;
+    using Limits = std::numeric_limits<Small>;
+    using Clip = library::Clip;
+    //
+    auto test_easy() -> void;
+    auto test_zero() -> void;
+    auto test_one_positive() -> void;
+#if 0 // [[REMOVETHIS]] these are unsigned, all of them nowadays
+    auto test_one_negative() -> void;
+#endif
+    auto test_min() -> void;
+    auto test_max_minus_one() -> void;
+    auto test_max() -> void;
+    auto test_max_plus_one() -> void;
+    auto test_max_plus_two() -> void;
+  protected:
+    static auto exercise_in_consistency(Bigge const &specimen, Small const &expected, bool was_clipped) -> void;
+    using Failure = ::tunitas::keyston::exception::Aspect;
+    static auto convert(Small) -> Bigge;
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.number.mp.convert // [[FIXTHIS]] [[REMOVETHIS]] see below
+namespace tests::unit::numeric {
+  template<typename _> auto Narrow<_>::suite() -> Suite {
+    auto series = Stream{typeid(Small)};
+    series << add("easy", &Narrow::test_easy)
+           << add("zero", &Narrow::test_zero)
+           << []{
+                auto one = Stream{"one"sv};
+                one << add("positive", &Narrow::test_one_positive)
+#if 0 // [[REMOVETHIS]] these are unsigned, all of them nowadays
+                    << add("negative", &Narrow::test_one_negative)
+#endif
+                    << END;
+                return one;
+              }()
+           << []{
+                auto max = Stream{"max"sv};
+                max << add("-1", &Narrow::test_max_minus_one)
+                    << add("+0", &Narrow::test_max)
+                    << add("+1", &Narrow::test_max_plus_one)
+                    << add("+2", &Narrow::test_max_plus_two)
+                    << END;
+                return max;
+             }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Narrow<_>::convert(Small small) -> Bigge { return Bigge{small}; } // this is trivial nowadays
+  template<typename _> auto Narrow<_>::exercise_in_consistency(Bigge const &specimen, Small const &expected, bool was_clipped) -> void {
+    namespace error = ::tunitas::error;
+    { auto observed = library::narrow<Small>(Clip::SILENTLY, specimen);
+      require(ASSERTION, expected == observed); }
+    { auto observed = library::narrow<Small>(error::by::Optional{}, specimen);
+      require(ASSERTION, was_clipped == !observed);
+      require(ASSERTION, was_clipped || expected == *observed); }
+    { auto observed = library::narrow<Small>(error::by::Outcome{}, specimen);
+      require(ASSERTION, was_clipped == fail(observed));
+      require(ASSERTION, was_clipped || expected == value(observed)); }
+    try {
+      auto observed = library::narrow<Small>(error::by::Exception{}, specimen);
+      require(ASSERTION, expected == observed);
+    } catch (Failure const &) {
+      require(ASSERTION, was_clipped);
+    }
+  }
+  template<typename _> auto Narrow<_>::test_easy() -> void {
+    auto small = Small{5u};
+    auto bigge = Bigge{convert(small)};;
+    auto expected = small;
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, !clipped);
+    require(ASSERTION, expected == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+  template<typename _> auto Narrow<_>::test_zero() -> void {
+    auto small = Small{0u};
+    auto bigge = Bigge{convert(small)};;
+    auto expected = small;
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, !clipped);
+    require(ASSERTION, expected == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+  template<typename _> auto Narrow<_>::test_one_positive() -> void {
+    auto small = Small{1u};
+    auto bigge = Bigge{convert(small)};;
+    auto expected = small;
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, !clipped);
+    require(ASSERTION, expected == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+#if 0 // [[REMOVETHIS]] these are unsigned, all of them nowadays
+  template<typename _> auto Narrow<_>::test_one_negative() -> void {
+    auto expected = Small{0u};
+    auto bigge = Bigge{-1};
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, clipped);
+    require(ASSERTION, expected == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+#endif
+  template<typename _> auto Narrow<_>::test_min() -> void {
+    auto small = Limits::min();
+    auto bigge = Bigge{convert(small)};;
+    auto expected = small;
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, !clipped);
+    require(ASSERTION, expected == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+  template<typename _> auto Narrow<_>::test_max_minus_one() -> void {
+    auto small = Limits::max() - 1;
+    auto bigge = Bigge{convert(small)};;
+    auto expected = small;
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, !clipped);
+    require(ASSERTION, small == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+  template<typename _> auto Narrow<_>::test_max() -> void {
+    auto small = Limits::max();
+    auto bigge = Bigge{convert(small)};;
+    auto expected = small;
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, !clipped);
+    require(ASSERTION, small == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+  template<typename _> auto Narrow<_>::test_max_plus_one() -> void {
+    auto expected = Limits::max();
+    auto bigge = Bigge{convert(1)} + Bigge{convert(Limits::max())};
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, clipped);
+    require(ASSERTION, expected == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+  template<typename _> auto Narrow<_>::test_max_plus_two() -> void {
+    auto expected = Limits::max();
+    auto bigge = Bigge{convert(2)} + Bigge{convert(Limits::max())};
+    auto [observed, clipped] = library::narrow<Small>(bigge);
+    require(ASSERTION, clipped);
+    require(ASSERTION, expected == observed);
+    exercise_in_consistency(bigge, expected, clipped);
+  }
+}
+#endiv

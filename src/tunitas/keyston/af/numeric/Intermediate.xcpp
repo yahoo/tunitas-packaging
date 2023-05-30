@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.number.Integer
+#import tunitas.keyston.measurement.Count
 #import tunitas.keyston.measurement.Histogram
 #import tunitas.keyston.measurement.Population
 namespace tunitas::keyston::af::numeric {
@@ -30,7 +30,7 @@ namespace tunitas::keyston::af::numeric {
   //   auto result = finalize(intermediate);
   //
   namespace [[eponymous]] intermediate {
-    using Single = number::Integer;
+    using Count = measurement::Count; // works for count and for sum [[o.rly?]]
     using measurement::Histogram;
     using measurement::Population;;
     struct Intermediate;
@@ -43,7 +43,7 @@ namespace tunitas::keyston::af::numeric {
 #forward tunitas.keyston.af.numeric.Aggregation
 namespace tunitas::keyston::af::numeric {
   namespace intermediate {
-    using Variant = std::variant<Single, Histogram, Population>;
+    using Variant = std::variant<Count, Histogram, Population>;
     inline auto finalize(Intermediate const &) -> Aggregation;
   }
   class intermediate::Intermediate : public Variant {
@@ -53,7 +53,7 @@ namespace tunitas::keyston::af::numeric {
 #if 1
     using Ancestor::variant;
 #else
-    explicit Intermediate(Single n) : Ancestor{move(n)} { }
+    explicit Intermediate(Count n) : Ancestor{move(n)} { }
     explicit Intermediate(Histogram h) : Ancestor{move(h)} { }
     explicit Intermediate(Population p) : Ancestor{move(p)} { }
 #endif
@@ -66,8 +66,8 @@ namespace tunitas::keyston::af::numeric {
 #import tunitas.variant.visit
 namespace tunitas::keyston::af::numeric {
   auto intermediate::finalize(Intermediate const &intermediate) -> Aggregation {
-    auto visitor = variant::Visitor{[](auto const &rhs)   -> Aggregation { return {rhs}; }, // [[FIXTHIS]] forcs a copy
-                                    [](Single const &rhs) -> Aggregation { return {visit(Ensmallenment{}, rhs)}; }};
+    // This merely reapplies the Aggregation constructor to the ccomponent parts of Intermediate
+    auto visitor = variant::Visitor{[](auto const &rhs)  -> Aggregation { return {rhs}; }};
     return visit(visitor, intermediate);
   }
 }

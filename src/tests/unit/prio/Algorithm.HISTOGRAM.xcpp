@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tests.unit.prio.Algorithm.template
+namespace tests::unit::prio {
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_encode() -> void;
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_truncate() -> void;
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_decode() -> void;
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::prio {
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_encode() -> void {
+    auto make_boundaries = [](auto... values) { return Subject::Boundaries{Subject::Boundaries::Value{values}...}; };
+    auto boundaries = make_boundaries(1u, 3u, 5u, 7u);
+    auto specimen = Subject::Measurement{5u};
+    auto expected = Subject::Encoded{generate(0u), generate(0u), generate(1u), generate(0u), generate(0u), generate(0u), generate(0u)};
+    auto observed = Subject::encode(specimen, boundaries);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_truncate() -> void {
+    auto specimen = Subject::Encoded{generate(0u), generate(1u), generate(0u), generate(1u)};
+    auto expected = Subject::Truncated{generate(0u), generate(1u), generate(0u), generate(1u), generate(0u), generate(0u), generate(0u), generate(0u)};
+    auto observed = Subject::truncate(specimen);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Algorithm<library::Algorithm<HISTOGRAM>>::test_known_decode() -> void {
+    auto specimen = Subject::Truncated{generate(0u), generate(1u), generate(0u), generate(1u)};
+    auto make_histogram = [](auto... values) { return Subject::Decoded{Subject::Decoded::Value{values}...}; };
+    auto expected = make_histogram(0u, 1u, 0u, 1u, 0u, 0u, 0u);
+    auto observed = Subject::decode(specimen, Subject::Processed{});
+    require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));
+  }
+}
+#endiv

@@ -13,9 +13,12 @@ namespace tunitas::keyston::daf::numeric::constant {
 }
 #import tunitas.keyston.daf.numeric.components
 #import tunitas.keyston.daf.numeric.Algorithm
+#import tunitas.keyston.field.Element
 namespace tunitas::keyston::daf::numeric::constant::package_constant {
   using namespace numeric::components;
-  namespace body { }
+  namespace body {
+    using Element = field::Element<64>;
+  }
 }
 #endiv
 #divert <hpp>
@@ -53,21 +56,24 @@ namespace tunitas::keyston::daf::numeric::constant::package_constant::body {
 namespace tunitas::keyston::daf::numeric::constant::package_constant {
   auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
     auto publick = Public<SHARE>{};
-    auto biggie = Input<SHARE>{enbiggen(m.value)};
-    auto little = Input<SHARE>{}; // ............................................. zero goes here, that's the algo, that's the tweet.
+    auto encoded = Element{enbiggen(m.value)}; // in lieu of Algorithm<CONSTANT>::encode(...) - there being nosuch Algorithm<CONSTANT>
+    auto enwrapped = Input<SHARE>::Count{encoded};
+    auto biggie = Input<SHARE>{move(enwrapped)};
+    auto little = Input<SHARE>{}; // ............................................. zero goes here, that's the "split" algo, that's the tweet.
     return {move(publick), Shards(biggie, little)};
   }
   auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &input) -> Computed {
     // the compute phase is trivial here
-    auto treatment = Treatment{[](input::Simple const &value) -> Output<SHARE>::Simple { return value; }};
+    auto treatment = Treatment{[](Input<SHARE>::Count const &value) -> Output<SHARE>::Count { return value; }};
     return Output<SHARE>{visit(treatment, input)};
   }
   auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &outputs) -> Amalgamated {
     if (outputs.empty()) { throw exception::Invariant{"empty amalgamation"}; }
     auto accumulate = [](Aggregation<SHARE> &&accumulator, Output<SHARE> const &each) -> Aggregation<SHARE> {
-      auto augmentment = Augmentment{[](Aggregation<SHARE>::Simple &&accumulator, Output<SHARE>::Simple const &each) -> Aggregation<SHARE>::Simple {
-        if (each > accumulator) {
-          accumulator = each; // max
+      auto augmentment = Augmentment{[](Aggregation<SHARE>::Count &&accumulator, Output<SHARE>::Count const &each) -> Aggregation<SHARE>::Count {
+        // whereas the modular vectors do not have operator>, we must rely on operator!= for consistency
+        if (each != accumulator) {
+          accumulator = each; // last one wins? (dubious)
         }
         return move(accumulator);
       }};
@@ -75,17 +81,17 @@ namespace tunitas::keyston::daf::numeric::constant::package_constant {
     };
     return std::accumulate(outputs.begin(), outputs.end(), Aggregation<SHARE>{}, accumulate);
   }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &aggregations, Processed count) -> Reassembled {
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &aggregations, Processed processed) -> Reassembled {
     if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }
-    auto accumulate = [count](Aggregation<WHOLE>::Simple &&accumulator, Aggregation<SHARE> const &increment) -> Aggregation<WHOLE>::Simple {
-      // indeed, count is never used in this variant of the algorithm
-      auto treatment = Treatment{[count](Aggregation<SHARE>::Simple const &each) -> Aggregation<WHOLE>::Simple { return ensmallen(Clip::SILENTLY, each); }};
+    auto accumulate = [processed](Aggregation<WHOLE>::Count &&accumulator, Aggregation<SHARE> const &increment) -> Aggregation<WHOLE>::Count {
+      // indeed, processed is never used in this variant of the algorithm
+      auto treatment = Treatment{[processed](Aggregation<SHARE>::Count const &each) -> Aggregation<WHOLE>::Count { return measurement::Count{underlying(each.at(0))}; }}; // in lieu of Algorithm<CONSTANT>::decode(...) which does not exist
       if (auto each=visit(treatment, increment); each > accumulator) {
         accumulator = each; // max
       }
       return move(accumulator);
     };
-    auto accumulated = std::accumulate(aggregations.begin(), aggregations.end(), Aggregation<WHOLE>::Simple{}, accumulate);
+    auto accumulated = std::accumulate(aggregations.begin(), aggregations.end(), Aggregation<WHOLE>::Count{}, accumulate);
     return Aggregation<WHOLE>{accumulated};
   }
 }

@@ -10,19 +10,37 @@ namespace tunitas::keyston::field {
   // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-parameters-2
   // Section 6.1.3 Parameters
   //
+  // Derivation:
+  //
+  //   4294967295
+  //   obase=16
+  //   FFFFFFFF
+  //
+  //   2^32 * 4294967295 + 1
+  //   18446744069414584321
+  //   obase=16
+  //   FFFFFFFF00000001
+  //
   template<> struct Field<64>;
 }
 #endiv
 #divert <hpp>
 namespace tunitas::keyston::field {
   template<> struct Field<64> {
-    using Value = std::uint64_t;
-    template<Size CAPACITY> using Vector = field::Vector<Value, CAPACITY>;
-    inline static constexpr Value const MODULUS = (Value{1}<<32) * 4294967295 + 1;
+    using Element = field::Element<64>;
+    using Value = Element;
+    using Underlying = traits::Element<Element>::Underlying;
+    using Temporary = traits::Element<Element>::Temporary;
+    template<Size CAPACITY> using Vector = field::Vector<Element, CAPACITY>;
+    inline static constexpr Underlying const MODULUS = (Underlying{1}<<32) * 4294967295 + 1;
     inline static constexpr auto const ENCODED_SIZE = Bytes{8u};
-    using Generator = field::Generator<7lu, 4294967295lu, MODULUS>;
-    static auto gen() -> Value { return Generator{}(); }
-    inline static constexpr auto GEN_ORDER = Value{1} << 32;
+    class Generator : public numeric::Generator<7lu, 4294967295lu, MODULUS> {
+      using Ancestor = numeric::Generator<7lu, 4294967295lu, MODULUS> ;
+    public:
+      constexpr auto operator()() const -> Element { return Element{Ancestor::operator()()}; }
+      inline static constexpr Underlying ORDER = Underlying{1} << 32;
+    };
+    static constexpr auto gen() -> Element { return Generator{}(); }
   };
 }
 #endiv

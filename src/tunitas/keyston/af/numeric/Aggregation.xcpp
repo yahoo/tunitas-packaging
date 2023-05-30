@@ -25,13 +25,13 @@ namespace tunitas::keyston::af::numeric {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.numeric.general.Aggregation
+#import tunitas.keyston.numeric.generic.Aggregation
 namespace tunitas::keyston::af {
   namespace numeric {
     using std::move;
   }
-  struct numeric::Aggregation : public general::Aggregation {
-    using Ancestor = general::Aggregation;
+  struct numeric::Aggregation : public generic::Aggregation {
+    using Ancestor = generic::Aggregation;
   public:
     Aggregation() = default;
     using Ancestor::Aggregation;

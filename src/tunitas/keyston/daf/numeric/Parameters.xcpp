@@ -27,14 +27,14 @@ namespace tunitas::keyston::daf::numeric {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.numeric.general.Parameters
+#import tunitas.keyston.numeric.generic.Parameters
 namespace tunitas::keyston::daf {
   namespace numeric {
     using std::move;
     inline auto swap(Parameters &, Parameters &) noexcept -> void;
   }
-  class numeric::Parameters : public general::Parameters {
-    using Ancestor = general::Parameters;
+  class numeric::Parameters : public generic::Parameters {
+    using Ancestor = generic::Parameters;
     friend auto numeric::swap(Parameters &, Parameters &) noexcept -> void;
   public:
     Parameters() = default;

@@ -5,15 +5,7 @@
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
 nonstd_SUBSOURCES = \
-  obj/src/nonstd/container/Traits/tunitas.keyston.array.Series.TYPE.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.array.Fixed.TYPE.CAPACITY.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.field.Vector.ELEMENT.CAPACITY.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.array.Variable.TYPE.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.array.range.package_enumerate.Range.CONTAINER.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Histogram.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Boundaries.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Population.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Prefixes.cpp \
-  \
-  obj/src/nonstd/iterator/Traits/tunitas.keyston.array.range.package_enumerate.Iterator.SUBITERATOR.MUTABILITY.cpp \
+  $(nonstd_container_SUBSOURCES) \
   $(end)
+#
+include src/nonstd/container/Makefrag.am

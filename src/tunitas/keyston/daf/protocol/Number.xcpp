@@ -26,11 +26,11 @@ namespace tunitas::keyston::daf::protocol {
 }
 #endiv
 #divert <hpp>
-#import tunitas.number.Integer
+#import std.byte
+#import tunitas.keyston.array.Variable
 struct tunitas::keyston::daf::protocol::Number {
-  number::Integer value{};
+  array::Variable<std::byte> value{};
   Number() = default;
-  explicit Number(number::Integer n) : value{move(n)} { }
 protected:
   ~Number() = default;
 };

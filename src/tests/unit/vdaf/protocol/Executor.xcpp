@@ -185,7 +185,7 @@ auto tests::unit::vdaf::protocol::executor::Executor::suite() -> Suite {
   return settle(series);
 }
 #import tunitas.exception.feature.Unimplemented
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.measurement.Records
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.vdaf.protocol.components
 namespace tests::unit::vdaf::protocol::executor {
@@ -221,8 +221,8 @@ namespace tests::unit::vdaf::protocol::executor {
     } {
       auto parameters = library::Parameters{};
       auto vector = Shards<library::Aggregation<SHARE>>{};
-      auto count = measurement::Count{};
-      auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+      auto records = measurement::Records{};
+      auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     }
   } catch (::tunitas::exception::feature::Unimplemented const &) {
@@ -360,16 +360,16 @@ namespace tests::unit::vdaf::protocol::executor {
     auto subject = Subject{Subject::ZERO};
     auto parameters = library::Parameters{};
     auto vector = Shards<library::Aggregation<SHARE>>{};
-    auto count = measurement::Count{};
-    auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+    auto records = measurement::Records{};
+    auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_reassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
     auto parameters = library::Parameters{};
     auto vector = Shards<library::Aggregation<SHARE>>{};
-    auto count = measurement::Count{};
-    subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+    auto records = measurement::Records{};
+    subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);

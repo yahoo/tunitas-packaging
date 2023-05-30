@@ -14,7 +14,7 @@ namespace tunitas::keyston::error::code {
       SUCCESS, // ........ improper success (which is a failure)
       FAILURE, // ........ sic, generic failure
       //
-      OVERFLOW, // ....... e.g. when stuffing a variable array into a fixed array
+      OVERFLOW, // ....... e.g. when stuffing a variable array into a fixed array; a bignum into a smallnum
     };
     using enum Enumeration;
   };

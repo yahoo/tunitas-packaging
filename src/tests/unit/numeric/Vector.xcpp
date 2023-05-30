@@ -1,0 +1,348 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.numeric.required.Vector
+#import tunitas.keyston.numeric.Vector
+namespace tests::unit::numeric {
+  template<typename SUBJECT> requires required::Vector<SUBJECT> struct Vector;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.exception.Aspect
+namespace tests::unit {
+  template<typename SUBJECT> requires numeric::required::Vector<SUBJECT> struct numeric::Vector : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    using Value = typename Subject::Value;
+    using Scalar = typename Subject::Value;
+    //
+    auto test_construction_default() -> void;
+    auto test_construction_initializer() -> void;
+    auto test_construction_copy() -> void;
+    auto test_construction_move() -> void;
+    //
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    //
+    auto test_swap() -> void;
+    //    
+    auto test_pos() -> void;
+    auto test_neg() -> void;
+    //
+    auto test_add() -> void;
+    auto test_sub() -> void;
+    //
+    auto test_mul_cosine() -> void;
+    auto test_mul_ab() -> void;
+    auto test_mul_ba() -> void;
+    auto test_div_good() -> void;
+    auto test_div_zero() -> void;
+    auto test_mod_good() -> void;
+    auto test_mod_zero() -> void;
+    //
+    auto test_eq() -> void;
+    auto test_ne() -> void;
+#if 0 // [[REMOVETHIS]] because vectors do not have a lexicographic sense
+    auto test_lt() -> void;
+    auto test_le() -> void;
+    auto test_gt() -> void;
+    auto test_ge() -> void;
+    auto test_cmp() -> void;
+#endif
+  protected:
+    using Failure = ::tunitas::keyston::exception::Aspect;
+    static auto generate(Value all) -> Subject;
+    static auto generate(Value item0, Value rest) -> Subject;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.index_sequence
+#import std.make_index_sequence
+namespace tests::unit::numeric {
+  template<typename _> auto Vector<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+               auto con = Stream{"construction"sv};
+               con << add("default", &Vector::test_construction_default)
+                   << add("initializer", &Vector::test_construction_initializer)
+                   << add("copy", &Vector::test_construction_copy)
+                   << add("move", &Vector::test_construction_move)
+                   << END;
+               return con;
+             }()
+           << []{
+               auto ass = Stream{"assignment"sv};
+               ass << add("copy", &Vector::test_assignment_copy)
+                   << add("move", &Vector::test_assignment_move)
+                   << END;
+               return ass;
+             }()
+           << add("swap", &Vector::test_swap)
+           << []{
+               auto un = Stream{"unary"sv};
+               un << add("pos", &Vector::test_pos)
+                  << add("neg", &Vector::test_neg)
+                  << END;
+               return un;
+             }()
+           << []{
+               auto bin = Stream{"binary"sv};
+               bin << add("add", &Vector::test_add)
+                   << add("sub", &Vector::test_sub)
+                   << []{
+                     auto mul = Stream{"mul"sv};
+                     mul << add("cosine", &Vector::test_mul_cosine)
+                         << add("ab", &Vector::test_mul_ab)
+                         << add("ab", &Vector::test_mul_ba)
+                         << END;
+                     return mul;
+                   }()
+                   << []{
+                     auto div = Stream{"div"sv};
+                     div << add("good", &Vector::test_div_good)
+                         << add("zero", &Vector::test_div_zero)
+                         << END;
+                     return div;
+                   }()
+                   << []{
+                     auto mod = Stream{"mod"sv};
+                     mod << add("good", &Vector::test_mod_good)
+                         << add("zero", &Vector::test_mod_zero)
+                         << END;
+                     return mod;
+                   }()
+                  << END;
+               return bin;
+             }()
+           << []{
+               auto cmp = Stream{"comparison"sv};
+               cmp << add("operator==", &Vector::test_eq)
+                   << add("operator!=", &Vector::test_ne)
+#if 0 // [[REMOVETHIS]] because vectors do not have a lexicographic sense
+                   << add("operator<=", &Vector::test_le)
+                   << add("operator<", &Vector::test_lt)
+                   << add("operator>=", &Vector::test_ge)
+                   << add("operator>", &Vector::test_gt)
+                   << add("operator<=>", &Vector::test_cmp)
+#endif
+                   << END;
+               return cmp;
+             }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Vector<_>::generate(Value item0, Value rest) -> Subject {
+    auto generated = generate(rest);
+    generated.at(0) = item0;
+    return generated;
+  }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-value"
+  template<typename _> auto Vector<_>::generate(Value rest) -> Subject {
+#if 1
+    auto ret = Subject{};
+    for (auto &lhs : ret) {
+      lhs = rest;
+    }
+    return ret;
+#else
+    constexpr auto const SIZE = Subject{}.size(); // doesn't always work ... because tunitas::keyston::numeric::Vector<tunitas::number::mp::integer::package_integer::body::exported::Integer, 3>’ does not have ‘constexpr’ destructor
+    return [seed]<std::size_t... INDEX>(std::index_sequence<INDEX...>) {
+      return Subject{(INDEX, rest)...};
+    }(std::make_index_sequence<SIZE>{});
+#endif
+  }
+#pragma GCC diagnostic pop
+  template<typename _> auto Vector<_>::test_construction_default() -> void {
+    auto subject = Subject{}; // <-------------------- test this
+    require(ASSERTION, generate(0) == subject);
+  }
+  template<typename _> auto Vector<_>::test_construction_initializer() -> void {
+    auto subject = generate(1); // which uses the flexible initializer constructor <----- test this
+    require(ASSERTION, generate(0) != subject);
+  }
+  template<typename _> auto Vector<_>::test_construction_copy() -> void {
+    auto specimen = generate(2);
+    auto subject = Subject{specimen}; // <-------------------- test this
+    require(ASSERTION, specimen == subject);
+  }
+  template<typename _> auto Vector<_>::test_construction_move() -> void {
+    auto specimen = generate(3);
+    auto copy = specimen;
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    require(ASSERTION, copy == subject);
+  }
+  template<typename _> auto Vector<_>::test_assignment_copy() -> void {
+    auto specimen = generate(2);
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    require(ASSERTION, specimen == subject);
+  }
+  template<typename _> auto Vector<_>::test_assignment_move() -> void {
+    auto specimen = generate(3);
+    auto copy = specimen;
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    require(ASSERTION, copy == subject);
+  }
+  template<typename _> auto Vector<_>::test_swap() -> void {
+    auto a = generate(1);
+    auto b = generate(9);
+    swap(a, b);
+    require(ASSERTION, a.at(0) == 9);
+    require(ASSERTION, b.at(0) == 1);
+  }
+  template<typename _> auto Vector<_>::test_pos() -> void {
+    auto specimen = generate(17);
+    auto subject = +specimen;
+    require(ASSERTION, subject.at(0) == 17);
+  }
+  template<typename _> auto Vector<_>::test_neg() -> void {
+    auto specimen = generate(19);
+    auto subject = -specimen;
+    // WATCHOUT - when Value is required::Integer<Value> then the UB wraparound thing that the unsigned integers do occurs
+    //            when Value is a bignum number::Integer then the normal thing happens because bignums are signed.
+    auto const semi_bogus_negative_nineteen = Value(-19);
+    require(ASSERTION, subject.at(0) == semi_bogus_negative_nineteen);
+  }
+  template<typename _> auto Vector<_>::test_add() -> void {
+    auto a = generate(3);
+    auto b = generate(2);
+    auto c = generate(5);
+    require(ASSERTION, a + b == c);
+  }
+  template<typename _> auto Vector<_>::test_sub() -> void {
+    auto a = generate(5);
+    auto b = generate(2);
+    auto c = generate(3);
+    require(ASSERTION, a - b == c);
+  }
+  template<typename _> auto Vector<_>::test_mul_cosine() -> void {
+    auto a = generate(2);
+    auto b = generate(3);
+    auto c = generate(6);
+    require(ASSERTION, a * b == c);
+  }
+  template<typename _> auto Vector<_>::test_mul_ab() -> void {
+    auto a = Scalar{2};
+    auto b = generate(3);
+    auto c = generate(6);
+    require(ASSERTION, a * b == c);
+  }
+  template<typename _> auto Vector<_>::test_mul_ba() -> void {
+    auto a = generate(3);
+    auto b = Scalar{2};
+    auto c = generate(6);
+    require(ASSERTION, a * b == c);
+  }
+  template<typename _> auto Vector<_>::test_div_good() -> void {
+    auto a = generate(6);
+    auto b = Scalar{3};
+    auto c = generate(2);
+    require(ASSERTION, a / b == c);
+  }
+  template<typename _> auto Vector<_>::test_div_zero() -> void try {
+    auto a = generate(5);
+    auto b = Scalar{0};
+    a / b;
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<typename _> auto Vector<_>::test_mod_good() -> void {
+    auto a = generate(5);
+    auto b = Scalar{3};
+    auto c = generate(2);
+    require(ASSERTION, a % b == c);
+  }
+  template<typename _> auto Vector<_>::test_mod_zero() -> void try {
+    auto a = generate(5);
+    auto b = Scalar{0};
+    a % b;
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<typename _> auto Vector<_>::test_eq() -> void {
+    auto a = generate(1);
+    auto b = generate(1);
+    auto c = generate(2);
+    require(ASSERTION, a == b);
+    require(ASSERTION, !(a == c));
+  }
+  template<typename _> auto Vector<_>::test_ne() -> void {
+    auto a = generate(1);
+    auto b = generate(1);
+    auto c = generate(2);
+    require(ASSERTION, !(a != b));
+    require(ASSERTION, a != c);
+  }
+#if 0 // [[REMOVETHIS]] because vectors do not have a lexicographic sense
+  template<typename _> auto Vector<_>::test_lt() -> void {
+    auto a = generate(1, 1);
+    auto b = generate(1, 1);
+    auto c = generate(2, 1);
+    auto d = generate(1, 2);
+    require(ASSERTION, !(a < b));
+    require(ASSERTION, b < c);
+    require(ASSERTION, !(c < d));
+    require(ASSERTION, d < c);
+    require(ASSERTION, !(c < b));
+    require(ASSERTION, !(b < a));
+  }
+  template<typename _> auto Vector<_>::test_le() -> void {
+    auto a = generate(1, 1);
+    auto b = generate(1, 1);
+    auto c = generate(2, 1);
+    auto d = generate(1, 2);
+    require(ASSERTION, a <= b);
+    require(ASSERTION, b <= c);
+    require(ASSERTION, !(c <= d));
+    require(ASSERTION, d <= c);
+    require(ASSERTION, !(c <= b));
+    require(ASSERTION, b <= a);
+  }
+  template<typename _> auto Vector<_>::test_gt() -> void {
+    auto a = generate(1, 1);
+    auto b = generate(1, 1);
+    auto c = generate(2, 1);
+    auto d = generate(1, 2);
+    require(ASSERTION, !(a > b));
+    require(ASSERTION, !(b > c));
+    require(ASSERTION, (c > d));
+    require(ASSERTION, !(d > c));
+    require(ASSERTION, c > b);
+    require(ASSERTION, !(b > a));
+  }
+  template<typename _> auto Vector<_>::test_ge() -> void {
+    auto a = generate(1, 1);
+    auto b = generate(1, 1);
+    auto c = generate(2, 1); // <2, 1, 1>
+    auto d = generate(1, 2); // <1, 2, 2>
+    require(ASSERTION, a >= b);
+    require(ASSERTION, !(b >= c));
+    require(ASSERTION, (c >= d));
+    require(ASSERTION, !(d >= c));
+    require(ASSERTION, c >= b);
+    require(ASSERTION, b >= a);
+  }
+  template<typename _> auto Vector<_>::test_cmp() -> void {
+    auto a = generate(1, 1);
+    auto b = generate(1, 1); // <1, 1, 1>
+    auto c = generate(2, 1); // <2, 1, 1>
+    auto d = generate(1, 2); // <1, 2, 2>
+    require(ASSERTION, std::strong_ordering::equal   == (a <=> b));
+    require(ASSERTION, std::strong_ordering::less    == (b <=> c));
+    require(ASSERTION, std::strong_ordering::greater == (c <=> d));
+    require(ASSERTION, std::strong_ordering::less    == (d <=> c));
+    require(ASSERTION, std::strong_ordering::greater == (c <=> b));
+    require(ASSERTION, std::strong_ordering::equal   == (b <=> a));
+  }
+#endif
+}
+#endiv

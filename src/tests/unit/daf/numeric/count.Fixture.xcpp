@@ -136,8 +136,8 @@ namespace tests::unit::daf::numeric::count {
       auto aggregation = Configuration::Aggregation<SHARE>{Provided::CANARY};
       return Shards<Configuration::Aggregation<SHARE>>{aggregation, aggregation};
     }();
-    auto count = Count{11}; // this number is irrelevant (unused)
-    auto reassembled = library::reassembly(parameters, aggregations, count);
+    auto records = Records{11}; // this number is irrelevant (unused)
+    auto reassembled = library::reassembly(parameters, aggregations, records);
     //
     require(ASSERTION, Expected::CANARY == visit(expected.treatment, reassembled));
   }

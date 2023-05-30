@@ -4,7 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.number.Integer
 #import tunitas.keyston.prio.Algorithm
 #include <hpp/tunitas.keyston.prio.Algorithm>
 #import tunitas.keyston.poplar.Algorithm
@@ -14,7 +13,6 @@ namespace tunitas::keyston::daf::numeric {
     template<Slice SLICE> struct Output;
     template<> struct Output<WHOLE>; // never materialized; see Aggregation<WHOLE>
     template<> struct Output<SHARE>;
-    using Simple = number::Integer;
     using Count = prio::Algorithm<prio::Name::COUNT>::Truncated;
     using Sum = prio::Algorithm<prio::Name::SUM>::Truncated;
     using Histogram = prio::Algorithm<prio::Name::HISTOGRAM>::Truncated;
@@ -25,13 +23,12 @@ namespace tunitas::keyston::daf::numeric {
 #endiv
 #divert <hpp>
 namespace tunitas::keyston::daf::numeric::output {
-  using Variant = std::variant<Simple, Count, Sum, Histogram, Population>;
+  using Variant = std::variant<Count, Sum, Histogram, Population>;
   template<> class Output<SHARE> : public Variant {
     using Ancestor = Variant;
   public:
     Output() = default;
     using Ancestor::variant; // yep, you "just have to know" that the constructor name is 'variant' therein
-    using Simple = output::Simple;
     using Count = output::Count;
     using Sum = output::Sum;
     using Histogram = output::Histogram;

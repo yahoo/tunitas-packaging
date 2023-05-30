@@ -45,6 +45,7 @@ TF_WITH_SUBSYSTEM([temerarious-flagship], [], [The Tunitas Build System])
 TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
 
 # and mention in $(DEVELOPMENT_AREAS) in Makefile.am
+TF_WITH_MODULE([boost])
 TF_WITH_MODULE([cli-core])
 TF_WITH_MODULE([fmt])
 TF_WITH_MODULE([langu])
@@ -60,6 +61,7 @@ TF_WITH_MODULE([uuid])
 TF_WITH_MODULE([cppunit])
 
 TF_MSG_VERBOSE([compiler-specific (alphabetical)])
+TF_WITH_NONSTD([boost])
 TF_WITH_NONSTD([cppunit])
 TF_WITH_NONSTD([fmt])
 TF_WITH_NONSTD([gcc]) dnl but modern gcc-12 & beyond is fine
@@ -74,5 +76,28 @@ AM_PROG_CC_C_O
 TF_PROG_DC
 
 TF_CHECK_CPPUNIT
+TF_CHECK_BOOST
+
+dnl Since some parts of keyston still use tunitas::number in libtunitas-number.la which uses gmp
+dnl
+dnl gmp-6.2.1
+dnl Specimen:
+dnl
+dnl   gmp-6.2.1-3.fc37.x86_64
+dnl   gmp-c++-6.2.1-3.fc37.x86_64
+dnl   gmp-devel-6.2.1-3.fc37.x86_64
+dnl
+TF_CHECK_PACKAGES_ERROR([gmpxx.h], [gmp-devel])
+
+dnl however Most of keyston transitions to use tunitas::integer which relies on Boost.Multiprecision (and not the gmp part)
+dnl
+dnl boost-1.78
+dnl Specimen:
+dnl
+dnl   boost-devel-1.78.0-9.fc37.x86_64
+dnl
+CPPFLAGS="${CPPFLAGS} ${module_boost_prefix:+-I${module_boost_prefix?}/modules -I${module_boost_prefix?}/include} ${nonstd_boost_prefix:+-I${nonstd_boost_prefix?}/include}" # [[FIXTHIS]] fix TF_CHECK_PACKAGES to be cognizant of the now-accreted searchpath
+TF_CHECK_PACKAGES_ERROR([boost/multiprecision/cpp_int.hpp], [boost-devel])
+TF_CHECK_PACKAGES_ERROR([boost.multiprecision.cpp_int], [module-boost])
 
 TF_FINALIZE

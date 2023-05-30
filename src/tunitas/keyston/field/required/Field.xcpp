@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.field.Field
+namespace tunitas::keyston::field::required {
+  //
+  // Is this type a field descriptor?
+  // Rhymes with InstanceOf, but accounts for the NTTP (NON-Type Template Parameter)
+  // This is diagnosable without the complete type of Field<INDEX>, so the complete type may not ever be available
+  //
+  template<typename FIELD> concept Field = requires(FIELD) {
+    { []<unsigned INDEX>(field::Field<INDEX> *)
+      {} (static_cast<FIELD *>(nullptr)) };
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::field::required;
+    using tunitas::keyston::field::Field;
+    //
+    static_assert(required::Field<Field<64>>);
+    static_assert(required::Field<Field<128>>);
+    static_assert(required::Field<Field<255>>);
+  }
+}
+#endiv

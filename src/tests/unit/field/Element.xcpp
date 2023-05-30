@@ -1,0 +1,102 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Element
+namespace tests::unit::field {
+  template<typename SUBJECT> requires required::Element<SUBJECT> struct Element;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit {
+  template<typename SUBJECT> requires field::required::Element<SUBJECT> struct field::Element : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_operator_pos() -> void;
+    auto test_operator_neg() -> void;
+    //
+    auto test_operator_add() -> void;
+    auto test_operator_sub() -> void;
+    auto test_operator_mul() -> void;
+    auto test_operator_pow() -> void;
+  protected:
+    struct Expected;
+    static auto generate(unsigned specimen) -> Subject;
+  };
+}
+#endiv
+#divert <tpp>
+#import tests.unit.field.Element.SUBJECT.Expected
+#import std.derived_from
+#import tunitas.number.mp.convert // [[FIXTHIS]] see below
+namespace tests::unit::field {
+  template<typename _> auto Element<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+               auto un = Stream{"unary"sv};
+               un << add("operator+", &Element::test_operator_pos)
+                  << add("operator-", &Element::test_operator_neg)
+                  << END;
+               return un;
+             }()
+           << []{
+               auto bi = Stream{"binary"sv};
+               bi << add("operator+", &Element::test_operator_add)
+                  << add("operator-", &Element::test_operator_sub)
+                  << add("operator*", &Element::test_operator_mul)
+                  << add("pow", &Element::test_operator_pow)
+                  << END;
+               return bi;
+             }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Element<_>::generate(unsigned specimen) -> Subject {
+    if constexpr (std::derived_from<Subject, tunitas::number::Integer>) {
+      return Subject{::tunitas::number::mp::convert<mpz_class>(specimen)}; // [[FIXTHIS]] (obviously) once uint256_t and uint512_t are available
+    } else {
+      return Subject{specimen};
+    }
+  }
+  template<typename _> auto Element<_>::test_operator_pos() -> void {
+    auto original = 3u;
+    auto subject = generate(original);
+    auto observed = +subject; // <-------------------- test this
+    require(ASSERTION, Expected::pos() == underlying(observed));
+  }
+  template<typename _> auto Element<_>::test_operator_neg() -> void {
+    auto original = 3u;
+    auto subject = generate(original);
+    auto observed = -subject; // <-------------------- test this
+    require(ASSERTION, Expected::neg() == underlying(observed));
+  }
+  template<typename _> auto Element<_>::test_operator_add() -> void {
+    auto a = generate(3);
+    auto b = generate(5);
+    auto observed = a + b; // <-------------------- test this
+    require(ASSERTION, Expected::add() == underlying(observed));
+  }
+  template<typename _> auto Element<_>::test_operator_sub() -> void {
+    auto a = generate(3);
+    auto b = generate(5);
+    auto observed = a - b; // <-------------------- test this
+    require(ASSERTION, Expected::sub() == underlying(observed));
+  }
+  template<typename _> auto Element<_>::test_operator_mul() -> void {
+    auto a = generate(3);
+    auto b = generate(5);
+    auto observed = a * b; // <-------------------- test this
+    require(ASSERTION, Expected::mul() == underlying(observed));
+  }
+  template<typename _> auto Element<_>::test_operator_pow() -> void {
+    auto a = generate(3);
+    auto b = 5lu;
+    auto observed = pow(a, b); // <-------------------- test this
+    require(ASSERTION, Expected::pow() == underlying(observed));
+  }
+}
+#endiv

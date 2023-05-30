@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms and provenance see the LICENSE file at the top of this repository.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
@@ -70,6 +70,7 @@ include @temerarious_flagship_datadir@/am/build.am
 
 # These match with HGTW_WITH_MODULE in configure.ac
 DEVELOPMENT_AREAS = \
+  $(module_boost_prefix) \
   $(module_cli_core_prefix) \
   $(module_fmt_prefix) \
   $(module_langu_prefix) \
@@ -83,6 +84,7 @@ TESTING_AREAS = \
   $(deprecated_TESTING_AREAS) \
   $(end)
 INSTALLATION_AREAS = \
+  $(nonstd_boost_prefix) \
   $(nonstd_fmt_prefix) \
   $(nonstd_gcc_prefix) \
   $(std_scold_prefix) \

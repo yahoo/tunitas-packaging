@@ -20,17 +20,20 @@ namespace nonstd::container {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.field.Vector
+#import tunitas.keyston.field.Element
 namespace {
   namespace testate {
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1>>));
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1>>::Iterator));
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1>>::Value));
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1>>::Container));
+    using tunitas::keyston::field::Element;
     //
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1> const>));
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1> const>::Iterator));
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1> const>::Value));
-    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<unsigned, 1> const>::Container));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1>>));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1>>::Iterator));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1>>::Value));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1>>::Container));
+    //
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1> const>));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1> const>::Iterator));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1> const>::Value));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Vector<Element<64>, 1> const>::Container));
   }
 }
 #endiv

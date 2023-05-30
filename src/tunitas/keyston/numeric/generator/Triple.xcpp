@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.numeric.generator.required.Triple
+#import tunitas.keyston.numeric.required.Subelement
+#import tunitas.keyston.numeric.generator.traits.Common
+#include <hpp/tunitas.keyston.numeric.generator.traits.Common>
+namespace tunitas::keyston::numeric::generator {
+  //
+  // A generator of a group.
+  //
+  // Specification:
+  //
+  // Design:
+  //
+  //   Specializations and  constexpr when it can be.
+  //
+  //   The operator()() cannot be constexpr when number:Integer is produced.
+  //
+  // Usage:
+  //
+  //   auto gen() -> Value { return Generator{}(); }
+  //
+  template<auto BASE, auto EXPONENT, auto MODULUS, required::Subelement SUBELEMENT = typename traits::Common<BASE, EXPONENT, MODULUS>::Type>
+  requires required::Triple<BASE, EXPONENT, MODULUS, SUBELEMENT>
+  struct Triple;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::numeric {
+  template<auto THE_BASE, auto THE_EXPONENT, auto THE_MODULUS, required::Subelement SUBELEMENT>
+  requires generator::required::Triple<THE_BASE, THE_EXPONENT, THE_MODULUS, SUBELEMENT>
+  class generator::Triple {
+  protected:
+    using Subvalue = SUBELEMENT;
+  public:
+    inline static constexpr Subvalue const BASE     = THE_BASE;
+    inline static constexpr Subvalue const EXPONENT = THE_EXPONENT;
+    inline static constexpr Subvalue MODULUS        = THE_MODULUS;
+  };
+}
+#endiv

@@ -13,8 +13,8 @@ namespace tunitas::keyston::numeric {
   //
   //   The moral equivalent of
   //
-  //   auto visitor = variant::Visitor{[](auto &) [ throw exception::Variant{}; },
-  //                                   [&m](number::Integer &lhs) { lhs += enbiggen(m.value); }};
+  //   auto visitor = variant::Visitor{[](auto &, auto const &)            { throw exception::Variant{}; },
+  //                                   [](uint256_t &lhs, auto const &rhs) { lhs += ...something...rhs...something...; }};
   //
   // Design:
   //
@@ -24,8 +24,8 @@ namespace tunitas::keyston::numeric {
   //
   // Usage:
   //
-  //   auto augmentment = Augmentment{[&m](number::Integer &&lhs, number::Integer const &lhs) { lhs += rhs; }};
-  //   std::accumulator(start, finish, number::Integer{}, augmentment);
+  //   auto augmentment = Augmentment{[&m](uint256_t &&lhs, uint256_t const &rhs) { lhs += rhs; }};
+  //   std::accumulator(start, finish, uitn256_t{}, augmentment);
   //
   template<required::Augmentment AUGMENTMENT> struct Augmentment;
   template<required::Augmentment AUGMENTMENT> Augmentment(AUGMENTMENT &&) -> Augmentment<AUGMENTMENT>;
@@ -33,6 +33,7 @@ namespace tunitas::keyston::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.exception.Variant
+#import tunitas.keyston.numeric.traits.Result
 namespace tunitas::keyston {
   template<numeric::required::Augmentment AUGMENTMENT> struct tunitas::keyston::numeric::Augmentment : public AUGMENTMENT {
     using AUGMENTMENT::operator();

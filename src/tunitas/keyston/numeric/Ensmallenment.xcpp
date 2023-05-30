@@ -14,7 +14,7 @@ namespace tunitas::keyston::numeric {
   //   The moral equivalent of
   //
   //   auto visitor = variant::Visitor{[](auto &) [ throw exception::Variant{}; },;
-  //                                   [](number::Integer const &rhs) -> Finalized { return ensmallen(Clip::SILENTLY, rhs); }};
+  //                                   [](SOURCE const &rhs) -> Finalized { return ensmallen(Clip::SILENTLY, rhs); }};
   //
   // Design:
   //
@@ -32,16 +32,17 @@ namespace tunitas::keyston::numeric {
 #divert <hpp>
 #import tunitas.keyston.exception.Variant
 #import tunitas.keyston.numeric.ensmallen
-#import tunitas.keyston.measurement.Result
-#import tunitas.number.Integer
+#import tunitas.keyston.measurement.Simple
+#import tunitas.integer.required.Unsigned // appears as integer::Unsigned
+#import tunitas.keyston.numeric.required // ctcnr (cascade that certain namespace required)
 namespace tunitas::keyston {
   namespace numeric {
     template<typename OTHER> inline auto visit(Ensmallenment const &, OTHER const &);
   }
   struct numeric::Ensmallenment {
-    using Result = measurement::Result;
-    auto operator()(number::Integer const &rhs) const -> Result           { return ensmallen(Clip::SILENTLY, rhs); }
-    template<typename TYPE> auto operator()(TYPE const &) const -> Result { throw exception::Variant{}; }
+    using Simple = measurement::Simple;
+    template<typename SOURCE> requires required::integer::Unsigned<SOURCE> auto operator()(SOURCE const &rhs) const -> Simple { return ensmallen(Clip::SILENTLY, rhs); }
+    template<typename TYPE> requires (!required::integer::Unsigned<TYPE>)  auto operator()(TYPE const &) const -> Simple { throw exception::Variant{}; }
   };
 }
 #import std.visit.tunitas.keyston.numeric.Ensmallenment

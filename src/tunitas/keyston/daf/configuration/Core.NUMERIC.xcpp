@@ -11,7 +11,7 @@ namespace tunitas::keyston::daf::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.measurement.Records
 #import tunitas.keyston.daf.constants
 #import tunitas.keyston.daf.numeric.Parameters
 #import tunitas.keyston.daf.numeric.Measurement
@@ -24,7 +24,7 @@ namespace tunitas::keyston::daf::configuration {
   template<> struct Core<NUMERIC> {
     using Parameters = daf::numeric::Parameters;
     using Randomness = nonce::Bits<constants::RANDOMNESS_BIT_COUNT.count()>;
-    using Processed = measurement::Count;
+    using Processed = measurement::Records;
     template<Slice SLICE> using Measurement = daf::numeric::Measurement<SLICE>;
     template<Slice SLICE> using Public = daf::numeric::Public<SLICE>;
     template<Slice SLICE> using Input = daf::numeric::Input<SLICE>;

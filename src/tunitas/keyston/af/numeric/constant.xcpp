@@ -44,7 +44,7 @@ namespace tunitas::keyston::af::numeric::constant::package_constant::body {
 #divert <cpp>
 #import tunitas.keyston.numeric.ensmallen
 namespace tunitas::keyston::af::numeric::constant::package_constant {
-  auto interface::initialization(Parameters const &) -> Initialized { return (intermediate::Single{}); }
+  auto interface::initialization(Parameters const &) -> Initialized { return (intermediate::Count{}); }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &, Intermediate i, Measurement const &) -> Computed {
     return move(i);
