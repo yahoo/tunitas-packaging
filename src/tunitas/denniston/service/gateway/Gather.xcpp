@@ -55,8 +55,8 @@ namespace tunitas::denniston::service::gateway {
 #import tunitas.Optional
 #import tunitas.denniston.report.Status
 #import tunitas.denniston.report.Series
-#import tunitas.keyston.vdaf.Shards
-#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.Shards
+#import tunitas.keyston.Shard
 #import std.mutex
 #import std.lock_guard
 namespace tunitas::denniston::service::gateway {
@@ -67,14 +67,14 @@ namespace tunitas::denniston::service::gateway {
     Gather &operator=(Gather const &) = delete;
     //
     inline auto is_complete() const -> bool;
-    using Shard = keyston::vdaf::Shard;
+    using Shard = keyston::Shard;
     using Stripe = report::Series<report::Status>;
     enum class Inserted { INSERTED, DUPLICATE, REJECTED = DUPLICATE };
     inline auto insert(Shard, Stripe &&) -> Inserted;
     template<required::iterator::Status ITERATOR> inline auto insert(Shard, ITERATOR start, ITERATOR finish) -> Inserted;
     inline auto reset() -> void;
   protected:
-    keyston::vdaf::Shards<Optional<Stripe>> stripes{};
+    keyston::Shards<Optional<Stripe>> stripes{};
     using Guard = std::lock_guard<std::mutex>;
     mutable std::mutex mutex{};
   };

@@ -33,8 +33,8 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_world_SUBSOURCES) \
   $(end)
 #
-include src/tests/unit/configuration/Makefrag.am
 include src/tests/unit/concurrent/Makefrag.am
+include src/tests/unit/configuration/Makefrag.am
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
 include src/tests/unit/job/Makefrag.am

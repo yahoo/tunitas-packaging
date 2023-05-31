@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston
-#import tunitas.keyston.vdaf.literals
+#import tunitas.keyston.literals
 namespace tunitas::denniston::world {
-  using namespace keyston::vdaf::literals;
+  using namespace keyston::literals;
 }
 #endiv

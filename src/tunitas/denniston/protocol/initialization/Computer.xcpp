@@ -48,23 +48,23 @@ namespace tunitas::denniston::protocol::initialization {
 #import tunitas.denniston.index // for index::Processor
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.protocol.id // for id::Task
-#import tunitas.keyston.protocol.function.Parameters
 #import tunitas.keyston.protocol.initialization.Request
 #import tunitas.keyston.protocol.initialization.Response
+#import tunitas.keyston.vdaf.protocol.Parameters
 #import tunitas.keyston.vdaf.Configuration
 #import tunitas.keyston.vdaf.Executor
 class tunitas::denniston::protocol::initialization::Computer {
 protected:
-  using Nonce = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>::Nonce;
+  using Nonce = keyston::vdaf::Configuration<keyston::Transport::PROTOCOL>::Nonce;
 public:
   using Index = index::Processor;
-  using Function = keyston::vdaf::Executor<keyston::vdaf::Scheme::PROTOCOL>;
-  using Verify_Key = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>::Verify_Key;
+  using Function = keyston::vdaf::Executor<keyston::Transport::PROTOCOL>;
+  using Verify_Key = keyston::vdaf::Configuration<keyston::Transport::PROTOCOL>::Verify_Key;
   using Noncer = keyston::nonce::Generator<Nonce>;
   struct Identifier {
     using Task = keyston::protocol::id::Task;
   };
-  using Parameters = keyston::protocol::function::Parameters;
+  using Parameters = keyston::vdaf::protocol::Parameters;
   using Query = keyston::protocol::initialization::Request::Query;
   using Reports = keyston::protocol::initialization::Request::Report_Shares;
   using Response = keyston::protocol::initialization::Response;

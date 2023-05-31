@@ -4,18 +4,24 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <hpp>
-#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.Shard
 #import tunitas.denniston.role.Species
-namespace tunitas::keyston::vdaf {
+namespace tunitas::keyston::shards {
   //
   // Induce availability by ADL against Shard
+  //
+  // Said more elaborately:
+  // inject something about Shards from denniston's Species
+  // into keyston's namespace shards
+  // so that ADL will find it here.
+  //
   using denniston::role::recover_processor_species;
 }
 #endiv
 #divert <cpp>
 namespace {
   namespace testate {
-    static_assert(sizeof (recover_processor_species(tunitas::keyston::vdaf::Shard{})), "ADL finds it");
+    static_assert(sizeof (recover_processor_species(tunitas::keyston::Shard{})), "ADL finds it");
   }
 }
 #endiv

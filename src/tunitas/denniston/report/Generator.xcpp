@@ -69,16 +69,16 @@ namespace tunitas::denniston {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.vdaf.Shard // and SHARD_COUNT (which is constie)
-#import tunitas.keyston.vdaf.literals
+#import tunitas.keyston.Shards // and SHARD_COUNT (which is constie)
+#import tunitas.keyston.literals
 namespace tunitas::denniston::report {
   template<required::Entropy _> Generator<_>::Generator(Entropy &entropy) : subgenerators{entropy} { }
   template<required::Entropy _> auto Generator<_>::operator()(Task const &task_id) -> Report {
     auto ret = Report{subgenerators.report_id(), Clock::now(), Report::Extensions{}, task_id, Report::Public_Share{}};
     //
     // There being two processors in the protocol.
-    using namespace keyston::vdaf::literals;
-    static_assert(2u == keyston::vdaf::SHARD_COUNT);
+    using namespace keyston::literals;
+    static_assert(2u == keyston::shards::SHARD_COUNT.count());
     ret.encrypted_input_shares.at(0_shard) = {};
     ret.encrypted_input_shares.at(1_shard) = {};
     return ret;

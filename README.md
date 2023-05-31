@@ -1,9 +1,12 @@
 # Tunitas Denniston (Creek)
 
-- Privacy-Preserving Measuremnet (PPM) with POSIX Threads
+- Privacy-Preserving Measurement (PPM), a demonstrator with concurrency by POSIX Threads
 - a test rig
 
-This implementation uses the core data structures, algorithms & protocol machinery of the [Tunitas Keyston](https://github.com/yahoo/tunitas-keyston) to implement the protcol, functions and distributed operations of PPM, VDAF, HPKE.
+This implementation uses the core data structures, algorithms & protocol machinery of the [Tunitas Keyston](https://git.tunitas.technology/repos/components/keyston/)([Yahoo](https://github.com/yahoo/tunitas-keyston)) to implement the protcol, functions and distributed operations of PPM, VDAF, HPKE.
+
+# Scope
+- Runtime simulation & test of the protocol
 
 # Authorities (at least)
 
@@ -15,7 +18,8 @@ This implementation uses the core data structures, algorithms & protocol machine
 # Related Projects:
 
 End-to-end implementations of Privacy-Preserving Measurement (PPM):
-- [Tunitas Denniston (Creek)](https://github.com/yahoo/tunitas-denniston) - <em>within POSIX Threads</em>
-- [Tunitas Honsinger (Creek)](https://github.com/yahoo/tunitas-honsinger) - <em>within D-Bus</em>
-- [Tunitas Nuff (Creek)](https://github.com/yahoo/tunitas-nuff) - <em>within microhttpd++</em>
-- [Tunitas Woodruff (Creek)](https://github.com/yahoo/tunitas-woodruff) - <em>within Apache HTTPd</em>
+- [Tunitas Alambique (Creek)](https://git.tunitas.technology/repos/services/alambique)([Yahoo](https://github.com/yahoo/tunitas-alambique/)) - <em>a demonstrator with no concurrency</em>
+- [Tunitas Denniston (Creek)](https://github.com/yahoo/tunitas-denniston)([Yahoo](https://github.com/yahoo/tunitas-denniston/)) - <em>a demonstrator with concurrency in POSIX threads</em>
+- [Tunitas Honsinger (Creek)](https://github.com/yahoo/tunitas-honsinger)([Yahoo](https://github.com/yahoo/tunitas-honsinger/)) - <em>a demonstrator with multi-process concurrency coordinated by the D-Bus</em>
+- [Tunitas Nuff (Creek)](https://github.com/yahoo/tunitas-nuff)([Yahoo](https://github.com/yahoo/tunitas-nuff/)) - <em>production-operability within microhttpd++</em>
+- [Tunitas Woodruff (Creek)](https://github.com/yahoo/tunitas-woodruff)([Yahoo](https://github.com/yahoo/tunitas-woodruff/)) - <em>production-operability within Apache HTTPd</em>

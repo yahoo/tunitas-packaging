@@ -1,5 +1,5 @@
 Tunitas Denniston (Creek)
-- Privacy-Preserving Measuremnet (PPM) with POSIX Threads
+- Privacy-Preserving Measurement (PPM) with POSIX Threads
 - a test rig
 
 This implementation uses the core data structures, algorithms & protocol machinery of the Tunitas Keyston to implement the protcol, functions and distributed operations of PPM, VDAF, HPKE.

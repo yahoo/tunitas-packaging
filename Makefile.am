@@ -17,7 +17,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = no-define subdir-objects foreign
 AM_MAKEFLAGS= \
-  MAKEFLAGS='$(MAKEFLAGS)' \
+  DO_NOT_REPASS_MAKEFLAGS='$(MAKEFLAGS)' \
   CPPFLAGS='$(CPPFLAGS)' \
   CXXFLAGS='$(CXXFLAGS)' \
   LDFLAGS='$(LDFLAGS)' \
@@ -74,6 +74,7 @@ include @temerarious_flagship_datadir@/am/build.am
 
 # These match with HGTW_WITH_MODULE in configure.ac
 DEVELOPMENT_AREAS = \
+  $(module_boost_prefix) \
   $(module_cli_core_prefix) \
   $(module_fmt_prefix) \
   $(module_langu_prefix) \

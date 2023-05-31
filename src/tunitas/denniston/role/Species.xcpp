@@ -39,7 +39,7 @@ namespace tunitas::denniston::role {
 #endiv
 #divert <hpp>
 #import tunitas.Optional
-#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.Shard
 #import std.nothrow_t
 namespace tunitas::denniston::role {
   inline constexpr auto underlying(Species n) { return std::underlying_type_t<Species>(n); }
@@ -70,15 +70,15 @@ namespace tunitas::denniston::role {
   // The processor "index" is a 0-based numbering system.
   inline auto recover_processor_index(Species) -> Size; // ................... throws in !is_processor
   inline auto recover_processor_number(Species) -> Size; // .................. same
-  inline auto recover_processor_shard(Species) -> keyston::vdaf::Shard; // ... same
+  inline auto recover_processor_shard(Species) -> keyston::Shard; // ......... same
   inline constexpr auto recover_processor_index(std::nothrow_t, Species) -> Optional<Size>;
   inline constexpr auto recover_processor_number(std::nothrow_t, Species) -> Optional<Size>;
-  inline constexpr auto recover_processor_shard(std::nothrow_t, Species) -> Optional<keyston::vdaf::Shard>;
+  inline constexpr auto recover_processor_shard(std::nothrow_t, Species) -> Optional<keyston::Shard>;
   //
   // To inject into keyston for availability by ADL
   //   #import tunitas.keyston.vdaf.tunitas.denniston.role.Species
-  inline auto recover_processor_species(keyston::vdaf::Shard) -> Species;
-  inline constexpr auto recover_processor_species(std::nothrow_t, keyston::vdaf::Shard) -> Optional<Species>;
+  inline auto recover_processor_species(keyston::Shard) -> Species;
+  inline constexpr auto recover_processor_species(std::nothrow_t, keyston::Shard) -> Optional<Species>;
 }
 #endiv
 #divert <ipp>
@@ -87,7 +87,7 @@ namespace tunitas::denniston::role {
 #import std.make_unsigned
 #import tunitas.denniston.exception.Invalid
 #import tunitas.denniston.exception.Range
-#import tunitas.keyston.vdaf.literals
+#import tunitas.keyston.literals
 namespace tunitas::denniston {
   constexpr auto role::make_client_species(unsigned index) -> Species {
     static_assert(std::same_as<decltype(index), std::make_unsigned_t<std::underlying_type_t<Species>>>);
@@ -171,37 +171,37 @@ namespace tunitas::denniston {
       throw exception::Invalid{"not a processor species"};
     }
   }
-  constexpr auto role::recover_processor_shard(std::nothrow_t, Species species) -> Optional<keyston::vdaf::Shard> {
+  constexpr auto role::recover_processor_shard(std::nothrow_t, Species species) -> Optional<keyston::Shard> {
     if (!is_processor(species)) {
       return {};
     } else {
       switch (species) {
-        using namespace keyston::vdaf::literals;
+        using namespace keyston::literals;
       case Species::PROCESSOR1: return 0_shard;
       case Species::PROCESSOR2: return 1_shard;
       default: return {};
       }
     }
   }
-  auto role::recover_processor_shard(Species species) -> keyston::vdaf::Shard {
+  auto role::recover_processor_shard(Species species) -> keyston::Shard {
     if (auto got=recover_processor_shard(std::nothrow, species); got) {
       return *got;
     } else {
       throw exception::Invalid{"not a processor species"};
     }
   }
-  constexpr auto role::recover_processor_species(std::nothrow_t, keyston::vdaf::Shard shard) -> Optional<Species> {
-    using namespace keyston::vdaf::literals;
+  constexpr auto role::recover_processor_species(std::nothrow_t, keyston::Shard shard) -> Optional<Species> {
+    using namespace keyston::literals;
     if (0_shard == shard) {
       return Species::PROCESSOR1;
     } else if (1_shard == shard) {
       return Species::PROCESSOR2;
     } else {
-      static_assert(2 == keyston::vdaf::SHARD_COUNT);
+      static_assert(2 == keyston::shards::SHARD_COUNT.count());
       return {};
     }
   }
-  auto role::recover_processor_species(keyston::vdaf::Shard shard) -> Species {
+  auto role::recover_processor_species(keyston::Shard shard) -> Species {
     if (auto got=recover_processor_species(std::nothrow, shard); got) {
       return *got;
     } else {
@@ -211,10 +211,11 @@ namespace tunitas::denniston {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.vdaf.tunitas.denniston.role.Species // inject into their namespace
+//      <--------------------> <---------------------------->
+#import tunitas.keyston.shards.tunitas.denniston.role.Species // inject into their namespace
 namespace {
   namespace testate {
-    using namespace tunitas::keyston::vdaf::literals;
+    using namespace tunitas::keyston::literals;
     using tunitas::denniston::role::Species;
     // show constexpr evaluation and ADL works
     static_assert(0 == recover_processor_index(std::nothrow, Species::PROCESSOR1));

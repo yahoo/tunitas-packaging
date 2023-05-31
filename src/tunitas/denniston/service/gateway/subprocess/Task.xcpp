@@ -112,7 +112,7 @@ namespace {
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Request
 #import tunitas.denniston.protocol.initialization.Slicer
-#import tunitas.keyston..vdaf.literals
+#import tunitas.keyston..literals
 #import std.views.iota
 #import nonstd.runtime_assert
 namespace tunitas::denniston::service::gateway::subprocess {
@@ -149,9 +149,9 @@ namespace tunitas::denniston::service::gateway::subprocess {
       owner.log.format("duplicate job id {}, which is a complete surprise", job_id);
     } else {
       owner.subprocesses.spawn(make<Job>(owner, noob));
-      using namespace keyston::vdaf::literals;
+      using namespace keyston::literals;
       auto const &task_id = corpus.definition.id;
-      auto const parameters = corpus.aggregation_parameters.value_or(keyston::protocol::function::Parameters{}); // reminder -- copies the parameters (when they exist) to support the optional
+      auto const parameters = corpus.aggregation_parameters.value_or(keyston::vdaf::protocol::Parameters{}); // reminder -- copies the parameters (when they exist) to support the optional
       auto partial = partialize(corpus.definition.query);
       auto slicer = Slicer{task_id, job_id, parameters, partial, prepared}; 
       for (auto ith : std::views::iota(0_shard, owner.processors.size())) {

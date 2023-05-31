@@ -57,7 +57,7 @@ public:
   using Interfaces = std::vector<network::Socket::Interface>;
   Interface control{};
   //
-  using Executor = keyston::vdaf::Executor<keyston::vdaf::Scheme::PROTOCOL>;
+  using Executor = keyston::vdaf::Executor<keyston::Transport::PROTOCOL>;
   Executor executor{configuration::VERIFIABLE_AGGREGATION_FUNCTION_NAME};
   //
   Model(Model const &) = delete;

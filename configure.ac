@@ -46,6 +46,7 @@ TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
 TF_WITH_SUBSYSTEM([tunitas-keyston], [], [The Tunitas Keyston])
 
 # and mention in $(DEVELOPMENT_AREAS) in Makefile.am
+TF_WITH_MODULE([boost])
 TF_WITH_MODULE([cli-core])
 TF_WITH_MODULE([fmt])
 TF_WITH_MODULE([langu])
@@ -66,9 +67,10 @@ TF_WITH_NONSTD([cppunit])
 TF_WITH_NONSTD([fmt])
 TF_WITH_NONSTD([gcc]) dnl but modern gcc-12 & beyond is fine
 
-AM_PROG_AR
-LT_PREREQ([2.4.2])
+AC_PREREQ([2.71])
+LT_PREREQ([2.4.7])
 LT_INIT
+AC_LANG([C++])
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_CC_C_O

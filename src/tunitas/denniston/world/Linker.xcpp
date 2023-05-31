@@ -51,7 +51,7 @@ namespace tunitas::denniston::world {
 #endiv
 #divert <cpp>
 #import std.views.iota
-#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.Shard
 namespace tunitas::denniston::world {
   auto Linker::collector() -> void {
     // collector<--->configuration is linked in Linker::configuration()
@@ -60,7 +60,7 @@ namespace tunitas::denniston::world {
   auto Linker::configuration() -> void {
     binder.link({system.configuration->collector, *system.configuration}, {system.collector->configuration, *system.collector});
     binder.link({system.configuration->gateway, *system.configuration}, {system.gateway->configuration, *system.gateway});
-    for (keyston::vdaf::Shard ith : std::views::iota(0_shard, keyston::vdaf::SHARD_COUNT)) {
+    for (keyston::Shard ith : std::views::iota(0_shard, keyston::shards::SHARD_COUNT.count())) {
       binder.link({system.configuration->processors.at(ith), *system.configuration}, {system.processors.at(ith)->configuration, *system.processors.at(ith)});
     }
     for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
@@ -80,12 +80,12 @@ namespace tunitas::denniston::world {
     for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {
       binder.link({system.directory->clients[i], *system.directory}, {system.clients[i]->directory, *system.clients[i]});
     }
-    for (keyston::vdaf::Shard ith : std::views::iota(0_shard, keyston::vdaf::SHARD_COUNT)) {
+    for (keyston::Shard ith : std::views::iota(0_shard, keyston::shards::SHARD_COUNT.count())) {
       binder.link({system.directory->processors.at(ith), *system.directory}, {system.processors.at(ith)->directory, *system.processors.at(ith)});
     }
   }
   auto Linker::gateway() -> void {
-    for (keyston::vdaf::Shard ith : std::views::iota(0_shard, keyston::vdaf::SHARD_COUNT)) {
+    for (keyston::Shard ith : std::views::iota(0_shard, keyston::shards::SHARD_COUNT.count())) {
       binder.link({system.gateway->processors.at(ith), *system.gateway}, {system.processors.at(ith)->gateway, *system.processors.at(ith)});
     }
     for (auto i{0uz}, e{system.clients.size()}; e != i; ++i) {

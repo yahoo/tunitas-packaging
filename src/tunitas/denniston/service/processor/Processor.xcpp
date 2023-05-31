@@ -64,7 +64,7 @@ public:
   task::Dictionary<task::Corpus<Genus::PROCESSOR>> tasks{};
   job::Dictionary<job::Corpus<Genus::PROCESSOR>> jobs{};
   class Generators {
-    using Nonce = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>::Nonce;
+    using Nonce = keyston::vdaf::Configuration<keyston::Transport::PROTOCOL>::Nonce;
     using Noncer = keyston::nonce::Generator<Nonce>;
   public:
     Noncer noncer;

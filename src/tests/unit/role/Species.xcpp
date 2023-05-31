@@ -276,12 +276,12 @@ namespace tests::unit::role {
     }
   }
   auto Species::test_recover_processor_shard_nothrow() -> void {
-    using namespace ::tunitas::keyston::vdaf::literals;
+    using namespace ::tunitas::keyston::literals;
     require(ASSERTION, 0_shard == library::recover_processor_shard(Subject::PROCESSOR1));
     require(ASSERTION, 1_shard == library::recover_processor_shard(Subject::PROCESSOR2));
   }
   auto Species::test_recover_processor_shard_yesthrow() -> void {
-    using namespace ::tunitas::keyston::vdaf::literals;
+    using namespace ::tunitas::keyston::literals;
     for (auto other : {Subject::CLIENT, Subject::COLLECTOR, Subject::CONFIGURATION, Subject::DIRECTORY, Subject::GATEWAY}) {
       try {
         library::recover_processor_index(other);
@@ -292,13 +292,13 @@ namespace tests::unit::role {
     }
   }
   auto Species::test_recover_processor_species_nothrow() -> void {
-    using namespace ::tunitas::keyston::vdaf::literals;
+    using namespace ::tunitas::keyston::literals;
     require(ASSERTION, 0_shard == library::recover_processor_shard(Subject::PROCESSOR1));
     require(ASSERTION, 1_shard == library::recover_processor_shard(Subject::PROCESSOR2));
   }
   auto Species::test_recover_processor_species_yesthrow() -> void {
-    using namespace ::tunitas::keyston::vdaf::literals;
-    using ::tunitas::keyston::vdaf::Shard;
+    using namespace ::tunitas::keyston::literals;
+    using ::tunitas::keyston::Shard;
     require(ASSERTION, Subject::PROCESSOR1 == library::recover_processor_species(0_shard));
     require(ASSERTION, Subject::PROCESSOR2 == library::recover_processor_species(1_shard));
     try {

@@ -29,20 +29,20 @@ auto tests::unit::protocol::initialization::Fixture::suite() -> Suite {
 #import tunitas.denniston.exception.Aspect
 #import tunitas.denniston.protocol.initialization.Slicer
 #import tunitas.denniston.protocol.initialization.Computer
-#import tunitas.keyston.vdaf.literals
+#import tunitas.keyston.literals
 #import std.views.iota
 namespace tests::unit::protocol::initialization {
   auto Fixture::test_Slicer() -> void {
     auto task_id = ::tunitas::keyston::protocol::id::Task{};
     auto job_id = ::tunitas::keyston::protocol::id::Job{};
-    auto parameters = ::tunitas::keyston::protocol::function::Parameters{};
+    auto parameters = ::tunitas::keyston::vdaf::protocol::Parameters{};
     auto query = ::tunitas::keyston::protocol::query::Partial{};
     auto reports = ::tunitas::denniston::report::Series<::tunitas::denniston::report::Definition>{};
-    using namespace ::tunitas::keyston::vdaf::literals;
+    using namespace ::tunitas::keyston::literals;
     //
     auto subject = library::Slicer{task_id, job_id, parameters, query, reports};
     auto count{0uz};
-    for (auto idx : std::views::iota(0_shard, ::tunitas::keyston::vdaf::SHARD_COUNT)) {
+    for (auto idx : std::views::iota(0_shard, ::tunitas::keyston::shards::SHARD_COUNT.count())) {
       ++count;
       auto got = subject(idx);
       require(ASSERTION, sizeof (got));
@@ -51,12 +51,12 @@ namespace tests::unit::protocol::initialization {
   }
   auto Fixture::test_Computer() -> void {
     auto index = ::tunitas::denniston::index::Processor{};
-    auto function = ::tunitas::keyston::vdaf::Executor<::tunitas::keyston::vdaf::Scheme::PROTOCOL>{::tunitas::keyston::vdaf::Name::ZERO};
-    auto verify_key = ::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::vdaf::Scheme::PROTOCOL>::Verify_Key{};
+    auto function = ::tunitas::keyston::vdaf::Executor<::tunitas::keyston::Transport::PROTOCOL>{::tunitas::keyston::vdaf::Name::ZERO};
+    auto verify_key = ::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::Transport::PROTOCOL>::Verify_Key{};
     auto source = ::tunitas::keyston::entropy::Source{};
-    auto noncer = ::tunitas::keyston::nonce::Generator<::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::vdaf::Scheme::PROTOCOL>::Nonce>{source};
+    auto noncer = ::tunitas::keyston::nonce::Generator<::tunitas::keyston::vdaf::Configuration<::tunitas::keyston::Transport::PROTOCOL>::Nonce>{source};
     auto task_id = ::tunitas::keyston::protocol::id::Task{};
-    auto parameters = ::tunitas::keyston::protocol::function::Parameters{};
+    auto parameters = ::tunitas::keyston::vdaf::protocol::Parameters{};
     auto query = ::tunitas::keyston::protocol::initialization::Request::Query{};
     auto reports = ::tunitas::keyston::protocol::initialization::Request::Report_Shares{};
     //

@@ -52,7 +52,7 @@ namespace tunitas::denniston::protocol::continuation {
 #import tunitas.keyston.vdaf.Executor
 #import tunitas.keyston.vdaf.generic.continued.alternatives // Again and Final
 struct tunitas::denniston::protocol::continuation::Computer {
-  using Function = keyston::vdaf::Executor<keyston::vdaf::Scheme::PROTOCOL>;
+  using Function = keyston::vdaf::Executor<keyston::Transport::PROTOCOL>;
   using States = job::Corpus<Genus::PROCESSOR>::Preparation_States;
   using Steps = keyston::protocol::continuation::Request::Preparation_Steps;
   using Response = keyston::protocol::continuation::Response;
@@ -66,7 +66,7 @@ struct tunitas::denniston::protocol::continuation::Computer {
 protected:
   using State = Steps::Value;
   using Step = Response::Preparation_Steps::Value;
-  using Configuration = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>;
+  using Configuration = keyston::vdaf::Configuration<keyston::Transport::PROTOCOL>;
   using Again = keyston::vdaf::generic::continued::Again<Configuration>;
   using Final = keyston::vdaf::generic::continued::Final<Configuration>;
 };

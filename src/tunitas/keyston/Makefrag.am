@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
@@ -7,5 +7,5 @@
 tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/hpke/key_from.cpp \
   obj/src/tunitas/keyston/protocol/report/key_from.cpp \
-  obj/src/tunitas/keyston/vdaf/tunitas.denniston.role.Species.cpp \
+  obj/src/tunitas/keyston/shards/tunitas.denniston.role.Species.cpp \
   $(end)

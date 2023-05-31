@@ -40,13 +40,13 @@ namespace tunitas::denniston::service::gateway {
 #import tunitas.keyston.identifier.Generator
 #import tunitas.keyston.protocol.id // for id::Job
 #import tunitas.keyston.protocol.preparation.Steps
-#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.Shards
 class tunitas::denniston::service::gateway::Gateway : public process::Reactor {
   using Ancestor = process::Reactor;
 protected:
   auto react() -> void override;
   auto respond([[inout]] Interface &, [[inout]] Report<protocol::WHOLE> &, string::View from_whom) -> void;
-  using Shards = keyston::vdaf::Shards<Interface>;
+  using Shards = keyston::Shards<Interface>;
   class Project_To {
     using Steps = keyston::protocol::preparation::Steps<keyston::protocol::preparation::Mark::TAGGED>;
     using Projection = preparation::ranges::Projection;
@@ -97,7 +97,7 @@ namespace tunitas::denniston::service::gateway {
 #import tunitas.denniston.service.gateway.subprocess.Boot
 #import tunitas.denniston.service.gateway.subprocess.Task
 #import tunitas.denniston.service.gateway.subprocess.Job
-#import tunitas.keyston.vdaf.tunitas.denniston.role.Species
+#import tunitas.keyston.shards.tunitas.denniston.role.Species // inject recover_processor_speces(...) in into their namespace
 namespace tunitas::denniston::service::gateway {
   Gateway::~Gateway() {
     ready.notify();
@@ -142,7 +142,7 @@ namespace tunitas::denniston::service::gateway {
     }
     for (auto shard : iota(processors)) {
       auto &processor{processors.at(shard)};
-      auto role = *tunitas::keyston::vdaf::recover_processor_species(std::nothrow, shard);
+      auto role = *role::recover_processor_species(std::nothrow, shard);
       if (auto red=processor.read_if(); red) {
         log.format("red from a processor (and ignoring it)");
         if (auto got=downcast_get<Response<Get::INITIALIZATION>>(*red); nullptr != got) {

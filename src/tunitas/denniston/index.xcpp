@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.vdaf.Shard
+#import tunitas.keyston.Shard
 namespace tunitas::denniston::index {
   //
   // Indices are small integers used to index internal tables of the simulator.
@@ -12,7 +12,7 @@ namespace tunitas::denniston::index {
   //
   enum Batch : unsigned;
   enum Job : unsigned;
-  using Processor = keyston::vdaf::Shard; //  a share is a shard which is computed on a processor
+  using Processor = keyston::Shard; //  a share is a shard which is computed on a processor
   enum Report : unsigned;
   enum Service : unsigned;
   enum Task : unsigned;
