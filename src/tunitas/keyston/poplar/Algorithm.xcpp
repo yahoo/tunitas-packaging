@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::poplar {
   //
-  // The poplar system.o
+  // The poplar system.
   //
   // Authority:
   //
@@ -45,21 +45,28 @@ namespace tunitas::keyston::poplar {
 }
 #endiv
 #divert <hpp>
-// Because every specialization will need these
-#import tunitas.keyston.field.Field
-#import tunitas.keyston.array.Fixed
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Result
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.popularity.Prefixes
 #import tunitas.keyston.idpf
 namespace tunitas::keyston::poplar {
   template<Size THE_VALUE_COUNT> struct Algorithm<ONE, THE_VALUE_COUNT> {
     inline static constexpr auto VALUE_COUNT = Items{THE_VALUE_COUNT};
     using Measurement = measurement::Specimen;
-    using Parameters = int;
+#if 0
+    using Encoded = int;
+    using Truncated = int;
     using Preparation = int;
-    using Output = int;
-    using Result = int; // array::Fixed<measurement::Result, idpf::Function<shard::COUNT.count(), VALUE_COUNT>;
+#endif
+    using Initialization = int;
+    using Continuation = int;
+    using Decoded = measurement::Population;
+    using Processed = measurement::Records;
+    using Prefixes = popularity::Prefixes;
   };
 }
+#endiv
+#divert <cpp>
+#warning WRITETHIS whereas tunitas::keyston::poplar::Algorithm has int for all the types
 #endiv

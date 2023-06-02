@@ -22,6 +22,8 @@ namespace tests::unit::nonce {
     auto test_assignment_copy() -> void;
     auto test_operator_eq() -> void;
     auto test_operator_ne() -> void;
+    auto test_ennumerate() -> void;
+    auto test_ennumerate2() -> void;
   protected:
     using Entropy = ::tunitas::keyston::entropy::Serial;
     Entropy source{};
@@ -30,6 +32,8 @@ namespace tests::unit::nonce {
 }
 #endiv
 #divert <tpp>
+#import tunitas.keyston.nonce.ennumerate
+#import nonstd.int128.ostream // for operator<< on uint128_t
 namespace tests::unit::nonce::bits {
   template<typename _> auto Bits<_>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
@@ -48,6 +52,8 @@ namespace tests::unit::nonce::bits {
               }()
            << add("operator==", &Bits::test_operator_eq)
            << add("operator!=", &Bits::test_operator_ne)
+           << add("ennumerate", &Bits::test_ennumerate)
+           << add("ennumerate2", &Bits::test_ennumerate2)
            << END;
     return settle(series);
   }
@@ -79,6 +85,22 @@ namespace tests::unit::nonce::bits {
     auto const c = a;
     require(ASSERTION, a != b);
     require(ASSERTION, !(a != c));
+  }
+  template<typename _> auto Bits<_>::test_ennumerate() -> void {
+    auto const generated = generate();
+    auto const ennumerated = library::ennumerate(generated);
+    // There is some possibility that it could be zero.
+    using nonstd::int128::operator<<;
+    std::cerr << "ennumerated = " << ennumerated << '\n';
+  }
+  template<typename _> auto Bits<_>::test_ennumerate2() -> void {
+    if constexpr (!std::same_as<library::Bits<1>, Subject>) {
+      auto const generated = generate();
+      auto const [a, b] = library::ennumerate2(generated);
+      // There is some possibility that both could be zero.
+      using nonstd::int128::operator<<;
+      std::cerr << "ennumerated2 = " << a << ", " << b << '\n';
+    }
   }
 }
 #endiv

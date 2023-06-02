@@ -7,14 +7,10 @@
 namespace tests::unit::daf::numeric::histogram { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.daf.Configuration
-#import tunitas.keyston.daf.Name
 #import tests.unit.daf.numeric.Palette
 #import tunitas.exception.feature.Invariant
 struct tests::unit::daf::numeric::histogram::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
-  //
-  using Configuration = ::tunitas::keyston::daf::Configuration<Transport::NUMERIC>;
   //
   auto test_disassembly_good() -> void;
   auto test_computation_good() -> void;
@@ -62,20 +58,71 @@ auto tests::unit::daf::numeric::histogram::Fixture::suite() -> Suite {
 #import tests.unit.daf.numeric.histogram.Fixture.Expected
 namespace tests::unit::daf::numeric::histogram {
   auto Fixture::test_disassembly_good() -> void {
-#warning WRITETHIS 
-    require(ASSERTION);
+    using Provided = Fixture::Provided::Disassembly;
+    using Expected = Fixture::Expected::Disassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    parameters.boundaries = Provided::BOUNDARIES;
+    auto measurement = Configuration::Measurement<WHOLE>{Provided::SPECIMEN};
+    auto randomness = Configuration::Randomness{Provided::RANDOMNESS};
+    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    //
+    require(ASSERTION, sizeof(publick)); // don't care what it is
+    //
+#if 1
+    auto const left = visit(expected.treatment, inputs.at(0_shard));
+    auto const right = visit(expected.treatment, inputs.at(1_shard));
+    require(ASSERTION, Expected::CANARY == left + right);
+#else
+    // This is no longer true now thta we incorporate randomness into the split algo
+    require(ASSERTION, Expected::CANARY == visit(expected.treatment, inputs.at(0_shard)));
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(1_shard)));
+#endif
   }
   auto Fixture::test_computation_good() -> void {
-#warning WRITETHIS 
-    require(ASSERTION);
+    using Provided = Fixture::Provided::Computation;
+    using Expected = Fixture::Expected::Computation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto publick = Configuration::Public<SHARE>{};
+    auto input = Configuration::Input<SHARE>{Provided::CANARY};
+    auto output = library::computation(parameters, 0_shard, publick, input);
+    //
+    require(ASSERTION, Provided::CANARY == visit(expected.itreatment, input));
+    require(ASSERTION, Expected::CANARY == visit(expected.otreatment, output));
   }
   auto Fixture::test_amalgamation_good() -> void {
-#warning WRITETHIS 
-    require(ASSERTION);
+    using Provided = Fixture::Provided::Amalgamation;
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto outputs = []{
+      auto one = Configuration::Output<SHARE>{Provided::ONE};
+      auto two = Configuration::Output<SHARE>{Provided::TWO};
+      auto three = Configuration::Output<SHARE>{Provided::THREE};
+      return Series<Configuration::Output<SHARE>>{one, two, three};
+    }();
+    auto amalgamated = library::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::AMALGAMATED == visit(expected.treatment, amalgamated));
   }
   auto Fixture::test_reassembly_good() -> void {
-#warning WRITETHIS 
-    require(ASSERTION);
+    using Provided = Fixture::Provided::Reassembly;
+    using Expected = Fixture::Expected::Reassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto aggregations = []{
+      auto two = Configuration::Aggregation<SHARE>{Provided::TWO};
+      auto three = Configuration::Aggregation<SHARE>{Provided::THREE};
+      return Shards<Configuration::Aggregation<SHARE>>{two, three};
+    }();
+    auto processed = Configuration::Processed{41};
+    auto reassembled = library::reassembly(parameters, aggregations, processed);
+    //
+    require(ASSERTION, Expected::FIVE == visit(expected.treatment, reassembled));
   }
 }
 #endiv

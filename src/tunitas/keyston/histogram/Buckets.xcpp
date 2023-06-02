@@ -8,6 +8,19 @@ namespace tunitas::keyston::histogram {
   //
   // The specification of the buckets of the histogram
   //
+  // Specification:
+  //
+  //   This is a bundle of constants and types.
+  //   You are looking for histogram::Boundaries, which is nearby
+  //
+  // Design:
+  //
+  //   Unusable as an object; it is a "packaged namespace"
+  //
+  // Usage:
+  //
+  //   Aw one does.
+  //
   struct Buckets;
 }
 #endiv
@@ -20,5 +33,7 @@ struct tunitas::keyston::histogram::Buckets {
   using Index = std::size_t;
   template<Index... INDEX> using Sequence = std::index_sequence<INDEX...>;
   static constexpr auto sequence() { return std::make_index_sequence<COUNT.count()>{}; }
+  Buckets() = delete;
+  Buckets(Buckets const &) = delete;
 };
 #endiv

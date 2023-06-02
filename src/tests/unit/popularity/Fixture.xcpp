@@ -18,6 +18,8 @@ protected:
 };
 #endiv
 #divert <cpp>
+#import tests.unit.popularity.Prefixes
+#import tests.unit.popularity.Population
 auto tests::unit::popularity::Fixture::suite() -> Suite {
   auto series = Stream{"popularity"sv};
   series << []{
@@ -27,6 +29,8 @@ auto tests::unit::popularity::Fixture::suite() -> Suite {
                   << END;
               return use;
             }()
+         << add<Population>()
+         << add<Prefixes>()
          << END;
   return settle(series);
 }
@@ -47,6 +51,8 @@ namespace tests::unit::popularity {
     using Subject = library::Population;
     auto subject = Subject(33uz, Subject::Value{99});
     require(ASSERTION, 33uz == subject.size());
+    require(ASSERTION, subject == subject); // ...... so operator== exists
+    require(ASSERTION, !(subject != subject)); // ... so operator!= exists
   }
 }
 #endiv

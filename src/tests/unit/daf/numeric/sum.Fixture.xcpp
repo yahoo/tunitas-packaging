@@ -23,11 +23,11 @@ struct tests::unit::daf::numeric::sum::Fixture : public rigging::suite::Fixture,
   auto test_amalgamation_fail() -> void;
   auto test_reassembly_good() -> void;
 protected:
+  struct Expected;
+  struct Provided;
   struct Exception {
     using Invariant = ::tunitas::exception::feature::Invariant;
   };
-  struct Expected;
-  struct Provided;
 };
 #endiv
 #divert <cpp>
@@ -72,14 +72,24 @@ namespace tests::unit::daf::numeric::sum {
     //
     auto parameters = Configuration::Parameters{};
     auto measurement = Configuration::Measurement<WHOLE>{Provided::THREE};
-    auto randomness = Configuration::Randomness{};
+    auto randomness = Configuration::Randomness{Provided::RANDOMNESS};
+    std::cerr << "randomness = " << std::hex << randomness.value << '\n';
     auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
     //
     require(ASSERTION, sizeof(publick)); // don't care what it is
     //
     // Because the sharding algorithm isn't implemented (yet) ... something banal happens here.
-    require(ASSERTION, Expected::THREE == visit(expected.treatment, inputs.at(0_shard)));
-    require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(1_shard)));
+    auto const left = visit(expected.treatment, inputs.at(0_shard));
+    auto const right = visit(expected.treatment, inputs.at(1_shard));
+    std::cerr << "HERE! " << underlying(left.at(0)) << ' ' << underlying(right.at(0)) << '\n';
+    //
+#if 1
+    require(ASSERTION, Expected::THREE == left + right);
+#else
+    // This is no longer true now that we incorporate randomnmess into the split algo
+    require(ASSERTION, Expected::THREE == left);
+    require(ASSERTION, Expected::ZERO == right);
+#endif
   }
   auto Fixture::test_computation_good() -> void {
     using Provided = Fixture::Provided::Computation;

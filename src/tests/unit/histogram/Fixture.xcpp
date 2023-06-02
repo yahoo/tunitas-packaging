@@ -52,6 +52,8 @@ namespace tests::unit::histogram {
     require(ASSERTION, library::Boundaries::Value{3} == inside.at(inside.size()-1));
   }
 }
+#import tests.unit.histogram.Boundaries
+#import tests.unit.histogram.Histogram
 auto tests::unit::histogram::Fixture::suite() -> Suite {
   auto series = Stream{"histogram"sv};
   series << []{
@@ -69,6 +71,8 @@ auto tests::unit::histogram::Fixture::suite() -> Suite {
                   << END;
               return use;
             }()
+         << add<Histogram>()
+         << add<Boundaries>()
          << END;
   return settle(series);
 }
@@ -93,6 +97,8 @@ namespace tests::unit::histogram {
     using Subject = library::Histogram;
     auto subject = Subject{};
     require(ASSERTION, 0 < subject.size());
+    require(ASSERTION, subject == subject); // ...... operator== exists
+    require(ASSERTION, !(subject != subject)); // ... as such
   }
 }
 #endiv

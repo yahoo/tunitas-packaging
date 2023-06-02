@@ -12,9 +12,12 @@ namespace tunitas::keyston::daf::numeric::popularity {
   using namespace package_popularity::interface;
 }
 #import tunitas.keyston.daf.numeric.components
+#import tunitas.keyston.daf.numeric.Algorithm
 namespace tunitas::keyston::daf::numeric::popularity::package_popularity {
   using namespace numeric::components;
-  namespace body { }
+  namespace body {
+    using Algorithm = numeric::Algorithm<Scheme::POPLAR, Name::POPULARITY>;
+  }
 }
 #endiv
 #divert <hpp>
@@ -43,23 +46,10 @@ namespace tunitas::keyston::daf::numeric::popularity::package_popularity::body {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.exception.Unimplemented
 namespace tunitas::keyston::daf::numeric::popularity::package_popularity {
-  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled {
-    throw exception::Unimplemented{};
-    return {};
-  }
-  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed {
-    throw exception::Unimplemented{};
-    return {};
-  }
-  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated {
-    throw exception::Unimplemented{};
-    return {};
-  }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled {
-    throw exception::Unimplemented{};
-    return {};
-  }
+  auto interface::disassembly(Parameters const &p, Measurement<WHOLE> const &m, Randomness const &r) -> Disassembled   { return Algorithm::disassembly(p, m, r); }
+  auto interface::computation(Parameters const &p, Shard s, Public<SHARE> const &k, Input<SHARE> const &i) -> Computed { return Algorithm::computation(p, s, k, i); }
+  auto interface::amalgamation(Parameters const &p, Series<Output<SHARE>> const &so) -> Amalgamated                    { return Algorithm::amalgamation(p, so); }
+  auto interface::reassembly(Parameters const &p, Shards<Aggregation<SHARE>> const &sa, Processed d) -> Reassembled    { return Algorithm::reassembly(p, sa, d); }
 }
 #endiv

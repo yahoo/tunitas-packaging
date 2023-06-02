@@ -20,7 +20,7 @@ namespace tunitas::keyston::histogram {
   //
   //   A new type so that ADL will find the associated operators.
   //   These rae self-sizing (i.e. the array length is a compile-time constant).
-  // 
+  //
   // Usage:
   //
   //   auto histogram = Histogram{};
@@ -34,17 +34,20 @@ namespace tunitas::keyston::histogram {
 #import tunitas.keyston.histogram.Buckets
 namespace tunitas::keyston {
   namespace histogram {
+    inline auto operator==(Histogram const &, Histogram const &) -> bool;
+    inline auto operator!=(Histogram const &, Histogram const &) -> bool;
     inline auto operator+(Histogram &&, Histogram &&) -> Histogram;
     inline auto operator+(Histogram &&, Histogram const &) -> Histogram;
     inline auto operator+(Histogram const &, Histogram &&) -> Histogram;
     inline auto operator+(Histogram const &, Histogram const &) -> Histogram;
   }
   class histogram::Histogram : public array::Fixed<measurement::Count, histogram::Buckets::COUNT.count()> {
-    using Ancestor = keyston::array::Fixed<measurement::Count, histogram::Buckets::COUNT.count()>; // WATCHOUT for the std::array constructor in the ancestry
+    using Ancestor = keyston::array::Fixed<measurement::Count, histogram::Buckets::COUNT.count()>;
   public:
     Histogram() = default;
     using Ancestor::Fixed;
     using Ancestor::operator=;
+    auto operator=(Histogram const &) -> Histogram & = default;
     inline auto operator+=(Histogram const &) -> Histogram &;
   };
 }
@@ -53,7 +56,16 @@ namespace tunitas::keyston {
 #divert <ipp>
 #import tunitas.keyston.exception.Length
 #import tunitas.keyston.array.enumerate
+#import std.equal
+#import std.mismatch
 namespace tunitas::keyston {
+  auto histogram::operator==(Histogram const &a, Histogram const &b) -> bool { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
+  auto histogram::operator!=(Histogram const &a, Histogram const &b) -> bool {
+    auto const a_end = a.end();
+    auto const b_end = b.end();
+    auto const [a_found, b_found] = std::mismatch(a.begin(), a_end, b.begin(), b_end);
+    return a_found != a_end || b_found != b_end;
+  }
   auto histogram::operator+(Histogram &&a, Histogram &&b) -> Histogram      { return move(a += b); }
   auto histogram::operator+(Histogram &&a, Histogram const &b) -> Histogram { return move(a += b); }
   auto histogram::operator+(Histogram const &a, Histogram &&b) -> Histogram { return move(b += a); }

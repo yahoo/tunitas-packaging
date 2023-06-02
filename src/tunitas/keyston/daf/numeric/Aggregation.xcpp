@@ -16,7 +16,7 @@ namespace tunitas::keyston::daf::numeric {
     using Count = prio::Algorithm<prio::Name::COUNT>::Truncated;
     using Sum = prio::Algorithm<prio::Name::SUM>::Truncated;
     using Histogram = prio::Algorithm<prio::Name::HISTOGRAM>::Truncated;
-    using Population = poplar::Algorithm<poplar::Name::ONE>::Output;
+    using Population = poplar::Algorithm<poplar::Name::ONE>::Continuation;
   }
   using aggregation::Aggregation;
 }

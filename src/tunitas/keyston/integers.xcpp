@@ -19,9 +19,14 @@ namespace tunitas::keyston::integers {
   //     using namespace tunitas::keyston::integers;
   //   }
   //
+#if 1
+  using namespace tunitas::integer::integers;
+#else
+  // just bring over what we need
   using tunitas::integer::integers::uint64_t;
   using tunitas::integer::integers::uint128_t;
   using tunitas::integer::integers::uint256_t;
   using tunitas::integer::integers::uint512_t;
+#endif
 }
 #endiv

@@ -11,14 +11,14 @@ namespace tunitas::keyston::nonce::generator {
   //
   // Fill up a Bits<N>
   //
-  template<unsigned N, required::Entropy E> requires required::Has_Single_Bit<N> struct Generator<Bits<N>, E>;
+  template<Size N, required::Entropy E> requires required::Has_Single_Bit<N> struct Generator<Bits<N>, E>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.entropy.Device
 #import tunitas.keyston.nonce.Bits
 namespace tunitas::keyston::nonce::generator {
-  template<unsigned N, required::Entropy E> requires required::Has_Single_Bit<N> struct Generator<Bits<N>, E> {
+  template<Size N, required::Entropy E> requires required::Has_Single_Bit<N> struct Generator<Bits<N>, E> {
     using Entropy = E;
     inline explicit Generator(Entropy &held);
     using Result = Bits<N>;
@@ -32,8 +32,8 @@ namespace tunitas::keyston::nonce::generator {
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::nonce::generator {
-  template<unsigned N, required::Entropy E> Generator<Bits<N>,E>::Generator(Entropy &e) : device{e} { }
-  template<unsigned N, required::Entropy E> auto Generator<Bits<N>,E>::operator()() -> Result {
+  template<Size N, required::Entropy E> Generator<Bits<N>,E>::Generator(Entropy &e) : device{e} { }
+  template<Size N, required::Entropy E> auto Generator<Bits<N>,E>::operator()() -> Result {
     if constexpr (Traits::is_specialized) {
       return Result(device.draw()); // this is a narrowing conversion, by definition (by specialization)
     } else {

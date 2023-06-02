@@ -70,12 +70,19 @@ namespace tests::unit::daf::numeric::count {
     //
     auto parameters = Configuration::Parameters{};
     auto measurement = Configuration::Measurement<WHOLE>{Provided::CANARY};
-    auto randomness = Configuration::Randomness{};
+    auto randomness = Configuration::Randomness{Provided::RANDOMNESS};
     auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
     //
     require(ASSERTION, sizeof(publick)); // don't care what it is
+#if 1
+    auto left = visit(expected.treatment, inputs.at(0_shard));
+    auto right = visit(expected.treatment, inputs.at(1_shard));
+    require(ASSERTION, Expected::CANARY == left + right);
+#else
+    // This is no longer true now that we incorporate randomnmess into the split algo
     require(ASSERTION, Expected::CANARY == visit(expected.treatment, inputs.at(0_shard)));
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(1_shard)));
+#endif
   }
   auto Fixture::test_computation_good() -> void {
     using Provided = Fixture::Provided::Computation;

@@ -32,13 +32,13 @@ auto tests::unit::nonce::bits::Fixture::suite() -> Suite {
   auto series = Stream{"Bits<...>"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              [&use]<unsigned... INDEX>(std::integer_sequence<unsigned, INDEX...>) {
+              [&use]<Size... INDEX>(std::integer_sequence<Size, INDEX...>) {
                 ((use << add(std::to_string(INDEX), &Fixture::template test_usage_Bits<INDEX>)), ...);
               }(The_Power_Series{});
               return use;
             }()
          << END;
-  [&series]<unsigned... INDEX>(std::integer_sequence<unsigned, INDEX...>) {
+  [&series]<Size... INDEX>(std::integer_sequence<Size, INDEX...>) {
     ((series << add<bits::Bits<library::Bits<INDEX>>>()), ...);
   }(The_Power_Series{});
   return settle(series);

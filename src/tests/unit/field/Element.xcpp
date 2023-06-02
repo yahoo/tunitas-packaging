@@ -23,6 +23,14 @@ namespace tests::unit {
     auto test_operator_sub() -> void;
     auto test_operator_mul() -> void;
     auto test_operator_pow() -> void;
+    //
+    auto test_operator_eq() -> void;
+    auto test_operator_ne() -> void;
+    //
+    auto test_identity0() -> void;
+    auto test_identity1() -> void;
+    auto test_identity2() -> void;
+    auto test_identity3() -> void;
   protected:
     struct Expected;
     static auto generate(unsigned specimen) -> Subject;
@@ -51,6 +59,22 @@ namespace tests::unit::field {
                   << add("pow", &Element::test_operator_pow)
                   << END;
                return bi;
+             }()
+           << []{
+               auto cmp = Stream{"compare"sv};
+               cmp << add("operator==", &Element::test_operator_eq)
+                   << add("operator!=", &Element::test_operator_ne)
+                   << END;
+               return cmp;
+             }()
+           << []{
+               auto id = Stream{"identity"sv};
+               id << add("0", &Element::test_identity0)
+                  << add("1", &Element::test_identity1)
+                  << add("2", &Element::test_identity2)
+                  << add("3", &Element::test_identity3)
+                  << END;
+               return id;
              }()
            << END;
     return settle(series);
@@ -97,6 +121,56 @@ namespace tests::unit::field {
     auto b = 5lu;
     auto observed = pow(a, b); // <-------------------- test this
     require(ASSERTION, Expected::pow() == underlying(observed));
+  }
+  template<typename _> auto Element<_>::test_operator_eq() -> void {
+    { auto a = generate(3);
+      auto b = generate(5);
+      auto observed = a == b;
+      require(ASSERTION, false == observed); }
+    { auto a = generate(3);
+      auto b = generate(3);
+      auto observed = a == b;
+      require(ASSERTION, true == observed); }
+  }
+  template<typename _> auto Element<_>::test_operator_ne() -> void {
+    { auto a = generate(3);
+      auto b = generate(5);
+      auto observed = a != b;
+      require(ASSERTION, true == observed); }
+    { auto a = generate(3);
+      auto b = generate(3);
+      auto observed = a != b;
+      require(ASSERTION, false == observed); }
+  }
+  template<typename _> auto Element<_>::test_identity0() -> void {
+    auto a = generate(3);
+    auto zero = generate(0);
+    auto const expected = a;
+    auto const observed = a + zero;
+    require(ASSERTION, expected == observed);
+  }
+  template<typename _> auto Element<_>::test_identity1() -> void {
+    auto a = generate(3);
+    auto zero = generate(0);
+    auto const expected = zero;
+    auto const observed = a - a;
+    require(ASSERTION, expected == observed);
+  }
+  template<typename _> auto Element<_>::test_identity2() -> void {
+    auto a = generate(3);
+    auto b = generate(5);
+    auto zero = generate(0);
+    auto const expected = zero;
+    auto const observed = (a - b) - a + b;
+    require(ASSERTION, expected == observed);
+  }
+  template<typename _> auto Element<_>::test_identity3() -> void {
+    auto a = generate(3);
+    auto left = generate(0);
+    auto right = generate(0);
+    auto const expected = a;
+    auto const observed = a + Subject{} - left + right;
+    require(ASSERTION, expected == observed);
   }
 }
 #endiv

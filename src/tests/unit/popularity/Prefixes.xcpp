@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::popularity { class Prefixes; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.popularity.Prefixes
+struct tests::unit::popularity::Prefixes : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Prefixes;
+  using Sp = Subject::Value;
+  //
+  auto test_constructor_default() -> void;
+  auto test_constructor_initializing() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::popularity::Prefixes::suite() -> Suite {
+  auto series = Stream{"Prefixes"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Prefixes::test_constructor_default)
+                  << add("initializing", &Prefixes::test_constructor_initializing)
+                  << END;
+              return con;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::popularity {
+  auto Prefixes::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+    // these things come empty, you have to push_back to get more in
+    require(ASSERTION, 0 == subject.size());
+  }
+  auto Prefixes::test_constructor_initializing() -> void {
+    auto subject = Subject{Sp{1},Sp{2},Sp{3},Sp{4},Sp{5},Sp{6},Sp{7},Sp{8},Sp{9}};
+    require(ASSERTION, sizeof(subject));
+    // these things come already filled-to-size
+    require(ASSERTION, 0 < subject.size());
+  }
+}
+#endiv

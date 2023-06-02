@@ -32,6 +32,8 @@ namespace tunitas::keyston::popularity {
 #import tunitas.keyston.array.Variable
 namespace tunitas::keyston {
   namespace popularity {
+    inline auto operator==(Population const &, Population const &) -> bool;
+    inline auto operator!=(Population const &, Population const &) -> bool;
     inline auto operator+(Population &&, Population &&) -> Population;
     inline auto operator+(Population &&, Population const &) -> Population;
     inline auto operator+(Population const &, Population &&) -> Population;
@@ -42,7 +44,7 @@ namespace tunitas::keyston {
   public:
     Population() = default;
     explicit Population(Size s, Value v) : Ancestor{s, v} { }
-    using Ancestor::Container;
+    using Ancestor::Variable;
     using Ancestor::operator=;
     inline auto operator+=(Population const &) -> Population &;
   };
@@ -52,7 +54,16 @@ namespace tunitas::keyston {
 #divert <ipp>
 #import tunitas.keyston.exception.Length
 #import tunitas.keyston.array.enumerate
+#import std.equal
+#import std.mismatch
 namespace tunitas::keyston {
+  auto popularity::operator==(Population const &a, Population const &b) -> bool { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
+  auto popularity::operator!=(Population const &a, Population const &b) -> bool {
+    auto const a_end = a.end();
+    auto const b_end = b.end();
+    auto const [a_found, b_found] = std::mismatch(a.begin(), a_end, b.begin(), b_end);
+    return a_found != a_end || b_found != b_end;
+  }
   auto popularity::operator+(Population &&a, Population &&b) -> Population      { return move(a += b); }
   auto popularity::operator+(Population &&a, Population const &b) -> Population { return move(a += b); }
   auto popularity::operator+(Population const &a, Population &&b) -> Population { return move(b += a); }

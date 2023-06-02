@@ -8,4 +8,5 @@ tests_unit_histogram_SUBSOURCES = \
   check/obj/src/tests/unit/histogram/namespace.cpp \
   check/obj/src/tests/unit/histogram/Fixture.cpp \
   check/obj/src/tests/unit/histogram/Boundaries.cpp \
+  check/obj/src/tests/unit/histogram/Histogram.cpp \
   $(end)

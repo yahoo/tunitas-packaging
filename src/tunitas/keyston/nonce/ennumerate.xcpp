@@ -1,0 +1,143 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::nonce {
+  namespace package_ennumerate {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_ennumerate::interface;
+}
+// namespaces
+#import tunitas.keyston.integers
+namespace tunitas::keyston::nonce::package_ennumerate {
+  using namespace integers;
+}
+// types
+#import std.integral_constant
+namespace tunitas::keyston::nonce::package_ennumerate {
+  template<Size N> requires (0 < N && N <= 8192) struct Result;
+  template<> struct Result<1>;
+  template<> struct Result<2>;
+  template<> struct Result<3>;
+  template<> struct Result<4>;
+  template<> struct Result<8>;
+  template<> struct Result<16>;
+  template<> struct Result<32>;
+  template<> struct Result<64>;
+  template<> struct Result<128>;
+  template<> struct Result<256>;
+  template<> struct Result<512>;
+  template<> struct Result<1024>;
+  template<> struct Result<2048>;
+  template<> struct Result<4096>;
+  template<> struct Result<8192>;
+  namespace body {
+    template<auto CONSTANT> using C = std::integral_constant<Size, CONSTANT>;
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.Tuple
+#import tunitas.keyston.nonce.Bits
+namespace tunitas::keyston::nonce {
+  namespace package_ennumerate {
+    template<> struct Result<1> { using Type = uint8_t; };
+    template<> struct Result<2> { using Type = uint8_t; };
+    template<> struct Result<4> { using Type = uint8_t; };
+    template<> struct Result<8> { using Type = uint8_t; };
+    template<> struct Result<16> { using Type = uint16_t; };
+    template<> struct Result<32> { using Type = uint32_t; };
+    template<> struct Result<64> { using Type = uint64_t; };
+    template<> struct Result<128> { using Type = uint128_t; };
+    template<> struct Result<256> { using Type = uint256_t; };
+    template<> struct Result<512> { using Type = uint512_t; };
+    template<> struct Result<1024> { using Type = uint1024_t; };
+    template<> struct Result<2048> { using Type = uint2048_t; };
+    template<> struct Result<4096> { using Type = uint4096_t; };
+    template<> struct Result<8192> { using Type = uint8192_t; };
+    namespace body {
+      namespace exported {
+        //
+        // Turn some bits into an unsigned number.
+        //
+        // Specification:
+        //
+        //   Obvious.
+        //
+        // Design:
+        //
+        //   No.
+        //
+        //   ADL will find them.
+        //
+        // Usage:
+        //
+        //   Yes.
+        //
+        template<Size N> requires (0 < N && N <= 8192) inline auto ennumerate(Bits<N> const &) -> typename Result<N>::Type;
+        template<Size N> requires (2 <= N && N <= 8192) inline auto ennumerate2(Bits<N> const &) -> Tuple<typename Result<N/2>::Type, typename Result<N/2>::Type>;
+      }
+      template<Size N> requires (2 <= N && N <= 8192) inline auto split(Bits<N> const &) -> Tuple<Bits<N/2>, Bits<N/2>>;
+    }
+  }
+  // Inject the declaration here so that ADL can find them.
+  using package_ennumerate::interface::ennumerate;
+  using package_ennumerate::interface::ennumerate2;
+}
+#endiv
+#divert <ipp>
+#import std.integral_constant
+#import std.remove_reference
+namespace tunitas::keyston::nonce::package_ennumerate {
+  template<Size N> requires (2 <= N && N <= 8192) auto body::split(Bits<N> const &source) -> Tuple<Bits<N/2>, Bits<N/2>> {
+    using TraitsN = nonce::bits::Traits<Bits<N>>;
+    using TraitsM = nonce::bits::Traits<Bits<N/2>>;
+    if constexpr (TraitsM::is_specialized && TraitsN::is_specialized) {
+      using BitsM = Bits<N/2>;
+      using ValueN = decltype(Bits<N>::value);
+      auto lo = static_cast<BitsM>(source.value & ((ValueN{1u}<<N/2) - 1));
+      auto hi = static_cast<BitsM>(source.value >> N/2);
+      return {hi, lo};
+    } else if constexpr (TraitsM::is_specialized && !TraitsN::is_specialized) {
+      // M = N/2 is uint128 and N is uint256
+      static_assert(256 == N);
+      static_assert(4 == sizeof(Bits<N>::values)/sizeof(Bits<N>::values[0]));
+      static_assert(std::same_as<uint64_t, std::remove_reference_t<decltype(Bits<N>::values[0])>>);
+      auto rebuild = [](uint64_t hi, uint64_t lo) { return Bits<N/2>{uint128_t{hi} <<64 |  lo}; };
+      return {rebuild(source.values[0], source.values[1]), rebuild(source.values[2], source.values[3])};
+    } else {
+      constexpr auto const SOURCE_COUNT = sizeof(Bits<N>::values)/sizeof(Bits<N>::values[0]);
+      static_assert(2 < SOURCE_COUNT);
+      static_assert(required::Has_Single_Bit<SOURCE_COUNT>);
+      constexpr auto const HALF_COUNT = SOURCE_COUNT/2;
+      auto rebuild = []<auto START, auto COUNT>(Bits<N> const &source, C<START>, C<COUNT>) {
+        return [&source]<Size... INDEX>(std::index_sequence<INDEX...>) {
+          return Bits<N/2>{source.values[INDEX + START]...};
+        }(std::make_index_sequence<COUNT>{});
+      };
+      return {rebuild(source, C<0uz>{}, C<HALF_COUNT>{}), rebuild(source, C<HALF_COUNT>{}, C<HALF_COUNT>{})};
+    }
+  }
+  template<Size N> requires (2 <= N && N <= 8192) auto interface::ennumerate2(Bits<N> const &source) -> Tuple<typename Result<N/2>::Type, typename Result<N/2>::Type> {
+    auto [left, right] = split(source);
+    return {ennumerate<N/2>(left), ennumerate<N/2>(right)};
+  }
+  template<Size N> requires (0 < N && N <= 8192) auto interface::ennumerate(Bits<N> const &source) -> typename Result<N>::Type {
+    using Traits = nonce::bits::Traits<Bits<N>>;
+    if constexpr (Traits::is_specialized) {
+      return source.value;
+    } else {
+      auto ret = typename Result<N>::Type{};
+      for (auto chunk : source.values) {
+        ret <<= 8*sizeof(source.values[0]);
+        ret |= chunk;
+      }
+      return ret;
+    }
+  }
+}
+#endiv

@@ -16,7 +16,7 @@ namespace tests::unit {
   struct histogram::Boundaries : public rigging::suite::Fixture {
     static auto suite() -> Suite;
     //
-    using Subject = Boundaries;
+    using Subject = library::Boundaries;
     //
     auto test_constructor() -> void;
     template<error::by::required::Indicator> auto test_extend_good() -> void;
@@ -102,7 +102,7 @@ namespace tests::unit::histogram {
   }
 }
 auto tests::unit::histogram::Boundaries::suite() -> Suite {
-  auto series = Stream{"histogram"sv};
+  auto series = Stream{"Boundaries"sv};
   series << []{
               auto con = Stream{"constructor"sv};
               con << add("default", &Boundaries::test_constructor)

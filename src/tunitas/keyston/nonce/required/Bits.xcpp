@@ -11,7 +11,7 @@ namespace tunitas::keyston::nonce::required {
   // This is instanceOf but for the NTTP
   //
   template<typename BITS> concept Bits = requires(BITS) {
-    { []<unsigned N>(nonce::Bits<N> *) {} (static_cast<BITS *>(nullptr)) };
+    { []<Size N>(nonce::Bits<N> *) {} (static_cast<BITS *>(nullptr)) };
   };
 }
 #endiv

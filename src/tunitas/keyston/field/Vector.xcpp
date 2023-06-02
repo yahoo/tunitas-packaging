@@ -103,12 +103,12 @@ namespace tunitas::keyston {
     c += b;
     return c;
   }
-  template<field::required::Element ELEMENT, Size CAPACITY> auto field::operator-(Vector<ELEMENT, CAPACITY> const &a, Vector<ELEMENT, CAPACITY> const &b) -> Vector<ELEMENT, CAPACITY> { return numeric::generic::cosine_similarity(a, b); }
-  template<field::required::Element ELEMENT, Size CAPACITY> auto field::operator*(Vector<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Vector<ELEMENT, CAPACITY> {
+  template<field::required::Element ELEMENT, Size CAPACITY> auto field::operator-(Vector<ELEMENT, CAPACITY> const &a, Vector<ELEMENT, CAPACITY> const &b) -> Vector<ELEMENT, CAPACITY> {
     auto c{a};
-    c *= b;
+    c -= b;
     return c;
   }
+  template<field::required::Element ELEMENT, Size CAPACITY> auto field::operator*(Vector<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Vector<ELEMENT, CAPACITY> { return numeric::generic::cosine_similarity(a, b); }
 #if 0
   template<field::required::Element ELEMENT, Size CAPACITY> auto field::operator/(Vector<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Vector<ELEMENT, CAPACITY> {
     auto c{a};

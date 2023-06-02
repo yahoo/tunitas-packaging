@@ -85,7 +85,7 @@ namespace tunitas::keyston {
       }
     }
     auto Boundaries::extend(error::by::Outcome, Variable const &source) -> Outcome<Boundaries> {
-      auto ret = error::Outcome<Boundaries>{}; // eadem ratione
+      auto ret = error::Outcome<Boundaries>{Boundaries{}}; // eadem ratione
       if (auto filled=copy_extending(value(ret), source); good(filled)) {
         return ret;
       } else {

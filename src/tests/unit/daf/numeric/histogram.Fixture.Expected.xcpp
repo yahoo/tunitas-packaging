@@ -8,33 +8,42 @@
 #endiv
 #divert <hpp>
 #import tests.unit.daf.numeric.Palette
-#include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Sum{...}
+#include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Histogram{...}
 #import tunitas.keyston.numeric.Treatment
 namespace tests::unit::daf::numeric::histogram {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
   struct Fixture::Expected : public Palette {
+    using Algorithm = ::tunitas::keyston::prio::Algorithm<::tunitas::keyston::prio::Name::HISTOGRAM>;
+    using Ct = ::tunitas::keyston::measurement::Count;
+    using El = ::tunitas::keyston::field::Field<128>::Element;
+    using Vector = ::tunitas::keyston::field::Field<128>::Vector<Algorithm::OUTPUT_LENGTH.count()>;
     class Disassembly {
-      class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Sum const &that) -> Configuration::Input<SHARE>::Sum { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Histogram const &that) -> Configuration::Input<SHARE>::Histogram { return that; })> { };
     public:
       _Treatment treatment{};
+      inline static constexpr auto const CANARY = Vector{El{0},El{0},El{0},El{1}}; // per: one sample being less than the fourth bucket
+      inline static constexpr auto const ZERO = Vector{};
     };
     class Computation {
-      class _iTreatment : public Treatment<decltype([](Configuration::Input<SHARE>::Sum const &that) -> Configuration::Input<SHARE>::Sum { return that; })> { };
-      class _oTreatment : public Treatment<decltype([](Configuration::Output<SHARE>::Sum const &that) -> Configuration::Output<SHARE>::Sum { return that; })> { };
+      class _iTreatment : public Treatment<decltype([](Configuration::Input<SHARE>::Histogram const &that) -> Configuration::Input<SHARE>::Histogram { return that; })> { };
+      class _oTreatment : public Treatment<decltype([](Configuration::Output<SHARE>::Histogram const &that) -> Configuration::Output<SHARE>::Histogram { return that; })> { };
     public:
       _iTreatment itreatment{};
       _oTreatment otreatment{};
+      inline static constexpr auto const CANARY = Configuration::Output<SHARE>::Histogram{El{1u},El{0u},El{1u}};
     };
     class Amalgamation {
-      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<SHARE>::Sum const &that) -> Configuration::Aggregation<SHARE>::Sum { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<SHARE>::Histogram const &that) -> Configuration::Aggregation<SHARE>::Histogram { return that; })> { };
     public:
       _Treatment treatment{};
+      inline static constexpr auto const AMALGAMATED = Configuration::Aggregation<SHARE>::Histogram{El{1u},El{2u},El{3u}};
     };
     class Reassembly {
-      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<WHOLE>::Sum const &that) -> Configuration::Aggregation<WHOLE>::Sum { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<WHOLE>::Histogram const &that) -> Configuration::Aggregation<WHOLE>::Histogram { return that; })> { };
     public:
       _Treatment treatment{};
+      inline static constexpr auto const FIVE = ::tunitas::keyston::histogram::Histogram{Ct{1u},Ct{2u},Ct{3u}};
     };
   };
 #pragma GCC diagnostic pop
