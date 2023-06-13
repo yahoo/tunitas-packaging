@@ -12,7 +12,7 @@
 namespace tests::unit::nonce {
   namespace library = ::tunitas::keyston::nonce;
   namespace required = ::tunitas::keyston::nonce::required;
-  using Size = std::size_t;
+  static_assert(sizeof(Size), "already visible");
   namespace [[nodirectory]] bits { }
   namespace [[nodirectory]] since { }
   namespace [[nodirectory]] bundle { }

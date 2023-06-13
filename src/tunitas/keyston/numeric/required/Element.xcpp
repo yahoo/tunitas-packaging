@@ -15,10 +15,10 @@ namespace tunitas::keyston::numeric::required {
 }
 #endiv
 #divert <cpp>
-#import tunitas.integer.integers
+#import tunitas.keyston.integer
 namespace {
   namespace testate {
-    using namespace tunitas::integer::integers;
+    using namespace tunitas::keyston::integer;
     namespace required = tunitas::keyston::numeric::required;
     //
     static_assert(required::Element<uint8_t>);

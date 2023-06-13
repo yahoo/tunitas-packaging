@@ -15,6 +15,7 @@ namespace tunitas::keyston::error::code {
       FAILURE, // ........ sic, generic failure
       //
       OVERFLOW, // ....... e.g. when stuffing a variable array into a fixed array; a bignum into a smallnum
+      CRYPTO, // ......... a crypto++ primitive has failed (misconfigured or a resource limit was reached)
     };
     using enum Enumeration;
   };

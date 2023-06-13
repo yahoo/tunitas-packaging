@@ -12,4 +12,5 @@ tunitas_keyston_array_required_SUBSOURCES = \
   obj/src/tunitas/keyston/array/required/Reservable.cpp \
   obj/src/tunitas/keyston/array/required/Initializers.cpp \
   obj/src/tunitas/keyston/array/required/Fixed.cpp \
+  obj/src/tunitas/keyston/array/required/has.cpp \
   $(end)

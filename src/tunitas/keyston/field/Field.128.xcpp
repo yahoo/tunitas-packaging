@@ -37,13 +37,20 @@ namespace tunitas::keyston::field {
     template<Size CAPACITY> using Vector = field::Vector<Element, CAPACITY>;
     inline static constexpr Underlying const MODULUS = (Underlying{1} << 66) * 4611686018427387897 + 1;
     inline static constexpr auto const ENCODED_SIZE = Bytes{16u};
-    class Generator : public numeric::Generator<7lu, 4611686018427387897llu, MODULUS> {
-      using Ancestor = numeric::Generator<7lu, 4611686018427387897llu, MODULUS>;
-    public:
-      constexpr auto operator()() const -> Element { return Element{Ancestor::operator()()}; }
-      inline static constexpr Underlying const ORDER = Underlying{1} << 66;
-    };
-    static constexpr auto gen() -> Element { return Element{Generator{}()}; }
+    static constexpr auto generator() -> Element; // dubious since Generator caches its result but gen() does not.
+    [[deprecated("buy a vowel, spell it out! Instead prefer Field<128>::generator()")]] static constexpr auto gen() -> Element { return generator(); }
+    class Generator;
   };
+  class Field<128>::Generator : public numeric::Generator<7lu, 4611686018427387897llu, MODULUS> {
+    using Ancestor = numeric::Generator<7lu, 4611686018427387897llu, MODULUS>;
+  public:
+    constexpr auto operator()() const -> Element { return Element{Ancestor::operator()()}; }
+    inline static constexpr Underlying const ORDER = Underlying{1} << 66;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::field {
+  constexpr auto Field<128>::generator() -> Element { return Element{Generator{}()}; }
 }
 #endiv

@@ -12,7 +12,7 @@ namespace tunitas::keyston::field::traits {
   //   enums are derived from integers .......... via the enum class definition.
   //   classes are derived from other classes ... via the class ancestor.
   //
-  // to multiply two n-precision integers, one requires a (2*)n-precision intermediate result.
+  // when multipling two n-precision integers, a (2*)n-precision intermediate result is produced.
   //
   // specializations only.
   //

@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_prg_generator_SUBSOURCES = \
+  obj/src/tunitas/keyston/prg/Generator.cpp \
+  obj/src/tunitas/keyston/prg/generator/namespace.cpp \
+  obj/src/tunitas/keyston/prg/generator/Prototype.cpp \
+  obj/src/tunitas/keyston/prg/generator/Generator.template.cpp \
+  obj/src/tunitas/keyston/prg/generator/Generator.SHA3_cSHAKE128.cpp \
+  obj/src/tunitas/keyston/prg/generator/Generator.FIXED_KEY_AES128.cpp \
+  obj/src/tunitas/keyston/prg/generator/Generator.cpp \
+  $(tunitas_keyston_prg_generator_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/prg/generator/required/Makefrag.am

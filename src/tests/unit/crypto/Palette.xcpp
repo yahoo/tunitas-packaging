@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::crypto {
+  //
+  // The palette of types and value generators
+  // Descendants only.
+  //
+  // Usage:
+  //
+  //   By inheritance, pefer protected inheritance into the descendant Fixture
+  //
+  struct Palette;
+}
+#endiv
+#divert <hpp>
+#import nonstd.units.memory.scale // Bytes
+#import std.ostream
+#import std.span
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.array.required.Fixed
+class tests::unit::crypto::Palette {
+protected:
+  ~Palette() = default;
+public:
+  using Bytes = ::nonstd::units::memory::Bytes;
+  using Octet = ::tunitas::keyston::Octet;
+  template<Size CAPACITY> using Buffer = ::tunitas::keyston::array::Fixed<Octet, CAPACITY>;
+  template<typename BUFFER> static auto generate_buffer() -> BUFFER requires ::tunitas::keyston::array::required::Fixed<BUFFER>;
+  static auto dump(std::ostream &, std::span<Octet const>, char terminator = '\n') -> void;
+  inline static constexpr auto const SOME_OUTPUT_LENGTH = Bytes{48}; // some for SHAKE, cSHAKE
+};
+#endiv
+#divert <tpp>
+#import std.views.iota
+#import std.hex
+#import std.dec
+#import nonstd.setfill
+#import nonstd.setwidth
+namespace tests::unit::crypto {
+  template<typename BUFFER> auto Palette::generate_buffer() -> BUFFER requires ::tunitas::keyston::array::required::Fixed<BUFFER> {
+    auto ret = BUFFER{};
+    auto here = ret.begin();
+    for (auto each : std::views::iota(0u, ret.size())) {
+      *here++ = Octet(each);
+    }
+    return ret;
+  }
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::crypto {
+  auto Palette::dump(std::ostream &out, std::span<Octet const> span, char terminator) -> void {
+    out << std::hex;
+    for (auto each : span) {
+      out << nonstd::setfill('0') << nonstd::setwidth(2) << static_cast<unsigned>(each);
+    }
+    out << std::dec;
+    if (terminator) {
+      out << terminator;
+    }
+  }
+}
+#endiv

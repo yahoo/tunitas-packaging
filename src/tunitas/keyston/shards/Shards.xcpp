@@ -53,7 +53,7 @@ namespace tunitas::keyston {
     [[implicit]] Shards() = default;
 #else
     // because 
-    constexpr [[implicit]] Shards() : Ancestor{typename Ancestor::Value{}, typename Ancestor::Value{}} { }
+    constexpr [[implicit]] Shards() : Ancestor{typename Ancestor::Inplace{}, typename Ancestor::Value{}, typename Ancestor::Value{}} { }
 #endif
     using Ancestor::Fixed;
 #if 202312 < __cplusplus

@@ -1,0 +1,100 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.crypto.keccak.Keccak.template
+namespace tunitas::keyston::crypto::keccak {
+  //
+  // Authorities:
+  //
+  //   FIPS 202 SHA-3 Standard: Permutation-Based Hash and Extaendable Output Function
+  //   https://csrc.nist.gov/publications/detail/fips/202/final
+  //   https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+  //   Section 6.2 Extendable-Output Functions (SHAKE-128 & SHAKE-256)
+  //   Section 6.3 Alternate Definitions of SHA-3 Extendable-Output Functions
+  //
+  //   https://www.cryptopp.com/wiki/Keccak
+  //   https://www.cryptopp.com/wiki/SHA3
+  //
+  // Implementation: (Crypto++ 8.6, e.g. cryptopp-devel-8.6.0-2.fc36.x86_64)
+  //
+  //  -WATCHOUT Crypto++ uses different terminology than FIPS or Wikipedia.
+  //   We believe that Crypto++ documentation terminology d=0x1 and d=0x6 refer to the word length w = 2^ℓ bits
+  //
+  //   The clue comes from Wikipedia
+  //   <quote ref= https://en.wikipedia.org/wiki/SHA-3>
+  //     It is defined for any power-of-two word size, w = 2^ℓ bits. The main SHA-3 submission uses 64-bit words, ℓ = 6.
+  //   </quote>
+  //
+  //   Contrast with Crypto++ keccak.h and sha3.h with various verbiage as follows:
+  //
+  //   <quote ref=cryptopp/keccak.h>
+  //     \details The Crypto++ Keccak implementation uses F1600 with XOF d=0x01.
+  //     FIPS 202 conformance (XOF d=0x06) is available in SHA3 classes.
+  //   </quote>
+  //
+  //   <quote ref=cryptopp/sha3.h>
+  //     \details The Crypto++ implementation conforms to the FIPS 202 version of SHA3 using F1600 with XOF d=0x06.
+  //     Previous behavior (XOF d=0x01) is available in Keccak classes.
+  //   </quote>
+  //
+  // Implementation: (Crypto++ 8.6, e.g. cryptopp-devel-8.6.0-2.fc36.x86_64)
+  //
+  //    Crypto++ is not constexpr.
+  //
+  // Specification:
+  //
+  //   Well?
+  //
+  // Design:
+  //
+  //   recall: we need "twice the width" for KECCAK as for the SHAKE series
+  //   SHAKE-128 ---> KECCAK-256 with 0b111
+  //   cSHAKE-128 --> KECCAK-256 with 0b00
+  //
+  //   copy-pasta from the tutorial
+  //   https://www.cryptopp.com/wiki/Keccak
+  //
+  template<> struct Keccak<256,0b1111u>;
+}
+#endiv
+#divert <hpp>
+#import cryptopp.Keccak
+#import tunitas.keyston.crypto.keccak.Interface
+#import std.same_as
+namespace tunitas::keyston::crypto::keccak {
+  template<> class Keccak<256,0b1111u> : public Interface, protected cryptopp::Keccak_Final<256/8> {
+    using Implementation = cryptopp::Keccak_Final<256/8>;
+    static_assert(std::same_as<Implementation, cryptopp::Keccak_256>);
+  protected:
+    auto Update(cryptopp::byte const *data, size_t size) -> void override   { return Implementation::Update(data, size); }
+    auto TruncatedFinal(cryptopp::byte *data, size_t size) -> void override { return Interface::perform_final_with_padding(data, size); }
+    auto BlockSize() const -> unsigned int override                         { return Implementation::BlockSize(); }
+    auto Restart() -> void override                                         { return Implementation::Restart(); }
+    auto State() -> cryptopp::word64 * override                             { return Implementation::m_state; }
+    auto ValidateSize(size_t size) const -> void override                   { return Implementation::ThrowIfInvalidTruncatedSize(size); }
+    //
+    auto perform_padding() -> void override;
+    //
+    // The second half of the PAD10*1 rule herein as PAD10<--->PAD01
+    //
+    //                                                          765 4 3210  
+    inline static constexpr auto const PAD10 = cryptopp::byte{0b000'1'1111u}; // [[recall]] shown in bigend, layout in littlend
+    //                                                          ^^^ ^ ^^^^
+    // the zeros of pad1*0 -------------------------------------/// | ||||
+    // the commencement of pad10* of pad10*1 -----------------------/ ||||
+    // termination bits (4 bits) of the algo -------------------------////
+  };
+}
+#endiv
+#divert <cpp>
+namespace tunitas::keyston::crypto::keccak {
+  auto Keccak<256,0b1111u>::perform_padding() -> void {
+    auto state{Implementation::m_state.BytePtr()};
+    state[Implementation::m_counter] ^= PAD10;
+    state[Implementation::r()-1]     ^= PAD01;
+  }
+}
+#endiv

@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::integer {
+  //
+  // A palette of types, values and generators
+  // Descendants only
+  //
+  struct Palette;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.integer.traits.BySize
+#import tunitas.keyston.integer.traits.SizeOf
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.octets.View
+#import nonstd.units.memory.scale // Bytes
+#import std.ostream
+namespace tests::unit {
+  class integer::Palette {
+  protected:
+    ~Palette() = default;
+  public:
+    using Bytes = nonstd::units::memory::Bytes;
+    struct Integer {
+      template<Size WIDTH> using Type = ::tunitas::keyston::integer::traits::BySize<WIDTH>::Type;
+      template<Size WIDTH> inline static constexpr auto const SIZE = ::tunitas::keyston::integer::traits::SizeOf<typename ::tunitas::keyston::integer::traits::BySize<WIDTH>::Type>::VALUE;
+      template<Size WIDTH> inline static constexpr auto const INTERESTING_CONSTANT = 0u;
+    };
+    struct Octets {
+      using View = ::tunitas::keyston::octets::View;
+      using Variable = ::tunitas::keyston::octets::Variable;
+      template<Size CAPACITY> using Fixed = ::tunitas::keyston::octets::Fixed<CAPACITY>;
+    };
+    static auto dump(std::ostream &, Octets::View) -> void;
+  };
+  namespace integer {
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<8uz> = library::uint8_t{0b1001'0110u};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<16uz> = library::uint16_t{0b1100'0011'1001'0110u};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<32uz> = library::uint32_t{0x7654'3210u};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<64uz> = library::uint64_t{0x7654'3210'fedc'ba98lu};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<128uz> = (library::uint128_t{0x7654'3210'fedc'ba98lu} << 64) | library::uint128_t{0xfedc'ba98'7654'3210lu};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<256uz> = ((library::uint256_t{0x7654'3210'fedc'ba98lu} << 192) |
+                                                                                            (library::uint256_t{0xfedc'ba98'7654'3210lu} << 128) | 
+                                                                                            (library::uint256_t{0x1122'3344'5566'7788lu} << 64) |
+                                                                                            (library::uint256_t{0xfedc'ba98'7654'3210lu} << 0));
+  }
+}
+#endiv
+#divert <cpp>
+#import std.hex
+#import std.dec
+#import nonstd.setfill
+#import nonstd.setwidth
+namespace tests::unit::integer {
+  auto Palette::dump(std::ostream &outbound, Octets::View specimen) -> void {
+    outbound << std::hex;
+    for (auto each : specimen) {
+      outbound << nonstd::setfill('0') << nonstd::setwidth(2) << static_cast<unsigned>(each);
+    }
+    outbound << std::dec;
+  }
+}
+#endiv
+  

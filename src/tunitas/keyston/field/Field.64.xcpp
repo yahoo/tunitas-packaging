@@ -34,13 +34,20 @@ namespace tunitas::keyston::field {
     template<Size CAPACITY> using Vector = field::Vector<Element, CAPACITY>;
     inline static constexpr Underlying const MODULUS = (Underlying{1}<<32) * 4294967295 + 1;
     inline static constexpr auto const ENCODED_SIZE = Bytes{8u};
-    class Generator : public numeric::Generator<7lu, 4294967295lu, MODULUS> {
-      using Ancestor = numeric::Generator<7lu, 4294967295lu, MODULUS> ;
-    public:
-      constexpr auto operator()() const -> Element { return Element{Ancestor::operator()()}; }
-      inline static constexpr Underlying ORDER = Underlying{1} << 32;
-    };
-    static constexpr auto gen() -> Element { return Generator{}(); }
+    static constexpr auto generator() -> Element;
+    [[deprecated("buy a vowel, spell it out! Instead prefer Field<64>::generator()")]] static constexpr auto gen() -> Element { return generator(); }
+    class Generator;
   };
+  class Field<64>::Generator : public numeric::Generator<7lu, 4294967295lu, MODULUS> {
+    using Ancestor = numeric::Generator<7lu, 4294967295lu, MODULUS> ;
+  public:
+    constexpr auto operator()() const -> Element { return Element{Ancestor::operator()()}; }
+    inline static constexpr Underlying ORDER = Underlying{1} << 32;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::field {
+  constexpr auto Field<64>::generator() -> Element { return Element{Generator{}()}; }
 }
 #endiv

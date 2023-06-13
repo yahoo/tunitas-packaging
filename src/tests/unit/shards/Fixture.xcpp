@@ -21,7 +21,7 @@ struct tests::unit::shards::Fixture : public rigging::suite::Fixture {
 #import tests.unit.shards.Shards
 #import tests.unit.shards.Shard
 auto tests::unit::shards::Fixture::suite() -> Suite {
-  auto series = Stream{"vdaf"sv};
+  auto series = Stream{"shards"sv};
   series << []{
               auto use = Stream{"usage"sv};
               use << add("Shards", &Fixture::test_usage_Shards)

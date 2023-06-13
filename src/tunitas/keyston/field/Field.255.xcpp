@@ -24,11 +24,11 @@ namespace tunitas::keyston::field {
 #divert <hpp>
 namespace tunitas::keyston::field {
   template<> struct Field<255> {
-    using Element = field::Element<255>; // we'd like uint256_t
+    using Element = field::Element<255>;
     using Value = Element;
-    template<Size CAPACITY> using Vector = field::Vector<Value, CAPACITY>;
     using Underlying = traits::Element<Element>::Underlying;
     using Temporary = traits::Element<Element>::Temporary;
+    template<Size CAPACITY> using Vector = field::Vector<Value, CAPACITY>;
     inline static constexpr Underlying const MODULUS = (Underlying{1} << 255) - 19;
     inline static constexpr auto const ENCODED_SIZE = Bytes{32u};
   };

@@ -1,9 +1,10 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import nonstd.units.count.scale // Items (count of records, the counted samples, which is measurement::Count)
 namespace tunitas::keyston::quantity {
   //
   // The count of <something> (so that ADL will find it)
@@ -19,15 +20,8 @@ namespace tunitas::keyston::quantity {
   //
   // Usage:
   //
-  //   You need a tutorial on how to use an unscoped enumeration (a flavored integer?)? o.rly?
+  //   As one uses a unit.
   //
-  enum Count : std::uint64_t;
-}
-#endiv
-#divert <hpp>
-#import std.underlying_type
-namespace tunitas::keyston::quantity {
-  inline constexpr auto underlying(Count c) { return std::underlying_type_t<Count>(c); }
-  inline auto swap(Count &a, Count &b) noexcept -> void { std::swap(a, b); }
+  using Count = nonstd::units::count::Items;
 }
 #endiv

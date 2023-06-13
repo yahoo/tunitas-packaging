@@ -9,6 +9,7 @@ tests_unit_SUBSOURCES = \
   check/obj/src/tests/unit/namespace.cpp \
   check/obj/src/tests/unit/Fixture.cpp \
   $(tests_unit_array_SUBSOURCES) \
+  $(tests_unit_crypto_SUBSOURCES) \
   $(tests_unit_detail_SUBSOURCES) \
   $(tests_unit_entropy_SUBSOURCES) \
   $(tests_unit_error_SUBSOURCES) \
@@ -18,14 +19,17 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_histogram_SUBSOURCES) \
   $(tests_unit_hpke_SUBSOURCES) \
   $(tests_unit_identifier_SUBSOURCES) \
+  $(tests_unit_integer_SUBSOURCES) \
   $(tests_unit_keyston_SUBSOURCES) \
   $(tests_unit_measurement_SUBSOURCES) \
-  $(tests_unit_poplar_SUBSOURCES) \
-  $(tests_unit_popularity_SUBSOURCES) \
-  $(tests_unit_prio_SUBSOURCES) \
-  $(tests_unit_protocol_SUBSOURCES) \
   $(tests_unit_nonce_SUBSOURCES) \
   $(tests_unit_numeric_SUBSOURCES) \
+  $(tests_unit_octets_SUBSOURCES) \
+  $(tests_unit_poplar_SUBSOURCES) \
+  $(tests_unit_popularity_SUBSOURCES) \
+  $(tests_unit_prg_SUBSOURCES) \
+  $(tests_unit_prio_SUBSOURCES) \
+  $(tests_unit_protocol_SUBSOURCES) \
   check/obj/src/tests/unit/quantity.Fixture.cpp \
   $(tests_unit_shards_SUBSOURCES) \
   check/obj/src/tests/unit/time.Fixture.cpp \
@@ -41,6 +45,7 @@ tests_unit_SUBSOURCES = \
   $(end)
 #
 include src/tests/unit/array/Makefrag.am
+include src/tests/unit/crypto/Makefrag.am
 include src/tests/unit/detail/Makefrag.am
 include src/tests/unit/entropy/Makefrag.am
 include src/tests/unit/error/Makefrag.am
@@ -49,10 +54,13 @@ include src/tests/unit/field/Makefrag.am
 include src/tests/unit/histogram/Makefrag.am
 include src/tests/unit/hpke/Makefrag.am
 include src/tests/unit/identifier/Makefrag.am
+include src/tests/unit/integer/Makefrag.am
 include src/tests/unit/keyston/Makefrag.am
 include src/tests/unit/measurement/Makefrag.am
 include src/tests/unit/nonce/Makefrag.am
 include src/tests/unit/numeric/Makefrag.am
+include src/tests/unit/octets/Makefrag.am
+include src/tests/unit/prg/Makefrag.am
 include src/tests/unit/prio/Makefrag.am
 include src/tests/unit/poplar/Makefrag.am
 include src/tests/unit/popularity/Makefrag.am

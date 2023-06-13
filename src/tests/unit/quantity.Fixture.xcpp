@@ -34,7 +34,7 @@ namespace tests::unit::quantity::fixture {
     auto subject0 = Subject{0};
     auto subject1 = Subject{1};
     swap(subject0, subject1);
-    require(ASSERTION, 0u == underlying(subject1));
+    require(ASSERTION, 0u == subject1.count());
   }
 }
 #endiv

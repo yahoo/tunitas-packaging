@@ -14,20 +14,24 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #endiv
 #divert <cpp>
 #import tests.unit.array.Fixture
+#import tests.unit.crypto.Fixture
 #import tests.unit.entropy.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.field.Fixture
 #import tests.unit.fmt.Fixture
-#import tests.unit.identifier.Fixture
 #import tests.unit.histogram.Fixture
 #import tests.unit.hpke.Fixture
+#import tests.unit.integer.Fixture
+#import tests.unit.identifier.Fixture
 #import tests.unit.keyston.Fixture
 #import tests.unit.measurement.Fixture
 #import tests.unit.nonce.Fixture
 #import tests.unit.numeric.Fixture
+#import tests.unit.octets.Fixture
 #import tests.unit.poplar.Fixture
 #import tests.unit.popularity.Fixture
+#import tests.unit.prg.Fixture
 #import tests.unit.prio.Fixture
 #import tests.unit.protocol.Fixture
 #import tests.unit.quantity.Fixture
@@ -46,20 +50,24 @@ auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
   series << add("something", &Fixture::test_something)
          << add<array::Fixture>()
+         << add<crypto::Fixture>()
          << add<entropy::Fixture>()
          << add<error::Fixture>()
          << add<exception::Fixture>()
          << add<field::Fixture>()
          << add<fmt::Fixture>()
-         << add<identifier::Fixture>()
          << add<histogram::Fixture>()
          << add<hpke::Fixture>()
+         << add<identifier::Fixture>()
+         << add<integer::Fixture>()
          << add<keyston::Fixture>()
          << add<measurement::Fixture>()
          << add<nonce::Fixture>()
          << add<numeric::Fixture>()
+         << add<octets::Fixture>()
          << add<poplar::Fixture>()
          << add<popularity::Fixture>()
+         << add<prg::Fixture>()
          << add<prio::Fixture>()
          << add<protocol::Fixture>()
          << add<quantity::Fixture>()

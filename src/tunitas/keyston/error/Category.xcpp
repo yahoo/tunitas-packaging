@@ -57,6 +57,7 @@ namespace tunitas::keyston::error::package_error {
       case E::SUCCESS:          return "unexpected success"sv;
       case E::FAILURE:          return "failure"sv;
       case E::OVERFLOW:         return "overflow"sv;
+      case E::CRYPTO:           return "crypto++"sv;
       default: return {};
       }
     }

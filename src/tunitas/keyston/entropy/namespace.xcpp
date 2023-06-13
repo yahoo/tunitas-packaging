@@ -5,9 +5,11 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import nonstd.integers
+#import tunitas.keyston.integer
 namespace tunitas::keyston::entropy {
-  using namespace nonstd::integers;
-  static_assert(sizeof (uint128_t));
+  using namespace tunitas::keyston::integer;
+  static_assert(sizeof (uint32_t), "already visible");
+  static_assert(sizeof (uint64_t), "already visible");
+  static_assert(sizeof (uint128_t), "already visible");
 }
 #endiv

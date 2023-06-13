@@ -1,0 +1,121 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.integer.encode // a whold bunch of functions
+namespace tests::unit::integer {
+  namespace [[eponymous]] encode {
+    struct Encode;
+    namespace library = ::tunitas::keyston::integer::encode;
+  }
+  using encode::Encode;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.integer.Palette
+struct tests::unit::integer::encode::Encode : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+protected:
+  template<Size> static auto substanza_usage_as_variable() -> Stream;
+  template<Size> static auto substanza_usage_as_fixed() -> Stream;
+public:
+  template<Size> auto test_usage_as_variable_left() -> void;
+  template<Size> auto test_usage_as_variable_right() -> void;
+  template<Size> auto test_usage_as_fixed_left() -> void;
+  template<Size> auto test_usage_as_fixed_right() -> void;
+};
+#endiv
+#divert <tpp>
+#import std.to_string
+namespace tests::unit::integer::encode {
+  template<Size WIDTH> auto Encode::substanza_usage_as_variable() -> Stream {
+    auto sub = Stream{std::to_string(WIDTH)};
+    sub << add("left", &Encode::test_usage_as_variable_left<WIDTH>)
+        << add("right", &Encode::test_usage_as_variable_right<WIDTH>)
+        << END;
+    return sub;
+  }
+  template<Size WIDTH> auto Encode::substanza_usage_as_fixed() -> Stream {
+    auto sub = Stream{std::to_string(WIDTH)};
+    sub << add("left", &Encode::test_usage_as_fixed_left<WIDTH>)
+        << add("right", &Encode::test_usage_as_fixed_right<WIDTH>)
+        << END;
+    return sub;
+  }
+  template<Size WIDTH> auto Encode::test_usage_as_variable_left() -> void {
+    using Subject = typename Integer::template Type<WIDTH>;
+    auto subject = Subject{};
+    auto encoded = library::as_variable_left(subject); // <------------------------------ test this
+    dump(std::cerr, encoded);
+    require(ASSERTION, sizeof(encoded));
+  }
+  template<Size WIDTH> auto Encode::test_usage_as_variable_right() -> void {
+    using Subject = typename Integer::template Type<WIDTH>;
+    auto subject = Subject{};
+    auto encoded = library::as_variable_right(subject); // <------------------------------ test this
+    dump(std::cerr, encoded);
+    require(ASSERTION, sizeof(encoded));
+  }
+  template<Size WIDTH> auto Encode::test_usage_as_fixed_left() -> void {
+    using Subject = typename Integer::template Type<WIDTH>;
+    auto subject = Subject{};
+    auto encoded = library::as_fixed_left(subject); // <------------------------------ test this
+    dump(std::cerr, encoded);
+    require(ASSERTION, sizeof(encoded));
+  }
+  template<Size WIDTH> auto Encode::test_usage_as_fixed_right() -> void {
+    using Subject = typename Integer::template Type<WIDTH>;
+    auto subject = Subject{};
+    auto encoded = library::as_fixed_right(subject); // <------------------------------ test this
+    dump(std::cerr, encoded);
+    require(ASSERTION, sizeof(encoded));
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.integer.our.Count_Zero
+#import tests.unit.integer.our.Bit_Ceil
+namespace tests::unit::integer::encode {
+  auto tests::unit::integer::Encode::suite() -> Suite {
+    auto series = Stream{"encode"sv};
+    series << []{
+               auto use = Stream{"usage"sv};
+               use << []{
+                        auto var = Stream{"variable"sv};
+                        var << substanza_usage_as_variable<8>()
+                            << substanza_usage_as_variable<16>()
+                            << substanza_usage_as_variable<32>()
+                            << substanza_usage_as_variable<64>()
+                            << substanza_usage_as_variable<128>()
+                            << substanza_usage_as_variable<256>()
+                            << END;
+                          return var;
+                      }()
+                   << []{
+                     auto fix = Stream{"fixed"sv};
+                     fix << substanza_usage_as_fixed<8>()
+                         << substanza_usage_as_fixed<16>()
+                         << substanza_usage_as_fixed<32>()
+                         << substanza_usage_as_fixed<64>()
+                         << substanza_usage_as_fixed<128>()
+                         << substanza_usage_as_fixed<256>()
+                         << END;
+                     return fix;
+                   }()
+                   << END;
+               return use;
+             }()
+         << []{
+             auto our = Stream{"our"sv};
+             our << add<our::Count_Zero>()
+                 << add<our::Bit_Ceil>()
+                 << END;
+             return our;
+         }()
+        << END;
+    return settle(series);
+  }
+}
+#endiv

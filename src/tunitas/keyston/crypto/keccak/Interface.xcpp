@@ -1,0 +1,132 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::crypto::keccak {
+  //
+  // The interface tot he KECCAK[c] function implementations
+  //
+  // Authorities:
+  //
+  //   /usr/include/cryptopp/keccak.h and the virtual functions of cryptopp::HashTransformation
+  //
+  //   See FIPS 292, SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions,page 19, 20 & 21
+  //   Section 5.3 Specification of pad10*1
+  //   Section 6.2 SHA-3 Extendable-Output Functions
+  //   Section 6.3 Alternate Definitions of SHA-3 Extendable-Outoupt Functions
+  //
+  //   The PAD1*1 rulte rule of FIPS 202
+  // 
+  // Specification:
+  //
+  //   Whatever cryptopp::Keccak_Final requires
+  //
+  // Design:
+  //
+  //   Overriding TruncatedFinal(...) to provide a different termination padding
+  //
+  //   The update(...) preserves the incremental nature of the Crypto++ HashTransformation scheme
+  //   The final(...) MUST use out parameters because we don't know the size of the digest until runtime.
+  //
+  //   WATCHOUT - The KECCAK and SPONGE functions are specified specified on bit strings
+  //              They opeate on strings which are by nature "little endian" 
+  //   WATCHOUT - The integers are naturally written "big endian" even within a single byte.
+  //              Thus the sense of the bit ordering within a c ryptopp::byte MUST be reversed from the presentation style.
+  //
+  //   This shows up in the definitions of PAD10 (herein)
+  //                                   and PAD01 (descendants)
+  //
+  // Usage:
+  //
+  //   By (multiple) inheritance in the Keccak<SECURITY_WIDTH, PADDING, PADDING_WIDTH>
+  //  
+  struct Interface;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.octets.Span
+#import tunitas.keyston.octets.View
+#import cryptopp.HashTransformation // for cryptopp::byte and (obviously) the basic HashTransformation interface definition
+class tunitas::keyston::crypto::keccak::Interface {
+protected:
+  virtual ~Interface() = default;
+public:
+  virtual auto update([[in]] octets::View) -> void;
+  virtual auto final([[out]] octets::Span<Octet>) -> void;
+protected:
+  virtual auto Update([[out]] cryptopp::byte const *, size_t) -> void = 0;
+  virtual auto TruncatedFinal([[out]] cryptopp::byte *, size_t) -> void = 0;
+  virtual auto BlockSize() const -> unsigned int = 0;
+  virtual auto Restart() -> void = 0;
+  virtual auto State() -> cryptopp::word64 * = 0; // .......... this MUST return m_state of the descendant
+  virtual auto ValidateSize(size_t) const -> void = 0; // ... this MUST call ThrowIfInvalidTruncatedSize(...) in the descendant
+  //
+  virtual auto perform_padding() -> void = 0;
+  auto perform_final_with_padding([[out]] cryptopp::byte *, size_t) -> void;
+  //
+  // The two halves of the PAD10*1 rule are herein PAD10<--->PAD01
+  //                                                          7 6543210  
+  inline static constexpr auto const PAD01 = cryptopp::byte{0b1'0000000u}; // [[recall]] shown in bigend, layout in littlend
+};
+#endiv
+#divert <cpp>
+#import cryptopp.Keccak // close to where KeccakF1600 could have been exported
+namespace CryptoPP {
+  extern void KeccakF1600(word64 *); // [[Ahem]] this isn't exported outside the library; it is in keccak_core.cpp
+}
+#import std.copy_n
+#import std.min
+#import tunitas.keyston.exception.Null
+namespace tunitas::keyston::crypto::keccak {
+  auto Interface::update(octets::View input) -> void {
+    auto redo = std::span{reinterpret_cast<cryptopp::byte const *>(input.data()), input.size()};
+    Update(redo.data(), redo.size());
+  }
+  auto Interface::final(octets::Span<Octet> output) -> void {
+    auto redo = std::span{reinterpret_cast<cryptopp::byte *>(output.data()), output.size()};
+    TruncatedFinal(redo.data(), redo.size());
+  }
+  auto Interface::perform_final_with_padding(cryptopp::byte *data, size_t size) -> void {
+    if (0 == size) {
+      return;
+    } else {
+      // This is the top half of Keccak_Final::TruncateFinal(...) from cryptopp/keccak.cpp
+      if (nullptr == data) {
+        throw exception::Null{};
+      }
+#if 0
+      // DO NOT enforce size <= DigetSize()
+      // the code below performs an XOF (Extensible-Output Function).
+      // shake.cpp overrides ThrowIfInvalidTruncatedSize(size) to check only that size < UINT_MAX (2^32-1)
+      // keccak.cpp ensures that Keccak_Final<...>::ThrowIfInvalidTruncatedSize(size) checks for its DigestSize
+      // sha3.cpp   ensures that SHA3::ThrowIfInvalidTruncatedSize(size) checks for its DigestSize
+      //
+      // Here we enforce nothing with the understanding that the code below implements the XOF style.
+      ValidateSize(size);
+#endif
+    }
+    perform_padding();
+    {
+      // This is the bottom half of Keccak_Final::TruncatedFinal(...) from cryptopp/keccak.cpp
+      size_t const block_size = BlockSize();
+      cryptopp::word64 *wordstate = State();
+      cryptopp::byte *bytestate = reinterpret_cast<cryptopp::byte *>(wordstate);
+      //
+      // [[as stated therein]] This implements FIPS 202, Algorithm 8, pages 18-19.
+      while (size > 0) {
+        CryptoPP::KeccakF1600(wordstate);
+        //
+        auto const segment = std::min(size, block_size);
+        std::copy_n(bytestate, segment, data);
+        //
+        data += segment;
+        size -= segment;
+      }
+      //
+      Restart();
+    }
+  }
+}
+#endiv

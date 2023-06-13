@@ -1,0 +1,123 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::crypto { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.array.Fixed
+#import nonstd.units.memory.scale // Bytes
+#import tests.unit.crypto.Algorithm
+#import tests.unit.crypto.Palette
+namespace tests::unit {
+  struct crypto::Fixture : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    template<typename KECCAK> auto test_usage_direct_keccak() -> void;
+    template<typename KECCAK> auto test_usage_keccak() -> void;
+    template<typename ALGORITHM> auto test_usage_algorithm() -> void;
+  };
+  namespace crypto {
+    template<> auto Fixture::test_usage_algorithm<library::Algorithm<AES>>() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::crypto {
+  template<typename KECCAK> auto Fixture::test_usage_direct_keccak() -> void {
+    using Subject = KECCAK;
+    auto subject = Subject{};
+    cryptopp::byte const in[32]{};
+    cryptopp::byte out[32]{}; // WATCHOUT - this MUST be subject.DigestSize() ... which is not constexpr
+    subject.Update(&in[0], sizeof(in));
+    subject.Update(&in[0], sizeof(in));
+    subject.TruncatedFinal(&out[0], sizeof(out));
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename KECCAK> auto Fixture::test_usage_keccak() -> void {
+    using Subject = KECCAK;
+    auto subject = Subject{};
+    auto in = Buffer<32>{}; // any size will do
+    auto out = Buffer<64>{}; // eadem ratione
+    subject.update(in);
+    subject.update(in);
+    subject.final(out);
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename ALGORITHM> auto Fixture::test_usage_algorithm() -> void {
+    using Subject = ALGORITHM;
+    auto subject = Subject{};
+    auto in = Buffer<16>{};
+    constexpr auto OUTPUT_LENGTH = Bytes{16};
+    auto out = subject(in, OUTPUT_LENGTH);
+    require(ASSERTION, OUTPUT_LENGTH == Bytes{out.size()});
+  }
+}
+#endiv
+#divert <cpp>
+#import cryptopp.Keccak
+#import tests.unit.crypto.Keccak
+#import tests.unit.crypto.Algorithm
+auto tests::unit::crypto::Fixture::suite() -> Suite {
+  auto series = Stream{"crypto"sv};
+  series << []{
+             auto use = Stream{"usage"sv};
+             use << []{
+                      auto kec = Stream{"direct"sv};
+                      kec << add("cryptopp::Keccak_256", &Fixture::test_usage_direct_keccak<cryptopp::Keccak_256>)
+                          << END;
+                      return kec;
+                    }()
+                 << []{
+                      auto kec = Stream{"keccak"sv};
+                      kec << add("Keccak<256,0b00,2>", &Fixture::test_usage_keccak<library::Keccak<256,0b00,2>>)
+                          << add("Keccak<256,0b1111>", &Fixture::test_usage_keccak<library::Keccak<256,0b1111>>)
+                          << END;
+                      return kec;
+                    }()
+                 << []{
+                     auto alg = Stream{"algorithm"sv};
+                     alg << add("Algorithm<SHAKE>>", &Fixture::test_usage_algorithm<library::Algorithm<SHAKE>>)
+                         << add("Algorithm<cSHAKE>>", &Fixture::test_usage_algorithm<library::Algorithm<cSHAKE>>)
+                         << add("Algorithm<AES>>", &Fixture::test_usage_algorithm<library::Algorithm<AES>>)
+                         << END;
+                     return alg;
+                   }()
+                 << END;
+             return use;
+           }()
+         << []{
+             auto kec = Stream{"keccac"sv};
+             kec << add<Keccak<library::Keccak<256,0b00,2>>>()
+                 << add<Keccak<library::Keccak<256,0b1111>>>()
+                 << END;
+             return kec;
+           }()
+         << []{
+             auto alg = Stream{"algorithm"sv};
+             using enum library::algorithm::Name;
+             alg << add<Algorithm<library::Algorithm<SHAKE>>>()
+                 << add<Algorithm<library::Algorithm<cSHAKE>>>()
+                 << add<Algorithm<library::Algorithm<AES>>>()
+                 << END;
+             return alg;
+           }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.crypto.Block
+namespace tests::unit::crypto {
+  template<> auto Fixture::test_usage_algorithm<library::Algorithm<AES>>() -> void {
+    using Subject = library::Algorithm<AES>;
+    constexpr auto WIDTH = 16uz;
+    using Block = ::tunitas::keyston::crypto::Block<WIDTH>;
+    auto subject = Subject{};
+    auto left = Block{};
+    auto right = Block{};
+    auto out = subject(left, right);
+    require(ASSERTION, sizeof(out));
+  }
+}
+#endiv

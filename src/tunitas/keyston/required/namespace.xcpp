@@ -6,5 +6,8 @@
 #divert <fpp>
 #import tunitas.keyston
 #import tunitas.required
-namespace tunitas::keyston::required { using namespace tunitas::required; }
+namespace tunitas::keyston::required {
+  using namespace tunitas::required;
+  namespace [[nodirectory]] span { }
+}
 #endiv

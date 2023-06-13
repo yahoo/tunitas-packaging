@@ -46,6 +46,7 @@ TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
 
 # and mention in $(DEVELOPMENT_AREAS) in Makefile.am
 TF_WITH_MODULE([boost])
+TF_WITH_MODULE([crypto])
 TF_WITH_MODULE([cli-core])
 TF_WITH_MODULE([fmt])
 TF_WITH_MODULE([langu])

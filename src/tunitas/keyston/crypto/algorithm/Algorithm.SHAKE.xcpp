@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.crypto.algorithm.Algorithm.template
+namespace tunitas::keyston::crypto::algorithm {
+  //
+  // Authorities:
+  //
+  //   FIPS 202 SHA-3 Standard: Permutation-Based Hash and Extaendable Output Function
+  //   https://csrc.nist.gov/publications/detail/fips/202/final
+  //   https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+  //   Section 6.2 Extendable-Output Functions (SHAKE-128 & SHAKE-256)
+  //   Section 6.3 Alternate Definitions of SHA-3 Extendable-Output Functions
+  //
+  //   https://www.cryptopp.com/wiki/SHAKE
+  //
+  // Theory: (from FIPS 202, pages 28 & 29)
+  //
+  //   SHAKE128(M, d) = KECCAK[256] (M || 1111, d),
+  //   SHAKE256(M, d) = KECCAK[512] (M || 1111, d).
+  //
+  //   M is the message that entails its own length, the input length
+  //   d is the output length (digest size) which can vary at runtime (within limits, sortof)
+  //
+  // Specification:
+  //
+  //   As such.
+  //
+  //   This is an XOF (Extensible-Output Function) so you have to declare how much you want.
+  //
+  // Design:
+  //
+  //   copy-pasta from the tutorial.
+  //   https://www.cryptopp.com/wiki/SHAKE
+  //
+  // Usage:
+  //
+  //   auto shake = Algorithm<SHAKE>{};
+  //   auto const output_length = ...some length...;
+  //   auto const message = View{...somehow...};
+  //   auto stuff = shake(message, output_length);
+  //
+  template<> struct Algorithm<SHAKE>;
+}
+#endiv
+#divert <hpp>
+#import cryptopp.SHAKE
+#import tunitas.keyston.crypto.algorithm.Extensible
+namespace tunitas::keyston::crypto::algorithm {
+  template<> struct Algorithm<SHAKE> : public Extensible {
+    inline auto operator()(Message, Bytes output_length) -> Output;;
+  protected:
+    cryptopp::SHAKE128 hash{};
+  };
+}
+#endiv
+#divert <ipp>
+#import cryptopp.Exception
+#import tunitas.keyston.error.Code
+#import tunitas.keyston.exception.Failure
+#import tunitas.keyston.exception.Null
+namespace tunitas::keyston::crypto::algorithm {
+  auto Algorithm<SHAKE>::operator()(Message message, Bytes output_length) -> Output try {
+    auto ret = Output(output_length.count());
+    hash.Update(reinterpret_cast<cryptopp::byte const *>(message.data()), message.size());
+    // [[FIXTHIS]] how do we know that we got the correct number of bits (bytes)?
+    hash.TruncatedFinal(reinterpret_cast<cryptopp::byte *>(ret.data()), ret.size());
+    return ret;
+  } catch (cryptopp::Exception const &e) {
+    throw exception::Failure{error::Code::CRYPTO, e.what()}; // throw one of ours
+  }
+}
+#endiv

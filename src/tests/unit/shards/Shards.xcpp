@@ -68,7 +68,7 @@ namespace tests::unit::shards {
     require(ASSERTION, library::SHARD_COUNT.count() == subject.size());
   }
   auto Shards::test_at_constie_good() -> void {
-    auto subject = Subject{-1,-2};
+    auto subject = Subject{Subject::Inplace{}, -1,-2};
     require(ASSERTION, -1 == subject.at(Shard{0})); // <------------------------------ test this (constie)
     require(ASSERTION, -2 == subject.at(Shard{1})); // <------------------------------ test this (constie)
   }
@@ -80,7 +80,7 @@ namespace tests::unit::shards {
     require(ASSERTION);
   }
   auto Shards::test_at_mutable_good() -> void {
-    auto subject = Subject{-3,-4};
+    auto subject = Subject{Subject::Inplace{}, -3,-4};
     require(ASSERTION, -3 == subject.at(Shard{0})); // <------------------------------ test this (constie)
     require(ASSERTION, -4 == subject.at(Shard{1})); // <------------------------------ test this (constie)
     subject.at(Shard{0}) = - subject.at(Shard{0});
@@ -106,7 +106,7 @@ namespace tests::unit::shards {
   }
   auto Shards::test_swap() -> void {
     auto subject0 = Subject{};
-    auto subject1 = Subject{88,99};
+    auto subject1 = Subject{Subject::Inplace{}, 88,99};
     require(ASSERTION, 0 == subject0.at(Shard{0}));
     require(ASSERTION, 0 == subject0.at(Shard{1}));
     swap(subject0, subject1); // <------------------------------ test this (constie)

@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::octets {
+  //
+  // A palette of types, values and value generators.
+  // Descendants only.
+  //
+  struct Palette;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.octets.required.Octets
+#import tunitas.keyston.octets.required.Variable
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.octets.Variable
+#import nonstd.units.memory.scale // bytes
+class tests::unit::octets::Palette {
+protected:
+  ~Palette() = default;
+public:
+  using Bytes = nonstd::units::memory::Bytes;
+  template<Size CAPACITY> using Fixed = library::Fixed<CAPACITY>;
+  using Variable = library::Variable;
+  // when BUFFER=library::Variable, the length is always 0
+  // when BUFFER==library::Fixed<N>, the length is (obviously) N and the buffer is initialized with sequential bytes
+  template<required::Octets BUFFER> static auto generate() -> BUFFER;
+  template<required::Variable BUFFER> static auto generate(Size) -> BUFFER;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::octets {
+  template<required::Octets BUFFER> auto Palette::generate() -> BUFFER {
+    auto ret = BUFFER{};
+    for (unsigned ith{0}; auto &each : ret) {
+      each = Octet(ith++); // narrowing here is ok ... we're just filling in some interesting values
+    }
+    return ret;
+  }
+  template<required::Variable BUFFER> auto Palette::generate(Size desired_size) -> BUFFER {
+    auto ret = BUFFER(desired_size);
+    for (unsigned ith{0}; auto &each : ret) {
+      each = Octet(ith++); // narrowing here is ok ... we're just filling in some interesting values
+    }
+    return ret;
+  }
+}
+#endiv

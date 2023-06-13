@@ -1,0 +1,85 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.keyston.crypto.algorithm.Algorithm.AES>
+#endiv
+#divert <hpp>
+#import cryptopp.CBC_Mode
+#import cryptopp.AES
+#import tunitas.keyston.crypto.Block
+#import tunitas.keyston.error.Code
+namespace tunitas::keyston::crypto::algorithm {
+  //
+  // The AES 128 encryption as a function
+  //
+  // Specification
+  //
+  //   Whatnow?
+  //
+  // Design:
+  //
+  //   Multi-shot use.
+  //   Prepare for the the IV (Initialization Vector) and key to be amortized across multiple runs.
+  //
+  // Usage: (multi-shot)
+  //
+  //   auto key = Block<WIDTH>{...somehow...};
+  //   auto Function = Algorithm<AES>::Function{key};
+  //   do {
+  //     auto sigma = Block<WIDTH>{...somehow...};
+  //     auto crypted = function(sigma);
+  //     ...more...
+  //   } while (...condition...)
+  //
+  template<Size THE_WIDTH> struct Algorithm<AES>::Function {
+    inline static constexpr auto const WIDTH = THE_WIDTH;
+    using Block = crypto::Block<WIDTH>;
+    inline explicit Function(Block const &key);
+    Function(Function const &) = delete;
+    inline auto operator()(Block const &block) -> Block;
+  protected:
+    cryptopp::CBC_Mode<cryptopp::AES>::Encryption encryption{};
+  private:
+#if 12 < __GNUC__
+    using E = error::Code;
+    static_assert(sizeof(E::CRYPTO), "internal compiler error?"); // src/tunitas/keyston/crypto/algorithm/Algorithm.AES.Function.xcpp:66:43: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+#else 
+    using E = error::Code::Enumeration;
+#endif
+  };
+}
+#endiv
+#divert <tpp>
+#import cryptopp.Exception
+#import cryptopp.AutoSeededRandomPool
+#import cryptopp.SecByteBlock
+#import cryptopp.ArraySource
+#import cryptopp.ArraySink
+#import cryptopp.StreamTransformationFilter
+#import std.span
+#import tunitas.keyston.exception.Failure
+namespace tunitas::keyston::crypto::algorithm {
+  template<Size _> Algorithm<AES>::Function<_>::Function(Block const &key) try {
+    auto ks = std::span{reinterpret_cast<cryptopp::byte const *>(key.data()), key.size()};
+    static_assert(WIDTH == cryptopp::AES::BLOCKSIZE, "seems oddly specific");
+    cryptopp::AutoSeededRandomPool prng{};
+    auto iv = cryptopp::SecByteBlock{cryptopp::AES::BLOCKSIZE};
+    prng.GenerateBlock(iv.data(), iv.size());
+    encryption.SetKeyWithIV(ks.data(), key.size(), iv.data(), iv.size());
+  } catch (cryptopp::Exception const &e) {
+    throw exception::Failure{E::CRYPTO, e.what()}; // throw one of ours
+  }
+  template<Size _> auto Algorithm<AES>::Function<_>::operator()(Block const &block) -> Block try {
+    auto ret = Block{};
+    auto source = std::span{reinterpret_cast<cryptopp::byte const *>(block.data()), block.size()};
+    auto sink = std::span{reinterpret_cast<cryptopp::byte *>(ret.data()), ret.size()};
+    cryptopp::ArraySource{source.data(), source.size(), /*pumpAll*/ true, new cryptopp::StreamTransformationFilter{encryption, new cryptopp::ArraySink{sink.data(), sink.size()}}};
+    return ret;
+  } catch (cryptopp::Exception const &e) {
+    throw exception::Failure{E::CRYPTO, e.what()}; // throw one of ours
+  }
+}
+#endiv

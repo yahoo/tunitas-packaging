@@ -1,0 +1,17 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston
+namespace tunitas::keyston::octets {
+  //
+  // The Octets (the Bytes).
+  //
+  // Whereas nonstd::unit::memory::Bytes is frequently used in these parts,
+  // these arrays are called by the neologism "octets" reminiscent of internet networking culture.
+  // Though it is understood that the (applied) cryptography culture prefers the term "bytes".
+  //
+}
+#endiv

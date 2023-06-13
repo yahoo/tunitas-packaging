@@ -5,9 +5,12 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.string.literals
+#import std.size_t
 namespace tests {
   namespace string = tunitas::string;
   using namespace tunitas::string::literals;
+  using Size = std::size_t;
+
 }
 #import tunitas.string.View
 #import tunitas.string.Storage

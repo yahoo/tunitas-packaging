@@ -48,7 +48,7 @@ namespace tunitas::keyston::identifier {
     auto operator()(signed int) -> Result = delete;
     auto operator()(signed int long) -> Result = delete;
     auto operator()(signed int long long) -> Result = delete;
-    auto operator()(int128_t) -> Result = delete;
+    auto operator()(sint128_t) -> Result = delete;
     explicit Supplier() = default;
    protected:
     ~Supplier() = default;

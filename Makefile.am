@@ -72,6 +72,7 @@ include @temerarious_flagship_datadir@/am/build.am
 DEVELOPMENT_AREAS = \
   $(module_boost_prefix) \
   $(module_cli_core_prefix) \
+  $(module_crypto_prefix) \
   $(module_fmt_prefix) \
   $(module_langu_prefix) \
   $(module_nonstd_prefix) \

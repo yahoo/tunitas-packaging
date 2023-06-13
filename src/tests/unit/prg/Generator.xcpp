@@ -1,0 +1,89 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prg.required.Generator
+namespace tests::unit::prg {
+  template<required::Generator SUBJECT> struct Generator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prg.Generator
+#import tests.unit.prg.Palette
+namespace tests::unit {
+  template<prg::required::Generator SUBJECT> struct prg::Generator : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_seed() -> void;
+    auto test_constructor_basic() -> void;
+    auto test_constructor_custom() -> void;
+    auto test_constructor_binder() -> void;
+    auto test_next_first() -> void;
+    auto test_next_series() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+//
+// The specializations mut occur before suite() so their address can be taken
+namespace tests::unit::prg {
+  template<required::Generator _> auto Generator<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+               auto con = Stream{"constructor"sv};
+               con << add("basic", &Generator::test_constructor_basic)
+                   << add("seed", &Generator::test_constructor_seed)
+                   << add("custom", &Generator::test_constructor_custom)
+                   << add("binder", &Generator::test_constructor_binder)
+                   << END;
+               return con;
+             }()
+           << []{
+             auto next = Stream{"next"sv};
+             next << add("first", &Generator::test_next_first)
+                  << add("series", &Generator::test_next_series)
+                  << END;
+             return next;
+           }()
+           << END;
+    return settle(series);
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_basic() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_seed() -> void {
+    auto subject = Subject{Palette::generate_seed(0xabcdef123456789u), Palette::generate_custom(), Palette::generate_binder()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_custom() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(0xabcdef123456789u), Palette::generate_binder()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_binder() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder(0xabcdef123456789u)};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_next_first() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    auto got = subject.next(Bytes{100});
+    dump(got);
+    require(ASSERTION, 100 == got.size());
+  }
+  template<required::Generator _> auto Generator<_>::test_next_series() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    constexpr auto LIMIT = 100uz;
+    constexpr auto EACH = Bytes{256u};
+    for (auto i{0uz}; LIMIT != i; ++i) {
+      auto got = subject.next(EACH);
+      require(ASSERTION, EACH.count() == got.size());
+      std::cerr << "i=" << i << ' ';
+      dump(got);
+    }
+  }
+}
+#endiv

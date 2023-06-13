@@ -58,10 +58,15 @@ namespace tunitas::keyston::array {
 #import nonstd.required.Convertible_To
 #forward tunitas.keyston.array.Fixed
 #import tunitas.keyston.array.required.Initializers
-#import std.derived_from
+#import tunitas.keyston.array.required.has // [[unused]] for has::Capacity, Max_Size, Resize, Reserve
 #import std.conditional
+#import std.derived_from
+#import std.enable_if
 #import std.is_const
+#import std.nothrow
 #import std.ranges.subrange
+#import std.same_as
+#import std.span
 namespace tunitas::keyston {
   namespace array {
     using std::move;
@@ -102,19 +107,30 @@ namespace tunitas::keyston {
     template<typename... VALUES> constexpr Container(Inplace, VALUES &&...) requires required::Initializers<Value, VALUES...>;
     template<required::iterator::Forward ITERATOR> Container(ITERATOR, ITERATOR);
     //
-    template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Container> using Basic_Iterator = std::conditional_t<std::is_const_v<SELF>, typename Ancestor::const_iterator, typename Ancestor::iterator>;
-    using Iterator = Basic_Iterator<Container>;
+    template<typename VALUE> requires std::same_as<std::remove_const_t<VALUE>, Value> using Span = std::span<VALUE>;
+    using View = Span<Value const>;
+    inline constexpr operator Span<Value>();
+    inline constexpr operator Span<Value const>() const;
     //
     using Ancestor::empty;
     using Ancestor::size;
     // NOT HERE ---> using Ancestor::data; <--- NOT HERE (rather see the descendant Variable<TYPE>)
+    //
+    template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Container> using Basic_Iterator = std::conditional_t<std::is_const_v<SELF>, typename Ancestor::const_iterator, typename Ancestor::iterator>;
+    using Iterator = Basic_Iterator<Container>;
+    //
     using Ancestor::begin;
     using Ancestor::end;
+    //
+    using Index = Size;
 #if 202312 < __cplusplus
-    template<typename SELF> inline auto at(this SELF *, Size) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline auto at(this SELF *, Index) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline auto at(this SELF *, std::nothrow_t, Index) -> nonstd::like_t<SELF, Value &>;
 #else
-    inline auto at(Size) const -> Value const &;
-    inline auto at(Size) -> Value &;
+    inline auto at(Index) const -> Value const &;
+    inline auto at(Index) -> Value &;
+    inline auto at(std::nothrow_t, Index) const -> Value const &;
+    inline auto at(std::nothrow_t, Index) -> Value &;
 #endif
     using Ancestor::push_back;
     using Ancestor::emplace_back;
@@ -189,19 +205,24 @@ namespace tunitas::keyston {
     template<required::Containable _> template<required::Containable OTHER> Container<_>::Container(Container<OTHER> &&other) { manually_move_because_sometimes_copy_is_selected(std::forward<Container<OTHER>>(other)); }
     template<required::Containable _> Container<_>::Container(Container &&other)                                              { manually_move_because_sometimes_copy_is_selected(std::forward<Container>(other)); }
 #endif
+    template<required::Containable _> constexpr Container<_>::operator Span<Value>()             { return {Ancestor::data(), Ancestor::size()}; }
+    template<required::Containable _> constexpr Container<_>::operator Span<Value const>() const { return {Ancestor::data(), Ancestor::size()}; }
 #if 202312 < __cplusplus
-    template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, Size index) -> nonstd::like_t<SELF, Value &> try {
+    template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> { return self->operator[](index); }
+    template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {
       return self->at(index);
     } catch (substd::exception::Bound const &e) {
       throw exception::Bound{e};
     }
 #else
-    template<required::Containable _> auto Container<_>::at(Size index) const -> Value const & try {
+    template<required::Containable _> auto Container<_>::at(std::nothrow_t, Index index) const -> Value const & { return Ancestor::operator[](index); }
+    template<required::Containable _> auto Container<_>::at(std::nothrow_t, Index index)       -> Value &       { return Ancestor::operator[](index); }
+    template<required::Containable _> auto Container<_>::at(Index index) const -> Value const & try {
       return Ancestor::at(index);
     } catch (substd::exception::Bound const &e) {
       throw exception::Bound{e.what()};
     }
-    template<required::Containable _> auto Container<_>::at(Size index) -> Value & try {
+    template<required::Containable _> auto Container<_>::at(Index index) -> Value & try {
       return Ancestor::at(index);
     } catch (substd::exception::Bound const &e) {
       throw exception::Bound{e.what()};

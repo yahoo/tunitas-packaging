@@ -44,6 +44,8 @@ namespace tunitas::keyston {
     inline [[implicit]] Variable(Ancestor &&);
     //
     using Ancestor::data;
+    using Ancestor::resize;
+    using Ancestor::reserve;
   };
 }
 #import nonstd.container.Traits.tunitas.keyston.array.Variable.TYPE

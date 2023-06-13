@@ -1,0 +1,224 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::integer::encode {
+  namespace package_encode {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_encode::interface;
+}
+namespace tunitas::keyston::integer::encode::package_encode {
+  namespace body {
+    namespace our { }
+  }
+}
+#import nonstd.units.memory.scale // Bits & Bytes
+#import tunitas.keyston.integer.required // ctcnt (cascade that certain namespace required)
+#import tunitas.integer.required.Unsigned
+#import tunitas.keyston.octets.Variable
+#import std.span
+namespace tunitas::keyston::integer::encode::package_encode {
+  using Variable = octets::Variable;
+  using Input = std::span<Octet const>;
+  namespace body {
+    using nonstd::units::memory::Bits;
+    using nonstd::units::memory::Bytes;
+    template<required::Unsigned> struct Encoded;
+    struct Left;
+    struct Right;
+  }
+}
+#endiv
+#endiv
+#divert <hpp>
+#import tunitas.Tuple
+#import tunitas.integer.required.Small
+#import tunitas.integer.required.Large
+#import tunitas.integer.required.Unsigned
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.integer.traits.SizeOf
+#import nonstd.required.iterator.Forward
+namespace tunitas::keyston::integer::encode::package_encode {
+  namespace body {
+    namespace exported {
+      //
+      //
+      // Authorities:
+      //
+      //   SP 800-185 SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash, ParallelHash
+      //   https://csrc.nist.gov/CSRC/media/Publications/sp/800-185/archive/2016-08-04/documents/sp800_185_draft.pdf
+      //   Section 2.3 Other Internal Functions
+      //
+      // Design:
+      //
+      //   Only what we need to implement cSHAKE.
+      // 
+      //   Whereas the standard  (SP 800-185) denominates lengths in bits,
+      //   this implementation is restricted to byte-oriented values (multiples of 8).
+      //   But the numerical values within the encodings are of course still denominated in bits per the specification.
+      //
+      //
+      // Details
+      //
+      //   The limit is 2^2040
+      //   2^2040 == 2^8^255
+      //   Byte strings input and output will be no longer than 255 (bytes) plus a length byte (so 256 bytes).
+      //
+      // Usage:
+      //
+      //   Pretty much only Algorithm<cSHAKE>
+      //
+      //   auto encoded = encode::as_variable_left(specimen);
+      //   auto encoded = encode::as_variable_right(specimen);
+      //   ...you get the idea...
+      //
+      template<required::Unsigned INTEGER> inline constexpr auto estimate_payload_size(INTEGER) -> Bytes;
+      template<required::Unsigned INTEGER> inline constexpr auto estimate_total_size(INTEGER integer) -> Bytes { return Bytes{1} + estimate_payload_size(integer); }
+      template<required::Unsigned INTEGER> inline constexpr auto estimate_size(INTEGER integer) -> Tuple</*payload*/Bytes, /*total*/Bytes>;
+      //
+      // the caller guarantees that the iterator has enough space left to write the fully-encoded integer 
+      template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> inline auto into_left([[out]] ITERATOR, INTEGER) -> ITERATOR;
+      template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> inline auto into_right([[out]] ITERATOR, INTEGER) -> ITERATOR;
+      //
+      template<required::Unsigned INTEGER> inline auto as_variable_left(INTEGER) -> typename Encoded<INTEGER>::Variable;
+      template<required::Unsigned INTEGER> inline auto as_variable_right(INTEGER) -> typename Encoded<INTEGER>::Variable;
+      template<required::Unsigned INTEGER> inline auto as_fixed_left(INTEGER) -> typename Encoded<INTEGER>::Fixed;
+      template<required::Unsigned INTEGER> inline auto as_fixed_right(INTEGER) -> typename Encoded<INTEGER>::Fixed;
+      //
+      // The interface names in the standard (SP 800-185) had simpler names which assumed only variable-length output
+      template<required::Unsigned INTEGER> inline constexpr auto left_encode(INTEGER in) -> Variable { return as_variable_left(in); }
+      template<required::Unsigned INTEGER> inline constexpr auto right_encode(INTEGER in) -> Variable { return as_variable_right(in); }
+    }
+    inline constexpr auto const MAXIMUM_LENGTH = Bytes{255};
+    template<typename CONSTRUCTOR, typename SIDE, required::Unsigned INTEGER> constexpr auto encodification(INTEGER specimen) -> typename CONSTRUCTOR::Constructed;
+    namespace our {
+      //
+      // [[FIXTHIS]] all these should be in tunitas::integer, not hacked into namespace body here.
+      template<required::Small INTEGER> inline constexpr auto bit_ceil(INTEGER) -> INTEGER;
+      template<required::Large INTEGER> inline constexpr auto bit_ceil(INTEGER) -> INTEGER;
+      template<required::Small INTEGER> inline constexpr auto countr_zero(INTEGER) -> int;
+      template<required::Large INTEGER> inline constexpr auto countr_zero(INTEGER) -> int;
+    }
+  }
+  template<required::Unsigned INTEGER> struct body::Encoded {
+    using Fixed = octets::Fixed<1 + traits::SizeOf<INTEGER>::VALUE.count()>;
+    using Variable = octets::Variable;
+    struct Construct {
+      struct Fixed {
+        using Constructed = typename Encoded::Fixed;
+        inline static constexpr auto construct([[ignored]] Bytes) -> Constructed;
+      };
+      struct Variable {
+        using Constructed = typename Encoded::Variable;
+        inline static constexpr auto construct(Bytes = traits::SizeOf<INTEGER>::VALUE) -> Constructed;
+      };
+    };
+  };
+  // always big endian; but is the length on the left or the right? (befor eor after)?
+  // precondition: the output pointed into by Variable::Iterator here has already been sized to accept the length + specimen
+  struct body::Left {
+    template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> inline static constexpr auto perform(ITERATOR here, Bytes length, INTEGER specimen) -> ITERATOR;
+  };
+  struct body::Right {
+    template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> inline static constexpr auto perform(ITERATOR here, Bytes length, INTEGER specimen) -> ITERATOR;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.bit_ceil
+#import std.countr_zero
+#import std.same_as
+namespace tunitas::keyston::integer::encode::package_encode {
+  namespace body {
+    static_assert(std::same_as<int, decltype(std::countr_zero(0u))>, "returns an int (even which ne never negative)");
+    template<required::Small INTEGER> constexpr auto our::bit_ceil(INTEGER integer) -> INTEGER { return std::bit_ceil(integer); }
+    template<required::Small INTEGER> constexpr auto our::countr_zero(INTEGER integer) -> int  { return std::countr_zero(integer); }
+    template<required::Large INTEGER> constexpr auto our::bit_ceil(INTEGER integer) -> INTEGER {
+      if (0 == integer) {
+        return INTEGER{1};
+      } else {
+        return []<auto MINBITS, auto MAXBITS, auto SIGNAGE, auto CHECKAGE, typename ALLOCATOR>(boost::multiprecision::number<boost::multiprecision::cpp_int_backend<MINBITS, MAXBITS, SIGNAGE, CHECKAGE, ALLOCATOR>> integer) requires (MINBITS == MAXBITS) {
+          --integer;
+          auto shift = 1uz;
+          for (auto i{0u}, e{1u+std::countr_zero(MINBITS)}; e != i; ++i) {
+            integer |= integer >> shift;
+            shift <<= 1;
+          }
+          ++integer;
+          return integer;
+        }(integer);
+      }
+    }
+    template<required::Large INTEGER> constexpr auto our::countr_zero(INTEGER integer) -> int {
+      return []<auto MINBITS, auto MAXBITS, auto SIGNAGE, auto CHECKAGE, typename ALLOCATOR>(boost::multiprecision::number<boost::multiprecision::cpp_int_backend<MINBITS, MAXBITS, SIGNAGE, CHECKAGE, ALLOCATOR>> integer) -> int requires (MINBITS == MAXBITS) {
+        if (0 == integer) {
+          return MINBITS;
+        } else {
+          int ret{};
+          for (auto i{0u}; MINBITS != i; ++i) {
+            if (integer & 01) {
+              return ret;
+            } else {
+              ++ret;
+              integer >>= 1;
+            }
+          }
+          return ret;
+        }
+      }(integer);
+    }
+    template<required::Unsigned _> constexpr auto Encoded<_>::Construct::Fixed::construct(Bytes) -> Constructed            { return Constructed{}; }
+    template<required::Unsigned _> constexpr auto Encoded<_>::Construct::Variable::construct(Bytes initial) -> Constructed { return Constructed(initial.count(), Octet{}); }
+    template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> constexpr auto Left::perform(ITERATOR start, Bytes length, INTEGER specimen) -> ITERATOR {
+      auto offset = Octet(length.count());
+      *start++ = offset;
+      auto const there = start + static_cast<unsigned>(offset);
+      for (auto here=there; there != here; --here) {
+        *here = Octet(specimen & 0xffu);
+        specimen >>= 8;
+      }
+      return there;
+    }
+    template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> constexpr auto Right::perform(ITERATOR start, Bytes length, INTEGER specimen) -> ITERATOR {
+      auto const offset = Octet(length.count());
+      auto there = start + static_cast<unsigned>(offset);
+      for (auto here=there; there != here; --here) {
+        *here = Octet(specimen & 0xffu);
+        specimen >>= 8;
+      }
+      *there++ = offset;
+      return there;
+    }
+  }
+  template<required::Unsigned INTEGER> constexpr auto interface::estimate_payload_size(INTEGER specimen) -> Bytes {
+    auto const length_of_specimen = Bytes{(1u + our::countr_zero(our::bit_ceil(specimen)) ) >> 3}; // find the smallest n | specimen < 2^(8*n) from line 240 of SP 800-185
+    if (MAXIMUM_LENGTH < length_of_specimen) {
+      throw exception::Length{"the 2^2040 limit was breached"};
+    }
+    // what if specimen was zero?
+    return Bytes{0} == length_of_specimen ? Bytes{1} : length_of_specimen;
+  }
+  template<required::Unsigned INTEGER> constexpr auto interface::estimate_size(INTEGER integer) -> Tuple<Bytes, Bytes> {
+    auto payload = estimate_payload_size(integer);
+    auto total = Bytes{1} + payload;
+    return {payload, total};
+  } 
+  template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> auto interface::into_left(ITERATOR output, INTEGER specimen) -> ITERATOR  { return Left::perform(output, estimate_payload_size(specimen), specimen); }
+  template<required::iterator::Forward ITERATOR, required::Unsigned INTEGER> auto interface::into_right(ITERATOR output, INTEGER specimen) -> ITERATOR { return Right::perform(output, estimate_payload_size(specimen), specimen); }
+  template<typename CONSTRUCTOR, typename SIDE, required::Unsigned INTEGER> constexpr auto body::encodification(INTEGER specimen) -> typename CONSTRUCTOR::Constructed {
+    auto [total_size, payload_size] = estimate_size(specimen);
+    auto ret = CONSTRUCTOR::construct(total_size);
+    SIDE::perform(ret.begin(), payload_size, specimen);
+    return ret;
+  }
+  template<required::Unsigned INTEGER> auto interface::as_variable_left(INTEGER specimen) -> typename Encoded<INTEGER>::Variable  { return encodification<typename Encoded<INTEGER>::Construct::Variable, Left>(specimen); }
+  template<required::Unsigned INTEGER> auto interface::as_variable_right(INTEGER specimen) -> typename Encoded<INTEGER>::Variable { return encodification<typename Encoded<INTEGER>::Construct::Variable, Right>(specimen); }
+  template<required::Unsigned INTEGER> auto interface::as_fixed_left(INTEGER specimen) -> typename Encoded<INTEGER>::Fixed        { return encodification<typename Encoded<INTEGER>::Construct::Fixed, Left>(specimen); }
+  template<required::Unsigned INTEGER> auto interface::as_fixed_right(INTEGER specimen) -> typename Encoded<INTEGER>::Fixed       { return encodification<typename Encoded<INTEGER>::Construct::Fixed, Right>(specimen); }
+}
+#endiv

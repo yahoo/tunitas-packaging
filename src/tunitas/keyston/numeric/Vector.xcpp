@@ -124,21 +124,21 @@ namespace tunitas::keyston {
     template<required::Element E, Size C> constexpr auto Vector<E,C>::operator+=(Vector const &other) -> Vector & {
       auto &self{*this};
       for (auto i : std::views::iota(0u, Ancestor::size())) {
-        self[i] += other[i]; // [[FIXTHIS]] - check for overflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
+        self[i] += other[i]; // [[FIXTHIS?]] - check for overflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
       }
       return self;
     }
     template<required::Element E, Size C> constexpr auto Vector<E,C>::operator-=(Vector const &other) -> Vector & {
       auto &self{*this};
       for (auto i : std::views::iota(0u, Ancestor::size())) {
-        self[i] -= other[i]; // [[FIXTHIS]] - check for underflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
+        self[i] -= other[i]; // [[FIXTHIS?]] - check for underflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
       }
       return self;
     }
     template<required::Element E, Size C> constexpr auto Vector<E,C>::operator*=(typename Ancestor::Value other) -> Vector & {
       auto &self{*this};
       for (auto &item : self) {
-        item *= other; // [[FIXTHIS]] - check for overflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
+        item *= other; // [[FIXTHIS?]] - check for overflow; or not? since wraparound (modulo 2^n is well-defined on unsigned integers)
       }
       return self;
     }
