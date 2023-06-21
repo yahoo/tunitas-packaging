@@ -9,6 +9,12 @@
 #import tunitas.keyston.measurement.Count
 #import tunitas.keyston.array.Series
 #import tunitas.keyston.Shards
+#import tunitas.keyston.vdaf.numeric.Measurement
+#import tunitas.keyston.vdaf.numeric.Input
+#import tunitas.keyston.vdaf.numeric.Public
+#import tunitas.keyston.vdaf.numeric.Preparation
+#import tunitas.keyston.vdaf.numeric.Output
+#import tunitas.keyston.vdaf.numeric.Aggregation
 namespace tunitas::keyston::vdaf::numeric {
   //
   // A bundle of types
@@ -16,9 +22,11 @@ namespace tunitas::keyston::vdaf::numeric {
   namespace components {
     using keyston::Shards;
     template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
+    using Randomness   = Configuration<NUMERIC>::Randomness;
     using Nonce        = Configuration<NUMERIC>::Nonce;
     using Verify_Key   = Configuration<NUMERIC>::Verify_Key;
     using Processed    = Configuration<NUMERIC>::Processed;
+    //
     using Disassembled = Configuration<NUMERIC>::Disassembled;
     using Initialized  = Configuration<NUMERIC>::Initialized;
     using Continued    = Configuration<NUMERIC>::Continued;
@@ -29,6 +37,7 @@ namespace tunitas::keyston::vdaf::numeric {
     using numeric::Measurement;
     using numeric::Input;
     using numeric::Public;
+    using numeric::Preparation;
     using numeric::Output;
     using numeric::Aggregation;
   }

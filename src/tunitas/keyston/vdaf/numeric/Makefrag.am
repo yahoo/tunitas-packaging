@@ -9,6 +9,7 @@ tunitas_keyston_vdaf_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/numeric/components.cpp \
   $(tunitas_keyston_vdaf_numeric_package_format_SUBSOURCES) \
   \
+  $(tunitas_keyston_vdaf_numeric_algorithm_SUBSOURCES) \
   obj/src/tunitas/keyston/vdaf/numeric/zero.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/constant.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/prio3.cpp \
@@ -24,3 +25,4 @@ tunitas_keyston_vdaf_numeric_SUBSOURCES = \
   $(end)
 #
 include src/tunitas/keyston/vdaf/numeric/package_format/Makefrag.am
+include src/tunitas/keyston/vdaf/numeric/algorithm/Makefrag.am

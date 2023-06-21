@@ -8,6 +8,7 @@ tests_unit_field_SUBSOURCES = \
   check/obj/src/tests/unit/field/namespace.cpp \
   check/obj/src/tests/unit/field/Fixture.cpp \
   check/obj/src/tests/unit/field/Vector.cpp \
-  check/obj/src/tests/unit/field/Element.cpp \
-  check/obj/src/tests/unit/field/Element.SUBJECT.Expected.cpp \
+  $(tests_unit_field_element_SUBSOURCES) \
   $(end)
+#
+include src/tests/unit/field/element/Makefrag.am

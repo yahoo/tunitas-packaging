@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.field.element.Element
+namespace tunitas::keyston::field::element::traits {
+  //
+  // identify the field elements and give some early properties
+  // Indexed by the element name; i.e. Element<N> for the distinguished values 64, 128, 255
+  //
+  // Properties:
+  //
+  //   1. AnE Element<N> is a flavored small integer or a large integer.
+  //      small: enums are derived from integers .......... via the enum class definition.
+  //      large: classes are derived from other classes ... via the class ancestor.
+  //
+  //   2. when multipyling two n-precision integers, a (2*)n-precision intermediate result is produced.
+  //
+  // Specializations only.
+  //
+  template<typename> struct Element;
+  template<> struct Element<element::Element<64>>;
+  template<> struct Element<element::Element<128>>;
+  template<> struct Element<element::Element<255>>;
+}
+#endiv
+#divert <hpp>
+#import std.false_type
+#import std.true_type
+#forward tunitas.keyston.field.Definition
+namespace tunitas::keyston::field::element {
+  template<typename TYPE> struct traits::Element : public std::false_type { };
+  namespace traits {
+    template<> struct Element<element::Element<64>> : public std::true_type {
+      using Value = element::Element<64>;
+      using Underlying = std::underlying_type_t<Value>;
+      using Temporary = element::uint128_t;
+      using Field = Definition<64>;
+    };
+    template<> struct Element<element::Element<128>> : public std::true_type {
+      using Value = element::Element<128>;
+      using Underlying = std::underlying_type_t<Value>;
+      using Temporary = element::uint256_t;
+      using Field = Definition<128>;
+    };
+    template<> struct Element<element::Element<255>> : public std::true_type {
+      using Value = element::Element<255>;
+      using Underlying = element::uint256_t;
+      using Temporary = element::uint512_t;
+      using Field = Definition<255>;
+    };
+  }
+}
+#endiv

@@ -12,6 +12,5 @@ namespace tunitas::keyston::daf::numeric {
   using namespace tunitas::keyston::numeric;
   namespace generic { using namespace tunitas::keyston::numeric::generic; } // occlude namespace daf::generic
   using enum Scheme;
-  namespace [[nodirectory]] traits { }
 }
 #endiv

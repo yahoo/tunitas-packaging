@@ -5,6 +5,14 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 namespace tunitas::keyston::nonce {
+  //
+  // "ennumerate" is a neologism
+  // with two 'ns' in "enn", so that's not a sloppy typo.
+  //
+  // enbiggen ..... to make bigger
+  // ensmallen .... to make smaller
+  // ennumerate ... to make into a number (to convert into a number)
+  //
   namespace package_ennumerate {
     namespace body::exported { }
     namespace interface = body::exported;

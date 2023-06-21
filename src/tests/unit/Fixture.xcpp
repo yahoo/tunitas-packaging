@@ -34,6 +34,7 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.prg.Fixture
 #import tests.unit.prio.Fixture
 #import tests.unit.protocol.Fixture
+#import tests.unit.proof.Fixture
 #import tests.unit.quantity.Fixture
 #import tests.unit.transport.Fixture
 #import tests.unit.time.Fixture
@@ -70,6 +71,7 @@ auto tests::unit::Fixture::suite() -> Suite {
          << add<prg::Fixture>()
          << add<prio::Fixture>()
          << add<protocol::Fixture>()
+         << add<proof::Fixture>()
          << add<quantity::Fixture>()
          << add<time::Fixture>()
          << add<transport::Fixture>()

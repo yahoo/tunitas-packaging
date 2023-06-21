@@ -6,6 +6,13 @@
 #divert <hpp>
 #import tunitas.keyston.af.numeric.package_format.format
 namespace tunitas::keyston::af::numeric {
+  //
+  // Usage:
+  //
+  //   auto thing = somehow...;
+  //
+  //   cout << format(thing)
+  //
   using package_format::interface::format; // because many call sites expect it to be here
   static_assert(sizeof(Aggregation), "just plain Aggregation at this level");
 #if 0

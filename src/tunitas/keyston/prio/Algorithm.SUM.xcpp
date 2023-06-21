@@ -19,11 +19,11 @@ namespace tunitas::keyston::prio {
   template<> class Algorithm<SUM> {
     inline static constexpr auto BITS = Bits{8*sizeof(std::uint64_t)};
   public:
-    using Field = field::Field<128>;
+    using Field = keyston::Field<128>;
     inline static constexpr auto ENCODED_LENGTH = Items{BITS.count()};
     using Measurement = measurement::Specimen; // range 0, 2^bits
-    using Encoded = Field::Vector<ENCODED_LENGTH.count()>;
-    using Truncated = Field::Vector<1>;
+    using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
+    using Truncated = Field::Vector<1>::Value;
     using Decoded = measurement::Simple;
     using Processed = measurement::Records; // ... the record count itself
     using Result [[deprecated("instead use Algorithm<SUM>::Decoded")]] = Decoded;
@@ -37,12 +37,12 @@ namespace tunitas::keyston::prio {
     static constexpr auto has_bit_at_index(Measurement m, size_t i) -> bool { return 0 != (bit(i) & underlying(m)); }
   };
 }
-static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Field<128>::Vector<1>>));
-static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Field<128>::Vector<1>>::Iterator));
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value>));
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value>::Iterator));
 #endiv
 #divert <ipp>
-static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Field<128>::Vector<1> const>));
-static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::field::Field<128>::Vector<1> const>::Iterator));
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value const>));
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value const>::Iterator));
 #import tunitas.keyston.array.enumerate
 #import std.views.iota
 namespace tunitas::keyston::prio {

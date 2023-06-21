@@ -4,8 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#forward tunitas.keyston.field.Vector
-#import tunitas.keyston.field.required.Element
+#forward tunitas.keyston.field.vector.Fixed
 namespace tunitas::keyston::field::required {
   //
   // Is this type (a descendant of) a Vector<?
@@ -13,16 +12,28 @@ namespace tunitas::keyston::field::required {
   // Design:
   //
   //   Whereas there is an NTTP (Non-Type Template Parameter), the usual nonstd::required::InstanceOf will not work.
+  //   This is diagnosable WITHOUT the complete type of VECTOR
   //
   // Usage:
   //
   //   Yes.
   //
   template<typename VECTOR> concept Vector = requires(VECTOR) {
-    typename VECTOR::Value;
-    requires Element<typename VECTOR::Value>;
-    { []<typename ELEMENT, Size CAPACITY>(field::Vector<ELEMENT, CAPACITY> *) requires Element<ELEMENT>
+    { []<typename ELEMENT, Size CAPACITY>(field::vector::Fixed<ELEMENT, CAPACITY> *) requires Element<ELEMENT>
       {} (static_cast<VECTOR *>(nullptr)) };
   };
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.field.Element
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::field::required;
+    using tunitas::keyston::field::vector::Fixed;
+    using tunitas::keyston::field::Element;
+    static_assert(required::Vector<Fixed<Element<64>, 1>>);
+    static_assert(required::Vector<Fixed<Element<128>, 1>>);
+    static_assert(required::Vector<Fixed<Element<255>, 1>>);
+  }
 }
 #endiv

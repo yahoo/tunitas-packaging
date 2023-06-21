@@ -29,6 +29,7 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_popularity_SUBSOURCES) \
   $(tests_unit_prg_SUBSOURCES) \
   $(tests_unit_prio_SUBSOURCES) \
+  $(tests_unit_proof_SUBSOURCES) \
   $(tests_unit_protocol_SUBSOURCES) \
   check/obj/src/tests/unit/quantity.Fixture.cpp \
   $(tests_unit_shards_SUBSOURCES) \
@@ -60,10 +61,11 @@ include src/tests/unit/measurement/Makefrag.am
 include src/tests/unit/nonce/Makefrag.am
 include src/tests/unit/numeric/Makefrag.am
 include src/tests/unit/octets/Makefrag.am
-include src/tests/unit/prg/Makefrag.am
-include src/tests/unit/prio/Makefrag.am
 include src/tests/unit/poplar/Makefrag.am
 include src/tests/unit/popularity/Makefrag.am
+include src/tests/unit/prg/Makefrag.am
+include src/tests/unit/prio/Makefrag.am
+include src/tests/unit/proof/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
 include src/tests/unit/shards/Makefrag.am
 include src/tests/unit/af/Makefrag.am

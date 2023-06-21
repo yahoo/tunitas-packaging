@@ -6,11 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston
 #import nonstd.units.memory.scale
-#import tunitas.keyston.integer
 namespace tunitas::keyston::field {
   using nonstd::units::memory::scale::Bytes;
-  namespace [[nodirectory]] element {
-    using namespace keyston::integer;
-  }
 }
 #endiv

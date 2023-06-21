@@ -6,6 +6,13 @@
 #divert <hpp>
 #import tunitas.keyston.vdaf.numeric.package_format.format
 namespace tunitas::keyston::vdaf::numeric {
+  //
+  // Usage:
+  //
+  //   auto thing = somehow...;
+  //
+  //   cout << format(thing)
+  //
   using package_format::interface::format; // so that ADL will find it here.
 }
 #endiv

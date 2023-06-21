@@ -6,10 +6,14 @@
 #divert <fpp>
 #import tunitas.keyston
 #import tunitas.keyston.integer
+#import nonstd.units.memory.scale // for Bits, Bytes
 namespace tunitas::keyston::entropy {
   using namespace tunitas::keyston::integer;
   static_assert(sizeof (uint32_t), "already visible");
   static_assert(sizeof (uint64_t), "already visible");
   static_assert(sizeof (uint128_t), "already visible");
+  using nonstd::units::memory::Bits;
+  using nonstd::units::memory::Bytes;
+  namespace [[nodirectory]] traits { }
 }
 #endiv

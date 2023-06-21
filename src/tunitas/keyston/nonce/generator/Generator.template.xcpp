@@ -28,3 +28,7 @@ namespace tunitas::keyston::nonce::generator {
   template<required::Nonce NONCE, required::Entropy = entropy::Source> struct Generator;
 }
 #endiv
+#divert <hpp>
+// Every specialization will need this (these)
+#import tunitas.keyston.entropy.Device
+#endiv

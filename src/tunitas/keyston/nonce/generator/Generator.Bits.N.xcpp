@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -15,8 +15,6 @@ namespace tunitas::keyston::nonce::generator {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.Device
-#import tunitas.keyston.nonce.Bits
 namespace tunitas::keyston::nonce::generator {
   template<Size N, required::Entropy E> requires required::Has_Single_Bit<N> struct Generator<Bits<N>, E> {
     using Entropy = E;
@@ -47,19 +45,25 @@ namespace tunitas::keyston::nonce::generator {
 }
 #endiv
 #divert <cpp>
+#import tunitas.keyston.nonce.usage.Generator
 #import  std.declval
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
-    using namespace tunitas::keyston::nonce::generator;
-    static_assert(sizeof (std::declval<Generator<Bits<1>>>().operator()()));
+    namespace usage = tunitas::keyston::nonce::usage;
+#if 1
+    static_assert(usage::Generator<Generator<Bits<1>>>);
+#else
     using Specimen = Generator<Bits<1>>;
+    //
+    static_assert(sizeof (std::declval<Generator<Bits<1>>>().operator()()));
     static_assert(not std::is_default_constructible_v<Specimen>);
     static_assert(    std::is_copy_constructible_v<Specimen>);
     static_assert(    std::is_move_constructible_v<Specimen>);
     static_assert(not std::is_copy_assignable_v<Specimen>, "there are references inside");
     static_assert(not std::is_move_assignable_v<Specimen>, "there are references inside");
     static_assert(not std::is_swappable_v<Specimen>);
+#endif
   }
 }
 #endiv

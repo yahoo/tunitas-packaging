@@ -27,11 +27,11 @@ namespace tunitas::keyston::prio {
   template<> class Algorithm<COUNT> {
     inline static constexpr auto ENCODED_LENGTH = Items{1u};
   public:
-    using Field = field::Field<64>;
+    using Field = keyston::Field<64>;
     inline static constexpr auto INPUT_LENGTH = ENCODED_LENGTH;
     inline static constexpr auto OUTPUT_LENGTH = ENCODED_LENGTH;
     using Measurement = measurement::Specimen; // range [0, 2) i.e. zero or one
-    using Encoded = Field::Vector<ENCODED_LENGTH.count()>; // lol-wut?
+    using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value; // lol-wut?
     using Truncated = Encoded;
     using Decoded = measurement::Count; // ....... the payload
     using Processed = measurement::Records; // ... the record count itself

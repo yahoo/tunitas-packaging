@@ -8,6 +8,7 @@ namespace tests::unit::field { struct Fixture; }
 #endiv
 #divert <hpp>
 #import tunitas.number.Integer
+#import tunitas.integer.integers
 #import nonstd.uint128_t
 #import std.uint32_t
 #import std.uint64_t
@@ -25,8 +26,14 @@ protected:
 };
 #endiv
 #divert <tpp>
-#import tunitas.keyston.field.Field
+#import tunitas.keyston.integer
+#import tunitas.keyston.field.element
+#import tunitas.keyston.field.element.traits.Element
+#import tunitas.keyston.field.Definition
+#import tunitas.keyston.Field
 #import tunitas.keyston.field.Vector
+#import tunitas.keyston.field.Definition
+#import tunitas.keyston.field.vector.Definition
 #import nonstd.int128.ostream
 #import std.fill
 namespace tests::unit::field {
@@ -38,7 +45,7 @@ namespace tests::unit::field {
   //
   template<typename FIELD> auto Fixture::test_usage_Generator() -> void {
     using Field = FIELD;
-    auto g0 = Field::gen();
+    auto g0 = Field::generator();
     using Generator = typename Field::Generator;
     auto generator = Generator{};
     auto g1 = generator();
@@ -88,7 +95,7 @@ namespace tests::unit::field {
 //
 // Specializations must be presented before suite() so that it can see them when it takes their address
 //
-#import tests.unit.field.Element
+#import tests.unit.field.element.Fixture
 #import tests.unit.field.Vector
 auto tests::unit::field::Fixture::suite() -> Suite {
   auto series = Stream{"field"sv};
@@ -96,34 +103,27 @@ auto tests::unit::field::Fixture::suite() -> Suite {
              auto use = Stream{"usage"sv};
              use << []{
                       auto gen = Stream{"Generator"sv};
-                      gen << add("Field<64>", &Fixture::test_usage_Generator<library::Field<64>>)
-                          << add("Field<128>", &Fixture::test_usage_Generator<library::Field<128>>)
+                      gen << add("Field<64>", &Fixture::test_usage_Generator<library::Definition<64>>)
+                          << add("Field<128>", &Fixture::test_usage_Generator<library::Definition<128>>)
                           << END;
                       return gen;
                     }()
+                << []{
+                    auto vec = Stream{"Field"sv};
+                    vec << add("Field<64>", &Fixture::test_usage_Vector<library::vector::Definition<library::Definition<64>, DIMENSIONS>::Value>)
+                        << add("Field<128>", &Fixture::test_usage_Vector<library::vector::Definition<library::Definition<128>, DIMENSIONS>::Value>)
+                        << END;
+                    return vec;
+                }()
                  << END;
              return use;
-           }()
-         << []{
-             auto vec = Stream{"Field"sv};
-             vec << add("Field<64>", &Fixture::test_usage_Vector<library::Vector<library::Field<64>::Value, DIMENSIONS>>)
-                 << add("Field<128>", &Fixture::test_usage_Vector<library::Vector<library::Field<128>::Value, DIMENSIONS>>)
-                 << END;
-             return vec;
-         }()
-         << []{
-             auto ele = Stream{"Element"sv};
-             ele << add<Element<library::Field<64>::Element>>()
-                 << add<Element<library::Field<128>::Element>>()
-                 << add<Element<library::Field<255>::Element>>()
-                 << END;
-             return ele;
-           }()
+          }()
+         << add<element::Fixture>()
          << []{
              auto vec = Stream{"Vector"sv};
-             vec << add<Vector<library::Vector<library::Field<64>::Element, DIMENSIONS>>>()
-                 << add<Vector<library::Vector<library::Field<128>::Element, DIMENSIONS>>>()
-                 << add<Vector<library::Vector<library::Field<255>::Element, DIMENSIONS>>>()
+             vec << add<Vector<library::vector::Definition<library::Definition<64>, DIMENSIONS>::Value>>()
+                 << add<Vector<library::vector::Definition<library::Definition<128>, DIMENSIONS>::Value>>()
+                 << add<Vector<library::vector::Definition<library::Definition<255>, DIMENSIONS>::Value>>()
                  << END;
              return vec;
            }()

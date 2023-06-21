@@ -8,6 +8,5 @@
 #import tunitas.keyston.required
 namespace tunitas::keyston::field::required {
   using namespace tunitas::keyston::required;
-  namespace [[nodirectory]] generator { }
 }
 #endiv

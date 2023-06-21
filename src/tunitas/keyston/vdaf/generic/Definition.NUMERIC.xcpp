@@ -13,14 +13,40 @@ namespace tunitas::keyston::vdaf::generic {
 }
 #endiv
 #divert <cpp>
+#import tunitas.Tuple
 #import tunitas.keyston.vdaf.exception.Invalid
 #import tunitas.keyston.vdaf.exception.Unimplemented
+#import tunitas.keyston.vdaf.numeric.Algorithm
 #import tunitas.keyston.vdaf.numeric.zero
 #import tunitas.keyston.vdaf.numeric.constant
+#if 1 // [[REMOVETHESE]] when Algorithm is ready
 #import tunitas.keyston.vdaf.numeric.prio3
 #import tunitas.keyston.vdaf.numeric.poplar1
+#endif
 namespace tunitas::keyston::vdaf::generic {
   template<> Definition<vdaf::Configuration<NUMERIC>>::Definition(Name name) {
+#if 0
+    using daf::numeric;:Algorithm;
+    using enum daf::Name;
+    auto match = [given=name]<typename ALGORITHM>(auto each, ALGORITHM) -> bool {
+      if (each != given) {
+        return false;
+      } else {
+        disassembly = ALGORITHM::disassembly;
+        initialization = ALGORITHM::initialization;
+        continuation = ALGORITHM::continuation;
+        amalgamation = ALGORITHM::amalgamation;
+        disgorgement = ALGORITHM::disgorgement;
+        reassembly = ALGORITHM::reassembly;
+        return true;
+      }
+    };
+    return [this]<auto... ALGO>(Tuple<decltype(ALGO)...>) {
+      if (! (match(traits::Algorithm<ALGO>::NAME, ALGO) || ... ) ) {
+        throw exception::Invalid{"daf name"};
+      }
+    }(Tuple{Algorithm<ADHOC, ZERO>{}, Algorithm<ADHOC, CONSTANT>{}, Algorithm<PRIO, COUNT>{}, Algorithm<PRIO, SUM>{}, Algorithm<PRIO, HISTOGRAM>{}, Algorithm<POPLAR, POPULARITY>{}});
+#else
     switch (name) {
       using namespace vdaf::numeric;
     case Name::ZERO:
@@ -60,6 +86,7 @@ namespace tunitas::keyston::vdaf::generic {
     default:
       throw exception::Invalid{"vdaf name"};
     }
+#endif
   }
 }
 #endiv

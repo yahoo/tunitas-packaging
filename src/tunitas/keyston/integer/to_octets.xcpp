@@ -24,7 +24,7 @@ namespace tunitas::keyston::integer::package_to_octets {
 #import std.conditional
 #import std.endian
 #import std.same_as
-#import tunitas.keyston.integer.traits.SizeOf
+#import tunitas.integer.traits.SizeOf
 #import tunitas.keyston.octets.Fixed
 namespace tunitas::keyston::integer::package_to_octets {
   namespace body {

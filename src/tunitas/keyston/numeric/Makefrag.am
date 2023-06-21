@@ -11,15 +11,10 @@ tunitas_keyston_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/numeric/Ensmallenment.cpp \
   obj/src/tunitas/keyston/numeric/Treatment.cpp \
   obj/src/tunitas/keyston/numeric/Augmentment.cpp \
-  obj/src/tunitas/keyston/numeric/powm.cpp \
-  obj/src/tunitas/keyston/numeric/narrow.cpp \
-  obj/src/tunitas/keyston/numeric/Vector.cpp \
   obj/src/tunitas/keyston/numeric/traits.Result.cpp \
   $(tunitas_keyston_numeric_generic_SUBSOURCES) \
-  $(tunitas_keyston_numeric_generator_SUBSOURCES) \
   $(tunitas_keyston_numeric_required_SUBSOURCES) \
   $(end)
 #
-include src/tunitas/keyston/numeric/generator/Makefrag.am
 include src/tunitas/keyston/numeric/generic/Makefrag.am
 include src/tunitas/keyston/numeric/required/Makefrag.am

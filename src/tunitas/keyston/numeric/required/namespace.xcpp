@@ -9,6 +9,8 @@
 #import tunitas.integer.required
 namespace tunitas::keyston::numeric::required {
   using namespace tunitas::keyston::required;
+#if 0 // DO NOT DO THIS
   namespace [[nodirectory]] integer { using namespace tunitas::integer::required; }
+#endif
 }
 #endiv

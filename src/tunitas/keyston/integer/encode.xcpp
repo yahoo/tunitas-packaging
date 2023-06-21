@@ -39,9 +39,9 @@ namespace tunitas::keyston::integer::encode::package_encode {
 #import tunitas.integer.required.Small
 #import tunitas.integer.required.Large
 #import tunitas.integer.required.Unsigned
+#import tunitas.integer.traits.SizeOf
 #import tunitas.keyston.octets.Fixed
 #import tunitas.keyston.octets.Variable
-#import tunitas.keyston.integer.traits.SizeOf
 #import nonstd.required.iterator.Forward
 namespace tunitas::keyston::integer::encode::package_encode {
   namespace body {

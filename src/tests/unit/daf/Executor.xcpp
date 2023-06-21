@@ -24,7 +24,7 @@ namespace tests::unit::daf {
 #import tunitas.keyston.daf.exception.Null
 #import tunitas.keyston.daf.exception.Aspect
 #import tunitas.keyston.af.exception.Aspect
-#import tunitas.keyston.field.Field
+#import tunitas.keyston.Field
 #import tunitas.keyston.field.Vector
 #import tunitas.keyston.field.Element
 #import tunitas.keyston.exception.Aspect
@@ -73,7 +73,7 @@ namespace tests::unit::daf {
     static_assert(std::derived_from<Failure, Backup4>);
     static auto exercise(Subject &) -> void;
     struct ZERO {
-      // inline static constexpr auto const INPUT = ::tunitas::keyston::field::Field<64>::Vector<1>{::tunitas::keyston::field::Element<64>{}}; ... this only works for NUMERIC, not for PROTOCOL
+      // inline static constexpr auto const INPUT = ::tunitas::keyston::Field<64>::Vector<1>{::tunitas::keyston::field::Element<64>{}}; ... this only works for NUMERIC, not for PROTOCOL
       inline static constexpr auto const INPUT = typename Configuration::Input<SHARE>{};
     };
   };

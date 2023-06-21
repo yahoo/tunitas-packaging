@@ -17,7 +17,7 @@ namespace tunitas::keyston::vdaf::numeric::package_format::body {
 #import tunitas.keyston.measurement.format
 namespace tunitas::keyston::vdaf::numeric::package_format {
   auto body::operator<<(std::ostream &outbound, Formatter<Aggregation<WHOLE>, Aggregation<WHOLE> const &> const &formatter) -> std::ostream & {
-#if 1
+#if 0
     return outbound << format(formatter.captured.value);
 #else
     // find and call the other format(...) of the components within the variant

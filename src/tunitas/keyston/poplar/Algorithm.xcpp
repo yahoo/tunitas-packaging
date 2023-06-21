@@ -45,6 +45,7 @@ namespace tunitas::keyston::poplar {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.Field
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.measurement.Population
 #import tunitas.keyston.measurement.Records
@@ -53,17 +54,21 @@ namespace tunitas::keyston::poplar {
 namespace tunitas::keyston::poplar {
   template<Size THE_VALUE_COUNT> struct Algorithm<ONE, THE_VALUE_COUNT> {
     inline static constexpr auto VALUE_COUNT = Items{THE_VALUE_COUNT};
-    using Measurement = measurement::Specimen;
+    struct Core {
+      // these MUST be in a sub-structure to avoid collisions (ambiguities) in the descendants [[what descendants?]]
+      using Measurement = measurement::Specimen;
+#undef POPLAR1_IS_READY
 #if 0
-    using Encoded = int;
-    using Truncated = int;
-    using Preparation = int;
+      using Encoded = int;
+      using Truncated = int;
+      using Preparation = int;
 #endif
+      using Decoded = measurement::Population;
+      using Processed = measurement::Records;
+      using Prefixes = popularity::Prefixes;
+    };
     using Initialization = int;
     using Continuation = int;
-    using Decoded = measurement::Population;
-    using Processed = measurement::Records;
-    using Prefixes = popularity::Prefixes;
   };
 }
 #endiv

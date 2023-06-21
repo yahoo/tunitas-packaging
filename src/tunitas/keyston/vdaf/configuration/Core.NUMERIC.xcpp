@@ -12,6 +12,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #divert <hpp>
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.measurement.Records
+#import tunitas.keyston.vdaf.constants
 #import tunitas.keyston.vdaf.numeric.Parameters
 #import tunitas.keyston.vdaf.numeric.Measurement
 #import tunitas.keyston.vdaf.numeric.Public
@@ -24,6 +25,7 @@ namespace tunitas::keyston::vdaf::configuration {
 namespace tunitas::keyston::vdaf::configuration {
   template<> struct Core<NUMERIC> {
     using Parameters = vdaf::numeric::Parameters;
+    using Randomness = nonce::Bits<constants::RANDOMNESS_BIT_COUNT.count()>;
     using Nonce =  nonce::Bits<32>; // else Opaque<32>;
     using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
     using Processed = measurement::Records;

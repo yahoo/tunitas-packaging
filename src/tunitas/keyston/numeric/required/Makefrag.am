@@ -8,7 +8,4 @@ tunitas_keyston_numeric_required_SUBSOURCES = \
   obj/src/tunitas/keyston/numeric/required/namespace.cpp \
   obj/src/tunitas/keyston/numeric/required/Treatment.cpp \
   obj/src/tunitas/keyston/numeric/required/Augmentment.cpp \
-  obj/src/tunitas/keyston/numeric/required/Element.cpp \
-  obj/src/tunitas/keyston/numeric/required/Subelement.cpp \
-  obj/src/tunitas/keyston/numeric/required/Vector.cpp \
   $(end)

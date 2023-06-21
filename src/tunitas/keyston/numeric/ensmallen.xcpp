@@ -12,14 +12,15 @@ namespace tunitas::keyston::numeric {
   using namespace package_ensmallen::interface;
 }
 #import tunitas.keyston.measurement.Simple
-#import tunitas.keyston.numeric.narrow
+#import tunitas.keyston.field.element.narrow // for element::Clip
 #import std.underlying_type
 namespace tunitas::keyston::numeric::package_ensmallen {
   using measurement::Simple;
+  using keyston::field::element::Clip;
   namespace body {
     using Underlying = std::underlying_type_t<Simple>;
     namespace exported {
-      static_assert(sizeof(Clip), "already visible");
+      static_assert(sizeof(Clip), "yup, visible");
     }
   }
 }
@@ -27,7 +28,6 @@ namespace tunitas::keyston::numeric::package_ensmallen {
 #divert <hpp>
 #import tunitas.integer.required.Large
 #import tunitas.integer.required.Unsigned
-#import tunitas.keyston.numeric.required // appears as required::integer::Large
 #import tunitas.error.by.Exception
 #import tunitas.error.by.Optional
 #import tunitas.error.by.Outcome
@@ -58,31 +58,32 @@ namespace tunitas::keyston::numeric::package_ensmallen::body {
     //   auto [small, clipped] = ensmallen(something_big);
     //   auto small = ensmallen(Clip::SILENTLY, something_big);
     //
-    template<required::integer::Large SOURCE> inline auto ensmallen(error::by::Exception, SOURCE const &) -> Simple requires required::integer::Unsigned<SOURCE>;
-    template<required::integer::Large SOURCE> inline auto ensmallen(error::by::Optional, SOURCE const &) -> error::Optional<Simple> requires required::integer::Unsigned<SOURCE>;
-    template<required::integer::Large SOURCE> inline auto ensmallen(error::by::Outcome, SOURCE const &) -> error::Outcome<Simple> requires required::integer::Unsigned<SOURCE>;
-    template<required::integer::Large SOURCE> inline auto ensmallen(SOURCE const &) -> Pair<Simple, bool> requires required::integer::Unsigned<SOURCE>;
-    template<required::integer::Large SOURCE> inline auto ensmallen(Clip, SOURCE const &i) -> Simple requires required::integer::Unsigned<SOURCE>;
+    template<integer::required::Large SOURCE> inline auto ensmallen(error::by::Exception, SOURCE const &) -> Simple requires integer::required::Unsigned<SOURCE>;
+    template<integer::required::Large SOURCE> inline auto ensmallen(error::by::Optional, SOURCE const &) -> error::Optional<Simple> requires integer::required::Unsigned<SOURCE>;
+    template<integer::required::Large SOURCE> inline auto ensmallen(error::by::Outcome, SOURCE const &) -> error::Outcome<Simple> requires integer::required::Unsigned<SOURCE>;
+    template<integer::required::Large SOURCE> inline auto ensmallen(SOURCE const &) -> Pair<Simple, bool> requires integer::required::Unsigned<SOURCE>;
+    template<integer::required::Large SOURCE> inline auto ensmallen(Clip, SOURCE const &i) -> Simple requires integer::required::Unsigned<SOURCE>;
   }
 }
 #endiv
 #divert <ipp>
+#import tunitas.keyston.field.element.narrow
 namespace tunitas::keyston::numeric::package_ensmallen {
-  template<required::integer::Large SOURCE> auto interface::ensmallen(Clip c, SOURCE const &i) -> Simple requires required::integer::Unsigned<SOURCE>                  { return Simple{narrow<Underlying>(c, i)}; }
-  template<required::integer::Large SOURCE> auto interface::ensmallen(error::by::Exception by, SOURCE const &i) -> Simple requires required::integer::Unsigned<SOURCE> { return Simple{narrow<Underlying>(by, i)}; }
-  template<required::integer::Large SOURCE> auto interface::ensmallen(SOURCE const &i) -> Pair<Simple, bool> requires required::integer::Unsigned<SOURCE> {
+  template<integer::required::Large SOURCE> auto interface::ensmallen(Clip c, SOURCE const &i) -> Simple requires integer::required::Unsigned<SOURCE>                  { return Simple{narrow<Underlying>(c, i)}; }
+  template<integer::required::Large SOURCE> auto interface::ensmallen(error::by::Exception by, SOURCE const &i) -> Simple requires integer::required::Unsigned<SOURCE> { return Simple{narrow<Underlying>(by, i)}; }
+  template<integer::required::Large SOURCE> auto interface::ensmallen(SOURCE const &i) -> Pair<Simple, bool> requires integer::required::Unsigned<SOURCE> {
     auto [narrowed, clipped] = narrow<Underlying>(i);
     return {Simple{narrowed}, clipped};
   }
-  template<required::integer::Large SOURCE> auto interface::ensmallen(error::by::Optional by, SOURCE const &i) -> error::Optional<Simple> requires required::integer::Unsigned<SOURCE> {
+  template<integer::required::Large SOURCE> auto interface::ensmallen(error::by::Optional by, SOURCE const &i) -> error::Optional<Simple> requires integer::required::Unsigned<SOURCE> {
     if (auto got=narrow<Underlying>(by, i); got) {
       return Simple{*got};
     } else {
       return {};
     }
   }
-  template<required::integer::Large SOURCE> auto interface::ensmallen(error::by::Outcome by, SOURCE const &i) -> error::Outcome<Simple> requires required::integer::Unsigned<SOURCE> {
-    if (auto got=narrow<Underlying>(by, i); good(got)) {
+  template<integer::required::Large SOURCE> auto interface::ensmallen(error::by::Outcome by, SOURCE const &i) -> error::Outcome<Simple> requires integer::required::Unsigned<SOURCE> {
+    if (auto got=field::element::narrow<Underlying>(by, i); good(got)) {
       return Simple{value(got)};
     } else {
       return error_code(got);

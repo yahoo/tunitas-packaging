@@ -6,11 +6,13 @@
 #divert <fpp>
 #import tunitas.keyston.nonce.required.Bits
 #import tunitas.keyston.nonce.required.Since
+#import tunitas.keyston.nonce.required.Unsigned
+#import tunitas.keyston.nonce.required.Element
 #import tunitas.keyston.nonce.required.Bundle
 namespace tunitas::keyston::nonce::required {
   //
   // Any of them?
   //
-  template<typename NONCE> concept Nonce = Bits<NONCE> || Since<NONCE> || Bundle<NONCE>;
+  template<typename NONCE> concept Nonce = Bits<NONCE> || Unsigned<NONCE> || Since<NONCE> || Element<NONCE> || Bundle<NONCE>;
 }
 #endiv

@@ -6,6 +6,13 @@
 #divert <hpp>
 #import tunitas.keyston.daf.numeric.package_format.format
 namespace tunitas::keyston::daf::numeric {
+  //
+  // Usage:
+  //
+  //   auto thing = somehow...;
+  //
+  //   cout << format(thing)
+  //
   using package_format::interface::format; // so that ADL will find it here.
   namespace aggregation {
     using package_format::interface::format; // oop!  so that ADL will find it here.

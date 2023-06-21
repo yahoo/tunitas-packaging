@@ -13,6 +13,7 @@ namespace tunitas::keyston::af::definition {
 #divert <cpp>
 #import tunitas.keyston.af.exception.Invalid
 #import tunitas.keyston.af.numeric.zero
+#import tunitas.keyston.af.numeric.zero
 #import tunitas.keyston.af.numeric.constant
 #import tunitas.keyston.af.numeric.count
 #import tunitas.keyston.af.numeric.sum

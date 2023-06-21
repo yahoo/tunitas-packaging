@@ -17,8 +17,9 @@ namespace tunitas::keyston::daf::constants {
   //
   // Authorities:
   //
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
-  //   Distributed Aggregation Functions
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Functions
+  //   Section 4. Definition of DAFs
   //
   // Design:
   //

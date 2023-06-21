@@ -27,11 +27,11 @@ namespace tunitas::keyston::prio {
     inline static constexpr auto INDEX_INFINITY  = Buckets::COUNT.count();
     inline static constexpr auto ENCODED_LENGTH  = Items{1u + Buckets::COUNT.count()};
   public:
-    using Field = field::Field<128>;
+    using Field = keyston::Field<128>;
     inline static constexpr auto INPUT_LENGTH  = ENCODED_LENGTH;
     inline static constexpr auto OUTPUT_LENGTH = ENCODED_LENGTH;
     using Measurement = measurement::Specimen; // "any integer" but here: std::uint64_t;
-    using Encoded = Field::Vector<ENCODED_LENGTH.count()>;
+    using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
     using Truncated = Encoded;
     using Decoded = measurement::Histogram;
     using Processed = measurement::Records; // ... the record count itself

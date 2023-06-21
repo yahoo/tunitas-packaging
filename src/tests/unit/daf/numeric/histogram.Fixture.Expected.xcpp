@@ -16,8 +16,8 @@ namespace tests::unit::daf::numeric::histogram {
   struct Fixture::Expected : public Palette {
     using Algorithm = ::tunitas::keyston::prio::Algorithm<::tunitas::keyston::prio::Name::HISTOGRAM>;
     using Ct = ::tunitas::keyston::measurement::Count;
-    using El = ::tunitas::keyston::field::Field<128>::Element;
-    using Vector = ::tunitas::keyston::field::Field<128>::Vector<Algorithm::OUTPUT_LENGTH.count()>;
+    using El = ::tunitas::keyston::Field<128>::Element;
+    using Vector = ::tunitas::keyston::Field<128>::Vector<Algorithm::OUTPUT_LENGTH.count()>::Value;
     class Disassembly {
       class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Histogram const &that) -> Configuration::Input<SHARE>::Histogram { return that; })> { };
     public:

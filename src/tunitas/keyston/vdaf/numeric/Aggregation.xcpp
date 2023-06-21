@@ -6,18 +6,16 @@
 #divert <fpp>
 namespace tunitas::keyston::vdaf::numeric {
   template<Slice SLICE> struct Aggregation;
-  template<> struct Aggregation<WHOLE>;
-  template<> struct Aggregation<SHARE>;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.daf.numeric.Aggregation
 namespace tunitas::keyston::vdaf::numeric {
-  template<> struct Aggregation<WHOLE> {
-    measurement::Result value{};
-  };
-  template<> struct Aggregation<SHARE> {
-    // something (a fractional result, and what else?)
+  template<Slice SLICE> class Aggregation : public daf::numeric::Aggregation<SLICE> {
+    using Ancestor = daf::numeric::Aggregation<SLICE>;
+  public:
+    Aggregation() = default;
+    using Ancestor::Aggregation;
   };
 }
 #endiv

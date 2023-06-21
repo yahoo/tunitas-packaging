@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.proof.system.required.System
+#import tunitas.keyston.proof.system.usage.Algorithm
+namespace tunitas::keyston::proof::system::usage {
+  //
+  // Is this type a fully-functional proof system?
+  // This is diagnosed with the complete type of SYSTEM
+  //
+  // Authority:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-encoding-the-input
+  //   Section 7.1.1 Encoding the Input
+  //
+  namespace [[eponymous]] eponymous_system {
+    namespace api {
+      template<typename SYSTEM, typename INPUT, typename PROVE, typename JOINT> concept Prove = requires(SYSTEM, INPUT input, PROVE prove_randomness, JOINT joint_randomness) {
+        { SYSTEM::prove(input, prove_randomness, joint_randomness) } -> convertible_to<typename SYSTEM::Message::Input::Vector>;
+      };
+      template<typename SYSTEM, typename INPUT, typename PROOF, typename QUERY, typename JOINT> concept Query = requires(SYSTEM, INPUT input, PROOF proof, QUERY query_randomness, JOINT joint_randomness) {
+        { SYSTEM::query(input, proof, query_randomness, joint_randomness) } -> convertible_to<typename SYSTEM::Message::Verifier::Vector>;
+      };
+      template<typename SYSTEM, typename INPUT> concept Decide = requires(SYSTEM, INPUT input, Items shards) {
+        { SYSTEM::decide(input, shards) } -> convertible_to<bool>;
+      };
+    }
+    template<typename SYSTEM> concept System = required::System<SYSTEM> && requires(SYSTEM) {
+      typename SYSTEM::Algorithm;
+      requires Algorithm<typename SYSTEM::Algorithm>;
+      typename SYSTEM::Field;
+      typename SYSTEM::Randomness;
+      typename SYSTEM::Message;
+      requires api::Prove<SYSTEM, typename SYSTEM::Message::Input::View, typename SYSTEM::Randomness::Prove::View, typename SYSTEM::Randomness::Joint::View>;
+      requires api::Query<SYSTEM, typename SYSTEM::Message::Input::View, typename SYSTEM::Message::Proof::View, typename SYSTEM::Randomness::Query::View, typename SYSTEM::Randomness::Joint::View>;
+      requires api::Decide<SYSTEM, typename SYSTEM::Message::Input::View>;
+    };
+  }
+  using eponymous_system::System;
+}
+#endiv

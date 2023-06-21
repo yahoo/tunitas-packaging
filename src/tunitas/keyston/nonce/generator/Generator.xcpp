@@ -6,6 +6,8 @@
 #divert <fpp>
 #import tunitas.keyston.nonce.generator.Generator.template
 #import tunitas.keyston.nonce.generator.Generator.Bits.N
-#import tunitas.keyston.nonce.generator.Generator.Since.PRECISION
 #import tunitas.keyston.nonce.generator.Generator.Bundle.NONCES
+#import tunitas.keyston.nonce.generator.Generator.Element.ELEMENT
+#import tunitas.keyston.nonce.generator.Generator.Unsigned.UNSIGNED
+#import tunitas.keyston.nonce.generator.Generator.Since.PRECISION
 #endiv

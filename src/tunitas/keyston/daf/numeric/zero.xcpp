@@ -25,9 +25,9 @@ namespace tunitas::keyston::daf::numeric::zero::package_zero {
 #include <ipp/tunitas.keyston.field.Vector> // so the initializers in ZERO will work
 namespace tunitas::keyston::daf::numeric::zero::package_zero::body {
   struct ZERO {
-    inline static constexpr auto const INPUT = field::Field<64>::Vector<Algorithm::INPUT_LENGTH.count()>{}; // ..... in lieu of Algorithm<ZERO>::Field::Vector ... which doens't exist
-    inline static constexpr auto const OUTPUT = field::Field<64>::Vector<Algorithm::OUTPUT_LENGTH.count()>{}; // ... eadem ratione
-    inline static constexpr auto const AGGREGATION = field::Field<64>::Vector<Algorithm::OUTPUT_LENGTH.count()>{};
+    inline static constexpr auto const INPUT = Field<64>::Vector<Algorithm::INPUT_LENGTH.count()>::Value{}; // ..... in lieu of Algorithm<ZERO>::Field::Vector ... which doens't exist
+    inline static constexpr auto const OUTPUT = Field<64>::Vector<Algorithm::OUTPUT_LENGTH.count()>::Value{}; // ... eadem ratione
+    inline static constexpr auto const AGGREGATION = Field<64>::Vector<Algorithm::OUTPUT_LENGTH.count()>::Value{};
   };
   namespace exported {
     //

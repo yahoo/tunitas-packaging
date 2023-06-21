@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.InstanceOf
+#forward tunitas.keyston.nonce.Element
+namespace tunitas::keyston::nonce::required {
+  //
+  // Is this type wrapped in nonce::Element<...>
+  //
+  template<typename ELEMENT> concept Element = InstanceOf<ELEMENT, nonce::Element>;
+}
+#endiv
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::nonce::required;
+    //
+    static_assert(!required::Element<8>);
+    static_assert(!required::Element<16>);
+    static_assert(!required::Element<32>);
+    static_assert(!required::Element<64>);
+    static_assert(!required::Element<128>);
+    static_assert(!required::Element<256>);
+    // It's dubious whether these actually exist.
+    static_assert(!required::Element<512>);
+    static_assert(!required::Element<1024>);
+    static_assert(!required::Element<2048>);
+    static_assert(!required::Element<4096>);
+    static_assert(!required::Element<8192>);
+  }
+}
+#endiv

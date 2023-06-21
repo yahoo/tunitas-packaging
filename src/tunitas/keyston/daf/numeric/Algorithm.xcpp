@@ -4,7 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.daf.numeric.Algorithm.template
-#import tunitas.keyston.daf.numeric.Algorithm.PRIO.NAME
-#import tunitas.keyston.daf.numeric.Algorithm.POPLAR.POPULARITY
+#import tunitas.keyston.daf.numeric.algorithm.Algorithm
+namespace tunitas::keyston::daf::numeric {
+  using algorithm::Algorithm;
+}
 #endiv

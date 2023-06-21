@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.integer.required.Unsigned
+#import tunitas.keyston.integer.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::nonce {
+  //
+  // A (nearly-trivial) shim to facilitate the specialization of Generator<...>
+  //
+  // Specification:
+  //
+  //   As you see.
+  //
+  // Design:
+  //
+  //   As one does.
+  //
+  // Usage:
+  //
+  //   See tunitas::keyston::nonce::Generator<nonce::Unsigned<UNSIGNED>, ENTROPY>
+  //
+  template<integer::required::Unsigned UNSIGNED> struct Unsigned;
+}
+#endiv
+#divert <hpp>
+#import tunitas.integer.traits.SizeOf
+namespace tunitas::keyston {
+  template<integer::required::Unsigned UNSIGNED> struct nonce::Unsigned {
+    using Type = UNSIGNED;
+    inline static constexpr auto const SIZE = integer::traits::SizeOf<Type>::VALUE;
+  };
+}
+#endiv

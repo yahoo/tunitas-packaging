@@ -37,6 +37,7 @@ noinst_LTLIBRARIES = \
   noinst/lib/libautotools-autoconf+tunitas-keyston.la \
   noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
+  noinst/lib/libtunitas-number+tunitas-keyston.la \
   noinst/lib/libnonstd+tunitas-keyston.la \
   $(end)
 check_PROGRAMS = \
@@ -109,6 +110,7 @@ include noinst/lib/libautotools-autoconf+tunitas-keyston.am
 include noinst/lib/libfmt+tunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am
 include noinst/lib/libnonstd+tunitas-keyston.am
+include noinst/lib/libtunitas-number+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
 include modules/Makefrag.am # this MUST be after the relevant nonstd_lib_lib${something}_la_MODULES_ variables are defined

@@ -56,7 +56,7 @@ namespace tunitas::keyston {
       // Whereas Source provides Source::draw() and Distribution requires Generator::operator()
       Source &source;
       Generator(Source &s) : source{s} { }
-      using Result [[school("New School")]] = Source::Bits;
+      using Result [[school("New School")]] = typename Source::Draw;
       using Limits = std::numeric_limits<Result>;
       using result_type [[school("old_school")]] = Result;
       auto operator()() -> result_type { return source.draw(); }

@@ -26,11 +26,14 @@ namespace tunitas::keyston::entropy {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.time.Clock
+#import nonstd.units.cast
 struct tunitas::keyston::entropy::None {
-  using Bits = unsigned int;
+  using Draw = unsigned int;
   using Since = time::Clock::duration;
+  inline static constexpr auto const BYTES = Bytes{sizeof(Draw)};
+  inline static constexpr auto const BITS = nonstd::units::cast<Bits>(BYTES);
   inline auto entropy() const noexcept -> double { return {}; }
-  inline auto draw() -> Bits                     { return {}; }
+  inline auto draw() -> Draw                     { return {}; }
   inline static auto now() -> Since              { return {}; }
   explicit None() = default;
   None(None const &) = delete;
@@ -38,18 +41,12 @@ struct tunitas::keyston::entropy::None {
 };
 #endiv
 #divert <cpp>
-#import tunitas.keyston.entropy.required.Entropy
+#import tunitas.keyston.entropy.usage.Entropy
 namespace {
   namespace testate {
-    namespace required = tunitas::keyston::entropy::required;
-    using namespace tunitas::keyston::entropy;
-    static_assert(required::Entropy<None>);
-    static_assert(std::is_default_constructible_v<None>);
-    static_assert(not std::is_copy_constructible_v<None>);
-    static_assert(not std::is_move_constructible_v<None>);
-    static_assert(not std::is_copy_assignable_v<None>);
-    static_assert(not std::is_move_assignable_v<None>);
-    static_assert(not std::is_swappable_v<None>);
+    namespace usage = tunitas::keyston::entropy::usage;
+    using tunitas::keyston::entropy::None;
+    static_assert(usage::Entropy<None>);
   }
 }
 #endiv

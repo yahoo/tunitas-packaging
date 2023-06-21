@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::field::element {
+  //
+  // The field elements, as indexed.
+  //
+  // Usage:
+  //
+  //   using E64 = Element<64>;
+  //   using E128 = Element<128>;
+  //   using E255 = Element<128>;
+  //
+  template<unsigned> struct Basis;
+  // ADL will find functions against these types in namespace element
+  template<> struct Basis<64>  { enum class Type : uint64_t; };
+  template<> struct Basis<128> { enum class Type : uint128_t; };
+  template<> struct Basis<255> { struct Type; };
+  template<unsigned INDEX> using Element = typename Basis<INDEX>::Type;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.required.Element
+#import tunitas.keyston.field.traits.Field
+#import nonstd.required.Enumeration
+#import nonstd.required.Class
+#import std.remove_cvref
+namespace tunitas::keyston::field::element {
+  template<required::Element ELEMENT> requires required::Enumeration<ELEMENT> inline constexpr auto underlying(ELEMENT e)                          { return typename traits::Element<ELEMENT>::Underlying(e); }
+  template<required::Element ELEMENT> requires required::Class<ELEMENT>       inline constexpr auto underlying(ELEMENT const &e) -> decltype(auto) { return static_cast<typename traits::Element<ELEMENT>::Underlying const &>(e); }
+  class Basis<255>::Type : public uint256_t {
+    using Ancestor = uint256_t;
+  public:
+    Type() = default;
+    using Ancestor::number; // yes, you "just have to know" that the constructor is 'number' within number<cpp_int_backend<...>>
+    Type(Ancestor &&i) : Ancestor{move(i)} { }
+    Type(Ancestor const &i) : Ancestor{i} { }
+  };
+}
+#import tunitas.keyston.field.element.operations
+#import tunitas.keyston.field.element.powm
+#import tunitas.keyston.field.element.narrow
+#endiv

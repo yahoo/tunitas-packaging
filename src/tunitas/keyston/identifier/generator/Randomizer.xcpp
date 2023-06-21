@@ -38,7 +38,7 @@ namespace tunitas::keyston::identifier {
     ~Randomizer() = default;
     Entropy &source;
     static_assert(1 == sizeof (typename Result::Value));
-    inline static constexpr auto const DRAW_WIDTH = sizeof (typename Entropy::Bits);
+    inline static constexpr auto const DRAW_WIDTH = sizeof (typename Entropy::Draw);
   };
 }
 #endiv
@@ -52,7 +52,7 @@ namespace tunitas::keyston::identifier::generator {
   template<required::Unique U, required::Entropy S> auto Randomizer<U,S>::operator()() -> Result {
     auto ret = Result{};
     unsigned ith{0};
-    auto cache = typename Entropy::Bits{};
+    auto cache = typename Entropy::Draw{};
     for (auto &place : ret) {
       if (0 == ith++ % DRAW_WIDTH) {
         cache = source.draw();

@@ -7,6 +7,8 @@
 tunitas_keyston_proof_SUBSOURCES = \
   obj/src/tunitas/keyston/proof/namespace.cpp \
   $(tunitas_keyston_proof_required_SUBSOURCES) \
+  $(tunitas_keyston_proof_system_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/proof/required/Makefrag.am
+include src/tunitas/keyston/proof/system/Makefrag.am

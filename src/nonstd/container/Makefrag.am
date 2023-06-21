@@ -10,10 +10,9 @@ nonstd_container_SUBSOURCES = \
   obj/src/nonstd/container/Traits/tunitas.keyston.array.Bounded.TYPE.CAPACITY.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.array.Variable.TYPE.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.array.range.package_enumerate.Range.CONTAINER.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.field.Vector.ELEMENT.CAPACITY.cpp \
+  obj/src/nonstd/container/Traits/tunitas.keyston.field.vector.Fixed.ELEMENT.CAPACITY.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Histogram.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Boundaries.cpp \
-  obj/src/nonstd/container/Traits/tunitas.keyston.numeric.Vector.ELEMENT.CAPACITY.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Population.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Prefixes.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.protocol.preparation.Steps.MARK.cpp \

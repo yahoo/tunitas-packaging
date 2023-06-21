@@ -12,14 +12,14 @@ namespace tests::unit::field {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.exception.Aspect
-#import tunitas.keyston.field.traits.Element
+#import tunitas.keyston.field.element.traits.Element
 namespace tests::unit {
   template<typename SUBJECT> requires field::required::Vector<SUBJECT> struct field::Vector : public rigging::suite::Fixture {
     static auto suite() -> Suite;
     //
     using Subject = SUBJECT;
     using Value = typename Subject::Value;
-    using Scalar = typename library::traits::Element<Value>::Underlying;
+    using Scalar = typename library::element::traits::Element<Value>::Underlying;
     //
     auto test_construction_default() -> void;
     auto test_construction_initializer() -> void;

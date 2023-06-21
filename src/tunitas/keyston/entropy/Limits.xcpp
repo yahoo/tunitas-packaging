@@ -23,14 +23,15 @@ namespace tunitas::keyston::entropy {
   //
   //   See Device<N>.
   //
-  template<unsigned N> requires ((0 < N && N <= 128) && required::Has_Single_Bit<N>) struct Limits;
+  template<unsigned N> requires ((0 < N && N <= 256) && required::Has_Single_Bit<N>) struct Limits;
   template<> struct Limits<128>;
+  template<> struct Limits<256>;
 }
 #endiv
 #divert <hpp>
 #import nonstd.numeric_limits
 namespace tunitas::keyston {
-  template<unsigned N> requires ((0 < N && N <= 128) && required::Has_Single_Bit<N>) struct entropy::Limits {
+  template<unsigned N> requires ((0 < N && N <= 256) && required::Has_Single_Bit<N>) struct entropy::Limits {
     using Value = unsigned long long;
     inline static constexpr auto width() -> unsigned { return N; };
     inline static constexpr auto min() -> Value { return 0u; }
@@ -43,6 +44,12 @@ namespace tunitas::keyston {
       inline static constexpr auto min() -> Value { return 0u; }
       inline static constexpr auto max() -> Value;
     };
+    template<> struct Limits<256> {
+      using Value = uint256_t; // this type is different; the width, min & max must be rehearsed again because... reasons.
+      static constexpr auto width() -> unsigned { return 256; };
+      inline static constexpr auto min() -> Value { return 0u; }
+      inline static constexpr auto max() -> Value;
+    };
     template<> constexpr auto Limits<1>::max() -> Value   { return 1u; }
     template<> constexpr auto Limits<2>::max() -> Value   { return 3u; }
     template<> constexpr auto Limits<4>::max() -> Value   { return 0xfu; }
@@ -51,6 +58,7 @@ namespace tunitas::keyston {
     template<> constexpr auto Limits<32>::max() -> Value  { return nonstd::numeric_limits<uint32_t>::max(); }
     template<> constexpr auto Limits<64>::max() -> Value  { return nonstd::numeric_limits<uint64_t>::max(); }
     /*......*/ constexpr auto Limits<128>::max() -> Value { return nonstd::numeric_limits<uint128_t>::max(); }
+    /*......*/ constexpr auto Limits<256>::max() -> Value { return nonstd::numeric_limits<uint256_t>::max(); }
   }
 }
 #endiv

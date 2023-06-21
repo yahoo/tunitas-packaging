@@ -1,0 +1,68 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::field {
+  //
+  // The "Friendly" Fields
+  //
+  // Authority:
+  //
+  //   From: https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Section 6.1 Finite Fields
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-finite-fields
+  //
+  // Specification:
+  //
+  //   There are a number of off-hand statements about the capabiliteis of field elements, vectors and api
+  //   Some of the verbiage is boilerplate flourishes for the standardese,
+  //      e.g. "concrete field" (as opposed to the "abstract" eones? that aren't used in this work?)
+  //   Other statements imply API and operator capabiliteis that are "obvious" from the math (books).
+  //   To wit:
+  //
+  //   <quote>
+  //     A concrete Field also implements the following class methods:
+  //     Field.zeros(length: Unsigned) -> output: Vec[Field] returns a vector of zeros <snip>of length</snip>.
+  //     Field.rand_vec(length: Unsigned) -> output: Vec[Field] returns a vector of random field elements <snip>of length</snip>.
+  // 
+  //     <xhip>something about a concrete field</snip> The concrete class defines the usual arithmetic operations on field elements.
+  //     In addition, it defines the following instance method for converting a field element to an unsigned integer:
+  //   </quote>
+  //
+  //   So:
+  //    operator+(Element, Element) (modulo)
+  //    operator-(Element, Element) (modulo)
+  //    operator*(Element, Element) (modulo)
+  //    operator/(Element, Element) = delete; or implemented as multiplication-by-the-inverse.
+  //
+  //    operator+(vector, vector) is pointwise
+  //    operator+(vector, vector) is pointwise
+  //    operator*(vector, vector) is the inner product
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //
+  //   The field elements are enumerations in the field Class
+  //   The above-mentioned operators are available by ADL.
+  //
+  //   the traits::Field<ENUM> recovers the Field descriptor from the Element (Value) member.
+  //
+  // Usage:
+  //
+  //   Yes, use 'em.
+  //
+  template<unsigned> struct Definition;
+}
+#endiv
+#divert <hpp>
+#import std.span
+#import tunitas.keyston.field.required.Spanable
+#import tunitas.number.Integer
+#import tunitas.keyston.field.Element
+#import tunitas.keyston.field.traits.Field
+#import tunitas.keyston.field.vector.Definition
+#import tunitas.keyston.field.Generator
+#endiv

@@ -20,6 +20,7 @@ namespace tunitas::keyston::integer {
   //     using namespace tunitas::keyston::integer;
   //   }
   //
+  using namespace tunitas::integer;
 #if 1
   using namespace tunitas::integer::integers; // crudely take them all, even the signed ones (which we won't use herein)
 #else
@@ -35,8 +36,8 @@ namespace tunitas::keyston::integer {
   // DO NOT ---> using nonstd::units::memory::Bytes;
   namespace [[nodirectory]] traits {
     using namespace tunitas::integer::traits;
-    using nonstd::units::memory::Bits;
-    using nonstd::units::memory::Bytes;
+    static_assert(sizeof(Bits *), "already visible");
+    static_assert(sizeof(Bytes *), "already visible");;
   }
 }
 #endiv
