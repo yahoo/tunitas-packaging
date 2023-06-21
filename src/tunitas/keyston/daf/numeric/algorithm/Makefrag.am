@@ -1,0 +1,16 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_daf_numeric_algorithm_SUBSOURCES = \
+  obj/src/tunitas/keyston/daf/numeric/Algorithm.cpp \
+  obj/src/tunitas/keyston/daf/numeric/algorithm/namespace.cpp \
+  obj/src/tunitas/keyston/daf/numeric/algorithm/Prototype.cpp \
+  obj/src/tunitas/keyston/daf/numeric/algorithm/traits.Name.cpp \
+  obj/src/tunitas/keyston/daf/numeric/algorithm/Algorithm.template.cpp \
+  obj/src/tunitas/keyston/daf/numeric/algorithm/Algorithm.PRIO.NAME.cpp \
+  obj/src/tunitas/keyston/daf/numeric/algorithm/Algorithm.POPLAR.POPULARITY.cpp \
+  obj/src/tunitas/keyston/daf/numeric/algorithm/Algorithm.cpp \
+  $(end)

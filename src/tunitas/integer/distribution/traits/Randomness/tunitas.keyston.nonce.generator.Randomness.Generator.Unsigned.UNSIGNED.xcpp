@@ -1,0 +1,18 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.nonce.generator.Randomness.Generator.Unsigned.UNSIGNED
+#import tunitas.integer.distribution.traits.Randomness.template
+namespace tunitas::integer::distribution::traits {
+  // Only the unsigned=-producing generator can pretend to be a randomness source.
+  template<required::Unsigned UNSIGNED, keyston::entropy::required::Entropy ENTROPY> struct Randomness<tunitas::keyston::nonce::generator::Randomness<tunitas::keyston::nonce::generator::Generator<tunitas::keyston::nonce::Unsigned<UNSIGNED>, ENTROPY>>>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::integer::distribution::traits {
+  template<required::Unsigned UNSIGNED, keyston::entropy::required::Entropy ENTROPY> struct Randomness<tunitas::keyston::nonce::generator::Randomness<tunitas::keyston::nonce::generator::Generator<tunitas::keyston::nonce::Unsigned<UNSIGNED>, ENTROPY>>> : public std::true_type { };
+}
+#endiv

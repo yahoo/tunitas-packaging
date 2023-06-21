@@ -1,0 +1,142 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::field::element {
+  namespace package_narrow {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_narrow::interface;
+}
+#import tunitas.integer.required.Large
+#import tunitas.integer.required.Unsigned
+#import tunitas.keyston.integer.required // ctcnr (cascade that certain 'namespace required')
+#import nonstd.numeric_limits
+namespace tunitas::keyston::field::element::package_narrow {
+  template<typename TARGET, typename SOURCE> concept Narrowable = requires(TARGET, SOURCE) {
+    requires integer::required::Unsigned<TARGET>;
+    requires integer::required::Unsigned<SOURCE>;
+    requires (0u == nonstd::numeric_limits<TARGET>::min());
+    requires (0u == nonstd::numeric_limits<SOURCE>::min());
+    requires (nonstd::numeric_limits<TARGET>::max() <= nonstd::numeric_limits<SOURCE>::max());
+  };
+  namespace body {
+    template<integer::required::Unsigned> struct Specification;
+    namespace exported {
+      enum class Clip { SILENTLY };
+    }
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#import tunitas.Pair
+namespace tunitas::keyston::field::element::package_narrow {
+  namespace body {
+    namespace exported {
+      //
+      // Convert the bignum(signed) to a smallnum(ununsigned)
+      //
+      // Specification:
+      //
+      //   Just what you see.
+      //   Return errors as indicated: the error-by system or an indication of the clipping.
+      //
+      // Design:
+      //
+      //   Using the Best Available Means and Methods (UBAMM!)
+      //   Nowadays, this is just 'convert_to'
+      //   https://www.boost.org/doc/libs/1_82_0/libs/multiprecision/doc/html/boost_multiprecision/tut/conversions.html
+      //
+      // Usage:
+      //
+      //   Obvious.  You see it, don't you?
+      //
+      //   auto something_big = Integer{...somehow...};
+      //
+      //   auto [narrowed, clipped] = narrow<Small>(Clip::SILENTLY, something_big);
+      //   auto narrowed = narrow<Small>(error::by::Exception{}, something_big);
+      //   auto narrowed = narrow<Small>(error::by::Optional{}, something_big);
+      //   auto narrowed = narrow<Small>(error::by::Outcome{}, something_big);
+      //
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(error::by::Exception, SOURCE const &) -> RESULT;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(error::by::Optional, SOURCE const &) -> error::Optional<RESULT>;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(error::by::Outcome, SOURCE const &) -> error::Outcome<RESULT>;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(Clip, SOURCE const &i) -> RESULT;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(SOURCE const &i) -> Pair<RESULT, bool>;
+    }
+  }
+  template<integer::required::Unsigned NARROW> struct body::Specification {
+    using Narrow = NARROW;
+    using Limits = nonstd::numeric_limits<Narrow>;
+    template<typename SOURCE> requires Narrowable<Narrow, SOURCE> inline static auto downsize(SOURCE const &) -> Pair<Narrow, bool>;
+    inline static constexpr auto VALUE_WAS_CLIPPED = true;
+    inline static constexpr auto VALUE_IS_CORRECT = false;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.error.Code
+#import tunitas.keyston.exception.Overflow
+#import std.common_type
+namespace tunitas::keyston::field::element::package_narrow {
+  template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> auto interface::narrow(error::by::Exception, SOURCE const &i) -> RESULT {
+    if (auto [r, c] = Specification<RESULT>::downsize(i); c) {
+      throw exception::Overflow{"clipped"};
+    } else {
+      return r;
+    }
+  }
+  template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> auto interface::narrow(error::by::Optional, SOURCE const &i) -> error::Optional<RESULT> {
+    if (auto [r, c] = Specification<RESULT>::downsize(i); c) {
+      return {};
+    } else {
+      return r;
+    }
+  }
+  template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> auto interface::narrow(error::by::Outcome, SOURCE const &i) -> error::Outcome<RESULT> {
+    if (auto [r, c] = Specification<RESULT>::downsize(i); c) {
+#if 12 < __GNUC__
+      return error::Code::OVERFLOW;
+#else
+      // avoid the ICE src/tunitas/keyston/field/element/narrow.xcpp:115:27: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+      return {error::Code::Enumeration::OVERFLOW};
+#endif
+    } else {
+      return r;
+    }
+  }
+  template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> auto interface::narrow(Clip, SOURCE const &i) -> RESULT       { return Specification<RESULT>::downsize(i).first; }
+  template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> auto interface::narrow(SOURCE const &i) -> Pair<RESULT, bool> { return Specification<RESULT>::downsize(i); }
+  namespace body {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "=Wunused-local-typedefs"
+    template<integer::required::Unsigned RESULT> template<typename SOURCE> requires Narrowable<RESULT, SOURCE> auto Specification<RESULT>::downsize(SOURCE const &source) -> Pair<Narrow, bool> {
+      struct Downcast {
+        using Target = typename Specification::Limits;
+        using Source = nonstd::numeric_limits<SOURCE>;
+      };
+      using Common = std::common_type_t<Narrow, SOURCE>;
+      if (Common{source} < Common{Downcast::Target::min()}) {
+        return {Downcast::Target::min(), VALUE_WAS_CLIPPED}; // this is unexpected (it means someone didn't true-up after modular arithmetic)
+      } else if (Common{Downcast::Target::max()} < Common{source}) {
+        return {Downcast::Target::max(), VALUE_WAS_CLIPPED}; // this can happen
+      } else {
+        if constexpr (integer::required::Large<SOURCE>) {
+          return {source.template convert_to<Narrow>(), VALUE_IS_CORRECT};
+        } else {
+          return {static_cast<Narrow>(source), VALUE_IS_CORRECT};
+        }
+      }
+    }
+#pragma GCC diagnostic pop
+  }
+}
+#endiv

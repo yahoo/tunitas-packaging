@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_proof_system_SUBSOURCES = \
+  obj/src/tunitas/keyston/proof/System.cpp \
+  obj/src/tunitas/keyston/proof/system/namespace.cpp \
+  obj/src/tunitas/keyston/proof/system/System.cpp \
+  obj/src/tunitas/keyston/proof/system/Table.cpp \
+  obj/src/tunitas/keyston/proof/system/Length.cpp \
+  obj/src/tunitas/keyston/proof/system/traits.Algorithm.cpp \
+  $(tunitas_keyston_proof_system_required_SUBSOURCES) \
+  $(tunitas_keyston_proof_system_usage_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/proof/system/required/Makefrag.am
+include src/tunitas/keyston/proof/system/usage/Makefrag.am
