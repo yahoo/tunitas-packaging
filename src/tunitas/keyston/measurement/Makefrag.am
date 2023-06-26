@@ -6,24 +6,14 @@
 #
 tunitas_keyston_measurement_SUBSOURCES = \
   obj/src/tunitas/keyston/measurement/namespace.cpp \
-  obj/src/tunitas/keyston/measurement/Count.cpp \
-  obj/src/tunitas/keyston/measurement/Histogram.cpp \
-  obj/src/tunitas/keyston/measurement/Population.cpp \
-  obj/src/tunitas/keyston/measurement/Result.cpp \
-  obj/src/tunitas/keyston/measurement/Simple.cpp \
   obj/src/tunitas/keyston/measurement/Specimen.cpp \
   obj/src/tunitas/keyston/measurement/Records.cpp \
+  obj/src/tunitas/keyston/measurement/Boundaries.cpp \
+  obj/src/tunitas/keyston/measurement/Prefixes.cpp \
   \
   obj/src/tunitas/keyston/measurement/Limits.template.cpp \
-  obj/src/tunitas/keyston/measurement/Limits.Count.cpp \
   obj/src/tunitas/keyston/measurement/Limits.Specimen.cpp \
-  obj/src/tunitas/keyston/measurement/Limits.Simple.cpp \
-  obj/src/tunitas/keyston/measurement/Limits.Histogram.cpp \
-  obj/src/tunitas/keyston/measurement/Limits.Population.cpp \
   obj/src/tunitas/keyston/measurement/Limits.Boundaries.cpp \
   obj/src/tunitas/keyston/measurement/Limits.Prefixes.cpp \
   obj/src/tunitas/keyston/measurement/Limits.cpp \
-  $(tunitas_keyston_measurement_package_format_SUBSOURCES) \
   $(end)
-#
-include src/tunitas/keyston/measurement/package_format/Makefrag.am

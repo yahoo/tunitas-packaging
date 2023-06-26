@@ -5,9 +5,9 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.measurement.Limits.template
-#forward tunitas.keyston.histogram.Boundaries
+#forward tunitas.keyston.measurement.Boundaries
 namespace tunitas::keyston::measurement {
-  template<> struct Limits<histogram::Boundaries>;
+  template<> struct Limits<Boundaries>;
 }
 #endiv
 #divert <hpp>
@@ -15,8 +15,8 @@ namespace tunitas::keyston::measurement {
 #import tunitas.keyston.measurement.Limits.Specimen
 #import std.size_t
 namespace tunitas::keyston::measurement {
-  template<> struct Limits<histogram::Boundaries> {
-    using Value = histogram::Boundaries;
+  template<> struct Limits<Boundaries> {
+    using Value = Boundaries;
     struct Element : public Limits<Specimen> { };
     struct Index {
       using Value = std::size_t;
@@ -29,9 +29,9 @@ namespace tunitas::keyston::measurement {
 #divert <ipp>
 #import tunitas.keyston.histogram.Boundaries
 namespace tunitas::keyston::measurement {
-  static_assert(required::Same_As<Limits<histogram::Boundaries>::Value, histogram::Boundaries>, "consistency");
-  static_assert(required::Same_As<Limits<histogram::Boundaries>::Element::Value, histogram::Boundaries::Value>, "consistency");
-  constexpr auto Limits<histogram::Boundaries>::Index::min() -> Value { return 0uz; }
-  constexpr auto Limits<histogram::Boundaries>::Index::max() -> Value { return Limits::Value{}.capacity(); }
+  static_assert(required::Same_As<Limits<Boundaries>::Value, Boundaries>, "consistency");
+  static_assert(required::Same_As<Limits<Boundaries>::Element::Value, Boundaries::Value>, "consistency");
+  constexpr auto Limits<Boundaries>::Index::min() -> Value { return 0uz; }
+  constexpr auto Limits<Boundaries>::Index::max() -> Value { return Limits::Value{}.capacity(); }
 }
 #endiv

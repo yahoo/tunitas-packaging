@@ -11,11 +11,11 @@ namespace tunitas::keyston::numeric {
   }
   using namespace package_ensmallen::interface;
 }
-#import tunitas.keyston.measurement.Simple
+#import tunitas.keyston.aggregation.Simple
 #import tunitas.keyston.field.element.narrow // for element::Clip
 #import std.underlying_type
 namespace tunitas::keyston::numeric::package_ensmallen {
-  using measurement::Simple;
+  using aggregation::Simple;
   using keyston::field::element::Clip;
   namespace body {
     using Underlying = std::underlying_type_t<Simple>;

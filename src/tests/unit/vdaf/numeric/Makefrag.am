@@ -9,6 +9,8 @@ tests_unit_vdaf_numeric_SUBSOURCES = \
   check/obj/src/tests/unit/vdaf/numeric/Fixture.cpp \
   check/obj/src/tests/unit/vdaf/numeric/zero.Fixture.cpp \
   check/obj/src/tests/unit/vdaf/numeric/constant.Fixture.cpp \
-  check/obj/src/tests/unit/vdaf/numeric/prio3.Fixture.cpp \
-  check/obj/src/tests/unit/vdaf/numeric/poplar1.Fixture.cpp \
+  check/obj/src/tests/unit/vdaf/numeric/count.Fixture.cpp \
+  check/obj/src/tests/unit/vdaf/numeric/sum.Fixture.cpp \
+  check/obj/src/tests/unit/vdaf/numeric/histogram.Fixture.cpp \
+  check/obj/src/tests/unit/vdaf/numeric/popularity.Fixture.cpp \
   $(end)

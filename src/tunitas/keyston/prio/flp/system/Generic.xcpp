@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.system.required.Validity
+namespace tunitas::keyston::prio::flp::system {
+  //
+  // The FlpGeneric of Section 7.3.3 Construction
+  //
+  // Authorities:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //   Verifiable Distributed Aggregation Functions (VDAFs)
+  //
+  // Specification:
+  //
+  //   Table 8. FLP Parameters of FlpGeneric
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Design:
+  //
+  //   Establish the parameters for System<...>
+  //
+  //   (for now) we keep the name "Generic" of FlpGeneric even though this proof system now fixed on <ALGORITHM, VALIDITY>
+  //
+  // Usage:
+  //
+  //   As one does.
+  //
+  template<required::Validity> struct Generic;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.system.Interface
+#import tunitas.keyston.prio.flp.system.System
+namespace tunitas::keyston::prio::flp {
+  template<system::required::Validity VALIDITY> struct system::Generic
+    : public System<VALIDITY,
+                    system::Interface<typename VALIDITY::Field,
+                                      system::interface::Randomness<VALIDITY::joint_randomness_length(), VALIDITY::prove_randomness_length(), VALIDITY::query_randomness_length()>,
+                                      system::interface::Message<VALIDITY::INPUT_LENGTH, VALIDITY::OUTPUT_LENGTH, VALIDITY::proof_length(), VALIDITY::verifier_length()>>>
+  { };
+}
+#endiv

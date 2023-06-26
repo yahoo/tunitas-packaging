@@ -49,7 +49,7 @@ namespace tunitas::keyston::daf::generic {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.array.Series
 #import tunitas.keyston.daf.generic.Definition
 #import tunitas.keyston.daf.generic.usage.Configuration

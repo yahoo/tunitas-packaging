@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.
+#import nonstd.units.count.scale // for Items
+#import nonstd.units.memory.scale // for Bytes
+namespace tunitas::keyston::prio::flp::dimension {
+  using nonstd::units::memory::Bits;
+  using nonstd::units::memory::Bytes;
+  using nonstd::units::count::Items;
+  //
+  // Ultimately these express "bytes"
+  //
+  //   #import tunitas.keyston.prio.flp.dimension.cast
+  //
+  //   auto something = Proof{...somehow...};
+  //   auto some_value = cast<Bytes>(something)
+  //
+  // Flavors of length (in Bytes) of randomness
+  // Use dimension::cast<Bytes>(...) to recover the Bytes
+  enum class Prove : Size;
+  enum class Query : Size;
+  enum class Joint : Size;
+  //
+  // Flavors of I/O (in Bytes)
+  // Use dimension::cast<Bytes>(...) to recover the Bytes
+  enum class Input : Size;
+  enum class Output : Size;
+  //
+  // Flavors of length (in Bytes) flp (System)
+  // Use dimension::cast<Bytes>(...) to recover the Bytes
+  enum class Proof : Size;
+  enum class Verifier : Size;
+  //
+  // for the gadgets
+  // Use dimension::cast<Items>(...) to recover the Item count.
+  enum class Arity : unsigned; // NOT Size, just a very small unsigned
+  enum class Degree : unsigned;
+  //
+  namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] is { }
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import nonstd.required.Enumeration
+#import tunitas.keyston.prio.flp.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::prio::flp::dimension {
+  template<required::Enumeration ENUMERATION> inline constexpr auto underlying(ENUMERATION e) { return std::underlying_type_t<ENUMERATION>(e); }
+}
+#endiv

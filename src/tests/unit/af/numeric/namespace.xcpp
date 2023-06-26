@@ -8,15 +8,9 @@
 #import tunitas.keyston.af.numeric
 //
 #import tunitas.keyston.af.Configuration
-#import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Result
-#import tunitas.keyston.measurement.Count
 namespace tests::unit::af::numeric {
   namespace library = ::tunitas::keyston::af::numeric;
   //
   using Configuration = ::tunitas::keyston::af::Configuration<Transport::NUMERIC>;
-  using ::tunitas::keyston::measurement::Result;
-  using ::tunitas::keyston::measurement::Specimen;
-  using ::tunitas::keyston::measurement::Count;
 }
 #endiv

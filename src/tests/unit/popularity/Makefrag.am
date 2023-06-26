@@ -7,6 +7,6 @@
 tests_unit_popularity_SUBSOURCES = \
   check/obj/src/tests/unit/popularity/namespace.cpp \
   check/obj/src/tests/unit/popularity/Fixture.cpp \
-  check/obj/src/tests/unit/popularity/Population.cpp \
+  check/obj/src/tests/unit/popularity/Popularity.cpp \
   check/obj/src/tests/unit/popularity/Prefixes.cpp \
   $(end)

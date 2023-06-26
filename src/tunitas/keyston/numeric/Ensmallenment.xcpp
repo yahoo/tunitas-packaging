@@ -32,7 +32,7 @@ namespace tunitas::keyston::numeric {
 #divert <hpp>
 #import tunitas.keyston.exception.Variant
 #import tunitas.keyston.numeric.ensmallen // with field::element::Clip
-#import tunitas.keyston.measurement.Simple
+#import tunitas.keyston.aggregation.Simple
 #import tunitas.integer.required.Unsigned // appears as integer::Unsigned
 #import tunitas.keyston.numeric.required // ctcnr (cascade that certain namespace required)
 namespace tunitas::keyston {
@@ -42,7 +42,7 @@ namespace tunitas::keyston {
   class numeric::Ensmallenment {
     using Clip = keyston::field::element::Clip;
   public:
-    using Simple = measurement::Simple;
+    using Simple = aggregation::Simple;
     template<typename SOURCE> requires required::integer::Unsigned<SOURCE> auto operator()(SOURCE const &rhs) const -> Simple { return ensmallen(Clip::SILENTLY, rhs); }
     template<typename TYPE> requires (!required::integer::Unsigned<TYPE>)  auto operator()(TYPE const &) const -> Simple { throw exception::Variant{}; }
   };

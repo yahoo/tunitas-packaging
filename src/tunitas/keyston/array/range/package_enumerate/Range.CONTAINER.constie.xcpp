@@ -23,20 +23,20 @@ namespace tunitas::keyston::array::range::package_enumerate::body {
     using Container = CONTAINER const;
   public:
     using Subiterator = typename Ancestor::Iterator;
-    explicit Range() = default;
-    inline explicit Range(Subiterator start, Subiterator finish);
+    constexpr explicit Range() = default;
+    inline constexpr explicit Range(Subiterator start, Subiterator finish);
     //
     template<typename CONT> requires (std::same_as<Container, CONT>) using Basic_Iterator = body::Iterator<typename nonstd::container::Traits<CONT>::Iterator>;
     using Iterator = Basic_Iterator<Container>;
     using Const_Iterator = Iterator;
 #if 202312L <= __cplusplus
-    template<typename SELF> inline auto begin(this SELF *) -> Iiterator;
-    template<typename SELF> inline auto end(this SELF *) -> Iterator;
-    template<typename SELF> inline auto subrange(this SELF *) -> std::ranges::subrange<Iterator>;
+    template<typename SELF> inline constexpr auto begin(this SELF *) -> Iiterator;
+    template<typename SELF> inline constexpr auto end(this SELF *) -> Iterator;
+    template<typename SELF> inline constexpr auto subrange(this SELF *) -> std::ranges::subrange<Iterator>;
 #else
-    inline auto begin() const -> Iterator;
-    inline auto end() const -> Iterator;
-    inline auto subrange() const -> std::ranges::subrange<Iterator>;
+    inline constexpr auto begin() const -> Iterator;
+    inline constexpr auto end() const -> Iterator;
+    inline constexpr auto subrange() const -> std::ranges::subrange<Iterator>;
 #endif
   };
 }
@@ -44,15 +44,15 @@ namespace tunitas::keyston::array::range::package_enumerate::body {
 #divert <ipp>
 #import std.distance
 namespace tunitas::keyston::array::range::package_enumerate::body {
-  template<required::Container C> Range<C const>::Range(Subiterator start, Subiterator finish) : Ancestor{start, finish} { }
+  template<required::Container C> constexpr Range<C const>::Range(Subiterator start, Subiterator finish) : Ancestor{start, finish} { }
 #if 202312L <= __cplusplus
-  template<required::Container C> template<typename SELF> auto Range<C const>::begin(this SELF *self) -> Iterator { return Ancestor::start; }
-  template<required::Container C> template<typename SELF> auto Range<C const>::end(this SELF *) -> Iterator       { return Ancestor::finish; }
-  template<required::Container C> template<typename SELF> auto Range<C const>::subrange(this SELF *) -> std::ranges::subrange<Iterator>> { return {Ancestor::start, Ancestor::finish}; }
+  template<required::Container C> template<typename SELF> constexpr auto Range<C const>::begin(this SELF *self) -> Iterator { return Ancestor::start; }
+  template<required::Container C> template<typename SELF> constexpr auto Range<C const>::end(this SELF *) -> Iterator       { return Ancestor::finish; }
+  template<required::Container C> template<typename SELF> constexpr auto Range<C const>::subrange(this SELF *) -> std::ranges::subrange<Iterator>> { return {Ancestor::start, Ancestor::finish}; }
 #else
-  template<required::Container C> auto Range<C const>::begin() const -> Iterator { return Ancestor::start; }
-  template<required::Container C> auto Range<C const>::end() const -> Iterator   { return Ancestor::finish; }
-  template<required::Container C> auto Range<C const>::subrange() const -> std::ranges::subrange<Iterator> { return {Ancestor::start, Ancestor::finish}; }
+  template<required::Container C> constexpr auto Range<C const>::begin() const -> Iterator { return Ancestor::start; }
+  template<required::Container C> constexpr auto Range<C const>::end() const -> Iterator   { return Ancestor::finish; }
+  template<required::Container C> constexpr auto Range<C const>::subrange() const -> std::ranges::subrange<Iterator> { return {Ancestor::start, Ancestor::finish}; }
 #endif
 }
 #endiv

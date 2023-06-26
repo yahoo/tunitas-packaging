@@ -7,11 +7,13 @@
 tunitas_keyston_field_SUBSOURCES = \
   obj/src/tunitas/keyston/Field.cpp \
   obj/src/tunitas/keyston/field/namespace.cpp \
+  obj/src/tunitas/keyston/field/Access.cpp \
   obj/src/tunitas/keyston/field/Definition.template.cpp \
   obj/src/tunitas/keyston/field/Definition.64.cpp \
   obj/src/tunitas/keyston/field/Definition.128.cpp \
   obj/src/tunitas/keyston/field/Definition.255.cpp \
   obj/src/tunitas/keyston/field/Definition.cpp \
+  obj/src/tunitas/keyston/field/is.Field.cpp \
   obj/src/tunitas/keyston/field/traits.Field.cpp \
   $(tunitas_keyston_field_element_SUBSOURCES) \
   $(tunitas_keyston_field_generator_SUBSOURCES) \

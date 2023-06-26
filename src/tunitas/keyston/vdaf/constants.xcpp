@@ -11,6 +11,7 @@ namespace tunitas::keyston::vdaf {
 #divert <hpp>
 #import nonstd.units.memory.scale
 #import nonstd.units.quantity.cast
+#import tunitas.keyston.prg.constants // SEED_SIZE
 namespace tunitas::keyston::vdaf::constants {
   //
   // Constants that are invariant across all implementations or within this implementation.
@@ -20,31 +21,58 @@ namespace tunitas::keyston::vdaf::constants {
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
   //   Verifiable Distributed Aggregation Functions
   //   Section 5. Definition of VDAFs
+  //   Table 2. Constants and types defined for each VDAF
   //
   // Design:
   //
-  //   No.
+  //   No.  Actually Yes.
+  //   Many values need to vary by the algorithm.
+  //   See prio::Codec<...>
+  //   See poplar::Algorithm<...>
   //
   // Usage:
   //
   //   Yes.
   //
   namespace construct {
-    using namespace nonstd::units;
-    namespace random_count {
-      inline constexpr auto RANDOMNESS_BYTE_COUNT = memory::Bytes{16};
-      inline constexpr auto RANDOMNESS_BIT_COUNT = nonstd::units::quantity::cast<memory::Bits>(RANDOMNESS_BYTE_COUNT);
+    namespace count {
+      using nonstd::units::memory::Bytes;
+      using nonstd::units::memory::Bits;
+      using nonstd::units::quantity::cast;
+      namespace random {
+        inline constexpr auto RANDOMNESS_BYTE_COUNT = Bytes{16};
+        inline constexpr auto RANDOMNESS_BIT_COUNT = cast<Bits>(RANDOMNESS_BYTE_COUNT);
+      }
+      namespace nonce {
+        inline constexpr auto NONCE_BYTE_COUNT = Bytes{4};
+        inline constexpr auto NONCE_BIT_COUNT = cast<Bits>(NONCE_BYTE_COUNT);
+      }
+      namespace verify_key {
+        // reminder: the algorithm DOES NOT NEED this to be known at compiletime (no need for it to be constexpr)
+        // [[FIXTHIS]] then why have this be a complie-time constant like this?
+        inline constexpr auto VERIFY_KEY_BYTE_COUNT = prg::constants::SEED_SIZE;
+        inline constexpr auto VERIFY_KEY_BIT_COUNT = cast<Bits>(VERIFY_KEY_BYTE_COUNT);
+      }
     }
   }
-  using namespace construct::random_count;
+  using namespace construct::count::random;
+  using namespace construct::count::nonce;
+  using namespace construct::count::verify_key;
 }
 #endiv
 #divert <cpp>
 namespace {
   namespace testate {
     using namespace tunitas::keyston::vdaf::constants;
-    static_assert(16 == RANDOMNESS_BYTE_COUNT.count());
-    static_assert(128 == RANDOMNESS_BIT_COUNT.count());
+    //
+    static_assert(16u == RANDOMNESS_BYTE_COUNT.count());
+    static_assert(128u == RANDOMNESS_BIT_COUNT.count());
+    //
+    static_assert(4u == NONCE_BYTE_COUNT.count());
+    static_assert(32u == NONCE_BIT_COUNT.count());
+    //
+    static_assert(16u == VERIFY_KEY_BYTE_COUNT.count());
+    static_assert(128u == VERIFY_KEY_BIT_COUNT.count());
   }
 }
 #endiv

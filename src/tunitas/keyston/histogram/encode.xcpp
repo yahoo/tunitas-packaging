@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Histogram
+#import tunitas.keyston.aggregation.Histogram
 #import tunitas.keyston.histogram.Boundaries
 namespace tunitas::keyston::histogram {
   //
@@ -29,17 +29,17 @@ namespace tunitas::keyston::histogram {
   //   auto boundaries = histogram::Boundaries{...somehow...};
   //   auto encoded = histogram::encode(specimen, boundaries);
   //
-  inline auto encode(measurement::Specimen, Boundaries const &) -> measurement::Histogram;
+  inline auto encode(measurement::Specimen, Boundaries const &) -> aggregation::Histogram;
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.array.enumerate
 namespace tunitas::keyston {
-  auto histogram::encode(measurement::Specimen specimen, Boundaries const &boundaries) -> measurement::Histogram {
-    auto encoded = measurement::Histogram{};
+  auto histogram::encode(measurement::Specimen specimen, Boundaries const &boundaries) -> aggregation::Histogram {
+    auto encoded = aggregation::Histogram{};
     for (auto [index, boundary] : enumerate(boundaries)) {
       if (underlying(specimen) <= underlying(boundary)) {
-        encoded.at(index) = measurement::Count{1};
+        encoded.at(index) = aggregation::Count{1};
         return encoded;
       }
     }

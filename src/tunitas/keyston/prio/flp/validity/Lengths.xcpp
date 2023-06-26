@@ -1,0 +1,97 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.required.Validity
+#import tunitas.keyston.prio.flp.dimension
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The lengths of each validity (circuit)
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Specification:
+  //
+  //   Section 7.3.2 Validity Circuits
+  //   Figure 19: Derived methods for validity validity.
+  //
+  //   Sure, right there in the Section.  They give the python code.
+  //
+  // Design:
+  //
+  //   Descendants only, by MI with the Definition.
+  //   This is CRTP (the Curiously-Recurring Template Pattern)
+  //   Everything here MUST be constexpr.
+  //
+  // Usage:
+  //
+  //   Hack the Spew.  But you get it, righ?
+  //
+  //   template<> class Validity<COUNT> : public Definition<COUNT>, public Lengths<Definition<COUNT>> { ...body... };
+  //
+  namespace [[eponymous]] lengths {
+    using namespace dimension;
+    template<required::Definition> struct Lengths;
+  }
+  using lengths::Lengths;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Definition VALIDITY> class lengths::Lengths {
+    using Self = VALIDITY;
+    struct Access;
+  protected:
+    ~Lengths() = default;
+  public:
+    inline static constexpr auto joint_randomness_length() -> Joint;
+    inline static constexpr auto prove_randomness_length() -> Prove;
+    inline static constexpr auto query_randomness_length() -> Query;
+    inline static constexpr auto proof_length() -> Proof;
+    inline static constexpr auto verifier_length() -> Verifier;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.prio.flp.validity.Lengths.Access
+#import std.bit_ceil
+namespace tunitas::keyston::prio::flp::validity::lengths {
+  template<required::Definition _> constexpr auto Lengths<_>::joint_randomness_length() -> Joint { return Self::JOINT_RANDOMNESS_LENGTH; }
+  template<required::Definition _> constexpr auto Lengths<_>::prove_randomness_length() -> Prove {
+    // a.k.a. sum(map(lambda g: g.ARITY, Valid.GADGETS))
+    return []<Size... INDEX>(typename Access::Sequence::template Pack<INDEX...>) {
+      return Prove{(underlying(Access::Gadgets::template arity<INDEX>()) + ... )};
+    }(Access::Sequence::make());
+  }
+  template<required::Definition _> constexpr auto Lengths<_>::query_randomness_length() -> Query {
+    // len(Valid.GADGETS)
+    return Query{tuple::Size<typename Self::Gadgets>::value};
+  }
+  template<required::Definition _> constexpr auto Lengths<_>::proof_length() -> Proof {
+    // length = 0
+    // for (g, g_calls) in zip(Valid.GADGETS, Valid.GADGET_CALLS):
+    //    P = next_power_of_2(1 + g_calls)
+    //    length += g.ARITY + g.DEGREE * (P - 1) + 1
+    auto term = [](Arity a, Degree d, Items calls) -> unsigned {
+      auto p = std::bit_ceil(1u + calls.count());
+      return underlying(a) + underlying(d) + (p - 1u) + 1u;
+    };
+    return [=]<Size... INDEX>(typename Access::Sequence::template Pack<INDEX...>) {
+      return Proof{(0u + ... + term(Access::Gadgets::template arity<INDEX>(), Access::Gadgets::template degree<INDEX>(), Access::Gadgets::template calls<INDEX>()))};
+    }(Access::Sequence::make());
+  }
+  template<required::Definition _> constexpr auto Lengths<_>::verifier_length() -> Verifier {
+    // length = 1
+    // for g in Valid.GADGETS:
+    //   length += g.ARITY + 1
+    return []<Size... INDEX>(typename Access::Sequence::template Pack<INDEX...>) {
+      return Verifier{(1u + ... + (1 + underlying(Access::Gadgets::template arity<INDEX>())))};
+    }(Access::Sequence::make());
+  }
+}
+#endiv

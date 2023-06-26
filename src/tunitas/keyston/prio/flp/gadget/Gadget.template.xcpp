@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.Name
+namespace tunitas::keyston::prio::flp::gadget {
+  //
+  // The gadgets
+  //
+  // Authority:
+  //
+  //   You know where
+  //   Section 7.3.2 Validity
+  //
+  // Specification:
+  //
+  //   <quote>
+  //     Each gadget G in GADGETS defines a constant DEGREE that specifies the circuit's "arithmetic degree".
+  //     This is defined to be the degree of the polynomial that computes it.
+  //     For example, the Mul circuit in Section 7.3.1 is defined by the polynomial Mul(x) = x * x, which has degree 2.
+  //     Hence, the arithmetic degree of this gadget is 2.
+  //     Each gadget also defines a parameter ARITY that specifies the circuit's arity (i.e., the number of input wires).
+  //   </quote>
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //
+  // Usage:
+  //
+  //   See Gadgets<...>
+  //   See System<...>
+  //
+  template<Name> struct Gadget;
+}
+#endiv
+#divert <hpp>
+// Every specialization will need this (these)
+#import tunitas.keyston.prio.flp.gadget.required.Element // enforce modular multiplication
+#import tunitas.keyston.prio.flp.dimension // Items and Bytes
+#endiv

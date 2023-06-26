@@ -26,9 +26,11 @@ namespace tunitas::keyston::af::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.numeric.generic.Aggregation
+#import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston::af {
   namespace numeric {
     using std::move;
+    inline auto format(Aggregation const &) -> formatter::Formatter<Aggregation, Aggregation const &>;
   }
   struct numeric::Aggregation : public generic::Aggregation {
     using Ancestor = generic::Aggregation;
@@ -39,6 +41,12 @@ namespace tunitas::keyston::af {
   static_assert(std::semiregular<numeric::Aggregation>);
 }
 static_assert(std::semiregular<tunitas::keyston::af::numeric::Aggregation>);
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::af {
+  auto numeric::format(Aggregation const &item) -> formatter::Formatter<Aggregation, Aggregation const &> { return {item}; }
+}
+#import tunitas.keyston.formatter.io
 #endiv
 #divert <cpp>
 namespace {

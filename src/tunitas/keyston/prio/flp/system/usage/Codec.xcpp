@@ -1,0 +1,68 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.prio.flp.system.required.Codec
+#import tunitas.keyston.prio.flp.system.usage.Field
+namespace tunitas::keyston::prio::flp::system::usage {
+  //
+  // The full set of conditions that an Codec must obey
+  // The complete type of ALGORITHM is used for the diagnosis.
+  //
+  // Authority:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-fully-linear-flp-flp-syst
+  //   Section 7.1. Fully Linear Proof (FLP) Systems
+  //
+  //   Flp.encode(measurement: Measurement) -> Vec[Field]
+  //   Flp.truncate(input: Vec[Field]) -> Vec[Field]
+  //   Flp.decode(output: Vec[Field], num_measurements: Unsigned) -> AggResult
+  //
+  namespace [[eponymous]] algorithm {
+    namespace encode {
+      template<typename ALGORITHM> concept Otherwise = requires(ALGORITHM) {
+        typename ALGORITHM::Measurement;
+        typename ALGORITHM::Encoded;
+        requires requires(typename ALGORITHM::Measurement measurement) {
+          { ALGORITHM::encode(measurement) } -> convertible_to<typename ALGORITHM::Encoded>;
+        };
+      };
+      template<typename ALGORITHM> concept Histogram = requires(ALGORITHM) {
+        // This is a hack to surface the runtime submission of the boundaries.
+        // [[FIXTHIS]] is there any way to bury this in the type system?
+        typename ALGORITHM::Measurement;
+        typename ALGORITHM::Encoded;
+        typename ALGORITHM::Boundaries;
+        requires requires(typename ALGORITHM::Measurement measurement, typename ALGORITHM::Boundaries const &boundaries) {
+          { ALGORITHM::encode(measurement, boundaries) } -> convertible_to<typename ALGORITHM::Encoded>;
+        };
+      };
+      template<typename ALGORITHM> concept Encode = Histogram<ALGORITHM> || Otherwise<ALGORITHM>;
+    }
+    using encode::Encode;
+    template<typename ALGORITHM> concept Truncate = requires(ALGORITHM) {
+      typename ALGORITHM::Truncated;
+      requires requires(typename ALGORITHM::Encoded encoded) {
+        { ALGORITHM::truncate(encoded) } -> convertible_to<typename ALGORITHM::Truncated>;
+      };
+    };
+    template<typename ALGORITHM> concept Decode = requires(ALGORITHM) {
+      typename ALGORITHM::Decoded;
+      typename ALGORITHM::Processed;
+      requires requires(typename ALGORITHM::Truncated truncated, typename ALGORITHM::Processed shards) {
+        { ALGORITHM::decode(truncated, shards) } -> convertible_to<typename ALGORITHM::Decoded>;
+      };
+    };
+    template<typename ALGORITHM> concept Codec = required::Codec<ALGORITHM> && requires(ALGORITHM) {
+      typename ALGORITHM::Field;
+      requires Field<typename ALGORITHM::Field>;
+      requires Encode<ALGORITHM>;
+      requires Truncate<ALGORITHM>;
+      requires Decode<ALGORITHM>;
+    };
+  }
+  using algorithm::Codec;
+}
+#endiv

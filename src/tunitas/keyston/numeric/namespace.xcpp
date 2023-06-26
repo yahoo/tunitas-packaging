@@ -12,5 +12,7 @@ namespace tunitas::keyston::numeric {
   // Working across the smallnum-bignum boundary
   //
   using namespace keyston::integer;
+  namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] returned { }
 }
 #endiv

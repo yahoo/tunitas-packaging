@@ -39,7 +39,7 @@ namespace tests::unit::daf::numeric::zero {
     class Reassembly {
       class _Treatment : public Treatment<decltype([](Configuration::Aggregation<WHOLE>::Count const &that) -> Configuration::Aggregation<WHOLE>::Count { return that; })> { };
     public:
-      inline static constexpr auto const ZERO = ::tunitas::keyston::measurement::Count{0};
+      inline static constexpr auto const ZERO = ::tunitas::keyston::aggregation::Count{0};
       _Treatment treatment{};
     };
   };

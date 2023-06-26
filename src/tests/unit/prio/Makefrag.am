@@ -7,10 +7,10 @@
 tests_unit_prio_SUBSOURCES = \
   check/obj/src/tests/unit/prio/namespace.cpp \
   check/obj/src/tests/unit/prio/Fixture.cpp \
-  check/obj/src/tests/unit/prio/Algorithm.template.cpp \
-  check/obj/src/tests/unit/prio/Algorithm.COUNT.cpp \
-  check/obj/src/tests/unit/prio/Algorithm.SUM.cpp \
-  check/obj/src/tests/unit/prio/Algorithm.HISTOGRAM.cpp \
-  check/obj/src/tests/unit/prio/Algorithm.cpp \
-  check/obj/src/tests/unit/prio/required.Algorithm.cpp \
+  check/obj/src/tests/unit/prio/Codec.template.cpp \
+  check/obj/src/tests/unit/prio/Codec.COUNT.cpp \
+  check/obj/src/tests/unit/prio/Codec.SUM.cpp \
+  check/obj/src/tests/unit/prio/Codec.HISTOGRAM.cpp \
+  check/obj/src/tests/unit/prio/Codec.cpp \
+  check/obj/src/tests/unit/prio/required.Codec.cpp \
   $(end)

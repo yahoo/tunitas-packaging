@@ -19,7 +19,9 @@ namespace tunitas::keyston::histogram {
   //
   // Usage:
   //
-  //   Aw one does.
+  //   auto something = [&encoded, ...somehow...]<Buckets::Index... INDEX>(Buckets::Sequence<INDEX...>) {
+  //      return something::something_else::dark_side(encoded.at(INDEX))...};
+  //   }(Buckets::sequence());
   //
   struct Buckets;
 }

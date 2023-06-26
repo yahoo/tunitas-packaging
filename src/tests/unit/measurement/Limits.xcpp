@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -36,26 +36,6 @@ namespace tests::unit::measurement::limits {
     static_assert(0 <= Subject::min());
     static_assert(0 <= Subject::max());
   }
-  template<> auto Limits::test_Limits<library::Limits<library::Simple>>() -> void {
-    using Subject = library::Limits<library::Simple>;
-    static_assert(0 <= Subject::min());
-    static_assert(0 <= Subject::max());
-  }
-  template<> auto Limits::test_Limits<library::Limits<library::Count>>() -> void {
-    using Subject = library::Limits<library::Count>;
-    static_assert(0 <= Subject::min());
-    static_assert(0 <= Subject::max());
-  }
-  template<> auto Limits::test_Limits<library::Limits<library::Histogram>>() -> void {
-    using Subject = library::Limits<library::Histogram>;
-    static_assert(0 <= Subject::Index::min());
-    static_assert(0 <= Subject::Index::max());
-  }
-  template<> auto Limits::test_Limits<library::Limits<library::Population>>() -> void {
-    using Subject = library::Limits<library::Population>;
-    static_assert(0 <= Subject::Index::min());
-    // NO SUCH ----> static_assert(0 <= Subject::Index::max());
-  }
   template<> auto Limits::test_Limits<library::Limits<histogram::Boundaries>>() -> void {
     using Subject = library::Limits<histogram::Boundaries>;
     static_assert(0 <= Subject::Index::min());
@@ -78,10 +58,6 @@ auto tests::unit::measurement::limits::Limits::suite() -> Suite {
          << []{
               auto lim = Stream{"Limits"sv};
               lim << add("Specimen", &Limits::test_Limits<library::Limits<library::Specimen>>)
-                  << add("Simple", &Limits::test_Limits<library::Limits<library::Simple>>)
-                  << add("Count", &Limits::test_Limits<library::Limits<library::Count>>)
-                  << add("Histogram", &Limits::test_Limits<library::Limits<library::Histogram>>)
-                  << add("Population", &Limits::test_Limits<library::Limits<library::Population>>) 
                   << add("Boundaries", &Limits::test_Limits<library::Limits<histogram::Boundaries>>)
                   << add("Prefixes", &Limits::test_Limits<library::Limits<popularity::Prefixes>>)
                   << END;
@@ -90,22 +66,14 @@ auto tests::unit::measurement::limits::Limits::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.measurement.Simple
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Count
-#import tunitas.keyston.measurement.Histogram
-#import tunitas.keyston.measurement.Population
-#import tunitas.keyston.histogram.Boundaries
-#import tunitas.keyston.popularity.Prefixes
+#import tunitas.keyston.measurement.Boundaries
+#import tunitas.keyston.measurement.Prefixes
 namespace tests::unit::measurement::limits {
   auto Limits::test_inventory() -> void {
-    static_assert(sizeof(library::Simple));
     static_assert(sizeof(library::Specimen));
-    static_assert(sizeof(library::Count));
-    static_assert(sizeof(library::Histogram));
-    static_assert(sizeof(library::Population));
-    static_assert(sizeof(histogram::Boundaries));
-    static_assert(sizeof(popularity::Prefixes));
+    static_assert(sizeof(library::Boundaries));
+    static_assert(sizeof(library::Prefixes));
   }
 }
 #endiv

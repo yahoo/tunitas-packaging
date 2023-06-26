@@ -53,7 +53,7 @@ namespace tunitas::keyston::af::numeric::sum::package_sum {
   auto interface::initialization(Parameters const &) -> Initialized { return (intermediate::Count{}); }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &noob) -> Computed {
-    auto treatment = Treatment{[&noob](measurement::Count &lhs) { lhs += measurement::Count{underlying(noob.value)}; }};
+    auto treatment = Treatment{[&noob](aggregation::Count &lhs) { lhs += aggregation::Count{underlying(noob.value)}; }};
     visit(treatment, intermediate);
     return move(intermediate);
   }

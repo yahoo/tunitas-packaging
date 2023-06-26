@@ -6,5 +6,5 @@
 #divert <fpp>
 #import tunitas.keyston.prg
 #import tunitas.keyston.required
-namespace tunitas::keyston::prg::required { using namespace tunitas::keyston::required; }
+namespace tunitas::keyston::prg::generator::required { using namespace tunitas::keyston::required; }
 #endiv

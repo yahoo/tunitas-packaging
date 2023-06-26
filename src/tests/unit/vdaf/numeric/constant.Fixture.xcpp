@@ -9,10 +9,12 @@ namespace tests::unit::vdaf::numeric::constant { class Fixture; }
 #divert <hpp>
 #import tunitas.keyston.vdaf.Configuration
 #import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.numeric.Function
 struct tests::unit::vdaf::numeric::constant::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   using Configuration = ::tunitas::keyston::vdaf::Configuration<Transport::NUMERIC>;
+  using Function = ::tunitas::keyston::vdaf::numeric::Function<Scheme::ADHOC, Name::CONSTANT>;
   //
   auto test_disassembly() -> void;
   auto test_initialization() -> void;

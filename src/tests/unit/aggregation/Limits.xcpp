@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.aggregation
+#import tunitas.keyston.histogram
+#import tunitas.keyston.popularity
+namespace tests::unit::aggregation {
+  namespace [[eponymous]] limits {
+    class Limits;
+    namespace library = ::tunitas::keyston::aggregation;
+    namespace histogram = ::tunitas::keyston::histogram;
+    namespace popularity = ::tunitas::keyston::popularity;
+  }
+  using limits::Limits;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::aggregation::limits::Limits : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_inventory() -> void;
+  template<typename LIMITS> auto test_Limits() -> void;
+};
+#endiv
+#divert <cpp>
+//
+// The specializations MUST appear before their address is used in suite()
+//
+#import tunitas.keyston.aggregation.Limits
+namespace tests::unit::aggregation::limits {
+  template<> auto Limits::test_Limits<library::Limits<library::Simple>>() -> void {
+    using Subject = library::Limits<library::Simple>;
+    static_assert(0 <= Subject::min());
+    static_assert(0 <= Subject::max());
+  }
+  template<> auto Limits::test_Limits<library::Limits<library::Count>>() -> void {
+    using Subject = library::Limits<library::Count>;
+    static_assert(0 <= Subject::min());
+    static_assert(0 <= Subject::max());
+  }
+  template<> auto Limits::test_Limits<library::Limits<library::Histogram>>() -> void {
+    using Subject = library::Limits<library::Histogram>;
+    static_assert(0 <= Subject::Index::min());
+    static_assert(0 <= Subject::Index::max());
+  }
+  template<> auto Limits::test_Limits<library::Limits<library::Popularity>>() -> void {
+    using Subject = library::Limits<library::Popularity>;
+    static_assert(0 <= Subject::Index::min());
+    // NO SUCH ----> static_assert(0 <= Subject::Index::max());
+  }
+}
+auto tests::unit::aggregation::limits::Limits::suite() -> Suite {
+  auto series = Stream{"Limits"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("inventory", &Limits::test_inventory)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto lim = Stream{"Limits"sv};
+              lim << add("Simple", &Limits::test_Limits<library::Limits<library::Simple>>)
+                  << add("Count", &Limits::test_Limits<library::Limits<library::Count>>)
+                  << add("Histogram", &Limits::test_Limits<library::Limits<library::Histogram>>)
+                  << add("Popularity", &Limits::test_Limits<library::Limits<library::Popularity>>) 
+                  << END;
+              return lim;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.aggregation.Simple
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.aggregation.Popularity
+namespace tests::unit::aggregation::limits {
+  auto Limits::test_inventory() -> void {
+    static_assert(sizeof(library::Simple));
+    static_assert(sizeof(library::Count));
+    static_assert(sizeof(library::Histogram));
+    static_assert(sizeof(library::Popularity));
+  }
+}
+#endiv

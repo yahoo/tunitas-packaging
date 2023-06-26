@@ -58,11 +58,10 @@ namespace tunitas::keyston::field {
 }
 #endiv
 #divert <hpp>
-#import std.span
-#import tunitas.keyston.field.required.Spanable
-#import tunitas.number.Integer
+// All the specializations will need these
+#import tunitas.keyston.field.Access
 #import tunitas.keyston.field.Element
-#import tunitas.keyston.field.traits.Field
+#import tunitas.keyston.field.is.Field
 #import tunitas.keyston.field.vector.Definition
 #import tunitas.keyston.field.Generator
 #endiv

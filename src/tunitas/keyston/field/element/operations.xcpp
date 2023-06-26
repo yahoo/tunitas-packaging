@@ -42,12 +42,13 @@ namespace tunitas::keyston::field::element {
   //
   template<required::Element ELEMENT> inline constexpr auto operator+(ELEMENT const &, ELEMENT const &) -> ELEMENT;
   template<required::Element ELEMENT> inline constexpr auto operator-(ELEMENT const &, ELEMENT const &) -> ELEMENT;
-  template<required::Element ELEMENT> inline auto operator*(ELEMENT const &, ELEMENT const &) -> ELEMENT;
-  template<required::Element ELEMENT> inline auto pow(ELEMENT const &, int long unsigned exponent) -> ELEMENT;
+  template<required::Element ELEMENT> inline constexpr auto operator*(ELEMENT const &, ELEMENT const &) -> ELEMENT;
+  template<required::Element ELEMENT> inline constexpr auto pow(ELEMENT const &, int long unsigned exponent) -> ELEMENT;
+  template<required::Element ELEMENT> inline constexpr auto inv(ELEMENT const &) -> ELEMENT;
   //
   template<required::Element ELEMENT> inline constexpr auto operator+=(ELEMENT &, ELEMENT const &) -> ELEMENT &;
   template<required::Element ELEMENT> inline constexpr auto operator-=(ELEMENT &, ELEMENT const &) -> ELEMENT &;
-  template<required::Element ELEMENT> inline auto operator*=(ELEMENT &, ELEMENT const &) -> ELEMENT &;
+  template<required::Element ELEMENT> inline constexpr auto operator*=(ELEMENT &, ELEMENT const &) -> ELEMENT &;
 #if 0
   // we don't need the division ones (they are multiply-by-the-inverse
   template<required::Element ELEMENT> inline constexpr auto operator/(ELEMENT const &, ELEMENT const &) -> ELEMENT = delete;
@@ -59,16 +60,19 @@ namespace tunitas::keyston::field::element {
 #endiv
 #divert <ipp>
 #import nonstd.required.Enumeration
-#import tunitas.keyston.field.traits.Field
+#import tunitas.integer.invm
+// SOON #import tunitas.integer.powm
+#import tunitas.keyston.field.element.traits.Element
 #import tunitas.keyston.field.Limits
+#import tunitas.keyston.exception.Domain
 #import tunitas.keyston.exception.Overflow
-#import tunitas.number.mp.convert // [[FIXTHIS]] [[REMOVETHIS]] when uint256_t and uint512_t are available
 #import std.derived_from
+#import substd.exception.Domain
 namespace tunitas::keyston::field {
   template<required::Element ELEMENT> inline constexpr auto element::operator==(ELEMENT const &a, ELEMENT const &b) -> bool { return underlying(a) == underlying(b); }
   template<typename ELEMENT> requires required::Element<std::remove_cvref_t<ELEMENT>> constexpr auto element::operator+(ELEMENT &&e) -> ELEMENT { return forward<ELEMENT>(e); }
   template<required::Element ELEMENT> constexpr auto element::operator-(ELEMENT const &e) -> ELEMENT {
-    using Field = traits::Element<ELEMENT>::Field;
+    using Field = typename traits::Element<ELEMENT>::Field;
     if (ELEMENT{} == e) {
       return e;
     } else {
@@ -134,7 +138,7 @@ namespace tunitas::keyston::field {
       return ELEMENT{ua - ub};
     }
   }
-  template<required::Element ELEMENT> auto element::operator*(ELEMENT const &a, ELEMENT const &b) -> ELEMENT {
+  template<required::Element ELEMENT> constexpr auto element::operator*(ELEMENT const &a, ELEMENT const &b) -> ELEMENT {
     using Field = traits::Element<ELEMENT>::Field;
     using Temporary = typename Field::Temporary;
     static_assert(Limits<ELEMENT>::max() + Limits<ELEMENT>::max() <= Limits<ELEMENT>::Numeric::max()); // unsigned "overflow" is defined to wrap around (even for bignums), so this doesn't prove anything.
@@ -153,11 +157,17 @@ namespace tunitas::keyston::field {
     lhs = lhs - rhs;
     return lhs;
   }
-  template<required::Element ELEMENT> auto element::operator*=(ELEMENT &lhs, ELEMENT const &rhs) -> ELEMENT & {
+  template<required::Element ELEMENT> constexpr auto element::operator*=(ELEMENT &lhs, ELEMENT const &rhs) -> ELEMENT & {
     lhs = lhs * rhs;
     return lhs;
   }
-  template<required::Element ELEMENT> auto element::pow(ELEMENT const &a, int long unsigned e) -> ELEMENT {
+  template<required::Element ELEMENT> constexpr auto element::inv(ELEMENT const &a) -> ELEMENT try {
+    using Field = traits::Element<ELEMENT>::Field;
+    return ELEMENT{invm<typename Field::Underlying>(error::by::Exception{}, underlying(a), Field::MODULUS)};
+  } catch (substd::exception::Domain const &e) {
+    throw exception::Domain{e.what()};
+  }
+  template<required::Element ELEMENT> constexpr auto element::pow(ELEMENT const &a, int long unsigned e) -> ELEMENT {
     using Field = traits::Element<ELEMENT>::Field;
     if constexpr (required::Enumeration<ELEMENT>) {
       if (ELEMENT{2} == a && e < 8*sizeof(ELEMENT)) {

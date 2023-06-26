@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Codec.template
+namespace tunitas::keyston::prio {
+  //
+  // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prio3count
+  // Section 7.4.1. Prio3Count
+  //
+  // <lol-wut?>
+  //   <quote>
+  //     The measurement is encoded and decoded as a singleton vector in the natural way.
+  //   </quote>
+  // </lol-wut?>
+  //
+  // [[FIXTHIS]] there is no actual need to use an array for Encoded, it could just be Field::Value directly
+  //
+  template<> struct Codec<COUNT>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Count // for the payload
+#import std.nothrow
+namespace tunitas::keyston::prio {
+  template<> class Codec<COUNT> {
+    inline static constexpr auto ENCODED_LENGTH = Items{1u};
+  public:
+    using Field = keyston::Field<64>;
+    inline static constexpr auto INPUT_LENGTH = ENCODED_LENGTH;
+    inline static constexpr auto OUTPUT_LENGTH = ENCODED_LENGTH;
+    using Measurement = measurement::Specimen; // range [0, 2) i.e. zero or one
+    using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value; // lol-wut?
+    using Truncated = Encoded;
+    using Decoded = aggregation::Count; // ....... the payload
+    using Processed = measurement::Records; // ... the record count itself
+    using Result [[deprecated("instead use Codec<COUNT>::Decoded")]] = Decoded;
+    static constexpr auto encode(Measurement m) -> Encoded                 { return {Field::Element{0 != underlying(m)}}; }
+    static constexpr auto truncate(Encoded e) -> Truncated                 { return move(e); }
+    static constexpr auto decode(Truncated const &t, Processed) -> Decoded { return Decoded{underlying(t.at(0))}; }
+  };
+}
+#endiv

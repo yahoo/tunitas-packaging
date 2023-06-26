@@ -16,14 +16,13 @@ namespace tunitas::keyston::vdaf {
   //   Verifiable Distributed Aggregation Functions
   //   Section 10. IANA Considerations
   //   Table IANA Considerations
-  //   Table 16
+  //   Table 16 ...???
   //
   //   <recitation>
   //     <paraphrase>
   //
   //       IANA Considerations
-  //   able Name that 0xFFFF0000 through reserved for private us.
-  //   able Note that 0xFFFF0000 through 0xFFFFFFFF are reserved for private use.
+  //       Note that values 0xFFFF0000 through 0xFFFFFFFF are reserved for private use.
   //
   //       Value                         Transport                  Type        Reference
   //       --------------------------------------------------------------------------------

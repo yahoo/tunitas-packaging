@@ -14,6 +14,7 @@ tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/Scheme.cpp \
   obj/src/tunitas/keyston/Slice.cpp \
   obj/src/tunitas/keyston/Version.cpp \
+  $(tunitas_keyston_aggregation_SUBSOURCES) \
   $(tunitas_keyston_array_SUBSOURCES) \
   $(tunitas_keyston_crypto_SUBSOURCES) \
   $(tunitas_keyston_detail_SUBSOURCES) \
@@ -34,23 +35,25 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_poplar_SUBSOURCES) \
   $(tunitas_keyston_popularity_SUBSOURCES) \
   $(tunitas_keyston_prg_SUBSOURCES) \
-  $(tunitas_keyston_proof_SUBSOURCES) \
   $(tunitas_keyston_protocol_SUBSOURCES) \
   $(tunitas_keyston_quantity_SUBSOURCES) \
   $(tunitas_keyston_required_SUBSOURCES) \
   $(tunitas_keyston_shards_SUBSOURCES) \
+  $(tunitas_keyston_span_SUBSOURCES) \
   $(tunitas_keyston_time_SUBSOURCES) \
   $(tunitas_keyston_transport_SUBSOURCES) \
+  $(tunitas_keyston_view_SUBSOURCES) \
+  $(tunitas_keyston_wire_SUBSOURCES) \
   $(tunitas_keyston_af_SUBSOURCES) \
   $(tunitas_keyston_daf_SUBSOURCES) \
   $(tunitas_keyston_vdaf_SUBSOURCES) \
   $(tunitas_keyston_vidaf_SUBSOURCES) \
-  $(tunitas_keyston_wire_SUBSOURCES) \
   $(tunitas_keyston_pf_SUBSOURCES) \
   $(tunitas_keyston_dpf_SUBSOURCES) \
   $(tunitas_keyston_idpf_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/keyston/aggregation/Makefrag.am
 include src/tunitas/keyston/array/Makefrag.am
 include src/tunitas/keyston/crypto/Makefrag.am
 include src/tunitas/keyston/detail/Makefrag.am
@@ -71,13 +74,14 @@ include src/tunitas/keyston/poplar/Makefrag.am
 include src/tunitas/keyston/popularity/Makefrag.am
 include src/tunitas/keyston/prg/Makefrag.am
 include src/tunitas/keyston/prio/Makefrag.am
-include src/tunitas/keyston/proof/Makefrag.am
 include src/tunitas/keyston/protocol/Makefrag.am
 include src/tunitas/keyston/quantity/Makefrag.am
 include src/tunitas/keyston/required/Makefrag.am
 include src/tunitas/keyston/shards/Makefrag.am
+include src/tunitas/keyston/span/Makefrag.am
 include src/tunitas/keyston/time/Makefrag.am
 include src/tunitas/keyston/transport/Makefrag.am
+include src/tunitas/keyston/view/Makefrag.am
 include src/tunitas/keyston/wire/Makefrag.am
 include src/tunitas/keyston/af/Makefrag.am
 include src/tunitas/keyston/daf/Makefrag.am

@@ -4,9 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.measurement.Count
-#import tunitas.keyston.measurement.Histogram
-#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.aggregation.Popularity
 namespace tunitas::keyston::af::numeric {
   //
   // The numerical intermediate value.
@@ -30,9 +30,9 @@ namespace tunitas::keyston::af::numeric {
   //   auto result = finalize(intermediate);
   //
   namespace [[eponymous]] intermediate {
-    using Count = measurement::Count; // works for count and for sum [[o.rly?]]
-    using measurement::Histogram;
-    using measurement::Population;;
+    using Count = aggregation::Count; // works for count and for sum [[o.rly?]]
+    using aggregation::Histogram;
+    using aggregation::Popularity;;
     struct Intermediate;
   }
   using intermediate::Intermediate;
@@ -43,7 +43,7 @@ namespace tunitas::keyston::af::numeric {
 #forward tunitas.keyston.af.numeric.Aggregation
 namespace tunitas::keyston::af::numeric {
   namespace intermediate {
-    using Variant = std::variant<Count, Histogram, Population>;
+    using Variant = std::variant<Count, Histogram, Popularity>;
     inline auto finalize(Intermediate const &) -> Aggregation;
   }
   class intermediate::Intermediate : public Variant {
@@ -55,7 +55,7 @@ namespace tunitas::keyston::af::numeric {
 #else
     explicit Intermediate(Count n) : Ancestor{move(n)} { }
     explicit Intermediate(Histogram h) : Ancestor{move(h)} { }
-    explicit Intermediate(Population p) : Ancestor{move(p)} { }
+    explicit Intermediate(Popularity p) : Ancestor{move(p)} { }
 #endif
   };
 }

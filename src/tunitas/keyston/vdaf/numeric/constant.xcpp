@@ -18,7 +18,7 @@ namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
   namespace body::exported {
     //
@@ -48,7 +48,7 @@ namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
     //
     //   See Definition.
     //
-    auto disassembly(Measurement<WHOLE> const &) -> Disassembled;
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &) -> Disassembled;
     auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
@@ -60,7 +60,7 @@ namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
 #divert <cpp>
 #import tunitas.keyston.exception.Unimplemented
 namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
-  auto interface::disassembly(Measurement<WHOLE> const &) -> Disassembled {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &) -> Disassembled {
     throw exception::Unimplemented{};
     return {};
   }

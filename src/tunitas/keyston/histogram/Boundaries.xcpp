@@ -34,10 +34,15 @@ namespace tunitas::keyston::histogram {
 #import tunitas.error.by.Optional
 #import tunitas.error.by.Outcome
 #import tunitas.Success
+#import tunitas.Tuple
+#forward tunitas.keyston.histogram.Histogram
+#import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston {
   namespace histogram {
     using std::move;
     inline auto swap(Boundaries &, Boundaries &) noexcept -> void;
+    inline auto format(Tuple<Boundaries const &, Histogram const &>) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
+    inline auto format(Boundaries const &, Histogram const &) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
   }
   class histogram::Boundaries : public array::Fixed<measurement::Specimen, Buckets::COUNT.count()> {
     // WATCHOUT - the ancestor is std::array so the constructor name wins inside the class
@@ -63,6 +68,8 @@ namespace tunitas::keyston {
 #divert <ipp>
 #import tunitas.keyston.exception.Overflow
 namespace tunitas::keyston {
+  auto histogram::format(Tuple<Boundaries const &, Histogram const &> item) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>> { return {item}; }
+  auto histogram::format(Boundaries const &b, Histogram const &h)           -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>> { return Tuple<Boundaries const &, Histogram const &>{b, h}; }
   auto histogram::swap(Boundaries &a, Boundaries &b) noexcept -> void {
     Boundaries::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
@@ -94,6 +101,7 @@ namespace tunitas::keyston {
     }
   }
 }
+#import tunitas.keyston.formatter.io // to activate format(...)
 #endiv
 #divert <cpp>
 #import std.back_inserter

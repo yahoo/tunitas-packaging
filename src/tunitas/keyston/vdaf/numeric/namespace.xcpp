@@ -7,8 +7,10 @@
 #import tunitas.keyston.vdaf
 #import tunitas.keyston.numeric
 #import tunitas.keyston.numeric.generic
+#import tunitas.keyston.Scheme
 namespace tunitas::keyston::vdaf::numeric {
   using namespace tunitas::keyston::numeric;
   namespace generic { using namespace tunitas::keyston::numeric::generic; } // occlude namespace daf::generic
+  using enum Scheme;
 }
 #endiv

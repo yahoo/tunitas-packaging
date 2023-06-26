@@ -47,11 +47,13 @@ namespace tunitas::keyston::poplar {
 #divert <hpp>
 #import tunitas.keyston.Field
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.aggregation.Popularity
 #import tunitas.keyston.measurement.Records
 #import tunitas.keyston.popularity.Prefixes
 #import tunitas.keyston.idpf
 namespace tunitas::keyston::poplar {
+  struct PLACEHOLDER_Initialization {};
+  struct PLACEHOLDER_Continuation {};
   template<Size THE_VALUE_COUNT> struct Algorithm<ONE, THE_VALUE_COUNT> {
     inline static constexpr auto VALUE_COUNT = Items{THE_VALUE_COUNT};
     struct Core {
@@ -63,15 +65,15 @@ namespace tunitas::keyston::poplar {
       using Truncated = int;
       using Preparation = int;
 #endif
-      using Decoded = measurement::Population;
+      using Decoded = aggregation::Popularity;
       using Processed = measurement::Records;
       using Prefixes = popularity::Prefixes;
     };
-    using Initialization = int;
-    using Continuation = int;
+    using Initialization = PLACEHOLDER_Initialization;
+    using Continuation = PLACEHOLDER_Continuation;
   };
 }
 #endiv
 #divert <cpp>
-#warning WRITETHIS whereas tunitas::keyston::poplar::Algorithm has int for all the types
+#warning WRITETHIS whereas tunitas::keyston::poplar::Algorithm<ONE> has int for all the types
 #endiv

@@ -1,0 +1,148 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.Tuple
+#import tunitas.keyston.array.range.required.Container
+#import tunitas.keyston.formatter.Formatter
+#import nonstd.required.Enumeration
+#import nonstd.required.InstanceOf
+// as few dependencies as possible here
+#forward tunitas.keyston.field.vector.Fixed
+#forward tunitas.keyston.aggregation.Count
+#forward tunitas.keyston.aggregation.Simple
+#forward tunitas.keyston.aggregation.Histogram
+#forward tunitas.keyston.aggregation.Popularity
+#forward tunitas.keyston.af.numeric.Aggregation
+#forward tunitas.keyston.numeric.generic.Aggregation
+#forward tunitas.keyston.daf.numeric.Aggregation
+#forward tunitas.keyston.vdaf.numeric.Aggregation
+#forward tunitas.keyston.poplar.Algorithm
+namespace tunitas::keyston::formatter {
+  //
+  // Specification:
+  //
+  //   the usual.
+  //
+  // Design:
+  //
+  //   May run multiple lines (e.g. histogram or population)
+  //   Does not append a final newline.
+  //
+  // Usage:
+  //
+  //   Oh come on.  How you use these is in every single book and blog post they've ever written.
+  //   Still unclear?  Go read the writings about std::format or its predecessor fmt::format.
+  //   Still here?
+  //
+  //   cout << s << h << p;
+  //
+  template<required::Enumeration ENUM> inline auto operator<<(std::ostream &, Formatter<ENUM> const &) -> std::ostream &;
+  template<required::Enumeration ENUM> inline auto operator<<(std::ostream &o, Formatter<ENUM, ENUM const &> const &f) -> std::ostream & { return o << Formatter<ENUM>{f.captured}; }
+  template<required::InstanceOf<Quantity> QUANTITY> inline auto operator<<(std::ostream &, Formatter<QUANTITY> const &) -> std::ostream &;
+  template<required::InstanceOf<Quantity> QUANTITY> inline auto operator<<(std::ostream &o, Formatter<QUANTITY, QUANTITY const &> const &f) -> std::ostream & { return o << Formatter<QUANTITY>{f.captured}; }
+  //
+  template<typename TYPE, Size CAPACITY> auto operator<<(std::ostream &, Formatter<field::vector::Fixed<TYPE, CAPACITY>, field::vector::Fixed<TYPE, CAPACITY> const &> const &) -> std::ostream &; // unimplemented
+  auto operator<<(std::ostream &, Formatter<poplar::Algorithm<ONE>::Initialization, poplar::Algorithm<ONE>::Initialization const &> const &) -> std::ostream &;  // unimplemented
+  auto operator<<(std::ostream &, Formatter<poplar::Algorithm<ONE>::Continuation, poplar::Algorithm<ONE>::Continuation const &> const &) -> std::ostream &;  // unimplemented
+  //
+  inline auto operator<<(std::ostream &, Formatter<Histogram, Histogram const &> const &) -> std::ostream &;
+  inline auto operator<<(std::ostream &, Formatter<Popularity, Popularity const &> const &) -> std::ostream &;
+  auto operator<<(std::ostream &, Formatter<Tuple<Boundaries const &, Histogram const &>> const &) -> std::ostream &;
+  auto operator<<(std::ostream &, Formatter<Tuple<Bits, Prefixes const &, Popularity const &>> const &) -> std::ostream &;
+  //
+  inline auto operator<<(std::ostream &, Formatter<af::numeric::Aggregation, af::numeric::Aggregation const &> const &) -> std::ostream &;
+  inline auto operator<<(std::ostream &, Formatter<numeric::generic::Aggregation, numeric::generic::Aggregation const &> const &) -> std::ostream &;
+  inline auto operator<<(std::ostream &, Formatter<daf::numeric::Aggregation<SHARE>, daf::numeric::Aggregation<SHARE> const &> const &) -> std::ostream &;
+  //
+  namespace outer {
+    template<typename TYPE> auto subformat(TYPE const &item) -> Formatter<TYPE, TYPE const &> { return {item}; } // expect Integer or Quantity or Histogram or Popularity
+    namespace inner {
+      template<required::Container CONTAINER> auto container(std::ostream &, CONTAINER const &) -> std::ostream &;
+      template<required::InstanceOf<std::variant> VARIANT> auto variant(std::ostream &outbound, Formatter<VARIANT, VARIANT const &> const &formatter) -> std::ostream &;
+    }
+  }
+  namespace body = outer::inner;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.aggregation.Simple
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.aggregation.Popularity
+#import tunitas.keyston.af.numeric.Aggregation
+#import tunitas.keyston.daf.numeric.Aggregation
+#import tunitas.keyston.vdaf.numeric.Aggregation
+namespace tunitas::keyston {
+  template<required::Enumeration ENUM>                         auto formatter::operator<<(std::ostream &outbound, Formatter<ENUM, ENUM> const &formatter)         -> std::ostream & { return outbound << underlying(formatter.captured); }
+  template<required::InstanceOf<formatter::Quantity> QUANTITY> auto formatter::operator<<(std::ostream &outbound, Formatter<QUANTITY, QUANTITY> const &formatter) -> std::ostream & { return outbound << formatter.captured.count(); }
+  auto formatter::operator<<(std::ostream &outbound, Formatter<Histogram, Histogram const &> const &formatter)                                                    -> std::ostream & { return body::container(outbound, formatter.captured); }
+  auto formatter::operator<<(std::ostream &outbound, Formatter<Popularity, Popularity const &> const &formatter)                                                  -> std::ostream & { return body::container(outbound, formatter.captured); }
+  //
+  auto formatter::operator<<(std::ostream &outbound, Formatter<af::numeric::Aggregation, af::numeric::Aggregation const &> const &formatter)                 -> std::ostream & { return body::variant(outbound, formatter); }
+  auto formatter::operator<<(std::ostream &outbound, Formatter<numeric::generic::Aggregation, numeric::generic::Aggregation const &> const &formatter)       -> std::ostream & { return body::variant(outbound, formatter); }
+  auto formatter::operator<<(std::ostream &outbound, Formatter<daf::numeric::Aggregation<SHARE>, daf::numeric::Aggregation<SHARE> const &> const &formatter) -> std::ostream & { return body::variant(outbound, formatter); }
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.array.enumerate
+#import tunitas.keyston.formatter.Newline
+#import tunitas.Variant
+#import tunitas.variant.Visitor
+#import tunitas.variant.visit
+namespace tunitas::keyston::formatter {
+  template<formatter::required::Container CONTAINER> auto body::container(std::ostream &outbound, CONTAINER const &container) -> std::ostream & {
+    auto newline = Newline{}; // newline precedes so that there is no final newline
+    for (auto [index, element] : enumerate(container)) {
+      outbound << newline << index << ": " << format(element);
+    }
+    return outbound;
+  }
+  template<required::InstanceOf<std::variant> VARIANT> auto body::variant(std::ostream &outbound, Formatter<VARIANT, VARIANT const &> const &formatter) -> std::ostream & {
+    // find and call the other format(...) of the components within the variant
+    auto visitor = variant::Visitor{[&outbound](auto const &something) -> std::ostream & { return outbound << subformat(something); }};
+    return visit(visitor, formatter.captured);
+  }
+}
+#endiv
+#divert <cpp>
+#import nonstd.runtime_assert
+#import langu.age.q
+namespace tunitas::keyston {
+  auto formatter::operator<<(std::ostream &outbound, Formatter<Tuple<Boundaries const &, Histogram const &>> const &formatter) -> std::ostream & {
+#if 0
+    auto const &boundaries = get<0>(formatter.captured);
+    auto const &histogram = get<1>(formatter.captured);
+#else
+    auto const &[boundaries, histogram] = formatter.captured;
+#endif
+    static_assert(Boundaries{}.size() == Histogram{}.size());
+    auto newline = Newline{};
+    for (auto [index, observed] : enumerate(histogram)) {
+      auto const &boundary = boundaries.at(index);
+      outbound << newline << format(observed) << " in bucket #" << index << " below " << format(boundary);
+    }
+    return outbound;
+  }
+  auto formatter::operator<<(std::ostream &outbound, Formatter<Tuple<Bits, Prefixes const &, Popularity const &>> const &formatter) -> std::ostream & {
+#if 0
+    auto const &prefix_length = get<0>(formatter.captured);
+    auto const &prefixes = get<1>(formatter.captured);
+    auto const &population = get<2>(formatter.captured);
+#else
+    auto const &[prefix_length, prefixes, population] = formatter.captured;
+#endif
+    runtime_assert(prefixes.size() == population.size());
+    auto newline = Newline{};
+    outbound << newline << "prefix length " << prefix_length.count();
+    for (auto [index, observed] : enumerate(population)) {
+      auto const &prefix = prefixes.at(index);
+      outbound << newline << format(observed) << " with prefix " << std::showbase << std::hex << format(prefix) << std::dec << " " << q(format(prefix)) << std::dec;
+    }
+    return outbound;
+  }
+}
+#endiv

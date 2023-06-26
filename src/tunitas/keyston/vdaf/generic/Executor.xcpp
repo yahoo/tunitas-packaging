@@ -49,7 +49,7 @@ namespace tunitas::keyston::vdaf::generic {
 #import tunitas.Optional
 #import tunitas.keyston.Shard
 #import tunitas.keyston.Shards
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.vdaf.generic.Definition
 #import tunitas.keyston.vdaf.generic.usage.Configuration
 namespace tunitas::keyston::vdaf {
@@ -69,7 +69,7 @@ namespace tunitas::keyston::vdaf {
     using Ancestor::Definition;
     inline explicit Executor(Ancestor);
     //
-    inline auto disassembly(typename Ancestor::template Measurement<WHOLE> const &) const -> typename Ancestor::Disassembled;
+    inline auto disassembly(typename Ancestor::Parameters const &, typename Ancestor::template Measurement<WHOLE> const &) const -> typename Ancestor::Disassembled;
     inline auto initialization(typename Ancestor::Parameters const &, typename Ancestor::Verify_Key const &, Shard, typename Ancestor::Nonce const &, typename Ancestor::template Public<SHARE> const &, typename Ancestor::template Input<SHARE> const &) const -> typename Ancestor::Initialized;
     inline auto continuation(typename Ancestor::template Preparation<WHOLE> const &, Optional<typename Ancestor::template Preparation<SHARE>> const &) const -> typename Ancestor::Continued;
     inline auto amalgamation(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Preparation<SHARE>> const &) const -> typename Ancestor::Amalgamated;
@@ -87,11 +87,11 @@ namespace tunitas::keyston::vdaf {
   }
   namespace generic {
     template<required::Configuration _> Executor<_>::Executor(Ancestor d) : Ancestor{d} { }
-    template<required::Configuration _> auto Executor<_>::disassembly(typename Ancestor::template Measurement<WHOLE> const &i) const -> typename Ancestor::Disassembled {
+    template<required::Configuration _> auto Executor<_>::disassembly(typename Ancestor::Parameters const &p, typename Ancestor::template Measurement<WHOLE> const &i) const -> typename Ancestor::Disassembled {
       if (nullptr == Ancestor::disassembly) {
         throw exception::Null{};
       } else {
-        return Ancestor::disassembly(i);
+        return Ancestor::disassembly(p, i);
       }
     }
     template<required::Configuration _> auto Executor<_>::initialization(typename Ancestor::Parameters const &p, typename Ancestor::Verify_Key const &k, Shard s, typename Ancestor::Nonce const &n, typename Ancestor::template Public<SHARE> const &u, typename Ancestor::template Input<SHARE> const &i) const -> typename Ancestor::Initialized {

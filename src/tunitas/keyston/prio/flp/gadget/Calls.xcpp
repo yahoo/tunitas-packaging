@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.Calls
+namespace tunitas::keyston::prio::flp::gadget {
+  //
+  // The call count.
+  //
+  //   The word "calls" is used in Table 7, so we keep that here;
+  //   the adjective "gadget" gadget is dropped as it's already in the namespace.
+  //
+  // Specification:
+  //
+  //   An array (a fixed array) of call counts (item counts)
+  //
+  // Design:
+  //
+  //   constexpr
+  //   infer the call count with the nearby constructor function gadget::call(...)
+  //
+  // Usage:
+  //
+  //   auto called = gadget::calls(1u, 2u, 3u);
+  //
+  template<Size> struct Calls;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.array.Fixed
+namespace tunitas::keyston::prio::flp {
+  template<Size N> class gadget::Calls : public array::Fixed<Items, N> {
+    using Ancestor = array::Fixed<Items, N>;
+  public:
+    using Ancestor::Fixed;
+  };
+}
+#endiv

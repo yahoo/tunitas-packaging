@@ -179,7 +179,8 @@ namespace tests::unit::vdaf::executor {
   template<typename E, typename D, typename C> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
     {
       auto measurement = typename Configuration::template Measurement<WHOLE>{};
-      auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+      auto parameters = typename Configuration::Parameters{};
+      auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = typename Configuration::Parameters{};
@@ -277,14 +278,16 @@ namespace tests::unit::vdaf::executor {
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_good() -> void {
     auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
     auto measurement = typename Configuration::template Measurement<WHOLE>{};
-    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
     auto measurement = typename Configuration::template Measurement<WHOLE>{};
-    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);

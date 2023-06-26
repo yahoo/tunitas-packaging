@@ -9,5 +9,6 @@
 namespace tunitas::keyston::field::element {
   using namespace keyston::integer;
   namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] is { }
 }
 #endiv

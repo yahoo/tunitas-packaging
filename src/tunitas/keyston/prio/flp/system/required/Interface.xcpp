@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.prio.flp.system.Interface
+#forward tunitas.keyston.prio.flp.system.interface.Randomness
+#forward tunitas.keyston.prio.flp.system.interface.Message
+#import tunitas.keyston.prio.flp.system.required.Field
+#import tunitas.keyston.prio.flp.dimension // for all those enums
+namespace tunitas::keyston::prio::flp::system::required {
+  //
+  // Is this type a flp system table?
+  // This MUST be diagnosable without the complete type of Interface<...>
+  //
+  // We can't use InstanceOf<...> here because of the NTTP (Non-Type Template Parameters)
+  // This is the moral equivalent of InstanceOf<...>
+  //
+  namespace [[eponymous]] interface {
+    template<typename FIELD, typename JOINT, typename PROVE, typename QUERY, typename INPUT, typename OUTPUT, typename PROOF, typename VERIFIER> concept Arguments = requires(FIELD, PROVE, QUERY, JOINT, INPUT, OUTPUT, PROOF, VERIFIER) {
+      requires Field<FIELD>;
+      requires same_as<JOINT, dimension::Joint>;
+      requires same_as<PROVE, dimension::Prove>;
+      requires same_as<QUERY, dimension::Query>;
+      requires same_as<INPUT, dimension::Input>;
+      requires same_as<OUTPUT, dimension::Output>;
+      requires same_as<PROOF, dimension::Proof>;
+      requires same_as<VERIFIER, dimension::Verifier>;
+    };
+    template<typename TABLE> concept Interface = requires(TABLE) {
+      { []<typename FIELD, auto JOINT, auto PROVE, auto QUERY, auto INPUT, auto OUTPUT, auto PROOF, auto VERIFIER>(system::Interface<FIELD, system::interface::Randomness<JOINT, PROVE, QUERY>, system::interface::Message<INPUT, OUTPUT, PROOF, VERIFIER>> *)
+        requires Arguments<FIELD, decltype(JOINT), decltype(PROVE), decltype(QUERY), decltype(INPUT), decltype(OUTPUT), decltype(PROOF), decltype(VERIFIER)>
+        {}(static_cast<TABLE *>(nullptr)) };
+    };
+  }
+  using interface::Interface;
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.Field
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::prio::flp::system::required;
+    using tunitas::keyston::prio::flp::system::Interface;
+    using tunitas::keyston::prio::flp::system::interface::Randomness;
+    using tunitas::keyston::prio::flp::system::interface::Message;
+    using namespace tunitas::keyston::prio::flp::dimension;
+    using tunitas::keyston::Field;
+    //
+    static_assert(required::Interface<Interface<Field<64>, Randomness<Joint{}, Prove{}, Query{}>, Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>>>);
+    static_assert(required::Interface<Interface<Field<128>, Randomness<Joint{}, Prove{}, Query{}>, Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>>>);
+    static_assert(required::Interface<Interface<Field<255>, Randomness<Joint{}, Prove{}, Query{}>, Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>>>);
+  }
+}
+#endiv

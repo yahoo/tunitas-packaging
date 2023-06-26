@@ -44,14 +44,14 @@ namespace tunitas::keyston::vdaf::generic::configuration {
 #import tunitas.keyston.Shards
 #import tunitas.keyston.vdaf.generic.Continued
 #import tunitas.keyston.vdaf.generic.Disassembled
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.vdaf.generic.configuration.usage.Core
 namespace tunitas::keyston::vdaf::generic {
   template<configuration::required::Core CORE, typename UNIQUENESS> class configuration::Configuration : public CORE {
     static_assert(usage::Core<CORE>);
   public:
     using Disassembled = generic::Disassembled<Configuration>;
-    using Disassembly = Disassembled (*)(typename CORE::Measurement<WHOLE> const &);
+    using Disassembly = Disassembled (*)(typename CORE::Parameters const &, typename CORE::Measurement<WHOLE> const &);
     //
     using Initialized = typename CORE::template Preparation<SHARE>;
     using Initialization = Initialized (*)(typename CORE::Parameters const &, typename CORE::Verify_Key const &, Shard, typename CORE::Nonce const &, typename CORE::template Public<SHARE> const &, typename CORE::template Input<SHARE> const &);

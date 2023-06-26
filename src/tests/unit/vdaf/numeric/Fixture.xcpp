@@ -18,13 +18,22 @@ struct tests::unit::vdaf::numeric::Fixture : public rigging::suite::Fixture {
   auto test_usage_Public() -> void;
   auto test_usage_Output() -> void;
   auto test_usage_Aggregation() -> void;
+  //
+  auto test_components_Disassembled() -> void;
+  auto test_components_Initialized() -> void;
+  auto test_components_Continued() -> void;
+  auto test_components_Amalgamated() -> void;
+  auto test_components_Disgorged() -> void;
+  auto test_components_Reassembled() -> void;
 };
 #endiv
 #divert <cpp>
 #import tests.unit.vdaf.numeric.zero.Fixture
 #import tests.unit.vdaf.numeric.constant.Fixture
-#import tests.unit.vdaf.numeric.prio3.Fixture
-#import tests.unit.vdaf.numeric.poplar1.Fixture
+#import tests.unit.vdaf.numeric.count.Fixture
+#import tests.unit.vdaf.numeric.sum.Fixture
+#import tests.unit.vdaf.numeric.histogram.Fixture
+#import tests.unit.vdaf.numeric.popularity.Fixture
 auto tests::unit::vdaf::numeric::Fixture::suite() -> Suite {
   auto series = Stream{"numeric"sv};
   series << []{
@@ -37,10 +46,23 @@ auto tests::unit::vdaf::numeric::Fixture::suite() -> Suite {
                   << END;
               return use;
             }()
+         << []{
+              auto use = Stream{"components"sv};
+              use << add("Disassembled", &Fixture::test_components_Disassembled)
+                  << add("Initialized", &Fixture::test_components_Initialized)
+                  << add("Continued", &Fixture::test_components_Continued)
+                  << add("Amalgamated", &Fixture::test_components_Amalgamated)
+                  << add("Disgorged", &Fixture::test_components_Disgorged)
+                  << add("Reassembled", &Fixture::test_components_Reassembled)
+                  << END;
+              return use;
+            }()
          << add<zero::Fixture>()
          << add<constant::Fixture>()
-         << add<prio3::Fixture>()
-         << add<poplar1::Fixture>()
+         << add<count::Fixture>()
+         << add<sum::Fixture>()
+         << add<histogram::Fixture>()
+         << add<popularity::Fixture>()
          << END;
   return settle(series);
 }
@@ -49,7 +71,6 @@ auto tests::unit::vdaf::numeric::Fixture::suite() -> Suite {
 #import tunitas.keyston.vdaf.numeric.Public
 #import tunitas.keyston.vdaf.numeric.Output
 #import tunitas.keyston.vdaf.numeric.Aggregation
-#import tunitas.keyston.vdaf.numeric.format
 #import std.ostringstream
 namespace tests::unit::vdaf::numeric {
   auto Fixture::test_usage_Measurement() -> void {
@@ -85,10 +106,68 @@ namespace tests::unit::vdaf::numeric {
     require(ASSERTION, sizeof(share));
     {
       auto buf = std::ostringstream{};
-      buf << library::format(whole); // <------------------------------ test this
+      buf << format(whole); // <------------------------------ test this
       auto str = buf.str();
       require(ASSERTION, !str.empty());
     }
+  }
+}
+#import tunitas.keyston.vdaf.numeric.components
+namespace tests::unit::vdaf::numeric {
+  auto Fixture::test_components_Disassembled() -> void {
+    using namespace library::components;
+    using Subject = Disassembled;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+    //
+    auto publick = library::Public<SHARE>{};
+    auto inputs = Shards<library::Input<SHARE>>{};
+    auto subject2 = Subject{publick, inputs};
+    require(ASSERTION, sizeof(subject2));
+  }
+  auto Fixture::test_components_Initialized() -> void {
+    using namespace library::components;
+    using Subject = Initialized;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+    //
+    auto output = library::Preparation<SHARE>{};
+    auto subject1 = Subject{output};
+    require(ASSERTION, sizeof(subject1));
+  }
+  auto Fixture::test_components_Continued() -> void {
+    using namespace library::components;
+    using Subject = Continued;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+  }
+  auto Fixture::test_components_Amalgamated() -> void {
+    using namespace library::components;
+    using Subject = Amalgamated;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+  }
+  auto Fixture::test_components_Disgorged() -> void {
+    using namespace library::components;
+    using Subject = Disgorged;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+  }
+  auto Fixture::test_components_Reassembled() -> void {
+    using namespace library::components;
+    using Subject = Reassembled;
+    //
+    auto subject0 = Subject{};
+    require(ASSERTION, sizeof(subject0));
+    //
+    auto aggregation = library::Aggregation<WHOLE>{};
+    auto subject1 = Subject{aggregation};
+    require(ASSERTION, sizeof(subject1));
   }
 }
 #endiv

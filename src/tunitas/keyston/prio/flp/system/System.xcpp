@@ -1,0 +1,120 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.system.required.Interface
+#import tunitas.keyston.prio.flp.system.required.Validity
+namespace tunitas::keyston::prio::flp::system {
+  //
+  // A flp system.
+  //
+  // Authority:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-fully-linear-flp-flp-syst
+  //   Section 7.1 Fully-Linear Proof (FLP) Systems
+  //   Section 7.3.3 Construction (of the FLP, as FlpGeneric)
+  //   Table 8. FLP parameters of FlpGeneric
+  //
+  // Specification:
+  //
+  // Design:
+  //
+  //   It's all templatized around ALGORITHM, VALIDITY and a TABLE (interface)
+  //
+  // Usage:
+  //
+  //   Of course!
+  //
+  template<required::Validity, required::Interface> struct System;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.entropy.required.Entropy
+#import tunitas.keyston.prio.flp.system.usage.Codec
+#import tunitas.keyston.prio.flp.system.usage.Interface
+#import tunitas.keyston.prio.flp.system.usage.Validity
+#import tunitas.keyston.shards.Shard // for SHARDS_COUNT
+#import tunitas.keyston.Shards
+namespace tunitas::keyston::prio::flp {
+  template<system::required::Validity VALIDITY, system::required::Interface TABLE> struct system::System {
+    static_assert(usage::Interface<TABLE>);
+    static_assert(usage::Validity<VALIDITY>);
+    using Validity = VALIDITY;
+    using Codec = typename Validity::Codec;
+    using Field = typename Codec::Field;
+    using Measurement = typename Validity::Measurement;
+    using Randomness = typename TABLE::Randomness;
+    using Message = typename TABLE::Message;
+    //
+    // Flp.prove(input: Vec[Field], prove_rand: Vec[Field], joint_rand: Vec[Field]) -> Vec[Field]
+    static auto prove(typename Message::Input::View, typename Randomness::Prove::View, typename Randomness::Joint::View) -> typename Message::Input::Vector;
+    // Flp.query(input: Vec[Field], flp: Vec[Field], query_rand: Vec[Field], joint_rand: Vec[Field], num_shares: Unsigned) -> Vec[Field]
+    static auto query(typename Message::Input::View, typename Message::Proof::View, typename Randomness::Query::View, typename Randomness::Joint::View, Items number_of_shards = shards::SHARD_COUNT /* MUST be such*/) -> typename Message::Verifier::Vector;
+    // Flp.decide(verifier: Vec[Field]) -> Bool
+    static auto decide(typename Message::Verifier::View) -> bool;
+    //
+    // def run_flp(Flp, inp: Vec[Flp.Field], num_shares: Unsigned):
+    template<entropy::required::Entropy SOURCE> static auto run([[inout]] SOURCE &, typename Message::Input::View, Items number_of_shards = shards::SHARD_COUNT /*MUST be such*/) -> bool;
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.exception.Invalid
+#import tunitas.keyston.entropy.usage.Entropy
+#import tunitas.keyston.prio.flp.system.usage.System
+#import std.index_sequence
+#import std.make_index_sequence
+namespace tunitas::keyston::prio::flp::system {
+  template<required::Validity V, required::Interface T> template<entropy::required::Entropy SOURCE> auto System<V,T>::run(SOURCE &source, typename Message::Input::View input, Items number_of_shards) -> bool {
+    static_assert(entropy::usage::Entropy<SOURCE>);
+    static_assert(usage::System<System>);
+    if (number_of_shards != shards::SHARD_COUNT) {
+      throw exception::Invalid{"shard count"};
+    }
+    auto joint_randomness = Field::template Vector<Randomness::Joint::VALUE.count()>::random(source);
+    auto prove_randomness = Field::template Vector<Randomness::Prove::VALUE.count()>::random(source);
+    auto query_randomness = Field::template Vector<Randomness::Query::VALUE.count()>::random(source);
+    //
+    // Prover generates the flp.
+    auto flp = prove(input, prove_randomness, joint_randomness);
+    //
+    // Verifier queries the input and the flp.
+    auto verifier = [=]{
+      if constexpr (false) {
+        //
+        // As defined in '06 (draft-irtf-cfrg-vdaf-06) https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+        // DOES incorporate an internal sharding-separation-and-reassembly ceremony.
+        //
+        // Shard the input and the flp.
+        auto input_shares = additive_secret_share<Field>(input, number_of_shards);
+        auto flp_shares = additive_secret_share<Field>(flp, number_of_shards);
+        //
+        // Verifier queries the input shares and flp shares.
+        auto verifier_shares = [=]<Size... INDEX>(std::index_sequence<INDEX...>) -> Shards<typename Message::Verifier::Vector> {
+          return {query(input_shares.at(INDEX), flp_shares.at(INDEX), query_randomness, joint_randomness, number_of_shards)...};
+        }(std::make_index_sequence<shards::SHARD_COUNT.count()>{});
+        //
+        // Combine the verifier shares into the verifier (return that).
+        return [](auto const &shares) {
+          auto ret = typename Message::Verifier::Vector{}; // a.k.a. "zeroes"
+          for (auto const &each : shares) {
+            ret += each;
+          }
+          return ret;
+        }();
+      } else {
+        //
+        // As defined in '05 (draft-irtf-cfrg-vdaf-05) https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+        // DOES NOT incorporate an internal sharding-separation-and-reassembly ceremony.
+        //
+        // Verifier queries the input and flp (return that as the verifier)
+        return query(input, flp, query_randomness, joint_randomness, number_of_shards);
+      }
+    }();
+    // Verifier decides if the input is valid.
+    return decide(verifier);
+  }
+}
+#endiv

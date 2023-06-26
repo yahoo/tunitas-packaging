@@ -18,7 +18,7 @@ namespace tunitas::keyston::daf::protocol::popularity::package_popularity {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 namespace tunitas::keyston::daf::protocol::popularity::package_popularity {
   namespace body::exported {
     //

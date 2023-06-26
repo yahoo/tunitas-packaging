@@ -47,7 +47,7 @@ namespace tunitas::keyston::array::range::package_enumerate::body {
 #import tunitas.keyston.array.range.package_enumerate.Iterator.operations // so they can be friends
 namespace tunitas::keyston::array::range::package_enumerate {
   namespace body {
-    template<required::Iterator SUBITERATOR> inline auto operator==(Iterotype<SUBITERATOR> const &, Iterotype<SUBITERATOR> const &) -> bool;
+    template<required::Iterator SUBITERATOR> inline constexpr auto operator==(Iterotype<SUBITERATOR> const &, Iterotype<SUBITERATOR> const &) -> bool;
   }
   template<required::Iterator SUBITERATOR> struct body::Iterotype {
     using Index = std::size_t;
@@ -90,7 +90,7 @@ namespace tunitas::keyston::array::range::package_enumerate {
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::array::range::package_enumerate {
-  template<required::Iterator SUBITERATOR> auto body::operator==(Iterotype<SUBITERATOR> const &a, Iterotype<SUBITERATOR> const &b) -> bool {
+  template<required::Iterator SUBITERATOR> constexpr auto body::operator==(Iterotype<SUBITERATOR> const &a, Iterotype<SUBITERATOR> const &b) -> bool {
     // n.b. always compare the iterators, never compare the indices.  The index is derived from progressing the iterator and end() always has a 0 index.
     return a.subiterator == b.subiterator;
   }

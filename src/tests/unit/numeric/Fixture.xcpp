@@ -9,11 +9,11 @@ namespace tests::unit::numeric { class Fixture; }
 #divert <hpp>
 #import tunitas.integer.required.Unsigned
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Simple
+#import tunitas.keyston.aggregation.Simple
 struct tests::unit::numeric::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using Simple = ::tunitas::keyston::measurement::Simple;
+  using Simple = ::tunitas::keyston::aggregation::Simple;
   using Specimen = ::tunitas::keyston::measurement::Specimen;
 #if 0 // [[REMOVETHIS]]
   auto test_enbiggen_easy() -> void;

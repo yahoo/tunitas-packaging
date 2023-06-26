@@ -11,7 +11,7 @@ namespace tests::unit::popularity { class Fixture; }
 struct tests::unit::popularity::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  auto test_usage_Population() -> void;
+  auto test_usage_Popularity() -> void;
   auto test_usage_Prefixes() -> void;
 protected:
   using Failure = ::tunitas::keyston::exception::Aspect;
@@ -19,22 +19,22 @@ protected:
 #endiv
 #divert <cpp>
 #import tests.unit.popularity.Prefixes
-#import tests.unit.popularity.Population
+#import tests.unit.popularity.Popularity
 auto tests::unit::popularity::Fixture::suite() -> Suite {
   auto series = Stream{"popularity"sv};
   series << []{
               auto use = Stream{"usage"sv};
               use << add("Prefixes", &Fixture::test_usage_Prefixes)
-                  << add("Population", &Fixture::test_usage_Population)
+                  << add("Popularity", &Fixture::test_usage_Popularity)
                   << END;
               return use;
             }()
-         << add<Population>()
+         << add<Popularity>()
          << add<Prefixes>()
          << END;
   return settle(series);
 }
-#import tunitas.keyston.popularity.Population
+#import tunitas.keyston.popularity.Popularity
 #import tunitas.keyston.popularity.Prefixes
 namespace tests::unit::popularity {
   auto Fixture::test_usage_Prefixes() -> void {
@@ -47,8 +47,8 @@ namespace tests::unit::popularity {
     subject.push_back(Subject::Value{3});
     require(ASSERTION, 3u == subject.size());
   }
-  auto Fixture::test_usage_Population() -> void {
-    using Subject = library::Population;
+  auto Fixture::test_usage_Popularity() -> void {
+    using Subject = library::Popularity;
     auto subject = Subject(33uz, Subject::Value{99});
     require(ASSERTION, 33uz == subject.size());
     require(ASSERTION, subject == subject); // ...... so operator== exists

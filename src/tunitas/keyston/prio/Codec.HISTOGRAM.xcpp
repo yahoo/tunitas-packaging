@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Codec.template
+namespace tunitas::keyston::prio {
+  //
+  // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prio3sum
+  // Section 7.4.2. Prio3Histogram
+  //
+  // Invariant:
+  //
+  //   for encode(...) the boundaries shall be in monotonic order
+  //
+  template<> struct Codec<HISTOGRAM>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.aggregation.Histogram
+namespace tunitas::keyston::prio {
+  template<> class Codec<HISTOGRAM> {
+    using Buckets = histogram::Buckets;
+    inline static constexpr auto INDEX_INFINITY  = Buckets::COUNT.count();
+    inline static constexpr auto ENCODED_LENGTH  = Items{1u + Buckets::COUNT.count()};
+  public:
+    using Field = keyston::Field<128>;
+    inline static constexpr auto INPUT_LENGTH  = ENCODED_LENGTH;
+    inline static constexpr auto OUTPUT_LENGTH = ENCODED_LENGTH;
+    using Measurement = measurement::Specimen; // "any integer" but here: std::uint64_t;
+    using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
+    using Truncated = Encoded;
+    using Decoded = aggregation::Histogram;
+    using Processed = measurement::Records; // ... the record count itself
+    using Result [[deprecated("instead use Codec<HISTOGRAM>::Decoded")]] = Decoded;
+    using Boundaries = histogram::Boundaries;
+    inline static constexpr auto encode(Measurement, Boundaries const &) -> Encoded;
+    inline static constexpr auto truncate(Encoded e) -> Truncated { return move(e); }
+    inline static constexpr auto decode(Truncated const &, Processed) -> Decoded;
+  protected:
+    inline static constexpr auto narrow(Field::Value wide) -> Decoded::Value;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.views.iota
+namespace tunitas::keyston::prio {
+  constexpr auto Codec<HISTOGRAM>::narrow(Field::Value wide) -> Decoded::Value {
+    // The narrowing cast is safe when decode(...) is preceded by truncate(...)
+    using Narrow = Decoded::Value::Representation;
+    auto narrow = static_cast<Narrow>(wide);
+    return Decoded::Value{narrow};
+  }
+  constexpr auto Codec<HISTOGRAM>::encode(Measurement specimen, Boundaries const &boundaries) -> Encoded {
+    auto encoded = Encoded{};
+    constexpr auto const ONE = Field::Element{1u};
+    for (auto index : std::views::iota(0u, Buckets::COUNT.count())) {
+      if (specimen <= boundaries.at(index)) {
+        encoded.at(index) = ONE;
+        return encoded;
+      }
+    }
+    encoded.at(INDEX_INFINITY) = ONE;
+    return encoded;
+  }
+  constexpr auto Codec<HISTOGRAM>::decode(Truncated const &encoded, Processed) -> Decoded {
+    return [&encoded]<Buckets::Index... INDEX>(Buckets::Sequence<INDEX...>) {
+      return Decoded{narrow(encoded.at(INDEX))...};
+    }(Buckets::sequence());
+  }
+}
+#endiv

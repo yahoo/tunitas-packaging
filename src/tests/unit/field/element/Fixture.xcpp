@@ -10,25 +10,7 @@ namespace tests::unit::field::element { struct Fixture; }
 #import tunitas.integer.required.Unsigned
 struct tests::unit::field::element::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  //
-  template<::tunitas::integer::required::Unsigned> auto test_powm() -> void;
 };
-#endiv
-#divert <tpp>
-#import tunitas.keyston.field.element.powm
-namespace tests::unit::field::element {
-  template<::tunitas::integer::required::Unsigned UNSIGNED> auto Fixture::test_powm() -> void {
-    using Base = UNSIGNED;
-    using Exponent = UNSIGNED;
-    using Modulus = UNSIGNED;
-    auto base = Base{4};
-    auto exponent = Exponent{13};
-    auto modulus = Modulus{497};
-    auto observed = library::powm(base, exponent, modulus);
-    auto expected = Base{445};
-    require(ASSERTION, expected == observed);
-  }
-}
 #endiv
 #divert <cpp>
 #import tests.unit.field.element.Element
@@ -52,14 +34,6 @@ auto tests::unit::field::element::Fixture::suite() -> Suite {
                   << add<Narrow<uint128_t>>()
                   << END;
               return nar;
-            }()
-         << []{
-              auto pow = Stream{"powm"sv};
-              pow << add("uint64", &Fixture::test_powm<uint64_t>)
-                  << add("uint128", &Fixture::test_powm<uint128_t>)
-                  << add("uint256", &Fixture::test_powm<uint256_t>)
-                  << END;
-              return pow;
             }()
          << END;
   return settle(series);

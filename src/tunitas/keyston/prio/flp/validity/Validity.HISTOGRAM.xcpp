@@ -1,0 +1,104 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.Validity.template
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The validity bundle for PRIO SUM
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Specification:
+  //
+  //   Section 7.4.3. Prio3Histogram
+  //   Sure, right there in the Section.
+  //
+  // Design:
+  //
+  //   Transliterated from the standard (draft)
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<> struct Definition<HISTOGRAM>;
+  template<> struct Validity<HISTOGRAM>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Boundaries
+#import tunitas.keyston.aggregation.Histogram
+namespace tunitas::keyston::prio::flp::validity {
+  template<> class Definition<HISTOGRAM> : public Prototype {
+    inline static constexpr auto const HISTOGRAM_WIDTH = measurement::Boundaries{}.size(); // a.k.a. 'length' (lower case) from Section 7.4.3
+  protected:
+    ~Definition() = default;
+  public:
+    using Field = keyston::Field<128>;
+    using Measurement = measurement::Specimen;
+    using Aggregation = aggregation::Histogram;
+    inline static constexpr auto const INPUT_LENGTH            = Input{HISTOGRAM_WIDTH};
+    inline static constexpr auto const OUTPUT_LENGTH           = Output{HISTOGRAM_WIDTH};
+    inline static constexpr auto const JOINT_RANDOMNESS_LENGTH = Joint{2u};
+    using Gadgets = flp::Gadgets<flp::Gadget<RANGE2>>;
+    inline static constexpr auto const CALLS = gadget::calls(HISTOGRAM_WIDTH);
+  };
+  template<> class Validity<HISTOGRAM> : public Definition<HISTOGRAM>, public Lengths<Definition<HISTOGRAM>>, public Codeckie<HISTOGRAM, Definition<HISTOGRAM>> {
+    using Face = Interface<Definition<HISTOGRAM>>;
+    using Range2 = flp::Gadget<RANGE2>;
+  public:
+    inline static constexpr auto encode(Face::Encodable) -> Face::Encoded;
+    inline static constexpr auto truncate(Face::Truncatable) -> Face::Truncated;
+    inline static constexpr auto decode(Face::Decodable, Face::Records) -> Face::Decoded;
+    inline static constexpr auto circuit(Face::Input, Face::Randomness, Face::Records) -> Field::Element;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::flp::validity {
+  constexpr auto Validity<HISTOGRAM>::circuit(Face::Input input, Face::Randomness joint, Face::Records records) -> Field::Element {
+    // Check that each bucket is one or zero.
+    // range_check = Field128(0)
+    // r = joint_rand[0]
+    // for x in inp:
+    //   range_check += r * Range2(x)
+    //   r *= joint_rand[0]
+    // Check that the buckets sum to 1.
+    // sum_check = -Field128(1) * Field128(num_shares).inv()
+    // for b in inp:
+    //   sum_check += b
+    // out = joint_rand[1] * range_check + joint_rand[1] ** 2 * sum_check
+    auto range_check = Field::Element{0u};
+    auto const r0 = joint.at(0u);
+    auto const r1 = joint.at(1u);
+    auto r = r0;
+    auto range2 = Range2{};
+    for (auto x : input) {
+      range_check += r * range2(x);
+      r *= r0;
+    }
+    auto sum_check = - inv(Field::Element{records.count()});
+    for (auto b : input) {
+      sum_check += b;
+    }
+    return r1 * range_check + (r1 * r1) * sum_check;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.prio.flp.validity.usage.Validity
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::prio::flp::validity::usage;
+    using namespace tunitas::keyston::prio::flp::validity;
+    static_assert(usage::Validity<Validity<HISTOGRAM>>);
+  }
+}
+#endiv

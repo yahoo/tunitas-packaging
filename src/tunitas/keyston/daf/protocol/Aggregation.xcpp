@@ -11,11 +11,11 @@ namespace tunitas::keyston::daf::protocol {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.aggregation.Simple
 #import tunitas.keyston.daf.protocol.Number
 namespace tunitas::keyston::daf::protocol {
   template<> struct Aggregation<WHOLE> {
-    measurement::Result result{};
+    aggregation::Simple result{}; // [[FIXTHIS]] this is wrong (it's namespace protocol, which is incomplete)
   };
   template<> struct Aggregation<SHARE> : public Number {
     using Ancestor = Number;

@@ -8,12 +8,14 @@ tests_unit_SUBSOURCES = \
   check/obj/src/tests/unit/c.main.cpp \
   check/obj/src/tests/unit/namespace.cpp \
   check/obj/src/tests/unit/Fixture.cpp \
+  $(tests_unit_aggregation_SUBSOURCES) \
   $(tests_unit_array_SUBSOURCES) \
   $(tests_unit_crypto_SUBSOURCES) \
   $(tests_unit_detail_SUBSOURCES) \
   $(tests_unit_entropy_SUBSOURCES) \
   $(tests_unit_error_SUBSOURCES) \
   $(tests_unit_exception_SUBSOURCES) \
+  $(tests_unit_flp_SUBSOURCES) \
   check/obj/src/tests/unit/fmt.Fixture.cpp \
   $(tests_unit_field_SUBSOURCES) \
   $(tests_unit_histogram_SUBSOURCES) \
@@ -29,7 +31,6 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_popularity_SUBSOURCES) \
   $(tests_unit_prg_SUBSOURCES) \
   $(tests_unit_prio_SUBSOURCES) \
-  $(tests_unit_proof_SUBSOURCES) \
   $(tests_unit_protocol_SUBSOURCES) \
   check/obj/src/tests/unit/quantity.Fixture.cpp \
   $(tests_unit_shards_SUBSOURCES) \
@@ -45,6 +46,7 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_wire_SUBSOURCES) \
   $(end)
 #
+include src/tests/unit/aggregation/Makefrag.am
 include src/tests/unit/array/Makefrag.am
 include src/tests/unit/crypto/Makefrag.am
 include src/tests/unit/detail/Makefrag.am
@@ -52,6 +54,7 @@ include src/tests/unit/entropy/Makefrag.am
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
 include src/tests/unit/field/Makefrag.am
+include src/tests/unit/flp/Makefrag.am
 include src/tests/unit/histogram/Makefrag.am
 include src/tests/unit/hpke/Makefrag.am
 include src/tests/unit/identifier/Makefrag.am
@@ -65,7 +68,6 @@ include src/tests/unit/poplar/Makefrag.am
 include src/tests/unit/popularity/Makefrag.am
 include src/tests/unit/prg/Makefrag.am
 include src/tests/unit/prio/Makefrag.am
-include src/tests/unit/proof/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
 include src/tests/unit/shards/Makefrag.am
 include src/tests/unit/af/Makefrag.am

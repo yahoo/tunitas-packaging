@@ -29,11 +29,16 @@ namespace tunitas::keyston::histogram {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.array.Fixed
 #import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston {
   namespace histogram {
+    using std::move;
+    // swap(...) from the ancestor is fine
+    inline auto format(Histogram const &) -> formatter::Formatter<Histogram, Histogram const &>;
     inline auto operator==(Histogram const &, Histogram const &) -> bool;
     inline auto operator!=(Histogram const &, Histogram const &) -> bool;
     inline auto operator+(Histogram &&, Histogram &&) -> Histogram;
@@ -41,8 +46,8 @@ namespace tunitas::keyston {
     inline auto operator+(Histogram const &, Histogram &&) -> Histogram;
     inline auto operator+(Histogram const &, Histogram const &) -> Histogram;
   }
-  class histogram::Histogram : public array::Fixed<measurement::Count, histogram::Buckets::COUNT.count()> {
-    using Ancestor = keyston::array::Fixed<measurement::Count, histogram::Buckets::COUNT.count()>;
+  class histogram::Histogram : public array::Fixed<aggregation::Count, histogram::Buckets::COUNT.count()> {
+    using Ancestor = keyston::array::Fixed<aggregation::Count, histogram::Buckets::COUNT.count()>;
   public:
     Histogram() = default;
     using Ancestor::Fixed;
@@ -59,6 +64,7 @@ namespace tunitas::keyston {
 #import std.equal
 #import std.mismatch
 namespace tunitas::keyston {
+  auto histogram::format(Histogram const &item) -> formatter::Formatter<Histogram, Histogram const &> { return {item}; }
   auto histogram::operator==(Histogram const &a, Histogram const &b) -> bool { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
   auto histogram::operator!=(Histogram const &a, Histogram const &b) -> bool {
     auto const a_end = a.end();
@@ -89,4 +95,5 @@ namespace tunitas::keyston {
     return *this;
   }
 }
+#import tunitas.keyston.formatter.io // to activate format(...)
 #endiv

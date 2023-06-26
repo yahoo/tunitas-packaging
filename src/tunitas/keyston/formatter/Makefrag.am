@@ -7,4 +7,6 @@
 tunitas_keyston_formatter_SUBSOURCES = \
   obj/src/tunitas/keyston/formatter/namespace.cpp \
   obj/src/tunitas/keyston/formatter/Newline.cpp \
+  obj/src/tunitas/keyston/formatter/Formatter.cpp \
+  obj/src/tunitas/keyston/formatter/io.cpp \
   $(end)

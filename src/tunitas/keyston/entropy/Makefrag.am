@@ -6,7 +6,7 @@
 #
 tunitas_keyston_entropy_SUBSOURCES = \
   obj/src/tunitas/keyston/entropy/namespace.cpp \
-  obj/src/tunitas/keyston/entropy/traits.Entropy.cpp \
+  obj/src/tunitas/keyston/entropy/is.Entropy.cpp \
   obj/src/tunitas/keyston/entropy/Device.cpp \
   obj/src/tunitas/keyston/entropy/Limits.cpp \
   obj/src/tunitas/keyston/entropy/Source.cpp \

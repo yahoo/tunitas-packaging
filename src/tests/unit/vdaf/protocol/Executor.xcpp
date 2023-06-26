@@ -191,8 +191,9 @@ auto tests::unit::vdaf::protocol::executor::Executor::suite() -> Suite {
 namespace tests::unit::vdaf::protocol::executor {
   auto Executor::exercise(Subject &subject) -> void try {
     {
+      auto parameters = library::Parameters{};
       auto measurement = library::Measurement<WHOLE>{};
-      auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+      auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = library::Parameters{};
@@ -264,14 +265,16 @@ namespace tests::unit::vdaf::protocol::executor {
   }
   auto Executor::test_disassembly_good() -> void {
     auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
     auto measurement = library::Measurement<WHOLE>{};
-    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_disassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
     auto measurement = library::Measurement<WHOLE>{};
-    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);

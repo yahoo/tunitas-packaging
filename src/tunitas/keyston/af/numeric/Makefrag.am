@@ -7,7 +7,6 @@
 tunitas_keyston_af_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/af/numeric/namespace.cpp \
   obj/src/tunitas/keyston/af/numeric/components.cpp \
-  $(tunitas_keyston_af_numeric_package_format_SUBSOURCES) \
   \
   obj/src/tunitas/keyston/af/numeric/zero.cpp \
   obj/src/tunitas/keyston/af/numeric/constant.cpp \
@@ -21,5 +20,4 @@ tunitas_keyston_af_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/af/numeric/Intermediate.cpp \
   obj/src/tunitas/keyston/af/numeric/Aggregation.cpp \
   $(end)
-#
-include src/tunitas/keyston/af/numeric/package_format/Makefrag.am
+

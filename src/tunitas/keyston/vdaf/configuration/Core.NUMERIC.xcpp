@@ -26,8 +26,8 @@ namespace tunitas::keyston::vdaf::configuration {
   template<> struct Core<NUMERIC> {
     using Parameters = vdaf::numeric::Parameters;
     using Randomness = nonce::Bits<constants::RANDOMNESS_BIT_COUNT.count()>;
-    using Nonce =  nonce::Bits<32>; // else Opaque<32>;
-    using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
+    using Nonce =  nonce::Bits<constants::NONCE_BIT_COUNT.count()>; // else Opaque<NONCE_BYTE_COUNT.count()>;
+    using Verify_Key = hpke::Key<hpke::Side::SECRET>; // [[FIXTHIS]] use a view since the size need not be known here.
     using Processed = measurement::Records;
     template<Slice SLICE> using Measurement = vdaf::numeric::Measurement<SLICE>;
     template<Slice SLICE> using Public = vdaf::numeric::Public<SLICE>;

@@ -10,8 +10,13 @@ namespace tunitas::keyston::vdaf::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.daf.numeric.Aggregation
-namespace tunitas::keyston::vdaf::numeric {
-  template<Slice SLICE> class Aggregation : public daf::numeric::Aggregation<SLICE> {
+namespace tunitas::keyston::vdaf {
+  namespace numeric {
+    using std::move;
+    // swap(...) from the ancestor
+    // everything else is inherited from the ancestor
+  }
+  template<Slice SLICE> class numeric::Aggregation : public daf::numeric::Aggregation<SLICE> {
     using Ancestor = daf::numeric::Aggregation<SLICE>;
   public:
     Aggregation() = default;

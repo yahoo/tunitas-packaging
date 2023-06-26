@@ -7,6 +7,7 @@
 tunitas_keyston_prg_SUBSOURCES = \
   obj/src/tunitas/keyston/prg/namespace.cpp \
   obj/src/tunitas/keyston/prg/Name.cpp \
+  obj/src/tunitas/keyston/prg/constants.cpp \
   $(tunitas_keyston_prg_generator_SUBSOURCES) \
   $(tunitas_keyston_prg_required_SUBSOURCES) \
   $(end)

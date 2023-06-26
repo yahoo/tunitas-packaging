@@ -18,7 +18,7 @@ namespace tunitas::keyston::vdaf::protocol::prio3::package_prio3 {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.measurement.Specimen
 namespace tunitas::keyston::vdaf::protocol::prio3::package_prio3 {
   namespace body::exported {
@@ -51,7 +51,7 @@ namespace tunitas::keyston::vdaf::protocol::prio3::package_prio3 {
     //
     //   See Definition.
     //
-    auto disassembly(Measurement<WHOLE> const &) -> Disassembled;
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &) -> Disassembled;
     auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
@@ -63,7 +63,7 @@ namespace tunitas::keyston::vdaf::protocol::prio3::package_prio3 {
 #divert <cpp>
 #import tunitas.keyston.exception.Unimplemented
 namespace tunitas::keyston::vdaf::protocol::prio3::package_prio3 {
-  auto interface::disassembly(Measurement<WHOLE> const &) -> Disassembled {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &) -> Disassembled {
     throw exception::Unimplemented{};
     return {};
   }

@@ -10,8 +10,6 @@
 namespace tunitas::keyston::prio {
   using nonstd::units::memory::scale::Bits;
   using nonstd::units::count::scale::Items;
+  namespace [[nodirectory]] traits { }
 }
-#import tunitas.keyston.measurement.Count
-#import tunitas.keyston.measurement.Result
-#import tunitas.keyston.measurement.Specimen
 #endiv

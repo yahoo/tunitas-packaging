@@ -6,13 +6,16 @@
 #
 tunitas_keyston_prio_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/namespace.cpp \
+  $(tunitas_keyston_prio_flp_SUBSOURCES) \
   $(tunitas_keyston_prio_required_SUBSOURCES) \
   obj/src/tunitas/keyston/prio/Name.cpp \
-  obj/src/tunitas/keyston/prio/Algorithm.template.cpp \
-  obj/src/tunitas/keyston/prio/Algorithm.COUNT.cpp \
-  obj/src/tunitas/keyston/prio/Algorithm.SUM.cpp \
-  obj/src/tunitas/keyston/prio/Algorithm.HISTOGRAM.cpp \
-  obj/src/tunitas/keyston/prio/Algorithm.cpp \
+  obj/src/tunitas/keyston/prio/Codec.template.cpp \
+  obj/src/tunitas/keyston/prio/Codec.COUNT.cpp \
+  obj/src/tunitas/keyston/prio/Codec.SUM.cpp \
+  obj/src/tunitas/keyston/prio/Codec.HISTOGRAM.cpp \
+  obj/src/tunitas/keyston/prio/Codec.cpp \
+  obj/src/tunitas/keyston/prio/Usage.cpp \
   $(end)
 #
+include src/tunitas/keyston/prio/flp/Makefrag.am
 include src/tunitas/keyston/prio/required/Makefrag.am

@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Name
+#import tunitas.keyston.prio.flp.validity.required.Validity // required::Definition
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // Make the codec interface available in a Validity<...> (which is a descendant)
+  //
+  // Specification:
+  //
+  //   Just what it says on the label
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   The name of this class is irrelevant; it's job is to provide member definitions to descendants
+  //
+  // Usage:
+  //
+  //   By inheritance into Validity<...>
+  //   e.g.
+  //
+  //   template<> class Validity<COUNT> : public Definition<COUNT>, public Lengths<Definition<COUNT>>, public Codeckie<COUNT, Definition<COUNT>> { ... more... };
+  //
+  template<Name, required::Definition> struct Codeckie;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.flp.validity.Interface
+namespace tunitas::keyston::prio::flp {
+  template<Name NAME, validity::required::Definition VALIDITY> class validity::Codeckie {
+    using Face = Interface<VALIDITY>;
+  protected:
+    ~Codeckie() = default;
+  public:
+    using Codec = prio::Codec<NAME>;
+    static constexpr auto encode(typename Face::Encodable able)                                 -> typename Face::Encoded   { return Codec::encode(able); }
+    static constexpr auto truncate(typename Face::Truncatable able)                             -> typename Face::Truncated { return Codec::truncate(able); }
+    static constexpr auto decode(typename Face::Decodable able, typename Face::Records records) -> typename Face::Decoded   { return decode(able, records); }
+  };
+}
+#endiv

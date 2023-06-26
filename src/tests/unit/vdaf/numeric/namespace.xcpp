@@ -6,7 +6,11 @@
 #divert <fpp>
 #import tests.unit.vdaf
 #import tunitas.keyston.vdaf.numeric
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.Scheme
 namespace tests::unit::vdaf::numeric {
   namespace library = ::tunitas::keyston::vdaf::numeric;
+  using ::tunitas::keyston::vdaf::Name;
+  using ::tunitas::keyston::Scheme;
 }
 #endiv

@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.required.Validity // for required::Definition
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The interface to Validity
+  //
+  // Specification:
+  //
+  //   There is one.  There is verbiage in the (draft) standard about the interface.
+  //   Find it.
+  //
+  // Design:
+  //
+  //   A template, accepting the partially-completed Definition<NAME>
+  //
+  // Usage:
+  //
+  //   It's a type aliass.  Use it widely and wisely.
+  //
+  template<required::Definition> struct Interface;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Field
+#import tunitas.keyston.prio.flp.dimension.cast
+#include <ipp/tunitas.keyston.prio.flp.dimension.cast>
+#import tunitas.keyston.array.Fixed
+#import tunitas.keyston.view.Fixed
+#import tunitas.keyston.measurement.Records
+namespace tunitas::keyston::prio::flp {
+  //
+  // Convenience definitions for the function obligations of the (descendant's) interface
+  // Requires the complete type of VALIDITY to operate.
+  //
+  template<validity::required::Definition VALIDITY> struct validity::Interface {
+    using Encodable = typename VALIDITY::Measurement;
+    using Encoded = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::INPUT_LENGTH).count()>;
+    //
+    using Truncatable = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::INPUT_LENGTH).count()>;
+    using Truncated = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::OUTPUT_LENGTH).count()>;
+    //
+    using Decodable = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::OUTPUT_LENGTH).count()>;
+    using Records = measurement::Records;
+    using Decoded = typename VALIDITY::Aggregation;
+    //
+    using Input = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::INPUT_LENGTH).count()>;
+    using Randomness = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::JOINT_RANDOMNESS_LENGTH).count()>;
+    using Circuited = typename VALIDITY::Field::Element;
+  };
+}
+#endiv

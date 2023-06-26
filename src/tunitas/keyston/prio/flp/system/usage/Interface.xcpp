@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.prio.flp.system.required.Interface
+#forward tunitas.keyston.prio.flp.system.Length
+#import nonstd.required.InstanceOf
+namespace tunitas::keyston::prio::flp::system::usage {
+  //
+  // Does this type have all the components of a Interface?
+  // This is diagnosable using the complete type of Interface<...>
+  //
+  template<typename TABLE> concept Interface = required::Interface<TABLE> && requires(TABLE) {
+    typename TABLE::Randomness;
+    typename TABLE::Randomness::Prove;
+    typename TABLE::Randomness::Query;
+    typename TABLE::Randomness::Joint;
+    //
+    typename TABLE::Message;
+    typename TABLE::Message::Input;
+    typename TABLE::Message::Output;
+    typename TABLE::Message::Proof;
+    //
+    requires required::InstanceOf<typename TABLE::Randomness::Prove, system::Length>;
+    requires required::InstanceOf<typename TABLE::Randomness::Query, system::Length>;
+    requires required::InstanceOf<typename TABLE::Randomness::Joint, system::Length>;
+    requires required::InstanceOf<typename TABLE::Message::Input, system::Length>;
+    requires required::InstanceOf<typename TABLE::Message::Output, system::Length>;
+    requires required::InstanceOf<typename TABLE::Message::Proof, system::Length>;
+    requires required::InstanceOf<typename TABLE::Message::Verifier, system::Length>;
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.Field
+#import tunitas.keyston.prio.flp.system.Interface
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::prio::flp::system::usage;
+    using tunitas::keyston::prio::flp::system::Interface;
+    using tunitas::keyston::prio::flp::system::interface::Randomness;
+    using tunitas::keyston::prio::flp::system::interface::Message;
+    using namespace tunitas::keyston::prio::flp::dimension;
+    using tunitas::keyston::Field;
+    //
+    static_assert(0 != sizeof(Interface<Field<64>, Randomness<Joint{}, Prove{}, Query{}>, Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>>));
+    static_assert(usage::Interface<Interface<Field<64>, Randomness<Joint{}, Prove{}, Query{}>, Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>>>);
+    static_assert(usage::Interface<Interface<Field<128>, Randomness<Joint{}, Prove{}, Query{}>, Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>>>);
+    static_assert(usage::Interface<Interface<Field<255>, Randomness<Joint{}, Prove{}, Query{}>, Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>>>);
+  }
+}
+#endiv

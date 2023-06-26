@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.dimension.randomness_size
+#include <ipp/tunitas.keyston.prio.flp.dimension.randomness_size>
+namespace tunitas::keyston::prio::flp::system::interface {
+  //
+  // The precursor of the randomness stanza
+  //
+  // Specification:
+  //
+  //   See system::interface::Interface (which is nearby)
+  //
+  // Design:
+  //
+  //   Obvious.
+  //   The some magic happens in the default arguments on the declaration.
+  //
+  // Usage:
+  //
+  //   declare as Interface<..., Randomness<...>, Message<...>>
+  //
+  template<Joint JOINT, Prove = randomness_size<Prove>(JOINT), Query = randomness_size<Query>(JOINT)> struct Randomness;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::prio::flp::system {
+  template<interface::Joint JOINT_VALUE, interface::Prove PROVE_VALUE, interface::Query QUERY_VALUE> struct interface::Randomness {
+    inline static constexpr auto const JOINT = JOINT_VALUE;
+    inline static constexpr auto const PROVE = PROVE_VALUE;
+    inline static constexpr auto const QUERY = QUERY_VALUE;
+  };
+}
+#endiv

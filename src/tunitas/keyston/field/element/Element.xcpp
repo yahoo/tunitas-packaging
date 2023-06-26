@@ -24,7 +24,7 @@ namespace tunitas::keyston::field::element {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.field.required.Element
-#import tunitas.keyston.field.traits.Field
+#import tunitas.keyston.field.is.Field
 #import nonstd.required.Enumeration
 #import nonstd.required.Class
 #import std.remove_cvref

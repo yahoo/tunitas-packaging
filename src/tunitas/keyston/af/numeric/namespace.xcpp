@@ -6,7 +6,12 @@
 #divert <fpp>
 #import tunitas.keyston.af
 #import tunitas.keyston.numeric
-namespace tunitas::keyston::af::numeric { using namespace tunitas::keyston::numeric; }
+namespace tunitas::keyston::af::numeric {
+  using namespace tunitas::keyston::numeric;
+  namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] is { }
+  namespace [[nodirectory]] indexed { }
+}
 // All the aggregation functions will need these
 #import tunitas.keyston.numeric.enbiggen
 #import tunitas.keyston.numeric.ensmallen

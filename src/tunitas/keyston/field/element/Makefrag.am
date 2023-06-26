@@ -10,12 +10,8 @@ tunitas_keyston_field_element_SUBSOURCES = \
   obj/src/tunitas/keyston/field/element/namespace.cpp \
   obj/src/tunitas/keyston/field/element/Element.cpp \
   obj/src/tunitas/keyston/field/element/Limits.cpp \
+  obj/src/tunitas/keyston/field/element/is.Element.cpp \
   obj/src/tunitas/keyston/field/element/traits.Element.cpp \
   obj/src/tunitas/keyston/field/element/operations.cpp \
-  obj/src/tunitas/keyston/field/element/powm.cpp \
   obj/src/tunitas/keyston/field/element/narrow.cpp \
-  \
-  obj/src/tunitas/keyston/field/element/traits.Is_Element.cpp \
-  obj/src/tunitas/keyston/field/element/traits.Field.cpp \
-  obj/src/tunitas/keyston/field/element/traits.Underlying.cpp \
   $(end)

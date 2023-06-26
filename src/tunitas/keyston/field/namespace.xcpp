@@ -8,5 +8,7 @@
 #import nonstd.units.memory.scale
 namespace tunitas::keyston::field {
   using nonstd::units::memory::scale::Bytes;
+  namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] is { }
 }
 #endiv

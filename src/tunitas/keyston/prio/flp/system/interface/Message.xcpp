@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio::flp::system::interface {
+  //
+  // The precursor of the message stanza
+  //
+  // Specification:
+  //
+  //   See system::interface::Interface (which is nearby)
+  //
+  // Design:
+  //
+  //   Obvious.
+  //
+  // Usage:
+  //
+  //   declare as Interface<..., Randomness<...>, Message<...>>
+  //
+  template<Input, Output, Proof, Verifier> struct Message;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::prio::flp::system {
+  template<interface::Input INPUT_VALUE, interface::Output OUTPUT_VALUE, interface::Proof PROOF_VALUE, interface::Verifier VERIFIER_VALUE> struct interface::Message {
+    inline static constexpr auto const INPUT = INPUT_VALUE;
+    inline static constexpr auto const OUTPUT = OUTPUT_VALUE;
+    inline static constexpr auto const PROOF = PROOF_VALUE;
+    inline static constexpr auto const VERIFIER = VERIFIER_VALUE;
+  };
+}
+#endiv

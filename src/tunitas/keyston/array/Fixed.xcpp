@@ -98,13 +98,13 @@ namespace tunitas::keyston {
     //
     using Index = Size;
 #if 202312 < __cplusplus
-    template<typename SELF> inline auto at(this SELF *, Index) -> nonstd::like_t<SELF, Value &>;
-    template<typename SELF> inline auto at(this SELF *, std::nothrow_t, Index) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline constexpr auto at(this SELF *, Index) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline constexpr auto at(this SELF *, std::nothrow_t, Index) -> nonstd::like_t<SELF, Value &>;
 #else
-    inline auto at(Index) const -> Value const &;
-    inline auto at(Index) -> Value &;
-    inline auto at(std::nothrow_t, Index) const -> Value const &;
-    inline auto at(std::nothrow_t, Index) -> Value &;
+    inline constexpr auto at(Index) const -> Value const &;
+    inline constexpr auto at(Index) -> Value &;
+    inline constexpr auto at(std::nothrow_t, Index) const -> Value const &;
+    inline constexpr auto at(std::nothrow_t, Index) -> Value &;
 #endif
   protected:
     // using Ancestor::operator[] is denied except to descendants (who are supposed to know what they are doing)
@@ -112,8 +112,8 @@ namespace tunitas::keyston {
   };
   namespace array {
     template<typename... TYPES> requires (required::Arrayable<std::common_type_t<TYPES...>> && 0 != sizeof...(TYPES)) Fixed(TYPES &&...) -> Fixed<std::common_type_t<TYPES...>, sizeof...(TYPES)>;
-    template<required::Arrayable TYPE, Size CAPACITY> inline auto subrange(Fixed<TYPE, CAPACITY> &)       -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY>>>;
-    template<required::Arrayable TYPE, Size CAPACITY> inline auto subrange(Fixed<TYPE, CAPACITY> const &) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>>;
+    template<required::Arrayable TYPE, Size CAPACITY> inline constexpr auto subrange(Fixed<TYPE, CAPACITY> &)       -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY>>>;
+    template<required::Arrayable TYPE, Size CAPACITY> inline constexpr auto subrange(Fixed<TYPE, CAPACITY> const &) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>>;
   }
 }
 #import nonstd.container.Traits.tunitas.keyston.array.Fixed.TYPE.CAPACITY
@@ -122,8 +122,8 @@ namespace tunitas::keyston {
 #import tunitas.keyston.exception.Bound
 #import nonstd.required.Class
 namespace tunitas::keyston {
-  template<array::required::Arrayable TYPE, Size CAPACITY> auto array::subrange(Fixed<TYPE, CAPACITY> &arr)       -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY>>>       { return {arr.begin(), arr.end()}; }
-  template<array::required::Arrayable TYPE, Size CAPACITY> auto array::subrange(Fixed<TYPE, CAPACITY> const &arr) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>> { return {arr.begin(), arr.end()}; }
+  template<array::required::Arrayable TYPE, Size CAPACITY> constexpr auto array::subrange(Fixed<TYPE, CAPACITY> &arr)       -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY>>>       { return {arr.begin(), arr.end()}; }
+  template<array::required::Arrayable TYPE, Size CAPACITY> constexpr auto array::subrange(Fixed<TYPE, CAPACITY> const &arr) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>> { return {arr.begin(), arr.end()}; }
   namespace array {
     template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::Fixed() {
       // the Class types have already been default-initialized
@@ -142,21 +142,21 @@ namespace tunitas::keyston {
     template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::operator Span<Value, CAPACITY>()             { return {Ancestor::data(), Ancestor::size()}; }
     template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::operator Span<Value const, CAPACITY>() const { return {Ancestor::data(), Ancestor::size()}; }
 #if 202312 < __cplusplus
-    template<required::Arrayable T, Size C> template<typename SELF> auto Fixed<T,C>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> try { return self[index]; }
-    template<required::Arrayable T, Size C> template<typename SELF> auto Fixed<T,C>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {
+    template<required::Arrayable T, Size C> template<typename SELF> constexpr auto Fixed<T,C>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> try { return self[index]; }
+    template<required::Arrayable T, Size C> template<typename SELF> constexpr auto Fixed<T,C>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {
       return self->at(index);
     } catch (std::out_of_range const &e) {
       throw exception::Bound{e};
     }
 #else
-    template<required::Arrayable T, Size C> auto Fixed<T,C>::at(std::nothrow_t, Index index) const -> Value const & { return operator[](index); }
-    template<required::Arrayable T, Size C> auto Fixed<T,C>::at(std::nothrow_t, Index index)       -> Value &       { return operator[](index); }
-    template<required::Arrayable T, Size C> auto Fixed<T,C>::at(Index index) const -> Value const & try {
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(std::nothrow_t, Index index) const -> Value const & { return operator[](index); }
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(std::nothrow_t, Index index)       -> Value &       { return operator[](index); }
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(Index index) const -> Value const & try {
       return Ancestor::at(index);
     } catch (std::out_of_range const &e) {
       throw exception::Bound{e.what()};
     }
-    template<required::Arrayable T, Size C> auto Fixed<T,C>::at(Index index) -> Value & try {
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(Index index) -> Value & try {
       return Ancestor::at(index);
     } catch (std::out_of_range const &e) {
       throw exception::Bound{e.what()};

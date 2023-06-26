@@ -46,7 +46,7 @@ namespace tunitas::keyston::af::numeric::count::package_count {
   auto interface::initialization(Parameters const &) -> Initialized { return {intermediate::Count{}}; }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &, Intermediate intermediate, Measurement const &) -> Computed {
-    auto treatment = Treatment{[](measurement::Count &lhs) { lhs += measurement::Count{1}; }};
+    auto treatment = Treatment{[](aggregation::Count &lhs) { lhs += aggregation::Count{1}; }};
     visit(treatment, intermediate);
     return move(intermediate);
   }

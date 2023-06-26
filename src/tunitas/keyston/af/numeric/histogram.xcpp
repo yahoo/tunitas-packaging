@@ -54,7 +54,7 @@ namespace tunitas::keyston::af::numeric::histogram::package_histogram {
   }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &parameters, Intermediate intermediate, Measurement const &measurement) -> Computed {
-    auto treatment = Treatment{[&parameters, &measurement](measurement::Histogram &lhs) -> void {
+    auto treatment = Treatment{[&parameters, &measurement](aggregation::Histogram &lhs) -> void {
       lhs += encode(measurement.value, parameters.boundaries.value());
     }};
     visit(treatment, intermediate);

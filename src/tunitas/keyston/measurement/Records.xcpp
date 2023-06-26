@@ -14,7 +14,7 @@ namespace tunitas::keyston::measurement {
   //   Rhymes with Size which is std::size_t
   //   But thas the units as "items"
   //
-  //   Distinct from measurement::Count which is a measured quantity.
+  //   Distinct from aggregation::Count which is a measured quantity.
   //
   // Design:
   //

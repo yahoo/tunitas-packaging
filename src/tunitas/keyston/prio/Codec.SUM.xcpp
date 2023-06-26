@@ -1,0 +1,74 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Codec.template
+namespace tunitas::keyston::prio {
+  //
+  // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prio3sum
+  // Section 7.4.2. Prio3Sum
+  //
+  template<> struct Codec<SUM>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Summation // for the payload
+namespace tunitas::keyston::prio {
+  template<> class Codec<SUM> {
+    inline static constexpr auto BITS = Bits{8*sizeof(std::uint64_t)};
+  public:
+    using Field = keyston::Field<128>;
+    inline static constexpr auto ENCODED_LENGTH = Items{BITS.count()};
+    using Measurement = measurement::Specimen; // range 0, 2^bits
+    using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
+    using Truncated = Field::Vector<1>::Value;
+    using Decoded = aggregation::Summation;
+    using Processed = measurement::Records; // ... the record count itself
+    using Result [[deprecated("instead use Codec<SUM>::Decoded")]] = Decoded;
+    inline static constexpr auto encode(Measurement) -> Encoded;
+    inline static constexpr auto truncate(Encoded) -> Truncated;
+    inline static constexpr auto decode(Truncated const &t, Processed) -> Decoded;
+  protected:
+    static_assert(ENCODED_LENGTH.count() <= 8*sizeof(Measurement));
+    using Bitwise = std::underlying_type_t<Measurement>;
+    static constexpr auto bit(size_t i) -> Bitwise { return Bitwise{1u} << i; }
+    static constexpr auto has_bit_at_index(Measurement m, size_t i) -> bool { return 0 != (bit(i) & underlying(m)); }
+  };
+}
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value>));
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value>::Iterator));
+#endiv
+#divert <ipp>
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value const>));
+static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value const>::Iterator));
+#import tunitas.keyston.array.enumerate
+#import std.views.iota
+#import std.nothrow
+namespace tunitas::keyston::prio {
+  constexpr auto Codec<SUM>::encode(Measurement measurement) -> Encoded {
+    auto encoded = Encoded{};
+    for (auto i : std::views::iota(0u, ENCODED_LENGTH.count())) {
+      if (has_bit_at_index(measurement, i)) {
+        encoded.at(i) = Field::Value{1};
+      }
+    }
+    return encoded;
+  }
+  constexpr auto Codec<SUM>::truncate(Encoded enc) -> Truncated {
+    auto accumulator = Field::Value{};
+    constexpr auto two = Field::Value{2};
+    for (auto [ith, bit] : enumerate(enc)) {
+      accumulator += bit * pow(two, ith);
+    }
+    return accumulator;
+  }
+  constexpr auto Codec<SUM>::decode(Truncated const &t, Processed) -> Decoded {
+    // The narrowing cast is safe when decode(...) is preceded by truncate(...) 
+    using Narrow = Decoded::Representation;
+    auto narrow = static_cast<Narrow>(t.at(0));
+    return Decoded{narrow};
+  }
+}
+#endiv

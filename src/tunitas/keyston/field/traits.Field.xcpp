@@ -23,26 +23,25 @@ namespace tunitas::keyston::field::traits {
 }
 #endiv
 #divert <hpp>
-#import std.false_type
-#import std.true_type
+#import tunitas.keyston.field.is.Field
 #import tunitas.keyston.field.element.Element
 #import tunitas.keyston.field.element.traits.Element
 namespace tunitas::keyston::field {
-  template<typename TYPE> struct traits::Field : public std::false_type { };
+  template<typename TYPE> struct traits::Field : public is::Field<TYPE> { };
   namespace traits {
-    template<> struct Field<field::Definition<64>> : public std::true_type {
+    template<> struct Field<field::Definition<64>> : public is::Field<field::Definition<64>> {
       using Value = field::Definition<64>;
       using Element = element::Element<64>;
       using Underlying = element::traits::Element<Element>::Underlying;
       using Temporary = element::traits::Element<Element>::Temporary;
     };
-    template<> struct Field<field::Definition<128>> : public std::true_type {
+    template<> struct Field<field::Definition<128>> : public is::Field<field::Definition<128>> {
       using Value = field::Definition<128>;
       using Element = element::Element<128>;
       using Underlying = element::traits::Element<Element>::Underlying;
       using Temporary = element::traits::Element<Element>::Temporary;
     };
-    template<> struct Field<field::Definition<255>> : public std::true_type {
+    template<> struct Field<field::Definition<255>> : public is::Field<field::Definition<255>> {
       using Value = field::Definition<255>;
       using Element = element::Element<255>;
       using Underlying = element::traits::Element<Element>::Underlying;

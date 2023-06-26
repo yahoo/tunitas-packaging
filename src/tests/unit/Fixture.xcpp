@@ -13,12 +13,14 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
+#import tests.unit.aggregation.Fixture
 #import tests.unit.array.Fixture
 #import tests.unit.crypto.Fixture
 #import tests.unit.entropy.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
 #import tests.unit.field.Fixture
+#import tests.unit.flp.Fixture
 #import tests.unit.fmt.Fixture
 #import tests.unit.histogram.Fixture
 #import tests.unit.hpke.Fixture
@@ -34,7 +36,6 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.prg.Fixture
 #import tests.unit.prio.Fixture
 #import tests.unit.protocol.Fixture
-#import tests.unit.proof.Fixture
 #import tests.unit.quantity.Fixture
 #import tests.unit.transport.Fixture
 #import tests.unit.time.Fixture
@@ -49,13 +50,14 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.want.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
-  series << add("something", &Fixture::test_something)
+  series << add<aggregation::Fixture>()
          << add<array::Fixture>()
          << add<crypto::Fixture>()
          << add<entropy::Fixture>()
          << add<error::Fixture>()
          << add<exception::Fixture>()
          << add<field::Fixture>()
+         << add<flp::Fixture>()
          << add<fmt::Fixture>()
          << add<histogram::Fixture>()
          << add<hpke::Fixture>()
@@ -71,7 +73,6 @@ auto tests::unit::Fixture::suite() -> Suite {
          << add<prg::Fixture>()
          << add<prio::Fixture>()
          << add<protocol::Fixture>()
-         << add<proof::Fixture>()
          << add<quantity::Fixture>()
          << add<time::Fixture>()
          << add<transport::Fixture>()
@@ -87,10 +88,5 @@ auto tests::unit::Fixture::suite() -> Suite {
          << add<want::Fixture>()
          << END;
   return settle(series);
-}
-namespace tests::unit {
-  auto Fixture::test_something() -> void {
-    require(ASSERTION, true);
-  }
 }
 #endiv

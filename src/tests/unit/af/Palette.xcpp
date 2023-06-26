@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.af.Name
 #include <hpp/tunitas.keyston.af.Name>
 #import tunitas.keyston.af.numeric.Parameters
@@ -16,7 +16,7 @@ namespace tests::unit::af {
   // Hack the Spew
   //
   namespace [[eponymous]] palette {
-    using ::tunitas::keyston::measurement::Count;
+    using ::tunitas::keyston::aggregation::Count;
     using library::Constant;
     using library::DAF;
     template<library::Name> struct Palette;
@@ -64,9 +64,9 @@ namespace tests::unit::af::palette {
 #divert <cpp>
 #import nonstd.runtime_assert
 #import tunitas.keyston.histogram.Boundaries
-#import tunitas.keyston.measurement.Histogram
+#import tunitas.keyston.aggregation.Histogram
 #import tunitas.keyston.popularity.Prefixes
-#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.aggregation.Popularity
 #import std.views.iota
 namespace tests::unit::af::palette {
   auto Palette<Constant<DAF::HISTOGRAM>>::generate_parameters() -> Parameters {
@@ -84,7 +84,7 @@ namespace tests::unit::af::palette {
     return ret;
   }
   auto Palette<Constant<DAF::HISTOGRAM>>::generate_intermediate() -> Intermediate {
-    return ::tunitas::keyston::measurement::Histogram{};
+    return ::tunitas::keyston::aggregation::Histogram{};
   }
   auto Palette<Constant<DAF::POPULARITY>>::generate_parameters() -> Parameters {
     auto ret = Parameters{};
@@ -99,9 +99,9 @@ namespace tests::unit::af::palette {
     return ret;
   }
   auto Palette<Constant<DAF::POPULARITY>>::generate_intermediate() -> Intermediate {
-    auto ret = ::tunitas::keyston::measurement::Population{};
+    auto ret = ::tunitas::keyston::aggregation::Popularity{};
     {
-      // [[FIXTHIS]] because Population does not expose Population::resize(...)
+      // [[FIXTHIS]] because Popularity does not expose Popularity::resize(...)
       for (auto const howmany = generate_parameters().prefixes.value().size(); auto ith : std::views::iota(0u, howmany)) {
         require(ASSERTION, sizeof(ith)); // shutup the unused variable warning
         ret.push_back({});

@@ -35,11 +35,11 @@ namespace tunitas::keyston::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.exception.Variant
-#import tunitas.keyston.numeric.traits.Result
+#import tunitas.keyston.numeric.returned.Result
 namespace tunitas::keyston {
   template<numeric::required::Treatment TREATMENT> struct tunitas::keyston::numeric::Treatment : public TREATMENT {
     using TREATMENT::operator();
-    template<typename TYPE> auto operator()(TYPE const &) const -> typename traits::Result<decltype(&TREATMENT::operator())>::Type { throw exception::Variant{}; }
+    template<typename TYPE> auto operator()(TYPE const &) const -> typename returned::Result<decltype(&TREATMENT::operator())>::Type { throw exception::Variant{}; }
   };
 }
 #endiv

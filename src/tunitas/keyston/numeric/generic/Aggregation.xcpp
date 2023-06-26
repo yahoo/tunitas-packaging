@@ -4,10 +4,11 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.measurement.Count
-#import tunitas.keyston.measurement.Simple
-#import tunitas.keyston.measurement.Histogram
-#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.aggregation.Simple
+#import tunitas.keyston.aggregation.Summation
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.aggregation.Popularity
 namespace tunitas::keyston::numeric::generic {
   //
   // The final aggregation
@@ -26,36 +27,46 @@ namespace tunitas::keyston::numeric::generic {
   //
   //   As one does.
   //
-  namespace [[eponymous]] aggregation {
-    using Count = measurement::Count;
-    using Sum = measurement::Simple;
-    using measurement::Histogram;
-    using measurement::Population;
+  // [[WATCHOUT]] avoid the namespace name 'aggregation' here as that causes ambiguities with the nearby namespace keyston::aggregation
+  namespace [[eponymous]] eponymous_aggregation {
+    using aggregation::Count;
+    using Sum = aggregation::Summation;
+    using aggregation::Simple;
+    using aggregation::Histogram;
+    using aggregation::Popularity;
     struct Aggregation;
   }
-  using aggregation::Aggregation;
+  using eponymous_aggregation::Aggregation;
 }
 #endiv
 #divert <hpp>
-#import std.variant
+#import tunitas.Variant
+#import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston::numeric::generic {
-  namespace aggregation {
-    using Variant = std::variant<Count, Sum, Histogram, Population>;
+  namespace eponymous_aggregation {
+    using Variant = tunitas::Variant<Count, Sum, Histogram, Popularity>;
     using std::move;
+    inline auto format(Aggregation const &) -> formatter::Formatter<Aggregation, Aggregation const &>;
   }
-  struct aggregation::Aggregation : public Variant {
+  struct eponymous_aggregation::Aggregation : public Variant {
     using Ancestor = Variant;
   protected:
     ~Aggregation() = default;
   public:
     Aggregation() = default;
     using Ancestor::variant; // yep, you "just have to know" that the constructor name is 'variant' therein
-    using Count = aggregation::Count;
-    using Sum = aggregation::Sum;
-    using Histogram = aggregation::Histogram;
-    using Population = aggregation::Population;
+    using Count = eponymous_aggregation::Count;
+    using Sum = eponymous_aggregation::Sum;
+    using Histogram = eponymous_aggregation::Histogram;
+    using Popularity = eponymous_aggregation::Popularity;
   };
 };
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::numeric::generic {
+  auto eponymous_aggregation::format(Aggregation const &item) -> formatter::Formatter<Aggregation, Aggregation const &> { return {item}; }
+}
+#import tunitas.keyston.formatter.io
 #endiv
 #divert <cpp>
 namespace {

@@ -4,9 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::keyston::vdaf {
+namespace tunitas::keyston::prio {
   //
-  // The usage constants.
+  // The prio usage constants.
   //
   // Specification:
   //
@@ -16,13 +16,21 @@ namespace tunitas::keyston::vdaf {
   //
   // Design:
   //
-  //   Using the Best Available Means and Methods! (UBAMM!)
+  //   Just what you see.
   //
   // Usage:
   //
-  //   Yes.
+  //   You've used an enum (class) before, haven't you?
   //
-  using enum Transport;
+  enum class Usage : unsigned {
+    MEASUREMENT_SHARE = 1,
+    PROOF_SHARE = 2,
+    JOINT_RANDOMNESS = 3,
+    PROVE_RANDOMNESS = 4,
+    QUERY_RANDOMNESS = 5,
+    JOINT_RANDOMNESS_SEED = 6,
+    JOINT_RANDOMNESS_PARTICIPLE = 7,
+    JOINT_RANDOMNESS_PART = JOINT_RANDOMNESS_PARTICIPLE,
+  };
 }
-#import tunitas.keyston.Slice
 #endiv

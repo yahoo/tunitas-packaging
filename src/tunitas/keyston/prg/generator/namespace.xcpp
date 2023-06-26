@@ -5,6 +5,5 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.prg.generator
-#import tunitas.keyston.prg.required
-namespace tunitas::keyston::prg::generator::required { using namespace tunitas::keyston::prg::required; }
+namespace tunitas::keyston::prg::generator { }
 #endiv

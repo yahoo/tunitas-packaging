@@ -34,12 +34,13 @@ namespace tunitas::keyston::prg::generator {
 #import tunitas.keyston.octets.View
 #forward tunitas.keyston.crypto.Algorithm
 #import tunitas.keyston.crypto.algorithm.Algorithm.cSHAKE
+#import tunitas.keyston.prg.constants
 struct tunitas::keyston::prg::generator::Prototype {
 protected:
   using View = octets::View;
   using Octets = octets::Variable;
 public:
-  inline static constexpr auto const SEED_SIZE = Bytes{16};
+  inline static constexpr auto const SEED_SIZE = constants::SEED_SIZE;
   using Seed = octets::Fixed<SEED_SIZE.count()>;
   struct Custom {
     using View = Prototype::View;

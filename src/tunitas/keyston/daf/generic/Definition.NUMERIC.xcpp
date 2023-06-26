@@ -15,7 +15,7 @@ namespace tunitas::keyston::daf::generic {
 #divert <cpp>
 #import tunitas.keyston.daf.exception.Invalid
 #import tunitas.keyston.daf.exception.Unimplemented
-#import tunitas.keyston.daf.numeric.Algorithm
+#import tunitas.keyston.daf.numeric.Function
 #import tunitas.keyston.daf.numeric.zero
 #import tunitas.keyston.daf.numeric.constant
 #if 0 // [[REMOVETHESE]]
@@ -27,8 +27,9 @@ namespace tunitas::keyston::daf::generic {
 namespace tunitas::keyston::daf::generic {
   template<> Definition<daf::Configuration<NUMERIC>>::Definition(Name name) {
 #if 0
-    using daf::numeric;:Algorithm;
+    using daf::numeric;:Function;
     using enum daf::Name;
+    constexpr auto const INVENTORY = Tuple{Function<ADHOC, ZERO>{}, Function<ADHOC, CONSTANT>{}, Function<PRIO, COUNT>{}, Function<PRIO, SUM>{}, Function<PRIO, HISTOGRAM>{}, Function<POPLAR, POPULARITY>{}};
     auto match = [given=name]<typename ALGORITHM>(auto each, ALGORITHM) -> bool {
       if (each != given) {
         return false;
@@ -41,13 +42,13 @@ namespace tunitas::keyston::daf::generic {
       }
     };
     return [this]<auto... ALGO>(Tuple<decltype(ALGO)...>) {
-      if (! (match(algorithm::traits::Algorithm<ALGO>::NAME, ALGO) || ... ) ) {
+      if (! (match(algorithm::traits::Function<ALGO>::NAME, ALGO) || ... ) ) {
         throw exception::Invalid{"daf name"};
       }
-    }(Tuple{Algorithm<ADHOC, ZERO>{}, Algorithm<ADHOC, CONSTANT>{}, Algorithm<PRIO, COUNT>{}, Algorithm<PRIO, SUM>{}, Algorithm<PRIO, HISTOGRAM>{}, Algorithm<POPLAR, POPULARITY>{}});
+    }(INVENTORY);
 #else
     switch (name) {
-      using daf::numeric::Algorithm;
+      using daf::numeric::Function;
       using enum Scheme;
       using enum Name;
     case ZERO:
@@ -63,28 +64,28 @@ namespace tunitas::keyston::daf::generic {
       reassembly = numeric::constant::reassembly;
       break;
     case COUNT:
-      disassembly = Algorithm<PRIO, COUNT>::disassembly;
-      computation = Algorithm<PRIO, COUNT>::computation;
-      amalgamation = Algorithm<PRIO, COUNT>::amalgamation;
-      reassembly = Algorithm<PRIO, COUNT>::reassembly;
+      disassembly = Function<PRIO, COUNT>::disassembly;
+      computation = Function<PRIO, COUNT>::computation;
+      amalgamation = Function<PRIO, COUNT>::amalgamation;
+      reassembly = Function<PRIO, COUNT>::reassembly;
       break;
     case SUM:
-      disassembly = Algorithm<PRIO, SUM>::disassembly;
-      computation = Algorithm<PRIO, SUM>::computation;
-      amalgamation = Algorithm<PRIO, SUM>::amalgamation;
-      reassembly = Algorithm<PRIO, SUM>::reassembly;
+      disassembly = Function<PRIO, SUM>::disassembly;
+      computation = Function<PRIO, SUM>::computation;
+      amalgamation = Function<PRIO, SUM>::amalgamation;
+      reassembly = Function<PRIO, SUM>::reassembly;
       break;
     case HISTOGRAM:
-      disassembly = Algorithm<PRIO, HISTOGRAM>::disassembly;
-      computation = Algorithm<PRIO, HISTOGRAM>::computation;
-      amalgamation = Algorithm<PRIO, HISTOGRAM>::amalgamation;
-      reassembly = Algorithm<PRIO, HISTOGRAM>::reassembly;
+      disassembly = Function<PRIO, HISTOGRAM>::disassembly;
+      computation = Function<PRIO, HISTOGRAM>::computation;
+      amalgamation = Function<PRIO, HISTOGRAM>::amalgamation;
+      reassembly = Function<PRIO, HISTOGRAM>::reassembly;
       break;
     case POPULARITY:
-      disassembly = Algorithm<POPLAR, POPULARITY>::disassembly;
-      computation = Algorithm<POPLAR, POPULARITY>::computation;
-      amalgamation = Algorithm<POPLAR, POPULARITY>::amalgamation;
-      reassembly = Algorithm<POPLAR, POPULARITY>::reassembly;
+      disassembly = Function<POPLAR, POPULARITY>::disassembly;
+      computation = Function<POPLAR, POPULARITY>::computation;
+      amalgamation = Function<POPLAR, POPULARITY>::amalgamation;
+      reassembly = Function<POPLAR, POPULARITY>::reassembly;
       break;
     default:
       throw exception::Invalid{"daf name"};

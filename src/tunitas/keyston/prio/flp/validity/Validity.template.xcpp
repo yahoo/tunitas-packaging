@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The validity bundle for PRIO
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //   Section 7.3.2. Validity Circuits
+  //   Section 7.3.3. Construction
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //   The template parameters are for uniqueness.
+  //   Generic corresponds to FlpGeneric of Section 7.3.3
+  //
+  // Usage:
+  //
+  //   Hack the Spew.
+  //
+  template<Name> struct Definition;
+  template<Name> struct Validity;
+}
+#endiv
+#divert <hpp>
+// All specializations will need this (these)
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.flp.validity.Prototype
+#import tunitas.keyston.prio.flp.validity.Interface
+#import tunitas.keyston.prio.flp.validity.Codeckie
+#import tunitas.keyston.prio.flp.validity.Lengths
+#import tunitas.keyston.prio.flp.validity.usage.Validity
+// The definition of calls(...) is needed to compute the CALLS in the declaration
+#import tunitas.keyston.prio.flp.gadget.calls
+#include <ipp/tunitas.keyston.prio.flp.gadget.calls>
+#endiv

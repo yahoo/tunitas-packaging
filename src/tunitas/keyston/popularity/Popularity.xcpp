@@ -1,0 +1,96 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::popularity {
+  //
+  // A population (of counrs) of the results relative to the prefixes (stored separately)
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  // Design:
+  //
+  //   A new type so that ADL will find the associated operators.
+  // 
+  // Usage:
+  //
+  //   auto population = Popularity{}; .................... list initialization
+  //   auto population = Popularity{1,2,3}; ............... list initialization
+  //   auto population = Popularity(3, {}); ............... note the use of the parenthesis for the constructor call (not list initialization)
+  //
+  struct Popularity;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.array.Variable
+#import tunitas.keyston.formatter.Formatter
+namespace tunitas::keyston {
+  namespace popularity {
+    using std::move;
+    // swap(...) from the ancestor is fine
+    inline auto format(Popularity const &) -> formatter::Formatter<Popularity, Popularity const &>;
+    inline auto operator==(Popularity const &, Popularity const &) -> bool;
+    inline auto operator!=(Popularity const &, Popularity const &) -> bool;
+    inline auto operator+(Popularity &&, Popularity &&) -> Popularity;
+    inline auto operator+(Popularity &&, Popularity const &) -> Popularity;
+    inline auto operator+(Popularity const &, Popularity &&) -> Popularity;
+    inline auto operator+(Popularity const &, Popularity const &) -> Popularity;
+  }
+  class popularity::Popularity : public array::Variable<aggregation::Count> {
+    using Ancestor = array::Variable<aggregation::Count>;
+  public:
+    Popularity() = default;
+    explicit Popularity(Size s, Value v) : Ancestor{s, v} { }
+    using Ancestor::Variable;
+    using Ancestor::operator=;
+    inline auto operator+=(Popularity const &) -> Popularity &;
+  };
+}
+#import nonstd.container.Traits.tunitas.keyston.popularity.Popularity
+#endiv
+#divert <ipp>
+#import tunitas.keyston.exception.Length
+#import tunitas.keyston.array.enumerate
+#import std.equal
+#import std.mismatch
+namespace tunitas::keyston {
+  auto popularity::format(Popularity const &item) -> formatter::Formatter<Popularity, Popularity const  &> { return {item}; }
+  auto popularity::operator==(Popularity const &a, Popularity const &b) -> bool { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
+  auto popularity::operator!=(Popularity const &a, Popularity const &b) -> bool {
+    auto const a_end = a.end();
+    auto const b_end = b.end();
+    auto const [a_found, b_found] = std::mismatch(a.begin(), a_end, b.begin(), b_end);
+    return a_found != a_end || b_found != b_end;
+  }
+  auto popularity::operator+(Popularity &&a, Popularity &&b) -> Popularity      { return move(a += b); }
+  auto popularity::operator+(Popularity &&a, Popularity const &b) -> Popularity { return move(a += b); }
+  auto popularity::operator+(Popularity const &a, Popularity &&b) -> Popularity { return move(b += a); }
+  auto popularity::operator+(Popularity const &a, Popularity const &b) -> Popularity {
+    auto c{a};
+    c += b;
+    return c;
+  }
+  auto popularity::Popularity::operator+=(Popularity const &other) -> Popularity & {
+    if (this->size() != other.size()) {
+      throw exception::Length{"size mismatch"};
+    }
+    for (auto [index, location] : enumerate(*this)) {
+#if 1
+      // [[FIXTHIS]] nonstd::units::count::Unit<> should admit to operator+ (one can add and subtract counts)
+      location = Value{location.count() + other.at(index).count()};
+#else
+      location = location + other.at(index);
+#endif
+    }
+    return *this;
+  }
+}
+#import tunitas.keyston.formatter.io // to activate format(...)
+#endiv

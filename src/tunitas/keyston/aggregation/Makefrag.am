@@ -1,0 +1,22 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_aggregation_SUBSOURCES = \
+  obj/src/tunitas/keyston/aggregation/namespace.cpp \
+  obj/src/tunitas/keyston/aggregation/Count.cpp \
+  obj/src/tunitas/keyston/aggregation/Simple.cpp \
+  obj/src/tunitas/keyston/aggregation/Summation.cpp \
+  obj/src/tunitas/keyston/aggregation/Histogram.cpp \
+  obj/src/tunitas/keyston/aggregation/Popularity.cpp \
+  \
+  obj/src/tunitas/keyston/aggregation/Limits.template.cpp \
+  obj/src/tunitas/keyston/aggregation/Limits.Count.cpp \
+  obj/src/tunitas/keyston/aggregation/Limits.Simple.cpp \
+  obj/src/tunitas/keyston/aggregation/Limits.Summation.cpp \
+  obj/src/tunitas/keyston/aggregation/Limits.Histogram.cpp \
+  obj/src/tunitas/keyston/aggregation/Limits.Popularity.cpp \
+  obj/src/tunitas/keyston/aggregation/Limits.cpp \
+  $(end)

@@ -30,14 +30,11 @@ namespace tunitas::keyston::field {
 #endiv
 #divert <hpp>
 namespace tunitas::keyston::field {
-  template<> struct Definition<128> {
+  template<> struct Definition<128> : public Access<traits::Field<Definition<128>>::Element> {
     using Element = traits::Field<Definition>::Element;
-    using Value = Element;
     using Underlying = traits::Field<Definition>::Underlying;
     using Temporary = traits::Field<Definition>::Temporary;
     template<Size CAPACITY> using Vector = vector::Definition<Definition, CAPACITY>;
-    using View = std::span<Value const>;
-    template<typename ELEMENT, auto EXTENT = std::dynamic_extent> requires required::Spanable<ELEMENT, Value> using Span = std::span<ELEMENT, EXTENT>;
     inline static constexpr Underlying const MODULUS = (Underlying{1} << 66) * 4611686018427387897 + 1;
     inline static constexpr auto const ENCODED_SIZE = Bytes{16u};
     static constexpr auto generator() -> Element; // dubious since Generator caches its result but gen() does not.

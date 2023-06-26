@@ -48,12 +48,12 @@ namespace tunitas::keyston::af::numeric::popularity::package_popularity::body {
 namespace tunitas::keyston::af::numeric::popularity::package_popularity {
   auto interface::initialization(Parameters const &parameters) -> Initialized {
     auto size = parameters.prefixes.value().size();
-    auto fill = intermediate::Population::Value{};
-    return intermediate::Population(size, fill);
+    auto fill = intermediate::Popularity::Value{};
+    return intermediate::Popularity(size, fill);
   }
   auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
   auto interface::computation(Parameters const &parameters, Intermediate intermediate, Measurement const &measurement) -> Computed {
-    auto treatment = Treatment{[&parameters, &measurement](measurement::Population &lhs) -> void {
+    auto treatment = Treatment{[&parameters, &measurement](aggregation::Popularity &lhs) -> void {
       lhs += encode(measurement.value, parameters.prefix_length.value(), parameters.prefixes.value());
     }};
     visit(treatment, intermediate);

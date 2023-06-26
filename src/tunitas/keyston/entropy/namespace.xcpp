@@ -15,5 +15,6 @@ namespace tunitas::keyston::entropy {
   using nonstd::units::memory::Bits;
   using nonstd::units::memory::Bytes;
   namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] is { }
 }
 #endiv

@@ -20,8 +20,7 @@
 #import tunitas.keyston.array.Series
 #import tunitas.keyston.field.Element
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Result
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.measurement.Records
 namespace tests::unit::daf::numeric {
   namespace library = ::tunitas::keyston::daf::numeric;
@@ -32,9 +31,8 @@ namespace tests::unit::daf::numeric {
   template<::tunitas::keyston::shards::required::Shardable TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
   template<::tunitas::keyston::array::required::Arrayable TYPE> using Series = ::tunitas::keyston::array::Series<TYPE>;
   using enum ::tunitas::keyston::Slice;
-  using ::tunitas::keyston::measurement::Result;
   using ::tunitas::keyston::measurement::Specimen;
-  using ::tunitas::keyston::measurement::Count;
+  using ::tunitas::keyston::aggregation::Count; // [[FIXTHIS]] why is this here and not also Summation, Histogram, Popularity?
   using ::tunitas::keyston::measurement::Records;
   namespace [[nodirectory]] defaults { }
   namespace [[nodirectory]] zero       { namespace library = ::tunitas::keyston::daf::numeric::zero; }

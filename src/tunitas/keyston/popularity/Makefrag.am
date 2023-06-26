@@ -7,7 +7,7 @@
 tunitas_keyston_popularity_SUBSOURCES = \
   obj/src/tunitas/keyston/popularity/namespace.cpp \
   obj/src/tunitas/keyston/popularity/Prefixes.cpp \
-  obj/src/tunitas/keyston/popularity/Population.cpp \
+  obj/src/tunitas/keyston/popularity/Popularity.cpp \
   obj/src/tunitas/keyston/popularity/encode.cpp \
   $(tunitas_keyston_popularity_required_SUBSOURCES) \
   $(end)

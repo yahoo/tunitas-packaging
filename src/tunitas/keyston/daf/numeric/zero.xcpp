@@ -12,12 +12,12 @@ namespace tunitas::keyston::daf::numeric::zero {
   using namespace package_zero::interface;
 }
 #import tunitas.keyston.daf.numeric.components
-#import tunitas.keyston.prio.Algorithm.COUNT
+#import tunitas.keyston.prio.Codec.COUNT
 namespace tunitas::keyston::daf::numeric::zero::package_zero {
   using namespace numeric::components;
   namespace body {
     struct ZERO;
-    using Algorithm = prio::Algorithm<prio::Name::COUNT>;
+    using Codec = prio::Codec<prio::Name::COUNT>;
   }
 }
 #endiv
@@ -25,9 +25,9 @@ namespace tunitas::keyston::daf::numeric::zero::package_zero {
 #include <ipp/tunitas.keyston.field.Vector> // so the initializers in ZERO will work
 namespace tunitas::keyston::daf::numeric::zero::package_zero::body {
   struct ZERO {
-    inline static constexpr auto const INPUT = Field<64>::Vector<Algorithm::INPUT_LENGTH.count()>::Value{}; // ..... in lieu of Algorithm<ZERO>::Field::Vector ... which doens't exist
-    inline static constexpr auto const OUTPUT = Field<64>::Vector<Algorithm::OUTPUT_LENGTH.count()>::Value{}; // ... eadem ratione
-    inline static constexpr auto const AGGREGATION = Field<64>::Vector<Algorithm::OUTPUT_LENGTH.count()>::Value{};
+    inline static constexpr auto const INPUT = Field<64>::Vector<Codec::INPUT_LENGTH.count()>::Value{}; // ..... in lieu of Codec<ZERO>::Field::Vector ... which doens't exist
+    inline static constexpr auto const OUTPUT = Field<64>::Vector<Codec::OUTPUT_LENGTH.count()>::Value{}; // ... eadem ratione
+    inline static constexpr auto const AGGREGATION = Field<64>::Vector<Codec::OUTPUT_LENGTH.count()>::Value{};
   };
   namespace exported {
     //
@@ -96,7 +96,7 @@ namespace tunitas::keyston::daf::numeric::zero::package_zero {
           if (ZERO::AGGREGATION != each) {
             throw exception::Invariant{"not zero"};
           } else {
-            return measurement::Count{underlying(each.at(0))}; // in lieu of Algorithm<ZERO>::decode(...) which does not exist
+            return keyston::aggregation::Count{underlying(each.at(0))}; // in lieu of Codec<ZERO>::decode(...) which does not exist
           }
         }};
       accumulator += visit(treatment, increment);

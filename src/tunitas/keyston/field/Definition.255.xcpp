@@ -23,14 +23,11 @@ namespace tunitas::keyston::field {
 #endiv
 #divert <hpp>
 namespace tunitas::keyston::field {
-  template<> struct Definition<255> {
+  template<> struct Definition<255> : public Access<traits::Field<Definition<255>>::Element> {
     using Element = traits::Field<Definition>::Element;
-    using Value = Element;
     using Underlying = traits::Field<Definition>::Underlying;
     using Temporary = traits::Field<Definition>::Temporary;
     template<Size CAPACITY> using Vector = vector::Definition<Definition, CAPACITY>;
-    using View = std::span<Value const>;
-    template<typename ELEMENT, auto EXTENT = std::dynamic_extent> requires required::Spanable<ELEMENT, Value> using Span = std::span<ELEMENT, EXTENT>;
     inline static constexpr Underlying const MODULUS = (Underlying{1} << 255) - 19;
     inline static constexpr auto const ENCODED_SIZE = Bytes{32u};
   };

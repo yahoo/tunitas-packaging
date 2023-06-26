@@ -16,36 +16,37 @@ namespace tunitas::keyston::vdaf::generic {
 #import tunitas.Tuple
 #import tunitas.keyston.vdaf.exception.Invalid
 #import tunitas.keyston.vdaf.exception.Unimplemented
-#import tunitas.keyston.vdaf.numeric.Algorithm
+#import tunitas.keyston.vdaf.numeric.Function
 #import tunitas.keyston.vdaf.numeric.zero
 #import tunitas.keyston.vdaf.numeric.constant
-#if 1 // [[REMOVETHESE]] when Algorithm is ready
+#if 1 // [[REMOVETHESE]] when Function is ready
 #import tunitas.keyston.vdaf.numeric.prio3
 #import tunitas.keyston.vdaf.numeric.poplar1
 #endif
 namespace tunitas::keyston::vdaf::generic {
   template<> Definition<vdaf::Configuration<NUMERIC>>::Definition(Name name) {
 #if 0
-    using daf::numeric;:Algorithm;
+    using daf::numeric;:Function;
     using enum daf::Name;
-    auto match = [given=name]<typename ALGORITHM>(auto each, ALGORITHM) -> bool {
+    constexpr auto const INVENTORY = Tuple{Function<ADHOC, ZERO>{}, Function<ADHOC, CONSTANT>{}, Function<PRIO, COUNT>{}, Function<PRIO, SUM>{}, Function<PRIO, HISTOGRAM>{}, Function<POPLAR, POPULARITY>{}};
+    auto match = [given=name]<typename FUNCTION>(auto each, FUNCTION) -> bool {
       if (each != given) {
         return false;
       } else {
-        disassembly = ALGORITHM::disassembly;
-        initialization = ALGORITHM::initialization;
-        continuation = ALGORITHM::continuation;
-        amalgamation = ALGORITHM::amalgamation;
-        disgorgement = ALGORITHM::disgorgement;
-        reassembly = ALGORITHM::reassembly;
+        disassembly = FUNCTION::disassembly;
+        initialization = FUNCTION::initialization;
+        continuation = FUNCTION::continuation;
+        amalgamation = FUNCTION::amalgamation;
+        disgorgement = FUNCTION::disgorgement;
+        reassembly = FUNCTION::reassembly;
         return true;
       }
     };
     return [this]<auto... ALGO>(Tuple<decltype(ALGO)...>) {
-      if (! (match(traits::Algorithm<ALGO>::NAME, ALGO) || ... ) ) {
+      if (! (match(traits::Function<ALGO>::NAME, ALGO) || ... ) ) {
         throw exception::Invalid{"daf name"};
       }
-    }(Tuple{Algorithm<ADHOC, ZERO>{}, Algorithm<ADHOC, CONSTANT>{}, Algorithm<PRIO, COUNT>{}, Algorithm<PRIO, SUM>{}, Algorithm<PRIO, HISTOGRAM>{}, Algorithm<POPLAR, POPULARITY>{}});
+    }(INVENTORY);
 #else
     switch (name) {
       using namespace vdaf::numeric;

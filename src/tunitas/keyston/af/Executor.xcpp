@@ -41,7 +41,7 @@ namespace tunitas::keyston::af {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.af.Definition
 #import tunitas.keyston.af.usage.Configuration
 namespace tunitas::keyston::af {

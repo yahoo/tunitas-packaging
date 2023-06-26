@@ -19,9 +19,9 @@ struct tests::unit::af::numeric::sum::Fixture : public rigging::suite::Fixture, 
   auto test_finalization() -> void;
 protected:
   struct Observed {
-    inline static constexpr auto ONE = Specimen{1};
-    inline static constexpr auto TWO = Specimen{2};
-    inline static constexpr auto THREE = Specimen{3};
+    inline static constexpr auto ONE = Inventory::Specimen{1};
+    inline static constexpr auto TWO = Inventory::Specimen{2};
+    inline static constexpr auto THREE = Inventory::Specimen{3};
   };
   struct Numeric {
     inline static constexpr auto ZERO = 0ll;
@@ -31,7 +31,7 @@ protected:
     inline static constexpr auto SIX = 6ll;
   };
   struct Derived {
-    inline static constexpr auto FIVE = Result{5};
+    inline static constexpr auto FIVE = Inventory::Summation{5};
   };
 };
 #endiv

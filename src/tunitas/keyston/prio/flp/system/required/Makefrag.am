@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_prio_flp_system_required_SUBSOURCES = \
+  obj/src/tunitas/keyston/prio/flp/system/required/namespace.cpp \
+  obj/src/tunitas/keyston/prio/flp/system/required/Field.cpp \
+  obj/src/tunitas/keyston/prio/flp/system/required/Interface.cpp \
+  obj/src/tunitas/keyston/prio/flp/system/required/System.cpp \
+  obj/src/tunitas/keyston/prio/flp/system/required/Validity.cpp \
+  obj/src/tunitas/keyston/prio/flp/system/required/interface.Randomness.cpp \
+  obj/src/tunitas/keyston/prio/flp/system/required/interface.Message.cpp \
+  $(end)

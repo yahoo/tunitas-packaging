@@ -11,7 +11,7 @@
 #include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Count{...}
 namespace tests::unit::daf::numeric::histogram {
   struct Fixture::Provided : public Palette {
-    using Ct = ::tunitas::keyston::measurement::Count;
+    using Ct = ::tunitas::keyston::aggregation::Count;
     using Sp = ::tunitas::keyston::measurement::Specimen;
     using El = ::tunitas::keyston::Field<128>::Element;
     struct Disassembly {

@@ -18,7 +18,7 @@ namespace tunitas::keyston::vdaf::protocol::zero::package_zero {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.measurement.Specimen
 namespace tunitas::keyston::vdaf::protocol::zero::package_zero {
   namespace body::exported {
@@ -51,7 +51,7 @@ namespace tunitas::keyston::vdaf::protocol::zero::package_zero {
     //
     //   See Definition.
     //
-    auto disassembly(Measurement<WHOLE> const &) -> Disassembled;
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &) -> Disassembled;
     auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
     auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
@@ -62,7 +62,7 @@ namespace tunitas::keyston::vdaf::protocol::zero::package_zero {
 #endiv
 #divert <cpp>
 namespace tunitas::keyston::vdaf::protocol::zero::package_zero {
-  auto interface::disassembly(Measurement<WHOLE> const &) -> Disassembled {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &) -> Disassembled {
     return {};
   }
   auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized {

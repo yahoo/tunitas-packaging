@@ -32,15 +32,15 @@ namespace tunitas::keyston::array::range::package_enumerate::body::exported {
   //     ...use them ...
   //   }
   //
-  template<required::Container CONTAINER> inline auto enumerate(CONTAINER &&) -> Range<std::remove_reference_t<CONTAINER>>;
-  template<required::Iterator ITERATOR> inline auto enumerate(ITERATOR start, ITERATOR finish) -> Range<Subrange<ITERATOR>>;
+  template<required::Container CONTAINER> inline constexpr auto enumerate(CONTAINER &&) -> Range<std::remove_reference_t<CONTAINER>>;
+  template<required::Iterator ITERATOR> inline constexpr auto enumerate(ITERATOR start, ITERATOR finish) -> Range<Subrange<ITERATOR>>;
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.array.range.package_enumerate.Range
 #import std.remove_reference
 namespace tunitas::keyston::array::range::package_enumerate {
-  template<range::required::Container CONTAINER> auto interface::enumerate(CONTAINER &&container)         -> Range<std::remove_reference_t<CONTAINER>> { return Range<std::remove_reference_t<CONTAINER>>{container.begin(), container.end()}; }
-  template<range::required::Iterator ITERATOR> auto interface::enumerate(ITERATOR start, ITERATOR finish) -> Range<Subrange<ITERATOR>> { return Range<Subrange<ITERATOR>>{start, finish}; }
+  template<range::required::Container CONTAINER> constexpr auto interface::enumerate(CONTAINER &&container)         -> Range<std::remove_reference_t<CONTAINER>> { return Range<std::remove_reference_t<CONTAINER>>{container.begin(), container.end()}; }
+  template<range::required::Iterator ITERATOR> constexpr auto interface::enumerate(ITERATOR start, ITERATOR finish) -> Range<Subrange<ITERATOR>> { return Range<Subrange<ITERATOR>>{start, finish}; }
 }
 #endiv

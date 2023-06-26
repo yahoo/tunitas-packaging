@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Population
+#import tunitas.keyston.aggregation.Popularity
 #import tunitas.keyston.popularity.Prefixes
 namespace tunitas::keyston::popularity {
   //
@@ -32,21 +32,21 @@ namespace tunitas::keyston::popularity {
   //   auto prefixes = popularity::Prefixes{...somehow...};
   //   auto encoded = popularity::encode(specimen, prefixes);
   //
-  inline auto encode(measurement::Specimen, Bits level, Prefixes const &) -> measurement::Population;
+  inline auto encode(measurement::Specimen, Bits level, Prefixes const &) -> aggregation::Popularity;
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.array.enumerate
 #import tunitas.keyston.exception.Invalid
 namespace tunitas::keyston {
-  auto popularity::encode(measurement::Specimen specimen, Bits level, Prefixes const &prefixes) -> measurement::Population {
+  auto popularity::encode(measurement::Specimen specimen, Bits level, Prefixes const &prefixes) -> aggregation::Popularity {
     if (8*sizeof(specimen) <= level.count()) { throw exception::Invalid{"too many bits"}; }
     auto const mask = (1llu<<level.count()) - 1;
     auto const subspecimen = mask & underlying(specimen);
-    auto encoded = measurement::Population(prefixes.size(), measurement::Count{});
+    auto encoded = aggregation::Popularity(prefixes.size(), aggregation::Count{});
     for (auto [index, prefix] : enumerate(prefixes)) {
       if (auto subprefix=mask & underlying(prefix); subspecimen == subprefix) {
-        encoded.at(index) = measurement::Count{1};
+        encoded.at(index) = aggregation::Count{1};
       }
     }
     return encoded;

@@ -1,0 +1,19 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.prio.flp.gadget.required.Calls
+#import tunitas.keyston.prio.flp.dimension
+namespace tunitas::keyston::prio::flp::gadget::usage {
+  //
+  // The rest of the conditions.
+  // Named "calls" as in "call count", "the number of calls"
+  //  
+  template<typename CALLS> concept Calls = required::Calls<CALLS> && requires(CALLS) {
+    typename CALLS::Value;
+    requires same_as<typename CALLS::Value, dimension::Items>;
+  };
+}
+#endiv

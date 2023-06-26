@@ -12,15 +12,15 @@ struct tests::unit::prio::Fixture : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
-#import tunitas.keyston.prio.Algorithm
-#import tests.unit.prio.Algorithm
+#import tunitas.keyston.prio.Codec
+#import tests.unit.prio.Codec
 auto tests::unit::prio::Fixture::suite() -> Suite {
   auto series = Stream{"prio"sv};
   series << []{
-             auto sys = Stream{"Algorithm"sv};
-             sys << add<Algorithm<library::Algorithm<COUNT>>>()
-                 << add<Algorithm<library::Algorithm<SUM>>>()
-                 << add<Algorithm<library::Algorithm<HISTOGRAM>>>()
+             auto sys = Stream{"Codec"sv};
+             sys << add<Codec<library::Codec<COUNT>>>()
+                 << add<Codec<library::Codec<SUM>>>()
+                 << add<Codec<library::Codec<HISTOGRAM>>>()
                  << END;
              return sys;
            }()

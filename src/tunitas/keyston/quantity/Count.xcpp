@@ -4,15 +4,14 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import nonstd.units.count.scale // Items (count of records, the counted samples, which is measurement::Count)
+#import nonstd.units.count.scale // Items
 namespace tunitas::keyston::quantity {
   //
   // The count of <something> (so that ADL will find it)
   //
-  // Specification:
+  // Semantic:
   //
-  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-  //   Section 4. Protocol Definition
+  //   The count of items, of records, of array elements; NOT the algorithm-aggregated count of measured specimens, which is aggregation::Count)
   //
   // Design:
   //

@@ -33,11 +33,11 @@ namespace tunitas::keyston::numeric {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.exception.Variant
-#import tunitas.keyston.numeric.traits.Result
+#import tunitas.keyston.numeric.returned.Result
 namespace tunitas::keyston {
   template<numeric::required::Augmentment AUGMENTMENT> struct tunitas::keyston::numeric::Augmentment : public AUGMENTMENT {
     using AUGMENTMENT::operator();
-    template<typename LHS, typename RHS> auto operator()(LHS, RHS) const -> typename traits::Result<decltype(&AUGMENTMENT::operator())>::Type { throw exception::Variant{}; }
+    template<typename LHS, typename RHS> auto operator()(LHS, RHS) const -> typename returned::Result<decltype(&AUGMENTMENT::operator())>::Type { throw exception::Variant{}; }
   };
 }
 #endiv

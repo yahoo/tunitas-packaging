@@ -12,7 +12,6 @@ namespace tunitas::keyston::daf::numeric::constant {
   using namespace package_constant::interface;
 }
 #import tunitas.keyston.daf.numeric.components
-#import tunitas.keyston.daf.numeric.Algorithm
 #import tunitas.keyston.field.Element
 namespace tunitas::keyston::daf::numeric::constant::package_constant {
   using namespace numeric::components;
@@ -56,7 +55,7 @@ namespace tunitas::keyston::daf::numeric::constant::package_constant::body {
 namespace tunitas::keyston::daf::numeric::constant::package_constant {
   auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
     auto publick = Public<SHARE>{};
-    auto encoded = Element{enbiggen(m.value)}; // in lieu of Algorithm<CONSTANT>::encode(...) - there being nosuch Algorithm<CONSTANT>
+    auto encoded = Element{enbiggen(m.value)}; // in lieu of Codec<CONSTANT>::encode(...) - there being nosuch Algorithm<CONSTANT>
     auto enwrapped = Input<SHARE>::Count{encoded};
     auto biggie = Input<SHARE>{move(enwrapped)};
     auto little = Input<SHARE>{}; // ............................................. zero goes here, that's the "split" algo, that's the tweet.
@@ -85,7 +84,9 @@ namespace tunitas::keyston::daf::numeric::constant::package_constant {
     if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }
     auto accumulate = [processed](Aggregation<WHOLE>::Count &&accumulator, Aggregation<SHARE> const &increment) -> Aggregation<WHOLE>::Count {
       // indeed, processed is never used in this variant of the algorithm
-      auto treatment = Treatment{[processed](Aggregation<SHARE>::Count const &each) -> Aggregation<WHOLE>::Count { return measurement::Count{underlying(each.at(0))}; }}; // in lieu of Algorithm<CONSTANT>::decode(...) which does not exist
+      auto treatment = Treatment{[processed](Aggregation<SHARE>::Count const &each) -> Aggregation<WHOLE>::Count {
+          return keyston::aggregation::Count{underlying(each.at(0))}; // in lieu of Codec<CONSTANT>::decode(...) which does not exist
+        }};
       if (auto each=visit(treatment, increment); each > accumulator) {
         accumulator = each; // max
       }

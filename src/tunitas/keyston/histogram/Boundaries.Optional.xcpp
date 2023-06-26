@@ -22,3 +22,6 @@ namespace tunitas::keyston::histogram {
   };
 }
 #endiv
+#divert <ipp>
+#import tunitas.keyston.histogram.Boundaries // shutup warnings about inline functions of histogram::Boundaries declared but never defined
+#endiv

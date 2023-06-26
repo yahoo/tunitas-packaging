@@ -59,7 +59,6 @@ auto tests::unit::af::numeric::Fixture::suite() -> Suite {
 #import tunitas.keyston.af.numeric.Measurement
 #import tunitas.keyston.af.numeric.Intermediate
 #import tunitas.keyston.af.numeric.Aggregation
-#import tunitas.keyston.af.numeric.format
 #import std.ostringstream
 namespace tests::unit::af::numeric {
   auto Fixture::test_usage_Measurement() -> void {
@@ -75,7 +74,7 @@ namespace tests::unit::af::numeric {
     require(ASSERTION, sizeof(subject));
     {
       auto buf = std::ostringstream{};
-      buf << library::format(subject); // <------------------------------ test this
+      buf << format(subject); // <------------------------------ test this
       auto str = buf.str();
       require(ASSERTION, !str.empty());
     }

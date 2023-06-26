@@ -45,7 +45,7 @@ namespace tunitas::keyston::daf::generic::configuration {
 #import tunitas.keyston.array.Series
 #import tunitas.keyston.daf.generic.Disassembled
 #import tunitas.keyston.daf.generic.configuration.usage.Core
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 namespace tunitas::keyston::daf::generic {
   template<configuration::required::Core CORE, typename UNIQUENESS> class configuration::Configuration : public CORE {
     static_assert(usage::Core<CORE>);

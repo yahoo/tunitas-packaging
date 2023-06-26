@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.entropy.traits.Entropy
-#include <hpp/tunitas.keyston.entropy.traits.Entropy>
+#import tunitas.keyston.entropy.is.Entropy
+#include <hpp/tunitas.keyston.entropy.is.Entropy>
 namespace tunitas::keyston::entropy::required {
   //
   // Is this type an entropy source?
@@ -19,7 +19,7 @@ namespace tunitas::keyston::entropy::required {
   //   
   //   template<required::Entropy> struct Something;
   //
-  template<typename ENTROPY> concept Entropy = traits::Entropy<ENTROPY>::value;
+  template<typename ENTROPY> concept Entropy = is::Entropy<ENTROPY>::value;
 }
 #endiv
 #divert <cpp>
