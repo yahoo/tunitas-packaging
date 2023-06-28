@@ -8,7 +8,7 @@ namespace tests::unit::histogram { class Boundaries; }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.histogram.Boundaries
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.error.by.required.Indicator
 #import tunitas.keyston.exception.Aspect
@@ -21,7 +21,7 @@ namespace tests::unit {
     auto test_constructor() -> void;
     template<error::by::required::Indicator> auto test_extend_good() -> void;
     template<error::by::required::Indicator> auto test_extend_fail() -> void;
-    using Variable = ::tunitas::keyston::array::Variable<::tunitas::keyston::measurement::Specimen>;
+    using Variable = ::tunitas::array::Variable<::tunitas::keyston::measurement::Specimen>;
   protected:
     using Failure = ::tunitas::keyston::exception::Aspect;
     enum class Generate { DEFAULT, GOOD, FAIL };

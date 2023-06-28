@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.array.required.Arrayable
+#import tunitas.array.md.required.Extents
+#import std.array
+#import std.size_t
+namespace tunitas::array::md {
+  //
+  // A multi-dimensional (fixed) array.
+  //
+  // Specification:
+  //
+  //   Obvious.  sic  No, it's not obvious, there's even a paper on proposing it for C++23 (C++26?).
+  //
+  //   https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1684r2.html
+  //   P1684R2 2022-03-21
+  //   Title: mdarray: An Owning Multidimensional Array Analog of mdspan
+  //   Authors: Christian Trott, Daisy Hollman, Mark Hoemmen, Daniel Sunderland, Damien Lebrun-Grandie
+  //
+  // Design:
+  //
+  //   https://github.com/kokkos/mdspan
+  //   From: Kokkos C++ Performance Portability Programming EcoSystem: The Programming Model - Parallel Execution and Memory Abstraction
+  //
+  // Usage:
+  //
+  //   As one does.
+  //   As you would a (multi-dimensional) array.
+  //
+  namespace [[eponymous]] fixed {
+    // Is there no available rendition of this idiom already in the corpus?
+    template<typename EXTENTS> inline constexpr auto multiply() -> std::size_t {
+      return []<typename INDEX, std::size_t... DIMENSION>(std::extents<INDEX, DIMENSION...> *) -> std::size_t {
+        return (1lu * ... * DIMENSION);
+      }(static_cast<EXTENTS *>(nullptr));
+    }
+    template<required::Arrayable TYPE, required::Extents EXTENTS>
+    requires (0 == EXTENTS::rank_dynamic())
+    using Fixed = std::experimental::mdarray<TYPE, EXTENTS, std::layout_right, std::array<TYPE, multiply<EXTENTS>()>>;
+  }
+  using fixed::Fixed;
+}
+#endiv

@@ -6,6 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.prio.flp.validity.required.Validity
 #import tunitas.keyston.prio.flp.dimension
+#import tunitas.keyston.prio.flp.gadget
 namespace tunitas::keyston::prio::flp::validity {
   //
   // The lengths of each validity (circuit)
@@ -35,6 +36,7 @@ namespace tunitas::keyston::prio::flp::validity {
   //   template<> class Validity<COUNT> : public Definition<COUNT>, public Lengths<Definition<COUNT>> { ...body... };
   //
   namespace [[eponymous]] lengths {
+    using namespace gadget;
     using namespace dimension;
     template<required::Definition> struct Lengths;
   }
@@ -42,10 +44,11 @@ namespace tunitas::keyston::prio::flp::validity {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.prio.flp.validity.Access
 namespace tunitas::keyston::prio::flp::validity {
   template<required::Definition VALIDITY> class lengths::Lengths {
-    using Self = VALIDITY;
-    struct Access;
+    using Self = VALIDITY; // can't use 'Validity' because descendants would see that (and it becomes ambiguous)
+    using Access = validity::Access<Self>;
   protected:
     ~Lengths() = default;
   public:
@@ -58,7 +61,7 @@ namespace tunitas::keyston::prio::flp::validity {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.prio.flp.validity.Lengths.Access
+#import tunitas.keyston.prio.flp.validity.Access
 #import std.bit_ceil
 namespace tunitas::keyston::prio::flp::validity::lengths {
   template<required::Definition _> constexpr auto Lengths<_>::joint_randomness_length() -> Joint { return Self::JOINT_RANDOMNESS_LENGTH; }

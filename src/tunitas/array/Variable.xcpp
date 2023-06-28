@@ -1,0 +1,115 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.array.required.Arrayable
+namespace tunitas::array {
+  //
+  // A variable-length series.
+  //
+  // Specification:
+  //
+  //   Obvious.
+  //
+  // Design:
+  //
+  //   Unlimited length, thus variable length
+  //   discontiguous storage; hence no data() member function
+  //   https://en.cppreference.com/w/cpp/container/vector
+  //
+  // Usage:
+  //
+  //   As you would a vector; with the reduced interface.
+  //
+  template<required::Arrayable TYPE> struct Variable;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Container
+#import std.vector
+namespace tunitas {
+  namespace array {
+    using std::move;
+    template<required::Arrayable TYPE> inline auto swap(Variable<TYPE> &, Variable<TYPE> &) noexcept -> void;
+  }
+  template<array::required::Arrayable TYPE> class array::Variable : public Container<std::vector<TYPE>> {
+    using Ancestor = Container<std::vector<TYPE>>;
+    friend auto array::swap<>(Variable &, Variable &) noexcept -> void;
+  public:
+    [[implicit]] Variable() = default;
+    using Ancestor::Container; // constructors for Container<...> are inherited from its ancestor (maybe)
+    inline [[implicit]] Variable(Ancestor const &);
+    inline [[implicit]] Variable(Ancestor &&);
+    //
+    using Ancestor::data;
+    using Ancestor::resize;
+    using Ancestor::reserve;
+  };
+}
+#import nonstd.container.Traits.tunitas.array.Variable.TYPE
+#endiv
+#divert <ipp>
+namespace tunitas {
+  template<array::required::Arrayable TYPE> auto array::swap(Variable<TYPE> &a, Variable<TYPE> &b) noexcept -> void {
+    typename Variable<TYPE>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace array {
+    template<required::Arrayable _> Variable<_>::Variable(Ancestor const &other) : Ancestor{other} { }
+    template<required::Arrayable _> Variable<_>::Variable(Ancestor &&other) : Ancestor{move(other)} { }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.array.Fixed
+#import tunitas.array.Series
+#import tunitas.array.Bounded
+namespace {
+  namespace testate {
+    namespace array = tunitas::array;
+    using Subject = array::Variable<char>;
+    using Fixed = array::Fixed<char, (1uz<<16)>;
+    using Bounded = array::Bounded<char, (1uz<<16)>;
+    using Variable = Subject;
+    using Series = array::Series<char>;
+    //
+    static_assert(std::semiregular<Subject>);
+    static_assert(std::is_default_constructible_v<Subject>);
+    static_assert(std::is_copy_constructible_v<Subject>);
+    static_assert(std::is_move_constructible_v<Subject>);
+    static_assert(std::is_copy_assignable_v<Subject>);
+    static_assert(std::is_move_assignable_v<Subject>);
+    static_assert(std::is_swappable_v<Subject>);
+    //
+    static_assert(std::constructible_from<Subject, Fixed const &>);
+    static_assert(std::constructible_from<Subject, Fixed &>);
+    static_assert(std::constructible_from<Subject, Fixed &&>);
+    //
+    static_assert(std::constructible_from<Subject, Bounded const &>);
+    static_assert(std::constructible_from<Subject, Bounded &>);
+    static_assert(std::constructible_from<Subject, Bounded &&>);
+    //
+    static_assert(std::constructible_from<Subject, Variable const &>);
+    static_assert(std::constructible_from<Subject, Variable &>);
+    static_assert(std::constructible_from<Subject, Variable &&>);
+    //
+    static_assert(std::constructible_from<Subject, Variable const &>);
+    static_assert(std::constructible_from<Subject, Variable &>);
+    static_assert(std::constructible_from<Subject, Variable &&>);
+    //
+    static_assert(std::assignable_from<Subject &, Fixed>);
+    static_assert(std::assignable_from<Subject &, Fixed &&>);
+    //
+    static_assert(std::assignable_from<Subject &, Bounded>);
+    static_assert(std::assignable_from<Subject &, Bounded &&>);
+    //
+    static_assert(std::assignable_from<Subject &, Variable>);
+    static_assert(std::assignable_from<Subject &, Variable &&>);
+    //
+    static_assert(std::assignable_from<Subject &, Variable>);
+    static_assert(std::assignable_from<Subject &, Variable &&>);
+  }
+}
+#endiv

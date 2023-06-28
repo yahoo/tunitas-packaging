@@ -20,16 +20,16 @@ namespace tests::unit::crypto {
 #import nonstd.units.memory.scale // Bytes
 #import std.ostream
 #import std.span
-#import tunitas.keyston.array.Fixed
-#import tunitas.keyston.array.required.Fixed
+#import tunitas.array.Fixed
+#import tunitas.array.required.Fixed
 class tests::unit::crypto::Palette {
 protected:
   ~Palette() = default;
 public:
   using Bytes = ::nonstd::units::memory::Bytes;
   using Octet = ::tunitas::keyston::Octet;
-  template<Size CAPACITY> using Buffer = ::tunitas::keyston::array::Fixed<Octet, CAPACITY>;
-  template<typename BUFFER> static auto generate_buffer() -> BUFFER requires ::tunitas::keyston::array::required::Fixed<BUFFER>;
+  template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
+  template<typename BUFFER> static auto generate_buffer() -> BUFFER requires ::tunitas::array::required::Fixed<BUFFER>;
   static auto dump(std::ostream &, std::span<Octet const>, char terminator = '\n') -> void;
   inline static constexpr auto const SOME_OUTPUT_LENGTH = Bytes{48}; // some for SHAKE, cSHAKE
 };
@@ -41,7 +41,7 @@ public:
 #import nonstd.setfill
 #import nonstd.setwidth
 namespace tests::unit::crypto {
-  template<typename BUFFER> auto Palette::generate_buffer() -> BUFFER requires ::tunitas::keyston::array::required::Fixed<BUFFER> {
+  template<typename BUFFER> auto Palette::generate_buffer() -> BUFFER requires ::tunitas::array::required::Fixed<BUFFER> {
     auto ret = BUFFER{};
     auto here = ret.begin();
     for (auto each : std::views::iota(0u, ret.size())) {

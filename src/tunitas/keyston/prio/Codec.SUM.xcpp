@@ -43,7 +43,7 @@ static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vec
 #divert <ipp>
 static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value const>));
 static_assert(sizeof(nonstd::container::Traits<tunitas::keyston::Field<128>::Vector<1>::Value const>::Iterator));
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 #import std.views.iota
 #import std.nothrow
 namespace tunitas::keyston::prio {

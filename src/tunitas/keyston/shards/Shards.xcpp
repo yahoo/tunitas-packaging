@@ -36,7 +36,7 @@ namespace tunitas::keyston::shards {
 #divert <hpp>
 // SOON ---> #import nonstd.like
 #import tunitas.keyston.shards.Shard
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #import std.ranges.iota_view
 #import std.common_type
 namespace tunitas::keyston {

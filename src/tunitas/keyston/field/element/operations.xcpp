@@ -61,7 +61,7 @@ namespace tunitas::keyston::field::element {
 #divert <ipp>
 #import nonstd.required.Enumeration
 #import tunitas.integer.invm
-// SOON #import tunitas.integer.powm
+#import tunitas.integer.powm
 #import tunitas.keyston.field.element.traits.Element
 #import tunitas.keyston.field.Limits
 #import tunitas.keyston.exception.Domain

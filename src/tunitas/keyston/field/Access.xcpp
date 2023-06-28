@@ -28,9 +28,9 @@ namespace tunitas::keyston::field {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.view.Fixed
-#import tunitas.keyston.view.Variable
-#import tunitas.keyston.span.Span
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+#import tunitas.span.Span
 #import tunitas.keyston.field.required.Spanable
 #import std.dynamic_extent
 namespace tunitas::keyston {

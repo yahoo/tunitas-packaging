@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.array.range.required.Container
-#import tunitas.keyston.array.range.package_enumerate.Iterator
+#import tunitas.array.range.required.Container
+#import tunitas.array.range.package_enumerate.Iterator
 #import tests.unit.array.range.enumerate.required.IteratorOf
 namespace tests::unit::array::range::enumerate {
   template<typename SUBJECT, typename CONTAINER>
@@ -121,8 +121,8 @@ namespace tests::unit::array::range::enumerate {
     //
     using Constie = typename Conjugate<Container>::Type;
 #if 0
-    static_assert(std::same_as<Constie, ::tunitas::keyston::array::range::package_enumerate::body::Iterator<std::vector<int>::const_iterator, ::tunitas::keyston::array::range::package_enumerate::body::Mutability::CONSTIE>>);
-    ::tunitas::keyston::array::range::package_enumerate::body::Iterator<std::vector<int>::const_iterator, ::tunitas::keyston::array::range::package_enumerate::body::Mutability::CONSTIE> subject_begin(specimen_begin); // <---------------------------------------- test this
+    static_assert(std::same_as<Constie, ::tunitas::array::range::package_enumerate::body::Iterator<std::vector<int>::const_iterator, ::tunitas::array::range::package_enumerate::body::Mutability::CONSTIE>>);
+    ::tunitas::array::range::package_enumerate::body::Iterator<std::vector<int>::const_iterator, ::tunitas::array::range::package_enumerate::body::Mutability::CONSTIE> subject_begin(specimen_begin); // <---------------------------------------- test this
 #endif
     auto subject_begin = Constie{specimen_begin}; // <---------------------------------------- test this
     auto subject_end = Constie{specimen_end};

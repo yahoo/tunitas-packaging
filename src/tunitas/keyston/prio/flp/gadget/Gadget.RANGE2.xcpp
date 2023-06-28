@@ -29,8 +29,8 @@ namespace tunitas::keyston::prio::flp::gadget {
 #divert <hpp>
 namespace tunitas::keyston::prio::flp::gadget {
   template<> struct Gadget<RANGE2> {
-    inline static constexpr auto const ARITY = dimension::Arity{1u};
-    inline static constexpr auto const DEGREE = dimension::Degree{2u};
+    inline static constexpr auto const ARITY = Arity{1u};
+    inline static constexpr auto const DEGREE = Degree{2u};
     template<required::Element ELEMENT> inline constexpr auto operator()(ELEMENT x) const -> ELEMENT { return x * x - x; }
   };
 }

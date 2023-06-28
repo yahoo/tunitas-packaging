@@ -29,8 +29,8 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.keyston.Field
 #import tunitas.keyston.prio.flp.dimension.cast
 #include <ipp/tunitas.keyston.prio.flp.dimension.cast>
-#import tunitas.keyston.array.Fixed
-#import tunitas.keyston.view.Fixed
+#import tunitas.array.Fixed
+#import tunitas.view.Fixed
 #import tunitas.keyston.measurement.Records
 namespace tunitas::keyston::prio::flp {
   //

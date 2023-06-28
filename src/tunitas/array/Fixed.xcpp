@@ -1,0 +1,208 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.array.required.Arrayable
+namespace tunitas::array {
+  //
+  // A fixed array.
+  //
+  // Specification:
+  //
+  //   Obvious
+  //
+  // Design:
+  //
+  //   https://en.cppreference.com/w/cpp/container/array
+  //
+  //   WATCHOUT - some TYPE only have move semantics and do not have copy semantics; e.g. unique_ptr<...> descendants.
+  //
+  //   Initialization (construction)
+  //     WATCHOUT - absent a well-designed constexpr constructor here, the value of the array will be undetermined
+  //     <quote>
+  //       (constructor)    [is implicit; it] initializes the array following the rules of aggregate initialization
+  //                        (note that default initialization may result in indeterminate values for non-class T)
+  //     </quote>
+  //
+  //     Aggregate Initialization https://en.cppreference.com/w/cpp/language/aggregate_initialization
+  //     <quote>
+  //       For a non-union aggregate, each element that is not an explicitly initialized element is initialized as follows:
+  //       If the element has a default member initializer, the element is initialized from that initializer.
+  //         Otherwise, if the element is not a reference, the element is copy-initialized from an empty initializer list.
+  //         Otherwise, the program is ill-formed.
+  //      </quote>
+  //
+  //      Thus: copy-initialized from the empty initializer list.
+  //
+  //     Default Initialization https://en.cppreference.com/w/cpp/language/default_initialization
+  //     <quote>This is the initialization performed when an object is constructed with no initializer.</quote>
+  //
+  //     <quote>
+  //       <snip>[lots of words] If T is non-POD then use the default-initializer discovered by overload resolution</snip>
+  //       if T is an array type, every element of the array is default-initialized;
+  //       otherwise, no initialization is performed (see notes).
+  //     </quote>
+  //
+  //   [[FIXTHIS]] such exceptions are NOT recovered and re-wrapped as exception::Aspect descendants.
+  //
+  // Usage:
+  //
+  //   As you would an array
+  //
+  template<required::Arrayable TYPE, Size CAPACITY> struct Fixed;
+}
+#endiv
+#divert <hpp>
+#import nonstd.required.iterator.Forward
+#import nonstd.required.Convertible_To
+#import tunitas.array.required.Initializers // for symmetry with Variable::Variable(VALUES &&...) that carries this constraint
+#import std.array
+#import std.common_type
+#import std.conditional
+#import std.derived_from
+#import std.is_const
+#import std.nothrow
+#import std.ranges.subrange
+#import std.same_as
+#import std.span
+#import std.equality_comparable
+#import std.three_way_comparable
+namespace tunitas {
+  namespace array {
+    using std::move;
+    // The private ancestry means we don't "inherit" these; we have to reimplement them here
+    template<required::Arrayable TYPE, Size CAPACITY> inline auto swap(Fixed<TYPE, CAPACITY> &, Fixed<TYPE, CAPACITY> &) noexcept -> void;
+    template<required::Arrayable TYPE, Size CAPACITY> inline constexpr auto operator==(Fixed<TYPE, CAPACITY> const &, Fixed<TYPE, CAPACITY> const &) -> bool requires std::equality_comparable<TYPE>;
+    template<required::Arrayable TYPE, Size CAPACITY> inline constexpr auto operator<=>(Fixed<TYPE, CAPACITY> const &, Fixed<TYPE, CAPACITY> const &) -> decltype(TYPE{} <=> TYPE{}) requires std::three_way_comparable<TYPE>;
+  }
+  template<array::required::Arrayable TYPE, array::Size CAPACITY> class array::Fixed : private std::array<TYPE, CAPACITY> {
+    using Ancestor = std::array<TYPE, CAPACITY>;
+    friend auto array::swap<>(Fixed &, Fixed &) noexcept -> void;
+    template<required::Arrayable T, Size C> friend constexpr auto array::operator==(Fixed<T, C> const &, Fixed<T, C> const &) -> bool requires std::equality_comparable<T>;
+    template<required::Arrayable T, Size C> friend constexpr auto array::operator<=>(Fixed<T,C> const &, Fixed<T,C> const &) -> decltype(T{} <=> T{}) requires std::three_way_comparable<T>;
+  public:
+    using Value [[school("New")]] = typename Ancestor::value_type;
+    using Inplace = array::Inplace;
+    inline static constexpr auto INPLACE = Inplace{};
+    //
+    inline constexpr Fixed();
+    using Ancestor::array;
+    template<typename... VALUES> constexpr Fixed(VALUES &&...) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ) && /*overkill*/ required::Initializers<Value, VALUES...>);
+    template<typename... VALUES> constexpr Fixed(Inplace, VALUES &&...) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ));
+    //
+    template<typename VALUE, Size EXTENT = CAPACITY> requires (std::same_as<std::remove_const_t<VALUE>, Value> && (EXTENT == std::dynamic_extent || EXTENT <= CAPACITY)) using Span = std::span<VALUE, EXTENT>;
+    using View = Span<Value const>;
+    inline constexpr operator Span<Value, CAPACITY>();
+    inline constexpr operator Span<Value const, CAPACITY>() const;
+    //
+    constexpr auto capacity() const noexcept { return CAPACITY; } // the number of elements that the container has currently allocated space for.
+    using Ancestor::empty;
+    using Ancestor::size;
+    using Ancestor::data;
+    //
+    template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Fixed> using Basic_Iterator = std::conditional_t<std::is_const_v<SELF>, typename Ancestor::const_iterator, typename Ancestor::iterator>;
+    using Iterator = Basic_Iterator<Fixed>;
+    using Ancestor::begin;
+    using Ancestor::end;
+    //
+    // ??? Basic Iterator Reversed ???
+    using Ancestor::rbegin;
+    using Ancestor::rend;
+    //
+    using Index = Size;
+#if 202312 < __cplusplus
+    template<typename SELF> inline constexpr auto at(this SELF *, Index) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline constexpr auto at(this SELF *, std::nothrow_t, Index) -> nonstd::like_t<SELF, Value &>;
+#else
+    inline constexpr auto at(Index) const -> Value const &;
+    inline constexpr auto at(Index) -> Value &;
+    inline constexpr auto at(std::nothrow_t, Index) const -> Value const &;
+    inline constexpr auto at(std::nothrow_t, Index) -> Value &;
+#endif
+  protected:
+    // using Ancestor::operator[] is denied except to descendants (who are supposed to know what they are doing)
+    using Ancestor::operator[];
+  };
+  namespace array {
+    template<typename... TYPES> requires (required::Arrayable<std::common_type_t<TYPES...>> && 0 != sizeof...(TYPES)) Fixed(TYPES &&...) -> Fixed<std::common_type_t<TYPES...>, sizeof...(TYPES)>;
+    template<required::Arrayable TYPE, Size CAPACITY> inline constexpr auto subrange(Fixed<TYPE, CAPACITY> &)       -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY>>>;
+    template<required::Arrayable TYPE, Size CAPACITY> inline constexpr auto subrange(Fixed<TYPE, CAPACITY> const &) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>>;
+  }
+}
+#import nonstd.container.Traits.tunitas.array.Fixed.TYPE.CAPACITY
+#endiv
+#divert <ipp>
+#import tunitas.exception.Bound
+#import nonstd.required.Class
+namespace tunitas {
+  template<array::required::Arrayable TYPE, array::Size CAPACITY> auto array::swap(Fixed<TYPE, CAPACITY> &a, Fixed<TYPE, CAPACITY> &b) noexcept -> void {
+    typename Fixed<TYPE, CAPACITY>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  template<array::required::Arrayable TYPE, array::Size CAPACITY> constexpr auto array::operator==(Fixed<TYPE, CAPACITY> const &a, Fixed<TYPE, CAPACITY> const &b) -> bool requires std::equality_comparable<TYPE> {
+    typename Fixed<TYPE, CAPACITY>::Ancestor const &aa{a}, &bb{b};
+    return aa == bb;
+  }
+  template<array::required::Arrayable TYPE, array::Size CAPACITY> constexpr auto array::operator<=>(Fixed<TYPE, CAPACITY> const &a, Fixed<TYPE, CAPACITY> const &b) -> decltype(TYPE{} <=> TYPE{}) requires std::three_way_comparable<TYPE> {
+    typename Fixed<TYPE, CAPACITY>::Ancestor &aa{a}, &bb{b};
+    return aa <=> bb;
+  }
+  template<array::required::Arrayable TYPE, array::Size CAPACITY> constexpr auto array::subrange(Fixed<TYPE, CAPACITY> &arr)       -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY>>>       { return {arr.begin(), arr.end()}; }
+  template<array::required::Arrayable TYPE, array::Size CAPACITY> constexpr auto array::subrange(Fixed<TYPE, CAPACITY> const &arr) -> std::ranges::subrange<typename Fixed<TYPE, CAPACITY>::template Basic_Iterator<Fixed<TYPE, CAPACITY> const>> { return {arr.begin(), arr.end()}; }
+  namespace array {
+    template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::Fixed() {
+      // the Class types have already been default-initialized
+      // The non-class types need to be value initialized (because default initialization leaves an undetermined value)
+      // n.b. uninitialized_fill(...) is not constexpr
+      if constexpr (!required::Class<Value>) {
+        std::fill(begin(), end(), Value{});
+      }
+    }
+    template<required::Arrayable T, Size CAPACITY> template<typename... VALUES> constexpr Fixed<T, CAPACITY>::Fixed(VALUES &&...values) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ) && required::Initializers<Value, VALUES...>)
+      : Fixed{Inplace{}, forward<VALUES>(values)...}
+    { }
+    template<required::Arrayable T, Size CAPACITY> template<typename... VALUES> constexpr Fixed<T, CAPACITY>::Fixed(Inplace, VALUES &&...values) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ))
+      : Ancestor{forward<VALUES>(values)...}
+    { }
+    template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::operator Span<Value, CAPACITY>()             { return {Ancestor::data(), Ancestor::size()}; }
+    template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::operator Span<Value const, CAPACITY>() const { return {Ancestor::data(), Ancestor::size()}; }
+#if 202312 < __cplusplus
+    template<required::Arrayable T, Size C> template<typename SELF> constexpr auto Fixed<T,C>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> try { return self[index]; }
+    template<required::Arrayable T, Size C> template<typename SELF> constexpr auto Fixed<T,C>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {
+      return self->at(index);
+    } catch (std::out_of_range const &e) {
+      throw exception::Bound{e};
+    }
+#else
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(std::nothrow_t, Index index) const -> Value const & { return operator[](index); }
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(std::nothrow_t, Index index)       -> Value &       { return operator[](index); }
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(Index index) const -> Value const & try {
+      return Ancestor::at(index);
+    } catch (std::out_of_range const &e) {
+      throw exception::Bound{e.what()};
+    }
+    template<required::Arrayable T, Size C> constexpr auto Fixed<T,C>::at(Index index) -> Value & try {
+      return Ancestor::at(index);
+    } catch (std::out_of_range const &e) {
+      throw exception::Bound{e.what()};
+    }
+#endif
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::array;
+    using Subject = Fixed<char, (1uz<<16)>;
+    static_assert(std::is_default_constructible_v<Subject>);
+    static_assert(std::is_copy_constructible_v<Subject>);
+    static_assert(std::is_move_constructible_v<Subject>);
+    static_assert(std::is_copy_assignable_v<Subject>);
+    static_assert(std::is_move_assignable_v<Subject>);
+    static_assert(std::is_swappable_v<Subject>);
+  }
+}
+#endiv

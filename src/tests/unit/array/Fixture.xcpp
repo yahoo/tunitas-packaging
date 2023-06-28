@@ -11,8 +11,6 @@ namespace tests::unit::array { class Fixture; }
 struct tests::unit::array::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  auto test_usage_Unique() -> void;
-  auto test_usage_Opaque() -> void;
   auto test_usage_Fixed() -> void;
   auto test_usage_Variable() -> void;
   auto test_usage_Bounded() -> void;
@@ -31,16 +29,14 @@ protected:
 #import tests.unit.array.Fixed
 #import tests.unit.array.Series
 #import tests.unit.array.Variable
-#import tunitas.keyston.array.Bounded
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Bounded
+#import tunitas.array.Variable
 #import tests.unit.array.range.Fixture
 auto tests::unit::array::Fixture::suite() -> Suite {
   auto series = Stream{"array"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Unique", &Fixture::test_usage_Unique)
-                  << add("Opaque", &Fixture::test_usage_Opaque)
-                  << add("Fixed", &Fixture::test_usage_Fixed)
+              use << add("Fixed", &Fixture::test_usage_Fixed)
                   << add("Variable", &Fixture::test_usage_Variable)
                   << add("Bounded", &Fixture::test_usage_Bounded)
                   << add("Series", &Fixture::test_usage_Series)
@@ -83,28 +79,11 @@ auto tests::unit::array::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.array.Bounded
-#import tunitas.keyston.array.Fixed
-#import tunitas.keyston.array.Opaque
-#import tunitas.keyston.array.Series
-#import tunitas.keyston.array.Unique
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Bounded
+#import tunitas.array.Fixed
+#import tunitas.array.Series
+#import tunitas.array.Variable
 namespace tests::unit::array {
-  auto Fixture::test_usage_Unique() -> void {
-    using Subject = library::Unique<4, Fixture>;
-    auto subject = Subject{};
-    require(ASSERTION, 4 == subject.size());
-  }
-  auto Fixture::test_usage_Opaque() -> void {
-    using Subject = library::Opaque<4>;
-    auto subject = Subject{};
-    require(ASSERTION, 0 == subject.size());
-    subject.push_back({});
-    subject.push_back({});
-    subject.push_back({});
-    subject.push_back({});
-    require(ASSERTION, 4 == subject.size());
-  }
   auto Fixture::test_usage_Fixed() -> void {
     using Subject = library::Fixed<int, 4>;
     auto subject = Subject{};

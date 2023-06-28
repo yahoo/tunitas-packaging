@@ -25,8 +25,8 @@ namespace tunitas::keyston::histogram {
 #endiv
 #divert <hpp>
 #import nonstd.required.Same_As
-#import tunitas.keyston.array.Fixed
-#forward tunitas.keyston.array.Variable
+#import tunitas.array.Fixed
+#forward tunitas.array.Variable
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.histogram.Buckets
 #import tunitas.keyston.histogram.required // ctcnr (cascade that certain 'namespace required')
@@ -46,8 +46,8 @@ namespace tunitas::keyston {
   }
   class histogram::Boundaries : public array::Fixed<measurement::Specimen, Buckets::COUNT.count()> {
     // WATCHOUT - the ancestor is std::array so the constructor name wins inside the class
-    using Ancestor = keyston::array::Fixed<measurement::Specimen, Buckets::COUNT.count()>;
-    using Variable = keyston::array::Variable<measurement::Specimen>;
+    using Ancestor = tunitas::array::Fixed<measurement::Specimen, Buckets::COUNT.count()>;
+    using Variable = tunitas::array::Variable<measurement::Specimen>;
     friend auto swap(Boundaries &, Boundaries &) noexcept -> void;
   public:
     Boundaries() = default;
@@ -107,7 +107,7 @@ namespace tunitas::keyston {
 #import std.back_inserter
 #import std.copy
 #import std.fill_n
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.error.Code
 namespace tunitas::keyston::histogram {
   auto Boundaries::copy_extending(Boundaries &lhs, Variable const &rhs) -> Success {

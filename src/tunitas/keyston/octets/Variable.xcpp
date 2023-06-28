@@ -25,7 +25,7 @@ namespace tunitas::keyston::octets {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 namespace tunitas::keyston {
   namespace octets {
     using std::move;

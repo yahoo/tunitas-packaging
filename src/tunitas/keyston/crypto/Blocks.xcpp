@@ -24,7 +24,7 @@ namespace tunitas::keyston::crypto {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.octets.Variable
 #import tunitas.keyston.crypto.Block
 namespace tunitas::keyston {

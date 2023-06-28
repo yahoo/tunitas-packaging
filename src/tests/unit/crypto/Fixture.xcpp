@@ -7,7 +7,7 @@
 namespace tests::unit::crypto { struct Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #import nonstd.units.memory.scale // Bytes
 #import tests.unit.crypto.Algorithm
 #import tests.unit.crypto.Palette

@@ -27,12 +27,12 @@ namespace tunitas::keyston::prio::flp::gadget::usage {
       { gadget(element1, element2, element3) } -> convertible_to<ELEMENT>;
     };
     template<typename GADGET> concept Gadget = required::Gadget<GADGET> && requires(GADGET) {
-      { GADGET::ARITY } -> convertible_to<dimension::Arity>;
-      { GADGET::DEGREE } -> convertible_to<dimension::Degree>;
-      requires (dimension::Arity{0} != GADGET::ARITY) || Arity0<GADGET, Some_Element>;
-      requires (dimension::Arity{1} != GADGET::ARITY) || Arity1<GADGET, Some_Element>;
-      requires (dimension::Arity{2} != GADGET::ARITY) || Arity2<GADGET, Some_Element>;
-      requires (dimension::Arity{3} != GADGET::ARITY) || Arity3<GADGET, Some_Element>;
+      { GADGET::ARITY } -> convertible_to<Arity>;
+      { GADGET::DEGREE } -> convertible_to<Degree>;
+      requires (Arity{0} != GADGET::ARITY) || Arity0<GADGET, Some_Element>;
+      requires (Arity{1} != GADGET::ARITY) || Arity1<GADGET, Some_Element>;
+      requires (Arity{2} != GADGET::ARITY) || Arity2<GADGET, Some_Element>;
+      requires (Arity{3} != GADGET::ARITY) || Arity3<GADGET, Some_Element>;
       requires (static_cast<unsigned>(GADGET::ARITY) < 4u); // because we're lazy and don't expect any larger arities
     };
   }

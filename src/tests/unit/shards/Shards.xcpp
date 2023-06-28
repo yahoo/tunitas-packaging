@@ -10,7 +10,7 @@ namespace tests::unit::shards { class Shards; }
 #divert <hpp>
 #import tunitas.keyston.Shards
 #import tunitas.keyston.Shard
-#import tunitas.keyston.exception.Aspect
+#import tunitas.exception.feature.Bound
 struct tests::unit::shards::Shards : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -25,7 +25,7 @@ struct tests::unit::shards::Shards : public rigging::suite::Fixture {
   auto test_iota() -> void;
   auto test_swap() -> void;
 protected:
-  using Failure = ::tunitas::keyston::exception::Aspect;
+  using Failure = ::tunitas::exception::feature::Bound;
   inline static constexpr auto const INVALID_INDEX = Shard{99};
 };
 #endiv

@@ -9,6 +9,5 @@ tunitas_keyston_prio_flp_system_usage_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/system/usage/Field.cpp \
   obj/src/tunitas/keyston/prio/flp/system/usage/Interface.cpp \
   obj/src/tunitas/keyston/prio/flp/system/usage/System.cpp \
-  obj/src/tunitas/keyston/prio/flp/system/usage/Codec.cpp \
   obj/src/tunitas/keyston/prio/flp/system/usage/Validity.cpp \
   $(end)

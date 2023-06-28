@@ -25,7 +25,7 @@ namespace tunitas::keyston::octets {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #forward tunitas.keyston.octets.Variable
 namespace tunitas::keyston {
   namespace octets {

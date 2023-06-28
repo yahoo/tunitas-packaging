@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.required.Validity
+#import tunitas.keyston.prio.flp.gadget
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // Convenient formula fragments to access the "circuit"s
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Specification:
+  //
+  //   Section 7.4. Instantiations
+  //   And thereabouts.
+  //
+  // Design:
+  //
+  //   Wow, such design.
+  //
+  // Usage:
+  //
+  //   See validity::Lengths<...>
+  //   See system::System<...>
+  //
+  namespace [[eponymous]] access {
+    using namespace gadget;
+    template<required::Definition _> struct Access;
+  }
+  using access::Access;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.validity.Unpackage
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Definition VALIDITY> struct access::Access : public Unpackage {
+    using Validity = VALIDITY;
+    struct Gadgets {
+      inline static constexpr auto count() -> unsigned;
+      template<Size N> inline static constexpr auto calls() -> Items;
+      template<Size N> inline static constexpr auto arity() -> Arity;
+      template<Size N> inline static constexpr auto degree() -> Degree;
+    };
+    struct Sequence : public Unpackage::Sequence {
+      inline static constexpr auto make(); // examines to Validity::Gadgets
+    };
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.tuple.Element
+#import std.make_index_sequence
+#import tunitas.tuple.Size
+namespace tunitas::keyston::prio::flp::validity::access {
+  template<required::Validity _> template<Size N> constexpr auto Access<_>::Gadgets::calls() -> Items   { return Validity::CALLS.at(N); }
+  template<required::Validity _> template<Size N> constexpr auto Access<_>::Gadgets::arity() -> Arity   { return tuple::Element<N, typename Validity::Gadgets>::type::ARITY; }
+  template<required::Validity _> template<Size N> constexpr auto Access<_>::Gadgets::degree() -> Degree { return tuple::Element<N, typename Validity::Gadgets>::type::DEGREE; }
+  template<required::Validity _>                  constexpr auto Access<_>::Sequence::make()                     { return std::make_index_sequence<tuple::Size<typename Validity::Gadgets>::value>{}; }
+}
+#endiv

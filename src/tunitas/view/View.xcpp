@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.dynamic_extent
+#import std.size_t
+namespace tunitas::view {
+  //
+  // Rhymes with string::View contra string::Storage and std::span<char>
+  //
+  // MUST be constie.
+  // Implements at(...) with and with out exceptions.
+  // [[TODO]] build up the rest of the view operations (indexing)
+  //
+  template<typename TYPE, std::size_t EXTENT = std::dynamic_extent> struct View;
+}
+#endiv
+#divert <hpp>
+#import tunitas.span.Span
+#import std.nothrow_t
+namespace tunitas {
+  template<typename TYPE, std::size_t EXTENT> struct view::View : public span::Span<TYPE const, EXTENT> {
+    using Ancestor = span::Span<TYPE const, EXTENT>;
+  public:
+    using Value = typename Ancestor::value_type;
+    View() = default;
+    using Ancestor::span; // you "just have to know" that the constructor name is 'span'
+    template<std::size_t PRESIZE> constexpr View(span::Span<Value, PRESIZE> other) requires ((std::dynamic_extent == EXTENT && PRESIZE == EXTENT) || EXTENT <= PRESIZE) : Ancestor{other.data(), other.size()} { }
+    //
+    // a smaller span if needed
+    template<std::size_t RESIZE> constexpr operator span::Span<Value, RESIZE>() const requires ((std::dynamic_extent == EXTENT && RESIZE == EXTENT) || RESIZE <= EXTENT) { return {Ancestor::data(), Ancestor::size()}; }
+    // This is what we came for
+    using Index = std::size_t;
+    inline constexpr auto at(Index) const -> Value const &;
+    inline constexpr auto at(std::nothrow_t, Index) const -> Value const &;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.exception.Bound
+namespace tunitas::view {
+  template<typename T, std::size_t E> constexpr auto View<T,E>::at(std::nothrow_t, Index i) const -> Value const & { return Ancestor::data()[i]; }
+  template<typename T, std::size_t EXTENT> constexpr auto View<T,EXTENT>::at(Index i) const -> Value const & {
+    if constexpr (std::dynamic_extent != EXTENT) {
+      if (i >= Ancestor::size()) {
+        throw exception::Bound{"index too large"};
+      }
+    }
+    return Ancestor::data()[i];
+  }
+}
+#endiv

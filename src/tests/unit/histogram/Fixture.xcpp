@@ -7,7 +7,7 @@
 namespace tests::unit::histogram { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.error.by.required.Indicator
 struct tests::unit::histogram::Fixture : public rigging::suite::Fixture {
@@ -17,7 +17,7 @@ struct tests::unit::histogram::Fixture : public rigging::suite::Fixture {
   auto test_usage_Boundaries() -> void;
   template<error::by::required::Indicator> auto test_usage_Boundaries_extend() -> void;
 protected:
-  using Variable = ::tunitas::keyston::array::Variable<::tunitas::keyston::measurement::Specimen>;
+  using Variable = ::tunitas::array::Variable<::tunitas::keyston::measurement::Specimen>;
   static auto generate() -> Variable;
 };
 #endiv

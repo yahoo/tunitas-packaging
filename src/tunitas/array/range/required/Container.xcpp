@@ -1,0 +1,33 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.container.Type
+namespace tunitas::array::range::required {
+  //
+  // Is this type a CONTAINER that is suitable for use in package_enumerate::Range<CONTAINER>
+  //
+  // Yup, it's a container all rightie!
+  //
+  template<typename CONTAINER> concept Container = container::Type<CONTAINER>;
+}
+#endiv
+#divert <cpp>
+#import tunitas.array.Bounded
+#import tunitas.array.Fixed
+#import tunitas.array.Variable
+#import tunitas.array.Series
+namespace {
+  namespace testate {
+    namespace required = tunitas::array::range::required;
+    using namespace tunitas::array;
+    class Stamp;
+    static_assert(required::Container<Bounded<int, 1>>);
+    static_assert(required::Container<Fixed<int, 1>>);
+    static_assert(required::Container<Variable<int>>);
+    static_assert(required::Container<Series<int>>);
+  }
+}
+#endiv

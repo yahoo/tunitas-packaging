@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.Tuple
-#import tunitas.keyston.array.range.required.Container
+#import tunitas.array.range.required.Container
 #import tunitas.keyston.formatter.Formatter
 #import nonstd.required.Enumeration
 #import nonstd.required.InstanceOf
@@ -68,7 +68,7 @@ namespace tunitas::keyston::formatter {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.aggregation.Simple
 #import tunitas.keyston.aggregation.Histogram
@@ -88,7 +88,7 @@ namespace tunitas::keyston {
 }
 #endiv
 #divert <tpp>
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 #import tunitas.keyston.formatter.Newline
 #import tunitas.Variant
 #import tunitas.variant.Visitor

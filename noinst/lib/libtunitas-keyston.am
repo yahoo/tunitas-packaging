@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms and provenance see the LICENSE file at the top of this repository.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
@@ -15,6 +15,7 @@ noinst_lib_libtunitas_keyston_la_LIBADD = \
   noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
   noinst/lib/libnonstd+tunitas-keyston.la \
+  noinst/lib/libtunitas-array+tunitas-keyston.la \
   noinst/lib/libtunitas-number+tunitas-keyston.la \
   noinst/lib/libwant.la \
   -ltunitas-number -ltunitas-application -lnonstd++ -lcryptopp -lfmt \

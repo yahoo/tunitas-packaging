@@ -12,10 +12,10 @@ namespace nonstd::container {
 }
 #endiv
 #divert <hpp>
-#import nonstd.container.Traits.tunitas.keyston.array.Fixed.TYPE.CAPACITY
+#import nonstd.container.Traits.tunitas.array.Fixed.TYPE.CAPACITY
 namespace nonstd::container {
-  template<typename ELEMENT, size_t CAPACITY> struct Traits<tunitas::keyston::field::vector::Fixed<ELEMENT, CAPACITY>> : public Traits<tunitas::keyston::array::Fixed<ELEMENT, CAPACITY>> { };
-  template<typename ELEMENT, size_t CAPACITY> struct Traits<tunitas::keyston::field::vector::Fixed<ELEMENT, CAPACITY> const> : public Traits<tunitas::keyston::array::Fixed<ELEMENT, CAPACITY> const> { };
+  template<typename ELEMENT, size_t CAPACITY> struct Traits<tunitas::keyston::field::vector::Fixed<ELEMENT, CAPACITY>> : public Traits<tunitas::array::Fixed<ELEMENT, CAPACITY>> { };
+  template<typename ELEMENT, size_t CAPACITY> struct Traits<tunitas::keyston::field::vector::Fixed<ELEMENT, CAPACITY> const> : public Traits<tunitas::array::Fixed<ELEMENT, CAPACITY> const> { };
 }
 #endiv
 #divert <cpp>

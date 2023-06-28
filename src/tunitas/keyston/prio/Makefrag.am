@@ -8,6 +8,7 @@ tunitas_keyston_prio_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/namespace.cpp \
   $(tunitas_keyston_prio_flp_SUBSOURCES) \
   $(tunitas_keyston_prio_required_SUBSOURCES) \
+  $(tunitas_keyston_prio_usage_SUBSOURCES) \
   obj/src/tunitas/keyston/prio/Name.cpp \
   obj/src/tunitas/keyston/prio/Codec.template.cpp \
   obj/src/tunitas/keyston/prio/Codec.COUNT.cpp \
@@ -19,3 +20,4 @@ tunitas_keyston_prio_SUBSOURCES = \
 #
 include src/tunitas/keyston/prio/flp/Makefrag.am
 include src/tunitas/keyston/prio/required/Makefrag.am
+include src/tunitas/keyston/prio/usage/Makefrag.am

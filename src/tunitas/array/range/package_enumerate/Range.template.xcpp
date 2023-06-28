@@ -1,0 +1,91 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.array.range.required.Container
+namespace tunitas::array::range::package_enumerate::body {
+  //
+  // The container (anchor) for the enumeration iterator idiom
+  //
+  // Specification:
+  //
+  //   For constie and mutable containers
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM!)
+  //   The magic happens in Iterator<...>
+  //
+  // Lifetimes:
+  //
+  //   lifestime(container) >= lifetime(enumerate(container))
+  //
+  // Usage:
+  //
+  //   auto container = ...a container...
+  //
+  //   for (auto [ith, element] : enumerate(container) {
+  //     ...use them ...
+  //   }
+  //
+  template<required::Container CONTAINER> struct Range;
+}
+#endiv
+#divert <hpp>
+#import nonstd.Like
+#import nonstd.container.Traits // but likely you'll need a specialization for CONTAINER
+#import std.ranges.subrange
+#import std.size_t
+#import std.same_as
+#import std.remove_const
+#import tunitas.array.range.package_enumerate.Iterator
+#import tunitas.array.range.package_enumerate.Subrange
+namespace tunitas::array::range::package_enumerate {
+  template<required::Container CONTAINER> class body::Range : public Subrange<typename nonstd::container::Traits<CONTAINER>::Iterator> {
+    using Ancestor = Subrange<typename nonstd::container::Traits<CONTAINER>::Iterator>;
+  protected:
+    using Container = CONTAINER;
+  public:
+    using Subiterator = typename Ancestor::Iterator;
+    constexpr explicit Range() = default;
+    inline constexpr explicit Range(Subiterator start, Subiterator finish);
+    //
+    template<typename CONT> requires (std::same_as<Container, std::remove_const_t<CONT>>) using Basic_Iterator = body::Iterator<typename nonstd::container::Traits<CONT>::Iterator>;
+    using Iterator = Basic_Iterator<Container>;
+    using Const_Iterator = Basic_Iterator<Container const>;
+#if 202312L <= __cplusplus
+    template<typename SELF> inline constexpr auto begin(this SELF *) -> Basic_Iterator<nonstd::Like<SELF, Container>>;
+    template<typename SELF> inline constexpr auto end(this SELF *) -> Basic_Iterator<nonstd::Like<SELF, Container>>;
+    template<typename SELF> inline constexpr auto subrange(this SELF *) -> std::ranges::subrange<Iterator<nonstd::Like<SELF, Container>>>;
+#else
+    inline constexpr auto begin() const -> Basic_Iterator<Container const>;
+    inline constexpr auto end() const -> Basic_Iterator<Container const>;
+    inline constexpr auto subrange() const -> std::ranges::subrange<Basic_Iterator<Container const>>;
+    inline constexpr auto begin() -> Basic_Iterator<Container>;
+    inline constexpr auto end() -> Basic_Iterator<Container>;
+    inline constexpr auto subrange() ->std::ranges::subrange<Basic_Iterator<Container>>;
+#endif
+  };
+}
+#import nonstd.container.Traits.tunitas.array.range.package_enumerate.Range.CONTAINER
+#endiv
+#divert <ipp>
+#import std.distance
+namespace tunitas::array::range::package_enumerate::body {
+  template<required::Container _> constexpr Range<_>::Range(Subiterator start, Subiterator finish) : Ancestor{start, finish} { }
+#if 202312L <= __cplusplus
+  template<required::Container _> template<typename SELF> constexpr auto Range<_>::begin(this SELF *self) -> Basic_Iterator<nonstd::Like<SELF, Container>> { return Ancestor::start; }
+  template<required::Container _> template<typename SELF> constexpr auto Range<_>::end(this SELF *) -> Basic_Iterator<nonstd::Like<SELF, Container>>       { return Ancestor::finish; }
+  template<required::Container _> template<typename SELF> constexpr auto Range<_>::subrange(this SELF *) -> std::ranges::subrange<Basic_Iterator<nonstd::Like<SELF, Container>>> { return {Ancestor::start, Ancestor::finish}; }
+#else
+  template<required::Container _> constexpr auto Range<_>::begin() const -> Basic_Iterator<Container const> { return Ancestor::start; }
+  template<required::Container _> constexpr auto Range<_>::end() const   -> Basic_Iterator<Container const> { return Ancestor::finish; }
+  template<required::Container _> constexpr auto Range<_>::begin()       -> Basic_Iterator<Container>       { return Ancestor::start; }
+  template<required::Container _> constexpr auto Range<_>::end()         -> Basic_Iterator<Container>       { return Ancestor::finish; }
+  template<required::Container _> constexpr auto Range<_>::subrange() const -> std::ranges::subrange<Basic_Iterator<Container const>> { return {Ancestor::start, Ancestor::finish}; }
+  template<required::Container _> constexpr auto Range<_>::subrange()       -> std::ranges::subrange<Basic_Iterator<Container>>       { return {Ancestor::start, Ancestor::finish}; }
+#endif
+}
+#endiv

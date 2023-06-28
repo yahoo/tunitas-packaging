@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
-#import tunitas.keyston.array.required.Fixed
+#import tunitas.array.required.Fixed
 namespace tunitas::keyston::numeric::generic {
   //
   // Cosine similarity (on vectors).

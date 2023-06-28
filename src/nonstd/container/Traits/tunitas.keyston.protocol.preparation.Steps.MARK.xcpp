@@ -12,11 +12,11 @@ namespace nonstd::container {
 }
 #endiv
 #divert <hpp>
-#import nonstd.container.Traits.tunitas.keyston.array.Bounded.TYPE.CAPACITY
+#import nonstd.container.Traits.tunitas.array.Bounded.TYPE.CAPACITY
 #import tunitas.keyston.protocol.preparation.Step
 namespace nonstd::container {
-  template<tunitas::keyston::protocol::preparation::Mark MARK> struct Traits<tunitas::keyston::protocol::preparation::Steps<MARK>> : public Traits<tunitas::keyston::array::Bounded<tunitas::keyston::protocol::preparation::Step<MARK>, (1uz<<32)>> { };
-  template<tunitas::keyston::protocol::preparation::Mark MARK> struct Traits<tunitas::keyston::protocol::preparation::Steps<MARK> const> : public Traits<tunitas::keyston::array::Bounded<tunitas::keyston::protocol::preparation::Step<MARK>, (1uz<<32)> const> { };
+  template<tunitas::keyston::protocol::preparation::Mark MARK> struct Traits<tunitas::keyston::protocol::preparation::Steps<MARK>> : public Traits<tunitas::array::Bounded<tunitas::keyston::protocol::preparation::Step<MARK>, (1uz<<32)>> { };
+  template<tunitas::keyston::protocol::preparation::Mark MARK> struct Traits<tunitas::keyston::protocol::preparation::Steps<MARK> const> : public Traits<tunitas::array::Bounded<tunitas::keyston::protocol::preparation::Step<MARK>, (1uz<<32)> const> { };
 }
 #endiv
 #divert <cpp>

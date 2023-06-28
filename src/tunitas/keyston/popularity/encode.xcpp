@@ -36,7 +36,7 @@ namespace tunitas::keyston::popularity {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 #import tunitas.keyston.exception.Invalid
 namespace tunitas::keyston {
   auto popularity::encode(measurement::Specimen specimen, Bits level, Prefixes const &prefixes) -> aggregation::Popularity {

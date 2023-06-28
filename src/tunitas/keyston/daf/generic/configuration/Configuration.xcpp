@@ -42,7 +42,7 @@ namespace tunitas::keyston::daf::generic::configuration {
 #divert <hpp>
 #import tunitas.keyston.Shard
 #import tunitas.keyston.Shards
-#import tunitas.keyston.array.Series
+#import tunitas.array.Series
 #import tunitas.keyston.daf.generic.Disassembled
 #import tunitas.keyston.daf.generic.configuration.usage.Core
 #import tunitas.keyston.aggregation.Count

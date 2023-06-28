@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.keyston.prio.flp.system.required.System
-#import tunitas.keyston.prio.flp.system.usage.Codec
+#import tunitas.keyston.prio.usage.Codec
 namespace tunitas::keyston::prio::flp::system::usage {
   //
   // Is this type a fully-functional flp system?
@@ -30,7 +30,7 @@ namespace tunitas::keyston::prio::flp::system::usage {
     }
     template<typename SYSTEM> concept System = required::System<SYSTEM> && requires(SYSTEM) {
       typename SYSTEM::Codec;
-      requires Codec<typename SYSTEM::Codec>;
+      requires prio::usage::Codec<typename SYSTEM::Codec>;
       typename SYSTEM::Field;
       typename SYSTEM::Measurement;
       typename SYSTEM::Randomness;

@@ -5,5 +5,19 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.prio.flp
-namespace tunitas::keyston::prio::flp::gadget { }
+namespace tunitas::keyston::prio::flp::gadget {
+
+  // for the gadgets
+  // Use underlying(...)
+  enum class Arity : unsigned; // NOT Size, just a very small unsigned
+  enum class Degree : unsigned;
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import nonstd.required.Enumeration
+#import tunitas.keyston.prio.flp.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::prio::flp::gadget {
+  template<required::Enumeration ENUMERATION> inline constexpr auto underlying(ENUMERATION e) { return std::underlying_type_t<ENUMERATION>(e); }
+}
 #endiv

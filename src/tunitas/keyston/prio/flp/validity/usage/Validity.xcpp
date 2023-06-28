@@ -14,8 +14,8 @@
 #import tunitas.keyston.prio.flp.gadget.usage.Calls
 #import tunitas.keyston.prio.flp.dimension.cast
 #include <ipp/tunitas.keyston.prio.flp.dimension.cast>
-#import tunitas.keyston.array.Fixed
-#import tunitas.keyston.span.Fixed
+#import tunitas.array.Fixed
+#import tunitas.span.Fixed
 #import tunitas.keyston.measurement.Records
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Count

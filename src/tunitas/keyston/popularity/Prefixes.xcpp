@@ -28,7 +28,7 @@ namespace tunitas::keyston::popularity {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.measurement.Specimen
 #forward tunitas.keyston.popularity.Popularity
 #import tunitas.keyston.formatter.Formatter

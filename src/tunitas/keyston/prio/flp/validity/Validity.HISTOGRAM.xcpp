@@ -54,9 +54,6 @@ namespace tunitas::keyston::prio::flp::validity {
     using Face = Interface<Definition<HISTOGRAM>>;
     using Range2 = flp::Gadget<RANGE2>;
   public:
-    inline static constexpr auto encode(Face::Encodable) -> Face::Encoded;
-    inline static constexpr auto truncate(Face::Truncatable) -> Face::Truncated;
-    inline static constexpr auto decode(Face::Decodable, Face::Records) -> Face::Decoded;
     inline static constexpr auto circuit(Face::Input, Face::Randomness, Face::Records) -> Field::Element;
   };
 }

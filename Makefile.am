@@ -37,6 +37,7 @@ noinst_LTLIBRARIES = \
   noinst/lib/libautotools-autoconf+tunitas-keyston.la \
   noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
+  noinst/lib/libtunitas-array+tunitas-keyston.la \
   noinst/lib/libtunitas-number+tunitas-keyston.la \
   noinst/lib/libnonstd+tunitas-keyston.la \
   $(end)
@@ -89,6 +90,7 @@ INSTALLATION_AREAS = \
   $(nonstd_boost_prefix) \
   $(nonstd_fmt_prefix) \
   $(nonstd_gcc_prefix) \
+  $(nonstd_mdspan_prefix) \
   $(std_scold_prefix) \
   $(std_tunitas_prefix) \
   $(deprecated_INSTALLATION_AREAS) \
@@ -110,6 +112,7 @@ include noinst/lib/libautotools-autoconf+tunitas-keyston.am
 include noinst/lib/libfmt+tunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am
 include noinst/lib/libnonstd+tunitas-keyston.am
+include noinst/lib/libtunitas-array+tunitas-keyston.am
 include noinst/lib/libtunitas-number+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
@@ -130,15 +133,15 @@ Makefile_COMPILER_CFLAGS_SET   = -Wall   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
 Makefile_COMPILER_LDFLAGS_SET  = -Wall  @LDFLAGS_gcc@  @LDFLAGS_gdb@
 
-Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_fmt_CPPFLAGS@
-Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_fmt_CFLAGS@
-Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_fmt_CXXFLAGS@
-Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_fmt_LDFLAGS@
+Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_fmt_CPPFLAGS@ @nonstd_mdspan_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_fmt_CFLAGS@ = @nonstd_mdspan_CFLAGS@
+Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_fmt_CXXFLAGS@ @nonstd_mdspan_CXXFLAGS@
+Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_fmt_LDFLAGS@  @nonstd_mdspan_LDFLAGS@
 
-Makefile_PACKAGE_CPPFLAGS_SET = 
-Makefile_PACKAGE_CFLAGS_SET   = 
-Makefile_PACKAGE_CXXFLAGS_SET = 
-Makefile_PACKAGE_LDFLAGS_SET  = 
+Makefile_PACKAGE_CPPFLAGS_SET = @CPPFLAGS_mdspan@
+Makefile_PACKAGE_CFLAGS_SET   =   @CFLAGS_mdspan@
+Makefile_PACKAGE_CXXFLAGS_SET = @CXXFLAGS_mdspan@
+Makefile_PACKAGE_LDFLAGS_SET  =  @LDFLAGS_mdspan@
 
 Makefile_nonstd_CHECK_CPPFLAGS_SET = 
 Makefile_nonstd_CHECK_CFLAGS_SET   = 

@@ -27,7 +27,7 @@ namespace tunitas::keyston::daf::protocol {
 #endiv
 #divert <hpp>
 #import std.byte
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 struct tunitas::keyston::daf::protocol::Number {
   array::Variable<std::byte> value{};
   Number() = default;

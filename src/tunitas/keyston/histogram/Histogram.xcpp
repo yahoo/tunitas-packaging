@@ -29,9 +29,9 @@ namespace tunitas::keyston::histogram {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #import tunitas.keyston.aggregation.Count
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #import tunitas.keyston.histogram.Buckets
 #import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston {
@@ -47,7 +47,8 @@ namespace tunitas::keyston {
     inline auto operator+(Histogram const &, Histogram const &) -> Histogram;
   }
   class histogram::Histogram : public array::Fixed<aggregation::Count, histogram::Buckets::COUNT.count()> {
-    using Ancestor = keyston::array::Fixed<aggregation::Count, histogram::Buckets::COUNT.count()>;
+    // WATCHOUT 'array' names a constructor in the Ancestor
+    using Ancestor = tunitas::array::Fixed<aggregation::Count, histogram::Buckets::COUNT.count()>;
   public:
     Histogram() = default;
     using Ancestor::Fixed;
@@ -60,7 +61,7 @@ namespace tunitas::keyston {
 #endiv
 #divert <ipp>
 #import tunitas.keyston.exception.Length
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 #import std.equal
 #import std.mismatch
 namespace tunitas::keyston {

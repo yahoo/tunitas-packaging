@@ -32,7 +32,7 @@ namespace tunitas::keyston::field::vector {
 #endiv
 #divert <hpp>
 #import std.strong_ordering
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 namespace tunitas::keyston::field {
   namespace vector {
     using std::move;

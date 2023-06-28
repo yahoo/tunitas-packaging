@@ -29,7 +29,7 @@ namespace tunitas::keyston::popularity {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.aggregation.Count
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston {
   namespace popularity {
@@ -57,7 +57,7 @@ namespace tunitas::keyston {
 #endiv
 #divert <ipp>
 #import tunitas.keyston.exception.Length
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 #import std.equal
 #import std.mismatch
 namespace tunitas::keyston {

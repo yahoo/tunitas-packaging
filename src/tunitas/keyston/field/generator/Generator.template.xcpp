@@ -50,7 +50,7 @@ namespace tunitas::keyston::field {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.field.element.powm
+#import tunitas.integer.powm
 namespace tunitas::keyston::field::generator {
   //
   // As used in Field<64>
@@ -68,7 +68,7 @@ namespace tunitas::keyston::field::generator {
     if (generated) {
       return *generated;
     } else {
-      generated = field::element::powm(Ancestor::BASE, Ancestor::EXPONENT, Ancestor::MODULUS);
+      generated = integer::powm(Ancestor::BASE, Ancestor::EXPONENT, Ancestor::MODULUS);
       return *generated;
     }
   }

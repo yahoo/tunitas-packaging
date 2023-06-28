@@ -7,7 +7,7 @@
 namespace tests::unit::array::range::enumerate { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.range.required.Container
+#import tunitas.array.range.required.Container
 struct tests::unit::array::range::enumerate::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -18,7 +18,7 @@ protected:
 };
 #endiv
 #divert <tpp>
-#import tunitas.keyston.array.range.enumerate
+#import tunitas.array.range.enumerate
 namespace tests::unit::array::range::enumerate {
   template<required::Container CONTAINER> auto Fixture::enumerate_summation(CONTAINER &&specimen) -> void {
     auto index_accumulator{0u};
@@ -33,8 +33,8 @@ namespace tests::unit::array::range::enumerate {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.array.range.package_enumerate.Range
-#import tunitas.keyston.array.range.package_enumerate.Iterator
+#import tunitas.array.range.package_enumerate.Range
+#import tunitas.array.range.package_enumerate.Iterator
 #import tests.unit.array.range.enumerate.Range
 #import tests.unit.array.range.enumerate.Iterator
 #import std.vector // [[TODO]] instead use nonstd.vector.Container<...>
@@ -101,7 +101,7 @@ auto tests::unit::array::range::enumerate::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 namespace tests::unit::array::range::enumerate {
   auto Fixture::test_usage_enumerate_constie() -> void {
     auto const specimen = std::vector{1, 2, 3, 4, 5, 6};

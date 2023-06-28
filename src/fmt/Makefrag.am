@@ -3,5 +3,5 @@
 #
 fmt_SUBSOURCES = \
   obj/src/fmt/formatter/tunitas.keyston.hpke.Side.cpp \
-  obj/src/fmt/formatter/tunitas.keyston.array.Unique.SIZE.STAMP.cpp \
+  obj/src/fmt/formatter/tunitas.keyston.Unique.SIZE.STAMP.cpp \
   $(end)

@@ -1,0 +1,25 @@
+# This is a -*- Makefile -*- fragment
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms and provenance see the LICENSE file at the top of this repository.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+noinst_lib_libtunitas_array_tunitas_keyston_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+noinst_lib_libtunitas_array_tunitas_keyston_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+noinst_lib_libtunitas_array_tunitas_keyston_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+noinst_lib_libtunitas_array_tunitas_keyston_la_LIBADD = -ltunitas
+noinst_lib_libtunitas_array_tunitas_keyston_la_MODULES = $(call HT_SOURCEStoMODULES, $(noinst_lib_libtunitas_array_tunitas_keyston_la_SOURCES))
+noinst_lib_libtunitas_array_tunitas_keyston_la_SOURCES = $(tunitas_array_SUBSOURCES) $(tunitas_span_SUBSOURCES) $(tunitas_view_SUBSOURCES)
+include src/tunitas/array/Makefrag.am
+include src/tunitas/span/Makefrag.am
+include src/tunitas/view/Makefrag.am
+$(noinst_lib_libtunitas_array_tunitas_keyston_la_SOURCES): obj/src/%.cpp : src/%.xcpp
+	$(HT_V_COLD) $(call HT_XCPP2CPP, $<)
+	@test -e $@
+$(ht_noinst_mkdir)/libtunitas-array+tunitas-keyston.mk: $(noinst_lib_libtunitas_array_tunitas_keyston_la_SOURCES)
+$(ht_noinst_mkdir)/libtunitas-array+tunitas-keyston.mk:
+	$(HT_V_BOTH) $(call HT_DEPENDENCIES, $^)
+	@test -e $@
+include $(ht_noinst_mkdir)/libtunitas-array+tunitas-keyston.mk
+clean-dependencies:: ; rm -f $(ht_noinst_mkdir)/libtunitas-array+tunitas-keyston.mk

@@ -17,7 +17,7 @@
 #import tunitas.keyston.Slice
 #import tunitas.keyston.Shards
 #import tunitas.keyston.shards.literals
-#import tunitas.keyston.array.Series
+#import tunitas.array.Series
 #import tunitas.keyston.field.Element
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Count
@@ -29,7 +29,7 @@ namespace tests::unit::daf::numeric {
   using Configuration = ::tunitas::keyston::daf::Configuration<Transport::NUMERIC>;
   using ::tunitas::keyston::field::Element;
   template<::tunitas::keyston::shards::required::Shardable TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
-  template<::tunitas::keyston::array::required::Arrayable TYPE> using Series = ::tunitas::keyston::array::Series<TYPE>;
+  template<::tunitas::array::required::Arrayable TYPE> using Series = ::tunitas::array::Series<TYPE>;
   using enum ::tunitas::keyston::Slice;
   using ::tunitas::keyston::measurement::Specimen;
   using ::tunitas::keyston::aggregation::Count; // [[FIXTHIS]] why is this here and not also Summation, Histogram, Popularity?

@@ -67,7 +67,7 @@ namespace tunitas::keyston::prg::generator {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.prg.generator.Prototype
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.crypto.Block
 #import tunitas.keyston.crypto.Blocks
 #forward tunitas.keyston.crypto.Algorithm

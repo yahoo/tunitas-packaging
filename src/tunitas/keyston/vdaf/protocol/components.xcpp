@@ -7,7 +7,7 @@
 #import tunitas.keyston.vdaf.Configuration
 #include <hpp/tunitas.keyston.vdaf.Configuration>
 #import tunitas.keyston.aggregation.Count
-#import tunitas.keyston.array.Series
+#import tunitas.array.Series
 #import tunitas.keyston.Shards
 #import tunitas.keyston.vdaf.protocol.Measurement
 #import tunitas.keyston.vdaf.protocol.Input
@@ -41,7 +41,7 @@ namespace tunitas::keyston::vdaf::protocol {
 //
 // and some "going away soon" stuff
 //
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.Shard
 #include <hpp/tunitas.keyston.Shard> // for SHARD_COUNT which is defined at <hpp>

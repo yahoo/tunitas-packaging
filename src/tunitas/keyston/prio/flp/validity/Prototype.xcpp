@@ -51,7 +51,7 @@ public:
 #import tunitas.integer.integers
 #import tunitas.keyston.integer // ctcnr
 #import tunitas.keyston.Field
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 #import tunitas.keyston.prio.flp.Gadgets
 #import tunitas.keyston.prio.flp.Gadget
 #import tunitas.keyston.prio.flp.gadget.calls

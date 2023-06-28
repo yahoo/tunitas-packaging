@@ -33,7 +33,7 @@ namespace tunitas::keyston::histogram {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 namespace tunitas::keyston {
   auto histogram::encode(measurement::Specimen specimen, Boundaries const &boundaries) -> aggregation::Histogram {
     auto encoded = aggregation::Histogram{};

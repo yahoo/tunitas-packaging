@@ -29,7 +29,7 @@ namespace tunitas::keyston::prio::flp::gadget {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Fixed
+#import tunitas.array.Fixed
 namespace tunitas::keyston::prio::flp {
   template<Size N> class gadget::Calls : public array::Fixed<Items, N> {
     using Ancestor = array::Fixed<Items, N>;

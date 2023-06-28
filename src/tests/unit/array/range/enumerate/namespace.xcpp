@@ -5,11 +5,11 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit.array.range
-#import tunitas.keyston.array.range.required
-#import tunitas.keyston.array.range.package_enumerate // and Mutability
+#import tunitas.array.range.required
+#import tunitas.array.range.package_enumerate // and Mutability
 namespace tests::unit::array::range::enumerate {
-  namespace library = ::tunitas::keyston::array::range::package_enumerate::interface;
-  namespace library_body = ::tunitas::keyston::array::range::package_enumerate::body;
-  namespace [[nodirectory]] required { using namespace ::tunitas::keyston::array::range::required; }
+  namespace library = ::tunitas::array::range::package_enumerate::interface;
+  namespace library_body = ::tunitas::array::range::package_enumerate::body;
+  namespace [[nodirectory]] required { using namespace ::tunitas::array::range::required; }
 }
 #endiv

@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.container.Traits
+#forward tunitas.array.Bounded
+namespace nonstd::container {
+  template<typename TYPE, size_t CAPACITY> struct Traits<tunitas::array::Bounded<TYPE, CAPACITY>>;
+  template<typename TYPE, size_t CAPACITY> struct Traits<tunitas::array::Bounded<TYPE, CAPACITY> const>;
+}
+#endiv
+#divert <hpp>
+#import nonstd.container.Traits.tunitas.array.Variable..TYPE
+namespace nonstd::container {
+  template<typename TYPE, size_t CAPACITY> struct Traits<tunitas::array::Bounded<TYPE, CAPACITY> const> : public Traits<tunitas::array::Variable<TYPE>> {
+    using Container = tunitas::array::Bounded<TYPE, CAPACITY> const;
+  };
+  template<typename TYPE, size_t CAPACITY> struct Traits<tunitas::array::Bounded<TYPE, CAPACITY>> : public Traits<tunitas::array::Variable<TYPE>> {
+    using Container = tunitas::array::Bounded<TYPE, CAPACITY>;
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.array.Bounded
+namespace {
+  namespace testate {
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1>>));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1>>::Iterator));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1>>::Value));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1>>::Container));
+    //
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1> const>));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1> const>::Iterator));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1> const>::Value));
+    static_assert(sizeof(nonstd::container::Traits<tunitas::array::Bounded<unsigned, 1> const>::Container));
+  }
+}
+#endiv

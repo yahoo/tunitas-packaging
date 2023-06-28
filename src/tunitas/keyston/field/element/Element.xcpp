@@ -41,6 +41,5 @@ namespace tunitas::keyston::field::element {
   };
 }
 #import tunitas.keyston.field.element.operations
-#import tunitas.keyston.field.element.powm
 #import tunitas.keyston.field.element.narrow
 #endiv

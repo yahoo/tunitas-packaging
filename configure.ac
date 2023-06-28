@@ -1,5 +1,5 @@
 dnl This is a GNU -*- autoconf -*- specification that is processed by Autoconf.
-dnl Copyright Yahoo Inc, 2022.
+dnl Copyright Yahoo Inc.
 dnl Licensed under the terms of the Apache-2.0 license.
 dnl For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 dnl For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -20,7 +20,7 @@ TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
 AM_SILENT_RULES([yes]) dnl See the AUTOMAKE_OPTIONS in the Makefile.am
 
 AC_CONFIG_SRCDIR([src/tunitas/keyston/Version.xcpp])
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4 ac])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
 #
@@ -78,6 +78,7 @@ TF_PROG_DC
 
 TF_CHECK_CPPUNIT
 TF_CHECK_BOOST
+TF_CHECK_MDSPAN
 
 dnl Since some parts of keyston still use tunitas::number in libtunitas-number.la which uses gmp
 dnl
@@ -100,5 +101,17 @@ dnl
 CPPFLAGS="${CPPFLAGS} ${module_boost_prefix:+-I${module_boost_prefix?}/modules -I${module_boost_prefix?}/include} ${nonstd_boost_prefix:+-I${nonstd_boost_prefix?}/include}" # [[FIXTHIS]] fix TF_CHECK_PACKAGES to be cognizant of the now-accreted searchpath
 TF_CHECK_PACKAGES_ERROR([boost/multiprecision/cpp_int.hpp], [boost-devel])
 TF_CHECK_PACKAGES_ERROR([boost.multiprecision.cpp_int], [module-boost])
+
+dnl
+dnl Whereas std::mdspan "isn't ready" yet
+dnl See https://en.wikipedia.org/wiki/C++23
+dnl See https://gcc.gnu.org/projects/cxx-status.html (std::mdspan is not yet listed circa 2023-07)
+dnl
+dnl This tests for an aftermarket std::mdspan since gcc doesn't seem to have it yet
+dnl See https://github.com/kokkos/mdspan
+dnl
+CPPFLAGS="${CPPFLAGS} ${mdspan_prefix:+-I${mdspan_prefix?}/modules -I${mdspan_prefix?}/include} ${nonstd_mdspan_prefix:+-I${nonstd_mdspan_prefix?}/include}" # [[FIXTHIS]] fix TF_CHECK_PACKAGES to be cognizant of the now-accreted searchpath
+TF_CHECK_PACKAGES_ERROR([mdspan/mdspan.hpp], [mdspan-devel], [(experimental) aftermarket mdspan of C++23])
+TF_CHECK_PACKAGES_ERROR([mdspan/mdarray.hpp], [mdspan-devel], [(experimental) aftermarket mdspan of C++23])
 
 TF_FINALIZE
