@@ -47,18 +47,19 @@ namespace tunitas::keyston::prio::flp::validity {
   };
   template<> class Validity<COUNT> : public Definition<COUNT>, public Lengths<Definition<COUNT>>, public Codeckie<COUNT, Definition<COUNT>> {
     using Face = Interface<Definition<COUNT>>;
-    using Mul = flp::Gadget<RANGE1>;
+    using Mul = typename tuple::Element<0uz, Gadgets>::type;
   public:
-    inline static constexpr auto circuit(Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Records) -> Field::Element;
-    inline static constexpr auto circuit(Face::Input input) -> Field::Element { return circuit(input, {}, {}); }
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER &, Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Records) -> Field::Element;
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER &recorder, Face::Input input) -> Field::Element { return evaluate(recorder, input, {}, {}); }
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::prio::flp::validity {
-  constexpr auto Validity<COUNT>::circuit(Face::Input input, Face::Randomness, Face::Records) -> Field::Element {
+  template<required::Recorder<Validity<COUNT>> RECORDER> constexpr auto Validity<COUNT>::evaluate(RECORDER &recorder, Face::Input input, Face::Randomness, Face::Records) -> Field::Element {
     auto item = input.at(0u);
-    return Mul{}(item, item) - item;
+    auto mul = typename Mul::template Evaluator<typename RECORDER::Only>{recorder.only};
+    return mul(item, item) - item;
   }
 }
 #endiv

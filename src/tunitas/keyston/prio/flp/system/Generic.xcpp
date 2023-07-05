@@ -34,14 +34,8 @@ namespace tunitas::keyston::prio::flp::system {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.prio.flp.system.Interface
 #import tunitas.keyston.prio.flp.system.System
 namespace tunitas::keyston::prio::flp {
-  template<system::required::Validity VALIDITY> struct system::Generic
-    : public System<VALIDITY,
-                    system::Interface<typename VALIDITY::Field,
-                                      system::interface::Randomness<VALIDITY::joint_randomness_length(), VALIDITY::prove_randomness_length(), VALIDITY::query_randomness_length()>,
-                                      system::interface::Message<VALIDITY::INPUT_LENGTH, VALIDITY::OUTPUT_LENGTH, VALIDITY::proof_length(), VALIDITY::verifier_length()>>>
-  { };
+  template<system::required::Validity VALIDITY> struct system::Generic : public System<VALIDITY> { };
 }
 #endiv

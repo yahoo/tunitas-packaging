@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import std.remove_cvref
+namespace tunitas::keyston::prio::flp::gadget::recorder::required {
+  //
+  // Is this set of types (as member call arguments) suitable for Recorder<...>::store(...)
+  //
+  // Design:
+  //
+  //   This is 'required' but rendered at <hpp> because it covers some member function arguments.
+  //   The requires body uses the definition of gadget::underlying(...)
+  //
+  // Usage:
+  //
+  //   template<typename... EACH> constexpr auto store(EACH...) -> void requires required::Storable<typename Ancestor::Element, Ancestor::ARITY, EACH...>;
+  //
+  template<typename ELEMENT, Arity ARITY, typename... EACH> concept Storable = requires(ELEMENT, EACH...) {
+    requires underlying(ARITY) == sizeof...(EACH);
+    requires (same_as<ELEMENT, std::remove_cvref_t<EACH>> && ... );
+  }; 
+}
+#endiv

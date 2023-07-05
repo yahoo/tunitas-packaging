@@ -34,7 +34,9 @@ namespace tunitas::keyston::field {
     using Element = traits::Field<Definition>::Element;
     using Underlying = traits::Field<Definition>::Underlying;
     using Temporary = traits::Field<Definition>::Temporary;
+    template<Size CAPACITY> using Series = array::Fixed<Element, CAPACITY>;
     template<Size CAPACITY> using Vector = vector::Definition<Definition, CAPACITY>;
+    template<Size DEGREE> using Polynomial = polynomial::Definition<Definition, DEGREE>;
     inline static constexpr Underlying const MODULUS = (Underlying{1} << 66) * 4611686018427387897 + 1;
     inline static constexpr auto const ENCODED_SIZE = Bytes{16u};
     static constexpr auto generator() -> Element; // dubious since Generator caches its result but gen() does not.

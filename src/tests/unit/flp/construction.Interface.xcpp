@@ -9,12 +9,14 @@
 #import tunitas.keyston.prio.flp.system.required.Validity
 #import tunitas.keyston.prio.flp.dimension
 namespace tests::unit::flp::construction {
+#if 0 // ... no need any more [[REMOVETHIS]]
   namespace [[eponymous]] interface {
     using namespace library::dimension;
     using Randomness = library::system::interface::Randomness<Joint{1}, Prove{1}, Query{1}>;
     using Message    = library::system::interface::Message<Input{1}, Output{1}, Proof{1}, Verifier{1}>;
     template<library::system::required::Validity VALIDITY> using Face = library::system::Interface<typename VALIDITY::Field, Randomness, Message>;
   }
-  template<library::system::required::Validity VALIDITY> using System = library::System<VALIDITY, interface::Face<VALIDITY>>;
+#endif
+  template<library::system::required::Validity VALIDITY> using System = library::System<VALIDITY>;
 }
 #endiv

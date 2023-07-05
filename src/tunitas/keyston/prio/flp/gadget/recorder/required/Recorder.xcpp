@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.keyston.prio.flp.gadget> // for the definition of gadget::underlying(...)
+#forward tunitas.keyston.prio.flp.gadget.recorder.Recorder
+#import tunitas.keyston.prio.flp.gadget.recorder.required.Element
+#import tunitas.keyston.prio.flp.gadget.recorder.required.Loggable
+namespace tunitas::keyston::prio::flp::gadget::recorder::required {
+  //
+  // Is this type a Recorder (instance?)
+  // This is the moral equivalent of InstanceOf that accounts for the NTTP (Non-Type Template Parameter)
+  //
+  template<typename RECORDER> concept Recorder = requires(RECORDER) {
+    { []<typename ELEMENT, typename LOG, Arity ARITY>(recorder::Recorder<ELEMENT, LOG, ARITY> *)
+      requires (required::Element<ELEMENT> && Loggable<LOG, ELEMENT>)
+      {}(static_cast<RECORDER *>(nullptr)) };
+  };
+  template<typename RECORDER, Size N> concept RecorderN = requires(RECORDER) {
+    requires Recorder<RECORDER>;
+    { []<typename ELEMENT, typename LOG, Arity ARITY>(recorder::Recorder<ELEMENT, LOG, ARITY> *)
+      requires (N == underlying(ARITY))
+      {}(static_cast<RECORDER *>(nullptr)) };
+  };
+}
+#endiv

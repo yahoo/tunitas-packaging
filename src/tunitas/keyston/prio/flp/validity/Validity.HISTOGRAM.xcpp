@@ -52,15 +52,15 @@ namespace tunitas::keyston::prio::flp::validity {
   };
   template<> class Validity<HISTOGRAM> : public Definition<HISTOGRAM>, public Lengths<Definition<HISTOGRAM>>, public Codeckie<HISTOGRAM, Definition<HISTOGRAM>> {
     using Face = Interface<Definition<HISTOGRAM>>;
-    using Range2 = flp::Gadget<RANGE2>;
+    using Range2 = typename tuple::Element<0uz, Gadgets>::type;
   public:
-    inline static constexpr auto circuit(Face::Input, Face::Randomness, Face::Records) -> Field::Element;
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER &, Face::Input, Face::Randomness, Face::Records) -> Field::Element;
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::prio::flp::validity {
-  constexpr auto Validity<HISTOGRAM>::circuit(Face::Input input, Face::Randomness joint, Face::Records records) -> Field::Element {
+  template<required::Recorder<Validity<HISTOGRAM>> RECORDER> constexpr auto Validity<HISTOGRAM>::evaluate(RECORDER &recorder, Face::Input input, Face::Randomness joint, Face::Records records) -> Field::Element {
     // Check that each bucket is one or zero.
     // range_check = Field128(0)
     // r = joint_rand[0]
@@ -72,11 +72,11 @@ namespace tunitas::keyston::prio::flp::validity {
     // for b in inp:
     //   sum_check += b
     // out = joint_rand[1] * range_check + joint_rand[1] ** 2 * sum_check
+    auto range2 = typename Range2::template Evaluator<typename RECORDER::Only>{recorder.range2};
     auto range_check = Field::Element{0u};
     auto const r0 = joint.at(0u);
     auto const r1 = joint.at(1u);
     auto r = r0;
-    auto range2 = Range2{};
     for (auto x : input) {
       range_check += r * range2(x);
       r *= r0;

@@ -66,11 +66,11 @@ namespace tunitas::keyston::field::element::package_narrow {
       //   auto narrowed = narrow<Small>(error::by::Optional{}, something_big);
       //   auto narrowed = narrow<Small>(error::by::Outcome{}, something_big);
       //
-      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(error::by::Exception, SOURCE const &) -> RESULT;
-      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(error::by::Optional, SOURCE const &) -> error::Optional<RESULT>;
-      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(error::by::Outcome, SOURCE const &) -> error::Outcome<RESULT>;
-      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(Clip, SOURCE const &i) -> RESULT;
-      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> inline auto narrow(SOURCE const &i) -> Pair<RESULT, bool>;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> [[deprecated("AVOID because the integer constructors & (functional) casts already perform mostly-disciplined narrowing")]] inline auto narrow(error::by::Exception, SOURCE const &) -> RESULT;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> [[deprecated("AVOID because the integer constructors & (functional) casts already perform mostly-disciplined narrowing")]] inline auto narrow(error::by::Optional, SOURCE const &) -> error::Optional<RESULT>;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> [[deprecated("AVOID because the integer constructors & (functional) casts already perform mostly-disciplined narrowing")]] inline auto narrow(error::by::Outcome, SOURCE const &) -> error::Outcome<RESULT>;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> [[deprecated("AVOID because the integer constructors & (functional) casts already perform mostly-disciplined narrowing")]] inline auto narrow(Clip, SOURCE const &i) -> RESULT;
+      template<typename RESULT, typename SOURCE> requires Narrowable<RESULT, SOURCE> [[deprecated("AVOID because the integer constructors & (functional) casts already perform mostly-disciplined narrowing")]] inline auto narrow(SOURCE const &i) -> Pair<RESULT, bool>;
     }
   }
   template<integer::required::Unsigned NARROW> struct body::Specification {

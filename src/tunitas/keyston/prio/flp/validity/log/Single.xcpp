@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.required.Validity
+namespace tunitas::keyston::prio::flp::validity::log {
+  //
+  // Commonalities among the single-gadget logs.
+  //
+  // Specification:
+  //
+  //   For a single G-gate circuit.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Save on copy-pasta.
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  template<required::Validity> struct Single;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.validity.log.Prototype
+#import tunitas.array.md.Fixed
+#import tunitas.integer.bit
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Validity VALIDITY> struct log::Single : public Prototype<VALIDITY> {
+    using Ancestor = Prototype<VALIDITY>;
+  protected:
+    ~Single() = default;
+  public:
+    static_assert(1uz == Ancestor::H);
+    using Gadget = typename Ancestor::template Gadget<0>;
+    inline static constexpr auto const L = underlying(Gadget::ARITY);
+    inline static constexpr auto const M = Ancestor::Validity::CALLS.at(0).count();
+    inline static constexpr auto const P = integer::bit_ceil(1u + M);
+    struct Wires {
+      using Scalars = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L, M>>; // not P
+      using Coefficients = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L, P>>;
+      Scalars inputs{}; // ....... a.k.a. "wire seeds" in tables wire_i of Section 7.3.3.1
+      Coefficients slice{}; // ... a.k.a. "wire polynomials" in temporary variable w of Section 7.3.3.1
+    };
+    Wires wires{};
+    using Axis = typename Ancestor::Field::template Series<P>;
+    inline static constexpr auto x_axis() -> Axis;
+    inline static constexpr auto alpha(Size) -> typename Ancestor::Element;
+    class Polynomial {
+      inline static constexpr auto const MD = M * underlying(Single::Gadget::DEGREE);
+    public:
+      using Wires = array::md::Fixed<typename Ancestor::Field::template Polynomial<P>::Value, std::extents<Size, /*1==H*/ M>>; // not P
+      using Gadget = typename Ancestor::Field::template Polynomial<MD>::Value;
+      Wires wires{}; // ..... a.k.a. poly_wire_i of Section 7.3.3.1
+      Gadget gadget{}; // ... a.k.a. poly_gadget_i of Section 7.3.3.1
+    };
+    Polynomial polynomial{};
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.prio.flp.validity.Unpackage
+namespace tunitas::keyston::prio::flp::validity::log {
+  template<required::Validity _> constexpr auto Single<_>::alpha(Size k) -> typename Ancestor::Element { return pow(pow(Ancestor::Field::generator(), k), Ancestor::Field::Generator::ORDER / P); }
+  template<required::Validity _> constexpr auto Single<_>::x_axis() -> Axis {
+    return []<Size... K>(Unpackage::Sequence::Pack<K...>) {
+      return Axis{alpha(K)...};
+    }(Unpackage::Sequence::make<M>());
+  }
+}
+#endiv

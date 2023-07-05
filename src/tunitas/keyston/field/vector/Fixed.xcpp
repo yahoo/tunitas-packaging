@@ -18,10 +18,13 @@ namespace tunitas::keyston::field::vector {
   //   Fixed length.
   //   Use a new type so that ADL will find the operations. 
   //
-  // The following operations are not available for modular vectors
-  //   e.g. operator<=>
-  //   e.g. operator/
-  //   e.g. operator%
+  //   The following operations are not available for modular vectors
+  //   e.g. operator<=> ... what would it mean?
+  //   e.g. operator/   ... alternatively, use multiplication against invm(...) or invm(...)*powm(...)
+  //   e.g. operator%   ... this is already a modular field
+  //
+  //   Basically copy-pasta with Polynomial because ... that's how linear algebra goes.
+  //   operator* on two Vectors does what you expect (the dot product)
   //
   // Usage:
   //
@@ -39,9 +42,6 @@ namespace tunitas::keyston::field {
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto swap(Fixed<ELEMENT, CAPACITY> &, Fixed<ELEMENT, CAPACITY> &) noexcept -> void;
     //
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator==(Fixed<ELEMENT, CAPACITY> const &, Fixed<ELEMENT, CAPACITY> const &) -> bool;
-#if 0
-    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator<=>(Fixed<ELEMENT, CAPACITY> const &, Fixed<ELEMENT, CAPACITY> const &) -> std::strong_ordering;
-#endif
     //
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator+(Fixed<ELEMENT, CAPACITY> const &a) -> Fixed<ELEMENT, CAPACITY> { return a; }
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator-(Fixed<ELEMENT, CAPACITY> const &) -> Fixed<ELEMENT, CAPACITY>;
@@ -49,14 +49,9 @@ namespace tunitas::keyston::field {
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator+(Fixed<ELEMENT, CAPACITY> const &, Fixed<ELEMENT, CAPACITY> const &) -> Fixed<ELEMENT, CAPACITY>;
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator-(Fixed<ELEMENT, CAPACITY> const &, Fixed<ELEMENT, CAPACITY> const &) -> Fixed<ELEMENT, CAPACITY>;
     //
-    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(Fixed<ELEMENT, CAPACITY> const &, Fixed<ELEMENT, CAPACITY> const &) -> Fixed<ELEMENT, CAPACITY>;
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(ELEMENT a, Fixed<ELEMENT, CAPACITY> const &b) -> Fixed<ELEMENT, CAPACITY> { return b * a; }
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(Fixed<ELEMENT, CAPACITY> const &, ELEMENT) -> Fixed<ELEMENT, CAPACITY>;
-#if 0
-    //
-    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator/(Fixed<ELEMENT, CAPACITY> const &, ELEMENT) -> Fixed<ELEMENT, CAPACITY>;
-    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator%(Fixed<ELEMENT, CAPACITY> const &, ELEMENT) -> Fixed<ELEMENT, CAPACITY>;
-#endif
+    template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(Fixed<ELEMENT, CAPACITY> const &, Fixed<ELEMENT, CAPACITY> const &) -> Fixed<ELEMENT, CAPACITY>;
   }
   template<required::Element ELEMENT, Size CAPACITY> struct vector::Fixed : public array::Fixed<ELEMENT, CAPACITY> {
     using Ancestor = array::Fixed<ELEMENT, CAPACITY>;
@@ -71,23 +66,16 @@ namespace tunitas::keyston::field {
     inline constexpr auto operator+=(Fixed const &) -> Fixed &;
     inline constexpr auto operator-=(Fixed const &) -> Fixed &;
     inline constexpr auto operator*=(typename Ancestor::Value) -> Fixed &;
-#if 0
-    inline constexpr auto operator/=(typename Ancestor::Value) -> Fixed &;
-    inline constexpr auto operator%=(typename Ancestor::Value) -> Fixed &;
-#if 0 // these can't be defaulted (think about it ... how would the compiler know what to do?)
-    constexpr auto operator==(Fixed const &) const -> bool = default;
-    constexpr auto operator<=>(Fixed const &) const -> std::strong_ordering = default;
-#endif
-#endif
   };
 }
 #import nonstd.container.Traits.tunitas.keyston.field.vector.Fixed.ELEMENT.CAPACITY
 #endiv
 #divert <ipp>
-#import tunitas.keyston.exception.Domain
 #import std.equal
-#import std.lexicographical_compare_three_way
-#import tunitas.keyston.numeric.generic.cosine_similarity
+#import std.index_sequence
+#import std.make_index_sequence
+#import std.nothrow
+#import tunitas.keyston.exception.Domain
 namespace tunitas::keyston::field {
   template<required::Element ELEMENT, Size CAPACITY> constexpr auto vector::swap(Fixed<ELEMENT, CAPACITY> &a, Fixed<ELEMENT, CAPACITY> &b) noexcept -> void {
     typename Fixed<ELEMENT, CAPACITY>::Ancestor &aa{a}, &bb{b};
@@ -108,19 +96,16 @@ namespace tunitas::keyston::field {
     c -= b;
     return c;
   }
-  template<required::Element ELEMENT, Size CAPACITY> constexpr auto vector::operator*(Fixed<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Fixed<ELEMENT, CAPACITY> { return numeric::generic::cosine_similarity(a, b); }
-#if 0
-  template<required::Element ELEMENT, Size CAPACITY> constexpr auto vector::operator/(Fixed<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Fixed<ELEMENT, CAPACITY> {
+  template<required::Element ELEMENT, Size CAPACITY> constexpr auto vector::operator*(Fixed<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Fixed<ELEMENT, CAPACITY> {
     auto c{a};
-    c /= b;
+    c *= b;
     return c;
   }
-  template<required::Element ELEMENT, Size CAPACITY> constexpr auto vector::operator%(Fixed<ELEMENT, CAPACITY> const &a, ELEMENT b) -> Fixed<ELEMENT, CAPACITY> {
-    auto c{a};
-    c %= b;
-    return c;
+  template<required::Element ELEMENT, Size CAPACITY> constexpr auto vector::operator*(Fixed<ELEMENT, CAPACITY> const &a, Fixed<ELEMENT, CAPACITY> const &b) -> Fixed<ELEMENT, CAPACITY> {
+    return [&]<Size... INDEX>(std::index_sequence<INDEX...>) {
+        return Fixed<ELEMENT, CAPACITY>{(a.at(std::nothrow, INDEX) * b.at(std::nothrow, INDEX))...};
+      }(std::make_index_sequence<CAPACITY>{});
   }
-#endif
   namespace vector {
     template<required::Element E, Size C> constexpr Fixed<E,C>::Fixed(Ancestor const &a) : Ancestor{a} { }
     template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator+=(Fixed const &other) -> Fixed & {

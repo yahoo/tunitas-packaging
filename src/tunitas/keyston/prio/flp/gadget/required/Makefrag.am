@@ -10,4 +10,5 @@ tunitas_keyston_prio_flp_gadget_required_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/gadget/required/Element.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/required/Gadget.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/required/Gadgets.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/required/Recorder.cpp \
   $(end)

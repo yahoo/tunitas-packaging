@@ -14,6 +14,8 @@
 #import tunitas.keyston.prio.flp.gadget.usage.Calls
 #import tunitas.keyston.prio.flp.dimension.cast
 #include <ipp/tunitas.keyston.prio.flp.dimension.cast>
+#forward tunitas.keyston.prio.flp.validity.Recorder
+#forward tunitas.keyston.prio.flp.validity.Log
 #import tunitas.array.Fixed
 #import tunitas.span.Fixed
 #import tunitas.keyston.measurement.Records
@@ -36,6 +38,12 @@ namespace tunitas::keyston::prio::flp::validity::usage {
     template<typename AGGREGATION> concept Aggregation = (same_as<AGGREGATION, aggregation::Count> ||
                                                           same_as<AGGREGATION, aggregation::Summation> ||
                                                           same_as<AGGREGATION, aggregation::Histogram>);
+    //
+    template<typename VALIDITY, typename RECORDER> concept Evaluate = requires(VALIDITY, RECORDER &recorder, typename Interface<VALIDITY>::Input input, typename Interface<VALIDITY>::Randomness joint, typename Interface<VALIDITY>::Records records) {
+      // Though some instantiations will have convenience interfaces with fewer arguments
+      { VALIDITY::evaluate(recorder, input, joint, records) } -> Circuited<VALIDITY>;
+    };
+    //
     template<typename VALIDITY> concept Validity = required::Validity<VALIDITY> && requires(VALIDITY) {
       typename VALIDITY::Gadgets;
       requires gadget::usage::Gadgets<typename VALIDITY::Gadgets>;
@@ -82,13 +90,11 @@ namespace tunitas::keyston::prio::flp::validity::usage {
         { VALIDITY::decode(output, records) } -> Decoded<VALIDITY>;
       };
       //
-      // def Count(inp: Vec[Field64]): return Mul(inp[0], inp[0]) - inp[0]
-      // def Sum(inp: Vec[Field128], joint_rand: Vec[Field128]):
-      // def Histogram(inp: Vec[Field128], joint_rand: Vec[Field128], num_shares: Unsigned):
-      requires requires(VALIDITY, typename Interface<VALIDITY>::Input input, typename Interface<VALIDITY>::Randomness joint, typename Interface<VALIDITY>::Records records) {
-        // Though some instantiations will have convenience interfaces with fewer arguments
-        { VALIDITY::circuit(input, joint, records) } -> Circuited<VALIDITY>;
-      };
+      // def Count(inp: Vec[Field64])
+      // def Sum(inp: Vec[Field128], joint_rand: Vec[Field128])
+      // def Histogram(inp: Vec[Field128], joint_rand: Vec[Field128], num_shares: Unsigned)
+      requires Evaluate<VALIDITY, Recorder<VALIDITY, void>>;
+      requires Evaluate<VALIDITY, Recorder<VALIDITY, Log<VALIDITY>>>;
     };
   }
   using validity::Validity;

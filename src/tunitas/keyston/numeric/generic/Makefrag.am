@@ -8,5 +8,4 @@ tunitas_keyston_numeric_generic_SUBSOURCES = \
   obj/src/tunitas/keyston/numeric/generic/namespace.cpp \
   obj/src/tunitas/keyston/numeric/generic/Parameters.cpp \
   obj/src/tunitas/keyston/numeric/generic/Aggregation.cpp \
-  obj/src/tunitas/keyston/numeric/generic/cosine_similarity.cpp \
   $(end)

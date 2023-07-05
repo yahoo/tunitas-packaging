@@ -16,9 +16,11 @@ tunitas_keyston_prio_flp_gadget_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/gadget/Gadgets.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/Calls.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/calls.cpp \
+  $(tunitas_keyston_prio_flp_gadget_recorder_SUBSOURCES) \
   $(tunitas_keyston_prio_flp_gadget_required_SUBSOURCES) \
   $(tunitas_keyston_prio_flp_gadget_usage_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/keyston/prio/flp/gadget/recorder/Makefrag.am
 include src/tunitas/keyston/prio/flp/gadget/required/Makefrag.am
 include src/tunitas/keyston/prio/flp/gadget/usage/Makefrag.am

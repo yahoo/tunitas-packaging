@@ -8,6 +8,7 @@ tunitas_keyston_prio_flp_system_interface_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/system/Interface.cpp \
   obj/src/tunitas/keyston/prio/flp/system/interface/namespace.cpp \
   obj/src/tunitas/keyston/prio/flp/system/interface/Interface.cpp \
+  obj/src/tunitas/keyston/prio/flp/system/interface/Standard.cpp \
   obj/src/tunitas/keyston/prio/flp/system/interface/Randomness.cpp \
   obj/src/tunitas/keyston/prio/flp/system/interface/Message.cpp \
   $(end)

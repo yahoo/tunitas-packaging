@@ -8,4 +8,5 @@ tunitas_keyston_field_usage_SUBSOURCES = \
   obj/src/tunitas/keyston/field/usage/namespace.cpp \
   obj/src/tunitas/keyston/field/usage/Field.cpp \
   obj/src/tunitas/keyston/field/usage/Vector.cpp \
+  obj/src/tunitas/keyston/field/usage/Polynomial.cpp \
   $(end)

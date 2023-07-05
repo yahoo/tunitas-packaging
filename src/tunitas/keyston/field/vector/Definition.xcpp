@@ -37,7 +37,7 @@ namespace tunitas::keyston::field {
     using Vector = vector::Fixed<Element, CAPACITY>;
     using Value = Vector;
     //
-    inline static constexpr auto zeroes() -> Value;
+    inline static constexpr auto zeroes() -> Value { return {}; }
     template<entropy::required::Entropy SOURCE> inline static auto random([[inout]] SOURCE &) -> Value;
   };
 }
@@ -46,7 +46,6 @@ namespace tunitas::keyston::field {
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.entropy.usage.Entropy
 namespace tunitas::keyston::field::vector {
-  template<required::Field F, Size C> constexpr auto Definition<F,C>::zeroes() -> Value { return {}; }
   template<required::Field F, Size C> template<entropy::required::Entropy SOURCE> auto Definition<F,C>::random(SOURCE &source) -> Value {
     static_assert(entropy::usage::Entropy<SOURCE>);
     auto noncer = nonce::Generator<nonce::Element<Element>>{source};

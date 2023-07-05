@@ -1,0 +1,217 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::field {
+  //
+  // Because Linear Algebra ... wherein Vector<...> and Polynomial<...> have the same test shape.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   By inheritance into Vector<...> and Polynomial<...>
+  //
+  template<typename SUBJECT> struct Algebraic;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.exception.Aspect
+#import tunitas.keyston.field.element.traits.Element
+namespace tests::unit {
+  template<typename SUBJECT> class field::Algebraic : public rigging::suite::Fixture {
+  protected:
+    ~Algebraic() = default;
+    template<typename FIXTURE> static auto presuite() -> Suite;
+  public:
+    //
+    using Subject = SUBJECT;
+    using Value = typename Subject::Value;
+    using Scalar = typename library::element::traits::Element<Value>::Underlying;
+    //
+    auto test_construction_default() -> void;
+    auto test_construction_initializer() -> void;
+    auto test_construction_copy() -> void;
+    auto test_construction_move() -> void;
+    //
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    //
+    auto test_swap() -> void;
+    //    
+    auto test_pos() -> void;
+    auto test_neg() -> void;
+    //
+    auto test_add() -> void;
+    auto test_sub() -> void;
+    //
+    auto test_mul_cosine() -> void;
+    auto test_mul_ab() -> void;
+    auto test_mul_ba() -> void;
+  protected:
+    using Failure = ::tunitas::keyston::exception::Aspect;
+    static auto generate(unsigned all) -> Subject;
+    static auto generate(unsigned item0, unsigned rest) -> Subject;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.index_sequence
+#import std.make_index_sequence
+namespace tests::unit::field {
+  template<typename _> template<typename FIXTURE> auto Algebraic<_>::presuite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+               auto con = Stream{"construction"sv};
+               con << add<FIXTURE>("default", &FIXTURE::test_construction_default)
+                   << add<FIXTURE>("initializer", &FIXTURE::test_construction_initializer)
+                   << add<FIXTURE>("copy", &FIXTURE::test_construction_copy)
+                   << add<FIXTURE>("move", &FIXTURE::test_construction_move)
+                   << END;
+               return con;
+             }()
+           << []{
+               auto ass = Stream{"assignment"sv};
+               ass << add<FIXTURE>("copy", &FIXTURE::test_assignment_copy)
+                   << add<FIXTURE>("move", &FIXTURE::test_assignment_move)
+                   << END;
+               return ass;
+             }()
+           << add<FIXTURE>("swap", &FIXTURE::test_swap)
+           << []{
+               auto un = Stream{"unary"sv};
+               un << add<FIXTURE>("pos", &FIXTURE::test_pos)
+                  << add<FIXTURE>("neg", &FIXTURE::test_neg)
+                  << END;
+               return un;
+             }()
+           << []{
+               auto bin = Stream{"binary"sv};
+               bin << add<FIXTURE>("add", &FIXTURE::test_add)
+                   << add<FIXTURE>("sub", &FIXTURE::test_sub)
+                   << []{
+                     auto mul = Stream{"mul"sv};
+                     mul << add<FIXTURE>("cosine", &FIXTURE::test_mul_cosine)
+                         << add<FIXTURE>("ab", &FIXTURE::test_mul_ab)
+                         << add<FIXTURE>("ab", &FIXTURE::test_mul_ba)
+                         << END;
+                     return mul;
+                   }()
+                  << END;
+               return bin;
+             }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Algebraic<_>::generate(unsigned item0, unsigned rest) -> Subject {
+    auto generated = generate(rest);
+    generated.at(0) = Value{item0};
+    return generated;
+  }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-value"
+  template<typename _> auto Algebraic<_>::generate(unsigned rest) -> Subject {
+    auto ret = Subject{};
+    for (auto &lhs : ret) {
+      lhs = Value{rest};
+    }
+    return ret;
+  }
+#pragma GCC diagnostic pop
+  template<typename _> auto Algebraic<_>::test_construction_default() -> void {
+    auto subject = Subject{}; // <-------------------- test this
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename _> auto Algebraic<_>::test_construction_initializer() -> void {
+    auto subject = generate(1); // which uses the flexible initializer constructor <----- test this
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename _> auto Algebraic<_>::test_construction_copy() -> void {
+    auto specimen = generate(2);
+    auto subject = Subject{specimen}; // <-------------------- test this
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename _> auto Algebraic<_>::test_construction_move() -> void {
+    auto specimen = generate(3);
+    auto copy = specimen;
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    require(ASSERTION, sizeof(subject));
+    require(ASSERTION, sizeof(copy));
+  }
+  template<typename _> auto Algebraic<_>::test_assignment_copy() -> void {
+    auto specimen = generate(2);
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename _> auto Algebraic<_>::test_assignment_move() -> void {
+    auto specimen = generate(3);
+    auto copy = specimen;
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    require(ASSERTION, sizeof(subject));
+    require(ASSERTION, sizeof(copy));
+  }
+  template<typename _> auto Algebraic<_>::test_swap() -> void {
+    auto a = generate(1);
+    auto b = generate(9);
+    swap(a, b);
+    require(ASSERTION, sizeof(a));
+    require(ASSERTION, sizeof(b));
+  }
+  template<typename _> auto Algebraic<_>::test_pos() -> void {
+    auto specimen = generate(17);
+    auto subject = +specimen;
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename _> auto Algebraic<_>::test_neg() -> void {
+    auto specimen = generate(19);
+    auto subject = -specimen;
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename _> auto Algebraic<_>::test_add() -> void {
+    auto a = generate(3);
+    auto b = generate(2);
+    auto c = generate(5);
+    require(ASSERTION, sizeof(a));
+    require(ASSERTION, sizeof(b));
+    require(ASSERTION, sizeof(c));
+  }
+  template<typename _> auto Algebraic<_>::test_sub() -> void {
+    auto a = generate(5);
+    auto b = generate(2);
+    auto c = generate(3);
+    require(ASSERTION, sizeof(a));
+    require(ASSERTION, sizeof(b));
+    require(ASSERTION, sizeof(c));
+  }
+  template<typename _> auto Algebraic<_>::test_mul_cosine() -> void {
+    auto a = generate(2);
+    auto b = generate(3);
+    auto c = generate(6);
+    require(ASSERTION, sizeof(a));
+    require(ASSERTION, sizeof(b));
+    require(ASSERTION, sizeof(c));
+  }
+  template<typename _> auto Algebraic<_>::test_mul_ab() -> void {
+    auto a = Scalar{2};
+    auto b = generate(3);
+    auto c = generate(6);
+    require(ASSERTION, sizeof(a));
+    require(ASSERTION, sizeof(b));
+    require(ASSERTION, sizeof(c));
+  }
+  template<typename _> auto Algebraic<_>::test_mul_ba() -> void {
+    auto a = generate(3);
+    auto b = Scalar{2};
+    auto c = generate(6);
+    require(ASSERTION, sizeof(a));
+    require(ASSERTION, sizeof(b));
+    require(ASSERTION, sizeof(c));
+  }
+}
+#endiv

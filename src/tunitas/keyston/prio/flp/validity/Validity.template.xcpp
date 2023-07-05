@@ -31,7 +31,10 @@ namespace tunitas::keyston::prio::flp::validity {
 #endiv
 #divert <hpp>
 // All specializations will need this (these)
+#import tunitas.tuple.Size
+#import tunitas.tuple.
 #import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.flp.validity.required.Recorder
 #import tunitas.keyston.prio.flp.validity.Prototype
 #import tunitas.keyston.prio.flp.validity.Interface
 #import tunitas.keyston.prio.flp.validity.Codeckie

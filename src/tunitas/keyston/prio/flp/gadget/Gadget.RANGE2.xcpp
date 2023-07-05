@@ -31,10 +31,23 @@ namespace tunitas::keyston::prio::flp::gadget {
   template<> struct Gadget<RANGE2> {
     inline static constexpr auto const ARITY = Arity{1u};
     inline static constexpr auto const DEGREE = Degree{2u};
-    template<required::Element ELEMENT> inline constexpr auto operator()(ELEMENT x) const -> ELEMENT { return x * x - x; }
+    template<required::RecorderN<1> RECORDER> struct Evaluator {
+      using Recorder = RECORDER;
+      constexpr explicit Evaluator(Recorder r) : recorder{r} { }
+      template<required::Element ELEMENT> inline constexpr auto operator()(ELEMENT x) const -> ELEMENT;
+    protected:
+      Recorder recorder{};
+    };
   };
 }
 #endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::flp::gadget {
+  template<required::RecorderN<1> _> template<required::Element ELEMENT> constexpr auto Gadget<RANGE2>::Evaluator<_>::operator()(ELEMENT x) const -> ELEMENT {
+    recorder.store(x);
+    return x * x - x;
+  }
+}
 #divert <cpp>
 #import tunitas.keyston.prio.flp.gadget.usage.Gadget
 namespace {

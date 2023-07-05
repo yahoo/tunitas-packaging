@@ -7,33 +7,27 @@
 namespace tests::unit::field { struct Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.number.Integer
-#import tunitas.integer.integers
-#import nonstd.uint128_t
-#import std.uint32_t
-#import std.uint64_t
 struct tests::unit::field::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   template<typename FIELD> auto test_usage_Generator() -> void;
   template<typename VECTOR> auto test_usage_Vector() -> void;
+  template<typename VECTOR> auto test_usage_Polynomial() -> void;
 protected:
-  using uint32_t = std::uint32_t;
-  using uint64_t = std::uint64_t;
-  using uint128_t = nonstd::uint128_t;
-  using Integer = ::tunitas::number::Integer;
   inline static constexpr auto const DIMENSIONS = 3uz; // keep this reasonably small (this is a test rig)
+  inline static constexpr auto const DEGREE = 5uz;
 };
 #endiv
 #divert <tpp>
-#import tunitas.keyston.integer
 #import tunitas.keyston.field.element
 #import tunitas.keyston.field.element.traits.Element
 #import tunitas.keyston.field.Definition
 #import tunitas.keyston.Field
+#import tunitas.keyston.field.Polynomial
 #import tunitas.keyston.field.Vector
 #import tunitas.keyston.field.Definition
 #import tunitas.keyston.field.vector.Definition
+#import tunitas.keyston.field.polynomial.Definition
 #import nonstd.int128.ostream
 #import std.fill
 namespace tests::unit::field {
@@ -89,6 +83,21 @@ namespace tests::unit::field {
     require(ASSERTION, one == three % Scalar{2});
 #endif
   }
+  template<typename POLYNOMIAL> auto Fixture::test_usage_Polynomial() -> void {
+    using Subject = POLYNOMIAL;
+    auto generate = [](int unsigned raw_initial) -> Subject {
+      auto initial = typename Subject::Value{raw_initial};
+      auto ret = Subject{};
+      std::fill_n(ret.begin(), ret.size(), initial);
+      return ret;
+    };
+    auto const one = generate(1);
+    auto const two = generate(2);
+    auto const three = generate(3);
+    require(ASSERTION, sizeof(one));
+    require(ASSERTION, sizeof(two));
+    require(ASSERTION, sizeof(three));
+  }
 }
 #endiv
 #divert <cpp>
@@ -97,6 +106,7 @@ namespace tests::unit::field {
 //
 #import tests.unit.field.element.Fixture
 #import tests.unit.field.Vector
+#import tests.unit.field.Polynomial
 auto tests::unit::field::Fixture::suite() -> Suite {
   auto series = Stream{"field"sv};
   series << []{
@@ -109,9 +119,18 @@ auto tests::unit::field::Fixture::suite() -> Suite {
                       return gen;
                     }()
                 << []{
-                    auto vec = Stream{"Field"sv};
-                    vec << add("Field<64>", &Fixture::test_usage_Vector<library::vector::Definition<library::Definition<64>, DIMENSIONS>::Value>)
-                        << add("Field<128>", &Fixture::test_usage_Vector<library::vector::Definition<library::Definition<128>, DIMENSIONS>::Value>)
+                    auto poly = Stream{"Polynomial"sv};
+                    poly << add("Field<64>::Polynomial<DEGREE>", &Fixture::test_usage_Polynomial<library::polynomial::Definition<library::Definition<64>, DEGREE>::Value>)
+                         << add("Field<128>::Polynomial<DEGREE>", &Fixture::test_usage_Polynomial<library::polynomial::Definition<library::Definition<128>, DEGREE>::Value>)
+                         << add("Field<255>::Polynomial<DEGREE>", &Fixture::test_usage_Polynomial<library::polynomial::Definition<library::Definition<255>, DEGREE>::Value>)
+                        << END;
+                    return poly;
+                }()
+                << []{
+                    auto vec = Stream{"Vector"sv};
+                    vec << add("Field<64>::Vector", &Fixture::test_usage_Vector<library::vector::Definition<library::Definition<64>, DIMENSIONS>::Value>)
+                        << add("Field<128>::Vector", &Fixture::test_usage_Vector<library::vector::Definition<library::Definition<128>, DIMENSIONS>::Value>)
+                        << add("Field<255>::Vector", &Fixture::test_usage_Vector<library::vector::Definition<library::Definition<255>, DIMENSIONS>::Value>)
                         << END;
                     return vec;
                 }()
@@ -119,6 +138,14 @@ auto tests::unit::field::Fixture::suite() -> Suite {
              return use;
           }()
          << add<element::Fixture>()
+         << []{
+             auto poly = Stream{"Polynomial"sv};
+             poly << add<Polynomial<library::polynomial::Definition<library::Definition<64>, DEGREE>::Value>>()
+                  << add<Polynomial<library::polynomial::Definition<library::Definition<128>, DEGREE>::Value>>()
+                  << add<Polynomial<library::polynomial::Definition<library::Definition<255>, DEGREE>::Value>>()
+                  << END;
+             return poly;
+           }()
          << []{
              auto vec = Stream{"Vector"sv};
              vec << add<Vector<library::vector::Definition<library::Definition<64>, DIMENSIONS>::Value>>()

@@ -10,12 +10,14 @@ nonstd_container_SUBSOURCES = \
   obj/src/nonstd/container/Traits/tunitas.array.Bounded.TYPE.CAPACITY.cpp \
   obj/src/nonstd/container/Traits/tunitas.array.Variable.TYPE.cpp \
   obj/src/nonstd/container/Traits/tunitas.array.range.package_enumerate.Range.CONTAINER.cpp \
+  \
+  obj/src/nonstd/iterator/Traits/tunitas.array.range.package_enumerate.Iterator.SUBITERATOR.MUTABILITY.cpp \
+  \
+  obj/src/nonstd/container/Traits/tunitas.keyston.field.polynomial.Fixed.ELEMENT.DEGREE.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.field.vector.Fixed.ELEMENT.CAPACITY.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Histogram.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Boundaries.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Popularity.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Prefixes.cpp \
   obj/src/nonstd/container/Traits/tunitas.keyston.protocol.preparation.Steps.MARK.cpp \
-  \
-  obj/src/nonstd/iterator/Traits/tunitas.array.range.package_enumerate.Iterator.SUBITERATOR.MUTABILITY.cpp \
   $(end)

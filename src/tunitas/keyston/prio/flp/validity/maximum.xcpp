@@ -30,13 +30,14 @@ namespace tunitas::keyston::prio::flp::validity::maximum::package_maximum {
   namespace body {
     namespace exported {
       template<gadget::required::Gadgets GADGETS> inline constexpr auto arity() -> Size;
+      template<gadget::required::Gadgets GADGETS> inline constexpr auto degree() -> Size;
       template<gadget::required::Calls CALLS> inline constexpr auto calls(CALLS const &) -> Size;
     }
   }
   template<Maximizable HELD> struct body::Maximizer {
     constexpr operator Size() const { return accretion; }
     constexpr auto operator=(HELD noob) -> Maximizer & {
-      accretion = std::max(accretion, size_from(noob));
+      accretion = std::max(accretion, size_from(noob)); // [[FIXTHIS]] only this (max) differs with summation
       return *this;
     }
     static constexpr auto size_from(HELD noob) -> Size {
@@ -62,6 +63,12 @@ namespace tunitas::keyston::prio::flp::validity::maximum::package_maximum {
     static_assert(gadget::usage::Gadgets<GADGETS>);
     return []<typename... GADGET>(Tuple<GADGET...> *) -> Size requires (gadget::required::Gadget<GADGET> && ... ) {
       return (Maximizer<gadget::Arity>{} = ... = GADGET::ARITY);
+    }(static_cast<GADGETS *>(nullptr));
+  }
+  template<gadget::required::Gadgets GADGETS> constexpr auto interface::degree() -> Size {
+    static_assert(gadget::usage::Gadgets<GADGETS>);
+    return []<typename... GADGET>(Tuple<GADGET...> *) -> Size requires (gadget::required::Gadget<GADGET> && ... ) {
+      return (Maximizer<gadget::Degree>{} = ... = GADGET::DEGREE);
     }(static_cast<GADGETS *>(nullptr));
   }
   template<gadget::required::Calls CALLS> constexpr auto interface::calls(CALLS const &calls) -> Size {

@@ -63,5 +63,6 @@ namespace tunitas::keyston::field {
 #import tunitas.keyston.field.Element
 #import tunitas.keyston.field.is.Field
 #import tunitas.keyston.field.vector.Definition
+#import tunitas.keyston.field.polynomial.Definition
 #import tunitas.keyston.field.Generator
 #endiv

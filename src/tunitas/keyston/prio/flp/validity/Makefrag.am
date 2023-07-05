@@ -15,15 +15,20 @@ tunitas_keyston_prio_flp_validity_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/validity/Access.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Unpackage.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/maximum.cpp \
+  obj/src/tunitas/keyston/prio/flp/validity/summation.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Construction.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.template.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.COUNT.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.SUM.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.HISTOGRAM.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.cpp \
+  $(tunitas_keyston_prio_flp_validity_log_SUBSOURCES) \
+  $(tunitas_keyston_prio_flp_validity_recorder_SUBSOURCES) \
   $(tunitas_keyston_prio_flp_validity_required_SUBSOURCES) \
   $(tunitas_keyston_prio_flp_validity_usage_SUBSOURCES) \
   $(end)
 #
+include src/tunitas/keyston/prio/flp/validity/log/Makefrag.am
+include src/tunitas/keyston/prio/flp/validity/recorder/Makefrag.am
 include src/tunitas/keyston/prio/flp/validity/required/Makefrag.am
 include src/tunitas/keyston/prio/flp/validity/usage/Makefrag.am

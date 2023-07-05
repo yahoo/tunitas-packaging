@@ -38,6 +38,7 @@ namespace tunitas::keyston::prio::flp::gadget {
 #endiv
 #divert <hpp>
 // Every specialization will need this (these)
-#import tunitas.keyston.prio.flp.gadget.required.Element // enforce modular multiplication
+#import tunitas.keyston.prio.flp.gadget.required.Element
+#import tunitas.keyston.prio.flp.gadget.required.Recorder
 #import tunitas.keyston.prio.flp.dimension // Items and Bytes
 #endiv

@@ -52,25 +52,25 @@ namespace tunitas::keyston::prio::flp::validity {
   };
   template<> class Validity<SUM> : public Definition<SUM>, public Lengths<Definition<SUM>>, public Codeckie<SUM, Definition<SUM>> {
     using Face = Interface<Definition<SUM>>;
-    using Range2 = flp::Gadget<RANGE2>;
+    using Range2 = typename tuple::Element<0uz, Gadgets>::type;
   public:
-    inline static constexpr auto circuit(Face::Input, Face::Randomness, [[unused]] Face::Records) -> Field::Element;
-    inline static constexpr auto circuit(Face::Input input, Face::Randomness joint) -> Field::Element { return circuit(input, joint, {}); }
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER &, Face::Input, Face::Randomness, [[unused]] Face::Records) -> Field::Element;
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER &recorder, Face::Input input, Face::Randomness joint) -> Field::Element { return evaluate(recorder, input, joint, {}); }
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::prio::flp::validity {
-  constexpr auto Validity<SUM>::circuit(Face::Input input, Face::Randomness joint, Face::Records) -> Field::Element {
+  template<required::Recorder<Validity<SUM>> RECORDER> constexpr auto Validity<SUM>::evaluate(RECORDER &recorder, Face::Input input, Face::Randomness joint, Face::Records) -> Field::Element {
     // out = Field128(0)
     // r = joint_rand[0]
     // for x in inp:
     //   out += r * Range2(x)
     //   r *= joint_rand[0]
+    auto range2 = typename Range2::template Evaluator<typename RECORDER::Only>{recorder.only};
     auto const r0 = joint.at(0u);
     auto r = r0;
     auto out = Field::Element{0u};
-    auto range2 = Range2{};
     for (auto x : input) {
       out += r * range2(x);
       r *= r0;

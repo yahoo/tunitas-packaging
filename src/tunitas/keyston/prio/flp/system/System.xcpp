@@ -4,7 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.flp.system.required.Interface
 #import tunitas.keyston.prio.flp.system.required.Validity
 namespace tunitas::keyston::prio::flp::system {
   //
@@ -16,11 +15,18 @@ namespace tunitas::keyston::prio::flp::system {
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
   //   Verifiable Distributed Aggregation Functions (VDAFs)
   //
+  //   [BBCGGI19] <https://ia.cr/2019/188>
+  //   D, Boneh, E, Boyle, H. Corrigan-Gibbs, N, Gilboa, Y. Ishai.
+  //   "Zero-Knowledge Proofs on Secret-Shared Data via Fully Linear PCPs", In CRYPTO 2019, 2019.
+  //
   // Specification:
   //
   //   Section 7.1 Fully-Linear Proof (FLP) Systems
   //   Section 7.3.3 Construction (of the FLP, as FlpGeneric)
   //   Table 8. FLP parameters of FlpGeneric
+  //
+  //   BBCGGI19
+  //   Section 4.2. A New Fully Linear PCP with Short Proofs for Structured Circuits
   //
   // Design:
   //
@@ -30,33 +36,38 @@ namespace tunitas::keyston::prio::flp::system {
   //
   //   Of course!
   //
-  template<required::Validity, required::Interface> struct System;
+  template<required::Validity> struct System;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.entropy.required.Entropy
 #import tunitas.keyston.prio.flp.system.usage.Interface
 #import tunitas.keyston.prio.flp.system.usage.Validity
+#import tunitas.keyston.prio.flp.system.interface.Standard
 #forward tunitas.keyston.prio.flp.validity.Access
 #forward tunitas.keyston.prio.flp.validity.Construction
+#import tunitas.keyston.prio.flp.validity.Log
+#import tunitas.keyston.prio.flp.validity.Recorder
+#import tunitas.keyston.prio.flp.gadget.Recorder
 #import tunitas.keyston.shards.Shard // for SHARDS_COUNT
 #import tunitas.keyston.Shards
 #import std.in_place_t
 namespace tunitas::keyston::prio::flp {
-  template<system::required::Validity VALIDITY, system::required::Interface TABLE> struct system::System {
-    static_assert(usage::Interface<TABLE>);
+  template<system::required::Validity VALIDITY> class system::System {
     static_assert(usage::Validity<VALIDITY>);
+    using Table = interface::Standard<VALIDITY>;
+  public:
     using Validity = VALIDITY;
     using Codec = typename Validity::Codec;
     using Field = typename Codec::Field;
     using Element = typename Field::Element;
     using Measurement = typename Validity::Measurement;
     using Aggregation = typename Validity::Aggregation;
-    using Randomness = typename TABLE::Randomness;
-    using Message = typename TABLE::Message;
+    using Randomness = typename Table::Randomness;
+    using Message = typename Table::Message;
     //
     // Flp.prove(input: Vec[Field], prove_rand: Vec[Field], joint_rand: Vec[Field]) -> Vec[Field]
-    static auto prove(typename Message::Input::View, typename Randomness::Prove::View, typename Randomness::Joint::View) -> typename Message::Input::Vector;
+    static auto prove(typename Message::Input::View, typename Randomness::Prove::View, typename Randomness::Joint::View) -> typename Message::Proof::Vector;
     // Flp.query(input: Vec[Field], flp: Vec[Field], query_rand: Vec[Field], joint_rand: Vec[Field], num_shares: Unsigned) -> Vec[Field]
     static auto query(typename Message::Input::View, typename Message::Proof::View, typename Randomness::Query::View, typename Randomness::Joint::View, Items number_of_shards = shards::SHARD_COUNT /* MUST be such*/) -> typename Message::Verifier::Vector;
     // Flp.decide(verifier: Vec[Field]) -> Bool
@@ -65,34 +76,89 @@ namespace tunitas::keyston::prio::flp {
     // def run_flp(Flp, inp: Vec[Flp.Field], num_shares: Unsigned):
     template<entropy::required::Entropy SOURCE> static auto run([[inout]] SOURCE &, typename Message::Input::View, Items number_of_shards = shards::SHARD_COUNT /*MUST be such*/) -> bool;
   protected:
+    using Work = validity::Log<Validity>;
+    using Recorder = validity::Recorder<Validity, Work>;
+    //
+    // We know there is only one gadget in all the that we care about (all of the world of PRIO3 in VDAF)
+    using Unrecorded = gadget::Recorder<Element, void, Work::Gadget::ARITY>;
+    using Gadgetator = typename Work::Gadget::template Evaluator<Unrecorded>;
+    //
     using Inplace = std::in_place_t;
     using Access = validity::Access<Validity>;
     using Construction = validity::Construction<Validity>;
-    inline static constexpr auto construct_wire_seeds(typename Randomness::Prove::View) -> typename Construction::Scalar::Seeds::Storage;
-    inline static constexpr auto construct_wire_table(typename Message::Input::View, typename Randomness::Joint::View) -> typename Construction::Scalar::Wires::Storage;
+    inline static constexpr auto construct_wire_seeds(typename Randomness::Prove::View) -> typename Construction::Seeds::Storage;
+    inline static constexpr auto construct_poly_wires(Work::Wires const &) -> typename Work::Polynomial::Wires;
+    inline static constexpr auto construct_poly_gadget(typename Work::Polynomial::Wires const &) -> typename Work::Polynomial::Gadget;
   };
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.prio.flp.validity.Access
 #import tunitas.keyston.prio.flp.validity.Construction
+#import nonstd.runtime_assert
 namespace tunitas::keyston::prio::flp::system {
-  template<required::Validity V, required::Interface T> constexpr auto System<V,T>::construct_wire_seeds(typename Randomness::Prove::View prove) -> typename Construction::Scalar::Seeds::Storage {
+  template<required::Validity _> constexpr auto System<_>::construct_wire_seeds(typename Randomness::Prove::View prove) -> typename Construction::Seeds::Storage {
     //
     // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
     // Section 7.3.3.1. Proof Generation
     // <quote>
     //   Partition the prover randomness prove_rand into sub-vectors seed_1, ..., seed_H where len(seed_i) == L_i for all i in [H].
     //   Let us call these the "wire seeds" of each gadget.
-    // </auote>
+    // </quote>
     //
-    auto each = [prove]<Size INDEX>(typename Access::Constant<INDEX>) -> view::Fixed<Element, 2> {
-      auto previous = []<Size... SUBINDEX>(typename Access::Sequence::template Pack<SUBINDEX...>) { return (0u + ... + Access::Gadgets::template arity<SUBINDEX>()); }(Access::Sequence::template make<INDEX>);
-      return {prove.data() + previous};
+    auto each = [prove]<Size INDEX>(typename Access::Constant<INDEX>) -> view::Variable<Element> {
+      auto previous = []{
+        if constexpr (0 == INDEX) {
+          return 0u;
+        } else {
+          return []<Size... SUBINDEX>(typename Access::Sequence::template Pack<SUBINDEX...>) {
+            return (0u + ... + /*L_i*/Access::Gadgets::template arity<SUBINDEX>());
+          }(Access::Sequence::template make<INDEX-1>());
+        }
+      };
+      return {prove.data() + previous(), /*L_i*/underlying(Access::Gadgets::template arity<INDEX>())};
     };
     return [each]<Size... INDEX>(typename Access::Sequence::template Pack<INDEX...>) {
       return {Inplace{}, each(INDEX)...};
     }(Access::Sequence::template make<Construction::H>());
+  }
+  template<required::Validity _> constexpr auto System<_>::construct_poly_wires(typename Work::Wires const &wires) -> typename Work::Polynomial::Wires {
+    //
+    // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
+    // Section 7.3.3.1. Proof Generation
+    // <quote>
+    //   <snip/> for every i in [H] and j in [L_i], construct poly_wire_i[j-1], the jth wire polynomial for the ith gadget, as follows:
+    //     Let w = [seed_i[j-1], wire_i[j-1,0], ..., wire_i[j-1,M_i-1]].
+    //     Let padded_w = w + Field.zeros(P_i - len(w)).
+    //     NOTE We pad w to the nearest power of 2 so that we can use FFT for interpolating the wire polynomials. Perhaps there is some clever math for picking wire_inp in a way that avoids having to pad.
+    //   Let poly_wire_i[j-1] be the lowest degree polynomial for which poly_wire_i[j-1](alpha_i^k) == padded_w[k] for all k in [P_i].
+    // </quote>
+    //
+    auto ret = typename Work::Polynomial::Wires{};
+    auto const x_series = Work::x_axis();
+    auto each = [&]<Size J, Size... K>(typename Access::Constant::Pack<J>, typename Access::Sequence::Pack<K...>) {
+      auto const y_series = typename Work::Axis{wires.seeds[J], wires.slice[J, K]...};
+      ret[J] = interpolate(x_series, y_series);
+    };
+    [&each]<Size... J>(typename Access::Sequence::template Pack<J...>) {
+      (each(Access::Constant::template make<J>(), Access::Sequence::template make<Work::M>()), ... );
+    }(Access::Sequence::template make<Work::L>());
+    return ret;
+  }
+  template<required::Validity _> constexpr auto System<_>::construct_poly_gadget(typename Work::Polynomial::Wires const &wires) -> typename Work::Polynomial::Gadget {
+    //
+   // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
+    // Section 7.3.3.1. Proof Generation
+    // <quote>
+    //   Compute the "gadget polynomials". That is, for every i in [H]:
+    //   Let poly_gadget_i = G_i(poly_wire_i[0], ..., poly_wire_i[L_i-1]).
+    //   That is, evaluate the circuit G_i on the wire polynomials for the ith gadget.
+    //   (Arithmetic is in the ring of polynomials over Field.)
+    // </quote>
+    //
+    return [&]<Size... K>(typename Access::Sequence::template Pack<K...>) {
+      return Gadgetator{Unrecorded{}}(wires[K]...);
+    }(Access::Sequence::template make<Work::L>());
   }
 }
 #endiv
@@ -106,29 +172,67 @@ namespace tunitas::keyston::prio::flp::system {
 #import std.integral_constant
 #import nonstd.exception.Unimplemented
 namespace tunitas::keyston::prio::flp::system {
-  template<required::Validity V, required::Interface T> auto System<V,T>::prove(typename Message::Input::View input, typename Randomness::Prove::View prove_randomness, typename Randomness::Joint::View joint_randomness) -> typename Message::Input::Vector {
+  template<required::Validity _> auto System<_>::prove(typename Message::Input::View input, typename Randomness::Prove::View prove_randomness, typename Randomness::Joint::View joint_randomness) -> typename Message::Proof::Vector {
     static_assert(usage::System<System>);
     //
-    auto seeds = construct_wire_seeds(prove_randomness);
-    auto wires = typename Construction::Scalar::Wires{};
-    auto poly_wires = typename Construction::Poly::Wires{};
-    auto poly_gadgets = typename Construction::Poly::Gagets{};
-    throw exception::Unimplemented{};
-    return [&]<Size... INDEX>(std::index_sequence<INDEX...>) {
-      return ((seeds[INDEX] + poly_gadgets[INDEX]) + ... );
-    }(std::make_index_sequence<Construction::H>{});
+    auto work = Work{};
+    work.wire.seeds = construct_wire_seeds(prove_randomness);
+    {
+      //
+      // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
+      // Section 7.3.3.1. Proof Generation
+      // <quote>
+      //   Evaluate Valid on input of inp and joint_rand, recording the inputs of each gadget in the corresponding table.
+      //   Specifically, for every i in [H], set wire_i[j-1,k-1] to the value on the jth wire into the kth call to gadget G_i.
+      // </quote>
+      //
+      Validity::evaluate(Recorder{work}, input, joint_randomness, Items{1});
+    }
+    work.polynomial.wires = construct_poly_wires(work.wires);
+    work.polynomial.gadget = construct_poly_gadget(work.polynomial.wires);
+    {
+      // See pages 14-17 of BBCGGI19 for the derivation & construction of the polynomial p
+      // Especially the sections on Page 16 "FLPCP Prover" and "FLCP Queies"
+      // "By construction", deg p <= M deg G
+      // The proof is π (pi, π begins with 'p' just like 'p', get it?)
+      //
+      // <quote>                 ...transposed & concatenated...
+      //   The prover outputs π = (w, f_1(0), ... , f_L(0), c_p) ∈ F^(h+L+d+1) as the linear PCP proof.
+      // </quote>                  ^  <------------------>  ^^^
+      //                           |  <------- dim L----->  |||
+      //   dim = h ----------------/                        |||
+      //   dim = d+1 ---------------------------------------/// since dimension is 1+degree because of the one extra constant term
+      //
+      // The draft (below) does not follow the theory (above)
+      //
+      // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
+      // Section 7.3.3.1. Proof Generation
+      //
+      // <quote>
+      //   The proof is the vector proof = seed_1 + coeff_1 + ... + seed_H + coeff_H,
+      //    where coeff_i is the vector of coefficients of poly_gadget_i for each i in [H].
+      // </quote>
+      //
+      // WATCHOUT - the draft is ambiguous; they intend "+" to mean "||" (serialized concatenation)
+      // And so it goes.
+      //
+      static_assert(1uz == Work::H);
+      return [&]<Size... K>(Access::Sequence::template Pack<K...>) {
+        return typename Message::Proof::Vector{work.wire.seeds.at(0), work.polynomial.gadget.at(K)...};
+      }(Access::Sequence::template make<Work::M>());
+    }
   }
-  template<required::Validity V, required::Interface T> auto System<V,T>::query(typename Message::Input::View input, typename Message::Proof::View proof, typename Randomness::Query::View query, typename Randomness::Joint::View joint_randomness, Items number_of_shards) -> typename Message::Verifier::Vector {
+  template<required::Validity _> auto System<_>::query(typename Message::Input::View input, typename Message::Proof::View proof, typename Randomness::Query::View query, typename Randomness::Joint::View joint_randomness, Items number_of_shards) -> typename Message::Verifier::Vector {
     static_assert(usage::System<System>);
     if (number_of_shards != shards::SHARD_COUNT) { throw exception::Invalid{"shard count"}; }
     //
     throw exception::Unimplemented{};
   }
-  template<required::Validity V, required::Interface T> auto System<V,T>::decide(typename Message::Verifier::View) -> bool {
+  template<required::Validity _> auto System<_>::decide(typename Message::Verifier::View) -> bool {
     static_assert(usage::System<System>);
     throw exception::Unimplemented{};
   }
-  template<required::Validity V, required::Interface T> template<entropy::required::Entropy SOURCE> auto System<V,T>::run(SOURCE &source, typename Message::Input::View input, Items number_of_shards) -> bool {
+  template<required::Validity _> template<entropy::required::Entropy SOURCE> auto System<_>::run(SOURCE &source, typename Message::Input::View input, Items number_of_shards) -> bool {
     static_assert(entropy::usage::Entropy<SOURCE>);
     static_assert(usage::System<System>);
     if (number_of_shards != shards::SHARD_COUNT) { throw exception::Invalid{"shard count"}; }

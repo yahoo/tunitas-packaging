@@ -18,9 +18,3 @@ namespace tunitas::keyston::numeric::generic {
   //
 }
 #endiv
-#divert <hpp>
-namespace tunitas::keyston::numeric::generic {
-  // what's a good code-bloat number here?  See the sites-of-use
-  inline constexpr auto ARBITRARY_VECTOR_CONSTRUCTOR_INLINING_LIMIT = 128uz;
-}
-#endiv

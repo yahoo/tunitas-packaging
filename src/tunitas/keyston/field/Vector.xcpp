@@ -11,6 +11,6 @@ namespace tunitas::keyston::field {
   // The vector of this field.
   // Rhymes with field::Element
   //
-  template<required::Field FIELD, unsigned CAPACITY> using Vector = typename vector::Definition<FIELD, CAPACITY>::Vector;
+  template<required::Field FIELD, Size CAPACITY> using Vector = typename vector::Definition<FIELD, CAPACITY>::Vector;
 }
 #endiv

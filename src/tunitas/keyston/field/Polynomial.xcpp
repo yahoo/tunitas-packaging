@@ -1,0 +1,16 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Field
+#import tunitas.keyston.field.polynomial.Definition
+namespace tunitas::keyston::field {
+  //
+  // The polynomial of degree D in this field.
+  // Rhymes with field::Vector
+  //
+  template<required::Field FIELD, Size DEGREE> using Polynomial = typename polynomial::Definition<FIELD, DEGREE>::Polynomial;
+}
+#endiv
