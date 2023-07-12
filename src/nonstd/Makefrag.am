@@ -6,6 +6,8 @@
 #
 nonstd_SUBSOURCES = \
   $(nonstd_container_SUBSOURCES) \
+  $(nonstd_iterator_SUBSOURCES) \
   $(end)
 #
 include src/nonstd/container/Makefrag.am
+include src/nonstd/iterator/Makefrag.am

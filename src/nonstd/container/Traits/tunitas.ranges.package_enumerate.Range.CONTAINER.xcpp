@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.container.Traits
+#forward tunitas.ranges.package_enumerate.Range
+namespace nonstd::container {
+  template<typename CONTAINER> struct Traits<tunitas::ranges::package_enumerate::body::Range<CONTAINER>>;
+  template<typename CONTAINER> struct Traits<tunitas::ranges::package_enumerate::body::Range<CONTAINER> const>;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.ranges.package_enumerate.Iterator
+namespace nonstd::container {
+  template<typename CONTAINER> struct Traits<tunitas::ranges::package_enumerate::body::Range<CONTAINER> const> {
+    using Container = tunitas::ranges::package_enumerate::body::Range<CONTAINER> const;
+    using Value = typename Container::Value;
+    using Iterator = tunitas::ranges::package_enumerate::body::Iterator<typename nonstd::container::Traits<CONTAINER const>::Iterator>;
+    using Type [[deprecated("AVOID")]] = Iterator;
+  };
+  template<typename CONTAINER> struct Traits<tunitas::ranges::package_enumerate::body::Range<CONTAINER>> {
+    using Container = tunitas::ranges::package_enumerate::body::Range<CONTAINER>;
+    using Value = typename Container::Value;
+    using Iterator = tunitas::ranges::package_enumerate::body::Iterator<typename nonstd::container::Traits<CONTAINER>::Iterator>;
+    using Type [[deprecated("AVOID")]] = Iterator;
+  };
+}
+#endiv

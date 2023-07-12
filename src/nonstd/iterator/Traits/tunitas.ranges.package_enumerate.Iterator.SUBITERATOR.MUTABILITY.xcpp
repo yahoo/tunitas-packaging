@@ -1,0 +1,18 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.iterator.Traits // but you'll likely need a specialization for Traits<SUBITERATOR>
+#forward tunitas.ranges.package_enumerate.Iterator
+namespace nonstd::iterator {
+  template<typename SUBITERATOR, tunitas::ranges::package_enumerate::body::Mutability MUTABILITY> struct Traits<tunitas::ranges::package_enumerate::body::Iterator<SUBITERATOR, MUTABILITY>>;
+}
+#import std.iterator_traits.tunitas.ranges.package_enumerate.Iterator.SUBITERATOR.MUTABILITY // for the convenience
+#endiv
+#divert <hpp>
+namespace nonstd::iterator {
+  template<typename SUBITERATOR, tunitas::ranges::package_enumerate::body::Mutability MUTABILITY> struct Traits<tunitas::ranges::package_enumerate::body::Iterator<SUBITERATOR, MUTABILITY>> : public Traits<SUBITERATOR> { };
+}
+#endiv

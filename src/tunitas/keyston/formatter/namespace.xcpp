@@ -9,14 +9,14 @@
 #import nonstd.units.Quantity
 #import nonstd.units.memory.scale // Bits
 #import tunitas.keyston.Slice
-#import tunitas.array.range.required // ctcnr (cascade that certain 'namespace required'
+#import tunitas.ranges.required // ctcnr (cascade that certain 'namespace required'
 #forward tunitas.keyston.histogram.Boundaries
 #forward tunitas.keyston.histogram.Histogram
 #forward tunitas.keyston.popularity.Prefixes
 #forward tunitas.keyston.popularity.Popularity
 #forward tunitas.keyston.poplar // Name
 namespace tunitas::keyston::formatter {
-  namespace required { using namespace tunitas::array::range::required; }
+  namespace required { using namespace tunitas::ranges::required; }
   using namespace langu::age;
   using nonstd::units::Quantity;
   using nonstd::units::memory::Bits;

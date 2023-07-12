@@ -31,7 +31,6 @@ protected:
 #import tests.unit.array.Variable
 #import tunitas.array.Bounded
 #import tunitas.array.Variable
-#import tests.unit.array.range.Fixture
 auto tests::unit::array::Fixture::suite() -> Suite {
   auto series = Stream{"array"sv};
   series << []{
@@ -75,7 +74,6 @@ auto tests::unit::array::Fixture::suite() -> Suite {
                   << END;
               return bou;
             }()
-         << add<range::Fixture>()
          << END;
   return settle(series);
 }

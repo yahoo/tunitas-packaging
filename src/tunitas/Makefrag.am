@@ -8,6 +8,7 @@ tunitas_SUBSOURCES = \
   $(tunitas_array_SUBSOURCES) \
   $(tunitas_integer_SUBSOURCES) \
   $(tunitas_number_SUBSOURCES) \
+  $(tunitas_ranges_SUBSOURCES) \
   $(tunitas_sequence_SUBSOURCES) \
   $(tunitas_span_SUBSOURCES) \
   $(tunitas_view_SUBSOURCES) \
@@ -16,6 +17,7 @@ tunitas_SUBSOURCES = \
 include src/tunitas/array/Makefrag.am
 include src/tunitas/integer/Makefrag.am
 include src/tunitas/number/Makefrag.am
+include src/tunitas/ranges/Makefrag.am
 include src/tunitas/sequence/Makefrag.am
 include src/tunitas/span/Makefrag.am
 include src/tunitas/view/Makefrag.am

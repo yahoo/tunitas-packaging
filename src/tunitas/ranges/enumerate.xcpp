@@ -4,8 +4,15 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
-#import tunitas.ranges.enumerate
-namespace tunitas::array {
-  using ranges::enumerate;
+#import tunitas.ranges.package_enumerate.enumerate
+// already visible
+#endiv
+#divert <cpp>
+#import tunitas.string.View // for the testing
+namespace {
+  namespace testate {
+    using namespace tunitas::ranges;
+    static_assert(sizeof(decltype(enumerate(tunitas::string::View{}))), "already visible");
+  }
 }
 #endiv

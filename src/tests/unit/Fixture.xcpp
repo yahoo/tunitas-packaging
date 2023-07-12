@@ -40,6 +40,7 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.quantity.Fixture
 #import tests.unit.transport.Fixture
 #import tests.unit.time.Fixture
+#import tests.unit.ranges.Fixture
 #import tests.unit.shards.Fixture
 #import tests.unit.span.Fixture
 #import tests.unit.view.Fixture
@@ -84,13 +85,14 @@ auto tests::unit::Fixture::suite() -> Suite {
           << add<prio::Fixture>()
           << add<protocol::Fixture>()
           << add<quantity::Fixture>()
-          << add<time::Fixture>()
-          << add<transport::Fixture>()
+          << add<ranges::Fixture>()
           << add<shards::Fixture>()
           << add<span::Fixture>()
+          << add<time::Fixture>()
+          << add<transport::Fixture>()
           << add<view::Fixture>()
-          << add<wire::Fixture>()
           << add<want::Fixture>()
+          << add<wire::Fixture>()
     //
           << add<af::Fixture>()
           << add<daf::Fixture>()

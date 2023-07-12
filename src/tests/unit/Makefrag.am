@@ -33,6 +33,7 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_prio_SUBSOURCES) \
   $(tests_unit_protocol_SUBSOURCES) \
   check/obj/src/tests/unit/quantity.Fixture.cpp \
+  $(tests_unit_ranges_SUBSOURCES) \
   $(tests_unit_shards_SUBSOURCES) \
   $(tests_unit_span_SUBSOURCES) \
   check/obj/src/tests/unit/time.Fixture.cpp \
@@ -71,6 +72,7 @@ include src/tests/unit/popularity/Makefrag.am
 include src/tests/unit/prg/Makefrag.am
 include src/tests/unit/prio/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
+include src/tests/unit/ranges/Makefrag.am
 include src/tests/unit/shards/Makefrag.am
 include src/tests/unit/span/Makefrag.am
 include src/tests/unit/view/Makefrag.am

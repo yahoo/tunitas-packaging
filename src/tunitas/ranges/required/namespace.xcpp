@@ -3,9 +3,14 @@
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
-#divert <hpp>
-#import tunitas.ranges.enumerate
-namespace tunitas::array {
-  using ranges::enumerate;
+#divert <fpp>
+#import tunitas.ranges
+#import tunitas.required
+#import nonstd.required.iterator
+namespace tunitas::ranges::required {
+  using namespace tunitas::required;
+  namespace iterator {
+    using namespace nonstd::required::iterator;
+  }
 }
 #endiv

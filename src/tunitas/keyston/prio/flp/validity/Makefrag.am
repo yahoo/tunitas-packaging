@@ -15,7 +15,6 @@ tunitas_keyston_prio_flp_validity_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/validity/Access.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/maximum.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/summation.cpp \
-  obj/src/tunitas/keyston/prio/flp/validity/Construction.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.template.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.COUNT.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/Validity.SUM.cpp \

@@ -3,9 +3,7 @@
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
-#divert <hpp>
-#import tunitas.ranges.enumerate
-namespace tunitas::array {
-  using ranges::enumerate;
-}
+#divert <fpp>
+#import tunitas.ranges.package_enumerate.Range.template
+#import tunitas.ranges.package_enumerate.Range.CONTAINER.constie
 #endiv

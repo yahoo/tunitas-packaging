@@ -12,7 +12,4 @@ tests_unit_array_SUBSOURCES = \
   check/obj/src/tests/unit/array/Fixed.cpp \
   check/obj/src/tests/unit/array/Series.cpp \
   check/obj/src/tests/unit/array/Container.cpp \
-  $(tests_unit_array_range_SUBSOURCES) \
   $(end)
-#
-include src/tests/unit/array/range/Makefrag.am

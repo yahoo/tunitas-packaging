@@ -13,9 +13,7 @@ tunitas_array_SUBSOURCES = \
   obj/src/tunitas/array/Variable.cpp \
   $(tunitas_array_md_SUBSOURCES) \
   $(tunitas_array_required_SUBSOURCES) \
-  $(tunitas_array_range_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/array/md/Makefrag.am
 include src/tunitas/array/required/Makefrag.am
-include src/tunitas/array/range/Makefrag.am
