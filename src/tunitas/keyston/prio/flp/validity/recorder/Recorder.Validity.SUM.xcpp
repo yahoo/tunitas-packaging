@@ -9,6 +9,7 @@ namespace tunitas::keyston::prio::flp::validity::recorder {
   template<required::Loggable<Validity<SUM>> LOG> struct Recorder<Validity<SUM>, LOG>;
 }
 #endiv
+#divert <hpp>
 namespace tunitas::keyston::prio::flp::validity::recorder  {
   template<required::Loggable<Validity<SUM>> LOG> struct Recorder<Validity<SUM>, LOG> : public Single<Validity<SUM>, LOG> {
     using Single<Validity<SUM>, LOG>::Single;

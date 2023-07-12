@@ -5,5 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.prio.flp.gadget
-namespace tunitas::keyston::prio::flp::gadget::recorder { }
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  namespace [[nodirectory]] cursor { }
+}
 #endiv

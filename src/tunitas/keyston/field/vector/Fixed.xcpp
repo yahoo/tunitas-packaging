@@ -12,11 +12,13 @@ namespace tunitas::keyston::field::vector {
   // Specification:
   //
   //   Only provides the field operations that are actually specified
+  //   multiplication is the dot product, so the dimensions don't increase (multiplicatively)
   //
   // Design:
   //
   //   Fixed length.
   //   Use a new type so that ADL will find the operations. 
+  //   The vectors MUST be of the same length.
   //
   //   The following operations are not available for modular vectors
   //   e.g. operator<=> ... what would it mean?
@@ -52,6 +54,7 @@ namespace tunitas::keyston::field {
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(ELEMENT a, Fixed<ELEMENT, CAPACITY> const &b) -> Fixed<ELEMENT, CAPACITY> { return b * a; }
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(Fixed<ELEMENT, CAPACITY> const &, ELEMENT) -> Fixed<ELEMENT, CAPACITY>;
     template<required::Element ELEMENT, Size CAPACITY> inline constexpr auto operator*(Fixed<ELEMENT, CAPACITY> const &, Fixed<ELEMENT, CAPACITY> const &) -> Fixed<ELEMENT, CAPACITY>;
+    // NO SUCH ---> operator/ or operator% because this is already modular arithmetic <---- NO SUCH
   }
   template<required::Element ELEMENT, Size CAPACITY> struct vector::Fixed : public array::Fixed<ELEMENT, CAPACITY> {
     using Ancestor = array::Fixed<ELEMENT, CAPACITY>;
@@ -129,28 +132,6 @@ namespace tunitas::keyston::field {
       }
       return self;
     }
-#if 0
-    template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator/=(typename Ancestor::Value other) -> Fixed & {
-      if (0 == other) {
-        throw exception::Domain{"division by zero"};
-      }
-      auto &self{*this};
-      for (auto &item : self) {
-        item /= other;
-      }
-      return self;
-    }
-    template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator%=(typename Ancestor::Value other) -> Fixed & {
-      if (0 == other) {
-        throw exception::Domain{"division by zero"};
-      }
-      auto &self{*this};
-      for (auto &item : self) {
-        item %= other;
-      }
-      return self;
-    }
-#endif
   }
 }
 #endiv

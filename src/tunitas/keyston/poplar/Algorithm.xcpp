@@ -48,7 +48,7 @@ namespace tunitas::keyston::poplar {
 #import tunitas.keyston.Field
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Popularity
-#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.quantity.Records
 #import tunitas.keyston.popularity.Prefixes
 #import tunitas.keyston.idpf
 namespace tunitas::keyston::poplar {
@@ -66,7 +66,7 @@ namespace tunitas::keyston::poplar {
       using Preparation = int;
 #endif
       using Decoded = aggregation::Popularity;
-      using Processed = measurement::Records;
+      using Processed = quantity::Records;
       using Prefixes = popularity::Prefixes;
     };
     using Initialization = PLACEHOLDER_Initialization;

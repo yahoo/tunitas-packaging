@@ -5,13 +5,26 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas
-#import std.byte
-#import std.size_t
 namespace tunitas::keyston {
-  using Octet = std::byte;
-  using Size = std::size_t;
   enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
 }
+#import std.byte
+namespace tunitas::keyston {
+  using Octet = std::byte;
+}
+#import std.size_t
+#import std.ptrdiff_t
+#import std.is_signed
+#import std.is_unsigned
+namespace tunitas::keyston {
+  using Size = std::size_t;
+  using Index = std::size_t;
+  using Offset = std::ptrdiff_t;
+  static_assert(std::is_unsigned_v<Size>);
+  static_assert(std::is_unsigned_v<Index>);
+  static_assert(std::is_signed_v<Offset>);
+}
+// and more
 #import std.uint8_t
 #import std.uint16_t
 #import std.uint32_t

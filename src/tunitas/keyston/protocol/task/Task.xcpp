@@ -29,7 +29,7 @@ namespace tunitas::keyston::protocol::task {
 #import tunitas.keyston.Optional
 #import tunitas.array.Bounded
 #import tunitas.keyston.identifier.Service
-#import tunitas.keyston.quantity.Count
+#import tunitas.keyston.quantity.Records
 #import tunitas.keyston.protocol.query.Query
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.time.Clock
@@ -46,12 +46,12 @@ namespace tunitas::keyston::protocol {
     protocol::query::Query query{};
     struct Expiration {
 #if 12 < __GNUC__
-      Optional<quantity::Count> maximum_query_limit{quantity::Count{1u}};
+      Optional<quantity::Records> maximum_query_limit{quantity::Records{1u}};
       Optional<time::Point> then{time::Clock::now()};
 #else
       // work around for gcc:88165 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88165
-      Expiration() : maximum_query_limit{quantity::Count{1u}}, then{time::Clock::now()} { }
-      Optional<quantity::Count> maximum_query_limit;
+      Expiration() : maximum_query_limit{quantity::Records{1u}}, then{time::Clock::now()} { }
+      Optional<quantity::Records> maximum_query_limit;
       Optional<time::Point> then;
 #endif
     };

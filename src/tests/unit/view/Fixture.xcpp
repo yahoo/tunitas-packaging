@@ -1,0 +1,169 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::view { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.exception.feature.Bound
+struct tests::unit::view::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Fixed() -> void;
+  auto test_usage_Variable() -> void;
+  //
+  auto test_usage_at_check() -> void;
+  auto test_usage_at_nocheck() -> void;
+  //
+  auto test_usage_subview_template_zero() -> void;
+  auto test_usage_subview_template_one() -> void;
+  auto test_usage_subview_template_two() -> void;
+  auto test_usage_subview_check() -> void;
+  auto test_usage_subview_nocheck() -> void;
+protected:
+  using Failure = tunitas::exception::feature::Bound;
+  struct Specimen { };
+  inline static constexpr auto SPECIMENS_COUNT = 17uz;
+  Specimen       mutable_specimens[SPECIMENS_COUNT]{};
+  Specimen const constie_specimens[SPECIMENS_COUNT]{};
+};
+#endiv
+#divert <cpp>
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+#import tests.unit.view.md.Fixture
+auto tests::unit::view::Fixture::suite() -> Suite {
+  auto series = Stream{"view"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Fixed", &Fixture::test_usage_Fixed)
+                  << add("Variable", &Fixture::test_usage_Variable)
+                  << []{
+                    auto mem = Stream{"members"sv};
+                    mem << []{
+                             auto at = Stream{"at"sv};
+                             at << add("check", &Fixture::test_usage_at_check)
+                                << add("nocheck", &Fixture::test_usage_at_nocheck)
+                                << END;
+                             return at;
+                           }()
+                        << []{
+                             auto sub = Stream{"subview"sv};
+                             sub << []{
+                                      auto temp = Stream{"template"sv};
+                                      temp << add("0", &Fixture::test_usage_subview_template_zero)
+                                           << add("1", &Fixture::test_usage_subview_template_one)
+                                           << add("2", &Fixture::test_usage_subview_template_two)
+                                           << END;
+                                      return temp;
+                                    }()
+                                 << add("check", &Fixture::test_usage_subview_check)
+                                 << add("nocheck", &Fixture::test_usage_subview_nocheck)
+                                 << END;
+                             return sub;
+                           }()
+                        << END;
+                    return mem;
+                  }()
+                  << END;
+              return use;
+            }()
+         << add<md::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+namespace tests::unit::view {
+  auto Fixture::test_usage_Fixed() -> void {
+    using Subject = library::Fixed<Specimen const, SPECIMENS_COUNT>;
+    // the fixed views DO NOT have a default constructor
+    // use the constie view on the mutable data
+    { auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+      require(ASSERTION, SPECIMENS_COUNT == subject.size());
+      require(ASSERTION, nullptr != subject.data()); }
+  }
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = library::Variable<Specimen>;
+    // the variable views have a default constructor
+    { auto subject = Subject{};
+      require(ASSERTION, 0 == subject.size());
+      require(ASSERTION, nullptr == subject.data()); }
+    { auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+      require(ASSERTION, SPECIMENS_COUNT == subject.size());
+      require(ASSERTION, nullptr != subject.data()); }
+  }
+  auto Fixture::test_usage_at_check() -> void {
+    using Subject = library::Fixed<Specimen, SPECIMENS_COUNT>;
+    auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+    require(ASSERTION, 1+&subject.at(0) == &subject.at(1));
+    try {
+      subject.at(99);
+      impossible(ASSERTION);
+    } catch (Failure const &) {
+      require(ASSERTION);
+    }
+  }
+  auto Fixture::test_usage_at_nocheck() -> void {
+    using Subject = library::Fixed<Specimen, SPECIMENS_COUNT>;
+    auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+    require(ASSERTION, 1+&subject.at(std::nothrow, 0) == &subject.at(std::nothrow, 1));
+  }
+  auto Fixture::test_usage_subview_template_zero() -> void {
+    using Subject = library::Fixed<Specimen, SPECIMENS_COUNT>;
+    auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+    auto got = subject.subview<>();
+    require(ASSERTION, sizeof(mutable_specimens) == got.size());
+    require(ASSERTION, subject.data() == got.data());
+  }
+  auto Fixture::test_usage_subview_template_one() -> void {
+    using Subject = library::Fixed<Specimen, SPECIMENS_COUNT>;
+    auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+    constexpr auto const INDEX = 6u;
+    auto got = subject.subview<INDEX>();
+    require(ASSERTION, subject.size()-INDEX == got.size());
+    require(ASSERTION, subject.data()+INDEX == got.data());
+  }
+  auto Fixture::test_usage_subview_template_two() -> void {
+    using Subject = library::Fixed<Specimen, SPECIMENS_COUNT>;
+    auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+    constexpr auto const INDEX = 6u;
+    constexpr auto const SIZE = 5uz;
+    auto got = subject.subview<INDEX,SIZE>();
+    require(ASSERTION, SIZE == got.size());
+    require(ASSERTION, subject.data()+INDEX == got.data());
+  }
+  auto Fixture::test_usage_subview_check() -> void {
+    using Subject = library::Fixed<Specimen, SPECIMENS_COUNT>;
+    auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+    constexpr auto const INDEX = 6u;
+    constexpr auto const SIZE = 5uz;
+    auto got = subject.subview(INDEX, SIZE);
+    require(ASSERTION, SIZE == got.size());
+    require(ASSERTION, subject.data()+INDEX == got.data());
+    try {
+      subject.subview(99*INDEX, SIZE);
+      impossible(ASSERTION);
+    } catch (Failure const &) {
+      require(ASSERTION);
+    }
+    try {
+      subject.subview(INDEX, 99*SIZE);
+      impossible(ASSERTION);
+    } catch (Failure const &) {
+      require(ASSERTION);
+    }
+  }
+  auto Fixture::test_usage_subview_nocheck() -> void {
+    using Subject = library::Fixed<Specimen, SPECIMENS_COUNT>;
+    auto subject = Subject{&mutable_specimens[0], sizeof(mutable_specimens)/sizeof(mutable_specimens[0])};
+    constexpr auto const INDEX = 6u;
+    constexpr auto const SIZE = 5uz;
+    auto got = subject.subview(std::nothrow, INDEX, SIZE);
+    require(ASSERTION, SIZE == got.size());
+    require(ASSERTION, subject.data()+INDEX == got.data());
+  }
+}
+#endiv

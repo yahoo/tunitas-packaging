@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::sequence {
+  //
+  // Convenient formula fragments for index packs
+  //
+  // Specification:
+  //
+  //   std::index_sequence
+  //   std::make_index_sequence
+  //
+  // Design:
+  //
+  //   Independent of any particular use case.
+  //
+  // Usage:
+  //
+  //   See also tunitas::sequence::Constant
+  // 
+  //   template<gadget::required::Calls CALLS> inline constexpr maximum_calls(CALLS const &calls) -> Size {
+  //     return []<Size... INDEX>(Sequence::Pack<INDEX...>) -> Size {
+  //       return ...something-wonderful...;
+  //     }(Sequence::make<calls.size()>());
+  //   }
+  //
+  struct Sequence;
+}
+#endiv
+#divert <hpp>
+#import std.index_sequence
+#import std.size_t
+struct tunitas::sequence::Sequence {
+  template<std::size_t... INDEX> using Pack = std::index_sequence<INDEX...>;
+  template<std::size_t N> inline static constexpr auto make();
+};
+#endiv
+#divert <ipp>
+#import std.make_index_sequence
+namespace tunitas::sequence {
+  template<std::size_t N> constexpr auto Sequence::make() { return std::make_index_sequence<N>{}; }
+}
+#endiv

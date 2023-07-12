@@ -66,9 +66,10 @@ namespace tunitas::array {
 #import std.nothrow
 #import std.ranges.subrange
 #import std.same_as
-#import std.span
 #import std.equality_comparable
 #import std.three_way_comparable
+#import tunitas.span.Span
+#import tunitas.view.View
 namespace tunitas {
   namespace array {
     using std::move;
@@ -89,13 +90,15 @@ namespace tunitas {
     //
     inline constexpr Fixed();
     using Ancestor::array;
+    Fixed(Ancestor const &a) : Ancestor{a} { }
+    Fixed(Ancestor &&a) : Ancestor{move(a)} { }
     template<typename... VALUES> constexpr Fixed(VALUES &&...) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ) && /*overkill*/ required::Initializers<Value, VALUES...>);
     template<typename... VALUES> constexpr Fixed(Inplace, VALUES &&...) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ));
     //
-    template<typename VALUE, Size EXTENT = CAPACITY> requires (std::same_as<std::remove_const_t<VALUE>, Value> && (EXTENT == std::dynamic_extent || EXTENT <= CAPACITY)) using Span = std::span<VALUE, EXTENT>;
-    using View = Span<Value const>;
-    inline constexpr operator Span<Value, CAPACITY>();
-    inline constexpr operator Span<Value const, CAPACITY>() const;
+    template<typename VALUE, Size EXTENT = CAPACITY> requires (std::same_as<std::remove_const_t<VALUE>, Value> && (EXTENT == std::dynamic_extent || EXTENT <= CAPACITY)) using Span = span::Span<VALUE, EXTENT>;
+    template<Size EXTENT = CAPACITY> requires (EXTENT == std::dynamic_extent || EXTENT <= CAPACITY) using View = view::View<Value, EXTENT>;
+    template<Size SUBCAPACITY = CAPACITY> inline constexpr operator View<SUBCAPACITY>() const;
+    template<typename SUBVALUE, Size SUBCAPACITY = CAPACITY> inline constexpr operator Span<SUBVALUE, SUBCAPACITY>() requires (SUBCAPACITY != std::dynamic_extent); // i.e. can become constie; std::span(Range) already covers the dynamic_extent case
     //
     constexpr auto capacity() const noexcept { return CAPACITY; } // the number of elements that the container has currently allocated space for.
     using Ancestor::empty;
@@ -166,8 +169,12 @@ namespace tunitas {
     template<required::Arrayable T, Size CAPACITY> template<typename... VALUES> constexpr Fixed<T, CAPACITY>::Fixed(Inplace, VALUES &&...values) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ))
       : Ancestor{forward<VALUES>(values)...}
     { }
-    template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::operator Span<Value, CAPACITY>()             { return {Ancestor::data(), Ancestor::size()}; }
-    template<required::Arrayable T, Size CAPACITY> constexpr Fixed<T,CAPACITY>::operator Span<Value const, CAPACITY>() const { return {Ancestor::data(), Ancestor::size()}; }
+    //
+    // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent ----------------------------------------------------------------------------------------------------------------------------------------\\\\\\\\\\\\\\\\\\\\\\\\\\\ (here)
+    //                                                                                                                                                                                                                      |||||||||||||||||||||||||||
+    //                                                                                                                                                                                                                      vvvvvvvvvvvvvvvvvvvvvvvvvvv
+    template<required::Arrayable T, Size CAPACITY> template<typename SUBVALUE, Size SUBCAPACITY> constexpr Fixed<T,CAPACITY>::operator Span<SUBVALUE, SUBCAPACITY>() requires (SUBCAPACITY != std::dynamic_extent) { return Span<SUBVALUE, SUBCAPACITY>{Ancestor::data(), Ancestor::size()}; }
+    template<required::Arrayable T, Size CAPACITY> template<Size SUBCAPACITY>                    constexpr Fixed<T,CAPACITY>::operator View<SUBCAPACITY>() const                                                   { return View<SUBCAPACITY>{Ancestor::data(), Ancestor::size()}; }
 #if 202312 < __cplusplus
     template<required::Arrayable T, Size C> template<typename SELF> constexpr auto Fixed<T,C>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> try { return self[index]; }
     template<required::Arrayable T, Size C> template<typename SELF> constexpr auto Fixed<T,C>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {

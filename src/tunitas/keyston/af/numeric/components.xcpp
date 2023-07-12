@@ -6,7 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.af.Configuration
 #include <hpp/tunitas.keyston.af.Configuration>
-#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.quantity.Records
 #import tunitas.keyston.af.numeric.Measurement
 #import tunitas.keyston.af.numeric.Intermediate
 #import tunitas.keyston.af.numeric.Aggregation
@@ -33,7 +33,7 @@ namespace tunitas::keyston::af::numeric {
     using Initialized  = Configuration<NUMERIC>::Initialized;
     using Computed  = Configuration<NUMERIC>::Computed;
     using Finalized = Configuration<NUMERIC>::Finalized;
-    using Records   = measurement::Records;
+    using Processed = quantity::Records;
     //
     using numeric::Measurement;
     using numeric::Intermediate;

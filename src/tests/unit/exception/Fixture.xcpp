@@ -13,11 +13,13 @@ struct tests::unit::exception::Fixture : public rigging::suite::Fixture {
 #endiv
 #divert <cpp>
 #import tests.unit.exception.keyston.Fixture
+#import tests.unit.exception.prio.Fixture
 #import tests.unit.exception.protocol.Fixture
 #import tests.unit.exception.vdaf.Fixture
 auto tests::unit::exception::Fixture::suite() -> Suite {
   auto series = Stream("exception"sv);
   series << add<keyston::Fixture>()
+         << add<prio::Fixture>()
          << add<protocol::Fixture>()
          << add<vdaf::Fixture>()
          << END;

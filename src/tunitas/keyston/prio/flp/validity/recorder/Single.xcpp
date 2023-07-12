@@ -25,19 +25,31 @@ namespace tunitas::keyston::prio::flp::validity::recorder {
 #import tunitas.tuple.Element
 #import tunitas.keyston.prio.flp.validity.recorder.Prototype
 #import tunitas.keyston.prio.flp.gadget.Recorder
-#import std.enable_if
+#import std.same_as
+#import std.conditional
 namespace tunitas::keyston::prio::flp::validity {
   template<required::Validity VALIDITY, recorder::required::Loggable<VALIDITY> LOGGABLE> struct recorder::Single : public Prototype<VALIDITY> {
     using Ancestor = Prototype<VALIDITY>;
-  protected:
-    ~Single() = default;
   public:
     using Log = LOGGABLE; // may be merely 'void'
-    template<typename = std::enable_if_t< std::same_as<void, Log>, Log>> constexpr explicit Single()       : only{} { }
-    template<typename = std::enable_if_t<!std::same_as<void, Log>, Log>> constexpr explicit Single(Log &l) : only{l} { }
+    constexpr explicit Single() = default;
+    template<typename LOG> constexpr explicit Single(LOG &l) requires (!std::same_as<void, Log> && std::same_as<LOG, Log>);
     static_assert(1uz == tuple::Size<typename Ancestor::Validity::Gadgets>::value);
-    using Only = gadget::Recorder<typename Ancestor::Element, Log, Ancestor::template Gadget<0>::ARITY>;
-    Only only{};
+  protected:
+    ~Single() = default;
+    using Sublog = std::conditional_t<std::same_as<void, LOGGABLE>, void, typename Ancestor::Element>;
+  public:
+    using Inputs = gadget::Recorder<typename Ancestor::Element, Ancestor::template Gadget<0>::ARITY, Sublog, void>; // used herein (obvious)
+    using Output = gadget::Recorder<typename Ancestor::Element, Ancestor::template Gadget<0>::ARITY, void, Sublog>; // unused herein, but referenced downstream
+    Inputs inputs{};
   };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.prio.flp.validity.Log
+namespace tunitas::keyston::prio::flp::validity::recorder {
+  template<required::Validity V, recorder::required::Loggable<V> L> template<typename LOG> constexpr Single<V,L>::Single(LOG &l) requires (!std::same_as<void, Log> && std::same_as<LOG, Log>)
+    : inputs{l.circuit.inputs}
+  { }
 }
 #endiv

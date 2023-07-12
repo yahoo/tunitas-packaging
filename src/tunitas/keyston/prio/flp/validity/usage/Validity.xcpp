@@ -14,12 +14,12 @@
 #import tunitas.keyston.prio.flp.gadget.usage.Calls
 #import tunitas.keyston.prio.flp.dimension.cast
 #include <ipp/tunitas.keyston.prio.flp.dimension.cast>
-#forward tunitas.keyston.prio.flp.validity.Recorder
-#forward tunitas.keyston.prio.flp.validity.Log
+#import tunitas.keyston.prio.flp.validity.Recorder // ... MUST be #import
+#forward tunitas.keyston.prio.flp.validity.Log // ....... MUST be forward
 #import tunitas.array.Fixed
 #import tunitas.span.Fixed
-#import tunitas.keyston.measurement.Records
 #import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.quantity.Shards
 #import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.aggregation.Summation
 #import tunitas.keyston.aggregation.Histogram
@@ -39,9 +39,9 @@ namespace tunitas::keyston::prio::flp::validity::usage {
                                                           same_as<AGGREGATION, aggregation::Summation> ||
                                                           same_as<AGGREGATION, aggregation::Histogram>);
     //
-    template<typename VALIDITY, typename RECORDER> concept Evaluate = requires(VALIDITY, RECORDER &recorder, typename Interface<VALIDITY>::Input input, typename Interface<VALIDITY>::Randomness joint, typename Interface<VALIDITY>::Records records) {
+    template<typename VALIDITY, typename RECORDER> concept Evaluate = requires(VALIDITY, RECORDER recorder, typename Interface<VALIDITY>::Input input, typename Interface<VALIDITY>::Randomness joint, typename Interface<VALIDITY>::Shards shards) {
       // Though some instantiations will have convenience interfaces with fewer arguments
-      { VALIDITY::evaluate(recorder, input, joint, records) } -> Circuited<VALIDITY>;
+      { VALIDITY::evaluate(recorder, input, joint, shards) } -> Circuited<VALIDITY>;
     };
     //
     template<typename VALIDITY> concept Validity = required::Validity<VALIDITY> && requires(VALIDITY) {
@@ -86,8 +86,8 @@ namespace tunitas::keyston::prio::flp::validity::usage {
         { VALIDITY::truncate(input) } -> Truncated<VALIDITY>;
       };
       // Valid.decode(output: Vec[Field], num_measurements: Unsigned) -> AggResult
-      requires requires(VALIDITY, typename Interface<VALIDITY>::Decodable output, typename Interface<VALIDITY>::Records records) {
-        { VALIDITY::decode(output, records) } -> Decoded<VALIDITY>;
+      requires requires(VALIDITY, typename Interface<VALIDITY>::Decodable output, typename Interface<VALIDITY>::Shards shards) {
+        { VALIDITY::decode(output, shards) } -> Decoded<VALIDITY>;
       };
       //
       // def Count(inp: Vec[Field64])

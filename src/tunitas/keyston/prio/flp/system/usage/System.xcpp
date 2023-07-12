@@ -19,13 +19,13 @@ namespace tunitas::keyston::prio::flp::system::usage {
   namespace [[eponymous]] eponymous_system {
     namespace api {
       template<typename SYSTEM, typename INPUT, typename PROVE, typename JOINT> concept Prove = requires(SYSTEM, INPUT input, PROVE prove_randomness, JOINT joint_randomness) {
-        { SYSTEM::prove(input, prove_randomness, joint_randomness) } -> convertible_to<typename SYSTEM::Message::Input::Vector>;
+        { SYSTEM::prove(input, prove_randomness, joint_randomness) } -> convertible_to<typename SYSTEM::Message::Proof::Series>;
       };
-      template<typename SYSTEM, typename INPUT, typename PROOF, typename QUERY, typename JOINT> concept Query = requires(SYSTEM, INPUT input, PROOF flp, QUERY query_randomness, JOINT joint_randomness) {
-        { SYSTEM::query(input, flp, query_randomness, joint_randomness) } -> convertible_to<typename SYSTEM::Message::Verifier::Vector>;
+      template<typename SYSTEM, typename INPUT, typename PROOF, typename QUERY, typename JOINT> concept Query = requires(SYSTEM, INPUT input, PROOF proof, QUERY query_randomness, JOINT joint_randomness) {
+        { SYSTEM::query(input, proof, query_randomness, joint_randomness) } -> convertible_to<typename SYSTEM::Message::Verifier::Series>;
       };
-      template<typename SYSTEM, typename INPUT> concept Decide = requires(SYSTEM, INPUT input, Items shards) {
-        { SYSTEM::decide(input, shards) } -> convertible_to<bool>;
+      template<typename SYSTEM, typename VERIFIER> concept Decide = requires(SYSTEM, VERIFIER verifier) {
+        { SYSTEM::decide(verifier) } -> convertible_to<bool>;
       };
     }
     template<typename SYSTEM> concept System = required::System<SYSTEM> && requires(SYSTEM) {
@@ -37,7 +37,7 @@ namespace tunitas::keyston::prio::flp::system::usage {
       typename SYSTEM::Message;
       requires api::Prove<SYSTEM, typename SYSTEM::Message::Input::View, typename SYSTEM::Randomness::Prove::View, typename SYSTEM::Randomness::Joint::View>;
       requires api::Query<SYSTEM, typename SYSTEM::Message::Input::View, typename SYSTEM::Message::Proof::View, typename SYSTEM::Randomness::Query::View, typename SYSTEM::Randomness::Joint::View>;
-      requires api::Decide<SYSTEM, typename SYSTEM::Message::Input::View>;
+      requires api::Decide<SYSTEM, typename SYSTEM::Message::Verifier::View>;
     };
   }
   using eponymous_system::System;

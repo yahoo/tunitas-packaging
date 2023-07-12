@@ -6,5 +6,6 @@
 #
 tunitas_keyston_quantity_SUBSOURCES = \
   obj/src/tunitas/keyston/quantity/namespace.cpp \
-  obj/src/tunitas/keyston/quantity/Count.cpp \
+  obj/src/tunitas/keyston/quantity/Records.cpp \
+  obj/src/tunitas/keyston/quantity/Shards.cpp \
   $(end)

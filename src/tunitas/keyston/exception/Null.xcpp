@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::exception {
   //
-  // Something was null in Tunitas Keyston ?VDAF.
+  // Something was null in Tunitas Keyston.
   //
   // Specification:
   //

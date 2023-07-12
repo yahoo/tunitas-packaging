@@ -31,7 +31,7 @@ namespace tunitas::keyston::prio::flp::validity {
 #include <ipp/tunitas.keyston.prio.flp.dimension.cast>
 #import tunitas.array.Fixed
 #import tunitas.view.Fixed
-#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.quantity.Shards
 namespace tunitas::keyston::prio::flp {
   //
   // Convenience definitions for the function obligations of the (descendant's) interface
@@ -45,7 +45,7 @@ namespace tunitas::keyston::prio::flp {
     using Truncated = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::OUTPUT_LENGTH).count()>;
     //
     using Decodable = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::OUTPUT_LENGTH).count()>;
-    using Records = measurement::Records;
+    using Shards = quantity::Shards;
     using Decoded = typename VALIDITY::Aggregation;
     //
     using Input = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::INPUT_LENGTH).count()>;

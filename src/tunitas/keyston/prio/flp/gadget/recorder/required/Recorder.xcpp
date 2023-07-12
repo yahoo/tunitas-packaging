@@ -4,7 +4,6 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#include <hpp/tunitas.keyston.prio.flp.gadget> // for the definition of gadget::underlying(...)
 #forward tunitas.keyston.prio.flp.gadget.recorder.Recorder
 #import tunitas.keyston.prio.flp.gadget.recorder.required.Element
 #import tunitas.keyston.prio.flp.gadget.recorder.required.Loggable
@@ -14,14 +13,14 @@ namespace tunitas::keyston::prio::flp::gadget::recorder::required {
   // This is the moral equivalent of InstanceOf that accounts for the NTTP (Non-Type Template Parameter)
   //
   template<typename RECORDER> concept Recorder = requires(RECORDER) {
-    { []<typename ELEMENT, typename LOG, Arity ARITY>(recorder::Recorder<ELEMENT, LOG, ARITY> *)
-      requires (required::Element<ELEMENT> && Loggable<LOG, ELEMENT>)
+    { []<typename ELEMENT, Arity ARITY, typename INPUT, typename OUTPUT>(recorder::Recorder<ELEMENT, ARITY, INPUT, OUTPUT> *)
+      requires (required::Element<ELEMENT> && Loggable<INPUT, ELEMENT> && Loggable<OUTPUT, ELEMENT>)
       {}(static_cast<RECORDER *>(nullptr)) };
   };
-  template<typename RECORDER, Size N> concept RecorderN = requires(RECORDER) {
+  template<typename RECORDER, Arity MATCH_ARITY> concept RecorderN = requires(RECORDER) {
     requires Recorder<RECORDER>;
-    { []<typename ELEMENT, typename LOG, Arity ARITY>(recorder::Recorder<ELEMENT, LOG, ARITY> *)
-      requires (N == underlying(ARITY))
+    { []<typename ELEMENT, Arity ARITY, typename INPUT, typename OUTPUT>(recorder::Recorder<ELEMENT, ARITY, INPUT, OUTPUT> *)
+      requires (MATCH_ARITY == ARITY)
       {}(static_cast<RECORDER *>(nullptr)) };
   };
 }

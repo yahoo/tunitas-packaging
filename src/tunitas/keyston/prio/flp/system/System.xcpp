@@ -44,18 +44,19 @@ namespace tunitas::keyston::prio::flp::system {
 #import tunitas.keyston.prio.flp.system.usage.Interface
 #import tunitas.keyston.prio.flp.system.usage.Validity
 #import tunitas.keyston.prio.flp.system.interface.Standard
+#import tunitas.keyston.prio.flp.gadget.Recorder
 #forward tunitas.keyston.prio.flp.validity.Access
-#forward tunitas.keyston.prio.flp.validity.Construction
 #import tunitas.keyston.prio.flp.validity.Log
 #import tunitas.keyston.prio.flp.validity.Recorder
-#import tunitas.keyston.prio.flp.gadget.Recorder
 #import tunitas.keyston.shards.Shard // for SHARDS_COUNT
-#import tunitas.keyston.Shards
+#import tunitas.keyston.quantity.Shards
+#import tunitas.sequence.Constant
+#import tunitas.sequence.Sequence
 #import std.in_place_t
 namespace tunitas::keyston::prio::flp {
   template<system::required::Validity VALIDITY> class system::System {
     static_assert(usage::Validity<VALIDITY>);
-    using Table = interface::Standard<VALIDITY>;
+    using Interface = interface::Standard<VALIDITY>;
   public:
     using Validity = VALIDITY;
     using Codec = typename Validity::Codec;
@@ -63,66 +64,50 @@ namespace tunitas::keyston::prio::flp {
     using Element = typename Field::Element;
     using Measurement = typename Validity::Measurement;
     using Aggregation = typename Validity::Aggregation;
-    using Randomness = typename Table::Randomness;
-    using Message = typename Table::Message;
+    using Randomness = typename Interface::Randomness;
+    using Message = typename Interface::Message;
     //
     // Flp.prove(input: Vec[Field], prove_rand: Vec[Field], joint_rand: Vec[Field]) -> Vec[Field]
-    static auto prove(typename Message::Input::View, typename Randomness::Prove::View, typename Randomness::Joint::View) -> typename Message::Proof::Vector;
+    static auto prove(typename Message::Input::View, typename Randomness::Prove::View, typename Randomness::Joint::View) -> typename Message::Proof::Series;
     // Flp.query(input: Vec[Field], flp: Vec[Field], query_rand: Vec[Field], joint_rand: Vec[Field], num_shares: Unsigned) -> Vec[Field]
-    static auto query(typename Message::Input::View, typename Message::Proof::View, typename Randomness::Query::View, typename Randomness::Joint::View, Items number_of_shards = shards::SHARD_COUNT /* MUST be such*/) -> typename Message::Verifier::Vector;
+    static auto query(typename Message::Input::View, typename Message::Proof::View, typename Randomness::Query::View, typename Randomness::Joint::View, quantity::Shards number_of_shards = shards::SHARD_COUNT /* MUST be such*/) -> typename Message::Verifier::Series;
     // Flp.decide(verifier: Vec[Field]) -> Bool
     static auto decide(typename Message::Verifier::View) -> bool;
     //
     // def run_flp(Flp, inp: Vec[Flp.Field], num_shares: Unsigned):
-    template<entropy::required::Entropy SOURCE> static auto run([[inout]] SOURCE &, typename Message::Input::View, Items number_of_shards = shards::SHARD_COUNT /*MUST be such*/) -> bool;
+    template<entropy::required::Entropy SOURCE> static auto run([[inout]] SOURCE &, typename Message::Input::View, quantity::Shards number_of_shards = shards::SHARD_COUNT /*MUST be such*/) -> bool;
   protected:
     using Work = validity::Log<Validity>;
-    using Recorder = validity::Recorder<Validity, Work>;
+    struct Recorder {
+      using Evaluator = validity::Recorder<Validity, Work>;
+      using Polynator =  validity::Recorder<Validity, Work>::Output;
+      Recorder() = delete;
+    };
+    static_assert(sizeof(Validity));
+    static_assert(sizeof(Work));
+    static_assert(sizeof(Recorder));
+    // NOT YET ---> static_assert(std::same_as<array::traits::SpanOf<Work::Circuit::Inputs>, Recorder::Inputs::Only::Reference>); <--- NOT YET (but you get the idea)
     //
-    // We know there is only one gadget in all the that we care about (all of the world of PRIO3 in VDAF)
-    using Unrecorded = gadget::Recorder<Element, void, Work::Gadget::ARITY>;
+    // We know there is only one gadget in all that we care about (all of the world of PRIO3 in VDAF)
+    using Unrecorded = gadget::Recorder<Element, Work::Gadget::ARITY, void, void>;
     using Gadgetator = typename Work::Gadget::template Evaluator<Unrecorded>;
+    using Polynator = typename Work::Gadget::template Polynator<typename Recorder::Polynator, typename Work::Polynomial::Gadget>;
     //
     using Inplace = std::in_place_t;
-    using Access = validity::Access<Validity>;
-    using Construction = validity::Construction<Validity>;
-    inline static constexpr auto construct_wire_seeds(typename Randomness::Prove::View) -> typename Construction::Seeds::Storage;
-    inline static constexpr auto construct_poly_wires(Work::Wires const &) -> typename Work::Polynomial::Wires;
-    inline static constexpr auto construct_poly_gadget(typename Work::Polynomial::Wires const &) -> typename Work::Polynomial::Gadget;
+    using Access [[deprecated("not needed for the 1==H case")]] = validity::Access<Validity>;
+    using Constant = sequence::Constant;
+    using Sequence = sequence::Sequence;
+    //
+    // common between the prove(...) and the query(...) steps
+    inline static constexpr auto construct_poly_wires(Work::Circuit const &) -> typename Work::Polynomial::Wires;
   };
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.prio.flp.validity.Access
-#import tunitas.keyston.prio.flp.validity.Construction
-#import nonstd.runtime_assert
+#import tunitas.keyston.field.element.lagrange // interpolate(...)
 namespace tunitas::keyston::prio::flp::system {
-  template<required::Validity _> constexpr auto System<_>::construct_wire_seeds(typename Randomness::Prove::View prove) -> typename Construction::Seeds::Storage {
-    //
-    // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
-    // Section 7.3.3.1. Proof Generation
-    // <quote>
-    //   Partition the prover randomness prove_rand into sub-vectors seed_1, ..., seed_H where len(seed_i) == L_i for all i in [H].
-    //   Let us call these the "wire seeds" of each gadget.
-    // </quote>
-    //
-    auto each = [prove]<Size INDEX>(typename Access::Constant<INDEX>) -> view::Variable<Element> {
-      auto previous = []{
-        if constexpr (0 == INDEX) {
-          return 0u;
-        } else {
-          return []<Size... SUBINDEX>(typename Access::Sequence::template Pack<SUBINDEX...>) {
-            return (0u + ... + /*L_i*/Access::Gadgets::template arity<SUBINDEX>());
-          }(Access::Sequence::template make<INDEX-1>());
-        }
-      };
-      return {prove.data() + previous(), /*L_i*/underlying(Access::Gadgets::template arity<INDEX>())};
-    };
-    return [each]<Size... INDEX>(typename Access::Sequence::template Pack<INDEX...>) {
-      return {Inplace{}, each(INDEX)...};
-    }(Access::Sequence::template make<Construction::H>());
-  }
-  template<required::Validity _> constexpr auto System<_>::construct_poly_wires(typename Work::Wires const &wires) -> typename Work::Polynomial::Wires {
+  template<required::Validity _> constexpr auto System<_>::construct_poly_wires(typename Work::Circuit const &circuit) -> typename Work::Polynomial::Wires {
     //
     // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
     // Section 7.3.3.1. Proof Generation
@@ -134,62 +119,92 @@ namespace tunitas::keyston::prio::flp::system {
     //   Let poly_wire_i[j-1] be the lowest degree polynomial for which poly_wire_i[j-1](alpha_i^k) == padded_w[k] for all k in [P_i].
     // </quote>
     //
+    // n.b. the use of alpha being the nth root ot unity is buried within interpolate(...)
+    // the one-argument version of interpolate(...) assumes the x-series is 0, 1, 2, 3...etc.
+    // and identifies the generator from Element and constructs alpha^k from that within itself.
+    //
     auto ret = typename Work::Polynomial::Wires{};
-    auto const x_series = Work::x_axis();
-    auto each = [&]<Size J, Size... K>(typename Access::Constant::Pack<J>, typename Access::Sequence::Pack<K...>) {
-      auto const y_series = typename Work::Axis{wires.seeds[J], wires.slice[J, K]...};
-      ret[J] = interpolate(x_series, y_series);
+    auto each = [&]<Size Li, Size... Mi>(typename Constant::template Pack<Li>, typename Sequence::template Pack<Mi...>) {
+      auto const y_series = typename Work::Axis{Inplace{}, circuit.seeds[Li], circuit.pointwise[Li, Mi]...};
+      ret[Li] = field::element::interpolate(y_series);
     };
-    [&each]<Size... J>(typename Access::Sequence::template Pack<J...>) {
-      (each(Access::Constant::template make<J>(), Access::Sequence::template make<Work::M>()), ... );
-    }(Access::Sequence::template make<Work::L>());
+    [&each]<Size... Li>(typename Sequence::template Pack<Li...>) {
+      (each(Constant::template make<Li>(), Sequence::template make<Work::M>()), ... );
+    }(Sequence::template make<Work::L>());
     return ret;
-  }
-  template<required::Validity _> constexpr auto System<_>::construct_poly_gadget(typename Work::Polynomial::Wires const &wires) -> typename Work::Polynomial::Gadget {
-    //
-   // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
-    // Section 7.3.3.1. Proof Generation
-    // <quote>
-    //   Compute the "gadget polynomials". That is, for every i in [H]:
-    //   Let poly_gadget_i = G_i(poly_wire_i[0], ..., poly_wire_i[L_i-1]).
-    //   That is, evaluate the circuit G_i on the wire polynomials for the ith gadget.
-    //   (Arithmetic is in the ring of polynomials over Field.)
-    // </quote>
-    //
-    return [&]<Size... K>(typename Access::Sequence::template Pack<K...>) {
-      return Gadgetator{Unrecorded{}}(wires[K]...);
-    }(Access::Sequence::template make<Work::L>());
   }
 }
 #endiv
 #divert <tpp>
 #import tunitas.integer.bit
-#import tunitas.keyston.exception.Invalid
 #import tunitas.keyston.entropy.usage.Entropy
+#import tunitas.keyston.exception.Unimplemented
+#import tunitas.keyston.field.Polynomial
+#import tunitas.keyston.prio.exception.Invalid
+#import tunitas.keyston.prio.exception.Prove
+#import tunitas.keyston.prio.exception.Query
 #import tunitas.keyston.prio.flp.system.usage.System
-#import std.index_sequence
-#import std.make_index_sequence
-#import std.integral_constant
-#import nonstd.exception.Unimplemented
+#import tunitas.keyston.Shards
 namespace tunitas::keyston::prio::flp::system {
-  template<required::Validity _> auto System<_>::prove(typename Message::Input::View input, typename Randomness::Prove::View prove_randomness, typename Randomness::Joint::View joint_randomness) -> typename Message::Proof::Vector {
+  template<required::Validity _> auto System<_>::prove(typename Message::Input::View input, typename Randomness::Prove::View prove_randomness, typename Randomness::Joint::View joint_randomness) -> typename Message::Proof::Series {
     static_assert(usage::System<System>);
+    static_assert(1uz == Work::H);
+    //
+    {
+      auto is_not_reasonably_random = [](auto view) {
+        // the numbers we won't allow as "random" are those surrounding the Pth roots of unity; being: zero, 1, alpha.
+        return std::any_of(view.begin(), view.end(), [](auto each) { return Element{0} == each || Element{1} == each || Work::alpha(1) == each; });
+      };
+      if (is_not_reasonably_random(prove_randomness)) { throw exception::Prove{"the prove-step randomness is not random enough"}; }
+      if (is_not_reasonably_random(joint_randomness)) { throw exception::Prove{"the joint randomness is not random enough"}; }
+    }
     //
     auto work = Work{};
-    work.wire.seeds = construct_wire_seeds(prove_randomness);
-    {
+    work.circuit.seeds = [prove_randomness]{
       //
       // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-proof-generation>
       // Section 7.3.3.1. Proof Generation
+      //
       // <quote>
-      //   Evaluate Valid on input of inp and joint_rand, recording the inputs of each gadget in the corresponding table.
-      //   Specifically, for every i in [H], set wire_i[j-1,k-1] to the value on the jth wire into the kth call to gadget G_i.
+      //   Partition the prover randomness prove_rand into sub-vectors seed_1, ..., seed_H where len(seed_i) == L_i for all i in [H].
+      //   Let us call these the "wire seeds" of each gadget.
       // </quote>
       //
-      Validity::evaluate(Recorder{work}, input, joint_randomness, Items{1});
+      auto assemble_container = [=](auto sequence) {
+        auto assemble_subcontainer = [=]<Size... Li>(Sequence::Pack<Li...>) -> typename Work::Circuit::Seeds::container_type {
+          return {/*InPlace{}*/ prove_randomness.at(Li)...};
+        };
+        return typename Work::Circuit::Seeds{assemble_subcontainer(sequence)};
+      };
+      return assemble_container(Sequence::make<Work::L>());
+    }();
+    //
+    // <quote>
+    //   Evaluate Valid on input of inp and joint_rand, recording the inputs of each gadget in the corresponding table.
+    //   Specifically, for every i in [H], set wire_i[j-1,k-1] to the value on the jth wire into the kth call to gadget G_i.
+    // </quote>
+    //
+    // Observe that the proof does NOT contain the value v (the verifier message produced by the query will have it; the decider will reproduce v)
+    // But validate 0==v here upon construction since 0==v is checked in the decide(...) step.
+    //
+    {
+      auto v = Validity::evaluate(typename Recorder::Evaluator{work}, input, joint_randomness, quantity::Shards{1});
+      if (Element{0} != v) { throw exception::Prove{"circuit in proof mode fails to return zero"}; }
     }
-    work.polynomial.wires = construct_poly_wires(work.wires);
-    work.polynomial.gadget = construct_poly_gadget(work.polynomial.wires);
+    work.polynomial.wires = construct_poly_wires(work.circuit);
+    work.polynomial.gadget = [&]{
+      //
+      // <quote>
+      //   Compute the "gadget polynomials". That is, for every i in [H]:
+      //   Let poly_gadget_i = G_i(poly_wire_i[0], ..., poly_wire_i[L_i-1]).
+      //   That is, evaluate the circuit G_i on the wire polynomials for the ith gadget.
+      //   (Arithmetic is in the ring of polynomials over Field.)
+      // </quote>
+      //
+      return [&]<Size... Li>(Sequence::Pack<Li...>) {
+        return Gadgetator{Unrecorded{}}(work.polynomial.wires[Li]...);
+      }(Sequence::make<Work::L>());
+    }();
     {
       // See pages 14-17 of BBCGGI19 for the derivation & construction of the polynomial p
       // Especially the sections on Page 16 "FLPCP Prover" and "FLCP Queies"
@@ -217,52 +232,159 @@ namespace tunitas::keyston::prio::flp::system {
       // And so it goes.
       //
       static_assert(1uz == Work::H);
-      return [&]<Size... K>(Access::Sequence::template Pack<K...>) {
-        return typename Message::Proof::Vector{work.wire.seeds.at(0), work.polynomial.gadget.at(K)...};
-      }(Access::Sequence::template make<Work::M>());
+      return [&]<Size... Li>(typename Sequence::template Pack<Li...>) {
+        return typename Message::Proof::Series{work.circuit.seeds[Li]..., work.polynomial.gadget.at(Li)...};
+      }(Sequence::template make<Work::L>());
     }
   }
-  template<required::Validity _> auto System<_>::query(typename Message::Input::View input, typename Message::Proof::View proof, typename Randomness::Query::View query, typename Randomness::Joint::View joint_randomness, Items number_of_shards) -> typename Message::Verifier::Vector {
+  template<required::Validity _> auto System<_>::query(typename Message::Input::View input, typename Message::Proof::View proof, typename Randomness::Query::View query, typename Randomness::Joint::View joint_randomness, quantity::Shards number_of_shards) -> typename Message::Verifier::Series {
     static_assert(usage::System<System>);
+    static_assert(1uz == Work::H);
+    //
     if (number_of_shards != shards::SHARD_COUNT) { throw exception::Invalid{"shard count"}; }
     //
-    throw exception::Unimplemented{};
+    auto const t = query.at(Work::I);  // t MUST not be a Pth root of unity; e.g. 0, 1, or alpha; i.e. such values are "not random"
+    if (Element{1u} == pow(t, Work::P)) { throw exception::Query{"the query-step randomness is not random enough"}; }
+    //
+    auto work = Work{};
+    //
+    // https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-query-generation>
+    // Section 7.3.3.2. Query Generation
+    // <quote>
+    //   Partition proof into the sub-vectors seed_1, coeff_1, ..., seed_H, coeff_H defined in Section 7.3.3.1 (Proof Generation)
+    // </quote>
+    //
+    work.circuit.seeds = [proof]{
+      auto assemble_container = [&](auto sequence){
+        // because the array::md::Fixed (a.k.a. mdarray) requires the two-step subcontainer constructor scheme
+        auto assemble_subcontainer = [&]<Size... Li>(Sequence::Pack<Li...>) -> typename Work::Circuit::Seeds::container_type {
+          return {/*InPlace{}*/ proof.at(Li)...};
+        };
+        return typename Work::Circuit::Seeds{assemble_subcontainer(sequence)};
+      };
+      return assemble_container(Sequence::make<Work::L>());
+    }();
+    work.polynomial.gadget = [proof]{
+      auto assemble_container = [&]<Size... Li>(Sequence::Pack<Li...>) -> typename Work::Polynomial::Gadget {
+        return typename Work::Polynomial::Gadget{Inplace{}, proof.at(Work::L+Li)...};
+      };
+      return assemble_container(Sequence::make<Work::L>());
+    }();
+    auto const v = [&]{
+      //
+      // <quote>
+      //   Evaluate Valid on input of inp and joint_rand, recording the inputs of each gadget in the corresponding table.
+      //   This step is similar to the prover's step (3.) except the verifier does not evaluate the gadgets.
+      //   Instead, it computes the output of the kth call to G_i by evaluating poly_gadget_i(alpha_i^k).
+      //   Let v denote the output of the circuit evaluation.
+      // </quote>
+      //
+      // MUST use different recorders for each of the steps
+      //
+      (void) Validity::evaluate(typename Recorder::Evaluator{work}, input, joint_randomness, quantity::Shards{1}); // [[FIXTHIS]] use number_of_shards
+      return Polynator{typename Recorder::Polynator{work.circuit.outputs}, work.polynomial.gadget}(Work::alpha(Work::M));
+    }();
+    //
+    // <quote>
+    //   Compute the wire polynomials just as in the prover's step (4.).
+    // </quote>
+    //
+    work.polynomial.wires = construct_poly_wires(work.circuit);
+    //
+    // <quote>
+    //   Compute the wire polynomials just as in the prover's step (4.).
+    //   Compute the tests for well-formedness of the gadget polynomials.
+    //   That is, for every i in [H]:
+    //
+    //   Let t = query_rand[i].
+    //   Check if t^(P_i) == 1:
+    //       If so, then raise ERR_ABORT and halt.
+    //       (This prevents the verifier from inadvertently leaking a gadget output in the verifier message.)
+    //       [[why? the idft(...) a.k.a. DFT^-1 evaluates at the (roots of) unity]]
+    //   Let y_i = poly_gadget_i(t).
+    // </quote>
+    //
+    auto const y = work.polynomial.gadget(t);
+    auto const x = [t, &wires=work.polynomial.wires]<Size... Li>(typename Sequence::template Pack<Li...>) -> typename Work::Circuit::Seeds {
+      //
+      // From BBCGGI19 is the expressive procedure (that's not well represented in draft-ietf-cfrg-vdaf
+      // <quote ref=page 16>
+      //   FLPCP queries.
+      //    We can parse the (possibly maliciously crafted) proof π ∈ F^{h+L+d+1} as:
+      //        a purported witness w_0 ∈ F^h,
+      //        the values (z_10 , ... , z_L0 ) ∈ FL representing the constant terms of some polynomials f_10 , . . . , f_L0,
+      //    and the coefficients c_0p ∈ F^{d+1} of a polynomial p_0 ∈ F[X] of degree at most d.
+      //    If the proof is well-formed, the polynomial p_0 is such that p_0(j)encodes the output wire of the jthG-gate in the circuit C(·, ·) when evaluated on the pair (x, w_0).
+      //    Given p_0, we define L polynomials f_10 , ... , f_L0 ∈ F[X] such that:
+      //       <snip/>
+      // </quote>
+      //
+      // From draft-ietf-cfrg-vdaf
+      //
+      // <quote>
+      //   For each j in [0,L_i) let x_i[j-1] = poly_wire_i[j-1](t).
+      // </quote>
+      //      
+      // The explicit constructor fpr mdarray requires explicit container_type
+      // here --------------------------------------------\ (here)
+      //                                                  |
+      //                                   vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      return typename Work::Circuit::Seeds{typename Work::Circuit::Seeds::container_type{field::polynomial::Fixed{wires[Li]}(t)...}};
+    }(Sequence::template make<Work::L>());
+    return [v, x, y]<Size... Li>(typename Sequence::template Pack<Li...>) -> typename Message::Verifier::Series {
+      return {v, x[Li]..., y};
+    }(Sequence::template make<Work::L>());
   }
-  template<required::Validity _> auto System<_>::decide(typename Message::Verifier::View) -> bool {
+  template<required::Validity _> auto System<_>::decide(typename Message::Verifier::View verifier) -> bool {
     static_assert(usage::System<System>);
-    throw exception::Unimplemented{};
+    //
+    // <quote>
+    //   Parse verifier into v, x_1, y_1, ..., x_H, y_H as defined in Section 7.3.3.2.
+    //   Check for well-formedness of the gadget polynomials. For every i in [H]:
+    //   
+    //   Let z = G_i(x_i). That is, evaluate the circuit G_i on x_i and set z to the output.
+    //   If z != y_i, then return False and halt.
+    //   Return True if v == 0 and False otherwise.
+    // </quote>
+    //
+    static_assert((1+Work::L+1) == Message::Verifier::View::extent);
+    auto v = verifier.at(0);
+    auto x = verifier.template subview<1, Work::L>();
+    auto y = verifier.at(1+Work::L);
+    auto z = Gadgetator{Unrecorded{}}.apply(x);
+    return z == y && Element{0} == v;
   }
-  template<required::Validity _> template<entropy::required::Entropy SOURCE> auto System<_>::run(SOURCE &source, typename Message::Input::View input, Items number_of_shards) -> bool {
+  template<required::Validity _> template<entropy::required::Entropy SOURCE> auto System<_>::run(SOURCE &source, typename Message::Input::View input, quantity::Shards number_of_shards) -> bool {
     static_assert(entropy::usage::Entropy<SOURCE>);
     static_assert(usage::System<System>);
     if (number_of_shards != shards::SHARD_COUNT) { throw exception::Invalid{"shard count"}; }
     //
-    auto joint_randomness = Field::template Vector<Randomness::Joint::VALUE.count()>::random(source);
-    auto prove_randomness = Field::template Vector<Randomness::Prove::VALUE.count()>::random(source);
-    auto query_randomness = Field::template Vector<Randomness::Query::VALUE.count()>::random(source);
+    auto joint_randomness = Field::template Series<Randomness::Joint::VALUE.count()>::random(source);
+    auto prove_randomness = Field::template Series<Randomness::Prove::VALUE.count()>::random(source);
+    auto query_randomness = Field::template Series<Randomness::Query::VALUE.count()>::random(source);
     //
-    // Prover generates the flp.
-    auto flp = prove(input, prove_randomness, joint_randomness);
+    // The prove(r) generates the proof (fully-linear proof; a.k.a. "the proof")
+    auto proof = prove(input, prove_randomness, joint_randomness);
     //
-    // Verifier queries the input and the flp.
+    // The verifier queries the input and the proof.
     auto verifier = [=]{
       if constexpr (false) {
         //
         // As defined in '06 (draft-irtf-cfrg-vdaf-06) https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
         // DOES incorporate an internal sharding-separation-and-reassembly ceremony.
         //
-        // Shard the input and the flp.
+        // Shard the input and the proof.
         auto input_shares = additive_secret_share<Field>(input, number_of_shards);
-        auto flp_shares = additive_secret_share<Field>(flp, number_of_shards);
+        auto proof_shares = additive_secret_share<Field>(proof, number_of_shards);
         //
-        // Verifier queries the input shares and flp shares.
-        auto verifier_shares = [=]<Size... INDEX>(std::index_sequence<INDEX...>) -> Shards<typename Message::Verifier::Vector> {
-          return {query(input_shares.at(INDEX), flp_shares.at(INDEX), query_randomness, joint_randomness, number_of_shards)...};
+        // Verifier queries the input shares and proof shares.
+        auto verifier_shares = [=]<Size... INDEX>(std::index_sequence<INDEX...>) -> Shards<typename Message::Verifier::Series> {
+          return {query(input_shares.at(INDEX), proof_shares.at(INDEX), query_randomness, joint_randomness, number_of_shards)...};
         }(std::make_index_sequence<shards::SHARD_COUNT.count()>{});
         //
         // Combine the verifier shares into the verifier (return that).
         return [](auto const &shares) {
-          auto ret = typename Message::Verifier::Vector{}; // a.k.a. "zeroes"
+          auto ret = typename Message::Verifier::Series{}; // a.k.a. "zeroes"
           for (auto const &each : shares) {
             ret += each;
           }
@@ -273,8 +395,8 @@ namespace tunitas::keyston::prio::flp::system {
         // As defined in '05 (draft-irtf-cfrg-vdaf-05) https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
         // DOES NOT incorporate an internal sharding-separation-and-reassembly ceremony.
         //
-        // Verifier queries the input and flp (return that as the verifier)
-        return query(input, flp, query_randomness, joint_randomness, number_of_shards);
+        // Verifier queries the input and proof (return that as the verifier)
+        return query(input, proof, query_randomness, joint_randomness, number_of_shards);
       }
     }();
     // Verifier decides if the input is valid.

@@ -86,16 +86,16 @@ namespace tunitas::keyston::daf {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.detail.To_String
-#import tunitas.keyston.detail.To_String_View
+#import tunitas.keyston.name.To_String
+#import tunitas.keyston.name.To_String_View
 namespace tunitas::keyston {
-  auto daf::to_string(error::by::Optional by, Name name) -> error::Optional<string::Storage> { return detail::To_String<Name>::invoke(by, name); }
-  auto daf::to_string(error::by::Outcome by, Name name) -> error::Outcome<string::Storage>   { return detail::To_String<Name>::invoke(by, name); }
-  auto daf::to_string(error::by::Exception by, Name name) -> string::Storage                 { return detail::To_String<Name>::invoke(by, name); }
+  auto daf::to_string(error::by::Optional by, Name name) -> error::Optional<string::Storage> { return name::To_String<Name>::invoke(by, name); }
+  auto daf::to_string(error::by::Outcome by, Name name) -> error::Outcome<string::Storage>   { return name::To_String<Name>::invoke(by, name); }
+  auto daf::to_string(error::by::Exception by, Name name) -> string::Storage                 { return name::To_String<Name>::invoke(by, name); }
   //
-  auto daf::to_string_view(error::by::Optional by, Name name) -> error::Optional<string::View> { return detail::To_String_View<Name>::invoke(by, name); }
-  auto daf::to_string_view(error::by::Outcome by, Name name) -> error::Outcome<string::View>   { return detail::To_String_View<Name>::invoke(by, name); }
-  auto daf::to_string_view(error::by::Exception by, Name name) -> string::View                 { return detail::To_String_View<Name>::invoke(by, name); }
+  auto daf::to_string_view(error::by::Optional by, Name name) -> error::Optional<string::View> { return name::To_String_View<Name>::invoke(by, name); }
+  auto daf::to_string_view(error::by::Outcome by, Name name) -> error::Outcome<string::View>   { return name::To_String_View<Name>::invoke(by, name); }
+  auto daf::to_string_view(error::by::Exception by, Name name) -> string::View                 { return name::To_String_View<Name>::invoke(by, name); }
 }
 #endiv
 #divert <cpp>

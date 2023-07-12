@@ -17,7 +17,7 @@ namespace tunitas::keyston::prio::flp::gadget {
   //
   // Design:
   //
-  //   Whut?
+  //   See the commentariat in Gadget.template.
   //
   // Usage:
   //
@@ -31,21 +31,27 @@ namespace tunitas::keyston::prio::flp::gadget {
   template<> struct Gadget<RANGE1> {
     inline static constexpr auto const ARITY = Arity{2u};
     inline static constexpr auto const DEGREE = Degree{2u};
-    template<required::RecorderN<2> RECORDER> struct Evaluator {
+    template<required::RecorderN<Arity{2}> RECORDER> struct Evaluator {
       using Recorder = RECORDER;
       constexpr explicit Evaluator(Recorder r) : recorder{r} { }
-      template<required::Element ELEMENT> inline constexpr auto operator()(ELEMENT x, ELEMENT y) const -> ELEMENT;
+      template<required::Evaluatable ITEM> inline constexpr auto operator()(ITEM x, ITEM y) const -> decltype(x * y);
+      template<required::Evaluatable ITEM> inline constexpr auto apply(view::Fixed<ITEM, underlying(ARITY)> x) const -> decltype(x.at(0) * x.at(1));
     protected:
-      Recorder recorder{};
+      mutable Recorder recorder{};
     };
+    template<required::Recorder RECORDER, field::required::Polynomial POLYNOMIAL> using Polynator = gadget::Polynator<RECORDER, POLYNOMIAL>;
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::prio::flp::gadget {
-  template<required::RecorderN<2> _> template<required::Element ELEMENT> constexpr auto Gadget<RANGE1>::Evaluator<_>::operator()(ELEMENT x, ELEMENT y) const -> ELEMENT {
-    recorder.store(x, y);
-    return x * y;
+  template<required::RecorderN<Arity{2}> _> template<required::Evaluatable ITEM> constexpr auto Gadget<RANGE1>::Evaluator<_>::apply(view::Fixed<ITEM, underlying(ARITY)> x) const -> decltype(x.at(0) * x.at(1)) { return operator()(x.at(0), x.at(1)); }
+  template<required::RecorderN<Arity{2}> _> template<required::Evaluatable ITEM> constexpr auto Gadget<RANGE1>::Evaluator<_>::operator()(ITEM x, ITEM y) const -> decltype(x * y) {
+    static_assert(usage::Evaluatable<ITEM>);
+    recorder.inputs(x, y);
+    auto z = x * y;
+    recorder.output(z);
+    return z;
   }
 }
 #endiv

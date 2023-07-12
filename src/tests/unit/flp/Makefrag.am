@@ -7,5 +7,4 @@
 tests_unit_flp_SUBSOURCES = \
   check/obj/src/tests/unit/flp/namespace.cpp \
   check/obj/src/tests/unit/flp/Fixture.cpp \
-  check/obj/src/tests/unit/flp/construction.Interface.cpp \
   $(end)

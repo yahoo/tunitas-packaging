@@ -21,7 +21,7 @@
 #import tunitas.keyston.field.Element
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Count
-#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.quantity.Records
 namespace tests::unit::daf::numeric {
   namespace library = ::tunitas::keyston::daf::numeric;
   //
@@ -33,7 +33,7 @@ namespace tests::unit::daf::numeric {
   using enum ::tunitas::keyston::Slice;
   using ::tunitas::keyston::measurement::Specimen;
   using ::tunitas::keyston::aggregation::Count; // [[FIXTHIS]] why is this here and not also Summation, Histogram, Popularity?
-  using ::tunitas::keyston::measurement::Records;
+  using ::tunitas::keyston::quantity::Records;
   namespace [[nodirectory]] defaults { }
   namespace [[nodirectory]] zero       { namespace library = ::tunitas::keyston::daf::numeric::zero; }
   namespace [[nodirectory]] constant   { namespace library = ::tunitas::keyston::daf::numeric::constant; }

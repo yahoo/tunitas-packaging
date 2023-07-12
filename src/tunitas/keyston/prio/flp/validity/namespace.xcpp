@@ -11,6 +11,6 @@ namespace tunitas::keyston::prio::flp::validity {
   using enum prio::Name;
   using enum gadget::Name;
   namespace [[nodirectory]] is { }
-  namespace [[nodirectory]] is { }
+  namespace [[nodirectory]] traits { }
 }
 #endiv

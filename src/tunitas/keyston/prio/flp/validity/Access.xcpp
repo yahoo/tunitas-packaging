@@ -37,30 +37,31 @@ namespace tunitas::keyston::prio::flp::validity {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.prio.flp.validity.Unpackage
+#import tunitas.sequence.Constant
+#import tunitas.sequence.Sequence
 namespace tunitas::keyston::prio::flp::validity {
-  template<required::Definition VALIDITY> struct access::Access : public Unpackage {
+  template<required::Definition VALIDITY> struct access::Access {
     using Validity = VALIDITY;
     struct Gadgets {
-      inline static constexpr auto count() -> unsigned;
-      template<Size N> inline static constexpr auto calls() -> Items;
-      template<Size N> inline static constexpr auto arity() -> Arity;
-      template<Size N> inline static constexpr auto degree() -> Degree;
+      inline static constexpr auto count() -> unsigned; // ................... H
+      template<Size N> inline static constexpr auto calls() -> Items; // ..... M_i
+      template<Size N> inline static constexpr auto arity() -> Arity; // ..... arity G_i
+      template<Size N> inline static constexpr auto degree() -> Degree; // ... deg G_i
     };
-    struct Sequence : public Unpackage::Sequence {
-      inline static constexpr auto make(); // examines to Validity::Gadgets
+    using Constant = sequence::Constant;
+    struct Sequence : public sequence::Sequence {
+      inline static constexpr auto make(); // ... [H] (the set of indices up to H)
     };
   };
 }
 #endiv
 #divert <ipp>
 #import tunitas.tuple.Element
-#import std.make_index_sequence
 #import tunitas.tuple.Size
 namespace tunitas::keyston::prio::flp::validity::access {
   template<required::Validity _> template<Size N> constexpr auto Access<_>::Gadgets::calls() -> Items   { return Validity::CALLS.at(N); }
   template<required::Validity _> template<Size N> constexpr auto Access<_>::Gadgets::arity() -> Arity   { return tuple::Element<N, typename Validity::Gadgets>::type::ARITY; }
   template<required::Validity _> template<Size N> constexpr auto Access<_>::Gadgets::degree() -> Degree { return tuple::Element<N, typename Validity::Gadgets>::type::DEGREE; }
-  template<required::Validity _>                  constexpr auto Access<_>::Sequence::make()                     { return std::make_index_sequence<tuple::Size<typename Validity::Gadgets>::value>{}; }
+  template<required::Validity _>                  constexpr auto Access<_>::Sequence::make()            { return sequence::Sequence::make<tuple::Size<typename Validity::Gadgets>::value>(); }
 }
 #endiv

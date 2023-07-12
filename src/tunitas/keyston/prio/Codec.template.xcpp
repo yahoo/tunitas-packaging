@@ -51,5 +51,5 @@ namespace tunitas::keyston::prio {
 #import tunitas.keyston.Field
 #import tunitas.keyston.field.Vector
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.quantity.Records
 #endiv

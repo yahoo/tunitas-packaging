@@ -28,7 +28,7 @@ namespace tunitas::keyston::protocol::collection {
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.hpke.Ciphertext
 #import tunitas.keyston.protocol.query.Partial
-#import tunitas.keyston.quantity.Count
+#import tunitas.keyston.quantity.Records
 namespace tunitas::keyston::protocol {
   namespace collection {
     using std::move;
@@ -36,7 +36,7 @@ namespace tunitas::keyston::protocol {
   }
   struct collection::Response {
     query::Partial partial_batch_selector{};
-    quantity::Count report_count{};
+    quantity::Records report_count{};
     array::Bounded<hpke::Ciphertext, (1uz<<32)> encrypted_aggregation_shares{};
   };
 }

@@ -45,11 +45,14 @@ namespace tunitas::array::range::package_enumerate::body {
 #import tunitas.array.range.required.Iterator
 #import tunitas.array.range.required.iterator.Alternative
 #import tunitas.array.range.package_enumerate.Iterator.operations // so they can be friends
+#forward tunitas.array.range.package_enumerate.Iterator
 namespace tunitas::array::range::package_enumerate {
   namespace body {
     template<required::Iterator SUBITERATOR> inline constexpr auto operator==(Iterotype<SUBITERATOR> const &, Iterotype<SUBITERATOR> const &) -> bool;
   }
-  template<required::Iterator SUBITERATOR> struct body::Iterotype {
+  template<required::Iterator SUBITERATOR> class body::Iterotype {
+  protected:
+    template<required::Iterator, Mutability> friend struct body::Iterator;
     using Index = std::size_t;
     using Subiterator = SUBITERATOR;
     Index index{};
@@ -61,12 +64,9 @@ namespace tunitas::array::range::package_enumerate {
     template<required::iterator::Undirected S, Mutability M> friend auto body::operator-(Iterator<S,M> const &, Iterator<S,M> const &) -> std::ptrdiff_t;
     template<required::iterator::Undirected S, Mutability M> friend auto body::operator+(std::ptrdiff_t, Iterator<S,M> const &) -> std::ptrdiff_t;
     template<required::iterator::Undirected S, Mutability M> friend auto body::operator+(Iterator<S,M> const &, std::ptrdiff_t) -> std::ptrdiff_t;
-  protected:
     ~Iterotype() = default;
-    template<required::Iterator OTHER>
-    inline constexpr explicit Iterotype(Index, OTHER const &)
-    requires required::Convertible_To<OTHER, Subiterator>;
   public:
+    template<required::Iterator OTHER> inline constexpr explicit Iterotype(Index, OTHER const &) requires required::Convertible_To<OTHER, Subiterator>;
     constexpr Iterotype() = default;
     inline constexpr [[implicit]] Iterotype(Subiterator);
 #if 0

@@ -5,6 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.prio.flp.gadget.recorder.Recorder.template
-#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.ELEMENT.ELEMENT.ARITY
-#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.ELEMENT.void.ARITY
+#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.ELEMENT.ARITY.void.void
+#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.ELEMENT.ARITY.ELEMENT.void
+#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.ELEMENT.ARITY.void.ELEMENT
+#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.ELEMENT.ARITY.ELEMENT.ELEMENT
 #endiv

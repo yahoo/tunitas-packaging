@@ -9,8 +9,8 @@ namespace tests::unit::daf { class Name; }
 #divert <hpp>
 #import tunitas.error.by.required.Indicator
 #import tunitas.keyston.daf.Name
-#import tests.unit.detail.Name
-struct tests::unit::daf::Name : public detail::Name<library::Name, unit::daf::Name> {
+#import tests.unit.name.Name
+struct tests::unit::daf::Name : public name::Name<library::Name, unit::daf::Name> {
   using Subject = library::Name;
   template<required::Indicator> auto test_to_string_good() -> void;
   template<required::Indicator> auto test_to_string_fail() -> void;
@@ -19,20 +19,20 @@ struct tests::unit::daf::Name : public detail::Name<library::Name, unit::daf::Na
 };
 #endiv
 #divert <tpp>
-#import tests.unit.detail.To_String
-#import tests.unit.detail.To_String_View
+#import tests.unit.name.To_String
+#import tests.unit.name.To_String_View
 namespace tests::unit::daf {
   template<required::Indicator INDICATOR> auto Name::test_to_string_good() -> void {
-    detail::To_String<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::COUNT, Subject::SUM, Subject::HISTOGRAM, Subject::POPULARITY);
+    name::To_String<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::COUNT, Subject::SUM, Subject::HISTOGRAM, Subject::POPULARITY);
   }
   template<required::Indicator INDICATOR> auto Name::test_to_string_fail() -> void {
-    detail::To_String<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
+    name::To_String<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
   }
   template<required::Indicator INDICATOR> auto Name::test_to_string_view_good() -> void {
-    detail::To_String_View<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::COUNT, Subject::SUM, Subject::HISTOGRAM, Subject::POPULARITY);
+    name::To_String_View<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::COUNT, Subject::SUM, Subject::HISTOGRAM, Subject::POPULARITY);
   }
   template<required::Indicator INDICATOR> auto Name::test_to_string_view_fail() -> void {
-    detail::To_String_View<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
+    name::To_String_View<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
   }
 }
 #endiv

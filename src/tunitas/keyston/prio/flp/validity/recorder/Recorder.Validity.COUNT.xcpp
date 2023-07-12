@@ -9,6 +9,7 @@ namespace tunitas::keyston::prio::flp::validity::recorder {
   template<required::Loggable<Validity<COUNT>> LOG> struct Recorder<Validity<COUNT>, LOG>;
 }
 #endiv
+#divert <hpp>
 namespace tunitas::keyston::prio::flp::validity::recorder  {
   template<required::Loggable<Validity<COUNT>> LOG> struct Recorder<Validity<COUNT>, LOG> : public Single<Validity<COUNT>, LOG> {
     using Single<Validity<COUNT>, LOG>::Single;

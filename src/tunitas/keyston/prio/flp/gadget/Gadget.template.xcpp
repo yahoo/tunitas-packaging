@@ -28,6 +28,13 @@ namespace tunitas::keyston::prio::flp::gadget {
   //
   //   Specializations only.
   //
+  //   Evaluation is delegated to a (companion) class which is parameterized with the recorder.
+  //   For the evaluator,
+  //     The Recorder MUST be simply copyable (i.e. passed by value, carries no state, e.g., manages a reference or two)
+  //     Records the input and/or the outputs fo the gadget function.
+  //     Or no recordation is performed.
+  //     Can able to evaluate either against field elements or field polynomials (of arbitrary degree)
+  //
   // Usage:
   //
   //   See Gadgets<...>
@@ -38,7 +45,11 @@ namespace tunitas::keyston::prio::flp::gadget {
 #endiv
 #divert <hpp>
 // Every specialization will need this (these)
-#import tunitas.keyston.prio.flp.gadget.required.Element
+#import tunitas.keyston.prio.flp.gadget.required.Evaluatable
 #import tunitas.keyston.prio.flp.gadget.required.Recorder
+#import tunitas.keyston.prio.flp.gadget.usage.Evaluatable
+#import tunitas.keyston.prio.flp.gadget.Polynator
 #import tunitas.keyston.prio.flp.dimension // Items and Bytes
+#import tunitas.keyston.field.required.Polynomial
+#import tunitas.view.Fixed
 #endiv

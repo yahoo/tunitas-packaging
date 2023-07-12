@@ -9,6 +9,17 @@ namespace tunitas::keyston::prio::flp::gadget::recorder::required {
   //
   // Is this type suitable for the LOG parameter to Recorder<ELEMENT, LOG, ARITY>?
   //
-  template<typename LOG, typename ELEMENT> concept Loggable = same_as<void, LOG> || (Element<LOG> && same_as<ELEMENT, LOG>);
+  template<typename LOGGABLE, typename ELEMENT> concept Loggable = same_as<void, LOGGABLE> || (Element<ELEMENT> && same_as<ELEMENT, LOGGABLE>);
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.Field
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::prio::flp::gadget::recorder::required;
+    using Element = tunitas::keyston::Field<64>::Element;
+    static_assert(required::Loggable<Element, Element>);
+    static_assert(required::Loggable<void, Element>);
+  }
 }
 #endiv

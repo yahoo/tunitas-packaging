@@ -66,7 +66,8 @@ namespace tunitas::array {
 #import std.nothrow
 #import std.ranges.subrange
 #import std.same_as
-#import std.span
+#import tunitas.span.Span
+#import tunitas.view.View
 namespace tunitas {
   namespace array {
     using std::move;
@@ -97,20 +98,25 @@ namespace tunitas {
     inline explicit Container(Size);
     template<typename VALUE> inline explicit Container(Size, VALUE const &) requires(required::Copy_Constructible<VALUE> && required::Convertible_To<VALUE, Value>);
 #endif
+    Container(Ancestor const &a) : Ancestor{a} { }
+    Container(Ancestor &&a) : Ancestor{move(a)} { }
+    Container &operator=(Ancestor const &a) { Ancestor::operator=(a);       return *this; }
+    Container &operator=(Ancestor &&a)      { Ancestor::operator=(move(a)); return *this; }
+    //
     template<Size CAPACITY> [[implicit]] Container(Fixed<Value, CAPACITY> const &);
     template<Size CAPACITY> [[implicit]] Container(Fixed<Value, CAPACITY> &&);
     template<required::Containable OTHER> [[implicit]] Container(Container<OTHER> const &);
     template<required::Containable OTHER> [[implicit]] Container(Container<OTHER> &&);
     Container(Container const &) = default;
-    Container(Container &&); // [[FIXTHIS]] = default does not work for InstanceOf<CONTAINER,, std::vector> so we have to hack it 
+    Container(Container &&); // [[FIXTHIS]] = default does not work for InstanceOf<CONTAINER,, std::vector> so we have to hack itl see the required::Initializer<...> requirement
     template<typename... VALUES> constexpr Container(VALUES &&...) requires required::Initializers<Value, VALUES...>;
     template<typename... VALUES> constexpr Container(Inplace, VALUES &&...) requires required::Initializers<Value, VALUES...>;
     template<required::iterator::Forward ITERATOR> Container(ITERATOR, ITERATOR);
     //
-    template<typename VALUE> requires std::same_as<std::remove_const_t<VALUE>, Value> using Span = std::span<VALUE>;
-    using View = Span<Value const>;
-    inline constexpr operator Span<Value>();
-    inline constexpr operator Span<Value const>() const;
+    template<typename VALUE, Size EXTENT = std::dynamic_extent> requires (std::same_as<std::remove_const_t<VALUE>, Value>) using Span = span::Span<VALUE, EXTENT>;
+    template<Size EXTENT = std::dynamic_extent> using View = view::View<Value, EXTENT>;
+    template<Size SUBCAPACITY = std::dynamic_extent> inline constexpr operator View<SUBCAPACITY>() const;
+    template<typename SUBVALUE, Size SUBCAPACITY> inline constexpr operator Span<SUBVALUE, SUBCAPACITY>() requires (SUBCAPACITY != std::dynamic_extent); // std::span(Range) already covers the dynamic_extent case
     //
     using Ancestor::empty;
     using Ancestor::size;
@@ -205,8 +211,11 @@ namespace tunitas {
     template<required::Containable _> template<required::Containable OTHER> Container<_>::Container(Container<OTHER> &&other) { manually_move_because_sometimes_copy_is_selected(std::forward<Container<OTHER>>(other)); }
     template<required::Containable _> Container<_>::Container(Container &&other)                                              { manually_move_because_sometimes_copy_is_selected(std::forward<Container>(other)); }
 #endif
-    template<required::Containable _> constexpr Container<_>::operator Span<Value>()             { return {Ancestor::data(), Ancestor::size()}; }
-    template<required::Containable _> constexpr Container<_>::operator Span<Value const>() const { return {Ancestor::data(), Ancestor::size()}; }
+    // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent ----------------------------------------------------------------------------------------------------------------\\\\\\\\\\\\\\\\\\\\\\\\\ (here)
+    //                                                                                                                                                                                              |||||||||||||||||||||||||
+    //                                                                                                                                                                                              vvvvvvvvvvvvvvvvvvvvvvvvv
+    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT> constexpr Container<_>::operator Span<SUBVALUE, SUBEXTENT>() requires (SUBEXTENT != std::dynamic_extent) { return Span<SUBVALUE, SUBEXTENT>{Ancestor::data(), Ancestor::size()}; }
+    template<required::Containable _> template<Size SUBEXTENT>                    constexpr Container<_>::operator View<SUBEXTENT>() const                                                 { return View<SUBEXTENT>{Ancestor::data(), Ancestor::size()}; }
 #if 202312 < __cplusplus
     template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> { return self->operator[](index); }
     template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {

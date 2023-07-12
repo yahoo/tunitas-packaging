@@ -11,7 +11,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
-#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.quantity.Records
 #import tunitas.keyston.vdaf.constants
 #import tunitas.keyston.vdaf.numeric.Parameters
 #import tunitas.keyston.vdaf.numeric.Measurement
@@ -28,7 +28,7 @@ namespace tunitas::keyston::vdaf::configuration {
     using Randomness = nonce::Bits<constants::RANDOMNESS_BIT_COUNT.count()>;
     using Nonce =  nonce::Bits<constants::NONCE_BIT_COUNT.count()>; // else Opaque<NONCE_BYTE_COUNT.count()>;
     using Verify_Key = hpke::Key<hpke::Side::SECRET>; // [[FIXTHIS]] use a view since the size need not be known here.
-    using Processed = measurement::Records;
+    using Processed = quantity::Records;
     template<Slice SLICE> using Measurement = vdaf::numeric::Measurement<SLICE>;
     template<Slice SLICE> using Public = vdaf::numeric::Public<SLICE>;
     template<Slice SLICE> using Input = vdaf::numeric::Input<SLICE>;

@@ -1,0 +1,23 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.template
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element ELEMENT, Arity ARITY> struct Recorder<ELEMENT, ARITY, ELEMENT, void>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.required.Ignorable
+#import tunitas.keyston.prio.flp.gadget.recorder.Inputs
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element ELEMENT, Arity ARITY> class Recorder<ELEMENT, ARITY, ELEMENT, void> : public Inputs<ELEMENT, ARITY> {
+    using Ancestor = Inputs<ELEMENT, ARITY>;
+  public:
+    constexpr explicit Recorder(typename Ancestor::Reference ifr) : Ancestor{ifr} { }
+    template<typename OUT> constexpr auto output(OUT) -> void requires required::Ignorable<ELEMENT, Arity{1}, OUT> { }
+  };
+}
+#endiv

@@ -26,7 +26,7 @@ namespace tunitas::keyston::protocol::batch {
 #endiv
 #divert <hpp>
 #import tunitas.Optional
-#import tunitas.keyston.quantity.Count
+#import tunitas.keyston.quantity.Records
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.time.Duration
 #import tunitas.keyston.time.cast
@@ -37,7 +37,7 @@ namespace tunitas::keyston::protocol {
   }
   struct batch::Batch {
     id::Batch id{};
-    Optional<quantity::Count> minimum_size{quantity::Count{1u}};
+    Optional<quantity::Records> minimum_size{quantity::Records{1u}};
     Optional<time::Duration> precision{time::cast<time::Duration>(std::chrono::microseconds{10})};
   };
 }

@@ -7,10 +7,6 @@
 tunitas_keyston_prio_flp_validity_log_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/validity/Log.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/log/namespace.cpp \
-  obj/src/tunitas/keyston/prio/flp/validity/log/Log.template.cpp \
-  obj/src/tunitas/keyston/prio/flp/validity/log/Log.Validity.COUNT.cpp \
-  obj/src/tunitas/keyston/prio/flp/validity/log/Log.Validity.SUM.cpp \
-  obj/src/tunitas/keyston/prio/flp/validity/log/Log.Validity.HISTOGRAM.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/log/Log.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/log/Prototype.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/log/Single.cpp \

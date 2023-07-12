@@ -7,35 +7,67 @@
 namespace tests::unit::flp { struct Fixture; }
 #endiv
 #divert <hpp>
-#import tests.unit.flp.construction.Interface
 #import tunitas.keyston.prio.Codec
 #import tunitas.keyston.prio.flp.Validity
-#import tunitas.keyston.poplar.Algorithm
+#import tunitas.keyston.prio.flp.system.required.Validity
+#import tunitas.keyston.prio.flp.System
+#import tunitas.keyston.prio.flp.required.System
 struct tests::unit::flp::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   struct Specimen {
-    using Count = construction::System<::tunitas::keyston::prio::flp::Validity<::tunitas::keyston::prio::Name::COUNT>>;
-    using Sum = construction::System<::tunitas::keyston::prio::flp::Validity<::tunitas::keyston::prio::Name::SUM>>;
-    using Histogram = construction::System<::tunitas::keyston::prio::flp::Validity<::tunitas::keyston::prio::Name::HISTOGRAM>>;
-#ifdef POPLAR1_IS_READY
-    using Popularity = construction::System<::tunitas::keyston::poplar::Codec<::tunitas::keyston::poplar::Name::ONE>>;
-#endif
+    template<library::system::required::Validity VALIDITY> using System = library::System<VALIDITY>;
+    using enum ::tunitas::keyston::prio::Name;
+    using Count = System<library::Validity<COUNT>>;
+    using Sum = System<library::Validity<SUM>>;
+    using Histogram = System<library::Validity<HISTOGRAM>>;
   };
-  template<typename SYSTEM> auto test_usage_System() -> void;
+  template<library::required::System SYSTEM> auto test_usage_System() -> void;
+protected:
+  static unsigned serial;
+  template<typename SERIES> static auto generate_randomness() -> SERIES;
 };
 #endiv
 #divert <tpp>
+#import tunitas.keyston.histogram.Boundaries
 namespace tests::unit::flp {
-  template<typename SYSTEM> auto Fixture::test_usage_System() -> void {
+  template<typename SERIES> auto Fixture::generate_randomness() -> SERIES {
+    auto ret = SERIES{};
+    std::fill_n(ret.begin(), ret.size(), typename SERIES::Value{++serial});
+    return ret;
+  }
+  template<library::required::System SYSTEM> auto Fixture::test_usage_System() -> void {
     using Subject = SYSTEM;
     // Subject is full of types and static member functions.
     // TODO ... test something
     require(ASSERTION, sizeof(Subject));
+    //
+    auto measurement = typename Subject::Codec::Measurement{1}; // yup (this works for COUNT, SUM & HISTOGRAM
+    auto message = [measurement]{
+      if constexpr (std::same_as<typename SYSTEM::Codec, typename Fixture::Specimen::Histogram::Codec>) {
+        // Ick [[FIXTHIS]] how are we supposed to bury the boundaries?
+        using B = ::tunitas::keyston::histogram::Boundaries;
+        using S = ::tunitas::keyston::measurement::Specimen;
+        auto boundaries = B{B::Inplace{}, S{1u}, S{3u}, S{5u}, S{7u}, S{9u}};
+        return Subject::Codec::encode(measurement, boundaries);
+      } else {
+        return Subject::Codec::encode(measurement);
+      }
+    }();
+    //
+    auto prove = generate_randomness<typename Subject::Randomness::Prove::Series>();
+    auto joint = generate_randomness<typename Subject::Randomness::Joint::Series>();
+    auto proof = Subject::prove(message, prove, joint);
+    //
+    auto query = generate_randomness<typename Subject::Randomness::Query::Series>();
+    auto verifier = Subject::query(message, proof, query, joint, ::tunitas::keyston::shards::SHARD_COUNT);
+    auto decided = Subject::decide(verifier);
+    require(ASSERTION, decided);
   }
 }
 #endiv
 #divert <cpp>
+unsigned tests::unit::flp::Fixture::serial{1u}; // MUST NOT use values of 0 or 1
 auto tests::unit::flp::Fixture::suite() -> Suite {
   auto series = Stream{"flp"sv};
   series << []{
@@ -45,9 +77,6 @@ auto tests::unit::flp::Fixture::suite() -> Suite {
                      sys << add("COUNT", &Fixture::test_usage_System<Specimen::Count>)
                          << add("SUM", &Fixture::test_usage_System<Specimen::Sum>)
                          << add("HISTOGRAM", &Fixture::test_usage_System<Specimen::Histogram>)
-#ifdef POPLAR1_IS_READY
-                         << add("POPULARITY", &Fixture::test_usage_System<Specimen::Popularity>)
-#endif
                          << END;
                      return sys;
                    }()

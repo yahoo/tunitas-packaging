@@ -9,5 +9,6 @@ tunitas_keyston_prio_flp_gadget_recorder_required_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/gadget/recorder/required/Element.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/recorder/required/Loggable.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/recorder/required/Recorder.cpp \
-  obj/src/tunitas/keyston/prio/flp/gadget/recorder/required/Storable.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/required/Recordable.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/required/Ignorable.cpp \
   $(end)

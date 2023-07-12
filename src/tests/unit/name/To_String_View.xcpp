@@ -1,0 +1,89 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.error.by.required.Indicator
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.by.Exception
+namespace tests::unit::name {
+  //
+  // Ahem.  Figure it out.
+  //
+  template<required::Indicator, typename SUBJECT> struct To_String_View;
+  template<typename SUBJECT> struct To_String_View<by::Optional, SUBJECT>;
+  template<typename SUBJECT> struct To_String_View<by::Outcome, SUBJECT>;
+  template<typename SUBJECT> struct To_String_View<by::Exception, SUBJECT>;
+}
+#endiv
+#divert <hpp>
+#import std.convertible_to
+#import tunitas.exception.Aspect
+namespace tests::unit::name {
+  template<typename SUBJECT> struct To_String_View<by::Optional, SUBJECT> {
+    inline static constexpr auto ERROR_BY = by::Optional{};
+    using Subject = SUBJECT;
+    template<typename... VALUE> static auto exercise_good(VALUE... rest) -> void requires (std::convertible_to<VALUE, Subject> && ... ) { (good1(rest), ... ); }
+    template<typename... VALUE> static auto exercise_fail(VALUE... rest) -> void requires (std::convertible_to<VALUE, Subject> && ... ) { (fail1(rest), ... ); }
+  protected:
+    template<typename VALUE> static auto good1(VALUE) -> void requires std::convertible_to<VALUE, Subject>;
+    template<typename VALUE> static auto fail1(VALUE) -> void requires std::convertible_to<VALUE, Subject>;
+  };
+  template<typename SUBJECT> struct To_String_View<by::Outcome, SUBJECT> {
+    inline static constexpr auto ERROR_BY = by::Outcome{};
+    using Subject = SUBJECT;
+    template<typename... VALUE> static auto exercise_good(VALUE... rest) -> void requires (std::convertible_to<VALUE, Subject> && ... ) { (good1(rest), ... ); }
+    template<typename... VALUE> static auto exercise_fail(VALUE... rest) -> void requires (std::convertible_to<VALUE, Subject> && ... ) { (fail1(rest), ... ); }
+  protected:
+    template<typename VALUE> static auto good1(VALUE) -> void requires std::convertible_to<VALUE, Subject>;
+    template<typename VALUE> static auto fail1(VALUE) -> void requires std::convertible_to<VALUE, Subject>;
+  };
+  template<typename SUBJECT> struct To_String_View<by::Exception, SUBJECT> {
+    inline static constexpr auto ERROR_BY = by::Exception{};
+    using Subject = SUBJECT;
+    template<typename... VALUE> static auto exercise_good(VALUE... rest) -> void requires (std::convertible_to<VALUE, Subject> && ... ) { (good1(rest), ... ); }
+    template<typename... VALUE> static auto exercise_fail(VALUE... rest) -> void requires (std::convertible_to<VALUE, Subject> && ... ) { (fail1(rest), ... ); }
+  protected:
+    using Failure = ::tunitas::exception::Aspect;
+    template<typename VALUE> static auto good1(VALUE) -> void requires std::convertible_to<VALUE, Subject>;
+    template<typename VALUE> static auto fail1(VALUE) -> void requires std::convertible_to<VALUE, Subject>;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::name {
+  template<typename _> template<typename VALUE> auto To_String_View<by::Optional, _>::good1(VALUE specimen) -> void requires std::convertible_to<VALUE, Subject> {
+    auto got = to_string_view(ERROR_BY, specimen); // <---------------------------------------- test this
+    require(ASSERTION, true == (bool)got);
+    require(ASSERTION, !got.value().empty());
+    std::cerr << "by-exception: " << got.value() << '\n';
+  }
+  template<typename _> template<typename VALUE> auto To_String_View<by::Optional, _>::fail1(VALUE specimen) -> void requires std::convertible_to<VALUE, Subject> {
+    auto got = to_string_view(ERROR_BY, specimen); // <---------------------------------------- test this
+    require(ASSERTION, false == (bool)got);
+  }
+  template<typename _> template<typename VALUE> auto To_String_View<by::Outcome, _>::good1(VALUE specimen) -> void requires std::convertible_to<VALUE, Subject> {
+    auto got = to_string_view(ERROR_BY, specimen); // <---------------------------------------- test this
+    require(ASSERTION, good(got));
+    require(ASSERTION, !value(got).empty());
+    std::cerr << "by-exception: " << value(got) << '\n';
+  }
+  template<typename _> template<typename VALUE> auto To_String_View<by::Outcome, _>::fail1(VALUE specimen) -> void requires std::convertible_to<VALUE, Subject> {
+    auto got = to_string_view(ERROR_BY, specimen); // <---------------------------------------- test this
+    require(ASSERTION, fail(got));
+  }
+  template<typename _> template<typename VALUE> auto To_String_View<by::Exception, _>::good1(VALUE specimen) -> void requires std::convertible_to<VALUE, Subject> {
+    auto got = to_string_view(ERROR_BY, specimen); // <---------------------------------------- test this
+    require(ASSERTION, !got.empty());
+    std::cerr << "by-exception: " << got << '\n';
+  }
+  template<typename _> template<typename VALUE> auto To_String_View<by::Exception, _>::fail1(VALUE specimen) -> void requires std::convertible_to<VALUE, Subject> try {
+    to_string_view(ERROR_BY, specimen); // <---------------------------------------- test this
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

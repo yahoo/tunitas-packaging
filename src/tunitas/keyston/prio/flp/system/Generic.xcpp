@@ -26,6 +26,12 @@ namespace tunitas::keyston::prio::flp::system {
   //
   //   (for now) we keep the name "Generic" of FlpGeneric even though this proof system now fixed on <ALGORITHM, VALIDITY>
   //
+  // Limitation:
+  //
+  //   Section 7.3.3 Construction
+  //   Whereas the draft (standard) is phrased in generic terms with multiple gadgets (1 < H)
+  //   this implementation is limited to a single gadget.  Thus Generic<VALIDITY> is the same as System<VALIDITY>.
+  //
   // Usage:
   //
   //   As one does.

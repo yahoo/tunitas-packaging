@@ -54,9 +54,9 @@ namespace tunitas::keyston::prio::flp::validity::summation::package_summation {
 #endiv
 #divert <ipp>
 #import std.max
-#import tunitas.keyston.prio.flp.validity.Unpackage
 #import tunitas.keyston.prio.flp.gadget.usage.Calls
 #import tunitas.keyston.prio.flp.gadget.usage.Gadgets
+#import tunitas.sequence.Sequence
 #import tunitas.Tuple
 namespace tunitas::keyston::prio::flp::validity::summation::package_summation {
   template<gadget::required::Gadgets GADGETS> constexpr auto interface::arity() -> Size {
@@ -73,9 +73,9 @@ namespace tunitas::keyston::prio::flp::validity::summation::package_summation {
   }
   template<gadget::required::Calls CALLS> constexpr auto interface::calls(CALLS const &calls) -> Size {
     static_assert(gadget::usage::Calls<CALLS>);
-    return [&calls]<Size... INDEX>(Unpackage::Sequence::Pack<INDEX...>) -> Size {
+    return [&calls]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) -> Size {
       return (Summationizer<Items>{} = ... = calls.at(INDEX));
-    }(Unpackage::Sequence::make<CALLS{}.size()>());
+    }(sequence::Sequence::make<CALLS{}.size()>());
   }
 }
 #endiv

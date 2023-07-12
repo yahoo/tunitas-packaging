@@ -34,6 +34,7 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.tuple.Size
 #import tunitas.tuple.
 #import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.flp.validity.required.Gadgetator
 #import tunitas.keyston.prio.flp.validity.required.Recorder
 #import tunitas.keyston.prio.flp.validity.Prototype
 #import tunitas.keyston.prio.flp.validity.Interface

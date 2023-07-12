@@ -30,7 +30,7 @@ namespace tunitas::keyston::field {
 #endiv
 #divert <hpp>
 namespace tunitas::keyston::field {
-  template<> struct Definition<128> : public Access<traits::Field<Definition<128>>::Element> {
+  template<> struct Definition<128> : public Precursor<traits::Field<Definition<128>>::Element> {
     using Element = traits::Field<Definition>::Element;
     using Underlying = traits::Field<Definition>::Underlying;
     using Temporary = traits::Field<Definition>::Temporary;
@@ -39,7 +39,7 @@ namespace tunitas::keyston::field {
     template<Size DEGREE> using Polynomial = polynomial::Definition<Definition, DEGREE>;
     inline static constexpr Underlying const MODULUS = (Underlying{1} << 66) * 4611686018427387897 + 1;
     inline static constexpr auto const ENCODED_SIZE = Bytes{16u};
-    static constexpr auto generator() -> Element; // dubious since Generator caches its result but gen() does not.
+    [[deprecated("dubious since does not generate the whole characteristic; prefer Field<...>::Generator{}()")]] inline static constexpr auto generator() -> Element;
     [[deprecated("buy a vowel, spell it out! Instead prefer Definition<128>::generator()")]] static constexpr auto gen() -> Element { return generator(); }
     class Generator;
   };
@@ -53,7 +53,7 @@ namespace tunitas::keyston::field {
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::field {
-  constexpr auto Definition<128>::generator() -> Element { return Element{Generator{}()}; }
+  constexpr auto Definition<128>::generator() -> Element { return Generator{}(); }
 }
 #endiv
 #divert <cpp>

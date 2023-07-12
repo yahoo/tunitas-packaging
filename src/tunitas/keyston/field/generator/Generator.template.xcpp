@@ -44,8 +44,6 @@ namespace tunitas::keyston::field {
   public:
     using Value = ELEMENT;
     inline constexpr auto operator()() const -> Value;
-  protected:
-    mutable Optional<Value> generated{};
   };
 }
 #endiv
@@ -65,12 +63,7 @@ namespace tunitas::keyston::field::generator {
   //   Runtime error (func=(main), adr=16): exponent too large in raise
   //
   template<auto B, auto X, auto M, required::Element E, required::Subelement S> constexpr auto Generator<B,X,M,E,S>::operator()() const -> Value {
-    if (generated) {
-      return *generated;
-    } else {
-      generated = integer::powm(Ancestor::BASE, Ancestor::EXPONENT, Ancestor::MODULUS);
-      return *generated;
-    }
+    return integer::powm(Ancestor::BASE, Ancestor::EXPONENT, Ancestor::MODULUS);
   }
 }
 #endiv

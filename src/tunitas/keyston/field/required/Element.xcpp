@@ -4,28 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.field.element.traits.Element
-#include <hpp/tunitas.keyston.field.element.traits.Element>
+#import tunitas.keyston.field.element.required.Element
 namespace tunitas::keyston::field::required {
-  //
-  // An element in the field is a flavored (unsigned) "integer".
-  // allowed: enum-of-uint64_t ........... when compiler-managed.
-  // allowed: enum-of-uint128_t .......... when compiler-managed.
-  // allowed: class-of-uint$NNN .......... when library-managed.
-  //
-  template<typename ELEMENT> concept Element = element::traits::Element<ELEMENT>::value;
-}
-#endiv
-#divert <cpp>
-#import tunitas.keyston.Field
-namespace {
-  namespace testate {
-    using tunitas::keyston::Field;
-    namespace required = tunitas::keyston::field::required;
-    //
-    static_assert(required::Element<Field<64>::Element>);
-    static_assert(required::Element<Field<128>::Element>);
-    static_assert(required::Element<Field<255>::Element>);
-  }
+  using element::required::Element;
 }
 #endiv

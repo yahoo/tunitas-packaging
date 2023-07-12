@@ -49,16 +49,21 @@ namespace tunitas::keyston::prio::flp::validity {
     using Face = Interface<Definition<COUNT>>;
     using Mul = typename tuple::Element<0uz, Gadgets>::type;
   public:
-    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER &, Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Records) -> Field::Element;
-    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER &recorder, Face::Input input) -> Field::Element { return evaluate(recorder, input, {}, {}); }
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER, Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Shards) -> Field::Element;
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER recorder, Face::Input input) -> Field::Element { return evaluate(recorder, input, {}, {}); }
+  protected:
+    template<required::Gadgetator<Field::Element, gadget::Arity{2}> GADGET> inline static constexpr auto recipe([[inout]] GADGET &, Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Shards) -> Field::Element;
   };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::keyston::prio::flp::validity {
-  template<required::Recorder<Validity<COUNT>> RECORDER> constexpr auto Validity<COUNT>::evaluate(RECORDER &recorder, Face::Input input, Face::Randomness, Face::Records) -> Field::Element {
+  template<required::Recorder<Validity<COUNT>> RECORDER> constexpr auto Validity<COUNT>::evaluate(RECORDER recorder, Face::Input input, Face::Randomness joint, Face::Shards shards) -> Field::Element {
+    auto mul = typename Mul::template Evaluator<typename RECORDER::Inputs>{recorder.inputs};
+    return recipe(mul, input, joint, shards);
+  }
+  template<required::Gadgetator<Validity<COUNT>::Field::Element, gadget::Arity{2}> GADGET> constexpr auto Validity<COUNT>::recipe(GADGET &mul, Face::Input input, Face::Randomness, Face::Shards) -> Field::Element {
     auto item = input.at(0u);
-    auto mul = typename Mul::template Evaluator<typename RECORDER::Only>{recorder.only};
     return mul(item, item) - item;
   }
 }

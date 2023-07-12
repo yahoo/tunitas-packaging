@@ -21,9 +21,7 @@ namespace tunitas::array::range::package_enumerate::body {
   public:
     Iterator() = default;
     using Ancestor::Iterotype;
-    template<required::Iterator OTHER>
-    constexpr [[implicit]] Iterator(Iterator<OTHER, Mutability::MUTABLE> const &)
-    requires required::Convertible_To<OTHER, typename Ancestor::Subiterator>;
+    template<required::Iterator OTHER> constexpr [[implicit]] Iterator(Iterator<OTHER, Mutability::MUTABLE> const &) requires required::Convertible_To<OTHER, typename Ancestor::Subiterator>;
     //
 #if !(202312 < __cplusplus)
     inline auto operator++() -> Iterator & { return Ancestor::increment(*this); }

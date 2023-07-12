@@ -5,11 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.measurement
+#import tunitas.keyston.quantity
 #import tunitas.Optional
 namespace tests::unit::af {
   namespace [[eponymous]] executor {
     template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> class Executor;
     namespace measurement = ::tunitas::keyston::measurement;
+    namespace quantity = ::tunitas::keyston::quantity;
     using ::tunitas::Optional;
   }
   using executor::Executor;

@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio::exception {
+  //
+  // The input cannot be processed.
+  //
+  // Specification:
+  //
+  //   Yes.
+  //   The input is out of range or too short or too long or such.
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Input;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Runtime
+#import tunitas.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+#import tunitas.keyston.prio.exception.Aspect
+class tunitas::keyston::prio::exception::Input final : public complete::Basic<partial::Runtime, prio::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Runtime, prio::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  explicit Input() : Ancestor{"input"} {}
+  using Ancestor::Basic;
+};
+#endiv
+#divert <cpp>
+#import std.derived_from
+namespace {
+  namespace testate {
+    using tunitas::keyston::prio::exception::Input;
+    using std::runtime_error;
+    static_assert(std::derived_from<Input, runtime_error>);
+  }
+}
+#endiv

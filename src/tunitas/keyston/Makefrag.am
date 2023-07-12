@@ -17,7 +17,6 @@ tunitas_keyston_SUBSOURCES = \
   obj/src/tunitas/keyston/Version.cpp \
   $(tunitas_keyston_aggregation_SUBSOURCES) \
   $(tunitas_keyston_crypto_SUBSOURCES) \
-  $(tunitas_keyston_detail_SUBSOURCES) \
   $(tunitas_keyston_entropy_SUBSOURCES) \
   $(tunitas_keyston_error_SUBSOURCES) \
   $(tunitas_keyston_exception_SUBSOURCES) \
@@ -28,6 +27,7 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_integer_SUBSOURCES) \
   $(tunitas_keyston_identifier_SUBSOURCES) \
   $(tunitas_keyston_measurement_SUBSOURCES) \
+  $(tunitas_keyston_name_SUBSOURCES) \
   $(tunitas_keyston_nonce_SUBSOURCES) \
   $(tunitas_keyston_numeric_SUBSOURCES) \
   $(tunitas_keyston_octets_SUBSOURCES) \
@@ -53,7 +53,6 @@ tunitas_keyston_SUBSOURCES = \
 #
 include src/tunitas/keyston/aggregation/Makefrag.am
 include src/tunitas/keyston/crypto/Makefrag.am
-include src/tunitas/keyston/detail/Makefrag.am
 include src/tunitas/keyston/entropy/Makefrag.am
 include src/tunitas/keyston/error/Makefrag.am
 include src/tunitas/keyston/exception/Makefrag.am
@@ -64,6 +63,7 @@ include src/tunitas/keyston/hpke/Makefrag.am
 include src/tunitas/keyston/identifier/Makefrag.am
 include src/tunitas/keyston/integer/Makefrag.am
 include src/tunitas/keyston/measurement/Makefrag.am
+include src/tunitas/keyston/name/Makefrag.am
 include src/tunitas/keyston/nonce/Makefrag.am
 include src/tunitas/keyston/numeric/Makefrag.am
 include src/tunitas/keyston/octets/Makefrag.am

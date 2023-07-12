@@ -7,11 +7,16 @@
 tunitas_keyston_prio_flp_gadget_recorder_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/gadget/Recorder.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/recorder/namespace.cpp \
-  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Sink.cpp \
-  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Prototype.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/cursor.Inputs.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/cursor.Output.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Empty.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Inputs.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Output.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.template.cpp \
-  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.ELEMENT.void.ARITY.cpp \
-  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.ELEMENT.ELEMENT.ARITY.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.ELEMENT.ARITY.void.void.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.ELEMENT.ARITY.ELEMENT.void.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.ELEMENT.ARITY.void.ELEMENT.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.ELEMENT.ARITY.ELEMENT.ELEMENT.cpp \
   obj/src/tunitas/keyston/prio/flp/gadget/recorder/Recorder.cpp \
   $(tunitas_keyston_prio_flp_gadget_recorder_required_SUBSOURCES) \
   $(end)

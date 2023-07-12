@@ -9,8 +9,8 @@ namespace tests::unit::vdaf { class Name; }
 #divert <hpp>
 #import tunitas.error.by.required.Indicator
 #import tunitas.keyston.vdaf.Name
-#import tests.unit.detail.Name
-struct tests::unit::vdaf::Name : public unit::detail::Name<library::Name, unit::vdaf::Name> {
+#import tests.unit.name.Name
+struct tests::unit::vdaf::Name : public unit::name::Name<library::Name, unit::vdaf::Name> {
   using Subject = library::Name;
   template<required::Indicator> auto test_to_string_good() -> void;
   template<required::Indicator> auto test_to_string_fail() -> void;
@@ -19,20 +19,20 @@ struct tests::unit::vdaf::Name : public unit::detail::Name<library::Name, unit::
 };
 #endiv
 #divert <tpp>
-#import tests.unit.detail.To_String
-#import tests.unit.detail.To_String_View
+#import tests.unit.name.To_String
+#import tests.unit.name.To_String_View
 namespace tests::unit::vdaf {
   template<required::Indicator INDICATOR> auto Name::test_to_string_good() -> void {
-    detail::To_String<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::PRIO3_COUNT, Subject::PRIO3_SUM, Subject::PRIO3_HISTOGRAM, Subject::POPLAR1);
+    name::To_String<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::PRIO3_COUNT, Subject::PRIO3_SUM, Subject::PRIO3_HISTOGRAM, Subject::POPLAR1);
   }
   template<required::Indicator INDICATOR> auto Name::test_to_string_fail() -> void {
-    detail::To_String<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
+    name::To_String<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
   }
   template<required::Indicator INDICATOR> auto Name::test_to_string_view_good() -> void {
-    detail::To_String_View<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::PRIO3_COUNT, Subject::PRIO3_SUM, Subject::PRIO3_HISTOGRAM, Subject::POPLAR1);
+    name::To_String_View<INDICATOR, Subject>::exercise_good(Subject::ZERO, Subject::CONSTANT, Subject::PRIO3_COUNT, Subject::PRIO3_SUM, Subject::PRIO3_HISTOGRAM, Subject::POPLAR1);
   }
   template<required::Indicator INDICATOR> auto Name::test_to_string_view_fail() -> void {
-    detail::To_String_View<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
+    name::To_String_View<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
   }
 }
 #endiv

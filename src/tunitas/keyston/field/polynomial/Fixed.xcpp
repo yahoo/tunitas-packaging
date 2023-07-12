@@ -12,6 +12,9 @@ namespace tunitas::keyston::field::polynomial {
   // Specification:
   //
   //   Obvious.
+  //   The polynomials may be of different degree.
+  //   Interpolation.
+  //   Evaluation.
   //
   // Design:
   //
@@ -20,6 +23,9 @@ namespace tunitas::keyston::field::polynomial {
   //
   //   Basically copy-pasta with Vector because ... that's how linear algebra goes.
   //   operator* on two Polynomials does what you expect (a convoluation sort of a thing)
+  //
+  //   With interpolation from points by Fast-fourier Transform (FFT)
+  //   With evaluation by horner's rule
   //
   // Usage:
   //
@@ -31,6 +37,8 @@ namespace tunitas::keyston::field::polynomial {
 #divert <hpp>
 #import std.strong_ordering
 #import tunitas.array.Fixed
+#import tunitas.span.Fixed
+#import std.max
 namespace tunitas::keyston::field {
   namespace polynomial {
     using std::move;
@@ -41,12 +49,13 @@ namespace tunitas::keyston::field {
     template<required::Element ELEMENT, Size DEGREE> inline constexpr auto operator+(Fixed<ELEMENT, DEGREE> const &a) -> Fixed<ELEMENT, DEGREE> { return a; }
     template<required::Element ELEMENT, Size DEGREE> inline constexpr auto operator-(Fixed<ELEMENT, DEGREE> const &) -> Fixed<ELEMENT, DEGREE>;
     //
-    template<required::Element ELEMENT, Size DEGREE> inline constexpr auto operator+(Fixed<ELEMENT, DEGREE> const &, Fixed<ELEMENT, DEGREE> const &) -> Fixed<ELEMENT, DEGREE>;
-    template<required::Element ELEMENT, Size DEGREE> inline constexpr auto operator-(Fixed<ELEMENT, DEGREE> const &, Fixed<ELEMENT, DEGREE> const &) -> Fixed<ELEMENT, DEGREE>;
+    template<required::Element ELEMENT, Size LEFT_DEGREE, Size RIGHT_DEGREE> inline constexpr auto operator+(Fixed<ELEMENT, LEFT_DEGREE> const &, Fixed<ELEMENT, RIGHT_DEGREE> const &) -> Fixed<ELEMENT, std::max(LEFT_DEGREE, RIGHT_DEGREE)>;
+    template<required::Element ELEMENT, Size LEFT_DEGREE, Size RIGHT_DEGREE> inline constexpr auto operator-(Fixed<ELEMENT, LEFT_DEGREE> const &, Fixed<ELEMENT, RIGHT_DEGREE> const &) -> Fixed<ELEMENT, std::max(LEFT_DEGREE, RIGHT_DEGREE)>;
     //
     template<required::Element ELEMENT, Size DEGREE_LEFT, Size DEGREE_RIGHT> inline constexpr auto operator*(Fixed<ELEMENT, DEGREE_LEFT> const &, Fixed<ELEMENT, DEGREE_RIGHT> const &) -> Fixed<ELEMENT, DEGREE_LEFT+DEGREE_RIGHT>;
     template<required::Element ELEMENT, Size DEGREE> inline constexpr auto operator*(ELEMENT a, Fixed<ELEMENT, DEGREE> const &b) -> Fixed<ELEMENT, DEGREE> { return b * a; }
     template<required::Element ELEMENT, Size DEGREE> inline constexpr auto operator*(Fixed<ELEMENT, DEGREE> const &, ELEMENT) -> Fixed<ELEMENT, DEGREE>;
+    // NO SUCH ---> operator/ or operator% because this is already modular arithmetic <---- NO SUCH
   }
   template<required::Element ELEMENT, Size DEGREE> struct polynomial::Fixed : public array::Fixed<ELEMENT, 1u+DEGREE> {
     using Ancestor = array::Fixed<ELEMENT, 1u+DEGREE>;
@@ -54,22 +63,25 @@ namespace tunitas::keyston::field {
     constexpr Fixed() = default;
     using Ancestor::Fixed;
     constexpr [[implicit]] Fixed(Ancestor const &);
+    template<Size OTHER_SIZE> constexpr [[implicit]] Fixed(array::Fixed<ELEMENT, OTHER_SIZE> const &) requires (OTHER_SIZE <= 1+DEGREE);
+    template<Size OTHER_DEGREE> constexpr [[implicit]] Fixed(Fixed<ELEMENT, OTHER_DEGREE> const &) requires (OTHER_DEGREE <= DEGREE);
     //
-    constexpr auto operator=(Fixed const &) -> Fixed & = default;
-    using Ancestor::operator=;
-    //
-    inline constexpr auto operator+=(Fixed const &) -> Fixed &;
-    inline constexpr auto operator-=(Fixed const &) -> Fixed &;
+    template<Size RIGHT_DEGREE> inline constexpr auto operator+=(Fixed<typename Ancestor::Value, RIGHT_DEGREE> const &) -> Fixed & requires (RIGHT_DEGREE <= DEGREE);
+    template<Size RIGHT_DEGREE> inline constexpr auto operator-=(Fixed<typename Ancestor::Value, RIGHT_DEGREE> const &) -> Fixed & requires (RIGHT_DEGREE <= DEGREE);
     inline constexpr auto operator*=(typename Ancestor::Value) -> Fixed &;
+    //
+    inline constexpr auto operator()(typename Ancestor::Value const &) const -> typename Ancestor::Value; // "evaluate(...)" in case that wasn't otherwise obvious
   };
 }
 #import nonstd.container.Traits.tunitas.keyston.field.polynomial.Fixed.ELEMENT.DEGREE
 #endiv
 #divert <ipp>
-#import tunitas.keyston.exception.Domain
+#import std.copy
 #import std.equal
 #import std.nothrow
+#import std.ranges.subrange
 #import tunitas.array.enumerate
+#import tunitas.keyston.exception.Domain
 namespace tunitas::keyston::field {
   template<required::Element ELEMENT, Size DEGREE> constexpr auto polynomial::swap(Fixed<ELEMENT, DEGREE> &a, Fixed<ELEMENT, DEGREE> &b) noexcept -> void {
     typename Fixed<ELEMENT, DEGREE>::Ancestor &aa{a}, &bb{b};
@@ -77,13 +89,15 @@ namespace tunitas::keyston::field {
   }
   template<required::Element ELEMENT, Size DEGREE> constexpr auto polynomial::operator==(Fixed<ELEMENT, DEGREE> const &a, Fixed<ELEMENT, DEGREE> const &b) -> bool { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
   template<required::Element ELEMENT, Size DEGREE> constexpr auto polynomial::operator-(Fixed<ELEMENT, DEGREE> const &a) -> Fixed<ELEMENT, DEGREE> { return Fixed<ELEMENT, DEGREE>{} - a; }
-  template<required::Element ELEMENT, Size DEGREE> constexpr auto polynomial::operator+(Fixed<ELEMENT, DEGREE> const &a, Fixed<ELEMENT, DEGREE> const &b) -> Fixed<ELEMENT, DEGREE> {
-    auto c{a};
+  template<required::Element ELEMENT, Size LEFT_DEGREE, Size RIGHT_DEGREE> constexpr auto polynomial::operator+(Fixed<ELEMENT, LEFT_DEGREE> const &a, Fixed<ELEMENT, RIGHT_DEGREE> const &b) -> Fixed<ELEMENT, std::max(LEFT_DEGREE, RIGHT_DEGREE)> {
+    auto c = Fixed<ELEMENT, std::max(LEFT_DEGREE, RIGHT_DEGREE)>{};
+    std::copy(a.begin(), a.end(), c.begin());
     c += b;
     return c;
   }
-  template<required::Element ELEMENT, Size DEGREE> constexpr auto polynomial::operator-(Fixed<ELEMENT, DEGREE> const &a, Fixed<ELEMENT, DEGREE> const &b) -> Fixed<ELEMENT, DEGREE> {
-    auto c{a};
+  template<required::Element ELEMENT, Size LEFT_DEGREE, Size RIGHT_DEGREE> constexpr auto polynomial::operator-(Fixed<ELEMENT, LEFT_DEGREE> const &a, Fixed<ELEMENT, RIGHT_DEGREE> const &b) -> Fixed<ELEMENT, std::max(LEFT_DEGREE, RIGHT_DEGREE)> {
+    auto c = Fixed<ELEMENT, std::max(LEFT_DEGREE, RIGHT_DEGREE)>{};
+    std::copy(a.begin(), a.end(), c.begin());
     c -= b;
     return c;
   }
@@ -94,58 +108,55 @@ namespace tunitas::keyston::field {
   }
   template<required::Element ELEMENT, Size DEGREE_LEFT, Size DEGREE_RIGHT> constexpr auto polynomial::operator*(Fixed<ELEMENT, DEGREE_LEFT> const &a, Fixed<ELEMENT, DEGREE_RIGHT> const &b) -> Fixed<ELEMENT, DEGREE_LEFT+DEGREE_RIGHT> {
     auto c = Fixed<ELEMENT, DEGREE_LEFT+DEGREE_RIGHT>{};
-    for (auto [ax, ai] : enumerate(a)) {
-      for (auto [bx, bi] : enumerate(b)) {
+    // [[FIXTHIS]] there is some DEGREE where it's better to cut over to point-value form and convert back.  What is that point?
+    for (auto [ai, ax] : enumerate(a)) {
+      for (auto [bi, bx] : enumerate(b)) {
         c.at(std::nothrow, ai+bi) += ax*bx;
       }
     }
     return c;
   }
   namespace polynomial {
-    template<required::Element E, Size C> constexpr Fixed<E,C>::Fixed(Ancestor const &a) : Ancestor{a} { }
-    template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator+=(Fixed const &other) -> Fixed & {
+    template<required::Element E, Size D> constexpr Fixed<E,D>::Fixed(Ancestor const &a) : Ancestor{a} { }
+    template<required::Element ELEMENT, Size DEGREE> template<Size OTHER_SIZE> constexpr Fixed<ELEMENT,DEGREE>::Fixed(array::Fixed<ELEMENT, OTHER_SIZE> const &other) requires (OTHER_SIZE <= 1+DEGREE) {
+      std::copy(other.begin(), other.end(), Ancestor::begin());
+    }
+    template<required::Element ELEMENT, Size DEGREE> template<Size OTHER_DEGREE> constexpr Fixed<ELEMENT,DEGREE>::Fixed(Fixed<ELEMENT, OTHER_DEGREE> const &other) requires (OTHER_DEGREE <= DEGREE) {
+      std::copy(other.begin(), other.end(), Ancestor::begin());
+    }
+    template<required::Element E, Size DEGREE> template<Size RIGHT_DEGREE> constexpr auto Fixed<E,DEGREE>::operator+=(Fixed<typename Ancestor::Value, RIGHT_DEGREE> const &other) -> Fixed & requires (RIGHT_DEGREE <= DEGREE) {
       auto &self{*this};
-      for (auto i : std::views::iota(0u, Ancestor::size())) {
-        self[i] += other[i];
+      for (auto i : std::views::iota(0u, other.size())) {
+        self.at(i) += other.at(i);
       }
       return self;
     }
-    template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator-=(Fixed const &other) -> Fixed & {
+    template<required::Element E, Size DEGREE> template<Size RIGHT_DEGREE> constexpr auto Fixed<E,DEGREE>::operator-=(Fixed<typename Ancestor::Value, RIGHT_DEGREE> const &other) -> Fixed & requires (RIGHT_DEGREE <= DEGREE) {
       auto &self{*this};
-      for (auto i : std::views::iota(0u, Ancestor::size())) {
-        self[i] -= other[i];
+      for (auto i : std::views::iota(0u, other.size())) {
+        self.at(i) -= other.at(i);
       }
       return self;
     }
-    template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator*=(typename Ancestor::Value other) -> Fixed & {
+    template<required::Element E, Size D> constexpr auto Fixed<E,D>::operator*=(typename Ancestor::Value other) -> Fixed & {
       auto &self{*this};
       for (auto &item : self) {
         item *= other;
       }
       return self;
     }
-#if 0
-    template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator/=(typename Ancestor::Value other) -> Fixed & {
-      if (0 == other) {
-        throw exception::Domain{"division by zero"};
+    template<required::Element E, Size D> constexpr auto Fixed<E,D>::operator()(typename Ancestor::Value const &p) const -> typename Ancestor::Value {
+      auto const &self{*this};
+      // horner's rule https://en.wikipedia.org/wiki/Horner's_method      
+      //    {\displaystyle {\begin{aligned}a_{0}&+a_{1}x+a_{2}x^{2}+a_{3}x^{3}+\cdots +a_{n}x^{n}\\&=a_{0}+x{\bigg (}a_{1}+x{\Big (}a_{2}+x{\big (}a_{3}+\cdots +x(a_{n-1}+x\,a_{n})\cdots {\big )}{\Big )}{\bigg )}.\end{aligned}}}
+      // <aside>dude! nobody can read that except the Wikipedia renderer!</aside>
+      //
+      auto b = typename Ancestor::Value{};
+      for (auto const &a : std::ranges::subrange{self.rbegin(), self.rend()}) {
+        b = a + b * p;
       }
-      auto &self{*this};
-      for (auto &item : self) {
-        item /= other;
-      }
-      return self;
+      return b;
     }
-    template<required::Element E, Size C> constexpr auto Fixed<E,C>::operator%=(typename Ancestor::Value other) -> Fixed & {
-      if (0 == other) {
-        throw exception::Domain{"division by zero"};
-      }
-      auto &self{*this};
-      for (auto &item : self) {
-        item %= other;
-      }
-      return self;
-    }
-#endif
   }
 }
 #endiv

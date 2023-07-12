@@ -5,6 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.measurement
+#import tunitas.keyston.quantity
 #import tunitas.Optional
 #import tunitas.keyston.Shard
 #import tunitas.keyston.Shards
@@ -12,6 +13,7 @@ namespace tests::unit::daf {
   namespace [[eponymous]] executor {
     template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> class Executor;
     namespace measurement = ::tunitas::keyston::measurement;
+    namespace quantity = ::tunitas::keyston::quantity;
     using ::tunitas::Optional;
     using ::tunitas::keyston::Shard;
     using ::tunitas::keyston::Shards;
@@ -161,7 +163,7 @@ namespace tests::unit::daf::executor {
   }
 }
 #import tunitas.exception.feature.Unimplemented
-#import tunitas.keyston.measurement.Records
+#import tunitas.keyston.quantity.Records
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.exception.feature.Optional
 #import tunitas.exception.feature.Variant
@@ -189,7 +191,7 @@ namespace tests::unit::daf::executor {
       require(ASSERTION, sizeof (got));
     } {
       auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
-      auto records = measurement::Records{};
+      auto records = quantity::Records{};
       auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     }
@@ -329,7 +331,7 @@ namespace tests::unit::daf::executor {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
-    auto records = measurement::Records{};
+    auto records = quantity::Records{};
     auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
@@ -337,7 +339,7 @@ namespace tests::unit::daf::executor {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
-    auto records = measurement::Records{};
+    auto records = quantity::Records{};
     subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {

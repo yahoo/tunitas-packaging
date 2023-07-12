@@ -36,26 +36,39 @@ namespace tunitas::keyston::prio::flp::validity {
     ~Single() = default;
   public:
     static_assert(1uz == Ancestor::H);
-    using Gadget = typename Ancestor::template Gadget<0>;
-    inline static constexpr auto const L = underlying(Gadget::ARITY);
-    inline static constexpr auto const M = Ancestor::Validity::CALLS.at(0).count();
+    inline static constexpr auto const I = 0uz;
+    //
+    // Whereas the iteration indices in the papers and in the (draft) standard are "arbitrary" and difficult to remember
+    //   e.g. i of H, j of L, k of M
+    //
+    // We introduce a simpler system with upper and lower case -----------------------------------------+--+===-=\ (as such)
+    //                                                                                                  |  |     |
+    //                                                                                                  v  v     v
+    using G = typename Ancestor::template Gadget<I>; // .................................. iteration on h (i) of H (always 1==H)
+    inline static constexpr auto const L = underlying(G::ARITY); // ...................... iteration on l (j) of [L_i]
+    inline static constexpr auto const M = Ancestor::Validity::CALLS.at(I).count(); // ... iteration on m (k) of [M_i]
     inline static constexpr auto const P = integer::bit_ceil(1u + M);
-    struct Wires {
-      using Scalars = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L, M>>; // not P
-      using Coefficients = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L, P>>;
-      Scalars inputs{}; // ....... a.k.a. "wire seeds" in tables wire_i of Section 7.3.3.1
-      Coefficients slice{}; // ... a.k.a. "wire polynomials" in temporary variable w of Section 7.3.3.1
+    inline static constexpr auto const degG = underlying(G::DEGREE);
+    using Gadget [[deprecated("remove, only use the single-letter version for the 1-gadget case")]] = G;
+    struct [[adjective]] Circuit {
+      using Seeds = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L>>;
+      using Inputs = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ M, L>>; // ...... not P but M, and order M then L
+      using Outputs = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ M>>; // ........ not P but M
+      using Pointwise = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L, M>>; // ... but order L then M;  as in the papers
+      Seeds seeds{}; // ........... a.k.a. "wire seeds" of Section 7.3.3.1 & 7.3.3.2
+      Inputs inputs{}; // ......... a.k.a. "wire tables" named wire_i of Section 7.3.3.1 & 7.3.3.2
+      Pointwise pointwise{}; // ... a.k.a. "wire polynomials" in pointwise form (the y series); in the temporary variable w of Section 7.3.3.1 & 7.3.3.2
+      Outputs outputs{}; // ....... a.k.a. the evaluated poly_gadget_i of Section 7.3.3.2 Query Generation
     };
-    Wires wires{};
-    using Axis = typename Ancestor::Field::template Series<P>;
-    inline static constexpr auto x_axis() -> Axis;
-    inline static constexpr auto alpha(Size) -> typename Ancestor::Element;
-    class Polynomial {
-      inline static constexpr auto const MD = M * underlying(Single::Gadget::DEGREE);
+    Circuit circuit{};
+    using Axis = typename Ancestor::Field::template Series<1+M>;
+    inline static constexpr auto alpha(Size) -> typename Ancestor::Element; // alpha, by construction, is the Pth-root of unity
+    class [[adjective]] Polynomial {
+      inline static constexpr auto const PD = P * degG;
     public:
-      using Wires = array::md::Fixed<typename Ancestor::Field::template Polynomial<P>::Value, std::extents<Size, /*1==H*/ M>>; // not P
-      using Gadget = typename Ancestor::Field::template Polynomial<MD>::Value;
-      Wires wires{}; // ..... a.k.a. poly_wire_i of Section 7.3.3.1
+      using Wires = array::md::Fixed<typename Ancestor::Field::template Polynomial<P>::Value, std::extents<Size, /*1==H*/ L>>;
+      using Gadget = typename Ancestor::Field::template Polynomial<PD>::Value;
+      Wires wires{}; // ..... a.k.a. poly_wire_i of Section 7.3.3.1 and note how they are extended on M out to P
       Gadget gadget{}; // ... a.k.a. poly_gadget_i of Section 7.3.3.1
     };
     Polynomial polynomial{};
@@ -63,13 +76,13 @@ namespace tunitas::keyston::prio::flp::validity {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.prio.flp.validity.Unpackage
+#import tunitas.sequence.Sequence
 namespace tunitas::keyston::prio::flp::validity::log {
-  template<required::Validity _> constexpr auto Single<_>::alpha(Size k) -> typename Ancestor::Element { return pow(pow(Ancestor::Field::generator(), k), Ancestor::Field::Generator::ORDER / P); }
-  template<required::Validity _> constexpr auto Single<_>::x_axis() -> Axis {
-    return []<Size... K>(Unpackage::Sequence::Pack<K...>) {
-      return Axis{alpha(K)...};
-    }(Unpackage::Sequence::make<M>());
+  template<required::Validity _> constexpr auto Single<_>::alpha(Size k) -> typename Ancestor::Element {
+    auto scale = Ancestor::Field::Generator::ORDER / P;
+    auto a0 = pow(Ancestor::Field::generator(), scale);
+    auto ak = pow(a0, k);
+    return ak;
   }
 }
 #endiv

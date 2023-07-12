@@ -1,0 +1,137 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::field::element {
+  namespace package_lagrange {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_lagrange::interface;
+}
+#import tunitas.keyston.field.required
+namespace tunitas::keyston::field::element::package_lagrange {
+  namespace required { using namespace field::required; }
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.element.required.Element
+#import tunitas.keyston.field.element.traits.Element
+#import tunitas.keyston.Field
+#import tunitas.array.Fixed
+#import tunitas.view.md.Fixed// because view::md::Fixed has indexing
+#import std.bit_ceil
+namespace tunitas::keyston::field::element {
+  namespace package_lagrange {
+    inline constexpr auto TAKE_CEILING_INDICATOR = std::numeric_limits<Size>::max(); // an unattainable sentinel value
+    inline constexpr auto redegree(Size use, Size source) -> Size { return use == TAKE_CEILING_INDICATOR ? std::bit_ceil(source) : source; }
+    namespace body {
+      //
+      // Lagrange Evaluation of a element in point-value format
+      //
+      // Authority:
+      //
+      //    Many places, but specifically
+      //    Algorithms, Coorman, Leiserson, Rivest, 1992, First? Edition (they are on the 4th Edition now)
+      //    Page 780, Equation 32.5
+      //
+      // Specification:
+      //
+      //   Where the when x-series values are not specified, the "obvious" sequential values 0, 1, 2, 3 ... are generated.
+      //   This aligns well with the use construction of polynomials against Li (the input number Li \in L)
+      //
+      // Design:
+      //
+      //   Sure.  Follow the spec.
+      //
+      //   Recall that there is no "division" in modular arithmetic so we MUST use the multipliative inverse in lieu of.
+      //
+      //   Pesky: whereas there is no natural conversion from array::Fixed<...> to view::md::Fixed<...>, we have to delare-define each one twice. [[FIXTHIS]]
+      //
+      // Usage:
+      //
+      //   Do you really need a tutorial on how to call a function?
+      //
+      namespace exported {
+        // interpolated against the X-and-y point-value pairs; returns the coefficients of the polynomial which is suitable for construction as Polynomial{...}
+        template<Size USE=TAKE_CEILING_INDICATOR, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE=redegree(USE, SOURCE_DEGREE)> inline constexpr auto interpolate(view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>> x, view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>> y) -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE);
+        template<Size USE=TAKE_CEILING_INDICATOR, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE=redegree(USE, SOURCE_DEGREE)> inline constexpr auto interpolate(array::Fixed<ELEMENT, SOURCE_DEGREE> const &x, array::Fixed<ELEMENT, SOURCE_DEGREE> const &y)                                 -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE);
+        //
+        // evaluate the "polynomimal" using its point-value form
+        template<required::Element ELEMENT, Size DEGREE> inline constexpr auto evaluate(ELEMENT const &, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> x, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> y) -> ELEMENT;
+        //
+        // Implicitly against the x series 0, 1, 2, 3, ...
+        template<required::Element ELEMENT, Size DEGREE> inline constexpr auto evaluate(ELEMENT const &, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> y) -> ELEMENT;
+        template<Size USE=TAKE_CEILING_INDICATOR, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE=redegree(USE, SOURCE_DEGREE)> inline constexpr auto interpolate(view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>> y) -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE);
+        template<Size USE=TAKE_CEILING_INDICATOR, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE=redegree(USE, SOURCE_DEGREE)> inline constexpr auto interpolate(array::Fixed<ELEMENT, SOURCE_DEGREE> const &y)                 -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE);
+      }
+      template<required::Element ELEMENT, Size DEGREE> inline constexpr auto x_series() -> array::Fixed<ELEMENT, DEGREE> requires (DEGREE < traits::Element<ELEMENT>::Field::MODULUS);
+      template<required::Element ELEMENT, Size DEGREE> inline constexpr auto product(Size k, ELEMENT const &, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> x) -> ELEMENT;
+    }
+  }
+  // MUST insert these expliclty sothat ADL will find them here
+  using package_lagrange::interface::evaluate;
+  using package_lagrange::interface::interpolate;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.field.element.traits.Element
+#import tunitas.keyston.Field
+#import tunitas.keyston.field.Generator
+#import tunitas.keyston.field.element.fft
+namespace tunitas::keyston::field::element::package_lagrange {
+  template<Size USE, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE> constexpr auto interface::interpolate(array::Fixed<ELEMENT, SOURCE_DEGREE> const &x, array::Fixed<ELEMENT, SOURCE_DEGREE> const &y) -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE) {
+    using View = view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>>;
+    return interpolate<USE>(View{x.data()}, View{y.data()});
+  }
+  template<Size USE, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE> constexpr auto interface::interpolate(array::Fixed<ELEMENT, SOURCE_DEGREE> const &y) -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE) {
+    using View = view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>>;
+    auto xa = x_series<ELEMENT, SOURCE_DEGREE>();
+    return interpolate<USE>(View{xa.data()}, View{y.data()});
+  }
+  template<Size USE, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE> constexpr auto interface::interpolate(view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>> y) -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE) {
+    auto xa = x_series<ELEMENT, SOURCE_DEGREE>();
+    using View = view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>>;
+    return interpolate<USE>(View{xa.data()}, y);
+  }
+  template<Size, required::Element ELEMENT, Size SOURCE_DEGREE, Size RESULT_DEGREE> constexpr auto interface::interpolate(view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>> x, view::md::Fixed<ELEMENT, std::extents<Size, SOURCE_DEGREE>> y) -> array::Fixed<ELEMENT, RESULT_DEGREE> requires (SOURCE_DEGREE <= RESULT_DEGREE) {
+    using Generator = traits::Element<ELEMENT>::Field::Generator;
+    constexpr auto const w_n = pow(Generator{}(), Generator::ORDER/RESULT_DEGREE); // This is a magic step. (\omega from a modular field not in the book); also alpha from draft-irtf-cfrg-vdaf 7.3.3. Construction
+    auto yy = array::Fixed<ELEMENT, RESULT_DEGREE>{};
+    auto w = ELEMENT{1}; // a.k.a. w_n^0 -- a.k.a. pow(w_n, 0)
+    for (auto i{0uz}, e{SOURCE_DEGREE}; e != i; ++i) {
+      yy.at(i) = evaluate(w, x, y);
+      w *= w_n;
+    }
+    return idft(yy);
+  }
+  template<required::Element ELEMENT, Size DEGREE> constexpr auto interface::evaluate(ELEMENT const &w, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> y) -> array::Fixed<ELEMENT, DEGREE> { return evaluate(w, x_series<ELEMENT, DEGREE>(), y); }
+  template<required::Element ELEMENT, Size DEGREE> constexpr auto interface::evaluate(ELEMENT const &w, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> x, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> y) -> ELEMENT {
+    auto ret = ELEMENT{};
+    for (auto k{0uz}, e{DEGREE}; e != k; ++k) {
+      ret += y[k] * product(k, w, x) * inv(product(k, x[k], x)); // if this throws then the series is degenerate in DEGREE
+    }
+    return ret;
+  }
+  template<required::Element ELEMENT, Size DEGREE> constexpr auto body::x_series() -> array::Fixed<ELEMENT, DEGREE> requires (DEGREE < traits::Element<ELEMENT>::Field::MODULUS) {
+    auto ret = array::Fixed<ELEMENT, DEGREE>{};
+    auto x = ELEMENT{0u};
+    for (auto &place : ret) {
+      place = x;
+      x += ELEMENT{1u};
+    }
+    return ret;
+  }
+  template<required::Element ELEMENT, Size DEGREE> constexpr auto body::product(Size k, ELEMENT const &w, view::md::Fixed<ELEMENT, std::extents<Size, DEGREE>> x) -> ELEMENT {
+    auto ret = ELEMENT{1};
+    for (auto j{0uz}, e{DEGREE}; e != j; ++j) {
+      if (k != j) {
+        ret *= w - x[j];
+      }
+    }
+    return ret;
+  }
+}
+#endiv

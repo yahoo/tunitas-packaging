@@ -41,7 +41,7 @@ namespace tunitas::keyston::shards {
 }
 #endiv
 #divert <hpp>
-#import nonstd.units.count.scale // e.g. Items
+#import tunitas.keyston.quantity.Shards
 namespace tunitas::keyston::shards {
   inline constexpr auto underlying(Shard s) { return std::underlying_type_t<Shard>(s); }
   inline auto swap(Shard &a, Shard &b) noexcept -> void { return std::swap(a, b); }
@@ -49,7 +49,7 @@ namespace tunitas::keyston::shards {
   // Constants and paraphernalia in support of the Shard.
   // Although the standard (draft) and the algorithms support more than two SHARD_COUNT, we do not.
   //
-  inline static constexpr auto const SHARD_COUNT = nonstd::units::count::Items{2};
+  inline static constexpr auto const SHARD_COUNT = quantity::Shards{2};
   //
   // Not constexpr because they throw if the shard is out of the reasonable range.
   // And whereas the looping requires one more value than maximum, the legal shard values are <= SHARD_COUNT.

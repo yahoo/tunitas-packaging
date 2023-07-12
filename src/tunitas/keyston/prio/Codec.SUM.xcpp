@@ -24,8 +24,8 @@ namespace tunitas::keyston::prio {
     using Measurement = measurement::Specimen; // range 0, 2^bits
     using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
     using Truncated = Field::Vector<1>::Value;
-    using Decoded = aggregation::Summation;
-    using Processed = measurement::Records; // ... the record count itself
+    using Decoded = aggregation::Summation; // .... the payload
+    using Processed = quantity::Records; // ....... the record count itself
     using Result [[deprecated("instead use Codec<SUM>::Decoded")]] = Decoded;
     inline static constexpr auto encode(Measurement) -> Encoded;
     inline static constexpr auto truncate(Encoded) -> Truncated;

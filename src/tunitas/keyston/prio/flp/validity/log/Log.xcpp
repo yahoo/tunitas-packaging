@@ -4,9 +4,46 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.flp.validity.log.Log.template
-// these are unused (no specialization is needed) [[removethem?]]
-#import tunitas.keyston.prio.flp.validity.log.Log.Validity.COUNT
-#import tunitas.keyston.prio.flp.validity.log.Log.Validity.SUM
-#import tunitas.keyston.prio.flp.validity.log.Log.Validity.HISTOGRAM
+#import tunitas.keyston.prio.flp.validity.required.Validity
+namespace tunitas::keyston::prio::flp::validity::log {
+  //
+  // The log.
+  //
+  // Authorities:
+  //
+  //   The usual.
+  //   draft-irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //
+  // Specification:
+  //
+  //   Section 7.3. A General Purpose FLP.
+  //   Section 7.4. Instantiations.
+  //
+  //   The wire tables, the wire polynomials, the polynomial gadgets.
+  //
+  // Design:
+  //
+  //   The default implementation (the template) is the single-gadget case.
+  //   Some rectangular arrays.
+  //
+  //   The default implementation (the template) is for a single-gadget log.
+  //   Because that's all there is at this point.
+  //
+  // Usage:
+  //
+  //   auto log = Log<Validity<COUNT>>{};
+  //
+  template<required::Validity> struct Log;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.validity.log.Single
+namespace tunitas::keyston::prio::flp::validity  {
+  template<required::Validity VALIDITY> class log::Log : public Single<VALIDITY> {
+    using Ancestor = Single<VALIDITY>;
+  public:
+    explicit Log() = default;
+  };
+}
 #endiv

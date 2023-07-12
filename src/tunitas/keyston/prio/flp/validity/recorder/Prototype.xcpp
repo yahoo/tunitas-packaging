@@ -22,7 +22,7 @@ namespace tunitas::keyston::prio::flp::validity  {
     ~Prototype() = default;
   public:
     using Validity = VALIDITY;
-    using Element = typename VALIDITY::Element;
+    using Element = typename VALIDITY::Field::Element;
     template<Size N> using Gadget = typename tuple::Element<N, typename Validity::Gadgets>::type;
   };
 };

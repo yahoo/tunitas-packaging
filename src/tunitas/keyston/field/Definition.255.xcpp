@@ -23,7 +23,7 @@ namespace tunitas::keyston::field {
 #endiv
 #divert <hpp>
 namespace tunitas::keyston::field {
-  template<> struct Definition<255> : public Access<traits::Field<Definition<255>>::Element> {
+  template<> struct Definition<255> : public Precursor<traits::Field<Definition<255>>::Element> {
     using Element = traits::Field<Definition>::Element;
     using Underlying = traits::Field<Definition>::Underlying;
     using Temporary = traits::Field<Definition>::Temporary;

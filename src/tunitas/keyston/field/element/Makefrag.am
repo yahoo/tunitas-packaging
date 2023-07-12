@@ -8,10 +8,16 @@ tunitas_keyston_field_element_SUBSOURCES = \
   obj/src/tunitas/keyston/field/Element.cpp \
   obj/src/tunitas/keyston/field/Limits.cpp \
   obj/src/tunitas/keyston/field/element/namespace.cpp \
+  $(tunitas_keyston_field_element_required_SUBSOURCES) \
   obj/src/tunitas/keyston/field/element/Element.cpp \
   obj/src/tunitas/keyston/field/element/Limits.cpp \
   obj/src/tunitas/keyston/field/element/is.Element.cpp \
   obj/src/tunitas/keyston/field/element/traits.Element.cpp \
   obj/src/tunitas/keyston/field/element/operations.cpp \
   obj/src/tunitas/keyston/field/element/narrow.cpp \
+  obj/src/tunitas/keyston/field/element/fft.cpp \
+  obj/src/tunitas/keyston/field/element/fft.Inverter.cpp \
+  obj/src/tunitas/keyston/field/element/lagrange.cpp \
   $(end)
+#
+include src/tunitas/keyston/field/element/required/Makefrag.am

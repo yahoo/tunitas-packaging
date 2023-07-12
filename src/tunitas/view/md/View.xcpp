@@ -15,9 +15,9 @@ namespace tunitas::view::md {
   //   auto mutablish = md::Span<int, std::extents<std::size_t, 3, 3, 3>>{...somehow...};
   //   auto constiesh = md::View<int, std::extents<std::size_t, 3, 3, 3>>{...somehow...};
   //
-  // see the constie 'TYPE const' -----------------------------------------------------------------------------------------------------------------------------------------------\\\\\\\\\\ (here)
-  //                                                                                                                                                                             ||||||||||
-  //                                                                                                                                                                             vvvvvvvvvv
-  template<typename TYPE, span::md::required::Extents EXTENTS, typename LAYOUT = std::layout_right, typename ACCESSOR = std::default_accessor<TYPE>> using View = span::md::Span<TYPE const, EXTENTS, LAYOUT, ACCESSOR>;
+  // see the constie 'TYPE const' ------------------------------------------------------------------------------------------------------------++++++++++-------------------------------\\\\\\\\\\ (here)
+  //                                                                                                                                          ||||||||||                               ||||||||||
+  //                                                                                                                                          vvvvvvvvvv                               vvvvvvvvvv
+  template<typename TYPE, span::md::required::Extents EXTENTS, typename LAYOUT = std::layout_right, typename ACCESSOR = std::default_accessor<TYPE const>> using View = span::md::Span<TYPE const, EXTENTS, LAYOUT, ACCESSOR>;
 }
 #endiv

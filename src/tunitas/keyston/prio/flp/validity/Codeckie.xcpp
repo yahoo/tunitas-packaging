@@ -39,9 +39,9 @@ namespace tunitas::keyston::prio::flp {
     ~Codeckie() = default;
   public:
     using Codec = prio::Codec<NAME>;
-    static constexpr auto encode(typename Face::Encodable able)                                 -> typename Face::Encoded   { return Codec::encode(able); }
-    static constexpr auto truncate(typename Face::Truncatable able)                             -> typename Face::Truncated { return Codec::truncate(able); }
-    static constexpr auto decode(typename Face::Decodable able, typename Face::Records records) -> typename Face::Decoded   { return decode(able, records); }
+    static constexpr auto encode(typename Face::Encodable able)                               -> typename Face::Encoded   { return Codec::encode(able); }
+    static constexpr auto truncate(typename Face::Truncatable able)                           -> typename Face::Truncated { return Codec::truncate(able); }
+    static constexpr auto decode(typename Face::Decodable able, typename Face::Shards shards) -> typename Face::Decoded   { return decode(able, shards); }
   };
 }
 #endiv

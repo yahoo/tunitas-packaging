@@ -6,6 +6,7 @@
 #
 tunitas_keyston_prio_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/namespace.cpp \
+  $(tunitas_keyston_prio_exception_SUBSOURCES) \
   $(tunitas_keyston_prio_flp_SUBSOURCES) \
   $(tunitas_keyston_prio_required_SUBSOURCES) \
   $(tunitas_keyston_prio_usage_SUBSOURCES) \
@@ -18,6 +19,7 @@ tunitas_keyston_prio_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/Usage.cpp \
   $(end)
 #
+include src/tunitas/keyston/prio/exception/Makefrag.am
 include src/tunitas/keyston/prio/flp/Makefrag.am
 include src/tunitas/keyston/prio/required/Makefrag.am
 include src/tunitas/keyston/prio/usage/Makefrag.am

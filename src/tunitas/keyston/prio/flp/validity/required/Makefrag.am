@@ -8,4 +8,5 @@ tunitas_keyston_prio_flp_validity_required_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/flp/validity/required/namespace.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/required/Validity.cpp \
   obj/src/tunitas/keyston/prio/flp/validity/required/Recorder.cpp \
+  obj/src/tunitas/keyston/prio/flp/validity/required/Gadgetator.cpp \
   $(end)

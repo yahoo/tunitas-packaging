@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.keyston.field.element.Element
-#import tunitas.keyston.field.required.Element
+#import tunitas.keyston.field.element.required.Element
 #import std.remove_cvref
 namespace tunitas::keyston::field::element {
   //
@@ -49,12 +49,7 @@ namespace tunitas::keyston::field::element {
   template<required::Element ELEMENT> inline constexpr auto operator+=(ELEMENT &, ELEMENT const &) -> ELEMENT &;
   template<required::Element ELEMENT> inline constexpr auto operator-=(ELEMENT &, ELEMENT const &) -> ELEMENT &;
   template<required::Element ELEMENT> inline constexpr auto operator*=(ELEMENT &, ELEMENT const &) -> ELEMENT &;
-#if 0
-  // we don't need the division ones (they are multiply-by-the-inverse
-  template<required::Element ELEMENT> inline constexpr auto operator/(ELEMENT const &, ELEMENT const &) -> ELEMENT = delete;
-  template<required::Element ELEMENT> inline constexpr auto inverse(ELEMENT const &) -> ELEMENT = delete;
-  template<required::Element ELEMENT> inline constexpr auto pow(ELEMENT const &, int long signed exponent) -> ELEMENT = delete;
-#endif
+  //
   template<required::Element ELEMENT> inline constexpr auto operator==(ELEMENT const &, ELEMENT const &) -> bool;
 }
 #endiv
@@ -62,6 +57,7 @@ namespace tunitas::keyston::field::element {
 #import nonstd.required.Enumeration
 #import tunitas.integer.invm
 #import tunitas.integer.powm
+#import tunitas.keyston.field.required.Element // ease the exposition
 #import tunitas.keyston.field.element.traits.Element
 #import tunitas.keyston.field.Limits
 #import tunitas.keyston.exception.Domain
@@ -184,13 +180,6 @@ namespace tunitas::keyston::field {
     }
     return ELEMENT{powm<typename Field::Underlying>(underlying(a), e, Field::MODULUS)};
   }
-#if 0
-  // find these in keyston::numeric
-  template<required::Element ELEMENT> constexpr auto element::inverse(ELEMENT const &a) -> ELEMENT {
-    using Field = traits::Element<ELEMENT>::Field;
-    return ELEMENT{inversem(error::by::Exception{}, underlying(a), Field::MODULUS)};
-  }
-#endif
 }
 #endiv
 #divert <cpp>

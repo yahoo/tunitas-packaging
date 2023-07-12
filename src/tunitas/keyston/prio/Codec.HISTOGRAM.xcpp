@@ -33,8 +33,8 @@ namespace tunitas::keyston::prio {
     using Measurement = measurement::Specimen; // "any integer" but here: std::uint64_t;
     using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
     using Truncated = Encoded;
-    using Decoded = aggregation::Histogram;
-    using Processed = measurement::Records; // ... the record count itself
+    using Decoded = aggregation::Histogram; // .... the payload
+    using Processed = quantity::Records; // ....... the record count itself
     using Result [[deprecated("instead use Codec<HISTOGRAM>::Decoded")]] = Decoded;
     using Boundaries = histogram::Boundaries;
     inline static constexpr auto encode(Measurement, Boundaries const &) -> Encoded;

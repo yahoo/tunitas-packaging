@@ -147,15 +147,15 @@ namespace tunitas::keyston::prio::flp {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.prio.flp.validity.Unpackage
+#import tunitas.sequence.Sequence
 namespace tunitas::keyston::prio::flp::validity {
   template<required::Validity _> template<Size I> constexpr auto Construction<_>::Each<I>::alpha(Size k) -> Element {
     return pow(pow(Field::generator(), k), Field::Generator::ORDER / P);
   }
   template<required::Validity _> template<Size I> constexpr auto Construction<_>::Each<I>::x_axis() -> Axis {
-    return []<Size... K>(Unpackage::Sequence::Pack<K...>) {
+    return []<Size... K>(sequence::Sequence::Pack<K...>) {
       return Axis{alpha(K)...};
-    }(Unpackage::Sequence::make<M>());
+    }(sequence::Sequence::make<M>());
   }
 }
 #endiv
