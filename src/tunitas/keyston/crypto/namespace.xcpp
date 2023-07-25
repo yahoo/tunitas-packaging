@@ -5,7 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import nonstd.units.memory.scale // Bits, Bytes
+#import tunitas.keyston.quantity.Bits
+#import tunitas.keyston.quantity.Bytes
 namespace tunitas::keyston::crypto {
   //
   // The crypto algorithms and data structures
@@ -21,7 +22,7 @@ namespace tunitas::keyston::crypto {
     HIGH,
     HI = HIGH,
   };
-  using nonstd::units::memory::Bits; // there is no use for Bits herein even though the algorithms are defined on bit strings.
-  using nonstd::units::memory::Bytes;
+  using quantity::Bits; // there is no use for Bits herein even though the algorithms are defined on bit strings.
+  using quantity::Bytes;
 }
 #endiv

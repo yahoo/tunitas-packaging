@@ -26,6 +26,7 @@ namespace tunitas::keyston::octets {
 #endiv
 #divert <hpp>
 #import tunitas.array.Variable
+#forward tunitas.keyston.octets.Fixed
 namespace tunitas::keyston {
   namespace octets {
     using std::move;
@@ -36,18 +37,32 @@ namespace tunitas::keyston {
     Variable() = default;
     using Ancestor::Variable;
     inline auto subrange(Index lo, Index hi) const -> Variable;
+    template<Size SUBCAPACITY> inline auto subrange(Index lo) const -> Fixed<SUBCAPACITY>;
+  protected:
+    template<typename RESULT> inline auto recover(Index lo, Index hi) const -> RESULT;
   };
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.exception.Bound
+#import tunitas.keyston.octets.Fixed
+#import std.copy
 namespace tunitas::keyston::octets {
-  auto Variable::subrange(Index lo, Index hi) const -> Variable {
+  auto Variable::subrange(Index lo, Index hi) const                            -> Variable { return recover<Variable>(lo, hi); }
+  template<Size SUBCAPACITY> auto Variable::subrange(Index lo) const -> Fixed<SUBCAPACITY> { return recover<Fixed<SUBCAPACITY>>(lo, lo + SUBCAPACITY); }
+  template<typename RECOVERED> auto Variable::recover(Index lo, Index hi) const -> RECOVERED {
     if (auto size=Ancestor::size(); hi < lo || size < lo || size < hi) {
       throw exception::Bound{"index out of range"};
     } else {
       auto begin = Ancestor::begin();
-      return {begin+lo, begin+hi};
+      if constexpr (std::same_as<RECOVERED, Variable>) {
+        return {begin+lo, begin+hi};
+      } else {
+        auto ret = RECOVERED{};
+        // ew already know size==hi-lo
+        std::copy(begin+lo, begin+hi, ret.begin());
+        return ret;
+      }
     }
   }
 }

@@ -6,6 +6,14 @@
 #
 tunitas_keyston_quantity_SUBSOURCES = \
   obj/src/tunitas/keyston/quantity/namespace.cpp \
+  $(tunitas_keyston_quantity_required_SUBSOURCES) \
+  obj/src/tunitas/keyston/quantity/Bits.cpp \
+  obj/src/tunitas/keyston/quantity/Bytes.cpp \
+  obj/src/tunitas/keyston/quantity/Items.cpp \
   obj/src/tunitas/keyston/quantity/Records.cpp \
   obj/src/tunitas/keyston/quantity/Shards.cpp \
+  obj/src/tunitas/keyston/quantity/convert.cpp \
+  obj/src/tunitas/keyston/quantity/is.Convertible_To.cpp \
   $(end)
+#
+include src/tunitas/keyston/quantity/required/Makefrag.am

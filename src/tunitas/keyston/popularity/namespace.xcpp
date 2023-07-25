@@ -5,10 +5,10 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import nonstd.units.count.scale // Items
-#import nonstd.units.memory.scale // Bits
+#import tunitas.keyston.quantity.Items
+#import tunitas.keyston.quantity.Bits
 namespace tunitas::keyston::popularity {
-  using nonstd::units::memory::scale::Bits;
-  using nonstd::units::count::scale::Items;
+  using quantity::Bits;
+  using quantity::Items;
 }
 #endiv

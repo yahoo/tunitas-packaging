@@ -8,10 +8,15 @@ namespace tunitas::keyston::histogram {
   //
   // The boundaries of the histogram.
   //
+  // Specification
+  //
+  //   See the relationship among Histogram<-->Boundaries<-->Buckets
+  //   laid out in tunitas.keyston.histogram.Histogram
+  //
   // Design:
   //
   //   The Boundaries::Optional and Boundaries::Outcome templates are required because Boundares is incomplete until the end of the class.
-  //    Both tunitas::Optional and tunitas::Outcome require a complete type.
+  //   Both tunitas::Optional and tunitas::Outcome require a complete type.
   //
   // Usage:
   //

@@ -14,6 +14,7 @@ struct tests::unit::integer::Fixture : public rigging::suite::Fixture {
 #divert <cpp>
 #import tests.unit.integer.Encode
 #import tests.unit.integer.To_Octets
+#import tests.unit.integer.From_Octets
 auto tests::unit::integer::Fixture::suite() -> Suite {
   auto series = Stream{"integer"sv};
   series << []{
@@ -22,6 +23,7 @@ auto tests::unit::integer::Fixture::suite() -> Suite {
            }()
          << add<Encode>()
          << add<To_Octets>()
+         << add<From_Octets>()
          << END;
   return settle(series);
 }

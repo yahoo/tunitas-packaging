@@ -13,6 +13,9 @@ namespace tunitas::keyston::histogram {
   //   This is a bundle of constants and types.
   //   You are looking for histogram::Boundaries, which is nearby
   //
+  //   See the relationship among Histogram<-->Boundaries<-->Buckets
+  //   laid out in tunitas.keyston.histogram.Histogram
+  //
   // Design:
   //
   //   Unusable as an object; it is a "packaged namespace"

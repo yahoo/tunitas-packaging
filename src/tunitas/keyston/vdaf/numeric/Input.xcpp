@@ -9,16 +9,11 @@ namespace tunitas::keyston::vdaf::numeric {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Ciphertext
+#import tunitas.keyston.vdaf.numeric.Serialized
 namespace tunitas::keyston::vdaf {
-  template<Slice SLICE> class numeric::Input : public hpke::Ciphertext {
-    using Ancestor = hpke::Ciphertext;
-  public:
+  template<Slice SLICE> struct numeric::Input : public Serialized {
     [[implicit]] Input() = default;
-    using Ancestor::Ciphertext;
-    [[implicit]] Input(Ancestor a) : Ancestor{move(a)} { }
-    Input &operator=(Input const &) = default;
-    Input &operator=(Ancestor const &a) { Ancestor::operator=(a); return *this; }
+    using Serialized::Serialized;
   };
 }
 #endiv

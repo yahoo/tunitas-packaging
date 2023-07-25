@@ -10,12 +10,12 @@ namespace tunitas::keyston::prio::flp::dimension {
   //
   // cast a dimensional value to bytes
   //
-  template<typename TARGET, required::Dimension SOURCE> inline constexpr auto cast(SOURCE) -> TARGET requires required::Castable_To<TARGET, SOURCE>;
+  template<required::Quantity TARGET, required::Dimension SOURCE> inline constexpr auto cast(SOURCE) -> TARGET requires required::Castable_To<SOURCE, TARGET>;
 }
 #endiv
 #divert <ipp>
 #import std.underlying_type
 namespace tunitas::keyston::prio::flp {
-  template<typename TARGET, dimension::required::Dimension SOURCE> constexpr auto dimension::cast(SOURCE source) -> TARGET requires required::Castable_To<TARGET, SOURCE> { return TARGET{std::underlying_type_t<SOURCE>(source)}; }
+  template<dimension::required::Quantity TARGET, dimension::required::Dimension SOURCE> constexpr auto dimension::cast(SOURCE source) -> TARGET requires required::Castable_To<SOURCE, TARGET> { return TARGET{std::underlying_type_t<SOURCE>(source)}; }
 }
 #endiv

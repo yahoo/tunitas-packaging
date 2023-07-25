@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::prio::split {
+  //
+  // The types and functions which are common across all instances of template Split<NAME>
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.Shards
+#import tunitas.keyston.Shard
+#import tunitas.Tuple
+struct tests::unit::prio::split::Prototype {
+protected:
+  ~Prototype() = default;
+public:
+  using Octet = ::tunitas::keyston::Octet;
+  using Specimen = ::tunitas::keyston::measurement::Specimen;
+  using Publick = ::tunitas::keyston::octets::Variable;
+  using Shard = ::tunitas::keyston::Shard;
+  using Inputs = ::tunitas::keyston::Shards<::tunitas::keyston::octets::Variable>;
+  template<typename... TYPE> using Tuple = ::tunitas::Tuple<TYPE...>;
+  //
+  using Splat = Tuple<Publick, Inputs>;
+  //
+  static auto dump(Splat const &) -> void;
+};
+#endiv
+#divert <cpp>
+#import std.views.iota
+#import tests.unit.prio.format
+namespace tests::unit::prio::split {
+  auto Prototype::dump(Splat const &splat) -> void {
+    auto &err{std::cerr};
+    err << "<splat>\n"
+        << "  publick=" << format(get<0>(splat)) << '\n';
+    for (auto const &inputs=get<1>(splat); auto index : std::views::iota(Shard{}, Shard(inputs.size()))) {
+      err << "  input[" << underlying(index) << "]=" << format(inputs.at(index)) << '\n';
+    }
+    err << "</splat>\n";
+  }
+}
+#endiv

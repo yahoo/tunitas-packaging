@@ -38,25 +38,27 @@ namespace tunitas::keyston::nonce::generator {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.nonce.usage.Generator
+#import tunitas.keyston.entropy.Serial
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
+    namespace entropy = tunitas::keyston::entropy;
     namespace usage = tunitas::keyston::nonce::usage;
     using namespace tunitas::integer::integers;
     //
-    static_assert(usage::Generator<Generator<Unsigned<uint8_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint16_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint32_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint64_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint128_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint256_t>>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint8_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint16_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint32_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint64_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint128_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint256_t>, entropy::Serial>>);
 #if 0
     // see entropy::Limits<...> and entropy::Source which does not go this high
-    static_assert(usage::Generator<Generator<Unsigned<uint512_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint1024_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint2048_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint4096_t>>>);
-    static_assert(usage::Generator<Generator<Unsigned<uint8192_t>>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint512_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint1024_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint2048_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint4096_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint8192_t>, entropy::Serial>>);
 #endif
   }
 }

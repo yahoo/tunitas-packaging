@@ -13,30 +13,45 @@ namespace tests::unit::integer {
 }
 #endiv
 #divert <hpp>
-#import tunitas.integer.traits.BySize
+#import tunitas.integer.from.Bytes
 #import tunitas.integer.traits.SizeOf
 #import tunitas.keyston.octets.Variable
 #import tunitas.keyston.octets.Fixed
+#include <ipp/tunitas.keyston.octets.Fixed> // because cast<...>(...) uses it
 #import tunitas.keyston.octets.View
-#import nonstd.units.memory.scale // Bytes
+#import tunitas.keyston.quantity.Bytes
 #import std.ostream
 namespace tests::unit {
   class integer::Palette {
   protected:
     ~Palette() = default;
   public:
-    using Bytes = nonstd::units::memory::Bytes;
+    using Bytes = ::tunitas::keyston::quantity::Bytes;
     struct Integer {
-      template<Size WIDTH> using Type = typename library::traits::BySize<WIDTH>::Unsigned;
-      template<Size WIDTH> inline static constexpr auto const SIZE = library::traits::SizeOf<typename library::traits::BySize<WIDTH>::Unsigned>::VALUE;
-      template<Size WIDTH> inline static constexpr auto const INTERESTING_CONSTANT = 0u;
+      template<Size BIT_WIDTH> using Type = typename library::from::Bits<BIT_WIDTH>::Unsigned;
+      template<Size BIT_WIDTH> inline static constexpr auto const SIZE = library::traits::SizeOf<typename library::from::Bits<BIT_WIDTH>::Unsigned>::VALUE;
+      template<Size BIT_WIDTH> inline static constexpr auto const INTERESTING_CONSTANT = 0u;
     };
     struct Octets {
+      using Octet = ::tunitas::keyston::Octet;
       using View = ::tunitas::keyston::octets::View;
       using Variable = ::tunitas::keyston::octets::Variable;
       template<Size CAPACITY> using Fixed = ::tunitas::keyston::octets::Fixed<CAPACITY>;
+      template<std::endian> struct Endian {
+        template<Size BIT_WIDTH> inline static constexpr auto const INTERESTING_CONSTANT = ::tunitas::keyston::octets::Fixed<BIT_WIDTH/8>{};
+      };
+    private:
+      // for fixed-length views & spans, the constructor is explicit (no implicit conversion from a bare initializer list)
+      template<Size BIT_WIDTH, Size ACTUAL_LENGTH> requires (BIT_WIDTH/8 == ACTUAL_LENGTH-1u) inline static constexpr auto cast(char const (&literal)[ACTUAL_LENGTH]) -> ::tunitas::keyston::octets::Fixed<BIT_WIDTH/8> {
+        auto ret = ::tunitas::keyston::octets::Fixed<BIT_WIDTH/8>{};
+        for (auto i{0uz}, e{ACTUAL_LENGTH-1}; e != i; ++i) {
+          ret.at(i) = Octet(literal[i]);
+        }
+        return ret;
+      }
     };
     static auto dump(std::ostream &, Octets::View) -> void;
+    template<required::Unsigned  UNSIGNED> static auto dump(std::ostream &, UNSIGNED const &) -> void;
   };
   namespace integer {
     template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<8uz> = library::uint8_t{0b1001'0110u};
@@ -48,6 +63,38 @@ namespace tests::unit {
                                                                                             (library::uint256_t{0xfedc'ba98'7654'3210lu} << 128) | 
                                                                                             (library::uint256_t{0x1122'3344'5566'7788lu} << 64) |
                                                                                             (library::uint256_t{0xfedc'ba98'7654'3210lu} << 0));
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<8uz>    = cast<8uz>("\x96");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::little>::INTERESTING_CONSTANT<8uz> = cast<8uz>("\x96");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<16uz>    = cast<16uz>("\xb3\x96");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::little>::INTERESTING_CONSTANT<16uz> = cast<16uz>("\x96\xb3");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<32uz>    = cast<32uz>("\x76\x54\x32\x10");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::little>::INTERESTING_CONSTANT<32uz> = cast<32uz>("\x10\x32\x54\x76");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<64uz>    = cast<64uz>("\x76\x54\x32\x10\xfe\xdc\xba\x98");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::little>::INTERESTING_CONSTANT<64uz> = cast<64uz>("\x98\xba\xdc\xfe\x10\x32\x54\x76");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<128uz>    = cast<128uz>("\x76\x54\x32\x10\xfe\xdc\xba\x98\xfe\xdc\xba\x98\x76\x54\x32\x10");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::little>::INTERESTING_CONSTANT<128uz> = cast<128uz>("\x10\x32\x54\x76\x98\xba\xdc\xfe\x98\xba\xdc\xfe\x10\x32\x54\x76");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<256uz>    = cast<256uz>("\x76\x54\x32\x10\xfe\xdc\xba\x98\xfe\xdc\xba\x98\x76\x54\x32\x10\x11\x22\x33\x44\x55\x66\x77\x88\xfe\xdc\xba\x98\x76\x54\x32\x10");
+    template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::little>::INTERESTING_CONSTANT<256uz> = cast<256uz>("\x10\x32\x54\x76\x98\xba\xdc\xfe\x88\x77\x66\x55\x44\x33\x22\x11\x10\x32\x54\x76\x98\xba\xdc\xfe\x98\xba\xdc\xfe\x10\x32\x54\x76");
+  }
+}
+#endiv
+#divert <tpp>
+#import nonstd.setwidth
+#import nonstd.setfill
+#import std.hex
+#import std.same_as
+#import std.underlying_type
+#import tunitas.integer.traits.SizeOf
+#import nonstd.int128.ostream // for operator<< against uint128_t
+namespace tests::unit::integer {
+  template<required::Unsigned UNSIGNED> auto Palette::dump(std::ostream &o, UNSIGNED const &u) -> void {
+    o << std::hex << nonstd::setfill('0') << nonstd::setwidth(2*::tunitas::integer::traits::SizeOf<UNSIGNED>::VALUE.count());
+    if constexpr (std::same_as<uint8_t, UNSIGNED>) {
+      o << static_cast<unsigned>(u); // the bug here being that unsignec char inserts as a "character" not as a small integer.
+    } else {
+      using nonstd::int128::operator<<;
+      o << u;
+    }
   }
 }
 #endiv

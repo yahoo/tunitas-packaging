@@ -52,6 +52,7 @@ namespace tunitas::keyston::prio::flp::validity {
   protected:
     ~Lengths() = default;
   public:
+    inline static constexpr auto use_joint_randomness() -> bool;
     inline static constexpr auto joint_randomness_length() -> Joint;
     inline static constexpr auto prove_randomness_length() -> Prove;
     inline static constexpr auto query_randomness_length() -> Query;
@@ -64,6 +65,7 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.keyston.prio.flp.validity.Access
 #import std.bit_ceil
 namespace tunitas::keyston::prio::flp::validity::lengths {
+  template<required::Definition _> constexpr auto Lengths<_>::use_joint_randomness() -> bool { return underlying(Self::JOINT_RANDOMNESS_LENGTH) > 0u; }
   template<required::Definition _> constexpr auto Lengths<_>::joint_randomness_length() -> Joint { return Self::JOINT_RANDOMNESS_LENGTH; }
   template<required::Definition _> constexpr auto Lengths<_>::prove_randomness_length() -> Prove {
     // a.k.a. sum(map(lambda g: g.ARITY, Valid.GADGETS))

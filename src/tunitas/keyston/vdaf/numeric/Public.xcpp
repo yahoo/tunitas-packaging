@@ -12,13 +12,14 @@ namespace tunitas::keyston::vdaf::numeric {
   // </quote>
   //
   template<Slice> struct Public;
-  template<> struct Public<WHOLE>;
-  template<> struct Public<SHARE>;
 }
 #endiv
 #divert <hpp>
-namespace tunitas::keyston::vdaf::numeric {
-  template<> struct Public<WHOLE> { };
-  template<> struct Public<SHARE> { };
+#import tunitas.keyston.vdaf.numeric.Serialized
+namespace tunitas::keyston::vdaf {
+  template<Slice SLICE> struct numeric::Public : public Serialized {
+    Public() = default;
+    using Serialized::Serialized;
+  };
 }
 #endiv

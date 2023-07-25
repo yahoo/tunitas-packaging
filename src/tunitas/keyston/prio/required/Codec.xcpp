@@ -7,13 +7,13 @@
 #forward tunitas.keyston.prio.Codec
 namespace tunitas::keyston::prio::required {
   //
-  // Is this an Codec?
-  // This must be diagnosted with only the type declaration; without the type definition.
+  // Is this a Codec?
+  // This must be diagnosed with only the type declaration; without the type definition.
   // This is the moral equivalent of IntanceOf because Codec<...> uses NTTP (Non-Template Type Parameters ), 
   //
-  template<typename ALGORITHM> concept Codec = requires(ALGORITHM) {
+  template<typename CODEC> concept Codec = requires(CODEC) {
     { []<auto NAME>(prio::Codec<NAME> *)
-      {}(static_cast<ALGORITHM *>(nullptr)) };
+      {}(static_cast<CODEC *>(nullptr)) };
   };
 }
 #endiv

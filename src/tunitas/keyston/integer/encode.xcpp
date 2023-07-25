@@ -16,7 +16,8 @@ namespace tunitas::keyston::integer::encode::package_encode {
     namespace our { }
   }
 }
-#import nonstd.units.memory.scale // Bits & Bytes
+#import tunitas.keyston.quantity.Bits
+#import tunitas.keyston.quantity.Bytes
 #import tunitas.keyston.integer.required // ctcnt (cascade that certain namespace required)
 #import tunitas.integer.required.Unsigned
 #import tunitas.keyston.octets.Variable
@@ -25,8 +26,8 @@ namespace tunitas::keyston::integer::encode::package_encode {
   using Variable = octets::Variable;
   using Input = std::span<Octet const>;
   namespace body {
-    using nonstd::units::memory::Bits;
-    using nonstd::units::memory::Bytes;
+    using quantity::Bits;
+    using quantity::Bytes;
     template<required::Unsigned> struct Encoded;
     struct Left;
     struct Right;

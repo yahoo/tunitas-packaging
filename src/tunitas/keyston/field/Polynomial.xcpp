@@ -4,13 +4,22 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.field.required.Field
-#import tunitas.keyston.field.polynomial.Definition
+#import tunitas.keyston.field.required.Element
+#import tunitas.keyston.field.polynomial.Fixed
 namespace tunitas::keyston::field {
   //
   // The polynomial of degree D in this field.
-  // Rhymes with field::Vector
+  // Rhymes with field::Vector.
+  // Rhymes with field::Element.
   //
-  template<required::Field FIELD, Size DEGREE> using Polynomial = typename polynomial::Definition<FIELD, DEGREE>::Polynomial;
+  // Design:
+  //
+  //   Formulated as a type alias in this way so the template parameters can be inferred.
+  //
+  // Usage:
+  //
+  //   Lol.  Wut?
+  //
+  template<required::Element ELEMENT, Size DEGREE> using Polynomial = polynomial::Fixed<ELEMENT, DEGREE>;
 }
 #endiv

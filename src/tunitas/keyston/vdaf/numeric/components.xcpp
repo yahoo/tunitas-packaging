@@ -22,8 +22,8 @@ namespace tunitas::keyston::vdaf::numeric {
   namespace components {
     using keyston::Shards;
     template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
-    using Randomness   = Configuration<NUMERIC>::Randomness;
-    using Nonce        = Configuration<NUMERIC>::Nonce;
+    using Randomness   = Configuration<NUMERIC>::Randomness; // ... a dynamic view on the algo-defined fixed-size randomness
+    using Nonce        = Configuration<NUMERIC>::Nonce; // ........ eadem ratione
     using Verify_Key   = Configuration<NUMERIC>::Verify_Key;
     using Processed    = Configuration<NUMERIC>::Processed;
     //

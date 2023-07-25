@@ -32,11 +32,17 @@ namespace tests::unit::quantity::fixture {
 }
 #endiv
 #divert <cpp>
+#import tunitas.keyston.quantity.Bits
+#import tunitas.keyston.quantity.Bytes
+#import tunitas.keyston.quantity.Items
 #import tunitas.keyston.quantity.Records
 #import tunitas.keyston.quantity.Shards
 auto tests::unit::quantity::fixture::Fixture::suite() -> Suite {
   auto series = Stream{"quantity"sv};
-  series << add("Records", &Fixture::test_Quantity<library::Records>)
+  series << add("Bits", &Fixture::test_Quantity<library::Bits>)
+         << add("Bytes", &Fixture::test_Quantity<library::Bytes>)
+         << add("Items", &Fixture::test_Quantity<library::Items>)
+         << add("Records", &Fixture::test_Quantity<library::Records>)
          << add("Shards", &Fixture::test_Quantity<library::Shards>)
          << END;
   return settle(series);

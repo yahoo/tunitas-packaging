@@ -6,6 +6,8 @@
 #divert <hpp>
 #import tunitas.keyston.prio.flp.system.required.Validity
 #import tunitas.keyston.prio.flp.system.interface.Interface
+#import tunitas.keyston.prio.flp.Validity
+#include <ipp/tunitas.keyston.prio.flp.Validity> // because we need the function definitions
 namespace tunitas::keyston::prio::flp::system::interface {
   //
   // And thus it transpired after a time that this was the commonly-used idiom.

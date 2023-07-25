@@ -45,27 +45,33 @@ namespace tests::unit::exception::keyston {
 #import tunitas.keyston.exception.Invalid
 #import tunitas.keyston.exception.Invariant
 #import tunitas.keyston.exception.Length
+#import tunitas.keyston.exception.Logic
 #import tunitas.keyston.exception.Null
 #import tunitas.keyston.exception.Optional
 #import tunitas.keyston.exception.Overflow
+#import tunitas.keyston.exception.Randomness
 #import tunitas.keyston.exception.Range
+#import tunitas.keyston.exception.Runtime
 #import tunitas.keyston.exception.Unimplemented
 #import tunitas.keyston.exception.Variant
 auto tests::unit::exception::keyston::Fixture::suite() -> Suite {
   auto series = Stream{"keyston"sv};
-  series << stanza1string<Fixture, feature::Bound, library::Bound>("Bound")
-         << stanza1type<Fixture, feature::Cast, library::Cast>("Cast")
-         << stanza1string<Fixture, feature::Domain, library::Domain>("Domain")
-         << stanza1error<Fixture, feature::Failure, library::Failure>("Failure")
-         << stanza1string<Fixture, feature::Invalid, library::Invalid>("Invalid")
-         << stanza1string<Fixture, feature::Invariant, library::Invariant>("Invariant")
-         << stanza1string<Fixture, feature::Length, library::Length>("Length")
-         << stanza0<Fixture, feature::Null, library::Null>("Null")
-         << stanza0<Fixture, feature::Optional, library::Optional>("Optional")
-         << stanza1string<Fixture, feature::Overflow, library::Overflow>("Overflow")
-         << stanza1string<Fixture, feature::Range, library::Range>("Range")
-         << stanza0<Fixture, feature::Unimplemented, library::Unimplemented>("Unimplemented")
-         << stanza0<Fixture, feature::Variant, library::Variant>("Variant")
+  series << stanza1string<Fixture, feature::Bound,         library::Bound>("Bound")
+         << stanza1type<Fixture,   feature::Cast,          library::Cast>("Cast")
+         << stanza1string<Fixture, feature::Domain,        library::Domain>("Domain")
+         << stanza1error<Fixture,  feature::Failure,       library::Failure>("Failure")
+         << stanza1string<Fixture, feature::Invalid,       library::Invalid>("Invalid")
+         << stanza1string<Fixture, feature::Invariant,     library::Invariant>("Invariant")
+         << stanza1string<Fixture, feature::Length,        library::Length>("Length")
+         << stanza1string<Fixture, feature::Logic,         library::Logic>("Logic")
+         << stanza0<Fixture,       feature::Null,          library::Null>("Null")
+         << stanza0<Fixture,       feature::Optional,      library::Optional>("Optional")
+         << stanza1string<Fixture, feature::Overflow,      library::Overflow>("Overflow")
+         << stanza1string<Fixture, feature::Runtime,       library::Randomness>("Randomness")
+         << stanza1string<Fixture, feature::Range,         library::Range>("Range")
+         << stanza1string<Fixture, feature::Runtime,       library::Range>("Randomness")
+         << stanza0<Fixture,       feature::Unimplemented, library::Unimplemented>("Unimplemented")
+         << stanza0<Fixture,       feature::Variant,       library::Variant>("Variant")
          << END;
   return settle(series);
 }

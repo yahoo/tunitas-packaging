@@ -8,6 +8,8 @@ tunitas_keyston_integer_SUBSOURCES = \
   obj/src/tunitas/keyston/integer/namespace.cpp \
   obj/src/tunitas/keyston/integer/encode.cpp \
   obj/src/tunitas/keyston/integer/to_octets.cpp \
+  obj/src/tunitas/keyston/integer/into_octets.cpp \
+  obj/src/tunitas/keyston/integer/from_octets.cpp \
   $(tunitas_keyston_integer_required_SUBSOURCES) \
   $(end)
 #

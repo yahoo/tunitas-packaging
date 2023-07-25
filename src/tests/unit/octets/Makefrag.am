@@ -8,8 +8,11 @@ tests_unit_octets_SUBSOURCES = \
   check/obj/src/tests/unit/octets/namespace.cpp \
   check/obj/src/tests/unit/octets/Fixture.cpp \
   check/obj/src/tests/unit/octets/Palette.cpp \
-  check/obj/src/tests/unit/octets/string.Concatenate.cpp \
+  check/obj/src/tests/unit/octets/Concatenate.cpp \
+  check/obj/src/tests/unit/octets/Join.cpp \
   check/obj/src/tests/unit/octets/string.Encode.cpp \
   check/obj/src/tests/unit/octets/string.Pad.cpp \
   check/obj/src/tests/unit/octets/string.Substring.cpp \
+  check/obj/src/tests/unit/octets/Fixed.cpp \
+  check/obj/src/tests/unit/octets/Variable.cpp \
   $(end)

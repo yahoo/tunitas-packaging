@@ -9,8 +9,8 @@
 namespace tests {
   namespace string = tunitas::string;
   using namespace tunitas::string::literals;
-  using Size = std::size_t;
-
+  using Size = std::size_t; // .... in the eye of the beholder
+  using Index = std::size_t; // ... eadem ratione
 }
 #import tunitas.string.View
 #import tunitas.string.Storage

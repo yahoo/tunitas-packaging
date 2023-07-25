@@ -49,6 +49,7 @@ namespace tunitas::keyston {
   public:
     Block() = default;
     using Ancestor::Fixed;
+    Block(Ancestor const &a) : Ancestor{a} { }
     template<Half> inline constexpr auto half() const -> Block<CAPACITY/2>;
   };
 }

@@ -7,7 +7,6 @@
 tunitas_keyston_vdaf_numeric_function_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/numeric/Function.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/function/namespace.cpp \
-  obj/src/tunitas/keyston/vdaf/numeric/function/indexed.Name.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/function/Prototype.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/function/Function.template.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/function/Function.ADHOC.ZERO.cpp \

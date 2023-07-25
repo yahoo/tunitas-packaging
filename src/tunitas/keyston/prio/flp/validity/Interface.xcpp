@@ -39,17 +39,17 @@ namespace tunitas::keyston::prio::flp {
   //
   template<validity::required::Definition VALIDITY> struct validity::Interface {
     using Encodable = typename VALIDITY::Measurement;
-    using Encoded = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::INPUT_LENGTH).count()>;
+    using Encoded = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<Items>(VALIDITY::INPUT_LENGTH).count()>;
     //
-    using Truncatable = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::INPUT_LENGTH).count()>;
-    using Truncated = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::OUTPUT_LENGTH).count()>;
+    using Truncatable = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<Items>(VALIDITY::INPUT_LENGTH).count()>;
+    using Truncated = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<Items>(VALIDITY::OUTPUT_LENGTH).count()>;
     //
-    using Decodable = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::OUTPUT_LENGTH).count()>;
+    using Decodable = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<Items>(VALIDITY::OUTPUT_LENGTH).count()>;
     using Shards = quantity::Shards;
     using Decoded = typename VALIDITY::Aggregation;
     //
-    using Input = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::INPUT_LENGTH).count()>;
-    using Randomness = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<dimension::Items>(VALIDITY::JOINT_RANDOMNESS_LENGTH).count()>;
+    using Input = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<Items>(VALIDITY::INPUT_LENGTH).count()>;
+    using Randomness = view::Fixed<typename VALIDITY::Field::Element, dimension::cast<Items>(VALIDITY::JOINT_RANDOMNESS_LENGTH).count()>;
     using Circuited = typename VALIDITY::Field::Element;
   };
 }

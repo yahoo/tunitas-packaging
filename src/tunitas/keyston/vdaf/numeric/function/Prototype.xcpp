@@ -33,9 +33,12 @@ public:
   template<shards::required::Shardable TYPE> using Shards = keyston::Shards<TYPE>;
   template<array::required::Arrayable TYPE> using Series = components::Series<TYPE>;
   using Verify_Key   = components::Verify_Key;
+  using Processed    = components::Processed;
+#if 0
+  // the descendants each have more specific ideas about the storage-vs-view sense of these
   using Nonce        = components::Nonce;
   using Randomness   = components::Randomness;
-  using Processed    = components::Processed;
+#endif
   //
   using Disassembled = components::Disassembled;
   using Initialized  = components::Initialized;

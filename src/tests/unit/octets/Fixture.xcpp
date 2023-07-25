@@ -28,10 +28,13 @@ namespace tests::unit::octets {
 }
 #endiv
 #divert <cpp>
-#import tests.unit.octets.string.Concatenate
+#import tests.unit.octets.Concatenate
+#import tests.unit.octets.Join
 #import tests.unit.octets.string.Encode
 #import tests.unit.octets.string.Pad
 #import tests.unit.octets.string.Substring
+#import tests.unit.octets.Fixed
+#import tests.unit.octets.Variable
 auto tests::unit::octets::Fixture::suite() -> Suite {
   auto series = Stream{"octets"sv};
   series << []{
@@ -57,13 +60,23 @@ auto tests::unit::octets::Fixture::suite() -> Suite {
           }()
          << []{
               auto str = Stream{"string"sv};
-              str << add<string::Concatenate>()
-                  << add<string::Encode>()
+              str << add<string::Encode>()
                   << add<string::Pad>()
                   << add<string::Substring>()
                   << END;
               return str;
             }()
+         << add<octets::Variable>()
+         << []{
+              auto fix = Stream{"Fixed"sv};
+              fix << add<octets::Fixed<library::Fixed<2uz>>>()
+                  << add<octets::Fixed<library::Fixed<4uz>>>()
+                  << add<octets::Fixed<library::Fixed<8uz>>>() // stay small to test bound breaching
+                  << END;
+              return fix;
+            }()
+         << add<Concatenate>()
+         << add<Join>()
          << END;
   return settle(series);
 }

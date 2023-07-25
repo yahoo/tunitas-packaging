@@ -11,7 +11,6 @@
 #import tunitas.keyston.Shards
 #import tunitas.keyston.vdaf.Name
 #import tunitas.keyston.vdaf.protocol.components
-#import tunitas.keyston.vdaf.protocol.Parameters
 namespace tests::unit::vdaf::protocol {
   namespace [[eponymous]] executor {
     class Executor;
@@ -23,10 +22,14 @@ namespace tests::unit::vdaf::protocol {
     using Name = ::tunitas::keyston::vdaf::Name;
     using Slice = ::tunitas::keyston::Slice;
     using enum Slice;
-    using namespace library::components; // at least Verify_Key and Nonce
+    using namespace library::components; // at least Verify_Key, Nonce, Randomness
   }
   using executor::Executor;
 }
+#import tunitas.keyston.vdaf.protocol.Parameters
+static_assert(sizeof (tests::unit::vdaf::protocol::library::Parameters *), "visible");
+static_assert(sizeof (tests::unit::vdaf::protocol::executor::Nonce *));
+static_assert(sizeof (tests::unit::vdaf::protocol::executor::Randomness *));
 #endiv
 #divert <hpp>
 #import tunitas.keyston.vdaf.protocol.Definition
@@ -195,21 +198,24 @@ namespace tests::unit::vdaf::protocol::executor {
     {
       auto parameters = library::Parameters{};
       auto measurement = library::Measurement<WHOLE>{};
-      auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
+      auto nonce = executor::Nonce{};
+      auto randomness = executor::Randomness{};
+      auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = library::Parameters{};
       auto key = Verify_Key{};
       auto processor = Shard{};
-      auto nonce = Nonce{};
+      auto nonce = executor::Nonce{};
       auto publick = library::Public<SHARE>{};
       auto input = library::Input<SHARE>{};
       auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
+      auto parameters = library::Parameters{};
       auto preparation = library::Preparation<WHOLE>{};
       auto optional = Optional<library::Preparation<SHARE>>{};
-      auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+      auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = library::Parameters{};
@@ -268,15 +274,19 @@ namespace tests::unit::vdaf::protocol::executor {
   auto Executor::test_disassembly_good() -> void {
     auto subject = Subject{Subject::ZERO};
     auto parameters = library::Parameters{};
+    auto nonce = executor::Nonce{};
+    auto randomness = executor::Randomness{};
     auto measurement = library::Measurement<WHOLE>{};
-    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_disassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
     auto parameters = library::Parameters{};
+    auto nonce = executor::Nonce{};
+    auto randomness = executor::Randomness{};
     auto measurement = library::Measurement<WHOLE>{};
-    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
@@ -294,7 +304,7 @@ namespace tests::unit::vdaf::protocol::executor {
     auto parameters = library::Parameters{};
     auto key = Verify_Key{};
     auto processor = Shard{};
-    auto nonce = Nonce{};
+    auto nonce = executor::Nonce{};
     auto publick = library::Public<SHARE>{};
     auto input = library::Input<SHARE>{};
     auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
@@ -305,7 +315,7 @@ namespace tests::unit::vdaf::protocol::executor {
     auto parameters = library::Parameters{};
     auto key = Verify_Key{};
     auto processor = Shard{};
-    auto nonce = Nonce{};
+    auto nonce = executor::Nonce{};
     auto publick = library::Public<SHARE>{};
     auto input = library::Input<SHARE>{};
     auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
@@ -315,16 +325,18 @@ namespace tests::unit::vdaf::protocol::executor {
   }
   auto Executor::test_continuation_good() -> void {
     auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
     auto preparation = library::Preparation<WHOLE>{};
     auto optional = Optional<library::Preparation<SHARE>>{};
-    auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
   }
   auto Executor::test_continuation_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
     auto preparation = library::Preparation<WHOLE>{};
     auto optional = Optional<library::Preparation<SHARE>>{};
-    auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);

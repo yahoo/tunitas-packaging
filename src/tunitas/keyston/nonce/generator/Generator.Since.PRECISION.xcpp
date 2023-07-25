@@ -59,12 +59,14 @@ namespace tunitas::keyston::nonce::generator {
 #divert <cpp>
 #import tunitas.keyston.nonce.usage.Generator
 #import  std.declval
+#import tunitas.keyston.entropy.Serial
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
+    namespace entropy = tunitas::keyston::entropy;
     namespace usage = tunitas::keyston::nonce::usage;
 #if 1
-    static_assert(usage::Generator<Generator<Since<std::chrono::seconds>>>);
+    static_assert(usage::Generator<Generator<Since<std::chrono::seconds>, entropy::Serial>>);
 #else
     using namespace tunitas::keyston::nonce::generator;
     static_assert(sizeof (std::declval<Generator<Since<std::chrono::seconds>>>().operator()()));

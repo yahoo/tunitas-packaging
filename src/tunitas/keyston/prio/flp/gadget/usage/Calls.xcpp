@@ -13,7 +13,7 @@ namespace tunitas::keyston::prio::flp::gadget::usage {
   //  
   template<typename CALLS> concept Calls = required::Calls<CALLS> && requires(CALLS) {
     typename CALLS::Value;
-    requires same_as<typename CALLS::Value, dimension::Items>;
+    requires same_as<typename CALLS::Value, Items>;
   };
 }
 #endiv

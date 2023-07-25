@@ -7,10 +7,14 @@
 namespace tests::unit::field {
   //
   // Because Linear Algebra ... wherein Vector<...> and Polynomial<...> have the same test shape.
+  // This pertains to the algebraic objects, not to their Definition<...>
+  // This pertains to the algebraic objects as nominated at least Definition<...>::Value
   //
   // Design:
   //
-  //   Descendants only.
+  //   Descendants only, they being
+  //   tests::unit::field::vector::Vector<...>
+  //   tests::unit::field::polynomial::Polynomial<...>
   //
   // Usage:
   //

@@ -9,42 +9,23 @@
 namespace tunitas::keyston::prio::flp::dimension::is {
   //
   // Is the type castable source-to-target?
-  // The argument order is the same as that of the template function cast<...>(...)
+  // The argument order is OPPOSITE as that of the template function cast<...>(...)
+  // The argument order is THE SAME as that of convertible_to
   // Specializations mostly.
   //
-  template<required::Quantity, required::Dimension> struct Castable_To;
-#if 0
-  template<> struct Castable_To<Bits, Prove>;
-  template<> struct Castable_To<Bits, Query>;
-  template<> struct Castable_To<Bits, Joint>;
-  template<> struct Castable_To<Bits, Input>;
-  template<> struct Castable_To<Bits, Output>;
-  template<> struct Castable_To<Bits, Proof>;
-  template<> struct Castable_To<Bits, Verifier>;
-#else
-  template<required::Dimension DIMENSION> struct Castable_To<Bits, DIMENSION>;
-  template<required::Dimension DIMENSION> struct Castable_To<Items, DIMENSION>;
-#endif
+  template<required::Dimension SOURCE, required::Quantity TARGET> struct Castable_To;
+  template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Bits>;
+  template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Items>;
 }
 #endiv
 #divert <hpp>
 #import std.true_type
 #import std.false_type
 namespace tunitas::keyston::prio::flp::dimension {
-  template<required::Quantity, required::Dimension> struct is::Castable_To : public std::false_type { };
+  template<required::Dimension, required::Quantity> struct is::Castable_To : public std::false_type { };
   namespace is {
-#if 0
-    template<> struct Castable_To<Bits, Prove>    : public std::true_type { };
-    template<> struct Castable_To<Bits, Query>    : public std::true_type { };
-    template<> struct Castable_To<Bits, Joint>    : public std::true_type { };
-    template<> struct Castable_To<Bits, Input>    : public std::true_type { };
-    template<> struct Castable_To<Bits, Output>   : public std::true_type { };
-    template<> struct Castable_To<Bits, Proof>    : public std::true_type { };
-    template<> struct Castable_To<Bits, Verifier> : public std::true_type { };
-#else
-    template<required::Dimension DIMENSION> struct Castable_To<Bits, DIMENSION>  : public std::true_type { };
-    template<required::Dimension DIMENSION> struct Castable_To<Items, DIMENSION> : public std::true_type { };
-#endif
+    template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Bits>  : public std::true_type { };
+    template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Items> : public std::true_type { };
   }
 }
 #endiv

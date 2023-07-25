@@ -1,0 +1,100 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prg.generator.Core.template
+namespace tunitas::keyston::prg::generator {
+  //
+  // The Pseudo-Random Generators (the core)
+  //
+  //   irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-pseudorandom-generators
+  //
+  //   https://csrc.nist.gov/CSRC/media/Publications/sp/800-185/archive/2016-08-04/documents/sp800_185_draft.pdf
+  //   SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash, and ParallelHash
+  //   NIST SP 800 185, 2016-12-22.
+  //
+  // Specification:
+  //
+  //   irtf-cfrg-vdaf   Section 6.2.1 PrgSha3
+  //   NIST SP 800-185  nearly all of it
+  //
+  // Design:
+  //
+  //   Core<NAME>-wrapped only; into Generator<...> which completes the API specification.
+  //
+  //   Somehow, in canonical name of the specification, the acronyms all got transmorgrified into CamelCase
+  //   We do not so stoop.
+  //
+  //   The names l, x, s are derived from SP 800 185.
+  //
+  // On the regeneration of the stream in next(...)
+  //
+  //   <quote ref=https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prgsha3>
+  //     Implementation note: Rather than re-generate the output stream each time `next()` is invoked,
+  //     most implementations of SHA-3 will expose an "absorb-then-squeeze" API that allows stateful handling of the stream.
+  //   </quote>
+  //
+  //   [[FIXTHIS]] do not regenerate every time with longer output.
+  //   [[FIXTHIS]] whereas Crypto++ does not expose such an interface directly, some work is needed in Keccak<...>
+  //
+  // Usage:
+  //
+  //   auto custom = octets::View{...somehow...};
+  //   auto binder = octets::View{...somehow...};
+  //   auto generator = Generate<SHA3_cSHAKE128>{seed, custom, binder};
+  //   do {
+  //      auto generated = generate.next(1234_bytes);
+  //      ...use generated octets...
+  //   } while (...not bored...);
+  //
+  template<> struct Core<SHA3_cSHAKE128>;
+}
+#endiv
+#divert <hpp>
+#import tunitas..keyston.prg.generator.Prototype
+#import tunitas..keyston.octets.Variable
+namespace tunitas::keyston::prg::generator {
+  template<> class Core<SHA3_cSHAKE128> : public Prototype {
+    using Ancestor = Prototype;
+    ~Core() = default;
+    friend class generator::Generator<SHA3_cSHAKE128>;
+  protected:
+    Bytes l{};
+    Custom::Storage x{};
+    Binder::Storage s{};
+    cSHAKE cshake{};
+  public:
+    inline explicit Core(Seed::View, Custom::View, Binder::View);
+    inline auto next(Bytes length) -> Output::Variable;
+    template<Size LENGTH> inline auto next() -> Output::Fixed<LENGTH>;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.octets.concatenate
+namespace tunitas::keyston::prg::generator {
+  Core<SHA3_cSHAKE128>::Core(Seed::View seed, Custom::View custom, Binder::View binder)
+    : x{octets::concatenate(seed, binder)}
+    , s{custom.begin(), custom.end()}
+  { }
+  auto Core<SHA3_cSHAKE128>::next(Bytes length) -> Output::Variable {
+    l += length;
+    using namespace crypto;
+    // [[FIXTHIS]] do not regenerate every time with longer.
+    auto got = cshake(x, l, s, {}); // WATCHOUT - draft-irtf-cfrg-vdaf-05 (Section 6.3.1 PrgSha3) has the S and N arguments reversed from NIST SP 800-185 (page 8, line 327)
+    auto size = got.size();
+    return got.subrange(size - length.count(), size);
+  }
+  template<Size LENGTH> auto Core<SHA3_cSHAKE128>::next() -> Output::Fixed<LENGTH> {
+    l += Bytes{LENGTH};
+    using namespace crypto;
+    // [[FIXTHIS]] do not regenerate every time with longer.
+    auto got = cshake(x, l, s, {}); // WATCHOUT - draft-irtf-cfrg-vdaf-05 (Section 6.3.1 PrgSha3) has the S and N arguments reversed from NIST SP 800-185 (page 8, line 327)
+    auto size = got.size();
+    return got.template subrange<LENGTH>(size-LENGTH);
+  }
+}
+#endiv

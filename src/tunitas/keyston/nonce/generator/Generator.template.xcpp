@@ -20,12 +20,15 @@ namespace tunitas::keyston::nonce::generator {
   //   Specializations only.
   //   std::random_device
   //
+  //   DO NOT use a default argument for SOURCE in Generator<NONCE, SOURCE>
+  //   It is too confusing in practice.
+  //
   // Usage:
   //
   //   auto generate = Generator<Bits<1>>{};
   //   auto got = generate();
   //
-  template<required::Nonce NONCE, required::Entropy = entropy::Source> struct Generator;
+  template<required::Nonce NONCE, required::Entropy/* = entropy::Source*/> struct Generator;
 }
 #endiv
 #divert <hpp>

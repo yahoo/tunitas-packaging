@@ -12,12 +12,13 @@ namespace tests::unit::prio {
 }
 #endiv
 #divert <cpp>
+#import nonstd.int128.ostream // for operator<< on int128 (obviously)
 namespace tests::unit::prio {
   template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_encode() -> void {
     auto make_boundaries = [](auto... values) { return Subject::Boundaries{Subject::Boundaries::Value{values}...}; };
     auto boundaries = make_boundaries(1u, 3u, 5u, 7u);
     auto specimen = Subject::Measurement{5u};
-    auto expected = Subject::Encoded{generate(0u), generate(0u), generate(1u), generate(0u), generate(0u), generate(0u), generate(0u)};
+    auto expected = Subject::Encoded{/*1*/generate(0u), /*3*/generate(0u), /*s<5*/generate(0u), generate(1u), generate(0u), generate(0u), generate(0u)};
     auto observed = Subject::encode(specimen, boundaries);
     require(ASSERTION, expected == observed);
   }
@@ -25,6 +26,19 @@ namespace tests::unit::prio {
     auto specimen = Subject::Encoded{generate(0u), generate(1u), generate(0u), generate(1u)};
     auto expected = Subject::Truncated{generate(0u), generate(1u), generate(0u), generate(1u), generate(0u), generate(0u), generate(0u), generate(0u)};
     auto observed = Subject::truncate(specimen);
+    if (expected != observed) {
+      auto &err{std::cerr};
+      auto dump = [&err](auto const &truncated, string::View tag) {
+        err << tag;
+        for (auto const &each : truncated) {
+          using nonstd::int128::operator<<; // [[FIXTHIS]] get an operator<< that works for all the integer types
+          err << ' ' << underlying(each);
+        }
+        err << '\n';
+      };
+      dump(expected, "expected");
+      dump(observed, "observed");
+    }
     require(ASSERTION, expected == observed);
   }
   template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_decode() -> void {

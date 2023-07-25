@@ -12,20 +12,16 @@ namespace tunitas::keyston::integer {
   using namespace package_to_octets::interface;
 }
 // namespaces & types
-#import tunitas.integer.required.Unsigned
-#import tunitas.keyston.integer.required // ctcnr (cascade that certain namespace required)
 namespace tunitas::keyston::integer::package_to_octets {
-  namespace body {
-    template<required::Unsigned> struct Encoded;
-  }
+  namespace body { }
 }
 #endiv
 #divert <hpp>
-#import std.conditional
 #import std.endian
-#import std.same_as
-#import tunitas.integer.traits.SizeOf
+#import tunitas.integer.required.Unsigned
+#import tunitas.integer.SizeOf
 #import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.integer.required // ctcnr (cascade that certain 'namespace required')
 namespace tunitas::keyston::integer::package_to_octets {
   namespace body {
     namespace exported {
@@ -34,15 +30,19 @@ namespace tunitas::keyston::integer::package_to_octets {
       //
       //    draft-irtf-cfrg-vdaf - Verifiable Distributed Aggregation Functions
       //    https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-conventions-and-definitions-15
-      //    Setion 2 Conventions and Definitions
       //
       // Specification:
       //
+      //    Setion 2. Conventions and Definitions
+      //
+      //   [[recall "Bytes" in the specification's Python != our quantity::Bytes, use Octets instead]]
       //   <quote>
-      //     to_be_bytes(val: Unsigned, length: Unsigned) -> Bytes converts val to big-endian bytes;
+      //     to_be_bytes(val: Unsigned, length: Unsigned) -> Bytes
+      //          converts val to big-endian bytes;
       //          Its value MUST be in range [0, 2^(8*length)).
       //          The  Function from_be_bytes(encoded: Bytes) -> Unsigned computes the inverse. [mirror?]
-      //     to_le_bytes(val: Unsigned, length: Unsigned) -> Bytes converts val to little-endian bytes;
+      //     to_le_bytes(val: Unsigned, length: Unsigned) -> Bytes
+      //          converts val to little-endian bytes;
       //          Its value MUST be in range [0, 2^(8*length)).
       //          The function from_le_bytes(encoded: Bytes) -> Unsigned computes the inverse. [mirror?]
       //   </quote>
@@ -53,53 +53,46 @@ namespace tunitas::keyston::integer::package_to_octets {
       //   Easy to use the definition.
       //   Can return descendants of octets::Fixed<...> which conform to that same interface.
       //
-      // Usage:
-      //
       //   Implements "to_bytes(...)" from the draft spec
       //   and also "to_block(...)" from keyston::crypto::Block<...>
       //
-      //   auto got = to_octets<std::endian::little>(specimen);
-      //   auto got = to_octets<std::endian::big>(specimen);
-      //   auto got = to_octets<crypto::Block<16>, std::endian::big>(specimen); <--------- magic happens here
+      // Usage:
       //
-      template<typename SELECT = void,
-               std::endian,
-               required::Unsigned INTEGER,
-               typename RESULT = std::conditional_t<std::same_as<void, SELECT>, typename Encoded<INTEGER>::Fixed, SELECT>,
-               Size SIZE = traits::SizeOf<INTEGER>::VALUE.count()>
-      inline constexpr auto to_octets(INTEGER) -> RESULT requires (SIZE == RESULT{}.capacity());
+      //   auto got = to_octets<std::endian::little>(source);
+      //   auto got = to_octets<std::endian::big>(source);
+      //
+      template<std::endian, required::Unsigned UNSIGNED> inline constexpr auto to_octets(UNSIGNED) -> octets::Fixed<SizeOf<UNSIGNED>.count()>;
       //
       // The reasonable conjugation of the interface names of the standard (draft-irtf-cfgr-vdaf) are elaborated here
-      template<required::Unsigned INTEGER> inline constexpr auto to_le_octets(INTEGER integer) -> typename Encoded<INTEGER>::Fixed { return to_octets<std::endian::little>(integer); }
-      template<required::Unsigned INTEGER> inline constexpr auto to_be_octets(INTEGER integer) -> typename Encoded<INTEGER>::Fixed { return to_octets<std::endian::big>(integer); }
+      template<required::Unsigned UNSIGNED> inline constexpr auto to_le_octets(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::little>(source); }
+      template<required::Unsigned UNSIGNED> inline constexpr auto to_be_octets(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::big>(source); }
       //
       // The exact interface names in the standard (draft-irtf-cfgr-vdaf) are elaborated here
-      template<required::Unsigned INTEGER> [[deprecated("instead prefer to_octets<std::endian::little>(...) or else to_le_octets(...)")]] inline constexpr auto to_le_bytes(INTEGER integer) -> typename Encoded<INTEGER>::Fixed { return to_octets<std::endian::little>(integer); }
-      template<required::Unsigned INTEGER> [[deprecated("instead prefer to_octets<std::endian::big>(...) or else to_be_octets(...)")]]    inline constexpr auto to_be_bytes(INTEGER integer) -> typename Encoded<INTEGER>::Fixed { return to_octets<std::endian::big>(integer); }
+      template<required::Unsigned UNSIGNED> [[deprecated("instead prefer to_octets<std::endian::little>(...) or else to_le_octets(...)")]] inline constexpr auto to_le_bytes(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::little>(source); }
+      template<required::Unsigned UNSIGNED> [[deprecated("instead prefer to_octets<std::endian::big>(...) or else to_be_octets(...)")]]    inline constexpr auto to_be_bytes(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::big>(source); }
     }
+    template<std::endian ENDIAN, Size SIZE> auto index(Index i) -> Index;
   }
-  template<required::Unsigned INTEGER> struct body::Encoded {
-    using Fixed = octets::Fixed<traits::SizeOf<INTEGER>::VALUE.count()>;
-  };
 }
 #endiv
 #divert <ipp>
 #import nonstd.exception.Unreachable
 namespace tunitas::keyston::integer::package_to_octets {
-  template<typename SELECT, std::endian ENDIAN, required::Unsigned INTEGER, typename RESULT, Size SIZE> constexpr auto interface::to_octets(INTEGER specimen) -> RESULT requires (SIZE == RESULT{}.capacity()) {
-    auto ret = RESULT{};
-    auto index = [](Size i) -> Size {
-      if constexpr (std::endian::little == ENDIAN) {
-        return i;
-      } else if constexpr (std::endian::big == ENDIAN) {
-        return SIZE-1 - i;
-      } else {
-        throw nonstd::exception::Unreachable{};
-      }
-    };
+  template<std::endian ENDIAN, Size SIZE> auto body::index(Index i) -> Index {
+    if constexpr (std::endian::little == ENDIAN) {
+      return i;
+    } else if constexpr (std::endian::big == ENDIAN) {
+      return SIZE-1 - i;
+    } else {
+      throw nonstd::exception::Unreachable{};
+    }
+  }
+  template<std::endian ENDIAN, required::Unsigned UNSIGNED> constexpr auto interface::to_octets(UNSIGNED source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> {
+    constexpr auto const SIZE = SizeOf<UNSIGNED>.count();
+    auto ret = octets::Fixed<SIZE>{};
     for (auto i{0uz}; SIZE != i; ++i) {
-      ret.at(std::nothrow, index(i)) = Octet(specimen & 0xffu);
-      specimen >>= 8;
+      ret.at(std::nothrow, index<ENDIAN, SIZE>(i)) = Octet(source & 0xffu);
+      source >>= 8;
     }
     return ret;
   }

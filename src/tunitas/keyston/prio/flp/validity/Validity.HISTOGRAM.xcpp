@@ -32,12 +32,13 @@ namespace tunitas::keyston::prio::flp::validity {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.histogram.Buckets
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.measurement.Boundaries
 #import tunitas.keyston.aggregation.Histogram
 namespace tunitas::keyston::prio::flp::validity {
   template<> class Definition<HISTOGRAM> : public Prototype {
-    inline static constexpr auto const HISTOGRAM_WIDTH = measurement::Boundaries{}.size(); // a.k.a. 'length' (lower case) from Section 7.4.3
+    inline static constexpr auto const HISTOGRAM_WIDTH = histogram::Buckets::COUNT.count(); // a.k.a. 'length' (lower case) from Section 7.4.3
   protected:
     ~Definition() = default;
   public:
@@ -108,11 +109,17 @@ namespace tunitas::keyston::prio::flp::validity {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.prio.flp.validity.usage.Validity
+#import tunitas.keyston.prio.Codec.HISTOGRAM
+#import tunitas.keyston.prio.flp.dimension.cast
 namespace {
   namespace testate {
     namespace usage = tunitas::keyston::prio::flp::validity::usage;
     using namespace tunitas::keyston::prio::flp::validity;
     static_assert(usage::Validity<Validity<HISTOGRAM>>);
+    //
+    // Whereas there was some confusion over counts (off-by-one) among the histogram, the boundaries and the bucket (count)
+    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::INPUT_LENGTH == cast<tunitas::keyston::quantity::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::INPUT_LENGTH));
+    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::OUTPUT_LENGTH == cast<tunitas::keyston::quantity::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::OUTPUT_LENGTH));
   }
 }
 #endiv

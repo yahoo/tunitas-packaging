@@ -35,7 +35,7 @@ namespace tunitas {
     View(Ancestor const &a) : Ancestor{a} { }
     template<typename OTHER, std::size_t PRESIZE> constexpr View(span::Span<OTHER, PRESIZE> other)
       requires (std::same_as<Value, OTHER> && // i.e. OTHER is constie or mutable but on the same type as Value
-                ((std::dynamic_extent == EXTENT && PRESIZE == EXTENT) || EXTENT <= PRESIZE))
+                ((std::dynamic_extent == EXTENT && PRESIZE <= EXTENT) || EXTENT <= PRESIZE))
       : Ancestor{other.data(), other.size()} { }
     //
     // a smaller span if needed

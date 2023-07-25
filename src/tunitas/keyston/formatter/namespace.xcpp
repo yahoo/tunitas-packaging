@@ -7,8 +7,8 @@
 #import tunitas.keyston
 #import langu.age
 #import nonstd.units.Quantity
-#import nonstd.units.memory.scale // Bits
 #import tunitas.keyston.Slice
+#import tunitas.keyston.quantity.Bits
 #import tunitas.ranges.required // ctcnr (cascade that certain 'namespace required'
 #forward tunitas.keyston.histogram.Boundaries
 #forward tunitas.keyston.histogram.Histogram
@@ -19,7 +19,7 @@ namespace tunitas::keyston::formatter {
   namespace required { using namespace tunitas::ranges::required; }
   using namespace langu::age;
   using nonstd::units::Quantity;
-  using nonstd::units::memory::Bits;
+  using quantity::Bits;
   using histogram::Boundaries;
   using histogram::Histogram;
   using popularity::Prefixes;

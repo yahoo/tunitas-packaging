@@ -9,5 +9,6 @@
 namespace tunitas::keyston::prio::required {
   using namespace tunitas::keyston::required;
   static_assert(same_as<int, int>);
+  namespace [[nodirectory]] customizer { }
 }
 #endiv

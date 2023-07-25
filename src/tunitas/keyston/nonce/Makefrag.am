@@ -14,6 +14,7 @@ tunitas_keyston_nonce_SUBSOURCES = \
   obj/src/tunitas/keyston/nonce/Since.cpp \
   obj/src/tunitas/keyston/nonce/Unsigned.cpp \
   obj/src/tunitas/keyston/nonce/ennumerate.cpp \
+  obj/src/tunitas/keyston/nonce/to_octets.cpp \
   $(tunitas_keyston_nonce_usage_SUBSOURCES) \
   $(end)
 #

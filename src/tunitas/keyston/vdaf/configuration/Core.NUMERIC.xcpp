@@ -20,13 +20,14 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.vdaf.numeric.Preparation
 #import tunitas.keyston.vdaf.numeric.Output
 #import tunitas.keyston.vdaf.numeric.Aggregation
-#import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.hpke.Key
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.octets.View
 namespace tunitas::keyston::vdaf::configuration {
   template<> struct Core<NUMERIC> {
     using Parameters = vdaf::numeric::Parameters;
-    using Randomness = nonce::Bits<constants::RANDOMNESS_BIT_COUNT.count()>;
-    using Nonce =  nonce::Bits<constants::NONCE_BIT_COUNT.count()>; // else Opaque<NONCE_BYTE_COUNT.count()>;
+    using Randomness = octets::View;
+    using Nonce =  octets::View;
     using Verify_Key = hpke::Key<hpke::Side::SECRET>; // [[FIXTHIS]] use a view since the size need not be known here.
     using Processed = quantity::Records;
     template<Slice SLICE> using Measurement = vdaf::numeric::Measurement<SLICE>;

@@ -1,0 +1,117 @@
+g// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prg.constants
+#include <hpp/tunitas.keyston.prg.constants> // for the definition of SEED_SIZE
+namespace tunitas::keyston::prio::package_split::body {
+  //
+  // Apportion the randomness.
+  //
+  // Problem Definition:
+  //
+  //   Wherein each allocated "thing" in the allocation is prg::SEED_SIZE long (i.e. 16 bytes long).
+  //   The allocator accepts a one dimensional span of octets and portions it out in tranches of Allocated, being prg::SEED_SIZE.
+  //
+  //   With joint randomness (3 == STRIDE)
+  //
+  //     |<--------------------------------- span of the allocation----------------------------------------------->|
+  //     |<----------- shard 0 ------------->|<----------- shard 1 ------------->| ...more shards?...  |<--prove-->|
+  //     |<--input-->|<--proof-->|<--blind-->|<--input-->|<--proof-->|<--blind-->| ...more shards?...  |<--prove-->|
+  //                                                                                                   ^^^^^^^^^^^^^
+  //   Without joint randomness (2 == STRIDE)                                                          |||||||||||||
+  //                                                                                                   \-----+-----/
+  //     |<--------------------------- span of the allocation----------------------------->|                 |
+  //     |<--------shard 0 ----->|<----- shard 1 ------->| ...more shards?...  |<--prove-->|                 |
+  //     |<--input-->|<--proof-->|<--input-->|<--proof-->| ...more shards?...  |<--prove-->|                 |
+  //                                                                           ^^^^^^^^^^^^^                 |
+  //                                                                           |||||||||||||                 |
+  //                                                                           \-----+-----/                 |
+  //                                                                                 |                       |
+  //   after the strideful series there is one last allocation of prove -------------+-----------------------/
+  //
+  // Specification:
+  //
+  //   allocation of slices of the strideful.
+  //   allocation of a one-off.
+  //
+  // Design:
+  //
+  //   constexpr
+  //   Like a span, but allocate within teh span
+  //
+  // Exceptions:
+  //
+  //   Upon inappropriate exhaustion of the span
+  //
+  // Usage:
+  //
+  //   Hack the Spew
+  //
+  template<Size COUNT> requires (0 == COUNT % prg::SEED_SIZE.count()) struct Allocator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.span.Fixed
+#import tunitas.array.Fixed
+#forward tunitas.keyston.prio.split.Slicer
+namespace tunitas::keyston::prio::package_split {
+  template<Size COUNT> requires (0 == COUNT % prg::SEED_SIZE.count()) struct body::Allocator : private span::Fixed<Octet const, COUNT> {
+    using Ancestor = span::Fixed<Octet const, COUNT>;
+    Index here{};
+  public:
+    using Ancestor::span; // and yes, you "just have to know" that the name of the constructor through all the type alias templates is ultimately from std::span.
+    constexpr Allocator(Ancestor const &a) : Ancestor{a} { }
+    //
+    using Single = array::Fixed<Octet, prg::SEED_SIZE.count()>;
+    //
+    template<Size SHARDS, Size STRIDE> inline constexpr auto slice() -> Slicer<SHARDS, STRIDE>; // always advances the allocator
+    inline constexpr auto operator*() const -> Single;
+    inline constexpr auto operator++() -> Allocator &;
+    inline constexpr auto operator++(int) -> Allocator;
+    constexpr operator bool() const          { return here < Ancestor::extent; }
+    constexpr auto operator!() const -> bool { return !operator bool(); }
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.prio.split.Slicer
+#import tunitas.keyston.prio.exception.Bound
+#import tunitas.keyston.prio.exception.Exhausted
+namespace tunitas::keyston::prio::package_split::body {
+  template<Size _> template<Size SHARDS, Size STRIDE> constexpr auto Allocator<_>::slice() -> Slicer<SHARDS, STRIDE> {
+    constexpr auto const delegated = Slicer<SHARDS, STRIDE>::delegated_size();
+    if (here+delegated > Ancestor::extent) {
+      throw exception::Bound{};
+    } else {
+      auto redata = Ancestor::data() + here;
+      here += delegated;
+      return {redata};
+    }
+  }
+  template<Size _> constexpr auto Allocator<_>::operator*() const -> Single {
+    constexpr auto const ALLOCATED = Single{}.size();
+    if (here+ALLOCATED > Ancestor::extent) {
+      throw exception::Exhausted{};
+    } else {
+      return Ancestor::data()[here];
+    }
+  }
+  template<Size _> constexpr auto Allocator<_>::operator++() -> Allocator & {
+    constexpr auto const ALLOCATED = Single{}.size();
+    if (here+ALLOCATED > Ancestor::extent) {
+      throw exception::Exhausted{};
+    } else {
+      here += ALLOCATED;
+      return *this;
+    }
+  }
+  template<Size _> constexpr auto Allocator<_>::operator++(int) -> Allocator {
+    auto old = auto{*this};
+    operator++();
+    return old;
+  }
+}
+#endiv

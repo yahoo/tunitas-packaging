@@ -51,15 +51,17 @@ namespace tunitas::keyston::nonce::generator {
 #import tunitas.keyston.field.Element
 static_assert(sizeof(tunitas::keyston::field::Element<64>));
 #import tunitas.keyston.nonce.usage.Generator
+#import tunitas.keyston.entropy.Serial
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
+    namespace entropy = tunitas::keyston::entropy;
     namespace usage = tunitas::keyston::nonce::usage;
     namespace field = tunitas::keyston::field;
     //
-    static_assert(usage::Generator<Generator<Element<field::Element<64>>>>);
-    static_assert(usage::Generator<Generator<Element<field::Element<128>>>>);
-    static_assert(usage::Generator<Generator<Element<field::Element<255>>>>);
+    static_assert(usage::Generator<Generator<Element<field::Element<64>>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Element<field::Element<128>>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Element<field::Element<255>>, entropy::Serial>>);
   }
 }
 #endiv

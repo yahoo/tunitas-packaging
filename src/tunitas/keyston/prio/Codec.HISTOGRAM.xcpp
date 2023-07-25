@@ -24,8 +24,8 @@ namespace tunitas::keyston::prio {
 namespace tunitas::keyston::prio {
   template<> class Codec<HISTOGRAM> {
     using Buckets = histogram::Buckets;
-    inline static constexpr auto INDEX_INFINITY  = Buckets::COUNT.count();
-    inline static constexpr auto ENCODED_LENGTH  = Items{1u + Buckets::COUNT.count()};
+    inline static constexpr auto INDEX_INFINITY  = Buckets::COUNT.count()-1u;
+    inline static constexpr auto ENCODED_LENGTH  = Items{Buckets::COUNT.count()};
   public:
     using Field = keyston::Field<128>;
     inline static constexpr auto INPUT_LENGTH  = ENCODED_LENGTH;
@@ -57,8 +57,8 @@ namespace tunitas::keyston::prio {
   constexpr auto Codec<HISTOGRAM>::encode(Measurement specimen, Boundaries const &boundaries) -> Encoded {
     auto encoded = Encoded{};
     constexpr auto const ONE = Field::Element{1u};
-    for (auto index : std::views::iota(0u, Buckets::COUNT.count())) {
-      if (specimen <= boundaries.at(index)) {
+    for (auto index : std::views::iota(0u, boundaries.size())) {
+      if (specimen < boundaries.at(index)) {
         encoded.at(index) = ONE;
         return encoded;
       }

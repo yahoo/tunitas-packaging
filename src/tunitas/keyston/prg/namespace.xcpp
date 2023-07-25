@@ -5,7 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import nonstd.units.memory.scale // Bits, Bytes
+#import tunitas.keyston.quantity.Bytes
+#import tunitas.keyston.quantity.Items
 namespace tunitas::keyston::prg {
   //
   // The Pseudo-Random Generators
@@ -14,6 +15,9 @@ namespace tunitas::keyston::prg {
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-pseudorandom-generators
   //   6.2 Pseudorandom Generators   
   //
-  using nonstd::units::memory::Bytes;
+  using quantity::Bytes;
+  using quantity::Items;
+  //
+  namespace [[nodirectory]] domain { }
 }
 #endiv

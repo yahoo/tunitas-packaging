@@ -7,4 +7,6 @@
 tunitas_keyston_prg_generator_required_SUBSOURCES = \
   obj/src/tunitas/keyston/prg/generator/required/namespace.cpp \
   obj/src/tunitas/keyston/prg/generator/required/Generator.cpp \
+  obj/src/tunitas/keyston/prg/generator/required/Element.cpp \
+  obj/src/tunitas/keyston/prg/generator/required/Vector.cpp \
   $(end)

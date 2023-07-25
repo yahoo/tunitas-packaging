@@ -59,7 +59,7 @@ namespace tunitas::keyston::field {
 #endiv
 #divert <hpp>
 // All the specializations will need these
-#import tunitas.keyston.field.Precursor
+#import tunitas.keyston.field.Predefinition
 #import tunitas.keyston.field.Element
 #import tunitas.keyston.field.is.Field
 #import tunitas.keyston.field.vector.Definition

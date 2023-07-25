@@ -4,6 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import std.uint16_t
 namespace tunitas::keyston::prio {
   //
   // The prio usage constants.
@@ -22,15 +23,22 @@ namespace tunitas::keyston::prio {
   //
   //   You've used an enum (class) before, haven't you?
   //
-  enum class Usage : unsigned {
-    MEASUREMENT_SHARE = 1,
+  enum class Usage : std::uint16_t {
+    // zero is unused?
+    INPUT_SHARE = 1,
     PROOF_SHARE = 2,
     JOINT_RANDOMNESS = 3,
     PROVE_RANDOMNESS = 4,
     QUERY_RANDOMNESS = 5,
     JOINT_RANDOMNESS_SEED = 6,
-    JOINT_RANDOMNESS_PARTICIPLE = 7,
-    JOINT_RANDOMNESS_PART = JOINT_RANDOMNESS_PARTICIPLE,
+    JOINT_RANDOMNESS_PART = 7,
+    MEASUREMENT_SHARE [[deprecated("prefer Usage::INPUT_SHARE")]] = INPUT_SHARE,
   };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+namespace tunitas::keyston::prio {
+  inline constexpr auto underlying(Usage u) { return std::underlying_type_t<Usage>(u); }
 }
 #endiv

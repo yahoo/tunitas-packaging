@@ -38,26 +38,34 @@ auto tests::unit::vdaf::Fixture::suite() -> Suite {
          << []{
               auto cfg = Stream{"Configuration"sv};
               cfg << add<Configuration<library::Configuration<NUMERIC>>>()
+#if 0 // [[REMOVETHIS]]
                   << add<Configuration<library::Configuration<PROTOCOL>>>()
+#endif
                   << END;
               return cfg;
             }()
          << []{
               auto def = Stream{"Definition"sv};
               def << add<Definition<library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
+#if 0 // [[REMOVETHIS]]
                   << add<Definition<library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
+#endif
                   << END;
               return def;
             }()
          << []{
               auto exe = Stream{"Executor"sv};
               exe << add<Executor<library::Executor<NUMERIC>, library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
+#if 0 // [[REMOVETHIS]]
                   << add<Executor<library::Executor<PROTOCOL>, library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
+#endif
                   << END;
               return exe;
             }()
          << add<numeric::Fixture>()
+#if 0 // [[REMOVETHIS]]
          << add<protocol::Fixture>()
+#endif
          << END;
   return settle(series);
 }

@@ -40,22 +40,30 @@ namespace tunitas::keyston {
     inline auto subrange(Index lo, Index hi) const -> Variable;
     template<Size SUBCAPACITY> inline auto subrange(Index lo) const -> Fixed<SUBCAPACITY>;
   protected:
-    template<typename RESULT> inline auto recover(Index lo, Index hi) const -> RESULT;
+    template<typename RECOVERED> inline auto recover(Index lo, Index hi) const -> RECOVERED;
   };
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.exception.Bound
 #import tunitas.keyston.octets.Variable
+#import std.copy
 namespace tunitas::keyston::octets {
-  template<Size _> auto Fixed<_>::subrange(Index lo, Index hi) const -> Variable           { return recover<Variable>(lo, hi); }
+  template<Size _> auto Fixed<_>::subrange(Index lo, Index hi) const                            -> Variable { return recover<Variable>(lo, hi); }
   template<Size _> template<Size SUBCAPACITY> auto Fixed<_>::subrange(Index lo) const -> Fixed<SUBCAPACITY> { return recover<Fixed<SUBCAPACITY>>(lo, lo + SUBCAPACITY); }
-  template<Size _> template<typename RESULT> auto Fixed<_>::recover(Index lo, Index hi) const -> RESULT {
+  template<Size _> template<typename RECOVERED> auto Fixed<_>::recover(Index lo, Index hi) const -> RECOVERED {
     if (auto size=Ancestor::size(); hi < lo || size < lo || size < hi) {
       throw exception::Bound{"index out of range"};
     } else {
       auto begin = Ancestor::begin();
-      return {begin+lo, begin+hi};
+      if constexpr (std::same_as<RECOVERED, Variable>) {
+        return {begin+lo, begin+hi};
+      } else {
+        auto ret = RECOVERED{};
+        // ew already know size==hi-lo
+        std::copy(begin+lo, begin+hi, ret.begin());
+        return ret;
+      }
     }
   }
 }

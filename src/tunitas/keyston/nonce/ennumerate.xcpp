@@ -7,11 +7,13 @@
 namespace tunitas::keyston::nonce {
   //
   // "ennumerate" is a neologism
-  // with two 'ns' in "enn", so that's not a sloppy typo.
+  // with two 'n's as in "enn...", so that's not just a sloppy typo.
   //
   // enbiggen ..... to make bigger
   // ensmallen .... to make smaller
   // ennumerate ... to make into a number (to convert into a number)
+  //
+  // A similar operation which is available on 8+ bits is is to_octets
   //
   namespace package_ennumerate {
     namespace body::exported { }

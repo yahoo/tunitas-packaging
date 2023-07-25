@@ -27,7 +27,7 @@ namespace tunitas::keyston::field {
 #endiv
 #divert <hpp>
 namespace tunitas::keyston::field {
-  template<> struct Definition<64> : public Precursor<traits::Field<Definition<64>>::Element> {
+  template<> struct Definition<64> : public Predefinition<traits::Field<Definition<64>>::Element, 8u> {
     using Element = traits::Field<Definition>::Element;
     using Underlying = traits::Field<Definition>::Underlying;
     using Temporary = traits::Field<Definition>::Temporary;
@@ -35,7 +35,6 @@ namespace tunitas::keyston::field {
     template<Size CAPACITY> using Vector = vector::Definition<Definition, CAPACITY>;
     template<Size DEGREE> using Polynomial = polynomial::Definition<Definition, DEGREE>;
     inline static constexpr Underlying const MODULUS = (Underlying{1}<<32) * 4294967295 + 1;
-    inline static constexpr auto const ENCODED_SIZE = Bytes{8u};
     [[deprecated("dubious since does not generate the whole characteristic; prefer Field<...>::Generator{}()")]] inline static constexpr auto generator() -> Element;
     [[deprecated("buy a vowel, spell it out! Instead prefer Definition<64>::generator()")]] static constexpr auto gen() -> Element { return generator(); }
     class Generator;

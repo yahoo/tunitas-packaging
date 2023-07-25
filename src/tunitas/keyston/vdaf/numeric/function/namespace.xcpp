@@ -5,18 +5,6 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.vdaf.numeric
+namespace tunitas::keyston::vdaf::numeric::function { }
 #import tunitas.keyston.prio.flp.system.interface // for the eponymous namespace interface (and the enums therein)
-namespace tunitas::keyston::vdaf::numeric::function {
-  namespace [[nodirectory]] traits { }
-  namespace [[nodirectory]] is { }
-  namespace [[nodirectory]] indexed {
-    using namespace prio::flp::system::interface;
-  }
-}
-#endiv
-#divert <hpp>
-#import tunitas.keyston.prio.flp.dimension.randomness_size
-namespace tunitas::keyston::vdaf::numeric::function::traits {
-  using prio::flp::dimension::randomness_size;
-}
 #endiv

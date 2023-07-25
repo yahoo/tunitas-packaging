@@ -5,5 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-namespace tunitas::keyston::quantity { }
+namespace tunitas::keyston::quantity {
+  namespace [[nodirectory]] is { }
+  namespace [[nodirectory]] traits { }
+}
 #endiv

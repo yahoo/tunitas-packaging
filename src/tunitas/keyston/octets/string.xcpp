@@ -11,15 +11,15 @@ namespace tunitas::keyston::octets {
   }
   using namespace package_string::interface;
 }
+#import tunitas.keyston.octets.Fixed
 #import tunitas.keyston.octets.Variable
 #import tunitas.keyston.octets.View
-#import nonstd.units.memory.scale // Bytes
+#import tunitas.keyston.quantity.Bytes
 namespace tunitas::keyston::octets::package_string {
   using Output = Variable;
   using Input = View;
-  using Index = Size;
   namespace body {
-    using Bytes = nonstd::units::memory::Bytes;
+    using quantity::Bytes;
   }
 }
 #endiv
@@ -30,7 +30,7 @@ namespace tunitas::keyston::octets::package_string {
   namespace body {
     namespace exported {
       //
-      // The byte (octets) string string.
+      // The byte (octets) string.
       //
       // Authorities:
       //
@@ -62,9 +62,8 @@ namespace tunitas::keyston::octets::package_string {
       inline auto encode(Input) -> Output;
       template<typename... INPUTS> inline auto pad(Bytes, INPUTS...) -> Output requires (0 < sizeof...(INPUTS) && (std::convertible_to<INPUTS, Input> && ... ));
       inline auto substring(Input, Index begin, Index end) -> Output;
-      template<typename... INPUTS> inline auto concatenate(INPUTS...) -> Output requires (std::convertible_to<INPUTS, Input> && ... );
       //
-      // The interface names in the standard (SP 800-185) had more lugubrious names.
+      // The interface names in the standard (SP 800-185) were more lugubrious.
       inline auto encode_string(Input in) -> Output    { return encode(in); }
       inline auto bytepad(Input in, Bytes w) -> Output { return pad(w, in); }
     }
@@ -82,8 +81,6 @@ namespace tunitas::keyston::octets::package_string {
 #import std.min
 #import std.copy
 #import std.back_inserter
-#import std.make_index_sequence
-#import std.index_sequence
 #import tunitas.Tuple
 namespace tunitas::keyston::octets::package_string {
   auto interface::encode(Input input) -> Output {
@@ -125,39 +122,6 @@ namespace tunitas::keyston::octets::package_string {
       return ret;
     }
   }
-#if 0
-  auto interface::pad(Bytes w, Input input) -> Output {
-    if (Bytes{0} == w) {
-      throw exception::Length{"zero"};
-    }
-    auto ret = encode(input);
-    auto size = ret.size();
-    if (auto const more=size % w.count(); more) {
-      auto old = ret.end();
-      ret.resize(size + more);
-      std::fill(old, ret.end(), Octet{});
-    }
-    return ret;
-  }
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // when 0 == sizeof...(INPUTS) there is a warning
-  template<typename... INPUTS> auto interface::concatenate(INPUTS ...inputs) -> Output requires (std::convertible_to<INPUTS, Input> && ... ) {
-    auto bundle = Tuple{static_cast<Input>(inputs)...};
-    auto offsets = [&inputs...]<Size... INDEX>(std::index_sequence<INDEX...>) {
-      auto offsets = Tuple{0uz, inputs.size()...};
-      ((get<INDEX+1>(offsets) += get<INDEX>(offsets)), ... ); // sum them increasing down the tuple
-      return offsets;
-    }(std::make_index_sequence<sizeof...(INPUTS)>{});
-    auto ret = Output((inputs.size() + ... + 0uz));
-    return [&ret, &bundle, &offsets]<Size... INDEX>(std::index_sequence<INDEX...>) {
-      auto begin = ret.begin();
-      auto install = [](Input each, Output::Iterator start) { std::copy(each.begin(), each.end(), start); };
-      (install(get<INDEX>(bundle), begin + get<INDEX>(offsets)), ... );
-      return ret;
-    }(std::make_index_sequence<sizeof...(INPUTS)>{});
-  }
-#pragma GCC diagnostic pop
   auto interface::substring(Input input, Index lo, Index hi) -> Output {
     auto size = input.size();
     if (hi < lo || size < lo) {

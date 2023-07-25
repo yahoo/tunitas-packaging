@@ -9,10 +9,6 @@ tunitas_keyston_field_generator_SUBSOURCES = \
   obj/src/tunitas/keyston/field/generator/namespace.cpp \
   obj/src/tunitas/keyston/field/generator/traits.Common.cpp \
   obj/src/tunitas/keyston/field/generator/Triple.cpp \
-  obj/src/tunitas/keyston/field/generator/Generator.template.cpp \
-  obj/src/tunitas/keyston/field/generator/Generator.Field.64.cpp \
-  obj/src/tunitas/keyston/field/generator/Generator.Field.128.cpp \
-  obj/src/tunitas/keyston/field/generator/Generator.Field.255.cpp \
   obj/src/tunitas/keyston/field/generator/Generator.cpp \
   $(tunitas_keyston_field_generator_required_SUBSOURCES) \
   $(end)

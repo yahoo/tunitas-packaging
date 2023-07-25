@@ -7,6 +7,9 @@
 tunitas_keyston_field_required_SUBSOURCES = \
   obj/src/tunitas/keyston/field/required/namespace.cpp \
   obj/src/tunitas/keyston/field/required/Field.cpp \
+  obj/src/tunitas/keyston/field/required/definition.Field.cpp \
+  obj/src/tunitas/keyston/field/required/definition.Vector.cpp \
+  obj/src/tunitas/keyston/field/required/definition.Polynomial.cpp \
   obj/src/tunitas/keyston/field/required/Element.cpp \
   obj/src/tunitas/keyston/field/required/Vector.cpp \
   obj/src/tunitas/keyston/field/required/Polynomial.cpp \

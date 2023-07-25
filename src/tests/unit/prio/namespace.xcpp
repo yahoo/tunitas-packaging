@@ -6,13 +6,9 @@
 #divert <fpp>
 #import tests.unit
 #import tunitas.keyston.prio
-#import tunitas.keyston.prio.required
 #import tunitas.keyston.prio.Name
 namespace tests::unit::prio {
   namespace library = ::tunitas::keyston::prio;
   using enum ::tunitas::keyston::prio::Name;
-  namespace [[nodirectory]] required {
-    using namespace ::tunitas::keyston::prio::required;
-  }
 }
 #endiv

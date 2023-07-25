@@ -4,13 +4,13 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.octets.Span
+#import tunitas.view.View
 namespace tunitas::keyston::octets {
   //
   // What more needs to be said?
-  // Rhymes with string::View.
+  // Rhymes with string::View (so this is a dynamic-extent view)
   // But it's a span on constie
   //
-  using View = Span<Octet const>;
+  using View = view::View<Octet>;
 }
 #endiv

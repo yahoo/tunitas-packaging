@@ -11,7 +11,9 @@ namespace tunitas::array::required {
   //
   // Semiregular ~ copyable
   // Otherwise ~ a moveable type; e.g. unique_ptr<T>
-
+  //
+  // And thus the definition of TYPE must already be known.
+  //
   template<typename TYPE> concept Arrayable = Semiregular<TYPE> || requires(TYPE) {
     requires std::is_default_constructible_v<TYPE>;
     requires std::is_move_constructible_v<TYPE>;

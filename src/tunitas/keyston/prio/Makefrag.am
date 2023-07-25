@@ -10,13 +10,19 @@ tunitas_keyston_prio_SUBSOURCES = \
   $(tunitas_keyston_prio_flp_SUBSOURCES) \
   $(tunitas_keyston_prio_required_SUBSOURCES) \
   $(tunitas_keyston_prio_usage_SUBSOURCES) \
+  obj/src/tunitas/keyston/prio/randomness_size.cpp \
   obj/src/tunitas/keyston/prio/Name.cpp \
   obj/src/tunitas/keyston/prio/Codec.template.cpp \
   obj/src/tunitas/keyston/prio/Codec.COUNT.cpp \
   obj/src/tunitas/keyston/prio/Codec.SUM.cpp \
   obj/src/tunitas/keyston/prio/Codec.HISTOGRAM.cpp \
   obj/src/tunitas/keyston/prio/Codec.cpp \
+  obj/src/tunitas/keyston/prio/Definition.cpp \
   obj/src/tunitas/keyston/prio/Usage.cpp \
+  obj/src/tunitas/keyston/prio/Customizer.cpp \
+  obj/src/tunitas/keyston/prio/split.cpp \
+  obj/src/tunitas/keyston/prio/split.Allocator.cpp \
+  obj/src/tunitas/keyston/prio/split.Slicer.cpp \
   $(end)
 #
 include src/tunitas/keyston/prio/exception/Makefrag.am

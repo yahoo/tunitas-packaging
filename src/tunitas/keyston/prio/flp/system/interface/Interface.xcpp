@@ -39,14 +39,13 @@ namespace tunitas::keyston::prio::flp::system::interface {
 #import tunitas.keyston.Field
 #import tunitas.keyston.prio.flp.system.Length
 #import tunitas.keyston.prio.flp.system.usage.Field
-#import tunitas.keyston.prio.flp.dimension // for Bytes
 #import std.underlying_type
 namespace tunitas::keyston::prio::flp::system {
   template<required::Field FIELD, interface::Joint JOINT, interface::Prove PROVE, interface::Query QUERY, interface::Input INPUT, interface::Output OUTPUT, interface::Proof PROOF, interface::Verifier VERIFIER> class interface::Interface<FIELD, interface::Randomness<JOINT, PROVE, QUERY>, interface::Message<INPUT, OUTPUT, PROOF, VERIFIER>> {
     static_assert(usage::Field<FIELD>);
     using Field = FIELD;
     template<auto COUNT> requires required::Enumeration<decltype(COUNT)> struct [[FIXTHIS("this should be in nonstd::units as a Constant similar to std::integral_constnat<...>")]] Constant_Of_Bytes {
-      inline static constexpr auto const VALUE = dimension::Bytes{std::underlying_type_t<decltype(COUNT)>(COUNT)};
+      inline static constexpr auto const VALUE = Bytes{std::underlying_type_t<decltype(COUNT)>(COUNT)};
     };
   public:
     struct Randomness {

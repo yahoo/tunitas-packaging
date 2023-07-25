@@ -10,13 +10,13 @@
 #include <hpp/tunitas.keyston.prio.flp.dimension.is.Castable_To>
 namespace tunitas::keyston::prio::flp::dimension::required {
   //
-  // Is this dimension type a castable to that other dimension type?
-  // The argument order is the same as that of the template function cast<...>(...)
+  // Is this dimension type castable to that other dimension type?
+  // The argument order rhymes with convertible_to<SOURCE, TARGET>
   //
-  template<typename TARGET, typename SOURCE> concept Castable_To = requires(TARGET, SOURCE) {
-    requires required::Quantity<TARGET>;
+  template<typename SOURCE, typename TARGET> concept Castable_To = requires(SOURCE, TARGET) {
     requires Dimension<SOURCE>;
-    requires is::Castable_To<TARGET, SOURCE>::value;
+    requires Quantity<TARGET>;
+    requires is::Castable_To<SOURCE, TARGET>::value;
   };
 }
 #endiv

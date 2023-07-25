@@ -5,7 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.integer.integers // a namespace bundle containing integers of interest
-#import nonstd.units.memory.scale // Bits & Bytes
+#import tunitas.keyston.quantity.Bits
+#import tunitas.keyston.quantity.Bytes
 namespace tunitas::keyston::integer {
   //
   // Numerical Methods

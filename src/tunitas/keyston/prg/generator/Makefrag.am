@@ -8,9 +8,10 @@ tunitas_keyston_prg_generator_SUBSOURCES = \
   obj/src/tunitas/keyston/prg/Generator.cpp \
   obj/src/tunitas/keyston/prg/generator/namespace.cpp \
   obj/src/tunitas/keyston/prg/generator/Prototype.cpp \
-  obj/src/tunitas/keyston/prg/generator/Generator.template.cpp \
-  obj/src/tunitas/keyston/prg/generator/Generator.SHA3_cSHAKE128.cpp \
-  obj/src/tunitas/keyston/prg/generator/Generator.FIXED_KEY_AES128.cpp \
+  obj/src/tunitas/keyston/prg/generator/Core.template.cpp \
+  obj/src/tunitas/keyston/prg/generator/Core.SHA3_cSHAKE128.cpp \
+  obj/src/tunitas/keyston/prg/generator/Core.FIXED_KEY_AES128.cpp \
+  obj/src/tunitas/keyston/prg/generator/Core.cpp \
   obj/src/tunitas/keyston/prg/generator/Generator.cpp \
   $(tunitas_keyston_prg_generator_required_SUBSOURCES) \
   $(end)

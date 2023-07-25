@@ -4,13 +4,22 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.field.required.Field
-#import tunitas.keyston.field.vector.Definition
+#import tunitas.keyston.field.required.Element
+#import tunitas.keyston.field.vector.Fixed
 namespace tunitas::keyston::field {
   //
   // The vector of this field.
-  // Rhymes with field::Element
+  // Rhymes with field::Polynomial.
+  // Rhymes with field::Element.
   //
-  template<required::Field FIELD, Size CAPACITY> using Vector = typename vector::Definition<FIELD, CAPACITY>::Vector;
+  // Design:
+  //
+  //   Formulated as a type alias in this way so the template parameters can be inferred.
+  //
+  // Usage:
+  //
+  //   Lol.  Wut?
+  //
+  template<required::Element ELEMENT, Size CAPACITY> using Vector = vector::Fixed<ELEMENT, CAPACITY>;
 }
 #endiv

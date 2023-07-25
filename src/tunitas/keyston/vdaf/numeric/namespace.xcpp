@@ -10,7 +10,11 @@
 #import tunitas.keyston.Scheme
 namespace tunitas::keyston::vdaf::numeric {
   using namespace tunitas::keyston::numeric;
-  namespace generic { using namespace tunitas::keyston::numeric::generic; } // occlude namespace daf::generic
   using enum Scheme;
+  namespace generic { using namespace tunitas::keyston::numeric::generic; } // occlude namespace daf::generic
+  namespace [[nodirectory]] is { }
+  namespace [[nodirectory]] indexed { }
+  namespace [[nodirectory]] traits { }
+
 }
 #endiv

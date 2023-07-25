@@ -29,7 +29,7 @@ namespace tunitas::keyston {
   //
   enum class Scheme {
     ADHOC, // ......... no specific genre ... the metaphorical wild west (of algorithms)
-    PRIO, // .......... Private Robuts I<something> O<something>
+    PRIO, // .......... Private Robust Scalable I<something> O<something> (Input & Ouptut?)
     POPLAR, // ........ gotta be a pun on "popularity"
   };
 }

@@ -35,22 +35,33 @@ namespace tunitas::keyston::prg::generator {
 #forward tunitas.keyston.crypto.Algorithm
 #import tunitas.keyston.crypto.algorithm.Algorithm.cSHAKE
 #import tunitas.keyston.prg.constants
+#import tunitas.view.Fixed
 struct tunitas::keyston::prg::generator::Prototype {
-protected:
-  using View = octets::View;
-  using Octets = octets::Variable;
-public:
   inline static constexpr auto const SEED_SIZE = constants::SEED_SIZE;
-  using Seed = octets::Fixed<SEED_SIZE.count()>;
+  struct Seed {
+    using View = view::Fixed<Octet, SEED_SIZE.count()>;
+    using Storage = octets::Fixed<SEED_SIZE.count()>;
+    Seed() = delete;
+    Seed(Seed const &) = delete;
+  };
   struct Custom {
-    using View = Prototype::View;
-    using Storage = Prototype::Octets;
+    using View = octets::View;
+    using Storage = octets::Variable;
+    Custom() = delete;
+    Custom(Custom const &) = delete;
   };
   struct Binder {
-    using View = Prototype::View;
-    using Storage = Prototype::Octets;
+    using View = octets::View;
+    using Storage = octets::Variable;
+    Binder() = delete;
+    Binder(Binder const &) = delete;
   };
-  using Output = Octets;
+  struct Output {
+    using Variable = octets::Variable;
+    template<Size LENGTH> using Fixed = octets::Fixed<LENGTH>;
+    Output() = delete;
+    Output(Output const &) = default;
+  };
 protected:
   ~Prototype() = default;
   using cSHAKE = crypto::Algorithm<crypto::algorithm::Name::cSHAKE>;

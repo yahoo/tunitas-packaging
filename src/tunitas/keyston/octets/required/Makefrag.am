@@ -10,4 +10,12 @@ tunitas_keyston_octets_required_SUBSOURCES = \
   obj/src/tunitas/keyston/octets/required/Octets.cpp \
   obj/src/tunitas/keyston/octets/required/Fixed.cpp \
   obj/src/tunitas/keyston/octets/required/Variable.cpp \
+  obj/src/tunitas/keyston/octets/required/concatenate.Fixed.cpp \
+  obj/src/tunitas/keyston/octets/required/concatenate.Mixed.cpp \
+  obj/src/tunitas/keyston/octets/required/view.Fixed.cpp \
+  obj/src/tunitas/keyston/octets/required/view.Mixed.cpp \
+  obj/src/tunitas/keyston/octets/required/view.Variable.cpp \
+  obj/src/tunitas/keyston/octets/required/array.Fixed.cpp \
+  obj/src/tunitas/keyston/octets/required/array.Mixed.cpp \
+  obj/src/tunitas/keyston/octets/required/array.Variable.cpp \
   $(end)

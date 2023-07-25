@@ -1,0 +1,98 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.definition.Field
+namespace tests::unit::field {
+  template<typename SUBJECT> requires required::definition::Field<SUBJECT> struct Field;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston // Octet
+#import tunitas.array.Fixed
+namespace tests::unit {
+  template<typename SUBJECT> requires field::required::definition::Field<SUBJECT> struct field::Field : public rigging::suite::Fixture {
+    static auto suite() -> rigging::Suite;
+    //
+    using Subject = SUBJECT;
+    using Element = typename Subject::Element;
+    using Octet = ::tunitas::keyston::Octet;
+    template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
+    inline static constexpr auto const SPECIMEN_SIZE = Subject::ENCODED_SIZE.count();
+    //
+    auto test_encode_returning() -> void;
+    auto test_encode_into() -> void;
+    //
+    auto test_decode_returning() -> void;
+    auto test_decode_from() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.equal
+namespace tests::unit::field {
+  template<typename _> auto Field<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto enc = Stream{"encode"sv};
+                enc << add("returning", &Field::test_encode_returning)
+                    << add("into", &Field::test_encode_into)
+                    << END;
+                return enc;
+              }()
+           << []{
+                auto enc = Stream{"decode"sv};
+                enc << add("returning", &Field::test_decode_returning)
+                    << add("from", &Field::test_decode_from)
+                    << END;
+                return enc;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Field<_>::test_encode_returning() -> void {
+    { auto got = Subject::encode(Element{0}); // <------------------------------ test this
+      auto zero = Buffer<SPECIMEN_SIZE>{};
+      require(ASSERTION, std::equal(zero.begin(), zero.end(), got.begin(), got.end())); }
+    { auto got = Subject::encode(Element{1}); // <------------------------------ test this
+      auto one = Buffer<SPECIMEN_SIZE>{};
+      one.at(SPECIMEN_SIZE-1u) = Octet{0x1};
+      require(ASSERTION, std::equal(one.begin(), one.end(), got.begin(), got.end())); }
+  }
+  template<typename _> auto Field<_>::test_encode_into() -> void {
+    { auto place = Buffer<2*SPECIMEN_SIZE>{};
+      auto next = Subject::encode_into(Element{0}, place.begin()); // <------------------------------ test this
+      auto zero = Buffer<SPECIMEN_SIZE>{};
+      require(ASSERTION, std::equal(zero.begin(), zero.end(), place.begin(), place.begin()+SPECIMEN_SIZE));
+      require(ASSERTION, place.begin() + SPECIMEN_SIZE == next); }
+    { auto place = Buffer<2*SPECIMEN_SIZE>{};
+      auto next = Subject::encode_into(Element{1}, place.begin()); // <------------------------------ test this
+      auto one = Buffer<SPECIMEN_SIZE>{};
+      one.at(SPECIMEN_SIZE-1u) = Octet{0x1};
+      require(ASSERTION, std::equal(one.begin(), one.end(), place.begin(), place.begin()+SPECIMEN_SIZE));
+      require(ASSERTION, place.begin() + SPECIMEN_SIZE == next); }
+  }
+  template<typename _> auto Field<_>::test_decode_returning() -> void {
+    { auto zero = Buffer<SPECIMEN_SIZE>{};
+      auto got = Subject::decode(zero); // <------------------------------ test this
+      require(ASSERTION, Element{} == got);}
+    { auto one = Buffer<SPECIMEN_SIZE>{};
+      one.at(SPECIMEN_SIZE-1u) = Octet{0x1};
+      auto got = Subject::decode(one); // <------------------------------ test this
+      require(ASSERTION, Element{1} == got);}
+  }
+  template<typename _> auto Field<_>::test_decode_from() -> void {
+    { auto zero = Buffer<2*SPECIMEN_SIZE>{};
+      auto [got, next] = Subject::decode_from(zero.begin()); // <------------------------------ test this
+      require(ASSERTION, Element{} == got);
+      require(ASSERTION, zero.begin() + SPECIMEN_SIZE == next); }
+    { auto one = Buffer<2*SPECIMEN_SIZE>{};
+      one.at(SPECIMEN_SIZE-1u) = Octet{0x1};
+      auto [got, next] = Subject::decode_from(one.begin()); // <------------------------------ test this
+      require(ASSERTION, Element{1} == got);
+      require(ASSERTION, one.begin() + SPECIMEN_SIZE == next);}
+  }
+}
+#endiv

@@ -6,5 +6,10 @@
 #divert <fpp>
 #import tunitas.keyston.octets
 #import tunitas.keyston.required
-namespace tunitas::keyston::octets::required { using namespace tunitas::keyston::required; }
+namespace tunitas::keyston::octets::required {
+  using namespace tunitas::keyston::required;
+  namespace [[nodirectory]] concatenate { }
+  namespace [[nodirectory]] span { }
+  namespace [[nodirectory]] array { }
+}
 #endiv

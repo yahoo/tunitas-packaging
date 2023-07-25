@@ -38,22 +38,26 @@ namespace tests::unit::exception::prio {
 }
 #endiv
 #divert <cpp>
+#import tunitas.keyston.prio.exception.Bound
 #import tunitas.keyston.prio.exception.Decode
 #import tunitas.keyston.prio.exception.Exhausted
 #import tunitas.keyston.prio.exception.Input
 #import tunitas.keyston.prio.exception.Invalid
+#import tunitas.keyston.prio.exception.Invariant
 #import tunitas.keyston.prio.exception.Prove
 #import tunitas.keyston.prio.exception.Query
 #import tunitas.keyston.prio.exception.Verifier
 auto tests::unit::exception::prio::Fixture::suite() -> Suite {
   auto series = Stream{"prio"sv};
-  series << stanza1string<Fixture, feature::Runtime, library::Decode>("Decode")
+  series << stanza1string<Fixture, feature::Runtime,   library::Decode>("Decode")
+         << stanza1string<Fixture, feature::Bound,     library::Bound>("Bound")
          << stanza1string<Fixture, feature::Exhausted, library::Exhausted>("Exhausted")
-         << stanza1string<Fixture, feature::Runtime, library::Input>("Input")
-         << stanza1string<Fixture, feature::Invalid, library::Invalid>("Invalid")
-         << stanza1string<Fixture, feature::Runtime, library::Prove>("Prove")
-         << stanza1string<Fixture, feature::Runtime, library::Query>("Query")
-         << stanza1string<Fixture, feature::Runtime, library::Verifier>("Verifier")
+         << stanza1string<Fixture, feature::Runtime,   library::Input>("Input")
+         << stanza1string<Fixture, feature::Invalid,   library::Invalid>("Invalid")
+         << stanza1string<Fixture, feature::Invariant, library::Invariant>("Invariant")
+         << stanza1string<Fixture, feature::Runtime,   library::Prove>("Prove")
+         << stanza1string<Fixture, feature::Runtime,   library::Query>("Query")
+         << stanza1string<Fixture, feature::Runtime,   library::Verifier>("Verifier")
          << END;
   return settle(series);
 }

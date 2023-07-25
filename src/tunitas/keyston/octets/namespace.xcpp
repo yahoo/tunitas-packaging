@@ -13,5 +13,7 @@ namespace tunitas::keyston::octets {
   // these arrays are called by the neologism "octets" reminiscent of internet networking culture.
   // Though it is understood that the (applied) cryptography culture prefers the term "bytes".
   //
+  namespace [[nodirectory]] is { }
+  namespace [[nodirectory]] traits { }
 }
 #endiv

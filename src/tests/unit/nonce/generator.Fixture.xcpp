@@ -67,17 +67,17 @@ auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
          << add<generator::Generator<library::Generator<noncelib::Bundle<noncelib::Since<Seconds>, noncelib::Bits<64>>, Entropy>>>()
          << []{
               auto uns = Stream{"Unsigned"sv};
-              uns << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint64_t>>>>()
-                  << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint128_t>>>>()
-                  << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint256_t>>>>()
+              uns << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint64_t>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint128_t>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint256_t>, Entropy>>>()
                   << END;
               return uns;
          }()
          << []{
               auto ele = Stream{"Element"sv};
-              ele << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<64>>>>>()
-                  << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<128>>>>>()
-                  << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<255>>>>>()
+              ele << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<64>>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<128>>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<255>>, Entropy>>>()
                   << END;
               return ele;
          }()

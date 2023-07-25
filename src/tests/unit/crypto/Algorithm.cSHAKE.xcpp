@@ -31,6 +31,16 @@ namespace tests::unit::crypto {
 namespace tests::unit::crypto {
   auto Algorithm<library::Algorithm<cSHAKE>>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
+    series << add("constructor", &Algorithm::test_constructor)
+           << []{
+             auto call = Stream{"operator()"sv};
+             call << add("2-arg", &Algorithm::test_operator_call2)
+                  << add("3-arg", &Algorithm::test_operator_call3)
+                  << add("4-arg", &Algorithm::test_operator_call4)
+                  << END;
+             return call;
+           }()
+           << END;
     return settle(series);
   }
   auto Algorithm<library::Algorithm<cSHAKE>>::test_constructor() -> void {

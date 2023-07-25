@@ -22,6 +22,7 @@ namespace tests::unit::vdaf {
 }
 #endiv
 #divert <hpp>
+#import tunitas.exception.feature.Unimplemented
 #import tunitas.keyston.vdaf.Executor
 #import tunitas.keyston.vdaf.exception.Null
 #import tunitas.keyston.vdaf.exception.Aspect
@@ -63,6 +64,7 @@ namespace tests::unit::vdaf {
     auto test_reassembly_good() -> void;
     auto test_reassembly_fail() -> void;
   protected:
+    using Unimplemented = ::tunitas::exception::feature::Unimplemented;
     using Failure = library::exception::Null;
     // unused, but reminders that they could be
     using Backup4 = library::exception::Aspect;
@@ -174,7 +176,6 @@ namespace tests::unit::vdaf::executor {
     return settle(series);
   }
 }
-#import tunitas.exception.feature.Unimplemented
 #import tunitas.keyston.quantity.Records
 #import tunitas.keyston.measurement.Specimen
 namespace tests::unit::vdaf::executor {
@@ -182,7 +183,9 @@ namespace tests::unit::vdaf::executor {
     {
       auto measurement = typename Configuration::template Measurement<WHOLE>{};
       auto parameters = typename Configuration::Parameters{};
-      auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
+      auto nonce = typename Configuration::Nonce{};
+      auto randomness = typename Configuration::Randomness{};
+      auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = typename Configuration::Parameters{};
@@ -194,9 +197,10 @@ namespace tests::unit::vdaf::executor {
       auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
+      auto parameters = typename Configuration::Parameters{};
       auto preparation = typename Configuration::template Preparation<WHOLE>{};
       auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
-      auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+      auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = typename Configuration::Parameters{};
@@ -215,9 +219,8 @@ namespace tests::unit::vdaf::executor {
       auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     }
-  } catch (::tunitas::exception::feature::Unimplemented const &) {
-    // well never mind them
-    require(ASSERTION);
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_default() -> void {
     auto subject = Subject{};
@@ -278,18 +281,24 @@ namespace tests::unit::vdaf::executor {
     exercise(a);
     exercise(b);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
+    auto nonce = typename Configuration::Nonce{};
+    auto randomness = typename Configuration::Randomness{};
     auto measurement = typename Configuration::template Measurement<WHOLE>{};
-    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
     auto parameters = typename Configuration::Parameters{};
+    auto nonce = typename Configuration::Nonce{};
+    auto randomness = typename Configuration::Randomness{};
     auto measurement = typename Configuration::template Measurement<WHOLE>{};
-    auto got = subject.disassembly(parameters, measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
@@ -300,7 +309,7 @@ namespace tests::unit::vdaf::executor {
   } catch (Backup2 const &) {
     impossible(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto key = Key{};
@@ -310,6 +319,8 @@ namespace tests::unit::vdaf::executor {
     auto input = typename Configuration::template Input<SHARE>{};
     auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
@@ -324,28 +335,34 @@ namespace tests::unit::vdaf::executor {
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_good() -> void try {
     auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
     auto preparation = typename Configuration::template Preparation<WHOLE>{};
     auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
-    auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
     auto preparation = typename Configuration::template Preparation<WHOLE>{};
     auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
-    subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Preparation<SHARE>>{};
     auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
@@ -356,12 +373,14 @@ namespace tests::unit::vdaf::executor {
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Output<SHARE>>{};
     auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
@@ -372,13 +391,15 @@ namespace tests::unit::vdaf::executor {
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
     auto records = quantity::Records{};
     auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 

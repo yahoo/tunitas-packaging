@@ -25,7 +25,7 @@ struct tests::unit::vdaf::protocol::Fixture : public rigging::suite::Fixture {
 #import tests.unit.vdaf.protocol.prio3.Fixture
 #import tests.unit.vdaf.protocol.poplar1.Fixture
 auto tests::unit::vdaf::protocol::Fixture::suite() -> Suite {
-  auto series = Stream{"function"sv};
+  auto series = Stream{"protocol"sv};
   series << []{
               auto use = Stream{"usage"sv};
               use << add("Definition", &Fixture::test_usage_Definition)

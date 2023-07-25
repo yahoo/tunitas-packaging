@@ -67,6 +67,13 @@ namespace tunitas::keyston::vdaf::generic {
       reassembly = constant::reassembly;
       break;
     case Name::PRIO3_COUNT:
+      disassembly = Function<PRIO, Name::PRIO3_COUNT>::disassembly;
+      initialization = Function<PRIO, Name::PRIO3_COUNT>::initialization;
+      continuation = Function<PRIO, Name::PRIO3_COUNT>::continuation;
+      amalgamation = Function<PRIO, Name::PRIO3_COUNT>::amalgamation;
+      disgorgement = Function<PRIO, Name::PRIO3_COUNT>::disgorgement;
+      reassembly = Function<PRIO, Name::PRIO3_COUNT>::reassembly;
+      break;
     case Name::PRIO3_SUM:
     case Name::PRIO3_HISTOGRAM:
       disassembly = prio3::disassembly;

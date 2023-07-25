@@ -4,13 +4,11 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.flp.
-#import nonstd.units.count.scale // for Items
-#import nonstd.units.memory.scale // for Bytes
+#import tunitas.keyston.prio.flp
 namespace tunitas::keyston::prio::flp::dimension {
-  using nonstd::units::memory::Bits;
-  using nonstd::units::memory::Bytes;
-  using nonstd::units::count::Items;
+  static_assert(sizeof(Bits *), "already visible");
+  static_assert(sizeof(Bytes *), "already visible");
+  static_assert(sizeof(Items *), "already visible");
   //
   // Ultimately these express "bits"
   //

@@ -16,6 +16,22 @@ namespace tunitas::keyston::histogram {
   //   7.1.1 Encoding the Input
   //   <quote>The type of measurement being aggregated is defined by the FLP.</quote>
   //
+  // Schema:
+  //
+  //   A boundaries has one fewer bucket than the number of histogram buckets.
+  //   A histogram has one more bucket than the number of boundary buckets.
+  //
+  //   Histogram: | H0 | H1 | H2 | H3 | ...more... | Hn-1 | Hn |
+  //              |____|____|____|____|            |______|____|
+  //              
+  //   H0 contains specimens less than Boundaries[0]
+  //   H1 contains specimens less than Boundaries[1]
+  //   H2 contains specimens less than Boundaries[2]
+  //   H3 contains specimens less than Boundaries[3]
+  //   ...more...
+  //   Hn-1 contains specimens less than Boundaries[n-1]
+  //   Hn   contains specimens greater than Boundaries[n-1]
+  //
   // Design:
   //
   //   A new type so that ADL will find the associated operators.

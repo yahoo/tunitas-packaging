@@ -12,6 +12,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #divert <hpp>
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.quantity.Records
+#import tunitas.keyston.vdaf.constants
 #import tunitas.keyston.vdaf.protocol.Parameters
 #import tunitas.keyston.vdaf.protocol.Measurement
 #import tunitas.keyston.vdaf.protocol.Public
@@ -20,11 +21,15 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.vdaf.protocol.Output
 #import tunitas.keyston.vdaf.protocol.Aggregation
 #import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.octets.View
 #import tunitas.keyston.hpke.Key
 namespace tunitas::keyston::vdaf::configuration {
+  //
+  // [[FIXTHIS]] this is exactly the same as Core<NUMERIC>
   template<> struct Core<PROTOCOL> {
     using Parameters = protocol::Parameters;
-    using Nonce =  nonce::Bits<32>; // else Opaque<32>;
+    using Randomness = octets::View;
+    using Nonce =  octets::View;
     using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
     using Processed = quantity::Records;
     template<Slice SLICE> using Measurement = protocol::Measurement<SLICE>;

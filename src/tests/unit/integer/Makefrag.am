@@ -9,6 +9,7 @@ tests_unit_integer_SUBSOURCES = \
   check/obj/src/tests/unit/integer/Fixture.cpp \
   check/obj/src/tests/unit/integer/Palette.cpp \
   check/obj/src/tests/unit/integer/To_Octets.cpp \
+  check/obj/src/tests/unit/integer/From_Octets.cpp \
   check/obj/src/tests/unit/integer/Encode.cpp \
   check/obj/src/tests/unit/integer/our.Count_Zero.cpp \
   check/obj/src/tests/unit/integer/our.Bit_Ceil.cpp \

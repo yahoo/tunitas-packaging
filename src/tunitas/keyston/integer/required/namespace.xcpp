@@ -7,8 +7,10 @@
 #import tunitas.keyston.integer
 #import tunitas.keyston.required
 #import tunitas.integer.required
+#import nonstd.required.iterator // because there is (yet? no tunitas::required::iterator
 namespace tunitas::keyston::integer::required {
   using namespace tunitas::keyston::required;
   using namespace tunitas::integer::required;
+  namespace iterator { using namespace nonstd::required::iterator; }
 }
 #endiv

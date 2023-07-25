@@ -6,4 +6,6 @@
 #
 tunitas_keyston_integer_required_SUBSOURCES = \
   obj/src/tunitas/keyston/integer/required/namespace.cpp \
+  obj/src/tunitas/keyston/integer/required/iterator.Source.cpp \
+  obj/src/tunitas/keyston/integer/required/iterator.Sink.cpp \
   $(end)

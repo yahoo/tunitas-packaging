@@ -20,8 +20,8 @@ namespace tunitas::keyston::vdaf::generic::configuration {
   //   The interface, as stated
   //
   //   (a noun form)
-  //   disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement) -> (Bytes, Vec[Bytes])
-  //   initialization ........ Vdaf.prep_init(verify_key: Bytes, agg_id: Unsigned, agg_param: AggParam, nonce: Bytes, public_share: Bytes, input_share: Bytes) -> Prep
+  //   disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement, nonce: Bytes[Vdaf.NONCE_SIZE], rand: Bytes[Vdaf.RAND_SIZE]) -> tuple[Bytes, Vec[Bytes]]
+  //   initialization ........ Vdaf.prep_init(verify_key: Bytes[Vdaf.VERIFY_KEY_SIZE], agg_id: Unsigned, agg_param: AggParam, nonce: Bytes[Vdaf.NONCE_SIZE], public_share: Bytes, input_share: Bytes) -> Prep
   //   continuation .......... Vdaf.prep_next(prep: Prep, inbound: Optional[Bytes]) -> Union[Tuple[Prep, Bytes], OutShare]
   //   amalgamation .......... Vdaf.prep_shares_to_prep(agg_param: AggParam, prep_shares: Vec[Bytes]) -> Bytes
   //   disgorgement .......... Vdaf.out_shares_to_agg_share(agg_param: AggParam, out_shares: Vec[OutShare]) -> agg_share: Bytes
@@ -51,13 +51,13 @@ namespace tunitas::keyston::vdaf::generic {
     static_assert(usage::Core<CORE>);
   public:
     using Disassembled = generic::Disassembled<Configuration>;
-    using Disassembly = Disassembled (*)(typename CORE::Parameters const &, typename CORE::Measurement<WHOLE> const &);
+    using Disassembly = Disassembled (*)(typename CORE::Parameters const &, typename CORE::Measurement<WHOLE> const &, typename CORE::Nonce, typename CORE::Randomness);
     //
     using Initialized = typename CORE::template Preparation<SHARE>;
-    using Initialization = Initialized (*)(typename CORE::Parameters const &, typename CORE::Verify_Key const &, Shard, typename CORE::Nonce const &, typename CORE::template Public<SHARE> const &, typename CORE::template Input<SHARE> const &);
+    using Initialization = Initialized (*)(typename CORE::Parameters const &, typename CORE::Verify_Key const &, Shard, typename CORE::Nonce, typename CORE::template Public<SHARE> const &, typename CORE::template Input<SHARE> const &);
     //
     using Continued = generic::Continued<Configuration>;
-    using Continuation = Continued (*)(typename CORE::template Preparation<WHOLE> const &, Optional<typename CORE::template Preparation<SHARE>> const &);
+    using Continuation = Continued (*)(typename CORE::Parameters const &, typename CORE::template Preparation<WHOLE> const &, Optional<typename CORE::template Preparation<SHARE>> const &);
     //
     using Amalgamated = typename CORE::template Preparation<WHOLE>;
     using Amalgamation = Amalgamated (*)(typename CORE::Parameters const &, Shards<typename CORE::template Preparation<SHARE>> const &);

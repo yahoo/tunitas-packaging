@@ -58,6 +58,7 @@ namespace tunitas::keyston::prio::flp::validity::usage {
       typename VALIDITY::Joint;
       { VALIDITY::JOINT_RANDOMNESS_LENGTH } -> convertible_to<typename VALIDITY::Joint>;
       { VALIDITY::joint_randomness_length() } -> convertible_to<typename VALIDITY::Joint>;
+      { VALIDITY::use_joint_randomness() } -> convertible_to<bool>;
       //
       typename VALIDITY::Prove;
       { VALIDITY::prove_randomness_length() } -> convertible_to<typename VALIDITY::Prove>;

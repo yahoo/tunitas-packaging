@@ -14,10 +14,13 @@ tunitas_keyston_exception_SUBSOURCES = \
   obj/src/tunitas/keyston/exception/Invalid.cpp \
   obj/src/tunitas/keyston/exception/Invariant.cpp \
   obj/src/tunitas/keyston/exception/Length.cpp \
+  obj/src/tunitas/keyston/exception/Logic.cpp \
   obj/src/tunitas/keyston/exception/Null.cpp \
   obj/src/tunitas/keyston/exception/Optional.cpp \
   obj/src/tunitas/keyston/exception/Overflow.cpp \
   obj/src/tunitas/keyston/exception/Range.cpp \
+  obj/src/tunitas/keyston/exception/Randomness.cpp \
+  obj/src/tunitas/keyston/exception/Runtime.cpp \
   obj/src/tunitas/keyston/exception/Unimplemented.cpp \
   obj/src/tunitas/keyston/exception/Variant.cpp \
   $(end)
