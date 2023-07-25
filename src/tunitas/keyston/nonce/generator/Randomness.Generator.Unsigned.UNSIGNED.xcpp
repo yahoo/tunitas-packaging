@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.nonce.generator.Randomness.template
+#import tunitas.keyston.nonce.generator.Generator.Unsigned.UNSIGNED
+namespace tunitas::keyston::nonce::generator {
+  template<integer::required::Unsigned UNSIGNED, required::Entropy ENTROPY> struct Randomness<Generator<Unsigned<UNSIGNED>, ENTROPY>>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.integer.Limits
+namespace tunitas::keyston::nonce::generator {
+  //   tunitas::integer::distribution::usage::Randomness<...>
+  template<integer::required::Unsigned UNSIGNED, required::Entropy ENTROPY> class Randomness<Generator<Unsigned<UNSIGNED>, ENTROPY>> {
+    using Generator = generator::Generator<Unsigned<UNSIGNED>, ENTROPY>;
+    using Entropy =  ENTROPY;
+  public:
+    explicit Randomness(Entropy &source) : generator{source} { }
+    using Result = typename Generator::Result;
+    using Limits = integer::Limits<Result>;
+    using result_type = Result;
+    constexpr auto min() const -> Result { return Limits::min(); }
+    constexpr auto max() const -> Result { return Limits::max(); }
+    auto operator()() -> Result { return generator(); }
+  protected:
+    Generator generator{};
+  };
+}
+#import tunitas.integer.distribution.traits.Randomness.tunitas.keyston.nonce.generator.Randomness.Generator.Unsigned.UNSIGNED
+#endiv
+#divert <cpp>
+#import tunitas.integer.distribution.usage.Randomness
+#import tunitas.keyston.entropy.None
+namespace {
+  namespace testate {
+    using tunitas::keyston::nonce::generator::Randomness;
+    using tunitas::keyston::nonce::generator::Generator;
+    using tunitas::keyston::nonce::Unsigned;
+    namespace usage = tunitas::integer::distribution::usage;
+    using Entropy = tunitas::keyston::entropy::None; // pick one
+    //
+    static_assert(usage::Randomness<Randomness<Generator<Unsigned<unsigned>, Entropy>>>);
+  }
+}
+#endiv

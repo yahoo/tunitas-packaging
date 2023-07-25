@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.ranges.required.Container
+#import tunitas.ranges.required.Iterator
+#forward tunitas.ranges.package_enumerate.Range
+#import tunitas.ranges.package_enumerate.Subrange
+namespace tunitas::ranges::package_enumerate::body::exported {
+  //
+  // Create an "enumerate" range anchor.
+  //
+  // Specification:
+  //
+  //   Works for mutable and constie
+  //
+  // Design:
+  //
+  //   No.  It "just is."
+  //
+  // Lifetimes:
+  //
+  //   lifestime(container) >= lifetime(enumerate(contanier))
+  //
+  // Usage:
+  //
+  //   auto container = ...a container...
+  //
+  //   for (auto [ith, element] : enumerate(container) {
+  //     ...use them ...
+  //   }
+  //
+  template<required::Container CONTAINER> inline constexpr auto enumerate(CONTAINER &&) -> Range<std::remove_reference_t<CONTAINER>>;
+  template<required::Iterator ITERATOR> inline constexpr auto enumerate(ITERATOR start, ITERATOR finish) -> Range<Subrange<ITERATOR>>;
+}
+#endiv
+#divert <ipp>
+#import tunitas.ranges.package_enumerate.Range
+#import std.remove_reference
+namespace tunitas::ranges::package_enumerate {
+  template<required::Container CONTAINER> constexpr auto interface::enumerate(CONTAINER &&container)         -> Range<std::remove_reference_t<CONTAINER>> { return Range<std::remove_reference_t<CONTAINER>>{container.begin(), container.end()}; }
+  template<required::Iterator ITERATOR> constexpr auto interface::enumerate(ITERATOR start, ITERATOR finish) -> Range<Subrange<ITERATOR>> { return Range<Subrange<ITERATOR>>{start, finish}; }
+}
+#endiv

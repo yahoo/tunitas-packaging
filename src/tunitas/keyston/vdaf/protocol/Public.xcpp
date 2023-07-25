@@ -1,0 +1,24 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.protocol.buffer.Companion
+#include <hpp/tunitas.keyston.vdaf.protocol.buffer.Companion>
+namespace tunitas::keyston::vdaf::protocol {
+  //
+  // The publick, in whole or in part.
+  //
+  // <quote ref="https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html#name-upload-request">
+  //   Note that the public share might be empty, depending on the VDAF. 
+  //   For example, Prio3 has an empty public share, but Poplar1 does not.
+  // </quote>
+  //
+  namespace [[eponymous]] publick {
+    struct Tag;
+    template<Slice SLICE> using Public = buffer::Companion<SLICE, Tag, (1uz<<32)>;
+  }
+  using publick::Public;
+}
+#endiv

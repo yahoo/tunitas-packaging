@@ -1,0 +1,229 @@
+g// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.numeric.function.Function.template
+namespace tunitas::keyston::vdaf::numeric::function {
+  //
+  // The Verifiable Distributed Aggregation Function (Family) - PRIO (tuned for Version 3, a.k.a. "PRIO3")
+  //
+  // Authority:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //
+  // Specification:
+  //
+  //   There's some section in there that covers this.
+  //   Section 5. Definition of VDAFs
+  //   Section 7 Prio3
+  //   And there's papers in the references section; e.g. CGB2017, BBCGGI2019
+  //
+  //   COUNT, SUM, HISTOGRAM
+  //
+  // Design:
+  //
+  //   Right out of the manual.
+  //
+  // Usage:
+  //
+  //   Within Definition<NAME> and Executor<NAME>
+  //
+  template<Name NAME> struct Function<PRIO, NAME>;
+}
+#endiv
+#divert <hpp>
+#import nonstd.units.quantity.cast
+#import tunitas.Tuple
+#import tunitas.keyston.octets.Fixed
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.quantity.Bits
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.vdaf.constants
+#import tunitas.keyston.vdaf.numeric.Definition
+#import tunitas.keyston.vdaf.numeric.function.Prototype
+namespace tunitas::keyston::vdaf::numeric::function {
+  template<Name NAME> class Function<PRIO, NAME> : public Prototype {
+    using Ancestor = function::Prototype;
+  public:
+    //
+    using Prover = typename Definition<NAME>::Prover; // a.k.a. Validity
+    using Codec = typename Definition<NAME>::Codec;
+    using Encoded = typename Codec::Encoded;
+    using Field = typename Codec::Field;
+    using Amplifier = typename Definition<NAME>::Amplifier;
+    //
+    // names as used in The Standard. 
+    using Flp = Prover;
+    using Prg = Amplifier;
+    //
+    // Otherwise it's too lugubrious to reference these in the ancestry with 'typename Ancestors::Prototype' always and everywhere
+    template<shards::required::Shardable TYPE> using Shards = typename Ancestor::Shards<TYPE>;
+    template<array::required::Arrayable TYPE> using Series = typename Ancestor::Series<TYPE>;
+    using Verify_Key   = typename Ancestor::Verify_Key;
+    using Disassembled = typename Ancestor::Disassembled;
+    using Initialized  = typename Ancestor::Initialized;
+    using Continued    = typename Ancestor::Continued;
+    using Amalgamated  = typename Ancestor::Amalgamated;
+    using Reassembled  = typename Ancestor::Reassembled;
+    using Processed    = typename Ancestor::Processed;
+    //
+    struct Nonce {
+      using Numeric = nonce::Bits<cast<quantity::Bits>(Definition<NAME>::NONCE_SIZE).count()>;
+      using Storage = octets::Fixed<Definition<NAME>::NONCE_SIZE.count()>;
+      struct View {
+        using Fixed = view::Fixed<Octet, Definition<NAME>::NONCE_SIZE.count()>;
+        using Variable = view::Variable<Octet>;
+      };
+    };
+    struct Randomness {
+      using Storage = octets::Fixed<Definition<NAME>::randomness_size().count()>;
+      struct View {
+        using Fixed    = view::Fixed<Octet, Definition<NAME>::randomness_size().count()>;
+        using Variable = view::Variable<Octet>;
+      };
+    };
+    //
+    template<Slice SLICE> using Measurement = typename Ancestor::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = typename Ancestor::Input<SLICE>;
+    template<Slice SLICE> using Preparation = typename Ancestor::Preparation<SLICE>;
+    template<Slice SLICE> using Public      = typename Ancestor::Public<SLICE>;
+    template<Slice SLICE> using Output      = typename Ancestor::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = typename Ancestor::Aggregation<SLICE>;
+    //
+    struct Tableau {
+      //
+      // Specification:
+      //
+      //   Table 2. Constants and types defined by each concrete VDAF.
+      //   Section 5. Definition of VDAFs
+      //
+      //   Table 5. VDAF parameters for Prio3
+      //   Section 7.2. Construction
+      //
+      inline static constexpr auto const ID = underlying(NAME);
+      inline static constexpr auto const VERIFY_KEY_SIZE = VERIFY_KEY_BYTE_COUNT;
+      inline static constexpr auto const NONCE_SIZE = Definition<NAME>::NONCE_SIZE;
+      inline static constexpr auto const ROUNDS = Definition<NAME>::ROUND_COUNT;
+      inline static constexpr auto const SHARDS = shards::SHARD_COUNT;
+      [[deprecated("instead prefer Tableau::SHARDS")]]inline static constexpr auto const SHARES = SHARDS; // as named in Table 2
+      using Measurement = typename Function::Measurement<WHOLE>;
+      // These are non-obvious names with the missing vowels and pidgin spelling
+      using AggParam = Parameters;
+      using Prep = Preparation<SHARE>;
+      using OutShare = Output<SHARE>;
+      using AggResult = Aggregation<WHOLE>;
+    };
+    //
+    // Section 5.1 Sharding
+    // disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement, nonce: Bytes[Vdaf.NONCE_SIZE], rand: Bytes[Vdaf.RAND_SIZE]) -> tuple[Bytes, Vec[Bytes]]
+    static auto disassembly(Parameters const &, Measurement<WHOLE> const &, typename Nonce::View::Variable, typename Randomness::View::Variable) -> Disassembled;
+    //
+    // Section 5.2 Preparation
+    // initialization ........ Vdaf.prep_init(verify_key: Bytes[Vdaf.VERIFY_KEY_SIZE], agg_id: Unsigned, agg_param: AggParam, nonce: Bytes[Vdaf.NONCE_SIZE], public_share: Bytes, input_share: Bytes) -> Prep
+    // continuation .......... Vdaf.prep_next(prep: Prep, inbound: Optional[Bytes]) -> Union[Tuple[Prep, Bytes], OutShare]
+    // amalgamation .......... Vdaf.prep_shares_to_prep(agg_param: AggParam, prep_shares: Vec[Bytes]) -> Bytes
+    static auto initialization(Parameters const &, Verify_Key const &, Shard, typename Nonce::View::Variable, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
+    static auto continuation(Parameters const &, Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
+    static auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
+    //
+    // Section 5.4 Aggregation
+    // disgorgement .......... Vdaf.out_shares_to_agg_share(agg_param: AggParam, out_shares: Vec[OutShare]) -> agg_share: Bytes
+    static auto disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged;
+    //
+    // Section 5.5 Unsharding
+    // reassembly ............ Vdaf.agg_shares_to_result(agg_param: AggParam, agg_shares: Vec[Bytes], num_measurements: Unsigned) -> AggResult
+    static auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.accumulate
+#import tunitas.Tuple
+#import tunitas.keyston.Shards
+#import tunitas.keyston.Shard
+#import tunitas.keyston.vdaf.exception.Invariant
+#import tunitas.keyston.nonce.to_octets
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.prio.split
+#import tunitas.keyston.numeric.Augmentment
+#import tunitas.keyston.numeric.Treatment
+#import tunitas.keyston.exception.Unimplemented
+#import tunitas.sequence.Sequence
+namespace tunitas::keyston::vdaf::numeric::function {
+  template<Name NAME> auto Function<PRIO, NAME>::disassembly(Parameters const &parameters, Measurement<WHOLE> const &wrapped, typename Nonce::View::Variable variable_nonce, typename Randomness::View::Variable variable_randomness) -> Disassembled { 
+    throw exception::Unimplemented{};
+#warning FIXTHIS because it is unclear how to set up the nonce and the randomess with the correct sizes
+   if (variable_nonce.size() != Nonce::View::Fixed::extent) {
+      throw exception::Invalid{"nonce size is incorrect for this (prio)algorithm"};
+    }
+    if (variable_randomness.size() != Randomness::View::Fixed::extent) {
+      throw exception::Invalid{"randomness size is incorrect for this (prio)algorithm"};
+    }
+    auto fixed_nonce = typename Nonce::View::Fixed{variable_nonce};
+    auto fixed_randomness = typename Randomness::View::Fixed{variable_randomness.data(), variable_randomness.size()}; // ick.
+    constexpr auto SUBALGORITHM = Definition<NAME>::PRIO;
+    auto reformat = [](Tuple<octets::Variable, Shards<octets::Variable>> splat) -> Disassembled {
+      auto &[publick, inputs] = splat;
+      return [&]<Index... INDEX>(sequence::Sequence::Pack<INDEX...>) -> Disassembled {
+        return {move(publick), Shards<Input<SHARE>>{typename Shards<Input<SHARE>>::Inplace{}, move(inputs.at(Shard{INDEX}))...}};
+      }(sequence::Sequence::make<shards::SHARD_COUNT.count()>());
+    };
+    if constexpr (prio::Name::HISTOGRAM == SUBALGORITHM) {
+      // yes, this is quirky and ugly, but what are we to do?   the parameters.boundaries are only used with histogram to cut up the specimen
+      return reformat(prio::split<SUBALGORITHM>(wrapped.specimen, parameters.boundaries.value(), fixed_nonce, fixed_randomness));
+    } else {
+      return reformat(prio::split<SUBALGORITHM>(wrapped.specimen, fixed_nonce, fixed_randomness));
+    }
+  }
+  template<Name _> auto Function<PRIO, _>::initialization(Parameters const &, Verify_Key const &, Shard, typename Nonce::View::Variable, Public<SHARE> const &, Input<SHARE> const &) -> Initialized {
+#if 0
+    auto treatment = Treatment{[&parameters](Encoded const &encoded) -> typename Ancestors::Codec::Truncated {
+      return Ancestors::Codec::truncate(encoded);
+    }};
+    return Output<SHARE>{visit(treatment, input)};
+#else
+    throw exception::Unimplemented{};
+#endif
+  }
+  template<Name _> auto Function<PRIO, _>::continuation(Parameters const &, Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued {
+    throw exception::Unimplemented{};
+  }
+  template<Name _> auto Function<PRIO, _>::amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated {
+#if 0
+    if (outputs.empty()) { throw exception::Invariant{"empty amalgamation"}; }
+    auto accumulate = [](typename Ancestors::Codec::Truncated &&accumulator, Output<SHARE> const &each) -> typename Ancestors::Codec::Truncated {
+      auto treatment = Treatment{[](typename Ancestors::Codec::Truncated const &truncated) -> typename Ancestors::Codec::Truncated { return truncated; }};
+      accumulator += visit(treatment, each);
+      return move(accumulator);
+    };
+    auto accumulated = std::accumulate(outputs.begin(), outputs.end(), typename Ancestors::Codec::Truncated{}, accumulate);
+    return Aggregation<SHARE>{move(accumulated)};
+#else
+    throw exception::Unimplemented{};
+#endif
+  }
+  template<Name _> auto Function<PRIO, _>::disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged {
+    throw exception::Unimplemented{};
+  }
+  template<Name _> auto Function<PRIO, _>::reassembly(Parameters const &parameters, Shards<Aggregation<SHARE>> const &aggregations, Processed count) -> Reassembled {
+#if 0
+    if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }
+    using Decoded = typename Ancestors::Codec::Decoded;
+    auto accumulate = [count](Decoded &&accumulator, Aggregation<SHARE> const &each) -> Decoded {
+      auto treatment = Treatment{[count](typename Ancestors::Codec::Truncated const &truncated) -> Decoded { return Ancestors::Codec::decode(truncated, count); }};
+      accumulator += visit(treatment, each);
+      return move(accumulator);
+    };
+    auto accumulated = std::accumulate(aggregations.begin(), aggregations.end(), Decoded{}, accumulate);
+    return Aggregation<WHOLE>{move(accumulated)};
+#else
+    throw exception::Unimplemented{};
+#endif
+  }
+}
+#endiv

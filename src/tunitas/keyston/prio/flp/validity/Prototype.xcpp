@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The prototype of a validity bundle.
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Specification:
+  //
+  //   Section 7.3.2 Validity Circuits
+  //   Sure, right there in the Section.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Just the commonalities; being the types.
+  //
+  // Usage:
+  //
+  //   Yes, of course; in the descendants.
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.dimension
+#import tunitas.keyston.prio.flp.gadget.Calls
+class tunitas::keyston::prio::flp::validity::Prototype {
+protected:
+  ~Prototype() = default;
+public:
+  template<Size SIZE> using Calls = gadget::Calls<SIZE>;
+  using Input = dimension::Input;
+  using Output = dimension::Output;
+  using Joint = dimension::Joint;
+  using Prove = dimension::Prove;
+  using Query = dimension::Query;
+  using Proof = dimension::Proof;
+  using Verifier = dimension::Verifier;
+};
+// All specializations will need this (these)
+#import std.underlying_type
+#import tunitas.integer.integers
+#import tunitas.keyston.integer // ctcnr
+#import tunitas.keyston.Field
+#import tunitas.array.Fixed
+#import tunitas.keyston.prio.flp.Gadgets
+#import tunitas.keyston.prio.flp.Gadget
+#import tunitas.keyston.prio.flp.gadget.calls
+#endiv

@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::recase {
+  namespace package_recase {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_recase::interface;
+}
+#endiv
+#divert <hpp>
+namespace tests::recase::package_recase::body {
+  namespace exported {
+    auto lowercase(string::View) -> string::Storage;
+    auto uppercase(string::View) -> string::Storage;
+  }
+  inline auto eithercase(string::View, auto transform) -> string::Storage;
+}
+#endiv
+#divert <cpp>
+#import std.toupper
+#import std.tolower
+#import std.transform
+#import std.back_inserter
+namespace tests::recase::package_recase {
+  auto interface::lowercase(string::View specimen) -> string::Storage { return eithercase(specimen, [](auto c) { return tolower(c); }); }
+  auto interface::uppercase(string::View specimen) -> string::Storage { return eithercase(specimen, [](auto c) { return toupper(c); }); }
+  auto body::eithercase(string::View specimen, auto transform) -> string::Storage {
+    auto ret = string::Storage{};
+    std::transform(specimen.begin(), specimen.end(), std::back_inserter(ret), transform);
+    return ret;
+  }
+}
+#endiv

@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -46,6 +46,7 @@ namespace tunitas::keyston::nonce::generator {
 }
 #endiv
 #divert <cpp>
+#import tunitas.keyston.nonce.usage.Generator
 #import tunitas.keyston.nonce.Since
 #import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.nonce.Bundle
@@ -54,10 +55,19 @@ namespace tunitas::keyston::nonce::generator {
 #import std.declval
 namespace {
   namespace testate {
-    using namespace tunitas::keyston::nonce; // .............. Bits, Since, Bundle
-    namespace required = tunitas::keyston::nonce::required;
-    using namespace tunitas::keyston::nonce::generator; // ... Generator (obviously)
+    using namespace tunitas::keyston::nonce;
+    namespace usage = tunitas::keyston::nonce::usage;
     using Entropy = tunitas::keyston::entropy::None;
+#if 1
+    static_assert(usage::Generator<Generator<Bundle<Bits<1>>, Entropy>>);
+    static_assert(usage::Generator<Generator<Bundle<Since<std::chrono::seconds>>, Entropy>>);
+    static_assert(usage::Generator<Generator<Bundle<Since<std::chrono::seconds>>, Entropy>>);
+    static_assert(usage::Generator<Generator<Bundle<Since<std::chrono::seconds>>, Entropy>>);
+    static_assert(usage::Generator<Generator<Bundle<Since<std::chrono::seconds>, Bits<1>>, Entropy>>);
+    static_assert(usage::Generator<Generator<Bundle<Bits<1>, Since<std::chrono::seconds>>, Entropy>>);
+#else
+    namespace required = tunitas::keyston::nonce::required;
+    //
     static_assert(sizeof (Since<std::chrono::seconds>));
     static_assert(required::Bundleable<Since<std::chrono::seconds>>);
     static_assert(sizeof (Bundle<Since<std::chrono::seconds>>));
@@ -74,6 +84,7 @@ namespace {
     static_assert(not std::is_copy_assignable_v<Specimen>, "there are references inside");
     static_assert(not std::is_move_assignable_v<Specimen>, "there are references inside");
     static_assert(not std::is_swappable_v<Specimen>);
+#endif
   }
 }
 #endiv

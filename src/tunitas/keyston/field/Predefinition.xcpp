@@ -1,0 +1,79 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Element
+namespace tunitas::keyston::field {
+  //
+  // The boilerplate of access to the spans & views
+  // Predefinitions pursuant to the definition of a field
+  //
+  // Specification:
+  //
+  //   THe value
+  //   Span and View
+  //   Fixed and Variable
+  //   encode & decode.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Descendants receive the types via CRTP (that Curiously-Recurring Template Pattern)
+  //
+  // Usage:
+  //
+  //   Hack the Spew.
+  //   By inheritance into the Definition<N>
+  //   To Wit:
+  //
+  //     template<> struct Definition<64> : public Predefinition<traits::Field<Definition<64>>::Element> { ... somehow... };
+  //
+  template<required::Element, Size> struct Predefinition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Fixed
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+#import tunitas.span.Span
+#import tunitas.Tuple
+#import tunitas.keyston.field.required.Spanable
+#import std.dynamic_extent
+#import tunitas.keyston.integer.required.iterator.Sink
+#import tunitas.keyston.integer.required.iterator.Source
+namespace tunitas::keyston {
+  template<field::required::Element VALUE, Size THE_ENCODED_SIZE> class field::Predefinition {
+  protected:
+    ~Predefinition() = default;
+  public:
+    using Value = VALUE;
+    struct View {
+      template<auto EXTENT> requires (std::dynamic_extent != EXTENT) using Fixed = view::Fixed<Value, EXTENT>;
+      using Variable = view::Variable<Value>;
+    };
+    template<typename ELEMENT, auto EXTENT = std::dynamic_extent> requires required::Spanable<ELEMENT, Value> using Span = span::Span<ELEMENT, EXTENT>;
+    inline static constexpr auto const ENCODED_SIZE = Bytes{THE_ENCODED_SIZE};
+    inline static constexpr auto encode(Value const &) -> array::Fixed<Octet, ENCODED_SIZE.count()>;
+    inline static constexpr auto decode(view::Fixed<Octet, ENCODED_SIZE.count()>) -> Value;
+    template<integer::required::iterator::Sink ITERATOR>   inline static constexpr auto encode_into(Value const &source, ITERATOR sink) -> ITERATOR;
+    template<integer::required::iterator::Source ITERATOR> inline static constexpr auto decode_from(ITERATOR source) -> Tuple<Value, ITERATOR>;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.integer.from_octets
+#import tunitas.keyston.integer.into_octets
+#import tunitas.keyston.integer.to_octets
+#import tunitas.keyston.field.element.traits.Element
+namespace tunitas::keyston::field {
+  template<field::required::Element V, Size C> constexpr auto Predefinition<V,C>::encode(Value const &value) -> array::Fixed<Octet, ENCODED_SIZE.count()> { return integer::to_octets<std::endian::big>(underlying(value)); }
+  template<field::required::Element V, Size C> constexpr auto Predefinition<V,C>::decode(view::Fixed<Octet, ENCODED_SIZE.count()> source) -> Value        { return Value{integer::from_octets<typename element::traits::Element<Value>::Underlying, std::endian::big>(source)}; }
+  template<field::required::Element V, Size C> template<integer::required::iterator::Sink ITERATOR>   constexpr auto Predefinition<V,C>::encode_into(Value const &source, ITERATOR sink) -> ITERATOR { return integer::into_octets<std::endian::big>(underlying(source), sink); }
+  template<field::required::Element V, Size C> template<integer::required::iterator::Source ITERATOR> constexpr auto Predefinition<V,C>::decode_from(ITERATOR source) -> Tuple<Value, ITERATOR> {
+    auto [recovered, continuation] = integer::from_octets<typename element::traits::Element<Value>::Underlying, std::endian::big>(source);
+    return {Value{recovered}, continuation};
+  }
+}
+#endiv

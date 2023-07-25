@@ -1,0 +1,29 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_daf_SUBSOURCES = \
+  obj/src/tunitas/keyston/daf/namespace.cpp \
+  obj/src/tunitas/keyston/daf/constants.cpp \
+  obj/src/tunitas/keyston/daf/Name.cpp \
+  obj/src/tunitas/keyston/daf/Definition.cpp \
+  obj/src/tunitas/keyston/daf/Executor.template.cpp \
+  obj/src/tunitas/keyston/daf/Executor.NUMERIC.cpp \
+  obj/src/tunitas/keyston/daf/Executor.PROTOCOL.cpp \
+  obj/src/tunitas/keyston/daf/Executor.cpp \
+  $(tunitas_keyston_daf_configuration_SUBSOURCES) \
+  $(tunitas_keyston_daf_exception_SUBSOURCES) \
+  $(tunitas_keyston_daf_generic_SUBSOURCES) \
+  $(tunitas_keyston_daf_numeric_SUBSOURCES) \
+  $(tunitas_keyston_daf_protocol_SUBSOURCES) \
+  $(tunitas_keyston_daf_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/daf/configuration/Makefrag.am
+include src/tunitas/keyston/daf/exception/Makefrag.am
+include src/tunitas/keyston/daf/generic/Makefrag.am
+include src/tunitas/keyston/daf/numeric/Makefrag.am
+include src/tunitas/keyston/daf/protocol/Makefrag.am
+include src/tunitas/keyston/daf/required/Makefrag.am

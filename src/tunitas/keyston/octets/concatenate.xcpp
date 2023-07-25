@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.octets.required.concatenate.Mixed
+#import tunitas.keyston.octets.required.concatenate.Fixed
+#import tunitas.keyston.octets.traits.Concatenate
+#include <ipp/tunitas.keyston.octets.traits.Concatenate>
+#import std.remove_cvref
+namespace tunitas::keyston::octets {
+  //
+  // Concatenation of octet "strings"
+  //
+  // Specification:
+  //
+  //   Obvious.
+  //   You already know what concatenation is, otherwise you wouldn't be here.  Yes?
+  //
+  //   See also join(...)
+  //
+  // Design:
+  //
+  //   Obvious.
+  //   constexpr when fixed (thus constexpr)
+  //   fixed-when-fixed; else variable
+  //   The magic is in the argument signautre becuase, obviously, anyone can figure out how to call std::copy(...)
+  // 
+  // Nomenclature:
+  //
+  //   join-an-array
+  //   concatenate-some-buffers
+  //
+  // Usage:
+  //
+  //   Pretty much what you'd expect.
+  //
+  template<typename... MIXED> inline auto concatenate(MIXED &&...) -> Variable requires required::concatenate::Mixed<MIXED...>;
+  template<typename... FIXED> inline constexpr auto concatenate(FIXED &&...) -> Fixed<(0uz + ... + traits::Concatenate<std::remove_cvref_t<FIXED>>::size())> requires required::concatenate::Fixed<FIXED...>;
+}
+#endiv
+#divert <ipp>
+#import std.copy
+#import tunitas.sequence.Sequence
+#import tunitas.span.Variable
+#import tunitas.Tuple
+namespace tunitas::keyston {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // when 0 == sizeof...(MIXED) there is a warning
+  template<typename... MIXED> auto octets::concatenate(MIXED &&...inputs) -> Variable requires required::concatenate::Mixed<MIXED...> {
+    // REMOVE auto bundle = Tuple{enspangle(inputs)...};
+    auto bundle = Tuple{static_cast<span::Variable<Octet const>>(inputs)...};
+    auto offsets = [&inputs...]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) {
+      auto offsets = Tuple{0uz, inputs.size()...};
+      ((get<INDEX+1>(offsets) += get<INDEX>(offsets)), ... ); // sum them increasing down the tuple
+      return offsets;
+    }(sequence::Sequence::make<sizeof...(MIXED)>());
+    auto ret = Variable((inputs.size() + ... + 0uz));
+    [&ret, &bundle, &offsets]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) {
+      auto begin = ret.begin();
+      auto install = [](span::Variable<Octet const> source, Variable::Iterator sink) { std::copy(source.begin(), source.end(), sink); };
+      (install(get<INDEX>(bundle), begin + get<INDEX>(offsets)), ... );
+    }(sequence::Sequence::make<sizeof...(MIXED)>());
+    return ret;
+  }
+  template<typename... FIXED> constexpr auto octets::concatenate(FIXED &&...each) -> Fixed<(0uz + ... + traits::Concatenate<std::remove_cvref_t<FIXED>>::size())> requires required::concatenate::Fixed<FIXED...> {
+    auto ret = Fixed<(0uz + ... + traits::Concatenate<std::remove_cvref_t<FIXED>>::size())>{};
+    auto sink = ret.begin();
+    ((sink = std::copy(each.begin(), each.end(), sink)), ... );
+    return ret;
+  }
+#pragma GCC diagnostic pop
+}
+#endiv

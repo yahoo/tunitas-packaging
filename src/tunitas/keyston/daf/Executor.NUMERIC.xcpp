@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.Executor.template
+namespace tunitas::keyston::daf {
+  //
+  // Usage:
+  //
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<NUMERIC>{};
+  //   auto executor = Executor<NUMERIC>{Name::ZERO};
+  //   auto executor = Executor<NUMERIC>{Name::CONSTANT};
+  //   auto executor = Executor<NUMERIC>{Name::PRIO3};
+  //   auto executor = Executor<NUMERIC>{Name::POPLAR1};
+  //
+  template<> struct Executor<NUMERIC>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.daf.Configuration
+#import tunitas.keyston.daf.generic.Executor
+namespace tunitas::keyston::daf {
+  template<> struct Executor<NUMERIC> : public generic::Executor<Configuration<NUMERIC>> {
+    using Ancestor = generic::Executor<Configuration<NUMERIC>>;
+  public:
+    explicit Executor() = default;
+    using Ancestor::Executor;
+  };
+}
+#endiv

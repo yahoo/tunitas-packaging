@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -11,7 +11,12 @@ std_SUBSOURCES = \
   obj/src/std/is_error_condition_enum/tunitas.keyston.error.condition.Unpackaged.Enumeration.cpp \
   obj/src/std/is_error_condition_enum/tunitas.keyston.transport.error.condition.Unpackaged.Enumeration.cpp \
   \
+  obj/src/std/iterator_traits/tunitas.ranges.package_enumerate.Iterator.SUBITERATOR.MUTABILITY.cpp \
+  \
+  obj/src/std/tuple_element/N.tunitas.keyston.daf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
   obj/src/std/tuple_element/N.tunitas.keyston.vdaf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
+  \
+  obj/src/std/tuple_size/tunitas.keyston.daf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
   obj/src/std/tuple_size/tunitas.keyston.vdaf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
   \
   obj/src/std/variant_alternative/N.tunitas.keyston.protocol.query.batch.Batch.cpp \
@@ -28,4 +33,5 @@ std_SUBSOURCES = \
   obj/src/std/visit/tunitas.keyston.protocol.query.partial.Partial.cpp \
   obj/src/std/visit/tunitas.keyston.protocol.preparation.step.Step.cpp \
   obj/src/std/visit/tunitas.keyston.vdaf.generic.continued.Continued.CONFIGURATION.cpp \
+  obj/src/std/visit/tunitas.keyston.numeric.Ensmallenment.cpp \
   $(end)

@@ -1,0 +1,128 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.dynamic_extent
+#import std.size_t
+namespace tunitas::view {
+  //
+  // Rhymes with string::View contra string::Storage and std::span<char>
+  //
+  // MUST be constie.
+  // Implements at(...) with and with out exceptions.
+  // [[TODO]] build up the rest of the view operations (indexing)
+  //
+  template<typename TYPE, std::size_t EXTENT = std::dynamic_extent> struct View;
+}
+#endiv
+#divert <hpp>
+#import tunitas.span.Span
+#import std.remove_const
+#import std.nothrow_t
+namespace tunitas {
+  template<typename TYPE, std::size_t EXTENT> struct view::View : public span::Span<TYPE const, EXTENT> {
+    using Ancestor = span::Span<TYPE const, EXTENT>;
+  public:
+    using Size = typename Ancestor::size_type;
+    using Index = typename Ancestor::size_type; // the ancestor has no distinct index type
+    using Element = typename Ancestor::element_type;
+    using Value = typename Ancestor::value_type;
+    //
+    View() = default;
+    using Ancestor::span; // you "just have to know" that the constructor name is 'span'
+    View(Ancestor const &a) : Ancestor{a} { }
+    template<typename OTHER, std::size_t PRESIZE> constexpr View(span::Span<OTHER, PRESIZE> other)
+      requires (std::same_as<Value, OTHER> && // i.e. OTHER is constie or mutable but on the same type as Value
+                ((std::dynamic_extent == EXTENT && PRESIZE <= EXTENT) || EXTENT <= PRESIZE))
+      : Ancestor{other.data(), other.size()} { }
+    //
+    // a smaller span if needed
+    template<std::size_t RESIZE> constexpr operator span::Span<Element, RESIZE>() const requires ((std::dynamic_extent == EXTENT && RESIZE == EXTENT) || RESIZE <= EXTENT) { return {Ancestor::data(), Ancestor::size()}; }
+    //
+    // This is what we came for
+    inline constexpr auto at(Index) const -> Value const &;
+    inline constexpr auto at(std::nothrow_t, Index) const -> Value const &;
+    //
+    // rhymes with std::span<...>::subspan<...>(...)
+    template<Index INDEX = 0uz, Size SUBSIZE = std::dynamic_extent> inline constexpr auto subview() const -> View<Value, SUBSIZE> requires (SUBSIZE == std::dynamic_extent || (INDEX+SUBSIZE <= EXTENT));
+    inline constexpr auto subview(Index, Size = std::dynamic_extent) const -> View<Value>;
+    inline constexpr auto subview(std::nothrow_t, Index, Size = std::dynamic_extent) const -> View<Value>;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.exception.Bound
+namespace tunitas::view {
+  template<typename T, std::size_t E> constexpr auto View<T,E>::at(std::nothrow_t, Index index) const -> Value const & { return Ancestor::data()[index]; } // [[nocheck]] good luck!
+  template<typename T, std::size_t EXTENT> constexpr auto View<T,EXTENT>::at(Index index) const -> Value const & {
+    if (index < Ancestor::size()) {
+      return Ancestor::data()[index];
+    } else {
+      throw exception::Bound{"index too large"};
+    }
+  }
+  template<typename TYPE, std::size_t EXTENT> template<typename View<TYPE,EXTENT>::Index INDEX, typename View<TYPE,EXTENT>::Size SUBSIZE> constexpr auto View<TYPE,EXTENT>::subview() const -> View<Value, SUBSIZE> requires (SUBSIZE == std::dynamic_extent || (INDEX+SUBSIZE <= EXTENT)) {
+    if constexpr (EXTENT == std::dynamic_extent) {
+      auto size = Ancestor::size();
+      if (INDEX > size) {
+        throw exception::Bound{"index too large"};
+      } else {
+        auto subdata = Ancestor::data() + INDEX;
+        if constexpr (SUBSIZE == std::dynamic_extent) {
+          return {subdata, size - INDEX}; // whatever is left
+        } else {
+          if (INDEX+SUBSIZE > size) {
+            throw exception::Bound{"index+size too large"};
+          } else {
+            return View<TYPE, SUBSIZE>{subdata, SUBSIZE};
+          }
+        }
+      }
+    } else {
+      if constexpr (INDEX > EXTENT) {
+        throw exception::Bound{"index too large"};
+      } else {
+        auto subdata = Ancestor::data() + INDEX;
+        if constexpr (SUBSIZE == std::dynamic_extent) {
+          return {subdata, EXTENT - INDEX};
+        } else {
+          if constexpr (INDEX+SUBSIZE > EXTENT) {
+            throw exception::Bound{"index+size too large"};
+          } else {
+            return View<TYPE, SUBSIZE>{subdata, SUBSIZE};
+          }
+        }
+      }
+    }
+  }
+  template<typename T, std::size_t E> constexpr auto View<T,E>::subview(std::nothrow_t, Index index, Size subsize) const -> View<Value> {
+    auto subdata = Ancestor::data() + index;
+    if (std::dynamic_extent == subsize) {
+      return {subdata, Ancestor::size() - index}; // [[nocheck]] wow this is dangerous!
+    } else {
+      return {subdata, subsize};
+    }
+  }
+  template<typename T, std::size_t E> constexpr auto View<T,E>::subview(Index index, Size subsize) const -> View<Value> {
+    auto size = Ancestor::size();
+    if (index > size) {
+      throw exception::Bound{"index too large"};
+    }
+    auto subdata = Ancestor::data() + index;
+    auto resize = [index, size](Size proposed) -> Size {
+      if (std::dynamic_extent == proposed) {
+        return size - index;
+      } else {
+        if (index + proposed > size) {
+          throw exception::Bound{"index+size too large"};
+        } else {
+          return proposed;
+        }
+      }
+    };
+    return {subdata, resize(subsize)};
+  }
+}
+#endiv

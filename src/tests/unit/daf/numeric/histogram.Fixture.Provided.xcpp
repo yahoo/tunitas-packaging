@@ -1,0 +1,36 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tests.unit.daf.numeric.histogram.Fixture>
+#endiv
+#divert <hpp>
+#import tests.unit.daf.numeric.Palette
+#include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Count{...}
+namespace tests::unit::daf::numeric::histogram {
+  struct Fixture::Provided : public Palette {
+    using Ct = ::tunitas::keyston::aggregation::Count;
+    using Sp = ::tunitas::keyston::measurement::Specimen;
+    using El = ::tunitas::keyston::Field<128>::Element;
+    struct Disassembly {
+      inline static constexpr auto const SPECIMEN = ::tunitas::keyston::measurement::Specimen{10};
+      inline static constexpr auto RANDOMNESS = defaults::RANDOMNESS;
+      inline static constexpr auto BOUNDARIES = ::tunitas::keyston::histogram::Boundaries{Sp{3},Sp{6},Sp{9},Sp{12},Sp{15}};
+    };
+    struct Computation {
+      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Histogram{El{1u},El{0u},El{1u}};
+    };
+    struct Amalgamation {
+      inline static constexpr auto const ONE = Configuration::Output<SHARE>::Histogram{El{1u},El{0u},El{1u}};
+      inline static constexpr auto const TWO = Configuration::Output<SHARE>::Histogram{El{0u},El{1u},El{1u}};
+      inline static constexpr auto const THREE = Configuration::Output<SHARE>::Histogram{El{0u},El{1u},El{1u}};
+    };
+    struct Reassembly {
+      inline static constexpr auto const TWO = Configuration::Aggregation<SHARE>::Histogram{El{0u},El{2u},El{2u}};
+      inline static constexpr auto const THREE = Configuration::Aggregation<SHARE>::Histogram{El{1u},El{0u},El{1u}};
+    };
+  };
+}
+#endiv

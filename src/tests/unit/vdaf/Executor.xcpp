@@ -1,32 +1,37 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.measurement
+#import tunitas.keyston.quantity
 #import tunitas.Optional
-#import tunitas.keyston.vdaf.Shard
-#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
 namespace tests::unit::vdaf {
   namespace [[eponymous]] executor {
     template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> class Executor;
     namespace measurement = ::tunitas::keyston::measurement;
+    namespace quantity = ::tunitas::keyston::quantity;
     using ::tunitas::Optional;
-    using ::tunitas::keyston::vdaf::Shard;
-    using ::tunitas::keyston::vdaf::Shards;
+    using ::tunitas::keyston::Shard;
+    using ::tunitas::keyston::Shards;
   }
   using executor::Executor;
 }
 #endiv
 #divert <hpp>
+#import tunitas.exception.feature.Unimplemented
 #import tunitas.keyston.vdaf.Executor
 #import tunitas.keyston.vdaf.exception.Null
 #import tunitas.keyston.vdaf.exception.Aspect
+#import tunitas.keyston.af.exception.Aspect
 #import tunitas.keyston.exception.Aspect
 #import tunitas.exception.Aspect
 #import tunitas.keyston.hpke.Key
-namespace tests::unit::vdaf{
+#import std.derived_from
+namespace tests::unit::vdaf {
   template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> struct executor::Executor : public rigging::suite::Fixture {
     static auto suite() -> Suite;
     //
@@ -59,11 +64,19 @@ namespace tests::unit::vdaf{
     auto test_reassembly_good() -> void;
     auto test_reassembly_fail() -> void;
   protected:
+    using Unimplemented = ::tunitas::exception::feature::Unimplemented;
     using Failure = library::exception::Null;
     // unused, but reminders that they could be
-    using Backup0 = library::exception::Aspect;
+    using Backup4 = library::exception::Aspect;
+    using Backup3 = ::tunitas::keyston::vdaf::exception::Aspect;
+    using Backup2 = ::tunitas::keyston::af::exception::Aspect;
     using Backup1 = ::tunitas::keyston::exception::Aspect;
-    using Backup2 = ::tunitas::exception::Aspect;
+    using Backup0 = ::tunitas::exception::Aspect;
+    static_assert(std::derived_from<Failure, Backup0>);
+    static_assert(std::derived_from<Failure, Backup1>);
+    static_assert(std::derived_from<Failure, Backup2>);
+    static_assert(std::derived_from<Failure, Backup3>);
+    static_assert(std::derived_from<Failure, Backup4>);
     static auto exercise(Subject &) -> void;
   };
 }
@@ -83,7 +96,9 @@ namespace tests::unit::vdaf::executor {
                                  auto name = Stream{"Name"sv};
                                  name << add("ZERO", &Executor::test_constructor_by_Name<library::Name::ZERO>)
                                       << add("CONSTANT", &Executor::test_constructor_by_Name<library::Name::CONSTANT>)
-                                      << add("PRIO3", &Executor::test_constructor_by_Name<library::Name::PRIO3>)
+                                      << add("PRIO3_COUNT", &Executor::test_constructor_by_Name<library::Name::PRIO3_COUNT>)
+                                      << add("PRIO3_SUM", &Executor::test_constructor_by_Name<library::Name::PRIO3_SUM>)
+                                      << add("PRIO3_HISTOGRAM", &Executor::test_constructor_by_Name<library::Name::PRIO3_HISTOGRAM>)
                                       << add("POPLAR1", &Executor::test_constructor_by_Name<library::Name::POPLAR1>)
                                       << END;
                                  return name;
@@ -92,7 +107,9 @@ namespace tests::unit::vdaf::executor {
                                  auto def = Stream{"Definition"sv};
                                  def << add("ZERO", &Executor::test_constructor_by_Definition<library::Name::ZERO>)
                                      << add("CONSTANT", &Executor::test_constructor_by_Definition<library::Name::CONSTANT>)
-                                     << add("PRIO3", &Executor::test_constructor_by_Definition<library::Name::PRIO3>)
+                                     << add("PRIO3_COUNT", &Executor::test_constructor_by_Definition<library::Name::PRIO3_COUNT>)
+                                     << add("PRIO3_SUM", &Executor::test_constructor_by_Definition<library::Name::PRIO3_SUM>)
+                                     << add("PRIO3_HISTOGRAM", &Executor::test_constructor_by_Definition<library::Name::PRIO3_HISTOGRAM>)
                                      << add("POPLAR1", &Executor::test_constructor_by_Definition<library::Name::POPLAR1>)
                                      << END;
                                  return def;
@@ -159,14 +176,16 @@ namespace tests::unit::vdaf::executor {
     return settle(series);
   }
 }
-#import tunitas.exception.feature.Unimplemented
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.quantity.Records
 #import tunitas.keyston.measurement.Specimen
 namespace tests::unit::vdaf::executor {
   template<typename E, typename D, typename C> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
     {
       auto measurement = typename Configuration::template Measurement<WHOLE>{};
-      auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+      auto parameters = typename Configuration::Parameters{};
+      auto nonce = typename Configuration::Nonce{};
+      auto randomness = typename Configuration::Randomness{};
+      auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = typename Configuration::Parameters{};
@@ -178,9 +197,10 @@ namespace tests::unit::vdaf::executor {
       auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
+      auto parameters = typename Configuration::Parameters{};
       auto preparation = typename Configuration::template Preparation<WHOLE>{};
       auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
-      auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+      auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     } {
       auto parameters = typename Configuration::Parameters{};
@@ -195,13 +215,12 @@ namespace tests::unit::vdaf::executor {
     } {
       auto parameters = typename Configuration::Parameters{};
       auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
-      auto count = measurement::Count{};
-      auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+      auto records = quantity::Records{};
+      auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
       require(ASSERTION, sizeof (got));
     }
-  } catch (::tunitas::exception::feature::Unimplemented const &) {
-    // well never mind them
-    require(ASSERTION);
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_default() -> void {
     auto subject = Subject{};
@@ -215,7 +234,7 @@ namespace tests::unit::vdaf::executor {
     // Hey man, it's a tester.  You gotta hava thick skin and expect to see unnatural acts to achieve The Testability.
     auto deferred = [this]<typename EXECUTOR>(EXECUTOR *) {
       static_assert(std::same_as<EXECUTOR, Subject>, "double-check, otherwise the else clause will be exercised here");
-      using enum ::tunitas::keyston::vdaf::Scheme;
+      using enum ::tunitas::keyston::Transport;
       constexpr auto const is_numeric_with_a_one_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::vdaf::Executor<NUMERIC>>;
       constexpr auto const is_protocol_with_a_two_argument_constructor = std::same_as<EXECUTOR, ::tunitas::keyston::vdaf::Executor<PROTOCOL>>;
       if constexpr (is_numeric_with_a_one_argument_constructor) {
@@ -262,16 +281,24 @@ namespace tests::unit::vdaf::executor {
     exercise(a);
     exercise(b);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_good() -> void try {
     auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
+    auto nonce = typename Configuration::Nonce{};
+    auto randomness = typename Configuration::Randomness{};
     auto measurement = typename Configuration::template Measurement<WHOLE>{};
-    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
+    auto nonce = typename Configuration::Nonce{};
+    auto randomness = typename Configuration::Randomness{};
     auto measurement = typename Configuration::template Measurement<WHOLE>{};
-    auto got = subject.disassembly(measurement); // <-------------------- test this (show it is callable)
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
@@ -282,7 +309,7 @@ namespace tests::unit::vdaf::executor {
   } catch (Backup2 const &) {
     impossible(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto key = Key{};
@@ -292,6 +319,8 @@ namespace tests::unit::vdaf::executor {
     auto input = typename Configuration::template Input<SHARE>{};
     auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_initialization_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
@@ -306,28 +335,34 @@ namespace tests::unit::vdaf::executor {
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_good() -> void try {
     auto subject = Subject{Subject::ZERO};
+    auto parameters = typename Configuration::Parameters{};
     auto preparation = typename Configuration::template Preparation<WHOLE>{};
     auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
-    auto got = subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_continuation_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
     auto preparation = typename Configuration::template Preparation<WHOLE>{};
     auto optional = Optional<typename Configuration::template Preparation<SHARE>>{};
-    subject.continuation(preparation, optional); // <-------------------- test this (show it is callable)
+    subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Preparation<SHARE>>{};
     auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_amalgamation_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
@@ -338,12 +373,14 @@ namespace tests::unit::vdaf::executor {
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Output<SHARE>>{};
     auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_disgorgement_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
@@ -354,20 +391,22 @@ namespace tests::unit::vdaf::executor {
   } catch (Failure const &) {
     require(ASSERTION);
   }
-  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_good() -> void {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_good() -> void try {
     auto subject = Subject{Subject::ZERO};
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
-    auto count = measurement::Count{};
-    auto got = subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+    auto records = quantity::Records{};
+    auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
     require(ASSERTION, sizeof (got));
+  } catch (Unimplemented const &) {
+    require(ASSERTION); // well never mind them
   }
   template<typename E, typename D, typename C> auto Executor<E,D,C>::test_reassembly_fail() -> void try {
     auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
     auto parameters = typename Configuration::Parameters{};
     auto vector = Shards<typename Configuration::template Aggregation<SHARE>>{};
-    auto count = measurement::Count{};
-    subject.reassembly(parameters, vector, count); // <-------------------- test this (show it is callable)
+    auto records = quantity::Records{};
+    subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);

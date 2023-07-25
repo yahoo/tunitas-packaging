@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.required.Element
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  //
+  // The output side of a recorder
+  //
+  // Specification:
+  //
+  //   Well?
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Designed for convenient MI blending in the descendant.
+  //
+  // Usage:
+  //
+  //   By inheritance into the relevant Recorder<...> specialization.
+  //
+  template<required::Element> struct Output;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.required.Recordable
+#import tunitas.keyston.prio.flp.gadget.recorder.cursor.Output
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element ELEMENT> class Output {
+    cursor::Output<ELEMENT> record_output{};
+    using OElement = ELEMENT; // avoid the name 'Element' because it is clamed by the Input<...> and needs unambiguity in the descendant
+  protected:
+    ~Output() = default;
+    using Reference = typename cursor::Output<OElement>::Output::Reference;
+    constexpr explicit Output(Reference);
+  public:
+    template<typename OUT> constexpr auto output(OUT) -> void requires required::Recordable<OElement, Arity{1}, OUT>;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.prio.exception.Exhausted
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element E> constexpr Output<E>::Output(Reference orf) : record_output{orf} { }
+  template<required::Element E> template<typename OUT> constexpr auto Output<E>::output(OUT out) -> void requires required::Recordable<OElement, Arity{1}, OUT> {
+    if (!record_output) {
+      throw exception::Exhausted{};
+    } else {
+      *record_output = out;
+      ++record_output;
+    }
+  }
+}
+#endiv

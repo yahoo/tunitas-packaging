@@ -1,0 +1,27 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_prio_flp_gadget_SUBSOURCES = \
+  obj/src/tunitas/keyston/prio/flp/Gadget.cpp \
+  obj/src/tunitas/keyston/prio/flp/Gadgets.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/namespace.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Name.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Gadget.template.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Gadget.RANGE1.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Gadget.RANGE2.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Gadget.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Gadgets.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Calls.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/calls.cpp \
+  obj/src/tunitas/keyston/prio/flp/gadget/Polynator.cpp \
+  $(tunitas_keyston_prio_flp_gadget_recorder_SUBSOURCES) \
+  $(tunitas_keyston_prio_flp_gadget_required_SUBSOURCES) \
+  $(tunitas_keyston_prio_flp_gadget_usage_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/prio/flp/gadget/recorder/Makefrag.am
+include src/tunitas/keyston/prio/flp/gadget/required/Makefrag.am
+include src/tunitas/keyston/prio/flp/gadget/usage/Makefrag.am

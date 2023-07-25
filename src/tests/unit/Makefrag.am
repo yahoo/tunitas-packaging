@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -8,32 +8,78 @@ tests_unit_SUBSOURCES = \
   check/obj/src/tests/unit/c.main.cpp \
   check/obj/src/tests/unit/namespace.cpp \
   check/obj/src/tests/unit/Fixture.cpp \
+  $(tests_unit_aggregation_SUBSOURCES) \
   $(tests_unit_array_SUBSOURCES) \
+  $(tests_unit_crypto_SUBSOURCES) \
   $(tests_unit_entropy_SUBSOURCES) \
   $(tests_unit_error_SUBSOURCES) \
   $(tests_unit_exception_SUBSOURCES) \
+  $(tests_unit_flp_SUBSOURCES) \
   check/obj/src/tests/unit/fmt.Fixture.cpp \
+  $(tests_unit_field_SUBSOURCES) \
+  $(tests_unit_histogram_SUBSOURCES) \
   $(tests_unit_hpke_SUBSOURCES) \
   $(tests_unit_identifier_SUBSOURCES) \
-  check/obj/src/tests/unit/keyston.Fixture.cpp \
-  check/obj/src/tests/unit/measurement.Fixture.cpp \
-  check/obj/src/tests/unit/transport.Fixture.cpp \
-  $(tests_unit_protocol_SUBSOURCES) \
+  $(tests_unit_integer_SUBSOURCES) \
+  $(tests_unit_keyston_SUBSOURCES) \
+  $(tests_unit_measurement_SUBSOURCES) \
+  $(tests_unit_name_SUBSOURCES) \
   $(tests_unit_nonce_SUBSOURCES) \
+  $(tests_unit_numeric_SUBSOURCES) \
+  $(tests_unit_octets_SUBSOURCES) \
+  $(tests_unit_poplar_SUBSOURCES) \
+  $(tests_unit_popularity_SUBSOURCES) \
+  $(tests_unit_prg_SUBSOURCES) \
+  $(tests_unit_prio_SUBSOURCES) \
+  $(tests_unit_protocol_SUBSOURCES) \
   check/obj/src/tests/unit/quantity.Fixture.cpp \
-  $(tests_unit_vdaf_SUBSOURCES) \
-  $(tests_unit_wire_SUBSOURCES) \
+  $(tests_unit_ranges_SUBSOURCES) \
+  $(tests_unit_shards_SUBSOURCES) \
+  $(tests_unit_span_SUBSOURCES) \
   check/obj/src/tests/unit/time.Fixture.cpp \
+  check/obj/src/tests/unit/transport.Fixture.cpp \
+  $(tests_unit_af_SUBSOURCES) \
+  $(tests_unit_daf_SUBSOURCES) \
+  $(tests_unit_vdaf_SUBSOURCES) \
+  $(tests_unit_pf_SUBSOURCES) \
+  $(tests_unit_dpf_SUBSOURCES) \
+  $(tests_unit_idpf_SUBSOURCES) \
+  $(tests_unit_view_SUBSOURCES) \
   check/obj/src/tests/unit/want.Fixture.cpp \
+  $(tests_unit_wire_SUBSOURCES) \
   $(end)
 #
+include src/tests/unit/aggregation/Makefrag.am
 include src/tests/unit/array/Makefrag.am
+include src/tests/unit/crypto/Makefrag.am
 include src/tests/unit/entropy/Makefrag.am
 include src/tests/unit/error/Makefrag.am
 include src/tests/unit/exception/Makefrag.am
+include src/tests/unit/field/Makefrag.am
+include src/tests/unit/flp/Makefrag.am
+include src/tests/unit/histogram/Makefrag.am
 include src/tests/unit/hpke/Makefrag.am
 include src/tests/unit/identifier/Makefrag.am
+include src/tests/unit/integer/Makefrag.am
+include src/tests/unit/keyston/Makefrag.am
+include src/tests/unit/measurement/Makefrag.am
+include src/tests/unit/name/Makefrag.am
 include src/tests/unit/nonce/Makefrag.am
+include src/tests/unit/numeric/Makefrag.am
+include src/tests/unit/octets/Makefrag.am
+include src/tests/unit/poplar/Makefrag.am
+include src/tests/unit/popularity/Makefrag.am
+include src/tests/unit/prg/Makefrag.am
+include src/tests/unit/prio/Makefrag.am
 include src/tests/unit/protocol/Makefrag.am
-include src/tests/unit/vdaf/Makefrag.am
+include src/tests/unit/ranges/Makefrag.am
+include src/tests/unit/shards/Makefrag.am
+include src/tests/unit/span/Makefrag.am
+include src/tests/unit/view/Makefrag.am
 include src/tests/unit/wire/Makefrag.am
+include src/tests/unit/af/Makefrag.am
+include src/tests/unit/daf/Makefrag.am
+include src/tests/unit/vdaf/Makefrag.am
+include src/tests/unit/pf/Makefrag.am
+include src/tests/unit/dpf/Makefrag.am
+include src/tests/unit/idpf/Makefrag.am

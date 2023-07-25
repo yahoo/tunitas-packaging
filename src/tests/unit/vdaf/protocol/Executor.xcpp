@@ -1,0 +1,395 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.measurement
+#import tunitas.keyston.quantity
+#import tunitas.Optional
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.protocol.components
+namespace tests::unit::vdaf::protocol {
+  namespace [[eponymous]] executor {
+    class Executor;
+    namespace measurement = ::tunitas::keyston::measurement;
+    namespace quantity = ::tunitas::keyston::quantity;
+    using ::tunitas::Optional;
+    using ::tunitas::keyston::Shard;
+    using ::tunitas::keyston::Shards;
+    using Name = ::tunitas::keyston::vdaf::Name;
+    using Slice = ::tunitas::keyston::Slice;
+    using enum Slice;
+    using namespace library::components; // at least Verify_Key, Nonce, Randomness
+  }
+  using executor::Executor;
+}
+#import tunitas.keyston.vdaf.protocol.Parameters
+static_assert(sizeof (tests::unit::vdaf::protocol::library::Parameters *), "visible");
+static_assert(sizeof (tests::unit::vdaf::protocol::executor::Nonce *));
+static_assert(sizeof (tests::unit::vdaf::protocol::executor::Randomness *));
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.protocol.Definition
+#import tunitas.keyston.vdaf.protocol.Executor
+#import tunitas.keyston.vdaf.protocol.exception.Aspect
+#import tunitas.keyston.vdaf.protocol.exception.Null
+#import tunitas.keyston.vdaf.exception.Null
+#import tunitas.keyston.protocol.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+#import tunitas.exception.Aspect
+#import tunitas.keyston.hpke.Key
+struct tests::unit::vdaf::protocol::executor::Executor : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Executor;
+  class Definition {
+    using enum ::tunitas::keyston::Transport;
+  public:
+    using External = ::tunitas::keyston::vdaf::Definition<PROTOCOL>;
+    using Internal = tunitas::keyston::vdaf::Definition<NUMERIC>;
+  };
+  //
+  auto test_constructor_default() -> void;
+  template<Name> auto test_constructor_by_Name() -> void;
+  template<Name> auto test_constructor_by_Definition() -> void;
+  auto test_constructor_copy() -> void;
+  auto test_constructor_move() -> void;
+  auto test_assignment_copy() -> void;
+  auto test_assignment_move() -> void;
+  auto test_swap() -> void;
+  auto test_disassembly_good() -> void;
+  auto test_disassembly_fail() -> void;
+  auto test_initialization_good() -> void;
+  auto test_initialization_fail() -> void;
+  auto test_continuation_good() -> void;
+  auto test_continuation_fail() -> void;
+  auto test_amalgamation_good() -> void;
+  auto test_amalgamation_fail() -> void;
+  auto test_disgorgement_good() -> void;
+  auto test_disgorgement_fail() -> void;
+  auto test_reassembly_good() -> void;
+  auto test_reassembly_fail() -> void;
+protected:
+  using Failure = ::tunitas::exception::feature::Null;
+  using Expect_This_Failure = ::tunitas::keyston::vdaf::exception::Null;
+  using Not_This_Failure = ::tunitas::keyston::vdaf::protocol::exception::Null;
+  // unused, but reminders that they could be
+  using Backup0 = library::exception::Aspect;
+  using Backup1 = ::tunitas::keyston::protocol::exception::Aspect;
+  using Backup2 = ::tunitas::keyston::exception::Aspect;
+  using Backup3 = ::tunitas::exception::Aspect;
+  static auto exercise(Subject &) -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::vdaf::protocol::executor {
+  template<Name NAME> auto Executor::test_constructor_by_Name() -> void {
+    auto subject = Subject{NAME}; // <-------------------- test this (the constructor)
+    exercise(subject);
+  }
+  template<Name NAME> auto Executor::test_constructor_by_Definition() -> void {
+    auto external = Definition::External{NAME};
+    auto internal = Definition::Internal{NAME};
+    auto subject = Subject{external, internal}; // <-------------------- test this (the constructor)
+    exercise(subject);
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::vdaf::protocol::executor::Executor::suite() -> Suite {
+  auto series = Stream{"Executor"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Executor::test_constructor_default)
+                  << []{
+                       auto by = Stream{"by"sv};
+                       by << [] {
+                               auto name = Stream{"Name"sv};
+                               name << add("ZERO", &Executor::test_constructor_by_Name<Name::ZERO>)
+                                    << add("CONSTANT", &Executor::test_constructor_by_Name<Name::CONSTANT>)
+                                    << add("PRIO3_COUNT", &Executor::test_constructor_by_Name<Name::PRIO3_COUNT>)
+                                    << add("PRIO3_SUM", &Executor::test_constructor_by_Name<Name::PRIO3_SUM>)
+                                    << add("PRIO3_HISTOGRAM", &Executor::test_constructor_by_Name<Name::PRIO3_HISTOGRAM>)
+                                    << add("POPLAR1", &Executor::test_constructor_by_Name<Name::POPLAR1>)
+                                    << END;
+                               return name;
+                             }()
+                          << [] {
+                               auto def = Stream{"Definition"sv};
+                               def << add("ZERO", &Executor::test_constructor_by_Definition<Name::ZERO>)
+                                   << add("CONSTANT", &Executor::test_constructor_by_Definition<Name::CONSTANT>)
+                                   << add("PRIO3_COUNT", &Executor::test_constructor_by_Definition<Name::PRIO3_COUNT>)
+                                   << add("PRIO3_SUM", &Executor::test_constructor_by_Definition<Name::PRIO3_SUM>)
+                                   << add("PRIO3_HISTOGRAM", &Executor::test_constructor_by_Definition<Name::PRIO3_HISTOGRAM>)
+                                   << add("POPLAR1", &Executor::test_constructor_by_Definition<Name::POPLAR1>)
+                                   << END;
+                               return def;
+                             }()
+                          << END;
+                       return by;
+                     }()
+                  << add("copy", &Executor::test_constructor_copy)
+                  << add("move", &Executor::test_constructor_move)
+                  << END;
+              return con;
+            }()
+         << []{
+              auto ass = Stream{"assignment"sv};
+              ass << add("copy", &Executor::test_assignment_copy)
+                  << add("move", &Executor::test_assignment_move)
+                  << END;
+              return ass;
+            }()
+         << add("swap", &Executor::test_swap)
+         << []{
+              auto call = Stream{"disassembly"sv};
+              call << add("good", &Executor::test_disassembly_good)
+                   << add("fail", &Executor::test_disassembly_fail)
+                   << END;
+              return call;
+            }()
+         << []{
+              auto call = Stream{"initialization"sv};
+              call << add("good", &Executor::test_initialization_good)
+                   << add("fail", &Executor::test_initialization_fail)
+                   << END;
+              return call;
+            }()
+         << []{
+              auto call = Stream{"continuation"sv};
+              call << add("good", &Executor::test_continuation_good)
+                   << add("fail", &Executor::test_continuation_fail)
+                   << END;
+              return call;
+            }()
+         << []{
+              auto call = Stream{"amalgamation"sv};
+              call << add("good", &Executor::test_amalgamation_good)
+                   << add("fail", &Executor::test_amalgamation_fail)
+                   << END;
+              return call;
+            }()
+         << []{
+              auto call = Stream{"disgorgement"sv};
+              call << add("good", &Executor::test_disgorgement_good)
+                   << add("fail", &Executor::test_disgorgement_fail)
+                   << END;
+              return call;
+            }()
+         << []{
+              auto call = Stream{"reassembly"sv};
+              call << add("good", &Executor::test_reassembly_good)
+                   << add("fail", &Executor::test_reassembly_fail)
+                   << END;
+              return call;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.exception.feature.Unimplemented
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.vdaf.protocol.components
+namespace tests::unit::vdaf::protocol::executor {
+  auto Executor::exercise(Subject &subject) -> void try {
+    {
+      auto parameters = library::Parameters{};
+      auto measurement = library::Measurement<WHOLE>{};
+      auto nonce = executor::Nonce{};
+      auto randomness = executor::Randomness{};
+      auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = library::Parameters{};
+      auto key = Verify_Key{};
+      auto processor = Shard{};
+      auto nonce = executor::Nonce{};
+      auto publick = library::Public<SHARE>{};
+      auto input = library::Input<SHARE>{};
+      auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = library::Parameters{};
+      auto preparation = library::Preparation<WHOLE>{};
+      auto optional = Optional<library::Preparation<SHARE>>{};
+      auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = library::Parameters{};
+      auto vector = Shards<library::Preparation<SHARE>>{};
+      auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = library::Parameters{};
+      auto vector = Shards<library::Output<SHARE>>{};
+      auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto parameters = library::Parameters{};
+      auto vector = Shards<library::Aggregation<SHARE>>{};
+      auto records = quantity::Records{};
+      auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    }
+  } catch (::tunitas::exception::feature::Unimplemented const &) {
+    // well never mind them
+    require(ASSERTION);
+  }
+  auto Executor::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Executor::test_constructor_copy() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{specimen}; // <-------------------- test this
+    exercise(subject);
+  }
+  auto Executor::test_constructor_move() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    exercise(subject);
+  }
+  auto Executor::test_assignment_copy() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    exercise(subject);
+  }
+  auto Executor::test_assignment_move() -> void {
+    auto specimen = Subject{Subject::ZERO};
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    exercise(subject);
+  }
+  auto Executor::test_swap() -> void {
+    auto a = Subject{Subject::ZERO};
+    auto b = Subject{Subject::CONSTANT};
+    swap(a, b); // <-------------------- test this
+    exercise(a);
+    exercise(b);
+  }
+  auto Executor::test_disassembly_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
+    auto nonce = executor::Nonce{};
+    auto randomness = executor::Randomness{};
+    auto measurement = library::Measurement<WHOLE>{};
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  auto Executor::test_disassembly_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
+    auto nonce = executor::Nonce{};
+    auto randomness = executor::Randomness{};
+    auto measurement = library::Measurement<WHOLE>{};
+    auto got = subject.disassembly(parameters, measurement, nonce, randomness); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  } catch (Backup0 const &) {
+    impossible(ASSERTION);
+  } catch (Backup1 const &) {
+    impossible(ASSERTION);
+  } catch (Backup2 const &) {
+    impossible(ASSERTION);
+  } catch (Backup3 const &) {
+    impossible(ASSERTION);
+  }
+  auto Executor::test_initialization_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
+    auto key = Verify_Key{};
+    auto processor = Shard{};
+    auto nonce = executor::Nonce{};
+    auto publick = library::Public<SHARE>{};
+    auto input = library::Input<SHARE>{};
+    auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  auto Executor::test_initialization_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
+    auto key = Verify_Key{};
+    auto processor = Shard{};
+    auto nonce = executor::Nonce{};
+    auto publick = library::Public<SHARE>{};
+    auto input = library::Input<SHARE>{};
+    auto got = subject.initialization(parameters, key, processor, nonce, publick, input); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Executor::test_continuation_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
+    auto preparation = library::Preparation<WHOLE>{};
+    auto optional = Optional<library::Preparation<SHARE>>{};
+    auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  auto Executor::test_continuation_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
+    auto preparation = library::Preparation<WHOLE>{};
+    auto optional = Optional<library::Preparation<SHARE>>{};
+    auto got = subject.continuation(parameters, preparation, optional); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Executor::test_amalgamation_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
+    auto vector = Shards<library::Preparation<SHARE>>{};
+    auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  auto Executor::test_amalgamation_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
+    auto vector = Shards<library::Preparation<SHARE>>{};
+    auto got = subject.amalgamation(parameters, vector); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Executor::test_disgorgement_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
+    auto vector = Shards<library::Output<SHARE>>{};
+    auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  auto Executor::test_disgorgement_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
+    auto vector = Shards<library::Output<SHARE>>{};
+    auto got = subject.disgorgement(parameters, vector); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Executor::test_reassembly_good() -> void {
+    auto subject = Subject{Subject::ZERO};
+    auto parameters = library::Parameters{};
+    auto vector = Shards<library::Aggregation<SHARE>>{};
+    auto records = quantity::Records{};
+    auto got = subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  auto Executor::test_reassembly_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = library::Parameters{};
+    auto vector = Shards<library::Aggregation<SHARE>>{};
+    auto records = quantity::Records{};
+    subject.reassembly(parameters, vector, records); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

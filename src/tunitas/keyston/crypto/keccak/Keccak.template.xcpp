@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.bit_ceil
+namespace tunitas::keyston::crypto::keccak {
+  //
+  // The (two) variants of Keccak that we care about.
+  //
+  // Specification:
+  //
+  //    Yes (see the documentariat in each of the specializations)
+  //
+  // Design:
+  //
+  //   Of course.  Lotsa docs on the design and rationale.
+  //
+  //   PAD {MASK,VALUE} are presented here in endian::big but presented to the algo in endian::little.
+  //   Only the two specializations that we care about are elaborated.
+  //
+  //   PAD_VALUE <= 0x7fu because that last bit, position 7, is reserved for the lead 0b1 in pad1*01
+  //
+  // Usage:
+  //
+  //   Ahem.
+  //
+  inline constexpr auto pad_mask(uint8_t value) -> uint8_t { return std::bit_ceil(value+1u) - 1u; }
+  template<Size WIDTH, uint8_t PAD_VALUE, uint8_t PAD_MASK = pad_mask(PAD_VALUE)>
+  requires (256 == WIDTH && PAD_VALUE <= 0b0'111'1111u && PAD_MASK <= 0b0'111'1111u && PAD_VALUE <= PAD_MASK)
+  struct Keccak;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::keyston::crypto::keccak::pad_mask;
+    static_assert(0b1u == pad_mask(0b1u));
+    static_assert(0b11u == pad_mask(0b10u));
+    static_assert(0b11u == pad_mask(0b11u));
+    static_assert(0b111u == pad_mask(0b100u));
+    static_assert(0b111u == pad_mask(0b101u));
+    static_assert(0b111u == pad_mask(0b110u));
+    static_assert(0b111u == pad_mask(0b111u));
+  }
+}
+#endiv

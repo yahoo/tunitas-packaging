@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.required.Validity
+namespace tunitas::keyston::prio::flp::validity::log {
+  //
+  // Commonalities among the logs.
+  //
+  // Specification:
+  //
+  //   Sure.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Save on copy-pasta.
+  //
+  //   The complete type of VALDITY is required.
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  template<required::Validity> struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.tuple.Size
+#import tunitas.tuple.Element
+#import tunitas.keyston.prio.flp.validity.usage.Validity
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Validity VALIDITY> struct log::Prototype {
+    static_assert(usage::Validity<VALIDITY>);
+  protected:
+    ~Prototype() = default;
+  public:
+    using Validity = VALIDITY;
+    using Gadgets = typename Validity::Gadgets;
+    using Field = typename Validity::Field;
+    using Element = typename Field::Element;
+    template<Size DEGREE> using Polynomial = typename Field::template Polynomial<DEGREE>::Value;
+    static_assert(tuple::Size<Gadgets>::value == Validity::CALLS.size(), "consistent");
+    template<Size N> using Gadget = typename tuple::Element<N, Gadgets>::type;
+    inline static constexpr auto const H = tuple::Size<Gadgets>::value;
+ };
+}
+#endiv

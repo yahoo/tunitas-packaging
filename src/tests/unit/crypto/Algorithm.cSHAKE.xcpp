@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.crypto.Algorithm.template
+namespace tests::unit::crypto {
+  template<> struct Algorithm<library::Algorithm<cSHAKE>>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.crypto.algorithm.Algorithm.cSHAKE
+#import tests.unit.crypto.Palette
+namespace tests::unit::crypto {
+  template<> struct Algorithm<library::Algorithm<cSHAKE>> : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = library::Algorithm<cSHAKE>;
+    using Buffer = ::tunitas::keyston::octets::Fixed<27>; // some odd size
+    //
+    auto test_constructor() -> void;
+    auto test_operator_call2() -> void;
+    auto test_operator_call3() -> void;
+    auto test_operator_call4() -> void;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::crypto {
+  auto Algorithm<library::Algorithm<cSHAKE>>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("constructor", &Algorithm::test_constructor)
+           << []{
+             auto call = Stream{"operator()"sv};
+             call << add("2-arg", &Algorithm::test_operator_call2)
+                  << add("3-arg", &Algorithm::test_operator_call3)
+                  << add("4-arg", &Algorithm::test_operator_call4)
+                  << END;
+             return call;
+           }()
+           << END;
+    return settle(series);
+  }
+  auto Algorithm<library::Algorithm<cSHAKE>>::test_constructor() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Algorithm<library::Algorithm<cSHAKE>>::test_operator_call2() -> void {
+    auto subject = Subject{};
+    auto got = subject(generate_buffer<Buffer>(), SOME_OUTPUT_LENGTH);
+    dump(std::cerr, got);
+  }
+  auto Algorithm<library::Algorithm<cSHAKE>>::test_operator_call3() -> void {
+    auto subject = Subject{};
+    auto got = subject(generate_buffer<Buffer>(), SOME_OUTPUT_LENGTH, generate_buffer<Buffer>());
+    dump(std::cerr, got);
+  }
+  auto Algorithm<library::Algorithm<cSHAKE>>::test_operator_call4() -> void {
+    auto subject = Subject{};
+    auto got = subject(generate_buffer<Buffer>(), SOME_OUTPUT_LENGTH, generate_buffer<Buffer>(), generate_buffer<Buffer>());
+    dump(std::cerr, got);
+  }
+}
+#endiv

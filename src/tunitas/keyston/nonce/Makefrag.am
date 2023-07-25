@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -9,9 +9,15 @@ tunitas_keyston_nonce_SUBSOURCES = \
   $(tunitas_keyston_nonce_required_SUBSOURCES) \
   $(tunitas_keyston_nonce_generator_SUBSOURCES) \
   obj/src/tunitas/keyston/nonce/Bits.cpp \
-  obj/src/tunitas/keyston/nonce/Since.cpp \
   obj/src/tunitas/keyston/nonce/Bundle.cpp \
+  obj/src/tunitas/keyston/nonce/Element.cpp \
+  obj/src/tunitas/keyston/nonce/Since.cpp \
+  obj/src/tunitas/keyston/nonce/Unsigned.cpp \
+  obj/src/tunitas/keyston/nonce/ennumerate.cpp \
+  obj/src/tunitas/keyston/nonce/to_octets.cpp \
+  $(tunitas_keyston_nonce_usage_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/nonce/generator/Makefrag.am
 include src/tunitas/keyston/nonce/required/Makefrag.am
+include src/tunitas/keyston/nonce/usage/Makefrag.am

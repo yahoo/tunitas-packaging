@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -42,8 +42,12 @@ namespace tests::unit::nonce::generator {
 #import tests.unit.nonce.generator.Generator
 #import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.nonce.Bundle
+#import tunitas.keyston.nonce.Unsigned
+#import tunitas.keyston.nonce.Element
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.nonce.Since
+#import tunitas.keyston.integer
+#import tunitas.keyston.field.Element
 auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
   auto series = Stream{"Generator"sv};
   series << []{
@@ -52,6 +56,8 @@ auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
                   << add("Since<seconds>", &Fixture::test_usage_Generator<noncelib::Since<Seconds>>)
                   << add("Bits<4>,Since<seconds>", &Fixture::test_usage_Generator<noncelib::Bundle<noncelib::Bits<32>, noncelib::Since<Seconds>>>)
                   << add("Since<seconds>,Bits<4>", &Fixture::test_usage_Generator<noncelib::Bundle<noncelib::Since<Seconds>, noncelib::Bits<64>>>)
+                  << add("Unsigned<uint128_t>", &Fixture::test_usage_Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint128_t>>)
+                  << add("Element<128>", &Fixture::test_usage_Generator<noncelib::Element<::tunitas::keyston::field::Element<128>>>)
                   << END;
               return use;
             }()
@@ -59,6 +65,22 @@ auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
          << add<generator::Generator<library::Generator<noncelib::Since<Seconds>, Entropy>>>()
          << add<generator::Generator<library::Generator<noncelib::Bundle<noncelib::Bits<32>, noncelib::Since<Seconds>>, Entropy>>>()
          << add<generator::Generator<library::Generator<noncelib::Bundle<noncelib::Since<Seconds>, noncelib::Bits<64>>, Entropy>>>()
+         << []{
+              auto uns = Stream{"Unsigned"sv};
+              uns << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint64_t>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint128_t>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint256_t>, Entropy>>>()
+                  << END;
+              return uns;
+         }()
+         << []{
+              auto ele = Stream{"Element"sv};
+              ele << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<64>>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<128>>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<noncelib::Element<::tunitas::keyston::field::Element<255>>, Entropy>>>()
+                  << END;
+              return ele;
+         }()
          << END;
   return settle(series);
 }

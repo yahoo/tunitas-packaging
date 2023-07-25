@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.array.Fixed
+namespace tunitas::array::required {
+  //
+  // Is this ARRAY a descendant of Fixed?
+  //
+  // Specification:
+  //
+  //   MAY be used without the complete type of ARRAY
+  //   MUST have the complete type of ARRAY if such is a descendant of array::Fixed<...>
+  //
+  // Design:
+  //
+  //   Similar to InstanceOf, but accounts for the NTTP (Non-Type Template Parameter)
+  //
+  // Usage:
+  //
+  //   As one does.
+  //
+  //   template<required::Fixed ARRAY> auto function(ARRAY const &) -> void;
+  //
+  template<typename ARRAY> concept Fixed = requires(ARRAY) {
+    { []<typename TYPE, Size CAPACITY>(array::Fixed<TYPE, CAPACITY> *)
+      {} (static_cast<ARRAY *>(nullptr)) };
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace required = tunitas::array::required;
+    using namespace tunitas::array;
+    static_assert(required::Fixed<Fixed<int, 1uz>>);
+  }
+}
+#endiv

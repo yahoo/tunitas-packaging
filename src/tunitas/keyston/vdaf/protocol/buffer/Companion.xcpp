@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf::protocol::buffer {
+  //
+  // A companion-pair of buffer of octets
+  //
+  // Specification:
+  //
+  //   The companion pair of
+  //   Slice::WHOLE ---> a flavored buffer (tagged)
+  //   Slice::SHARE ---> a flavored buffer (tagged)
+  //
+  //   Octets
+  //   Bounded size
+  //
+  // Design:
+  //
+  //   The flavoring.
+  //   The buffer size of 0 (zero) leaves that axis of th slice undefined.
+  //   e.g. for Output<WHOLE> there is no definition.
+  //        for Output<SHARE> there is a definition
+  //
+  // Usage:
+  //
+  //   See Preparation<SLICE>
+  //   See Output<SLICE>
+  //   See Aggregation<SLICE>
+  // 
+  //   struct Tag;
+  //   template<Slice SLICE> using Preparation = buffer::Companion<SLICE, Tag, (1uz<<32)>; ................... Slice::WHOLE and SLICE::SHARE exist (and are the same size)
+  //
+  //   struct Tag;
+  //   template<Slice SLICE> using Output = buffer::Companion<SLICE, Tag, 0, (1uz<<32)>; ....................  there is no Slice::WHOLE
+  //
+  namespace [[eponymous]] companion {
+    template<Slice, typename TAG, Size WHOLE, Size SHARE> struct Conditional;
+    template<typename TAG, Size WHOLE, Size IGNORED> struct Conditional<Slice::WHOLE, TAG, WHOLE, IGNORED>;
+    template<typename TAG, Size IGNORED, Size SHARE> struct Conditional<Slice::SHARE, TAG, IGNORED, SHARE>;
+    template<Slice, typename TAG, Size CAPACITY> struct Nullify;
+    template<Slice SLICE, typename TAG, Size WHOLE, Size SHARE = WHOLE> using Companion = typename Conditional<SLICE, TAG, WHOLE, SHARE>::Type;
+  }
+  using companion::Companion;
+}
+#endiv
+#divert <hpp>
+#import std.conditional
+#import tunitas.keyston.vdaf.protocol.buffer.Flavored
+namespace tunitas::keyston::vdaf::protocol::buffer {
+  template<Slice SLICE, typename TAG, Size CAPACITY> struct companion::Nullify : public std::conditional_t<0 != CAPACITY, Full<Flavored<SLICE, TAG, CAPACITY>>, Empty> { };
+  namespace companion {
+    template<typename TAG, Size WHOLE, Size IGNORED> struct Conditional<Slice::WHOLE, TAG, WHOLE, IGNORED> : public Nullify<Slice::WHOLE, TAG, WHOLE> { };
+    template<typename TAG, Size IGNORED, Size SHARE> struct Conditional<Slice::SHARE, TAG, IGNORED, SHARE> : public Nullify<Slice::SHARE, TAG, SHARE> { };
+  }
+}
+#endiv

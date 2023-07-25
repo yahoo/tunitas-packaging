@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prg.Name
+namespace tunitas::keyston::prg::generator {
+  //
+  // The Pseudo-Random Cores
+  //
+  //   irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-pseudorandom-generators
+  //   6.2 Pseudorandom Generators
+  //
+  // Specification:
+  //
+  //   Just the primitive core of next(...)
+  //
+  //   def prg.next(length: Unsigned) returns the next length bytes of output of PRG
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   By inheritance into Generator<NAME>
+  //
+  template<Name> struct Core;
+}
+#endiv
+#divert <hpp>
+// Because every specialzation will need this (these)
+#forward tunitas.keyston.prg.generator.Generator
+#endiv

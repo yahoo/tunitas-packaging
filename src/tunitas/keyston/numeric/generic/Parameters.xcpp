@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::numeric::generic {
+  //
+  // The common aggregation parameters
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-af
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-af-03.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-af-04.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-af-05.html
+  //   Verifiable Distributed Aggregation Function
+  //   Section 4. Definition of a DAF (Distributed Aggregation Function)
+  //
+  // Design:
+  //
+  //   Descendants only (every scheme has these these parameters)
+  //   Obvious.
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  struct Parameters;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Optional
+#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.popularity.Prefixes
+#import tunitas.keyston.quantity.Bits
+namespace tunitas::keyston::numeric {
+  namespace generic {
+    using std::move;
+    inline auto swap(Parameters &, Parameters &) noexcept -> void;
+  }
+  class generic::Parameters {
+  protected:
+    ~Parameters() = default;
+  public:
+    Optional<keyston::histogram::Boundaries> boundaries{}; // ... required for prio HISTOGRAM
+    Optional<quantity::Bits> prefix_length{}; // ................ required for poplar POPULARITY
+    Optional<keyston::popularity::Prefixes> prefixes{}; // ...... eadem ratione
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::numeric {
+  auto generic::swap(Parameters &a, Parameters &b) noexcept -> void {
+    swap(a.boundaries, b.boundaries);
+    swap(a.prefix_length, b.prefix_length);
+    swap(a.prefixes, b.prefixes);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    struct Subject : public  tunitas::keyston::numeric::generic::Parameters { };
+    //
+    static_assert(std::semiregular<Subject>);
+    //
+    static_assert(std::is_default_constructible_v<Subject>);
+    static_assert(std::is_copy_constructible_v<Subject>);
+    static_assert(std::is_move_constructible_v<Subject>);
+    static_assert(std::is_copy_assignable_v<Subject>);
+    static_assert(std::is_move_assignable_v<Subject>);
+    static_assert(std::is_swappable_v<Subject>);
+  }
+}
+#endiv

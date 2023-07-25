@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -7,11 +7,14 @@
 tunitas_keyston_vdaf_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/numeric/namespace.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/components.cpp \
+  obj/src/tunitas/keyston/vdaf/numeric/Definition.cpp \
+  $(tunitas_keyston_vdaf_numeric_function_SUBSOURCES) \
   obj/src/tunitas/keyston/vdaf/numeric/zero.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/constant.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/prio3.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/poplar1.cpp \
   \
+  obj/src/tunitas/keyston/vdaf/numeric/Serialized.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/Parameters.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/Measurement.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/Public.cpp \
@@ -20,3 +23,5 @@ tunitas_keyston_vdaf_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/numeric/Output.cpp \
   obj/src/tunitas/keyston/vdaf/numeric/Aggregation.cpp \
   $(end)
+#
+include src/tunitas/keyston/vdaf/numeric/function/Makefrag.am

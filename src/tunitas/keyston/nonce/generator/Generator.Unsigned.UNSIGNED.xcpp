@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.integer.required.Unsigned
+#import tunitas.keyston.integer.required // ctcnr (cascade that certain namespace required)
+#import tunitas.keyston.nonce.generator.Generator.template
+#import tunitas.keyston.nonce.Unsigned
+namespace tunitas::keyston::nonce::generator {
+  //
+  // Fill up an (unsigned) integer
+  //
+  // The Randomness (subgenerator) models integer::distribution::{required,usage}::Randomness
+  //
+  template<integer::required::Unsigned UNSIGNED, required::Entropy ENTROPY> struct Generator<Unsigned<UNSIGNED>, ENTROPY>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.integer.traits.SizeOf
+namespace tunitas::keyston::nonce::generator {
+  template<integer::required::Unsigned UNSIGNED, required::Entropy ENTROPY> struct Generator<Unsigned<UNSIGNED>, ENTROPY> {
+    using Entropy = ENTROPY;
+    inline explicit Generator(Entropy &held);
+    using Result = typename Unsigned<UNSIGNED>::Type;
+    inline auto operator()() -> Result;
+  protected:
+    entropy::Device<integer::traits::SizeOf<Result>::VALUE.count(), Entropy> device;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::nonce::generator {
+  template<integer::required::Unsigned U, required::Entropy E> Generator<Unsigned<U>, E>::Generator(Entropy &e) : device{e} { }
+  template<integer::required::Unsigned U, required::Entropy E> auto Generator<Unsigned<U>, E>::operator()() -> Result { return device.draw(); }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.nonce.usage.Generator
+#import tunitas.keyston.entropy.Serial
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::nonce;
+    namespace entropy = tunitas::keyston::entropy;
+    namespace usage = tunitas::keyston::nonce::usage;
+    using namespace tunitas::integer::integers;
+    //
+    static_assert(usage::Generator<Generator<Unsigned<uint8_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint16_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint32_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint64_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint128_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint256_t>, entropy::Serial>>);
+#if 0
+    // see entropy::Limits<...> and entropy::Source which does not go this high
+    static_assert(usage::Generator<Generator<Unsigned<uint512_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint1024_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint2048_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint4096_t>, entropy::Serial>>);
+    static_assert(usage::Generator<Generator<Unsigned<uint8192_t>, entropy::Serial>>);
+#endif
+  }
+}
+#endiv

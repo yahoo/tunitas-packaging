@@ -1,0 +1,100 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::integer {
+  namespace package_to_octets {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_to_octets::interface;
+}
+// namespaces & types
+namespace tunitas::keyston::integer::package_to_octets {
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+#import std.endian
+#import tunitas.integer.required.Unsigned
+#import tunitas.integer.SizeOf
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.integer.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::integer::package_to_octets {
+  namespace body {
+    namespace exported {
+      //
+      // Authorities
+      //
+      //    draft-irtf-cfrg-vdaf - Verifiable Distributed Aggregation Functions
+      //    https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-conventions-and-definitions-15
+      //
+      // Specification:
+      //
+      //    Setion 2. Conventions and Definitions
+      //
+      //   [[recall "Bytes" in the specification's Python != our quantity::Bytes, use Octets instead]]
+      //   <quote>
+      //     to_be_bytes(val: Unsigned, length: Unsigned) -> Bytes
+      //          converts val to big-endian bytes;
+      //          Its value MUST be in range [0, 2^(8*length)).
+      //          The  Function from_be_bytes(encoded: Bytes) -> Unsigned computes the inverse. [mirror?]
+      //     to_le_bytes(val: Unsigned, length: Unsigned) -> Bytes
+      //          converts val to little-endian bytes;
+      //          Its value MUST be in range [0, 2^(8*length)).
+      //          The function from_le_bytes(encoded: Bytes) -> Unsigned computes the inverse. [mirror?]
+      //   </quote>
+      //
+      // Design:
+      //
+      //   Tricky to read (the declaration)
+      //   Easy to use the definition.
+      //   Can return descendants of octets::Fixed<...> which conform to that same interface.
+      //
+      //   Implements "to_bytes(...)" from the draft spec
+      //   and also "to_block(...)" from keyston::crypto::Block<...>
+      //
+      // Usage:
+      //
+      //   auto got = to_octets<std::endian::little>(source);
+      //   auto got = to_octets<std::endian::big>(source);
+      //
+      template<std::endian, required::Unsigned UNSIGNED> inline constexpr auto to_octets(UNSIGNED) -> octets::Fixed<SizeOf<UNSIGNED>.count()>;
+      //
+      // The reasonable conjugation of the interface names of the standard (draft-irtf-cfgr-vdaf) are elaborated here
+      template<required::Unsigned UNSIGNED> inline constexpr auto to_le_octets(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::little>(source); }
+      template<required::Unsigned UNSIGNED> inline constexpr auto to_be_octets(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::big>(source); }
+      //
+      // The exact interface names in the standard (draft-irtf-cfgr-vdaf) are elaborated here
+      template<required::Unsigned UNSIGNED> [[deprecated("instead prefer to_octets<std::endian::little>(...) or else to_le_octets(...)")]] inline constexpr auto to_le_bytes(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::little>(source); }
+      template<required::Unsigned UNSIGNED> [[deprecated("instead prefer to_octets<std::endian::big>(...) or else to_be_octets(...)")]]    inline constexpr auto to_be_bytes(UNSIGNED const &source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> { return to_octets<std::endian::big>(source); }
+    }
+    template<std::endian ENDIAN, Size SIZE> auto index(Index i) -> Index;
+  }
+}
+#endiv
+#divert <ipp>
+#import nonstd.exception.Unreachable
+namespace tunitas::keyston::integer::package_to_octets {
+  template<std::endian ENDIAN, Size SIZE> auto body::index(Index i) -> Index {
+    if constexpr (std::endian::little == ENDIAN) {
+      return i;
+    } else if constexpr (std::endian::big == ENDIAN) {
+      return SIZE-1 - i;
+    } else {
+      throw nonstd::exception::Unreachable{};
+    }
+  }
+  template<std::endian ENDIAN, required::Unsigned UNSIGNED> constexpr auto interface::to_octets(UNSIGNED source) -> octets::Fixed<SizeOf<UNSIGNED>.count()> {
+    constexpr auto const SIZE = SizeOf<UNSIGNED>.count();
+    auto ret = octets::Fixed<SIZE>{};
+    for (auto i{0uz}; SIZE != i; ++i) {
+      ret.at(std::nothrow, index<ENDIAN, SIZE>(i)) = Octet(source & 0xffu);
+      source >>= 8;
+    }
+    return ret;
+  }
+}
+#endiv

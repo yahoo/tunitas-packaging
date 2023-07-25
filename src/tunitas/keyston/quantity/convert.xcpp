@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.quantity.required.Convertible_To
+#import tunitas.keyston.quantity.required.Quantity
+namespace tunitas::keyston::quantity {
+  //
+  // Convert one quantity to another quantity
+  //
+  // Specification:
+  //
+  //   Managed by the policy statement
+  //   This is a conversion in sense not a "cast"; fortuitously this avoids reusing the name in a different sense.
+  //   Think of it like "converting" between SI units and Cultural Units (Statute Units).
+  //
+  // Design:
+  //
+  //   This WILL NOT be found by ADL because the quantity units are anchored elsewhere.
+  //
+  // Usage:
+  //
+  //   auto some_bytes = Bytes{...somehow...};
+  //   auto some_items = quantity::convert<Items>(some_bytes);
+  //
+  //   auto some_records = Records{...somehow...};
+  //   auto some_items = quantity::convert<Items>(some_records);
+  //
+  template<required::Quantity TARGET, required::Quantity SOURCE> inline constexpr auto convert(SOURCE) -> TARGET requires required::Convertible_To<SOURCE, TARGET>;
+}
+#endiv
+#divert <ipp>
+#import std.underlying_type
+namespace tunitas::keyston {
+  template<quantity::required::Quantity TARGET, quantity::required::Quantity SOURCE> constexpr auto quantity::convert(SOURCE source) -> TARGET requires required::Convertible_To<SOURCE, TARGET> { return TARGET{source.count()}; }
+}
+#endiv

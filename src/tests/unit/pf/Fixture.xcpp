@@ -1,0 +1,20 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::pf { struct Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::pf::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::pf::Fixture::suite() -> Suite {
+  auto series = Stream{"pf"sv};
+  series << END;
+  return settle(series);
+}
+#endiv

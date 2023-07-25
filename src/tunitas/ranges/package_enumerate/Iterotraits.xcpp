@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::ranges::package_enumerate::body {
+  namespace traits {
+    template<typename> struct Referent;
+    template<typename VALUE> struct Referent<VALUE &>;
+    template<typename VALUE> struct Referent<VALUE const &>;
+    template<typename ITERATOR> struct Iterotraits;
+  }
+  using traits::Iterotraits;
+}
+#endiv
+#divert <hpp>
+#import nonstd.iterator.Traits // but likely you'll need a specialization
+namespace tunitas::ranges::package_enumerate {
+  namespace body::traits {
+    template<typename REFERENT> struct Referent<REFERENT &>       { inline static constexpr auto VALUE = Mutability::MUTABLE; };
+    template<typename REFERENT> struct Referent<REFERENT const &> { inline static constexpr auto VALUE = Mutability::CONSTIE; };
+  }
+  template<typename ITERATOR> struct body::Iterotraits {
+    inline static constexpr auto VALUE = Referent<typename nonstd::iterator::Traits<ITERATOR>::Reference>::VALUE;
+  };
+}
+#endiv

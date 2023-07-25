@@ -1,0 +1,18 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.recorder.Recorder.template
+namespace tunitas::keyston::prio::flp::validity::recorder {
+  template<required::Loggable<Validity<HISTOGRAM>> LOG> struct Recorder<Validity<HISTOGRAM>, LOG>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::prio::flp::validity::recorder  {
+  template<required::Loggable<Validity<HISTOGRAM>> LOG> struct Recorder<Validity<HISTOGRAM>, LOG> : public Single<Validity<HISTOGRAM>, LOG> {
+    using Single<Validity<HISTOGRAM>, LOG>::Single;
+  };
+}
+#endiv

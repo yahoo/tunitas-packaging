@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.uint16_t
+namespace tunitas::keyston::prio {
+  //
+  // The prio usage constants.
+  //
+  // Specification:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //   Section 7.2 Construction
+  //   Table 6. Constants used by Prio
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  // Usage:
+  //
+  //   You've used an enum (class) before, haven't you?
+  //
+  enum class Usage : std::uint16_t {
+    // zero is unused?
+    INPUT_SHARE = 1,
+    PROOF_SHARE = 2,
+    JOINT_RANDOMNESS = 3,
+    PROVE_RANDOMNESS = 4,
+    QUERY_RANDOMNESS = 5,
+    JOINT_RANDOMNESS_SEED = 6,
+    JOINT_RANDOMNESS_PART = 7,
+    MEASUREMENT_SHARE [[deprecated("prefer Usage::INPUT_SHARE")]] = INPUT_SHARE,
+  };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+namespace tunitas::keyston::prio {
+  inline constexpr auto underlying(Usage u) { return std::underlying_type_t<Usage>(u); }
+}
+#endiv

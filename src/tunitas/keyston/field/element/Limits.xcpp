@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.element.required.Element
+#import tunitas.keyston.field.required.Field
+namespace tunitas::keyston::field::element {
+  //
+  // the limits of the field elements
+  //
+  // Specification:
+  //
+  //   Rhymes with std::numeric_limits
+  //
+  // Design:
+  //
+  //   Obvious
+  //   onstexpr
+  //
+  // Usage:
+  //
+  //   Oh come on.
+  //   Now would you use std::numeric_limits?
+  //
+  namespace [[eponymous]] limits {
+    template<required::Element ELEMENT, required::Field FIELD> struct Basis;
+    template<required::Element> struct Limits;
+  }
+  using limits::Limits;
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import tunitas.keyston.field.element.traits.Element
+#import std.numeric_limits
+namespace tunitas::keyston::field::element {
+  template<required::Element ELEMENT, required::Field FIELD> struct limits::Basis {
+    using Element = ELEMENT;
+    using Value = typename traits::Element<Element>::Underlying;
+    using Field = FIELD;
+    static constexpr auto min() -> Value { return 0; }
+    static constexpr auto max() -> Value { return Field::MODULUS - 1; }
+    using Numeric = std::numeric_limits<Value>;
+  };
+  template<required::Element ELEMENT> struct limits::Limits : public Basis<ELEMENT, typename traits::Element<ELEMENT>::Field> { };
+}
+#endiv

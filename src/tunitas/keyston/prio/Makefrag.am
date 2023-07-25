@@ -1,0 +1,31 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_prio_SUBSOURCES = \
+  obj/src/tunitas/keyston/prio/namespace.cpp \
+  $(tunitas_keyston_prio_exception_SUBSOURCES) \
+  $(tunitas_keyston_prio_flp_SUBSOURCES) \
+  $(tunitas_keyston_prio_required_SUBSOURCES) \
+  $(tunitas_keyston_prio_usage_SUBSOURCES) \
+  obj/src/tunitas/keyston/prio/randomness_size.cpp \
+  obj/src/tunitas/keyston/prio/Name.cpp \
+  obj/src/tunitas/keyston/prio/Codec.template.cpp \
+  obj/src/tunitas/keyston/prio/Codec.COUNT.cpp \
+  obj/src/tunitas/keyston/prio/Codec.SUM.cpp \
+  obj/src/tunitas/keyston/prio/Codec.HISTOGRAM.cpp \
+  obj/src/tunitas/keyston/prio/Codec.cpp \
+  obj/src/tunitas/keyston/prio/Definition.cpp \
+  obj/src/tunitas/keyston/prio/Usage.cpp \
+  obj/src/tunitas/keyston/prio/Customizer.cpp \
+  obj/src/tunitas/keyston/prio/split.cpp \
+  obj/src/tunitas/keyston/prio/split.Allocator.cpp \
+  obj/src/tunitas/keyston/prio/split.Slicer.cpp \
+  $(end)
+#
+include src/tunitas/keyston/prio/exception/Makefrag.am
+include src/tunitas/keyston/prio/flp/Makefrag.am
+include src/tunitas/keyston/prio/required/Makefrag.am
+include src/tunitas/keyston/prio/usage/Makefrag.am

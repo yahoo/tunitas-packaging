@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.integer.required.Unsigned
+#import tunitas.integer.required.Small
+#import tunitas.keyston.integer.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::field::generator::required {
+  //
+  // A subelement in the numeric "field" is an (unsigned) "small integer" that is used to create a bigger one.
+  //    allowed: uint128_t expects to be compiler-managed.
+  // disallowed: uint256_t expects to be library-managed.
+  //
+  template<typename INTEGER> concept Subelement = integer::required::Small<INTEGER> && integer::required::Unsigned<INTEGER>;;
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.integer
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::integer;
+    namespace required = tunitas::keyston::field::generator::required;
+    //
+    static_assert(required::Subelement<uint8_t>);
+    static_assert(required::Subelement<uint16_t>);
+    static_assert(required::Subelement<uint32_t>);
+    static_assert(required::Subelement<uint64_t>);
+    static_assert(required::Subelement<uint128_t>);
+    static_assert(!required::Subelement<uint256_t>);
+    static_assert(!required::Subelement<uint512_t>);
+  }
+}
+#endiv

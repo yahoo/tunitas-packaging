@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.integer.integers // a namespace bundle containing integers of interest
+#import tunitas.keyston.quantity.Bits
+#import tunitas.keyston.quantity.Bytes
+namespace tunitas::keyston::integer {
+  //
+  // Numerical Methods
+  // Working across the smallnum-bignum boundary
+  //
+  // only acquire the integer that we need for these the fields of the known algorithms.
+  //
+  // Usage:
+  //
+  //   #import tunitas.keyston.integer
+  //   namesoace something::something_else::dark_side {
+  //     using namespace tunitas::keyston::integer;
+  //   }
+  //
+  using namespace tunitas::integer;
+#if 1
+  using namespace tunitas::integer::integers; // crudely take them all, even the signed ones (which we won't use herein)
+#else
+  // just bring over what we need (and omit the signed ones)
+  using tunitas::integer::integer::uint64_t;
+  using tunitas::integer::integer::uint128_t;
+  using tunitas::integer::integer::uint256_t;
+  using tunitas::integer::integer::uint512_t;
+#endif
+  // DO NOT import Bits, Bytes (as memory units) into namespace integer.
+  // because that makes it [them] available everywhere the integers are used.
+  // DO NOT ---> using nonstd::units::memory::Bits; <--- DO NOT
+  // DO NOT ---> using nonstd::units::memory::Bytes;
+  namespace [[nodirectory]] traits {
+    using namespace tunitas::integer::traits;
+    static_assert(sizeof(Bits *), "already visible");
+    static_assert(sizeof(Bytes *), "already visible");;
+  }
+}
+#endiv

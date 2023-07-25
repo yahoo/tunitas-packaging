@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -56,7 +56,7 @@ namespace tunitas::keyston {
       // Whereas Source provides Source::draw() and Distribution requires Generator::operator()
       Source &source;
       Generator(Source &s) : source{s} { }
-      using Result [[school("New School")]] = Source::Bits;
+      using Result [[school("New School")]] = typename Source::Draw;
       using Limits = std::numeric_limits<Result>;
       using result_type [[school("old_school")]] = Result;
       auto operator()() -> result_type { return source.draw(); }

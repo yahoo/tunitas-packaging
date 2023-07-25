@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.keyston.histogram.Boundaries>
+#endiv
+#divert <hpp>
+#import tunitas.error.Outcome
+namespace tunitas::keyston::histogram {
+  template<typename TYPE> requires required::Same_As<TYPE, Boundaries> class Boundaries::Outcome : public error::Outcome<Boundaries> {
+    using Ancestor = error::Outcome<Boundaries>;
+  public:
+    constexpr Outcome() = default;
+    using Ancestor::Variant; // and yes you "just have to know" that the ancestor's constructor name is 'Variant' from tunitas::outcome::Variant
+    Outcome(Ancestor &&a) : Ancestor{move(a)} { }
+    constexpr Outcome(Ancestor const &a) : Ancestor{a} { }
+    using Ancestor::operator=;
+    auto operator=(Ancestor &&a)      -> Outcome & { Ancestor::operator=(move(a)); return  *this; }
+    auto operator=(Ancestor const &a) -> Outcome & { Ancestor::operator=(a);       return  *this; }
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.histogram.Boundaries // shutup warnings about inline functions of histogram::Boundaries declared but never defined
+#endiv

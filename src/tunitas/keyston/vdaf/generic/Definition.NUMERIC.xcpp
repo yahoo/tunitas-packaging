@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -13,14 +13,41 @@ namespace tunitas::keyston::vdaf::generic {
 }
 #endiv
 #divert <cpp>
+#import tunitas.Tuple
 #import tunitas.keyston.vdaf.exception.Invalid
 #import tunitas.keyston.vdaf.exception.Unimplemented
+#import tunitas.keyston.vdaf.numeric.Function
 #import tunitas.keyston.vdaf.numeric.zero
 #import tunitas.keyston.vdaf.numeric.constant
+#if 1 // [[REMOVETHESE]] when Function is ready
 #import tunitas.keyston.vdaf.numeric.prio3
 #import tunitas.keyston.vdaf.numeric.poplar1
+#endif
 namespace tunitas::keyston::vdaf::generic {
   template<> Definition<vdaf::Configuration<NUMERIC>>::Definition(Name name) {
+#if 0
+    using daf::numeric;:Function;
+    using enum daf::Name;
+    constexpr auto const INVENTORY = Tuple{Function<ADHOC, ZERO>{}, Function<ADHOC, CONSTANT>{}, Function<PRIO, COUNT>{}, Function<PRIO, SUM>{}, Function<PRIO, HISTOGRAM>{}, Function<POPLAR, POPULARITY>{}};
+    auto match = [given=name]<typename FUNCTION>(auto each, FUNCTION) -> bool {
+      if (each != given) {
+        return false;
+      } else {
+        disassembly = FUNCTION::disassembly;
+        initialization = FUNCTION::initialization;
+        continuation = FUNCTION::continuation;
+        amalgamation = FUNCTION::amalgamation;
+        disgorgement = FUNCTION::disgorgement;
+        reassembly = FUNCTION::reassembly;
+        return true;
+      }
+    };
+    return [this]<auto... ALGO>(Tuple<decltype(ALGO)...>) {
+      if (! (match(traits::Function<ALGO>::NAME, ALGO) || ... ) ) {
+        throw exception::Invalid{"daf name"};
+      }
+    }(INVENTORY);
+#else
     switch (name) {
       using namespace vdaf::numeric;
     case Name::ZERO:
@@ -39,7 +66,16 @@ namespace tunitas::keyston::vdaf::generic {
       disgorgement = constant::disgorgement;
       reassembly = constant::reassembly;
       break;
-    case Name::PRIO3:
+    case Name::PRIO3_COUNT:
+      disassembly = Function<PRIO, Name::PRIO3_COUNT>::disassembly;
+      initialization = Function<PRIO, Name::PRIO3_COUNT>::initialization;
+      continuation = Function<PRIO, Name::PRIO3_COUNT>::continuation;
+      amalgamation = Function<PRIO, Name::PRIO3_COUNT>::amalgamation;
+      disgorgement = Function<PRIO, Name::PRIO3_COUNT>::disgorgement;
+      reassembly = Function<PRIO, Name::PRIO3_COUNT>::reassembly;
+      break;
+    case Name::PRIO3_SUM:
+    case Name::PRIO3_HISTOGRAM:
       disassembly = prio3::disassembly;
       initialization = prio3::initialization;
       continuation = prio3::continuation;
@@ -55,14 +91,10 @@ namespace tunitas::keyston::vdaf::generic {
       disgorgement = poplar1::disgorgement;
       reassembly = poplar1::reassembly;
       break;
-    case Name::PRIO3_AES128_COUNT:
-    case Name::PRIO3_AES128_SUM:
-    case Name::PRIO3_AES128_HISTOGRAM:
-    case Name::POPLAR1_AES128:
-      throw exception::Unimplemented{};
     default:
       throw exception::Invalid{"vdaf name"};
     }
+#endif
   }
 }
 #endiv

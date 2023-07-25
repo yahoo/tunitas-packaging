@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.field.Definition
+namespace tunitas::keyston::field::traits {
+  //
+  // identify the field and give some early properties
+  // Indexed by the field type name; i.e. Field<N> for the distinguished values 64, 128, 255
+  //
+  // Properties:
+  //
+  //   Hoist from the Element properties where possible.
+  //
+  // Specializations only.
+  //
+  template<typename> struct Field;
+  template<> struct Field<field::Definition<64>>;
+  template<> struct Field<field::Definition<128>>;
+  template<> struct Field<field::Definition<255>>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.is.Field
+#import tunitas.keyston.field.element.Element
+#import tunitas.keyston.field.element.traits.Element
+namespace tunitas::keyston::field {
+  template<typename TYPE> struct traits::Field : public is::Field<TYPE> { };
+  namespace traits {
+    template<> struct Field<field::Definition<64>> : public is::Field<field::Definition<64>> {
+      using Value = field::Definition<64>;
+      using Element = element::Element<64>;
+      using Underlying = element::traits::Element<Element>::Underlying;
+      using Temporary = element::traits::Element<Element>::Temporary;
+    };
+    template<> struct Field<field::Definition<128>> : public is::Field<field::Definition<128>> {
+      using Value = field::Definition<128>;
+      using Element = element::Element<128>;
+      using Underlying = element::traits::Element<Element>::Underlying;
+      using Temporary = element::traits::Element<Element>::Temporary;
+    };
+    template<> struct Field<field::Definition<255>> : public is::Field<field::Definition<255>> {
+      using Value = field::Definition<255>;
+      using Element = element::Element<255>;
+      using Underlying = element::traits::Element<Element>::Underlying;
+      using Temporary = element::traits::Element<Element>::Temporary;
+    };
+  }
+}
+#endiv

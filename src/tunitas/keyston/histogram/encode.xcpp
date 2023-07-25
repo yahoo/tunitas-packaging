@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.histogram.Boundaries
+namespace tunitas::keyston::histogram {
+  //
+  // Encode the specimen against the boundaries
+  //
+  // Specification:
+  //
+  //   Is the title not clear?
+  //
+  // Design:
+  //
+  //   This is a for loop,  You can see that now.
+  //
+  // Invariant:
+  //
+  //   The boundaries MUST be in monotonic (increasing) lexicographic (numerical) order.
+  //
+  // Usage:
+  //
+  //   auto specimen = measurement::Specimen{...somehow...};
+  //   auto boundaries = histogram::Boundaries{...somehow...};
+  //   auto encoded = histogram::encode(specimen, boundaries);
+  //
+  inline auto encode(measurement::Specimen, Boundaries const &) -> aggregation::Histogram;
+}
+#endiv
+#divert <ipp>
+#import tunitas.array.enumerate
+namespace tunitas::keyston {
+  auto histogram::encode(measurement::Specimen specimen, Boundaries const &boundaries) -> aggregation::Histogram {
+    auto encoded = aggregation::Histogram{};
+    for (auto [index, boundary] : enumerate(boundaries)) {
+      if (underlying(specimen) <= underlying(boundary)) {
+        encoded.at(index) = aggregation::Count{1};
+        return encoded;
+      }
+    }
+    return encoded;
+  }
+}
+#endiv

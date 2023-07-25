@@ -1,0 +1,172 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prg.required.Generator
+namespace tests::unit::prg {
+  template<required::Generator SUBJECT> struct Generator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Field
+#import tunitas.keyston.prg.Generator
+#import tests.unit.prg.Palette
+namespace tests::unit {
+  template<prg::required::Generator SUBJECT> struct prg::Generator : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    using Element = ::tunitas::keyston::Field<64>::Element; // ... any one will do
+    inline static constexpr auto const  COUNT = 5uz; // .......... eadem ratione
+    //
+    auto test_constructor_seed() -> void;
+    auto test_constructor_basic() -> void;
+    auto test_constructor_custom() -> void;
+    auto test_constructor_binder() -> void;
+    //
+    auto test_next_first() -> void;
+    auto test_next_series() -> void;
+    //
+    auto test_next_as() -> void;
+    auto test_call_next_into() -> void;
+    auto test_show_next_into() -> void;
+    //
+    auto test_expand_as() -> void;
+    auto test_expand_into() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+//
+// The specializations mut occur before suite() so their address can be taken
+#import tunitas.array.Fixed
+#import tunitas.keyston.field.Vector
+#import tunitas.integer.traits.Double
+#import tunitas.integer.bit
+namespace tests::unit::prg {
+  template<required::Generator _> auto Generator<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+               auto con = Stream{"constructor"sv};
+               con << add("basic", &Generator::test_constructor_basic)
+                   << add("seed", &Generator::test_constructor_seed)
+                   << add("custom", &Generator::test_constructor_custom)
+                   << add("binder", &Generator::test_constructor_binder)
+                   << END;
+               return con;
+             }()
+           << []{
+             auto next = Stream{"next"sv};
+             next << add("first", &Generator::test_next_first)
+                  << add("series", &Generator::test_next_series)
+                  << END;
+             return next;
+           }()
+           << add("next_as", &Generator::test_next_as)
+           << []{
+             auto into = Stream{"next_into"sv};
+             into << add("show", &Generator::test_show_next_into)
+                  << add("call", &Generator::test_call_next_into)
+                  << END;
+             return into;
+           }()
+           << add("expand_as", &Generator::test_expand_as)
+           << add("expand_into", &Generator::test_expand_into)
+           << END;
+    return settle(series);
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_basic() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_seed() -> void {
+    auto subject = Subject{Palette::generate_seed(0xabcdef123456789u), Palette::generate_custom(), Palette::generate_binder()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_custom() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(0xabcdef123456789u), Palette::generate_binder()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_constructor_binder() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder(0xabcdef123456789u)};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Generator _> auto Generator<_>::test_next_first() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    auto got = subject.next(Bytes{100});
+    dump(got);
+    require(ASSERTION, 100 == got.size());
+  }
+  template<required::Generator _> auto Generator<_>::test_next_series() -> void {
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    constexpr auto LIMIT = 100uz;
+    constexpr auto EACH = Bytes{256u};
+    for (auto i{0uz}; LIMIT != i; ++i) {
+      auto got = subject.next(EACH);
+      require(ASSERTION, EACH.count() == got.size());
+      std::cerr << "i=" << i << ' ';
+      dump(got);
+    }
+  }
+  template<required::Generator _> auto Generator<_>::test_next_as() -> void {
+    using Vector = ::tunitas::keyston::field::Vector<Element, COUNT>;
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    auto got = subject.template next_as<Vector>();
+    dump(got);
+  }
+  template<required::Generator _> auto Generator<_>::test_show_next_into() -> void {
+    using Array = ::tunitas::array::Fixed<Element, COUNT>;
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    auto into = Array{};
+    {
+      using Field = typename ::tunitas::keyston::field::element::traits::Element<Element>::Field;
+      constexpr auto const MAXIMUM = ::tunitas::integer::bit_ceil<typename ::tunitas::integer::traits::Double<typename Field::Underlying>::Type>(Field::MODULUS) - 1u;
+      require(ASSERTION, 0 != MAXIMUM);
+      auto guard{0uz};
+      auto const LIMIT{1'000'000'000uz};
+      for (auto index{0uz}; index != COUNT; ++index) {
+        auto x = ::tunitas::keyston::integer::from_octets<typename Field::Underlying, std::endian::little>(subject.template next<Field::ENCODED_SIZE.count()>());
+        require(ASSERTION, 0 != x);
+        x &= MAXIMUM;
+        if (x < Field::MODULUS) {
+          into.at(index) = typename Field::Element{x};
+          guard = 0;
+        } else {
+          --index;
+          ++guard;
+          require(ASSERTION, guard < LIMIT);
+        }
+      }
+    }
+    dump(into);
+  }
+  template<required::Generator _> auto Generator<_>::test_call_next_into() -> void {
+    using Array = ::tunitas::array::Fixed<Element, COUNT>;
+    auto subject = Subject{Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder()};
+    auto got = Array{};
+    subject.next_into(got);
+    dump(got);
+    subject.next_into(got);
+    dump(got);
+    subject.next_into(got);
+    dump(got);
+  }
+  template<required::Generator _> auto Generator<_>::test_expand_as() -> void {
+    using Vector = ::tunitas::keyston::field::Vector<Element, COUNT>;
+    auto got = Subject::template expand_as<Vector>(Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder());
+    dump(got);
+  }
+  template<required::Generator _> auto Generator<_>::test_expand_into() -> void {
+    using Array = ::tunitas::array::Fixed<Element, COUNT>;
+    auto got = Array{};
+    Subject::template expand_into(got, Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder());
+    dump(got);
+    Subject::template expand_into(got, Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder());
+    dump(got);
+    Subject::template expand_into(got, Palette::generate_seed(), Palette::generate_custom(), Palette::generate_binder());
+    dump(got);
+  }
+}
+#endiv

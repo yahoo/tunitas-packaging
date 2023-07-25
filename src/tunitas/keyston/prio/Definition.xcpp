@@ -1,0 +1,285 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Name
+namespace tunitas::keyston::prio {
+  //
+  // The definition of "a PRIO"
+  // as indexed by Name
+  //
+  // Authorities:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Functions
+  //
+  // Specification:
+  //
+  //   Section 7. Prio3
+  //   Table 5: VDAF parameters for Prio3.
+  //
+  //   Also
+  //     Section 5. Definition of VDAFs
+  //     Table 2. Constants and types defined for each VDAF
+  //
+  //   Section 7.2.6. Auxiliary Functions
+  //   def joint_rand(Prio3, k_joint_rand_parts): -> Bytes
+  //
+  //   def encode_leader_share(Prio3, meas_share, proof_share, k_blind):
+  //   def decode_leader_share(Prio3, encoded):
+  //
+  //   def encode_helper_share(Prio3, k_meas_share, k_proof_share, k_blind):
+  //   def decode_helper_share(Prio3, agg_id, encoded):
+  //
+  //   def encode_public_share(Prio3, k_joint_rand_parts):
+  //   def decode_public_share(Prio3, encoded):
+  //
+  //   def encode_prep_share(Prio3, verifier, k_joint_rand):
+  //   def decode_prep_share(Prio3, encoded):
+  //
+  //   def encode_prep_msg(Prio3, k_joint_rand_check):
+  //   def decode_prep_msg(Prio3, encoded):
+  //
+  // Design:
+  //
+  //   No.  Actually Yes.
+  //   Many values need to vary by the algorithm.
+  //
+  //   See also vdaf::indexed::Name<NAME>
+  //
+  // Usage:
+  //
+  //   using Definition = prio::Definition<Name:SOMETHING>;
+  //
+  namespace [[eponymous]] definition {
+    template<typename PERSONALITY> struct Convenience;
+    template<prio::Name> struct Personality;
+    template<> struct Personality<prio::Name::COUNT>;
+    template<> struct Personality<prio::Name::SUM>;
+    template<> struct Personality<prio::Name::HISTOGRAM>;
+    template<prio::Name> struct Definition;
+  }
+  using definition::Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Fixed
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.prg.Generator
+#import tunitas.keyston.prio.Name
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.Customizer
+#import tunitas.keyston.prio.flp.Generic
+#import tunitas.keyston.prio.flp.Validity
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.octets.View
+#import tunitas.keyston.Shards
+#import tunitas.view.Variable
+#import tunitas.keyston.quantity.convert
+#include <ipp/tunitas.keyston.quantity.convert>
+namespace tunitas::keyston::prio {
+  template<typename PERSONALITY> struct definition::Convenience {
+    using Codec = prio::Codec<PERSONALITY::PRIO>;
+    using Validity = prio::flp::Validity<PERSONALITY::PRIO>;
+    using Customizer = prio::Customizer<PERSONALITY::VDAF>;
+    using Prover = prio::flp::Generic<Validity>;
+    using Amplifier = prg::Generator<prg::Name::SHA3>; // they all use the same pseudo-random generator
+    static constexpr auto use_joint_randomness() -> bool { return Validity::use_joint_randomness(); }
+    static inline auto joint_randomness(view::Variable<typename Amplifier::Seed::Storage> const &joint_randomness_parts) -> octets::Fixed<Amplifier::SEED_SIZE.count()>;
+    //
+    static inline constexpr auto randomness_size() -> Bytes;
+    static_assert(std::same_as<typename Prover::Field, typename Codec::Field>);
+    static_assert(std::same_as<typename Prover::Field, typename Validity::Field>);
+    //
+    inline static constexpr auto const NONCE_SIZE = Bytes{16u}; // Section 7.2 Construction
+    inline static constexpr auto const ROUND_COUNT = Items{1u};
+    //
+    using Field = typename Prover::Field; // any one will suffice
+    struct Encoded {
+      struct Randomness {
+        using Joint = array::Fixed<typename Field::Element, quantity::convert<Items>(Prover::Randomness::Joint::VALUE).count()>;
+        using Prove = array::Fixed<typename Field::Element, quantity::convert<Items>(Prover::Randomness::Prove::VALUE).count()>;
+        Randomness() = delete;
+        Randomness(Randomness const &) = delete;
+      };
+      struct Input {
+        using Definition = typename Field::template Vector<quantity::convert<Items>(Prover::Message::Input::VALUE).count()>;
+        using Vector = typename Definition::Value;
+        Input() = delete;
+        Input(Input const &) = delete;
+      };
+      struct Proof {
+        using Definition = typename Field::template Vector<quantity::convert<Items>(Prover::Message::Proof::VALUE).count()>;
+        using Vector = typename Definition::Value;
+        Proof() = delete;
+        Proof(Proof const &) = delete;
+      };
+      Encoded() = delete;
+      Encoded(Encoded const &) = delete;
+    };
+    //
+    //   def encode_leader_share(Prio3, meas_share, proof_share, k_blind):
+    inline static auto encode_leader_shard(typename Encoded::Input::Vector const &, typename Encoded::Proof::Vector const &, octets::View blind) -> octets::Variable;
+    //   def encode_helper_share(Prio3, k_meas_share, k_proof_share, k_blind):
+    inline static auto encode_helper_shard(octets::View input, octets::View proof, octets::View blind) -> octets::Variable;
+    //   def encode_public_share(Prio3, k_joint_rand_parts):
+    static auto encode_public_shard(Shards<typename Amplifier::Seed::Storage> const &) -> octets::Variable;
+  };
+  namespace definition {
+    template<> struct Personality<prio::Name::COUNT> {
+      // See Table 9, Section 7.4.1, Prio3Count
+      inline static constexpr auto const PRIO = prio::Name::COUNT;
+      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_COUNT;
+    };
+    template<> struct Personality<prio::Name::SUM> {
+      // See Table 10, Section 7.4.2, Prio3Sum
+      inline static constexpr auto const PRIO = prio::Name::SUM;
+      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_SUM;
+    };
+    template<> struct Personality<prio::Name::HISTOGRAM> {
+      inline static constexpr auto const PRIO = prio::Name::HISTOGRAM;
+      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_HISTOGRAM;
+    };
+  }
+  template<prio::Name NAME> struct definition::Definition : public Personality<NAME>, public Convenience<Personality<NAME>> { };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.octets.concatenate
+#import tunitas.keyston.octets.join
+#import tunitas.keyston.prio.randomness_size
+#import tunitas.keyston.prio.Usage
+namespace tunitas::keyston::prio::definition {
+  template<typename PERSONALITY> constexpr auto Convenience<PERSONALITY>::randomness_size() -> Bytes { return prio::randomness_size(Validity::JOINT_RANDOMNESS_LENGTH); }
+  template<typename PERSONALITY> auto Convenience<PERSONALITY>::joint_randomness(view::Variable<typename Amplifier::Seed::Storage> const &joint_randomness_parts) -> octets::Fixed<Amplifier::SEED_SIZE.count()> {
+    // This can't be constexpr derive_seed(...) is not constexpr
+    return Amplifier::derive_seed(/*seed(zeroes)*/ Amplifier::Seed::Storage{},
+                                  /*custom*/ Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_SEED>(),
+                                  /*binder*/ octets::join(joint_randomness_parts));
+  }
+  template<typename _> auto Convenience<_>::encode_leader_shard(typename Encoded::Input::Vector const &input, typename Encoded::Proof::Vector const &proof, octets::View blind) -> octets::Variable {
+    if constexpr (use_joint_randomness()) {
+      return octets::concatenate(Encoded::Input::Definition::encode(input), Encoded::Proof::Definition::encode(proof), blind);
+    } else {
+      return octets::concatenate(Encoded::Input::Definition::encode(input), Encoded::Proof::Definition::encode(proof));
+    }
+  }
+  template<typename _> auto Convenience<_>::encode_helper_shard(octets::View input, octets::View proof, octets::View blind) -> octets::Variable {
+    if constexpr (use_joint_randomness()) {
+      return octets::concatenate(input, proof, blind);
+    } else {
+      return octets::concatenate(input, proof);
+    }
+  }
+  template<typename _> auto Convenience<_>::encode_public_shard(Shards<typename Amplifier::Seed::Storage> const &parts) -> octets::Variable {
+    if constexpr (use_joint_randomness()) {
+      return octets::join(parts);
+    } else {
+      return {};
+    }
+  }
+}
+#endiv
+#divert <tpp>
+namespace tunitas::keyston::prio::definition {
+}
+#if 0
+def decode_leader_share(Prio3, encoded):
+    l = Prio3.Flp.Field.ENCODED_SIZE * Prio3.Flp.INPUT_LEN
+    encoded_meas_share, encoded = encoded[:l], encoded[l:]
+    meas_share = Prio3.Flp.Field.decode_vec(encoded_meas_share)
+    l = Prio3.Flp.Field.ENCODED_SIZE * Prio3.Flp.PROOF_LEN
+    encoded_proof_share, encoded = encoded[:l], encoded[l:]
+    proof_share = Prio3.Flp.Field.decode_vec(encoded_proof_share)
+    l = Prio3.Prg.SEED_SIZE
+    if Prio3.Flp.JOINT_RAND_LEN == 0:
+        if len(encoded) != 0:
+            raise ERR_DECODE
+        return (meas_share, proof_share, None)
+    k_blind, encoded = encoded[:l], encoded[l:]
+    if len(encoded) != 0:
+        raise ERR_DECODE
+    return (meas_share, proof_share, k_blind)
+
+def decode_helper_share(Prio3, agg_id, encoded):
+    c_meas_share = Prio3.domain_separation_tag(USAGE_MEASUREMENT_SHARE)
+    c_proof_share = Prio3.domain_separation_tag(USAGE_PROOF_SHARE)
+    l = Prio3.Prg.SEED_SIZE
+    k_meas_share, encoded = encoded[:l], encoded[l:]
+    meas_share = Prio3.Prg.expand_into_vec(Prio3.Flp.Field,
+                                           k_meas_share,
+                                           c_meas_share,
+                                           byte(agg_id),
+                                           Prio3.Flp.INPUT_LEN)
+    k_proof_share, encoded = encoded[:l], encoded[l:]
+    proof_share = Prio3.Prg.expand_into_vec(Prio3.Flp.Field,
+                                            k_proof_share,
+                                            c_proof_share,
+                                            byte(agg_id),
+                                            Prio3.Flp.PROOF_LEN)
+    if Prio3.Flp.JOINT_RAND_LEN == 0:
+        if len(encoded) != 0:1
+            raise ERR_DECODE
+        return (meas_share, proof_share, None)
+    k_blind, encoded = encoded[:l], encoded[l:]
+    if len(encoded) != 0:
+        raise ERR_DECODE
+    return (meas_share, proof_share, k_blind)
+
+def decode_public_share(Prio3, encoded):
+    l = Prio3.Prg.SEED_SIZE
+    if Prio3.Flp.JOINT_RAND_LEN == 0:
+        if len(encoded) != 0:
+            raise ERR_DECODE
+        return None
+    k_joint_rand_parts = []
+    for i in range(Prio3.SHARES):
+        k_joint_rand_part, encoded = encoded[:l], encoded[l:]
+        k_joint_rand_parts.append(k_joint_rand_part)
+    if len(encoded) != 0:
+        raise ERR_DECODE
+    return k_joint_rand_parts
+
+def encode_prep_share(Prio3, verifier, k_joint_rand):
+    encoded = Bytes()
+    encoded += Prio3.Flp.Field.encode_vec(verifier)
+    if Prio3.Flp.JOINT_RAND_LEN > 0:
+        encoded += k_joint_rand
+    return encoded
+
+def decode_prep_share(Prio3, encoded):
+    l = Prio3.Flp.Field.ENCODED_SIZE * Prio3.Flp.VERIFIER_LEN
+    encoded_verifier, encoded = encoded[:l], encoded[l:]
+    verifier = Prio3.Flp.Field.decode_vec(encoded_verifier)
+    if Prio3.Flp.JOINT_RAND_LEN == 0:
+        if len(encoded) != 0:
+            raise ERR_DECODE
+        return (verifier, None)
+    l = Prio3.Prg.SEED_SIZE
+    k_joint_rand, encoded = encoded[:l], encoded[l:]
+    if len(encoded) != 0:
+        raise ERR_DECODE
+    return (verifier, k_joint_rand)
+
+def encode_prep_msg(Prio3, k_joint_rand_check):
+    encoded = Bytes()
+    if Prio3.Flp.JOINT_RAND_LEN > 0:
+        encoded += k_joint_rand_check
+    return encoded
+
+def decode_prep_msg(Prio3, encoded):
+    if Prio3.Flp.JOINT_RAND_LEN == 0:
+        if len(encoded) != 0:
+            raise ERR_DECODE
+        return None
+    l = Prio3.Prg.SEED_SIZE
+    k_joint_rand_check, encoded = encoded[:l], encoded[l:]
+    if len(encoded) != 0:
+        raise ERR_DECODE
+    return k_joint_rand_check
+#endif
+
+#endiv

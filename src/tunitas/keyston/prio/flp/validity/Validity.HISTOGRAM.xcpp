@@ -1,0 +1,125 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.Validity.template
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The validity bundle for PRIO SUM
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Specification:
+  //
+  //   Section 7.4.3. Prio3Histogram
+  //   Sure, right there in the Section.
+  //
+  // Design:
+  //
+  //   Transliterated from the standard (draft)
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<> struct Definition<HISTOGRAM>;
+  template<> struct Validity<HISTOGRAM>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Boundaries
+#import tunitas.keyston.aggregation.Histogram
+namespace tunitas::keyston::prio::flp::validity {
+  template<> class Definition<HISTOGRAM> : public Prototype {
+    inline static constexpr auto const HISTOGRAM_WIDTH = histogram::Buckets::COUNT.count(); // a.k.a. 'length' (lower case) from Section 7.4.3
+  protected:
+    ~Definition() = default;
+  public:
+    using Field = keyston::Field<128>;
+    using Measurement = measurement::Specimen;
+    using Aggregation = aggregation::Histogram;
+    inline static constexpr auto const INPUT_LENGTH            = Input{HISTOGRAM_WIDTH};
+    inline static constexpr auto const OUTPUT_LENGTH           = Output{HISTOGRAM_WIDTH};
+    inline static constexpr auto const JOINT_RANDOMNESS_LENGTH = Joint{2u};
+    using Gadgets = flp::Gadgets<flp::Gadget<RANGE2>>;
+    inline static constexpr auto const CALLS = gadget::calls(HISTOGRAM_WIDTH);
+  };
+  template<> class Validity<HISTOGRAM> : public Definition<HISTOGRAM>, public Lengths<Definition<HISTOGRAM>>, public Codeckie<HISTOGRAM, Definition<HISTOGRAM>> {
+    using Face = Interface<Definition<HISTOGRAM>>;
+    using Range2 = typename tuple::Element<0uz, Gadgets>::type;
+  public:
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER, Face::Input, Face::Randomness, Face::Shards) -> Field::Element;
+  protected:
+    template<required::Gadgetator<Field::Element, gadget::Arity{1}> GADGET> inline static constexpr auto recipe([[inout]] GADGET &, Face::Input, Face::Randomness, [[unused]] Face::Shards) -> Field::Element;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Recorder<Validity<HISTOGRAM>> RECORDER> constexpr auto Validity<HISTOGRAM>::evaluate(RECORDER recorder, Face::Input input, Face::Randomness joint, Face::Shards shards) -> Field::Element {
+    auto range2 = typename Range2::template Evaluator<typename RECORDER::Inputs>{recorder.inputs};
+    return recipe(range2, input, joint, shards);
+  }
+  template<required::Gadgetator<Validity<HISTOGRAM>::Field::Element, gadget::Arity{1}> GADGET> constexpr auto Validity<HISTOGRAM>::recipe(GADGET &range2, Face::Input input, Face::Randomness joint, Face::Shards shards) -> Field::Element {
+    //
+    // Check for the one-hotness of the input vector in two steps.
+    //
+    // Check that each bucket is one or zero.
+    // range_check = Field128(0)
+    // r = joint_rand[0]
+    // for x in inp:
+    //   range_check += r * Range2(x)
+    //   r *= joint_rand[0]
+    // Check that the buckets sum to 1.
+    // sum_check = -Field128(1) * Field128(num_shares).inv()
+    // for b in inp:
+    //   sum_check += b
+    // out = joint_rand[1] * range_check + joint_rand[1] ** 2 * sum_check
+    //
+    auto const r0 = joint.at(0u);
+    auto const r1 = joint.at(1u);
+    auto range_check = [&range2, r0, input]{
+      // check that each bucket is either 1 or 0
+      auto check = Field::Element{0u};
+      auto r = r0;
+      for (auto x : input) {
+        check += r * range2(x);
+        r *= r0;
+      }
+      return check; // should sum to 0
+    }();
+    auto sum_check = [input, shards]{
+      // Check that the buckets sum to 1.
+      auto check = - inv(Field::Element{shards.count()}); // WATCHOUT - this means we can't have a job with zero shares (expect: share count is 1 or 2)
+      for (auto b : input) {
+        check += b;
+      }
+      return check; // should sum to 0
+    }();
+    return r1 * range_check + (r1 * r1) * sum_check;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.prio.flp.validity.usage.Validity
+#import tunitas.keyston.prio.Codec.HISTOGRAM
+#import tunitas.keyston.prio.flp.dimension.cast
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::prio::flp::validity::usage;
+    using namespace tunitas::keyston::prio::flp::validity;
+    static_assert(usage::Validity<Validity<HISTOGRAM>>);
+    //
+    // Whereas there was some confusion over counts (off-by-one) among the histogram, the boundaries and the bucket (count)
+    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::INPUT_LENGTH == cast<tunitas::keyston::quantity::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::INPUT_LENGTH));
+    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::OUTPUT_LENGTH == cast<tunitas::keyston::quantity::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::OUTPUT_LENGTH));
+  }
+}
+#endiv

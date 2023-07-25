@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp
+namespace tunitas::keyston::prio::flp::dimension {
+  static_assert(sizeof(Bits *), "already visible");
+  static_assert(sizeof(Bytes *), "already visible");
+  static_assert(sizeof(Items *), "already visible");
+  //
+  // Ultimately these express "bits"
+  //
+  //   #import tunitas.keyston.prio.flp.dimension.cast
+  //
+  //   auto something = Proof{...somehow...};
+  //   auto some_value = cast<Bits>(something)
+  //
+  // Flavors of length (in Bits) of randomness
+  // Use dimension::cast<Bits>(...) to recover the Bits
+  enum class Prove : Size;
+  enum class Query : Size;
+  enum class Joint : Size;
+  //
+  // Flavors of I/O (in Bits)
+  // Use dimension::cast<Bits>(...) to recover the Bits
+  enum class Input : Size;
+  enum class Output : Size;
+  //
+  // Flavors of length (in Bits) flp (System)
+  // Use dimension::cast<Bits>(...) to recover the Bits
+  enum class Proof : Size;
+  enum class Verifier : Size;
+  //
+  namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] is { }
+}
+#endiv

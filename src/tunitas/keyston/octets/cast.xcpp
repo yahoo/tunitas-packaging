@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.octets.Span
+#import tunitas.keyston.octets.required.Castable
+namespace tunitas::keyston::octets {
+  //
+  // Cast from the other octets to keyston::Octet
+  //
+  // Specification:
+  //
+  //   Just what it says on the label
+  //
+  // Design:
+  //
+  //   Yes.  Of course, why do you ask?
+  //   ADL will never find this because std::span is ... in namespace std.
+  //
+  // Usage:
+  //
+  //   auto otherwise = std::span<char unsigned const>{...somehow...};
+  //   auto redo = octets::cast<octets::View>(otherwise);
+  //
+  template<typename RESULT, typename OTHER, Size EXTENT> inline constexpr auto cast(std::span<OTHER, EXTENT>) -> RESULT requires required::Castable<RESULT, OTHER, EXTENT>;
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston {
+  template<typename RESULT, typename OTHER, Size EXTENT> constexpr auto octets::cast(std::span<OTHER, EXTENT> source) -> RESULT requires required::Castable<RESULT, OTHER, EXTENT> {
+    return {reinterpret_cast<typename RESULT::pointer>(source.data()), source.size()};
+  }
+}
+#endiv
+#divert <cpp>
+#import std.span
+#import tunitas.keyston.octets.Span
+#import tunitas.keyston.octets.View
+#import std.byte
+namespace {
+  namespace testate {
+    using tunitas::keyston::Octet;
+    using tunitas::keyston::octets::Span;
+    using tunitas::keyston::octets::View;
+    using tunitas::keyston::octets::cast;
+    //
+    static_assert(sizeof(cast<Span<Octet>>(std::span<char>{})));
+    static_assert(sizeof(cast<View>(std::span<char>{})));
+    static_assert(sizeof(cast<Span<Octet const>>(std::span<char const>{})));
+    static_assert(sizeof(cast<View>(std::span<char const>{})));
+    //
+    static_assert(sizeof(cast<Span<Octet>>(std::span<char unsigned>{})));
+    static_assert(sizeof(cast<View>(std::span<char unsigned>{})));
+    static_assert(sizeof(cast<Span<Octet const>>(std::span<char unsigned const>{})));
+    static_assert(sizeof(cast<View>(std::span<char unsigned const>{})));
+    //
+    static_assert(sizeof(cast<Span<Octet>>(std::span<std::byte>{})));
+    static_assert(sizeof(cast<View>(std::span<std::byte>{})));
+    static_assert(sizeof(cast<Span<Octet const>>(std::span<std::byte const>{})));
+    static_assert(sizeof(cast<View>(std::span<std::byte const>{})));
+  }
+}
+#endiv

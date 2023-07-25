@@ -1,22 +1,30 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas
+namespace tunitas::keyston {
+  enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
+}
 #import std.byte
-#import std.size_t
 namespace tunitas::keyston {
   using Octet = std::byte;
-  using Size = std::size_t;
-  enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
-  //
-  // Whereas the Slice concept is referenced in keyston::function (numerics) and keyston::protocol (bytes, buffers & data layout)
-  // the canonical definition is provided here; but should be conceived as also being sourced in keyston::protocol.
-  enum class Slice { WHOLE, SHARD, SHARE = SHARD };
-  using enum Slice; // within the namespace allow the unqualified names.
 }
+#import std.size_t
+#import std.ptrdiff_t
+#import std.is_signed
+#import std.is_unsigned
+namespace tunitas::keyston {
+  using Size = std::size_t;
+  using Index = std::size_t;
+  using Offset = std::ptrdiff_t;
+  static_assert(std::is_unsigned_v<Size>);
+  static_assert(std::is_unsigned_v<Index>);
+  static_assert(std::is_signed_v<Offset>);
+}
+// and more
 #import std.uint8_t
 #import std.uint16_t
 #import std.uint32_t
@@ -30,6 +38,9 @@ namespace tunitas::keyston {
 #import std.is_move_assignable
 #import std.is_swappable
 #import std.is_abstract
+#import std.semiregular
+#import std.regular
+#import std.swappable
 // as concepts
 #import std.copy_constructible
 #import std.move_constructible

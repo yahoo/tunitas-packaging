@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.Definition.template
+namespace tunitas::keyston::field {
+  //
+  // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-parameters-2
+  // Section 6.1.2 Fast-Fourier Transform (FFT-)Friendly Fields
+  // Section 6.1.3 Parameters
+  //
+  // Derivation:
+  //
+  //   4294967295
+  //   obase=16
+  //   FFFFFFFF
+  //
+  //   2^32 * 4294967295 + 1
+  //   18446744069414584321
+  //   obase=161
+  //   FFFFFFFF00000001
+  //
+  template<> struct Definition<64>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::field {
+  template<> struct Definition<64> : public Predefinition<traits::Field<Definition<64>>::Element, 8u> {
+    using Element = traits::Field<Definition>::Element;
+    using Underlying = traits::Field<Definition>::Underlying;
+    using Temporary = traits::Field<Definition>::Temporary;
+    template<Size CAPACITY> using Series = array::Fixed<Element, CAPACITY>;
+    template<Size CAPACITY> using Vector = vector::Definition<Definition, CAPACITY>;
+    template<Size DEGREE> using Polynomial = polynomial::Definition<Definition, DEGREE>;
+    inline static constexpr Underlying const MODULUS = (Underlying{1}<<32) * 4294967295 + 1;
+    [[deprecated("dubious since does not generate the whole characteristic; prefer Field<...>::Generator{}()")]] inline static constexpr auto generator() -> Element;
+    [[deprecated("buy a vowel, spell it out! Instead prefer Definition<64>::generator()")]] static constexpr auto gen() -> Element { return generator(); }
+    class Generator;
+  };
+  class Definition<64>::Generator : public generator::Generator<7lu, 4294967295lu, MODULUS> {
+    using Ancestor = generator::Generator<7lu, 4294967295lu, MODULUS> ;
+  public:
+    constexpr auto operator()() const -> Element { return Element{Ancestor::operator()()}; }
+    inline static constexpr Underlying ORDER = Underlying{1} << 32;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::field {
+  constexpr auto Definition<64>::generator() -> Element { return Generator{}(); }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.Field
+#import tunitas.keyston.field.usage.Field
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::field::usage;
+    using tunitas::keyston::Field;
+    static_assert(usage::Field<Field<64>>);
+  }
+}
+#endiv

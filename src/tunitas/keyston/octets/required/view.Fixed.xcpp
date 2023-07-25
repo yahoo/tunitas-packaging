@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.span.Span
+#forward tunitas.view.View
+namespace tunitas::keyston::octets::required::view {
+  //
+  // A fixed view-or-span of (constie) octets?
+  //
+  namespace [[eponymous]] fixed {
+    template<typename FIXED> concept Span = requires(FIXED) {
+      { []<Size EXTENT>(tunitas::span::Span<keyston::Octet const, EXTENT> *)
+        requires (std::dynamic_extent != EXTENT)
+        {}(static_cast<FIXED *>(nullptr)) };
+    };
+    template<typename FIXED> concept View = requires(FIXED) {
+      { []<Size EXTENT>(tunitas::view::View<keyston::Octet, EXTENT> *)
+        requires (std::dynamic_extent != EXTENT)
+        {}(static_cast<FIXED *>(nullptr)) };
+    };
+    template<typename FIXED> concept Fixed = View<FIXED> || Span<FIXED>;
+  }
+  using fixed::Fixed;
+}
+#endiv

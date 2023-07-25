@@ -1,0 +1,73 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf {
+  inline namespace constants { }
+}
+#endiv
+#divert <hpp>
+#import nonstd.units.memory.cast
+#import tunitas.keyston.prg.constants // SEED_SIZE
+#import tunitas.keyston.quantity.Bits
+#import tunitas.keyston.quantity.Bytes
+namespace tunitas::keyston::vdaf::constants {
+  //
+  // Constants that are invariant across all implementations or within this implementation.
+  //
+  // Authorities:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Functions
+  //
+  // Specification:
+  //
+  //   Section 5. Definition of VDAFs
+  //   Table 2. Constants and types defined for each VDAF
+  //
+  //   Table 5.  VDAF parameters for Prio3.
+  //   Table 13. VDAF parameters for Poplar1
+  //  
+  //   <quote ref=https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-references-8>
+  //     Vdaf: Rather than allow the application to choose the nonce length, have each implementation of the Vdaf interface specify the expected nonce length. (*)
+  //   </quote>
+  //
+  // Design:
+  //
+  //   No.  Actually Yes.
+  //   Many values need to vary by the algorithm.
+  //   See vdaf::Codec<...>
+  //   See poplar::Algorithm<...>
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  namespace construct {
+    namespace count {
+      using nonstd::units::memory::Bytes;
+      using nonstd::units::memory::Bits;
+      using nonstd::units::quantity::cast;
+      namespace verify_key {
+        // reminder: the algorithm DOES NOT NEED this to be known at compile time (no need for it to be constexpr)
+        // [[FIXTHIS]] then why have this be a complie-time constant like this?
+        inline constexpr auto VERIFY_KEY_BYTE_COUNT = prg::constants::SEED_SIZE;
+        inline constexpr auto VERIFY_KEY_BIT_COUNT = cast<Bits>(VERIFY_KEY_BYTE_COUNT);
+      }
+    }
+  }
+  using namespace construct::count::verify_key;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::vdaf::constants;
+    //
+    static_assert(16u == VERIFY_KEY_BYTE_COUNT.count());
+    static_assert(128u == VERIFY_KEY_BIT_COUNT.count());
+  }
+}
+#endiv

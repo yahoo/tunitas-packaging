@@ -1,0 +1,111 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston {
+  //
+  // The aggregation functions in tiers of complexity
+  //
+  // Whereas we hypothesize that the "opposite of incremental" is "batched"
+  //
+  enum class Function {
+    AF, // ...... __________________________________ Aggregation Function; a.k.a. Unverifiable, Batched,     Centralized
+    DAF, // ..... ______________________ Distributed Aggregation Function; a.k.a. Unverifiable, Batched,     Distributed
+    VDAF, // .... Verifiable ___________ Distributed Aggregation Function; a.k.a. Verifiable,   Batched,     Distributed, e.g. PRIO, POPLAR
+    VIDAF, // ... Verifiable Incremental Distributed Aggregation Function; a.k.a. Verifiable,   Incremental, Distributed, e.g. PLASMA
+  };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.Optional
+#import tunitas.Outcome
+#import tunitas.string.View
+#import tunitas.string.Storage
+namespace tunitas::keyston {
+  inline constexpr auto underlying(Function f) { return std::underlying_type_t<Function>(f); }
+  //
+  auto to_string_view(error::by::Optional, Function) -> Optional<string::View>;
+  inline auto to_string_view(error::by::Outcome, Function) -> Outcome<string::View>;
+  inline auto to_string_view(error::by::Exception, Function) -> string::View;
+  //
+  inline auto to_string(error::by::Optional, Function) -> Optional<string::Storage>;
+  inline auto to_string(error::by::Outcome, Function) -> Outcome<string::Storage>;
+  inline auto to_string(error::by::Exception, Function) -> string::Storage;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.error.Code
+#import tunitas.keyston.exception.Invalid
+namespace tunitas {
+  auto keyston::to_string_view(error::by::Outcome, Function function) -> Outcome<string::View> {
+    if (auto got=to_string_view(error::by::Optional{}, function); got) {
+      return *got;
+    } else {
+      return {error::Code::FAILURE};
+    }
+  }
+  auto keyston::to_string_view(error::by::Exception, Function function) -> string::View {
+    if (auto got=to_string_view(error::by::Optional{}, function); got) {
+      return *got;
+    } else {
+      throw exception::Invalid{"Function"};;
+    }
+  }
+  auto keyston::to_string(error::by::Optional, Function function) -> Optional<string::Storage> {
+    if (auto got=to_string_view(error::by::Optional{}, function); got) {
+      return string::Storage{*got};
+    } else {
+      return {};
+    }
+  }
+  auto keyston::to_string(error::by::Outcome, Function function) -> Outcome<string::Storage> {
+    if (auto got=to_string_view(error::by::Optional{}, function); got) {
+      return string::Storage{*got};
+    } else {
+      return {error::Code::FAILURE};
+    }
+  }
+  auto keyston::to_string(error::by::Exception indicator, Function function) -> string::Storage {
+    auto got = to_string_view(indicator, function);
+    return string::Storage{got};
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.string.literals
+namespace tunitas {
+  auto keyston::to_string_view(error::by::Optional, Function function) -> Optional<string::View> {
+    switch (function) {
+      using namespace string::literals;
+    case Function::AF:    return "AF"sv;
+    case Function::DAF:   return "DAF"sv;
+    case Function::VDAF:  return "VDAF"sv;
+    case Function::VIDAF: return "VIDAF"sv;
+    default: return {};
+    }
+  }
+}
+#import std.same_as
+#import tunitas.tuple.Tuple
+#import tunitas.tuple.Element
+#import std.same_as
+namespace {
+  namespace testate {
+    using namespace tunitas::tuple;
+    using namespace tunitas::keyston;
+    //
+    // This idiom is used elsewhere.
+    // i.e. the enum has the natural enumeration starting at zero.
+    //
+    static_assert(std::same_as<char, Element<underlying(Function::AF), Tuple<char, int, long>>::type>);
+    static_assert(std::same_as<int, Element<underlying(Function::DAF), Tuple<char, int, long>>::type>);
+    static_assert(std::same_as<long, Element<underlying(Function::VDAF), Tuple<char, int, long>>::type>);
+  }
+}
+#endiv

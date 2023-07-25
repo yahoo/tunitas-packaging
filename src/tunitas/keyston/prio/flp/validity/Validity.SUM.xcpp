@@ -1,0 +1,96 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.Validity.template
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The validity bundle for PRIO SUM
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Specification:
+  //
+  //   Section 7.4.2. Prio3Sum
+  //   Sure, right there in the Section.
+  //
+  // Design:
+  //
+  //   Transliterated from the standard (draft)
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<> struct Definition<SUM>;
+  template<> struct Validity<SUM>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.aggregation.Summation
+namespace tunitas::keyston::prio::flp::validity {
+  template<> class Definition<SUM> : public Prototype {
+    inline static constexpr auto const BIT_WIDTH = 8 * sizeof(measurement::Specimen); // a.k.a. "bits" (lower case) from Section 7.4.2
+    static_assert(sizeof(measurement::Specimen) <= sizeof(aggregation::Summation));
+  protected:
+    ~Definition() = default;
+  public:
+    using Field = keyston::Field<128>;
+    using Measurement = measurement::Specimen;
+    using Aggregation = aggregation::Summation;
+    inline static constexpr auto const INPUT_LENGTH            = Input{BIT_WIDTH};
+    inline static constexpr auto const OUTPUT_LENGTH           = Output{1u};
+    inline static constexpr auto const JOINT_RANDOMNESS_LENGTH = Joint{1u};
+    using Gadgets = flp::Gadgets<flp::Gadget<RANGE2>>;
+    inline static constexpr auto const CALLS = gadget::calls(BIT_WIDTH);
+  };
+  template<> class Validity<SUM> : public Definition<SUM>, public Lengths<Definition<SUM>>, public Codeckie<SUM, Definition<SUM>> {
+    using Face = Interface<Definition<SUM>>;
+    using Range2 = typename tuple::Element<0uz, Gadgets>::type;
+  public:
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER, Face::Input, Face::Randomness, [[unused]] Face::Shards) -> Field::Element;
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER recorder, Face::Input input, Face::Randomness joint) -> Field::Element { return evaluate(recorder, input, joint, {}); }
+  protected:
+    template<required::Gadgetator<Field::Element, gadget::Arity{1}> GADGET> inline static constexpr auto recipe([[inout]] GADGET &, Face::Input, Face::Randomness, [[unused]] Face::Shards) -> Field::Element;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Recorder<Validity<SUM>> RECORDER> constexpr auto Validity<SUM>::evaluate(RECORDER recorder, Face::Input input, Face::Randomness joint, Face::Shards shards) -> Field::Element {
+    auto range2 = typename Range2::template Evaluator<typename RECORDER::Inputs>{recorder.inputs};
+    return recipe(range2, input, joint, shards);
+  }
+  template<required::Gadgetator<Validity<SUM>::Field::Element, gadget::Arity{1}> GADGET> constexpr auto Validity<SUM>::recipe(GADGET &range2, Face::Input input, Face::Randomness joint, [[unused]] Face::Shards) -> Field::Element {
+    // out = Field128(0)
+    // r = joint_rand[0]
+    // for x in inp:
+    //   out += r * Range2(x)
+    //   r *= joint_rand[0]
+    auto const r0 = joint.at(0u);
+    auto r = r0;
+    auto out = Field::Element{0u};
+    for (auto x : input) {
+      out += r * range2(x);
+      r *= r0;
+    }
+    return out;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.prio.flp.validity.usage.Validity
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::prio::flp::validity::usage;
+    using namespace tunitas::keyston::prio::flp::validity;
+    static_assert(usage::Validity<Validity<SUM>>);
+  }
+}
+#endiv

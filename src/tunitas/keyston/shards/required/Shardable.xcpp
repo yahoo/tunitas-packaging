@@ -1,0 +1,17 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.array.required.Arrayable
+namespace tunitas::keyston::required {
+  //
+  // Is this type shardable in Shards<TYPE>
+  //
+  // Semiregular ~ copyable
+  // Otherwise ~ a moveable type; e.g. unique_ptr<T>
+  //
+  template<typename TYPE> concept Shardable = array::required::Arrayable<TYPE>;
+}
+#endiv

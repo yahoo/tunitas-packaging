@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.units.quantity.Quantity
+namespace tunitas::keyston::quantity {
+  //
+  // A count of the records being processed by the algorithm.
+  //
+  // Specification:
+  //
+  //   Rhymes with Size which is std::size_t
+  //   But thas the units as "items"
+  //
+  //   Distinct from aggregation::Count which is a measured quantity.
+  //
+  // Design:
+  //
+  //   This is job-dependent and "large"
+  //   It's a standard unit of "count" "items" or "each"
+  //
+  // Usage:
+  //
+  //   Standard stuff.  RTM.
+  //
+  //   auto function(Vector<...somehow...> records, Records count) -> void
+  //
+  namespace records {
+    enum Tag { };
+    using Records = nonstd::units::quantity::Quantity<Tag, std::ratio<1>, std::uintmax_t>;
+  }
+  using records::Records;
+}
+#endiv

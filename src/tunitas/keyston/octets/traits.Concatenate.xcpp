@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.array.Fixed
+#forward tunitas.span.Span
+#forward tunitas.view.View
+#forward tunitas.keyston.octets.Fixed
+namespace tunitas::keyston::octets::traits {
+  //
+  // the traits for concatenate(...)
+  //
+  // Specification:
+  //
+  //   extract the size from fixed arrays and spans and views
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //   A constexpr function size()
+  //
+  // Usage:
+  //
+  //  see concatenate(...) for the FXED case
+  //
+  template<typename> struct Concatenate;
+  template<typename TYPE, Size CAPACITY> struct Concatenate<array::Fixed<TYPE, CAPACITY>>;
+  template<typename TYPE, Size CAPACITY> requires (std::dynamic_extent != CAPACITY) struct Concatenate<span::Span<TYPE, CAPACITY>>;
+  template<typename TYPE, Size CAPACITY> requires (std::dynamic_extent != CAPACITY) struct Concatenate<view::View<TYPE, CAPACITY>>;
+  template<Size CAPACITY> struct Concatenate<octets::Fixed<CAPACITY>>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::octets::traits {
+  template<typename TYPE, Size CAPACITY> struct Concatenate<array::Fixed<TYPE, CAPACITY>> { static constexpr auto size() -> Size { return CAPACITY; } };
+  template<typename TYPE, Size CAPACITY> requires (std::dynamic_extent != CAPACITY) struct Concatenate<span::Span<TYPE, CAPACITY>>  { static constexpr auto size() -> Size { return CAPACITY; } };
+  template<typename TYPE, Size CAPACITY> requires (std::dynamic_extent != CAPACITY) struct Concatenate<view::View<TYPE, CAPACITY>>  { static constexpr auto size() -> Size { return CAPACITY; } };
+  template<Size CAPACITY> struct Concatenate<octets::Fixed<CAPACITY>> { static constexpr auto size() -> Size { return CAPACITY; } };
+}
+#endiv
+#divert <cpp>
+#import std.byte
+namespace {
+  namespace testate {
+    static_assert(sizeof(tunitas::keyston::octets::traits::Concatenate<tunitas::view::View<std::byte, 4>>));
+  }
+}
+#endiv

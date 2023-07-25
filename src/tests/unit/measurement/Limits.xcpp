@@ -1,0 +1,79 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.measurement
+#import tunitas.keyston.histogram
+#import tunitas.keyston.popularity
+namespace tests::unit::measurement {
+  namespace [[eponymous]] limits {
+    class Limits;
+    namespace library = ::tunitas::keyston::measurement;
+    namespace histogram = ::tunitas::keyston::histogram;
+    namespace popularity = ::tunitas::keyston::popularity;
+  }
+  using limits::Limits;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::measurement::limits::Limits : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_inventory() -> void;
+  template<typename LIMITS> auto test_Limits() -> void;
+};
+#endiv
+#divert <cpp>
+//
+// The specializations MUST appear before their address is used in suite()
+//
+#import tunitas.keyston.measurement.Limits
+namespace tests::unit::measurement::limits {
+  template<> auto Limits::test_Limits<library::Limits<library::Specimen>>() -> void {
+    using Subject = library::Limits<library::Specimen>;
+    static_assert(0 <= Subject::min());
+    static_assert(0 <= Subject::max());
+  }
+  template<> auto Limits::test_Limits<library::Limits<histogram::Boundaries>>() -> void {
+    using Subject = library::Limits<histogram::Boundaries>;
+    static_assert(0 <= Subject::Index::min());
+    static_assert(0 <= Subject::Index::max());
+  }
+  template<> auto Limits::test_Limits<library::Limits<popularity::Prefixes>>() -> void {
+    using Subject = library::Limits<popularity::Prefixes>;
+    static_assert(0 <= Subject::Index::min());
+    // NO SUCH ----> static_assert(0 <= Subject::Index::max());
+  }
+}
+auto tests::unit::measurement::limits::Limits::suite() -> Suite {
+  auto series = Stream{"Limits"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("inventory", &Limits::test_inventory)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto lim = Stream{"Limits"sv};
+              lim << add("Specimen", &Limits::test_Limits<library::Limits<library::Specimen>>)
+                  << add("Boundaries", &Limits::test_Limits<library::Limits<histogram::Boundaries>>)
+                  << add("Prefixes", &Limits::test_Limits<library::Limits<popularity::Prefixes>>)
+                  << END;
+              return lim;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Boundaries
+#import tunitas.keyston.measurement.Prefixes
+namespace tests::unit::measurement::limits {
+  auto Limits::test_inventory() -> void {
+    static_assert(sizeof(library::Specimen));
+    static_assert(sizeof(library::Boundaries));
+    static_assert(sizeof(library::Prefixes));
+  }
+}
+#endiv

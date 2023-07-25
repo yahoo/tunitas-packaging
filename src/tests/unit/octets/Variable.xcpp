@@ -1,0 +1,105 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::octets { struct Variable; }
+#endiv
+#divert <hpp>
+#import tests.unit.octets.Palette
+#import tunitas.keyston.octets.Variable
+#import tunitas.exception.Aspect
+struct tests::unit::octets::Variable : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Variable;
+  //
+  auto test_constructor_default() -> void;
+  auto test_subrange_function_good() -> void;
+  auto test_subrange_function_fail() -> void;
+  template<Index LO, Index HI> auto test_subrange_template_good() -> void requires (LO <= HI);
+  template<Index LO, Index HI> auto test_subrange_template_fail() -> void requires (LO <= HI);
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+  inline static constexpr auto const HOWMANY = 5uz;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::octets {
+  template<Index LO, Index HI> auto Variable::test_subrange_template_good() -> void requires (LO <= HI) {
+    auto subject = Palette::template generate<Subject>(HOWMANY);
+    auto got = subject.template subrange<HI - LO>(LO);
+    require(ASSERTION, HI - LO == got.size());
+  }
+  template<Index LO, Index HI> auto Variable::test_subrange_template_fail() -> void requires (LO <= HI) try {
+    auto subject = Palette::template generate<Subject>(HOWMANY);
+    subject.template subrange<HI - LO>(LO);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::octets::Variable::suite() -> Suite {
+  auto series = Stream{"Variable"sv};
+  series << []{
+             auto con = Stream{"constructor"sv};
+             con << add("default", &Variable::test_constructor_default)
+                 << END;
+             return con;
+          }()
+         << []{
+           auto sub = Stream{"subrange"sv};
+           sub << []{
+                   auto fun = Stream{"function"sv};
+                   fun << add("good", &Variable::test_subrange_function_good)
+                       << add("fail", &Variable::test_subrange_function_fail)
+                       << END;
+                   return fun;
+                 }()
+               << []{
+                   auto tem = Stream{"template"sv};
+                   tem << []{
+                           auto goo = Stream{"good"sv};
+                           goo << add("2,2", &Variable::test_subrange_template_good<2, 2>)
+                               << add("2,4", &Variable::test_subrange_template_good<2, 4>)
+                               << END;
+                           return goo;
+                         }()
+                       << []{
+                           auto fai = Stream{"fail"sv};
+                           fai << add("8, 10", &Variable::test_subrange_template_fail<8, 10>)
+                               << add("2,16", &Variable::test_subrange_template_fail<2, 16>)
+                               << END;
+                           return fai;
+                         }()
+                       << END;
+                   return tem;
+               }()
+               << END;
+           return sub;
+          }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::octets {
+  auto Variable::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Variable::test_subrange_function_good() -> void {
+    auto subject = Palette::generate<Subject>(HOWMANY);
+    auto got = subject.subrange(2, 4);
+    require(ASSERTION, 2uz == got.size());
+  }
+  auto Variable::test_subrange_function_fail() -> void try {
+    auto subject = Palette::generate<Subject>(HOWMANY);
+    subject.subrange(2, 400);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

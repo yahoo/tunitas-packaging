@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::af {
+  //
+  // The configuration
+  //
+  // Whereas there is really no "aggregation function" mentioned in the standard drafts (because, ahem, it is so obvious for the non-distributed case),
+  // we provide a definition here which follows the standard draft definition for DAF but simplifies as necessary.  It is indeed trivial and obvious.
+  //
+  // Specification:
+  //
+  //   Amplify the core decision of the pattern
+  //
+  //   I-D.irtf-cfrg-daf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-03.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-04.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //   Section 4. Distributed Aggregation Functions
+  //
+  //   The interface, as stated, and as simplified by us, this is our fiction, it is nowhere in the standard drafts:
+  //
+  //   (a noun form)
+  //   computation ........... Af.aggregate(agg_param: AggParam, previous: AggResult, input: Bytes) -> AggResult;
+  //   finalization........... Af.finalize(agg_param: AggParam, previous: AggResult) -> AggResult;
+  //
+  // Design:
+  //
+  //   All this template machinery has the effect of making af::Executor<NUMERIC> look and feel rhyming-similar to daf, vdaf and vidaf executors.
+  //   It's done for cosmetic purposes; to keep the intellectual burden of remembering four (4 algorithms \times 2 encodings) different schemes.
+  //
+  //   Obvious.  Read it out of Figure 5 and reduce for the centralized (non-distributed) case.
+  //
+  // Usage:
+  //
+  //   The various templates of namespace generic
+  //
+  template<Transport> struct Configuration;
+  template<> struct Configuration<NUMERIC>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.af.numeric.Parameters
+#import tunitas.keyston.af.numeric.Measurement
+#import tunitas.keyston.af.numeric.Intermediate
+#import tunitas.keyston.af.numeric.Aggregation
+namespace tunitas::keyston::af {
+  template<> struct Configuration<NUMERIC> {
+    // in lieu of a separable Core
+    using Parameters = numeric::Parameters;
+    using Measurement = numeric::Measurement;
+    using Intermediate = numeric::Intermediate;
+    using Aggregation = numeric::Aggregation;
+    //
+    using Initialized = Intermediate;
+    using Initialization = Initialized (*)(Parameters const &);
+    //
+    using Computed = Intermediate;
+    using Computation = Computed (*)(Parameters const &, Intermediate previous, Measurement const &);
+    //
+    using Finalized = Aggregation;
+    using Finalization = Finalized (*)(Parameters const &, Intermediate const &);
+  };
+}
+#endiv

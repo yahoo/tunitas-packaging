@@ -1,0 +1,82 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Field
+namespace tunitas::keyston::field::vector {
+  //
+  // The definition of a (fixed) vector in the field
+  //
+  // Specification:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-finite-fields
+  //   Section 6.1 Finite Fields
+  //
+  // Design:
+  //
+  //   Lol. Whut?
+  //
+  // Usage:
+  //
+  //   Of course, you silly goose!
+  //
+  template<required::Field, Size CAPACITY> struct Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Fixed
+#import tunitas.view.Fixed
+#import tunitas.keyston.entropy.required.Entropy
+#import tunitas.keyston.field.vector.Fixed
+#import tunitas.keyston.field.traits.Field
+namespace tunitas::keyston::field {
+  template<required::Field FIELD, Size THE_CAPACITY> struct vector::Definition {
+    using Field = FIELD;
+    inline static constexpr auto const CAPACITY = Items{THE_CAPACITY};
+    using Element = typename traits::Field<Field>::Element;
+    using Vector = vector::Fixed<Element, CAPACITY.count()>;
+    using Value = Vector;
+    //
+    inline static constexpr auto zeroes() -> Value { return {}; }
+    template<entropy::required::Entropy SOURCE> [[deprecated("lol, wut?")]] inline static auto random([[inout]] SOURCE &) -> Value;
+    //
+    inline static constexpr auto encode(Value const &) -> array::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()>;
+    inline static constexpr auto decode(view::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()>) -> Value;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.sequence.Sequence
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.entropy.usage.Entropy
+#import std.tie
+namespace tunitas::keyston::field::vector {
+  template<required::Field F, Size C> template<entropy::required::Entropy SOURCE> auto Definition<F,C>::random(SOURCE &source) -> Value {
+    static_assert(entropy::usage::Entropy<SOURCE>);
+    auto noncer = nonce::Generator<nonce::Element<Element>, SOURCE>{source};
+    auto ret = Value{};
+    for (auto &each : ret) {
+      each = noncer();
+    }
+    return ret;
+  }
+  template<required::Field F, Size C> constexpr auto Definition<F,C>::encode(Value const &source) -> array::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()> {
+    auto ret = array::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()>{};
+    [&]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) {
+      auto position = ret.begin();
+      ((position = Field::encode_into(source.at(INDEX), position)), ... );
+    }(sequence::Sequence::make<CAPACITY.count()>());
+    return ret;
+  }
+  template<required::Field F, Size C> constexpr auto Definition<F,C>::decode(view::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()> source) -> Value {
+    auto ret = Value{};
+    [&]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) {
+      auto position = source.begin();
+      ((tie(ret.at(INDEX), position) = Field::decode_from(position)), ... );
+    }(sequence::Sequence::make<CAPACITY.count()>());
+    return ret;
+  }
+}
+#endiv

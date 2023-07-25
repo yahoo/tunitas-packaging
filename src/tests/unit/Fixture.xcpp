@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -9,51 +9,118 @@ namespace tests::unit { class Fixture; }
 #divert <hpp>
 struct tests::unit::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  auto test_something() -> void;
+  auto test_usage_Unique() -> void;
+  auto test_usage_Opaque() -> void;
 };
 #endiv
 #divert <cpp>
+#import tests.unit.aggregation.Fixture
 #import tests.unit.array.Fixture
+#import tests.unit.crypto.Fixture
 #import tests.unit.entropy.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.exception.Fixture
+#import tests.unit.field.Fixture
+#import tests.unit.flp.Fixture
 #import tests.unit.fmt.Fixture
-#import tests.unit.identifier.Fixture
+#import tests.unit.histogram.Fixture
 #import tests.unit.hpke.Fixture
+#import tests.unit.integer.Fixture
+#import tests.unit.identifier.Fixture
 #import tests.unit.keyston.Fixture
 #import tests.unit.measurement.Fixture
 #import tests.unit.nonce.Fixture
+#import tests.unit.numeric.Fixture
+#import tests.unit.octets.Fixture
+#import tests.unit.poplar.Fixture
+#import tests.unit.popularity.Fixture
+#import tests.unit.prg.Fixture
+#import tests.unit.prio.Fixture
 #import tests.unit.protocol.Fixture
 #import tests.unit.quantity.Fixture
 #import tests.unit.transport.Fixture
 #import tests.unit.time.Fixture
+#import tests.unit.ranges.Fixture
+#import tests.unit.shards.Fixture
+#import tests.unit.span.Fixture
+#import tests.unit.view.Fixture
 #import tests.unit.wire.Fixture
 #import tests.unit.want.Fixture
+#import tests.unit.af.Fixture
+#import tests.unit.daf.Fixture
+#import tests.unit.vdaf.Fixture
+#import tests.unit.pf.Fixture
+#import tests.unit.dpf.Fixture
+#import tests.unit.idpf.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
-  series << add("something", &Fixture::test_something)
-         << add<array::Fixture>()
-         << add<entropy::Fixture>()
-         << add<error::Fixture>()
-         << add<exception::Fixture>()
-         << add<fmt::Fixture>()
-         << add<identifier::Fixture>()
-         << add<hpke::Fixture>()
-         << add<keyston::Fixture>()
-         << add<measurement::Fixture>()
-         << add<nonce::Fixture>()
-         << add<protocol::Fixture>()
-         << add<quantity::Fixture>()
-         << add<time::Fixture>()
-         << add<transport::Fixture>()
-         << add<wire::Fixture>()
-         << add<want::Fixture>()
-         << END;
+  series  << []{
+              auto use = Stream{"usage"sv};
+              use << add("Unique", &Fixture::test_usage_Unique)
+                  << add("Opaque", &Fixture::test_usage_Opaque)
+                  << END;
+              return use;
+            }()
+          << add<aggregation::Fixture>()
+          << add<array::Fixture>()
+          << add<crypto::Fixture>()
+          << add<entropy::Fixture>()
+          << add<error::Fixture>()
+          << add<exception::Fixture>()
+          << add<field::Fixture>()
+          << add<flp::Fixture>()
+          << add<fmt::Fixture>()
+          << add<histogram::Fixture>()
+          << add<hpke::Fixture>()
+          << add<identifier::Fixture>()
+          << add<integer::Fixture>()
+          << add<keyston::Fixture>()
+          << add<measurement::Fixture>()
+          << add<nonce::Fixture>()
+          << add<numeric::Fixture>()
+          << add<octets::Fixture>()
+          << add<poplar::Fixture>()
+          << add<popularity::Fixture>()
+          << add<prg::Fixture>()
+          << add<prio::Fixture>()
+          << add<protocol::Fixture>()
+          << add<quantity::Fixture>()
+          << add<ranges::Fixture>()
+          << add<shards::Fixture>()
+          << add<span::Fixture>()
+          << add<time::Fixture>()
+          << add<transport::Fixture>()
+          << add<view::Fixture>()
+          << add<want::Fixture>()
+          << add<wire::Fixture>()
+    //
+          << add<af::Fixture>()
+          << add<daf::Fixture>()
+          << add<vdaf::Fixture>()
+          << add<wire::Fixture>()
+          << add<pf::Fixture>()
+          << add<dpf::Fixture>()
+          << add<idpf::Fixture>()
+          << END;
   return settle(series);
 }
+#import tunitas.keyston.Opaque
+#import tunitas.keyston.Unique
 namespace tests::unit {
-  auto Fixture::test_something() -> void {
-    require(ASSERTION, true);
+  auto Fixture::test_usage_Unique() -> void {
+    using Subject = library::Unique<4, Fixture>;
+    auto subject = Subject{};
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Opaque() -> void {
+    using Subject = library::Opaque<4>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
   }
 }
 #endiv

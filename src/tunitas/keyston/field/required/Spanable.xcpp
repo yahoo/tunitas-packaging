@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Element
+#import std.remove_const
+namespace tunitas::keyston::field::required {
+  //
+  // Is this ELEMENT suitable for use in std::span<ELEMENT...> for this element type?
+  //
+  // Usage:
+  //
+  //   struct Something {
+  //     using Value = Element<...somehow...>;
+  //     template<typename ELEMENT> requires required::Spanable<ELEMENT, Value> using Span = std::span<ELEMENT>;
+  //   };
+  //
+  template<typename ELEMENT, typename VALUE> concept Spanable = requires(ELEMENT, VALUE) {
+    requires Element<VALUE>;
+    requires same_as<std::remove_const_t<ELEMENT>, VALUE>;
+  };
+}
+#endiv

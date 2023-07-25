@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf::numeric {
+  //
+  // A serialized message.
+  //
+  // Specification:
+  //
+  //   Various.
+  //   The VDAF (Section &) specifies various message formats.
+  //   No encryption on the message, just the encoding specified by the algorithm athat produced it.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   These things are just variable-sized octet buffers (strings)
+  //
+  // Usage:
+  //
+  //   See Public<...>, Input<...> and so on.
+  //
+  struct Serialized;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.octets.Variable
+class tunitas::keyston::vdaf::numeric::Serialized : public octets::Variable {
+  using Ancestor = octets::Variable;
+protected:
+  ~Serialized() = default;
+public:
+  Serialized() = default;
+  using Ancestor::Variable;
+};
+#endiv

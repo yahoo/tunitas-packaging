@@ -1,0 +1,122 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.generic.required.Configuration
+namespace tunitas::keyston::daf::generic {
+  //
+  // The executor for a generic (Distributed Aggregation) Function
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-daf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-03.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-04.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //   Section 4. Definition of a DAF (Disaggregated Aggregation Function)
+  //
+  //   See generic::Definition<CONFIGURATION> for more commentariat.
+  //
+  //   Executors MUST not to maintian internal state call-to-call
+  //
+  // Design:
+  //
+  //   Executors don't carry state so the member calls are constie.
+  //   Be able to copy around the whole interface cluster of dafs.
+  //   We could use inheritance, but the derived classes are all "different."
+  //
+  // Usage:
+  //
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<NUMERIC>{};
+  //   auto executor = Executor<NUMERIC>{Name::ZERO};
+  //   auto executor = Executor<NUMERIC>{Name::CONSTANT};
+  //   auto executor = Executor<NUMERIC>{Name::COUNT};
+  //   auto executor = Executor<NUMERIC>{Name::SUM};
+  //   auto executor = Executor<NUMERIC>{Name::HISTOGRAM};
+  //   auto executor = Executor<NUMERIC>{Name::POPULARITY};
+  //
+  //   auto disassembled = executor.disassembly(...arguments...);
+  //   auto computed = executor.computation(...arguments...);
+  //   auto disgorged = executor.amalgamation(...arguments...);
+  //   auto reassembled = executor.reassembly(...arguments...);
+  //
+  template<required::Configuration> struct Executor;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Count
+#import tunitas.array.Series
+#import tunitas.keyston.daf.generic.Definition
+#import tunitas.keyston.daf.generic.usage.Configuration
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
+namespace tunitas::keyston::daf {
+  namespace generic {
+    using std::move;
+    template<required::Configuration CONFIGURATION> inline auto swap(Executor<CONFIGURATION> &, Executor<CONFIGURATION> &) noexcept -> void;
+  }
+  template<generic::required::Configuration CONFIGURATION> struct generic::Executor : protected Definition<CONFIGURATION> {
+    using Ancestor = Definition<CONFIGURATION>;
+    friend auto generic::swap<>(Executor &, Executor &) noexcept -> void;
+    static_assert(usage::Configuration<CONFIGURATION>);
+    template<array::required::Arrayable TYPE> using Series = typename CONFIGURATION::Series<TYPE>;
+  public:
+    using Name = daf::Name;
+    using enum Name;
+    //
+    explicit Executor() = default;
+    using Ancestor::Definition;
+    inline explicit Executor(Ancestor);
+    //
+    inline auto disassembly(typename Ancestor::Parameters const &, typename Ancestor::template Measurement<WHOLE> const &, typename Ancestor::Randomness const &) const -> typename Ancestor::Disassembled;
+    inline auto computation(typename Ancestor::Parameters const &, Shard, typename Ancestor::template Public<SHARE> const &, typename Ancestor::template Input<SHARE> const &) const -> typename Ancestor::Computed;
+    inline auto amalgamation(typename Ancestor::Parameters const &, Series<typename Ancestor::template Output<SHARE>> const &) const -> typename Ancestor::Amalgamated;
+    inline auto reassembly(typename Ancestor::Parameters const &, Shards<typename Ancestor::template Aggregation<SHARE>> const &, typename Ancestor::Processed) const -> typename Ancestor::Reassembled;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.daf.exception.Null
+namespace tunitas::keyston::daf {
+  template<generic::required::Configuration CONFIGURATION> auto generic::swap(Executor<CONFIGURATION> &a, Executor<CONFIGURATION> &b) noexcept -> void {
+    typename Executor<CONFIGURATION>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace generic {
+    template<required::Configuration _> Executor<_>::Executor(Ancestor d) : Ancestor{d} { }
+    template<required::Configuration _> auto Executor<_>::disassembly(typename Ancestor::Parameters const &p, typename Ancestor::template Measurement<WHOLE> const &i, typename Ancestor::Randomness const &r) const -> typename Ancestor::Disassembled {
+      if (nullptr == Ancestor::disassembly) {
+        throw exception::Null{};
+      } else {
+        return Ancestor::disassembly(p, i, r);
+      }
+    }
+    template<required::Configuration _> auto Executor<_>::computation(typename Ancestor::Parameters const &p, Shard s, typename Ancestor::template Public<SHARE> const &u, typename Ancestor::template Input<SHARE> const &i) const -> typename Ancestor::Computed {
+      if (nullptr == Ancestor::computation) {
+        throw exception::Null{};
+      } else {
+        return Ancestor::computation(p, s, u, i);
+      }
+    }
+    template<required::Configuration _> auto Executor<_>::amalgamation(typename Ancestor::Parameters const &p, Series<typename Ancestor::Output<SHARE>> const &v) const -> typename Ancestor::Amalgamated {
+      if (nullptr == Ancestor::amalgamation) {
+        throw exception::Null{};
+      } else {
+        return Ancestor::amalgamation(p, v);
+      }
+    }
+    template<required::Configuration _> auto Executor<_>::reassembly(typename Ancestor::Parameters const &p, Shards<typename Ancestor::Aggregation<SHARE>> const &v, typename Ancestor::Processed c) const -> typename Ancestor::Reassembled {
+      if (nullptr == Ancestor::reassembly) {
+        throw exception::Null{};
+      } else {
+        return Ancestor::reassembly(p, v, c);
+      }
+    }
+  }
+}
+#endiv

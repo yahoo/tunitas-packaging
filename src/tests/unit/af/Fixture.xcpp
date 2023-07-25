@@ -1,0 +1,72 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::af { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Transport
+struct tests::unit::af::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using enum ::tunitas::keyston::Transport;
+  //
+  auto test_usage_Name() -> void;
+};
+#endiv
+#divert <cpp>
+#import tunitas.keyston.af.Configuration
+#import tunitas.keyston.af.Definition
+#import tunitas.keyston.af.Executor
+#import tests.unit.af.Configuration
+#import tests.unit.af.Definition
+#import tests.unit.af.Executor
+#import tests.unit.af.Name
+#import tests.unit.af.numeric.Fixture
+auto tests::unit::af::Fixture::suite() -> Suite {
+  auto series = Stream{"af"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Name", &Fixture::test_usage_Name)
+                  << END;
+              return use;
+            }()
+         << add<Name>()
+         << []{
+              auto cfg = Stream{"Configuration"sv};
+              cfg << add<Configuration<library::Configuration<NUMERIC>>>()
+                  << END;
+              return cfg;
+            }()
+         << []{
+              auto def = Stream{"Definition"sv};
+              def << add<Definition<library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
+                  << END;
+              return def;
+            }()
+         << []{
+              auto exe = Stream{"Executor"sv};
+              exe << add<Executor<library::Executor<NUMERIC>, library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
+                  << END;
+              return exe;
+            }()
+         << add<numeric::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.af.Name
+namespace tests::unit::af {
+  auto Fixture::test_usage_Name() -> void {
+    using Subject = library::Name;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto subject0 = Subject{0};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    // The other testers wil examine the output value; here we just call the core function to prove it exists & is callable
+    render(subject);
+  }
+}
+#endiv

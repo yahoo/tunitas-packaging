@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::protocol {
+  //
+  // Ancestor of the protocol intermediate values.
+  //
+  // Specification:
+  //
+  //   Holds a (big or little) number.
+  //
+  // Design:
+  //
+  //   Obvious.
+  //   And yet, Using the Best Available Means and Methods (UBAMM)
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   See Input, Output, Aggregation.
+  //
+  struct Number;
+}
+#endiv
+#divert <hpp>
+#import std.byte
+#import tunitas.array.Variable
+struct tunitas::keyston::daf::protocol::Number {
+  array::Variable<std::byte> value{};
+  Number() = default;
+protected:
+  ~Number() = default;
+};
+#endiv

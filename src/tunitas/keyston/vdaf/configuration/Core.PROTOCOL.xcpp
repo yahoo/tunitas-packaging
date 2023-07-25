@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -11,26 +11,33 @@ namespace tunitas::keyston::vdaf::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
-#import tunitas.keyston.protocol.function.Parameters
-#import tunitas.keyston.protocol.function.Measurement
-#import tunitas.keyston.protocol.function.Public
-#import tunitas.keyston.protocol.function.Input
-#import tunitas.keyston.protocol.function.Preparation
-#import tunitas.keyston.protocol.function.Output
-#import tunitas.keyston.protocol.function.Aggregation
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.vdaf.constants
+#import tunitas.keyston.vdaf.protocol.Parameters
+#import tunitas.keyston.vdaf.protocol.Measurement
+#import tunitas.keyston.vdaf.protocol.Public
+#import tunitas.keyston.vdaf.protocol.Input
+#import tunitas.keyston.vdaf.protocol.Preparation
+#import tunitas.keyston.vdaf.protocol.Output
+#import tunitas.keyston.vdaf.protocol.Aggregation
 #import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.octets.View
 #import tunitas.keyston.hpke.Key
 namespace tunitas::keyston::vdaf::configuration {
+  //
+  // [[FIXTHIS]] this is exactly the same as Core<NUMERIC>
   template<> struct Core<PROTOCOL> {
-    using Parameters = protocol::function::Parameters;
-    using Nonce =  nonce::Bits<32>; // else Opaque<32>;
+    using Parameters = protocol::Parameters;
+    using Randomness = octets::View;
+    using Nonce =  octets::View;
     using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
-    template<Slice SLICE> using Measurement = protocol::function::Measurement<SLICE>;
-    template<Slice SLICE> using Public = protocol::function::Public<SLICE>;
-    template<Slice SLICE> using Input = protocol::function::Input<SLICE>;
-    template<Slice SLICE> using Preparation = protocol::function::Preparation<SLICE>;
-    template<Slice SLICE> using Output = protocol::function::Output<SLICE>;
-    template<Slice SLICE> using Aggregation = protocol::function::Aggregation<SLICE>;
+    using Processed = quantity::Records;
+    template<Slice SLICE> using Measurement = protocol::Measurement<SLICE>;
+    template<Slice SLICE> using Public = protocol::Public<SLICE>;
+    template<Slice SLICE> using Input = protocol::Input<SLICE>;
+    template<Slice SLICE> using Preparation = protocol::Preparation<SLICE>;
+    template<Slice SLICE> using Output = protocol::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = protocol::Aggregation<SLICE>;
   };
 }
 #endiv
@@ -38,7 +45,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.vdaf.generic.configuration.usage.Core
 namespace {
   namespace testate {
-    using enum tunitas::keyston::vdaf::Scheme;
+    using enum tunitas::keyston::Transport;
     namespace usage = tunitas::keyston::vdaf::generic::configuration::usage;
     using namespace tunitas::keyston::vdaf::configuration;
     static_assert(usage::Core<Core<PROTOCOL>>);

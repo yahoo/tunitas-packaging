@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -27,6 +27,12 @@ namespace tests::unit {
     using Value = typename Subject::Value;
     //
     auto test_constructor_default() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_constructor_move() -> void;
+    auto test_constructor_count_only() -> void;
+    auto test_constructor_count_init() -> void;
+    auto test_constructor_copy_start_finish() -> void;
+    auto test_constructor_move_start_finish() -> void;
     auto test_constructor_conversion_Bounded_copy() -> void;
     auto test_constructor_conversion_Bounded_move() -> void;
     auto test_constructor_conversion_Fixed_copy() -> void;
@@ -61,6 +67,22 @@ namespace tests::unit::array {
     series << []{
                 auto con = Stream{"constructor"sv};
                 con << add("default", &Container::test_constructor_default)
+                    << add("copy", &Container::test_constructor_copy)
+                    << add("move", &Container::test_constructor_move)
+                    << []{
+                      auto cou = Stream{"count"sv};
+                      cou << add("only", &Container::test_constructor_count_only)
+                          << add("+init", &Container::test_constructor_count_init)
+                          << END;
+                      return cou;
+                    }()
+                    << []{
+                      auto sf = Stream{"start,finish"sv};
+                      sf << add("copy", &Container::test_constructor_copy_start_finish)
+                         << add("move", &Container::test_constructor_move_start_finish)
+                         << END;
+                      return sf;
+                    }()
                     << []{
                          auto ver = Stream{"conversion"sv};
                          ver << []{
@@ -124,66 +146,137 @@ namespace tests::unit::array {
   }
 }
 #import tunitas.exception.feature.Bound
-#import tunitas.keyston.array.Fixed
-#import tunitas.keyston.array.Bounded
-#import tunitas.keyston.array.Series
+#import tunitas.array.Fixed
+#import tunitas.array.Bounded
+#import tunitas.array.Series
+#import nonstd.required.Move_Constructible
+#import nonstd.required.Copy_Constructible
+#import nonstd.required.Swappable
+#import std.begin
+#import std.end
 namespace tests::unit::array {
   template<typename _> auto Container<_>::test_constructor_default() -> void {
     auto subject = Subject{};
     require(ASSERTION, 0 == subject.size());
   }
+  template<typename _> auto Container<_>::test_constructor_copy() -> void {
+    if constexpr (required::Copy_Constructible<Value>) {
+      auto const specimen = Subject{};
+      auto subject = Subject{specimen};
+      require(ASSERTION, 0 == subject.size());
+    }
+  }
+  template<typename _> auto Container<_>::test_constructor_move() -> void {
+    if constexpr (required::Move_Constructible<Value>) {
+      auto specimen = Subject{};
+      auto subject = Subject{move(specimen)};
+      require(ASSERTION, 0 == subject.size());
+    }
+  }
+  template<typename _> auto Container<_>::test_constructor_count_only() -> void {
+    auto subject = Subject(33);
+    require(ASSERTION, 33u == subject.size());
+  }
+  template<typename _> auto Container<_>::test_constructor_count_init() -> void {
+    if constexpr (required::Copy_Constructible<Value>) {
+      auto subject = Subject(44, Value{});
+      require(ASSERTION, 44u == subject.size());
+      subject.at(0) = subject.at(43);
+    }
+  }
+  template<typename _> auto Container<_>::test_constructor_copy_start_finish() -> void {
+    if constexpr (required::Copy_Constructible<Value>) {
+      Value const specimens[]{Value{}, Value{}, Value{}};
+      auto subject = Subject{std::begin(specimens), std::end(specimens)};
+      require(ASSERTION, 3 == subject.size());
+    }
+  }
+  template<typename _> auto Container<_>::test_constructor_move_start_finish() -> void {
+    if constexpr (required::Move_Constructible<Value>) {
+      Value specimens[]{Value{}, Value{}, Value{}, Value{}};
+      auto subject = Subject{std::make_move_iterator(std::begin(specimens)), std::make_move_iterator(std::end(specimens))};
+      require(ASSERTION, 4 == subject.size());
+    }
+  }
   template<typename _> auto Container<_>::test_constructor_conversion_Bounded_copy() -> void {
-    auto const specimen = library::Bounded<Value, 4u>{{}, {}, {}, {}};
-    auto subject = Subject{specimen};
-    require(ASSERTION, 4uz == subject.size());
+    if constexpr (required::Copy_Constructible<Value>) {
+      auto const specimen = library::Bounded<Value, 4u>{Value{}, Value{}, Value{}, Value{}};
+      auto subject = Subject{specimen};
+      require(ASSERTION, 4uz == subject.size());
+    }
   }
   template<typename _> auto Container<_>::test_constructor_conversion_Bounded_move() -> void {
-    auto specimen = library::Bounded<Value, 4u>{{}, {}, {}, {}};
-    auto subject = Subject{move(specimen)};
-    require(ASSERTION, 4uz == subject.size());
+#define BLICK
+#if 1 || defined(BLICK)
+    if constexpr (required::Move_Constructible<Value>) {
+      auto specimen = library::Bounded<Value, 4u>{Value{}, Value{}, Value{}, Value{}};
+      auto subject = Subject{std::make_move_iterator(specimen.begin()), std::make_move_iterator(specimen.end())};
+      //auto subject = Subject{move(specimen)};
+      require(ASSERTION, 4uz == subject.size());
+    }
+#endif
   }
   template<typename _> auto Container<_>::test_constructor_conversion_Fixed_copy() -> void {
-    auto const specimen = library::Fixed<Value, 4u>(1, 2, 3, 4);
-    auto subject = Subject{specimen};
-    require(ASSERTION, 4uz == subject.size());
+    if constexpr (required::Copy_Constructible<Value>) {
+      auto const specimen = library::Fixed<Value, 4u>(Value{}, Value{}, Value{}, Value{});
+      auto subject = Subject{specimen};
+      require(ASSERTION, 4uz == subject.size());
+    }
   }
   template<typename _> auto Container<_>::test_constructor_conversion_Fixed_move() -> void {
-    auto specimen = library::Fixed<Value, 4u>(1, 2, 3, 4);
-    auto subject = Subject{move(specimen)};
-    require(ASSERTION, 4uz == subject.size());
+    if constexpr (required::Move_Constructible<Value>) {
+      auto specimen = library::Fixed<Value, 4u>(Value{}, Value{}, Value{}, Value{});
+      auto subject = Subject{move(specimen)};
+      require(ASSERTION, 4uz == subject.size());
+    }
   }
   template<typename _> auto Container<_>::test_constructor_conversion_Variable_copy() -> void {
-    auto const specimen = library::Variable<Value>{1, 2, 3, 4};
-    auto subject = Subject{specimen};
-    require(ASSERTION, 4uz == subject.size());
+    if constexpr (required::Copy_Constructible<Value>) {
+      auto const specimen = library::Variable<Value>{Value{}, Value{}, Value{}, Value{}};
+      auto subject = Subject{specimen};
+      require(ASSERTION, 4uz == subject.size());
+    }
   }
   template<typename _> auto Container<_>::test_constructor_conversion_Variable_move() -> void {
-    auto specimen = library::Variable<Value>{1, 2, 3, 4};
-    auto subject = Subject{move(specimen)};
-    require(ASSERTION, 4uz == subject.size());
+#ifdef BLICK
+    if constexpr (required::Move_Constructible<Value>) {
+      auto specimen = library::Variable<Value>{Value{}, Value{}, Value{}, Value{}};
+      auto subject = Subject{move(specimen)};
+      require(ASSERTION, 4uz == subject.size());
+    }
+#endif
   }
   template<typename _> auto Container<_>::test_constructor_conversion_Series_copy() -> void {
-    auto const specimen = library::Series<Value>{1, 2, 3, 4};
-    auto subject = Subject{specimen};
-    require(ASSERTION, 4uz == subject.size());
+    if constexpr (required::Copy_Constructible<Value>) {
+      auto const specimen = library::Series<Value>{Value{}, Value{}, Value{}, Value{}};
+      auto subject = Subject{specimen};
+      require(ASSERTION, 4uz == subject.size());
+    }
   }
   template<typename _> auto Container<_>::test_constructor_conversion_Series_move() -> void {
-    auto specimen = library::Series<Value>{1, 2, 3, 4};
-    auto subject = Subject{move(specimen)};
-    require(ASSERTION, 4uz == subject.size());
+#ifdef BLICK
+    if constexpr (required::Move_Constructible<Value>) {
+      auto specimen = library::Series<Value>{Value{}, Value{}, Value{}, Value{}};
+      auto subject = Subject{move(specimen)};
+      require(ASSERTION, 4uz == subject.size());
+    }
+#endif
   }
   template<typename _> auto Container<_>::test_swap() -> void {
-    auto subject0 = Subject{};
-    auto subject1 = Subject{};
-    swap(subject0, subject1);
+    if constexpr (required::Swappable<Value>) {
+      auto subject0 = Subject{};
+      auto subject1 = Subject{};
+      swap(subject0, subject1);
+    }
   }
   template<typename _> auto Container<_>::test_at_constie() -> void {
+    // (the test) works for move-only and copy-capable types
     auto const subject = Subject(4); // <----- using this (constie)
     require(ASSERTION, 4 == subject.size());
-    auto v0 = subject.at(0); // <---------------------------------------- test this
-    auto v1 = subject.at(1);
-    auto v2 = subject.at(2);
-    auto v3 = subject.at(3);
+    auto const &v0 = subject.at(0); // <---------------------------------------- test this
+    auto const &v1 = subject.at(1);
+    auto const &v2 = subject.at(2);
+    auto const &v3 = subject.at(3);
     require(ASSERTION, sizeof (v0) + sizeof (v1) + sizeof (v2) + sizeof (v3));
     try {
       subject.at(4);
@@ -193,14 +286,16 @@ namespace tests::unit::array {
     }
   }
   template<typename _> auto Container<_>::test_at_mutable() -> void {
+    // (the test) works for move-only and copy-capable types
     auto subject = Subject(4); // <----- using this (mutable)
     require(ASSERTION, 4 == subject.size());
-    subject.at(0) = subject.at(0); // <---------------------------------------- test this
-    subject.at(1) = subject.at(1);
-    subject.at(2) = subject.at(2);
-    subject.at(3) = subject.at(3);
+    auto tmp = std::move(subject.at(0));
+    subject.at(0) = std::move(subject.at(1)); // <---------------------------------------- test thi)s
+    subject.at(1) = std::move(subject.at(2));
+    subject.at(2) = std::move(subject.at(3));
+    subject.at(3) = std::move(tmp);
     try {
-      subject.at(4) = subject.at(4);
+      subject.at(4) = std::move(subject.at(4));
       impossible(ASSERTION);
     } catch (::tunitas::exception::feature::Bound const &) {
       require(ASSERTION);

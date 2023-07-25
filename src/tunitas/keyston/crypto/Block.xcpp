@@ -1,0 +1,117 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::crypto {
+  //
+  // A block (a seed)
+  //
+  // Specification:
+  //
+  //   As stated.
+  //   with operator^ (operator xor)
+  //   with operator+ (concatenation)
+  //   with half<Half>()
+  //
+  // Design:
+  //
+  //   A new type so that ADL will find it.
+  //
+  // Usage:
+  //
+  //   As one does.
+  //
+  template<Size> struct Block;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.octets.View
+#import std.invocable
+namespace tunitas::keyston {
+  namespace crypto {
+    using std::move;
+    template<Size CAPACITY> inline constexpr auto operator^(Block<CAPACITY> const &, Block<CAPACITY> const &) -> Block<CAPACITY>;
+    template<Size CAPACITY> inline constexpr auto operator|(Block<CAPACITY> const &, Block<CAPACITY> const &) -> Block<CAPACITY>;
+    template<Size CAPACITY> inline constexpr auto operator&(Block<CAPACITY> const &, Block<CAPACITY> const &) -> Block<CAPACITY>;
+    template<Size CAPACITY> inline constexpr auto operator+(Block<CAPACITY> const &, Block<CAPACITY> const &) -> Block<2*CAPACITY>;
+    template<Size CAPACITY, typename OPERATION> inline constexpr auto operate(Block<CAPACITY> const &, Block<CAPACITY> const &, OPERATION) -> Block<CAPACITY> requires std::invocable<OPERATION, Octet, Octet>;
+#if 0 // [[REMOVETHIS]] there is no need
+    template<Size CAPACITY, typename... REST> inline auto concatenate(Block<CAPACITY> const &, REST ...) -> octets::Fixed<(1+sizeof...(REST))*CAPACITY> requires (std::convertible_to<REST, Block<CAPACITY> const &> && ... );
+    template<Size CAPACITY> inline auto concatenate(Block<CAPACITY> const &, octets::View) -> octets::Variable;
+#endif
+  }
+  template<Size CAPACITY> class crypto::Block : public octets::Fixed<CAPACITY> {
+    using Ancestor = octets::Fixed<CAPACITY>;
+  public:
+    Block() = default;
+    using Ancestor::Fixed;
+    Block(Ancestor const &a) : Ancestor{a} { }
+    template<Half> inline constexpr auto half() const -> Block<CAPACITY/2>;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.make_index_sequence
+#import std.index_sequence
+#import nonstd.exception.Unreachable
+#import std.copy
+#import std.nothrow
+#import tunitas.Tuple
+namespace tunitas::keyston {
+  template<Size CAPACITY, typename OPERATION> constexpr auto crypto::operate(Block<CAPACITY> const &a, Block<CAPACITY> const &b, OPERATION operation) -> Block<CAPACITY> requires std::invocable<OPERATION, Octet, Octet> {
+    return [=]<Size... INDEX>(std::index_sequence<INDEX...>) -> Block<CAPACITY> {
+      return {std::in_place, operation(a.at(std::nothrow, INDEX), b.at(std::nothrow, INDEX))...};
+    }(std::make_index_sequence<CAPACITY>{});
+  }
+  template<Size CAPACITY> constexpr auto crypto::operator^(Block<CAPACITY> const &a, Block<CAPACITY> const &b) -> Block<CAPACITY> { return operate(a, b, [](Octet a, Octet b) -> Octet { return a ^ b; }); }
+  template<Size CAPACITY> constexpr auto crypto::operator|(Block<CAPACITY> const &a, Block<CAPACITY> const &b) -> Block<CAPACITY> { return operate(a, b, [](Octet a, Octet b) -> Octet { return a & b; }); }
+  template<Size CAPACITY> constexpr auto crypto::operator&(Block<CAPACITY> const &a, Block<CAPACITY> const &b) -> Block<CAPACITY> { return operate(a, b, [](Octet a, Octet b) -> Octet { return a | b; }); }
+  template<Size CAPACITY> constexpr auto crypto::operator+(Block<CAPACITY> const &a, Block<CAPACITY> const &b) -> Block<2*CAPACITY> {
+    auto ret = Block<2*CAPACITY>{};
+    auto sink = ret.begin();
+    std::copy(a.begin(), a.end(), sink);
+    std::copy(b.begin(), b.end(), sink+CAPACITY);
+    return ret;
+  }
+#if 0 // [[REMOVETHIS]] there is no need
+  template<Size CAPACITY, typename... REST> auto crypto::concatenate(Block<CAPACITY> const &base, REST ...rest) -> octets::Fixed<(1+sizeof...(REST))*CAPACITY> requires (std::convertible_to<REST, Block<CAPACITY> const &> && ... ) {
+    auto bundle = Tuple<Block<CAPACITY> const &>{rest...};
+    using Output = octets::Fixed<(1+sizeof...(REST))*CAPACITY>;
+    return [&first, &bundle]<Size... INDEX>(std::index_sequence<INDEX...>) {
+      auto ret = Output{};
+      auto data = ret.data();
+      auto install = [](Block<CAPACITY> const &each, Output::Iterator start) { std::copy(each.begin(), each.end(), start); };
+      install(base, data);
+      (install(get<INDEX>(bundle), data + (1+INDEX)*CAPACITY), ... );
+      return ret;
+    }(std::make_index_sequence<sizeof...(REST)>{});
+  }
+  template<Size CAPACITY> auto crypto::concatenate(Block<CAPACITY> const &base, octets::View variable) -> octets::Variable {
+    using Output = octets::Variable;
+    auto ret = Output{};
+    auto data = ret.data();
+    std::copy(base.begin(), base.end(), data);
+    std::copy(variable.begin(), variable.end(), data+base.size());
+    return ret;
+  }
+#endif
+  namespace crypto {
+    template<Size CAPACITY> template<Half HALF> constexpr auto Block<CAPACITY>::half() const -> Block<CAPACITY/2> {
+      static_assert(0 == CAPACITY % 2);
+      auto ret = Block<CAPACITY/2>{};
+      if constexpr (Half::LO == HALF) {
+        std::copy(Ancestor::begin(), Ancestor::end() - CAPACITY/2, ret.begin());
+      } else if constexpr (Half::HI == HALF) {
+        std::copy(CAPACITY/2 + Ancestor::begin(), Ancestor::end(), ret.begin());
+      } else {
+        throw exception::Unreachable{};
+      }
+      return ret;
+    }
+  }
+}
+#endiv

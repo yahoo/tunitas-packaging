@@ -1,0 +1,61 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.af.numeric.sum
+namespace tests::unit::af::numeric::sum {
+  class Fixture;
+  namespace library = ::tunitas::keyston::af::numeric::sum;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.af.numeric.Palette
+struct tests::unit::af::numeric::sum::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  auto test_computation() -> void;
+  auto test_finalization() -> void;
+protected:
+  struct Observed {
+    inline static constexpr auto ONE = Inventory::Specimen{1};
+    inline static constexpr auto TWO = Inventory::Specimen{2};
+    inline static constexpr auto THREE = Inventory::Specimen{3};
+  };
+  struct Numeric {
+    inline static constexpr auto ZERO = 0ll;
+    inline static constexpr auto ONE = 1ll;
+    inline static constexpr auto TWO = 2ll;
+    inline static constexpr auto THREE = 3ll;
+    inline static constexpr auto SIX = 6ll;
+  };
+  struct Derived {
+    inline static constexpr auto FIVE = Inventory::Summation{5};
+  };
+};
+#endiv
+#divert <cpp>
+auto tests::unit::af::numeric::sum::Fixture::suite() -> Suite {
+  auto series = Stream{"sum"sv};
+  series << add("computation", &Fixture::test_computation)
+         << add("finalization", &Fixture::test_finalization)
+         << END;
+  return settle(series);
+}
+namespace tests::unit::af::numeric::sum {
+  auto Fixture::test_computation() -> void {
+    auto parameters = Configuration::Parameters{};
+    auto intermediate = Configuration::Intermediate{INTERMEDIATE};
+    auto measurement = Configuration::Measurement{MEASUREMENT};
+    auto more = library::computation(parameters, intermediate, measurement);
+    require(ASSERTION, sizeof(more));
+  }
+  auto Fixture::test_finalization() -> void {
+    auto parameters = Configuration::Parameters{};
+    auto intermediate = Configuration::Intermediate{INTERMEDIATE};
+    auto finalized = library::finalization(parameters, intermediate);
+    require(ASSERTION, sizeof(finalized));
+  }
+}
+#endiv

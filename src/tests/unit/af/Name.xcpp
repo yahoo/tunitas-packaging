@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::af { class Name; }
+#endiv
+#divert <hpp>
+#import tunitas.error.by.required.Indicator
+#import tunitas.keyston.af.Name
+#import tests.unit.name.Name
+struct tests::unit::af::Name : public name::Name<library::Name, unit::af::Name> {
+  using Subject = library::Name;
+#if 12 < __GNUC__
+  using DAF = library::DAF;
+  using Old = library::DAF::Name;
+#else
+  // src/tests/unit/af/Name.xcpp:28:72: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+  using DAF = library::DAF::Name;
+  using Old = library::DAF::Name;
+#endif
+  template<Old OLD> inline static constexpr auto Constant = library::Constant<OLD>;
+  template<required::Indicator> auto test_to_string_good() -> void;
+  template<required::Indicator> auto test_to_string_fail() -> void;
+  template<required::Indicator> auto test_to_string_view_good() -> void;
+  template<required::Indicator> auto test_to_string_view_fail() -> void;
+};
+#endiv
+#divert <tpp>
+#import tests.unit.name.To_String
+#import tests.unit.name.To_String_View
+namespace tests::unit::af {
+  template<required::Indicator INDICATOR> auto Name::test_to_string_good() -> void {
+    name::To_String<INDICATOR, Subject>::exercise_good(Constant<DAF::ZERO>, Constant<DAF::CONSTANT>, Constant<DAF::COUNT>, Constant<DAF::SUM>, Constant<DAF::HISTOGRAM>, Constant<DAF::POPULARITY>);
+  }
+  template<required::Indicator INDICATOR> auto Name::test_to_string_fail() -> void {
+    name::To_String<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
+  }
+  template<required::Indicator INDICATOR> auto Name::test_to_string_view_good() -> void {
+    name::To_String_View<INDICATOR, Subject>::exercise_good(Constant<DAF::ZERO>, Constant<DAF::CONSTANT>, Constant<DAF::COUNT>, Constant<DAF::SUM>, Constant<DAF::HISTOGRAM>, Constant<DAF::POPULARITY>);
+  }
+  template<required::Indicator INDICATOR> auto Name::test_to_string_view_fail() -> void {
+    name::To_String_View<INDICATOR, Subject>::exercise_fail(Subject{999'999'999u}, Subject{888'888'888});
+  }
+}
+#endiv

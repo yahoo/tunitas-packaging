@@ -1,0 +1,161 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.numeric.constant
+namespace tests::unit::daf::numeric::constant {
+  class Fixture;
+  namespace library = ::tunitas::keyston::daf::numeric::constant;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.feature.Invariant
+#import tests.unit.daf.numeric.Palette
+struct tests::unit::daf::numeric::constant::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  auto test_disassembly_good() -> void;
+  auto test_computation_good() -> void;
+  auto test_amalgamation_empty() -> void;
+  auto test_amalgamation_good() -> void;
+  auto test_amalgamation_fail() -> void;
+  auto test_reassembly_good() -> void;
+protected:
+  struct Provided;
+  struct Expected;
+  struct Exception {
+    using Invariant = ::tunitas::exception::feature::Invariant;
+  };
+};
+#endiv
+#divert <cpp>
+auto tests::unit::daf::numeric::constant::Fixture::suite() -> Suite {
+  auto series = Stream{"constant"sv};
+  series << []{
+              auto dis = Stream{"disassembly"sv};
+              dis << add("good", &Fixture::test_disassembly_good)
+                  << END;
+              return dis;
+            }()
+         << []{
+           auto com = Stream{"computation"sv};
+           com << add("good", &Fixture::test_computation_good)
+               << END;
+           return com;
+         }()
+         << []{
+           auto ama = Stream{"amalgamation"sv};
+           ama << add("empty", &Fixture::test_amalgamation_empty)
+               << add("good", &Fixture::test_amalgamation_good)
+               << add("fail", &Fixture::test_amalgamation_fail)
+               << END;
+           return ama;
+         }()
+         << []{
+           auto rea = Stream{"reassembly"sv};
+           rea << add("good", &Fixture::test_reassembly_good)
+               << END;
+           return rea;
+         }()
+         << END;
+  return settle(series);
+}
+#import tests.unit.daf.numeric.constant.Fixture.Provided
+#import tests.unit.daf.numeric.constant.Fixture.Expected
+namespace tests::unit::daf::numeric::constant {
+  auto Fixture::test_disassembly_good() -> void {
+    using Provided = Fixture::Provided::Disassembly;
+    using Expected = Fixture::Expected::Disassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto measurement = Configuration::Measurement<WHOLE>{Provided::CANARY};
+    auto randomness = Configuration::Randomness{};
+    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    //
+    require(ASSERTION, sizeof(publick)); // don't care what it is
+    require(ASSERTION, Expected::CANARY == visit(expected.treatment, inputs.at(0_shard)));
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(1_shard)));
+  }
+  auto Fixture::test_computation_good() -> void {
+    using Provided = Fixture::Provided::Computation;
+    using Expected = Fixture::Expected::Computation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto publick = Configuration::Public<SHARE>{};
+    auto input = Configuration::Input<SHARE>{Provided::CANARY};
+    auto output = library::computation(parameters, 0_shard, publick, input);
+    //
+    require(ASSERTION, visit(expected.otreatment, output) == visit(expected.itreatment, input));
+  }
+  auto Fixture::test_amalgamation_empty() -> void try {
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto outputs = Series<Configuration::Output<SHARE>>{}; // <-------------------- empty, see?
+    auto amalgamated = library::amalgamation(parameters, outputs);
+    //
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, amalgamated));
+  } catch (Exception::Invariant const &) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_amalgamation_good() -> void {
+    using Provided = Fixture::Provided::Amalgamation;
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto outputs = []{
+      auto output = Configuration::Output<SHARE>{Provided::CANARY};
+      return Series<Configuration::Output<SHARE>>{output, output, output};
+    }();
+    auto amalgamated = library::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::CANARY == visit(expected.treatment, amalgamated));
+  }
+  auto Fixture::test_amalgamation_fail() -> void try {
+    using Provided = Fixture::Provided::Amalgamation;
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto outputs = []{
+      auto smaller = Configuration::Output<SHARE>{Provided::CANARY};
+      auto bigger = Configuration::Output<SHARE>{Provided::OTHER};
+      // whereas the modular vectors do not have operator>, we must rely on operator!= for consistency
+      // so herein we will find that the "last one wins" -------------------\\\\\\\ (here)
+      //                                                                    |||||||
+      //                                                                    vvvvvvv
+      return Series<Configuration::Output<SHARE>>{smaller, smaller, bigger, smaller};
+    }();
+    //
+    // reminder: this won't (can't) fail by exception, rather it just returns 'bigger'
+    auto amalgamated = library::amalgamation(parameters, outputs);
+    //
+    //                           ///////------------------------------ "last one wins"
+    //                           |||||||
+    //                           vvvvvvv
+    require(ASSERTION, Expected::SMALLER == visit(expected.treatment, amalgamated));
+  } catch (Exception::Invariant const &) {
+    impossible(ASSERTION);
+  }
+  auto Fixture::test_reassembly_good() -> void {
+    using Provided = Fixture::Provided::Reassembly;
+    using Expected = Fixture::Expected::Reassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto aggregations = []{
+      auto shard = Configuration::Aggregation<SHARE>{Provided::CANARY};
+      return Shards<Configuration::Aggregation<SHARE>>{shard, shard};
+    }();
+    auto const processed = Configuration::Processed{1234};
+    auto reassembled = library::reassembly(parameters, aggregations, processed);
+    //
+    require(ASSERTION, Expected::CANARY == visit(expected.treatment, reassembled));
+  }
+}
+#endiv

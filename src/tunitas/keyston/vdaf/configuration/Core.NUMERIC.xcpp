@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -11,6 +11,8 @@ namespace tunitas::keyston::vdaf::configuration {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.Opaque
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.vdaf.constants
 #import tunitas.keyston.vdaf.numeric.Parameters
 #import tunitas.keyston.vdaf.numeric.Measurement
 #import tunitas.keyston.vdaf.numeric.Public
@@ -18,13 +20,16 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.vdaf.numeric.Preparation
 #import tunitas.keyston.vdaf.numeric.Output
 #import tunitas.keyston.vdaf.numeric.Aggregation
-#import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.hpke.Key
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.octets.View
 namespace tunitas::keyston::vdaf::configuration {
   template<> struct Core<NUMERIC> {
     using Parameters = vdaf::numeric::Parameters;
-    using Nonce =  nonce::Bits<32>; // else Opaque<32>;
-    using Verify_Key = hpke::Key<hpke::Side::SECRET>; // else Opaque<(1uz<<24)>;
+    using Randomness = octets::View;
+    using Nonce =  octets::View;
+    using Verify_Key = hpke::Key<hpke::Side::SECRET>; // [[FIXTHIS]] use a view since the size need not be known here.
+    using Processed = quantity::Records;
     template<Slice SLICE> using Measurement = vdaf::numeric::Measurement<SLICE>;
     template<Slice SLICE> using Public = vdaf::numeric::Public<SLICE>;
     template<Slice SLICE> using Input = vdaf::numeric::Input<SLICE>;
@@ -38,7 +43,7 @@ namespace tunitas::keyston::vdaf::configuration {
 #import tunitas.keyston.vdaf.generic.configuration.usage.Core
 namespace {
   namespace testate {
-    using enum tunitas::keyston::vdaf::Scheme;
+    using enum tunitas::keyston::Transport;
     namespace usage = tunitas::keyston::vdaf::generic::configuration::usage;
     using namespace tunitas::keyston::vdaf::configuration;
     static_assert(usage::Core<Core<NUMERIC>>);

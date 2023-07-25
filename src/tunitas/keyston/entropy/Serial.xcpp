@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -25,35 +25,32 @@ namespace tunitas::keyston::entropy {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.time.Clock
+#import nonstd.units.cast
 struct tunitas::keyston::entropy::Serial {
-  using Bits = unsigned int;
+  using Draw = unsigned int;
   using Since = time::Clock::duration;
+  inline static constexpr auto const BYTES = Bytes{sizeof(Draw)};
+  inline static constexpr auto const BITS = nonstd::units::cast<Bits>(BYTES);
   inline auto entropy() const noexcept -> double { return {}; }
-  inline auto draw() -> Bits                     { return ++serial; } // never returns 0
+  inline auto draw() -> Draw                     { return ++serial; } // never returns 0
   inline static auto now() -> Since              { return time::Clock::now().time_since_epoch(); }
   explicit Serial() = default;
   Serial(Serial const &) = delete;
   Serial &operator=(Serial const &) = delete;
 private:
-  static Bits serial;
+  static Draw serial;
 };
 #endiv
 #divert <cpp>
 namespace tunitas::keyston::entropy {
-  Serial::Bits Serial::serial{};
+  Serial::Draw Serial::serial{};
 }
-#import tunitas.keyston.entropy.required.Entropy
+#import tunitas.keyston.entropy.usage.Entropy
 namespace {
   namespace testate {
-    namespace required = tunitas::keyston::entropy::required;
-    using namespace tunitas::keyston::entropy;
-    static_assert(required::Entropy<Serial>);
-    static_assert(std::is_default_constructible_v<Serial>);
-    static_assert(not std::is_copy_constructible_v<Serial>);
-    static_assert(not std::is_move_constructible_v<Serial>);
-    static_assert(not std::is_copy_assignable_v<Serial>);
-    static_assert(not std::is_move_assignable_v<Serial>);
-    static_assert(not std::is_swappable_v<Serial>);
+    namespace usage = tunitas::keyston::entropy::usage;
+    using tunitas::keyston::entropy::Serial;
+    static_assert(usage::Entropy<Serial>);
   }
 }
 #endiv

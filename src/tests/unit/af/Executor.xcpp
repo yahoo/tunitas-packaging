@@ -1,0 +1,257 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.measurement
+#import tunitas.keyston.quantity
+#import tunitas.Optional
+namespace tests::unit::af {
+  namespace [[eponymous]] executor {
+    template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> class Executor;
+    namespace measurement = ::tunitas::keyston::measurement;
+    namespace quantity = ::tunitas::keyston::quantity;
+    using ::tunitas::Optional;
+  }
+  using executor::Executor;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.af.Executor
+#import tunitas.keyston.af.exception.Null
+#import tunitas.keyston.af.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+#import tunitas.exception.Aspect
+#import std.derived_from
+namespace tests::unit::af {
+  template<typename SUBJECT, typename DEFINITION, typename CONFIGURATION> struct executor::Executor : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    using Definition = DEFINITION;
+    using Configuration = CONFIGURATION;
+    using Name = library::Name;
+    using DAF = library::DAF;
+    template<DAF::Name OLD> inline static constexpr auto Constant = library::Constant<OLD>;
+    //
+    auto test_constructor_default() -> void;
+    template<library::Name> auto test_constructor_by_Name() -> void;
+    template<library::Name> auto test_constructor_by_Definition() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_constructor_move() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    auto test_swap() -> void;
+    auto test_computation_good() -> void;
+    auto test_computation_fail() -> void;
+    auto test_finalization_good() -> void;
+    auto test_finalization_fail() -> void;
+  protected:
+    using Failure = library::exception::Null;
+    // unused, but reminders that they could be
+    using Backup3 = library::exception::Aspect;
+    using Backup2 = ::tunitas::keyston::af::exception::Aspect;
+    using Backup1 = ::tunitas::keyston::exception::Aspect;
+    using Backup0 = ::tunitas::exception::Aspect;
+    static_assert(std::derived_from<Failure, Backup0>);
+    static_assert(std::derived_from<Failure, Backup1>);
+    static_assert(std::derived_from<Failure, Backup2>);
+    static_assert(std::derived_from<Failure, Backup3>);
+    template<library::Name NAME> static auto exercise(Subject &) -> void;
+  protected:
+#if 12 < __GNUC__
+    // try again (this bug keeps not getting fixed ... compilers should never crash, even on IFND)
+    inline static constexpr auto SPECIMEN = library::Constant<library::DAF::ZERO>;
+    inline static constexpr auto SPECIMEN2 = library::Constant<library::DAF::CONSTANT>;
+#else
+    inline static constexpr auto SPECIMEN = library::Constant<library::DAF::Name::ZERO>;
+    inline static constexpr auto SPECIMEN2 = library::Constant<library::DAF::Name::CONSTANT>;
+#endif
+    inline static constexpr auto SPECIMEN1 = SPECIMEN;
+    static auto initial_intermediate_zero() { return typename Configuration::Intermediate{::tunitas::keyston::aggregation::Count{0}}; }
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.af.Definition
+#import nonstd.exception.Unreachable // Is there a tunitas::exception:::Unreachable?  There ought to be, shouldn't there?
+namespace tests::unit::af::executor {
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Executor::test_constructor_default)
+                    << []{
+#if 12 < __GNUC__
+                      // try again (this bug keeps not getting fixed ... compilers should never crash, even on IFND)
+#else
+                      // src/tests/unit/af/Definition.xcpp:51:106: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+                      using DAF = library::DAF::Name;
+#endif  
+                         auto by = Stream{"by"sv};
+                         by << [] {
+                                 auto name = Stream{"Name"sv};
+                                 name << add("ZERO", &Executor::test_constructor_by_Name<Constant<DAF::ZERO>>)
+                                      << add("CONSTANT", &Executor::test_constructor_by_Name<Constant<DAF::CONSTANT>>)
+                                      << add("COUNT", &Executor::test_constructor_by_Name<Constant<DAF::COUNT>>)
+                                      << add("SUM", &Executor::test_constructor_by_Name<Constant<DAF::SUM>>)
+                                      << add("HISTOGRAM", &Executor::test_constructor_by_Name<Constant<DAF::HISTOGRAM>>)
+                                      << add("POPULARITY", &Executor::test_constructor_by_Name<Constant<DAF::POPULARITY>>)
+                                      << END;
+                                 return name;
+                               }()
+                            << [] {
+                                 auto def = Stream{"Definition"sv};
+                                 def << add("ZERO", &Executor::test_constructor_by_Definition<Constant<DAF::ZERO>>)
+                                     << add("CONSTANT", &Executor::test_constructor_by_Definition<Constant<DAF::CONSTANT>>)
+                                     << add("COUNT", &Executor::test_constructor_by_Definition<Constant<DAF::COUNT>>)
+                                     << add("SUM", &Executor::test_constructor_by_Definition<Constant<DAF::SUM>>)
+                                     << add("HISTOGRAM", &Executor::test_constructor_by_Definition<Constant<DAF::HISTOGRAM>>)
+                                     << add("POPULARITY", &Executor::test_constructor_by_Definition<Constant<DAF::POPULARITY>>)
+                                     << END;
+                                 return def;
+                               }()
+                            << END;
+                         return by;
+                       }()
+                    << add("copy", &Executor::test_constructor_copy)
+                    << add("move", &Executor::test_constructor_move)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assignment"sv};
+                ass << add("copy", &Executor::test_assignment_copy)
+                    << add("move", &Executor::test_assignment_move)
+                    << END;
+                return ass;
+              }()
+           << add("swap", &Executor::test_swap)
+           << []{
+                auto call = Stream{"computation"sv};
+                call << add("good", &Executor::test_computation_good)
+                     << add("fail", &Executor::test_computation_fail)
+                     << END;
+                return call;
+              }()
+           << []{
+                auto call = Stream{"finalization"sv};
+                call << add("good", &Executor::test_finalization_good)
+                     << add("fail", &Executor::test_finalization_fail)
+                     << END;
+                return call;
+              }()
+           << END;
+    return settle(series);
+  }
+}
+#import tunitas.exception.feature.Unimplemented
+#import tests.unit.af.Palette
+namespace tests::unit::af::executor {
+  template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::exercise(Subject &subject) -> void try {
+    //
+    // WATCHOUT  the parameters and and the intermedate value MUST be set up appropriately.
+    // failing that, then compuation(...) and finalization(...) will throw exception::Variant, which is not the point of this test
+    // 
+    auto parameters = Palette<NAME>::generate_parameters();
+    {
+      auto measurement = typename Configuration::Measurement{};
+      auto intermediate = Palette<NAME>::generate_intermediate();
+      auto got = subject.computation(parameters, intermediate, measurement); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    } {
+      auto intermediate = Palette<NAME>::generate_intermediate();
+      auto got = subject.finalization(parameters, intermediate); // <-------------------- test this (show it is callable)
+      require(ASSERTION, sizeof (got));
+    }
+  } catch (::tunitas::keyston::exception::Variant const &) {
+    impossible(ASSERTION);
+  } catch (::tunitas::exception::feature::Unimplemented const &) {
+    // well never mind them
+    require(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::test_constructor_by_Name() -> void {
+    auto subject = Subject{NAME}; // <-------------------- test this (the constructor)
+    exercise<NAME>(subject);
+  }
+  template<typename E, typename D, typename C> template<library::Name NAME> auto Executor<E,D,C>::test_constructor_by_Definition() -> void {
+    auto definition = Definition{NAME};
+    auto subject = Subject{definition}; // <-------------------- test this (the constructor)
+    exercise<NAME>(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_copy() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{specimen}; // <-------------------- test this
+    exercise<SPECIMEN>(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_constructor_move() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    exercise<SPECIMEN>(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_assignment_copy() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    exercise<SPECIMEN>(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_assignment_move() -> void {
+    auto specimen = Subject{SPECIMEN};
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    exercise<SPECIMEN>(subject);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_swap() -> void {
+    auto a = Subject{SPECIMEN1};
+    auto b = Subject{SPECIMEN2};
+    swap(a, b); // <-------------------- test this
+    exercise<SPECIMEN2>(a);
+    exercise<SPECIMEN1>(b);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_computation_good() -> void {
+    auto subject = Subject{SPECIMEN};
+    auto parameters = typename Configuration::Parameters{};
+    auto measurement = typename Configuration::Measurement{};
+    auto intermediate = initial_intermediate_zero();
+    auto got = subject.computation(parameters, intermediate, measurement); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_computation_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
+    auto measurement = typename Configuration::Measurement{};
+    auto intermediate = initial_intermediate_zero();
+    auto got = subject.computation(parameters, intermediate, measurement); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  } catch (Backup0 const &) {
+    impossible(ASSERTION);
+  } catch (Backup1 const &) {
+    impossible(ASSERTION);
+  } catch (Backup2 const &) {
+    impossible(ASSERTION);
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_finalization_good() -> void {
+    auto subject = Subject{SPECIMEN};
+    auto parameters = typename Configuration::Parameters{};
+    auto intermediate = initial_intermediate_zero();
+    auto got = subject.finalization(parameters, intermediate); // <-------------------- test this (show it is callable)
+    require(ASSERTION, sizeof (got));
+  }
+  template<typename E, typename D, typename C> auto Executor<E,D,C>::test_finalization_fail() -> void try {
+    auto subject = Subject{}; // <---------------------------------------- fails because it was default constructed to nullptr 
+    auto parameters = typename Configuration::Parameters{};
+    auto intermediate = initial_intermediate_zero();
+    subject.finalization(parameters, intermediate); // <-------------------- test this (show it is callable)
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

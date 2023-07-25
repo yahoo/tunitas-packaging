@@ -1,0 +1,80 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::vdaf::protocol { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.Name
+struct tests::unit::vdaf::protocol::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Name = ::tunitas::keyston::vdaf::Name;
+  //
+  auto test_usage_Definition() -> void;
+  auto test_usage_Executor() -> void;
+  auto test_usage_Parameters() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.vdaf.protocol.Executor
+#import tests.unit.vdaf.protocol.zero.Fixture
+#import tests.unit.vdaf.protocol.constant.Fixture
+#import tests.unit.vdaf.protocol.prio3.Fixture
+#import tests.unit.vdaf.protocol.poplar1.Fixture
+auto tests::unit::vdaf::protocol::Fixture::suite() -> Suite {
+  auto series = Stream{"protocol"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Definition", &Fixture::test_usage_Definition)
+                  << add("Executor", &Fixture::test_usage_Executor)
+                  << add("Parameters", &Fixture::test_usage_Parameters)
+                  << END;
+              return use;
+            }()
+         << add<Executor>()
+         << add<zero::Fixture>()
+         << add<constant::Fixture>()
+         << add<prio3::Fixture>()
+         << add<poplar1::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.vdaf.protocol.Definition
+#import tunitas.keyston.vdaf.protocol.Executor
+#import tunitas.keyston.vdaf.protocol.Parameters
+namespace tests::unit::vdaf::protocol {
+  auto Fixture::test_usage_Definition() -> void {
+    using Subject = library::Definition;
+    auto nullface = Subject{};
+    auto zero = Subject{Name::ZERO};
+    auto constant = Subject{Name::CONSTANT};
+    auto count = Subject{Name::PRIO3_COUNT};
+    auto sum = Subject{Name::PRIO3_SUM};
+    auto histogram = Subject{Name::PRIO3_HISTOGRAM};
+    auto poplar1 = Subject{Name::POPLAR1};
+    require(ASSERTION, sizeof (nullface) + sizeof (zero) + sizeof (constant) + sizeof(count) + sizeof(sum) + sizeof(histogram) + sizeof (poplar1));
+  }
+  auto Fixture::test_usage_Executor() -> void {
+    using Subject = library::Executor;
+    auto nullface = Subject{};
+    auto zero = Subject{Name::ZERO};
+    auto constant = Subject{Name::CONSTANT};
+    auto count = Subject{Name::PRIO3_COUNT};
+    auto sum = Subject{Name::PRIO3_SUM};
+    auto histogram = Subject{Name::PRIO3_HISTOGRAM};
+    auto poplar1 = Subject{Name::POPLAR1};
+    require(ASSERTION, sizeof (nullface) + sizeof (zero) + sizeof (constant) + sizeof(count) + sizeof(sum) + sizeof(histogram) + sizeof (poplar1));
+  }
+  auto Fixture::test_usage_Parameters() -> void {
+    auto subject0 = library::Parameters{};
+    auto subject1 = library::Parameters{};
+    swap(subject0, subject1);
+    // There are no values in Parameters in prio3; but poplar1 has such.
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+}
+#endiv

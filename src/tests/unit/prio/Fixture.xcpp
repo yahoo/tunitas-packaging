@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::prio { struct Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::prio::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.Definition
+#import tests.unit.prio.Codec
+#import tests.unit.prio.Customizer
+#import tests.unit.prio.Definition
+#import tests.unit.prio.split.Fixture
+auto tests::unit::prio::Fixture::suite() -> Suite {
+  auto series = Stream{"prio"sv};
+  series << []{
+             auto cod = Stream{"Codec"sv};
+             cod << add<Codec<library::Codec<COUNT>>>()
+                 << add<Codec<library::Codec<SUM>>>()
+                 << add<Codec<library::Codec<HISTOGRAM>>>()
+                 << END;
+             return cod;
+           }()
+         << add<Customizer>()
+         << []{
+             auto def = Stream{"Definition"sv};
+             def << add<Definition<library::Definition<COUNT>>>()
+                 << add<Definition<library::Definition<SUM>>>()
+                 << add<Definition<library::Definition<HISTOGRAM>>>()
+                 << END;
+             return def;
+         }()
+         << add<split::Fixture>()
+         << END;
+  return settle(series);
+}
+#endiv

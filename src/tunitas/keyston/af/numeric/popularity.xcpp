@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::af::numeric::popularity {
+  namespace package_popularity {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_popularity::interface;
+}
+#import tunitas.keyston.af.numeric.components
+#import tunitas.keyston.popularity
+namespace tunitas::keyston::af::numeric::popularity::package_popularity {
+  using namespace numeric::components;
+  using namespace tunitas::keyston::popularity;
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::af::numeric::popularity::package_popularity::body {
+  namespace exported {
+    //
+    // the interface to the popularity AF
+    //
+    // Specification:
+    //
+    //   According to the pattern of these things.
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See Definition.
+    //
+    auto initialization(Parameters const &) -> Initialized;
+    auto computation(Parameters const &, Intermediate, Measurement const &) -> Computed;
+    auto finalization(Parameters const &, Intermediate const &) -> Finalized;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.popularity.encode
+namespace tunitas::keyston::af::numeric::popularity::package_popularity {
+  auto interface::initialization(Parameters const &parameters) -> Initialized {
+    auto size = parameters.prefixes.value().size();
+    auto fill = intermediate::Popularity::Value{};
+    return intermediate::Popularity(size, fill);
+  }
+  auto interface::finalization(Parameters const &, Intermediate const &i) -> Finalized { return finalize(i); }
+  auto interface::computation(Parameters const &parameters, Intermediate intermediate, Measurement const &measurement) -> Computed {
+    auto treatment = Treatment{[&parameters, &measurement](aggregation::Popularity &lhs) -> void {
+      lhs += encode(measurement.value, parameters.prefix_length.value(), parameters.prefixes.value());
+    }};
+    visit(treatment, intermediate);
+    return move(intermediate);
+  }
+}
+#endiv

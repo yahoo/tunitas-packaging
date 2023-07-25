@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -7,4 +7,6 @@
 tunitas_keyston_required_SUBSOURCES = \
   obj/src/tunitas/keyston/required/namespace.cpp \
   obj/src/tunitas/keyston/required/Has_Single_Bit.cpp \
+  obj/src/tunitas/keyston/required/span.Castable.cpp \
+  obj/src/tunitas/keyston/required/Unique.cpp \
   $(end)

@@ -1,5 +1,9 @@
 # This is a -*- Makefile -*- fragment
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
 # For terms and provenance see the LICENSE file at the top of this repository.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
 noinst_lib_libstd_tunitas_keyston_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
 noinst_lib_libstd_tunitas_keyston_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)

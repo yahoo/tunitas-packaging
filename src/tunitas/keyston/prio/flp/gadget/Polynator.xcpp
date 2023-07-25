@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.required.Recorder
+#import tunitas.keyston.field.required.Polynomial
+namespace tunitas::keyston::prio::flp::gadget {
+  //
+  // A gadget evaluator via a polynomial.
+  //
+  // Specification:
+  //
+  //   Magic (the polynomial was separately constructed to have appropriate contours)
+  //   Expect to evaluate it at the kth Pth-root of unity.
+  //
+  //   Record the outputs (ignore the input to the polynomial)
+  //
+  // Design:
+  //
+  //   Only one argument now, even if the gadget has 1 < ARITY
+  //
+  // Usage:
+  //
+  //   You need a tutorial on how to evaluate a polynomial?
+  //
+  template<required::Recorder, field::required::Polynomial> struct Polynator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.Polynomial
+namespace tunitas::keyston::prio::flp {
+  template<gadget::required::Recorder RECORDER, field::required::Polynomial POLYNOMIAL> struct gadget::Polynator {
+    using Recorder = RECORDER;
+    using Polynomial = POLYNOMIAL;
+    using Element = typename Polynomial::Value;
+    constexpr explicit Polynator(Recorder r, Polynomial p) : recorder{r}, polynomial{p} { }
+    inline constexpr auto operator()(Element alpha_pow_k) const -> Element;
+  protected:
+    mutable Recorder recorder{};
+    Polynomial polynomial{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::flp::gadget {
+  template<required::Recorder R, field::required::Polynomial P> constexpr auto Polynator<R,P>::operator()(Element alpha_sup_k) const -> Element {
+    auto z = polynomial(alpha_sup_k);
+    recorder.output(z);
+    return z;
+  }
+}
+#endiv

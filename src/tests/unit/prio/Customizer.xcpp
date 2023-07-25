@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::prio { struct Customizer; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.Customizer
+#import tunitas.keyston.prio.Usage
+#import std.uint32_t
+struct tests::unit::prio::Customizer : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  enum class Algorithm : std::uint32_t { ALGORITHM };
+  using Subject = library::Customizer<Algorithm::ALGORITHM>;
+  using Usage = library::Usage;
+  //
+  template<Usage> auto test_domain_separation_tag() -> void;
+protected:
+  static auto dump(Usage, ::tunitas::view::View<::tunitas::keyston::Octet>) -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::prio {
+  template<Customizer::Usage USAGE> auto Customizer::test_domain_separation_tag() -> void {
+    auto got = Subject::template domain_separation_tag<USAGE>();
+    dump(USAGE, got);
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::prio::Customizer::suite() -> Suite {
+  auto series = Stream{"Customizer"sv};
+  series << add("INPUT_SHARE", &Customizer::test_domain_separation_tag<Usage::INPUT_SHARE>)
+         << add("PROOF_SHARE", &Customizer::test_domain_separation_tag<Usage::PROOF_SHARE>)
+         << add("JOINT_RANDOMNESS", &Customizer::test_domain_separation_tag<Usage::JOINT_RANDOMNESS>)
+         << add("PROVE_RANDOMNESS", &Customizer::test_domain_separation_tag<Usage::PROVE_RANDOMNESS>)
+         << add("QUERY_RANDOMNESS", &Customizer::test_domain_separation_tag<Usage::QUERY_RANDOMNESS>)
+         << add("JOINT_RANDOMNESS_SEED", &Customizer::test_domain_separation_tag<Usage::JOINT_RANDOMNESS_SEED>)
+         << add("JOINT_RANDOMNESS_PART", &Customizer::test_domain_separation_tag<Usage::JOINT_RANDOMNESS_PART>)
+         << END;
+  return settle(series);
+}
+#import tests.unit.prio.format
+namespace tests::unit::prio {
+  auto Customizer::dump(Usage usage, ::tunitas::view::View<::tunitas::keyston::Octet> got) -> void {
+    std::cerr << "usage=" << underlying(usage) << " domain_separation_tag=" << format(got) << '\n';
+  }
+}
+#endiv

@@ -1,0 +1,27 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tests_unit_daf_numeric_SUBSOURCES = \
+  check/obj/src/tests/unit/daf/numeric/namespace.cpp \
+  check/obj/src/tests/unit/daf/numeric/Fixture.cpp \
+  check/obj/src/tests/unit/daf/numeric/Palette.cpp \
+  check/obj/src/tests/unit/daf/numeric/zero.Fixture.cpp \
+  check/obj/src/tests/unit/daf/numeric/zero.Fixture.Expected.cpp \
+  check/obj/src/tests/unit/daf/numeric/zero.Fixture.Provided.cpp \
+  check/obj/src/tests/unit/daf/numeric/constant.Fixture.cpp \
+  check/obj/src/tests/unit/daf/numeric/constant.Fixture.Expected.cpp \
+  check/obj/src/tests/unit/daf/numeric/constant.Fixture.Provided.cpp \
+  check/obj/src/tests/unit/daf/numeric/count.Fixture.cpp \
+  check/obj/src/tests/unit/daf/numeric/count.Fixture.Expected.cpp \
+  check/obj/src/tests/unit/daf/numeric/count.Fixture.Provided.cpp \
+  check/obj/src/tests/unit/daf/numeric/sum.Fixture.cpp \
+  check/obj/src/tests/unit/daf/numeric/sum.Fixture.Expected.cpp \
+  check/obj/src/tests/unit/daf/numeric/sum.Fixture.Provided.cpp \
+  check/obj/src/tests/unit/daf/numeric/histogram.Fixture.cpp \
+  check/obj/src/tests/unit/daf/numeric/histogram.Fixture.Expected.cpp \
+  check/obj/src/tests/unit/daf/numeric/histogram.Fixture.Provided.cpp \
+  check/obj/src/tests/unit/daf/numeric/popularity.Fixture.cpp \
+  $(end)

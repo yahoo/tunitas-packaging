@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -10,6 +10,16 @@ namespace tunitas::keyston::vdaf {
   // Design:
   //
   //   Executor<PROTOCOL> performs transduction from bytes and calls Executor<NUMERIC>
+  //
+  // Usage:
+  //
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<PROTOCOL>{};
+  //   auto executor = Executor<PROTOCOL>{Name::ZERO};
+  //   auto executor = Executor<PROTOCOL>{Name::CONSTANT};
+  //   auto executor = Executor<PROTOCOL>{Name::PRIO3};
+  //   auto executor = Executor<PROTOCOL>{Name::POPLAR1};
   //
   template<> struct Executor<PROTOCOL>;
 }

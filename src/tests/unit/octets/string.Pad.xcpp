@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::octets::string { struct Pad; }
+#endiv
+#divert <hpp>
+#import tests.unit.octets.Palette
+struct tests::unit::octets::string::Pad : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  template<unsigned> auto test_pad() -> void;
+};
+#endiv
+#divert <cpp>
+//
+// The specializations MUST occur before suite() so that their address is known
+//
+#import tunitas.keyston.octets.string // for pad(...)
+namespace tests::unit::octets::string {
+  template<> auto Pad::test_pad<0>() -> void {
+    auto got = library::pad(Bytes{9}, generate<Fixed<3>>()); // <--------------- test this
+    require(ASSERTION, 9 == got.size());
+  }
+  template<> auto Pad::test_pad<1>() -> void {
+      auto got = library::pad(Bytes{9}, generate<Fixed<7>>()); // <--------------- test this
+    require(ASSERTION, 9 == got.size());
+  }
+  template<> auto Pad::test_pad<2>() -> void {
+    auto got = library::pad(Bytes{9}, generate<Fixed<7>>(), generate<Fixed<7>>()); // <--------------- test this
+    require(ASSERTION, 18 == got.size());
+  }
+  template<> auto Pad::test_pad<3>() -> void {
+    auto got = library::pad(Bytes{9}, generate<Fixed<7>>(), generate<Fixed<7>>(), generate<Fixed<7>>()); // <--------------- test this
+    require(ASSERTION, 27 == got.size());
+  }
+  namespace {
+    inline constexpr auto const COUNT = 4uz;
+  }
+}
+#import std.make_index_sequence
+#import std.index_sequence
+#import std.to_string
+auto tests::unit::octets::string::Pad::suite() -> Suite {
+  auto series = Stream{"pad"sv};
+  [&series]<Size... INDEX>(std::index_sequence<INDEX...>) {
+    ((series << add(std::to_string(INDEX), &Pad::test_pad<INDEX>)), ... );
+  }(std::make_index_sequence<COUNT>{});
+  return settle(series);
+}
+#endiv

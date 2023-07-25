@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_prio_exception_SUBSOURCES = \
+  obj/src/tunitas/keyston/prio/exception/namespace.cpp \
+  obj/src/tunitas/keyston/prio/exception/Aspect.cpp \
+  obj/src/tunitas/keyston/prio/exception/Bound.cpp \
+  obj/src/tunitas/keyston/prio/exception/Decode.cpp \
+  obj/src/tunitas/keyston/prio/exception/Exhausted.cpp \
+  obj/src/tunitas/keyston/prio/exception/Input.cpp \
+  obj/src/tunitas/keyston/prio/exception/Invalid.cpp \
+  obj/src/tunitas/keyston/prio/exception/Invariant.cpp \
+  obj/src/tunitas/keyston/prio/exception/Prove.cpp \
+  obj/src/tunitas/keyston/prio/exception/Query.cpp \
+  obj/src/tunitas/keyston/prio/exception/Verifier.cpp \
+  $(end)

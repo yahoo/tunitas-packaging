@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::protocol {
+  template<Slice SLICE> struct Aggregation;
+  template<> struct Aggregation<WHOLE>;
+  template<> struct Aggregation<SHARE>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Simple
+#import tunitas.keyston.daf.protocol.Number
+namespace tunitas::keyston::daf::protocol {
+  template<> struct Aggregation<WHOLE> {
+    aggregation::Simple result{}; // [[FIXTHIS]] this is wrong (it's namespace protocol, which is incomplete)
+  };
+  template<> struct Aggregation<SHARE> : public Number {
+    using Ancestor = Number;
+  public:
+    Aggregation() = default;
+    using Ancestor::Number;
+  };
+}
+#endiv

@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prg::generator {
+  //
+  // Commonalities among all the generators
+  //
+  // Specification:
+  //
+  //   That which is common.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //
+  // Obligations:
+  //
+  //   Every descendant implements the "next" obligation
+  //   auto next(Bytes length) -> Output;
+  //
+  // Usage:
+  //
+  //   By inheritance into the generators
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.octets.View
+#forward tunitas.keyston.crypto.Algorithm
+#import tunitas.keyston.crypto.algorithm.Algorithm.cSHAKE
+#import tunitas.keyston.prg.constants
+#import tunitas.view.Fixed
+struct tunitas::keyston::prg::generator::Prototype {
+  inline static constexpr auto const SEED_SIZE = constants::SEED_SIZE;
+  struct Seed {
+    using View = view::Fixed<Octet, SEED_SIZE.count()>;
+    using Storage = octets::Fixed<SEED_SIZE.count()>;
+    Seed() = delete;
+    Seed(Seed const &) = delete;
+  };
+  struct Custom {
+    using View = octets::View;
+    using Storage = octets::Variable;
+    Custom() = delete;
+    Custom(Custom const &) = delete;
+  };
+  struct Binder {
+    using View = octets::View;
+    using Storage = octets::Variable;
+    Binder() = delete;
+    Binder(Binder const &) = delete;
+  };
+  struct Output {
+    using Variable = octets::Variable;
+    template<Size LENGTH> using Fixed = octets::Fixed<LENGTH>;
+    Output() = delete;
+    Output(Output const &) = default;
+  };
+protected:
+  ~Prototype() = default;
+  using cSHAKE = crypto::Algorithm<crypto::algorithm::Name::cSHAKE>;
+  // NOT HERE ---> cSHAKE cshake{};
+};
+#endiv

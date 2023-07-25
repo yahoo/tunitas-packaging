@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::field::element { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.integer.required.Unsigned
+struct tests::unit::field::element::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.field.element.Element
+#import tests.unit.field.element.Narrow
+#import tunitas.keyston.field.element.Element
+#import tunitas.integer.integers // for unit128_t, uint256_t, etc.
+auto tests::unit::field::element::Fixture::suite() -> Suite {
+  auto series = Stream{"element"sv};
+  using namespace ::tunitas::integer::integers;
+  series << []{
+             auto ele = Stream{"Element"sv};
+             ele << add<Element<library::Element<64>>>()
+                 << add<Element<library::Element<128>>>()
+                 << add<Element<library::Element<255>>>()
+                 << END;
+             return ele;
+           }()
+         << []{
+              auto nar = Stream{"Narrow"sv};
+              nar << add<Narrow<uint64_t>>()
+                  << add<Narrow<uint128_t>>()
+                  << END;
+              return nar;
+            }()
+         << END;
+  return settle(series);
+}
+#endiv

@@ -1,0 +1,103 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import nonstd.required.Enumeration
+#import std.tuple_size
+#import std.remove_cvref
+#import tunitas.keyston.field.usage.Field
+#import tunitas.keyston.prio.flp.validity.required.Validity
+#import tunitas.keyston.prio.flp.validity.Interface
+#import tunitas.keyston.prio.flp.gadget.usage.Gadgets
+#import tunitas.keyston.prio.flp.gadget.usage.Calls
+#import tunitas.keyston.prio.flp.dimension.cast
+#include <ipp/tunitas.keyston.prio.flp.dimension.cast>
+#import tunitas.keyston.prio.flp.validity.Recorder // ... MUST be #import
+#forward tunitas.keyston.prio.flp.validity.Log // ....... MUST be forward
+#import tunitas.array.Fixed
+#import tunitas.span.Fixed
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.quantity.Shards
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.aggregation.Summation
+#import tunitas.keyston.aggregation.Histogram
+namespace tunitas::keyston::prio::flp::validity::usage {
+  //
+  // Is this type a Validity (a flp verifier circuit bundle)
+  // This is diagnosable with the complete type definition.
+  //
+  namespace [[eponymous]] validity {
+    template<typename CANDIDATE, typename VALIDITY> concept Encoded   = requires(CANDIDATE, VALIDITY) { requires convertible_to<CANDIDATE, typename Interface<VALIDITY>::Encoded>; };
+    template<typename CANDIDATE, typename VALIDITY> concept Truncated = requires(CANDIDATE, VALIDITY) { requires convertible_to<CANDIDATE, typename Interface<VALIDITY>::Truncated>; };
+    template<typename CANDIDATE, typename VALIDITY> concept Decoded   = requires(CANDIDATE, VALIDITY) { requires convertible_to<CANDIDATE, typename Interface<VALIDITY>::Decoded>; };
+    template<typename CANDIDATE, typename VALIDITY> concept Circuited = requires(CANDIDATE, VALIDITY) { requires convertible_to<CANDIDATE, typename Interface<VALIDITY>::Circuited>; };
+    //
+    template<typename MEASUREMENT> concept Measurement = required::Enumeration<MEASUREMENT> && /*force this*/ same_as<MEASUREMENT, measurement::Specimen>;
+    template<typename AGGREGATION> concept Aggregation = (same_as<AGGREGATION, aggregation::Count> ||
+                                                          same_as<AGGREGATION, aggregation::Summation> ||
+                                                          same_as<AGGREGATION, aggregation::Histogram>);
+    //
+    template<typename VALIDITY, typename RECORDER> concept Evaluate = requires(VALIDITY, RECORDER recorder, typename Interface<VALIDITY>::Input input, typename Interface<VALIDITY>::Randomness joint, typename Interface<VALIDITY>::Shards shards) {
+      // Though some instantiations will have convenience interfaces with fewer arguments
+      { VALIDITY::evaluate(recorder, input, joint, shards) } -> Circuited<VALIDITY>;
+    };
+    //
+    template<typename VALIDITY> concept Validity = required::Validity<VALIDITY> && requires(VALIDITY) {
+      typename VALIDITY::Gadgets;
+      requires gadget::usage::Gadgets<typename VALIDITY::Gadgets>;
+      // NO SUCH ---> typename VALIDITY::Calls; <--- NO SUCH (only the constie variable VALIDITY::CALLS of type Calls<N>
+      requires gadget::usage::Calls<std::remove_cvref_t<decltype(VALIDITY::CALLS)>>;
+      requires std::tuple_size<typename VALIDITY::Gadgets>::value == VALIDITY::CALLS.size();
+      //
+      typename VALIDITY::Input;
+      { VALIDITY::INPUT_LENGTH } -> convertible_to<typename VALIDITY::Input>;
+      typename VALIDITY::Output;
+      { VALIDITY::OUTPUT_LENGTH } -> convertible_to<typename VALIDITY::Output>;
+      typename VALIDITY::Joint;
+      { VALIDITY::JOINT_RANDOMNESS_LENGTH } -> convertible_to<typename VALIDITY::Joint>;
+      { VALIDITY::joint_randomness_length() } -> convertible_to<typename VALIDITY::Joint>;
+      { VALIDITY::use_joint_randomness() } -> convertible_to<bool>;
+      //
+      typename VALIDITY::Prove;
+      { VALIDITY::prove_randomness_length() } -> convertible_to<typename VALIDITY::Prove>;
+      typename VALIDITY::Query;
+      { VALIDITY::query_randomness_length() } -> convertible_to<typename VALIDITY::Query>;
+      //
+      typename VALIDITY::Proof;
+      { VALIDITY::proof_length() } -> convertible_to<typename VALIDITY::Proof>;
+      typename VALIDITY::Verifier;
+      { VALIDITY::verifier_length() } -> convertible_to<typename VALIDITY::Verifier>;
+      //
+      typename VALIDITY::Measurement;
+      requires Measurement<typename VALIDITY::Measurement>; // [[FIXTHIS]] use keyston::measurement::usage::Measurement when that is ready
+      typename VALIDITY::Aggregation; // a.k.a. AggResult
+      requires Aggregation<typename VALIDITY::Aggregation>; // [[FIXTHIS]] use keyston::aggregation::usage::Aggregation when that is ready
+      typename VALIDITY::Field;
+      requires field::usage::Field<typename VALIDITY::Field>;
+      //
+      typename VALIDITY::Codec;
+      // Valid.encode(measurement: Measurement) -> Vec[Field] of length INPUT_LENGTH
+      requires requires(VALIDITY, typename Interface<VALIDITY>::Encodable measurement) {
+        { VALIDITY::encode(measurement) }  -> Encoded<VALIDITY>;
+      };
+      // Valid.truncate(input: Vec[Field]) -> Vec[Field] of length OUTPUT_LENGTH
+      requires requires(VALIDITY, typename Interface<VALIDITY>::Truncatable input) {
+        { VALIDITY::truncate(input) } -> Truncated<VALIDITY>;
+      };
+      // Valid.decode(output: Vec[Field], num_measurements: Unsigned) -> AggResult
+      requires requires(VALIDITY, typename Interface<VALIDITY>::Decodable output, typename Interface<VALIDITY>::Shards shards) {
+        { VALIDITY::decode(output, shards) } -> Decoded<VALIDITY>;
+      };
+      //
+      // def Count(inp: Vec[Field64])
+      // def Sum(inp: Vec[Field128], joint_rand: Vec[Field128])
+      // def Histogram(inp: Vec[Field128], joint_rand: Vec[Field128], num_shares: Unsigned)
+      requires Evaluate<VALIDITY, Recorder<VALIDITY, void>>;
+      requires Evaluate<VALIDITY, Recorder<VALIDITY, Log<VALIDITY>>>;
+    };
+  }
+  using validity::Validity;
+}
+#endiv

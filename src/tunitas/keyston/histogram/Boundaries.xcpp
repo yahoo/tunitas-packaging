@@ -1,0 +1,138 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::histogram {
+  //
+  // The boundaries of the histogram.
+  //
+  // Specification
+  //
+  //   See the relationship among Histogram<-->Boundaries<-->Buckets
+  //   laid out in tunitas.keyston.histogram.Histogram
+  //
+  // Design:
+  //
+  //   The Boundaries::Optional and Boundaries::Outcome templates are required because Boundares is incomplete until the end of the class.
+  //   Both tunitas::Optional and tunitas::Outcome require a complete type.
+  //
+  // Usage:
+  //
+  //   auto boundaries = Boundaries{};
+  //
+  //   auto variable = array::Variable<measurement::Specimen>{...somehow...};
+  //   auto boundaries = Boundaries::extend(EXCEPTION, variable);
+  //
+  struct Boundaries;
+}
+#endiv
+#divert <hpp>
+#import nonstd.required.Same_As
+#import tunitas.array.Fixed
+#forward tunitas.array.Variable
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.histogram.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.Success
+#import tunitas.Tuple
+#forward tunitas.keyston.histogram.Histogram
+#import tunitas.keyston.formatter.Formatter
+namespace tunitas::keyston {
+  namespace histogram {
+    using std::move;
+    inline auto swap(Boundaries &, Boundaries &) noexcept -> void;
+    inline auto format(Tuple<Boundaries const &, Histogram const &>) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
+    inline auto format(Boundaries const &, Histogram const &) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
+  }
+  class histogram::Boundaries : public array::Fixed<measurement::Specimen, Buckets::COUNT.count()> {
+    // WATCHOUT - the ancestor is std::array so the constructor name wins inside the class
+    using Ancestor = tunitas::array::Fixed<measurement::Specimen, Buckets::COUNT.count()>;
+    using Variable = tunitas::array::Variable<measurement::Specimen>;
+    friend auto swap(Boundaries &, Boundaries &) noexcept -> void;
+  public:
+    Boundaries() = default;
+    using Ancestor::Fixed;
+    template<typename TYPE> requires required::Same_As<TYPE, Boundaries> struct Optional;
+    template<typename TYPE> requires required::Same_As<TYPE, Boundaries> struct Outcome;
+    inline static auto extend(error::by::Exception, Variable const &) -> Boundaries;
+    inline static auto extend(error::by::Optional, Variable const &) -> Optional<Boundaries>;
+    inline static auto extend(error::by::Outcome, Variable const &) -> Outcome<Boundaries>;
+  private:
+    static auto copy_extending([[inout]] Boundaries &, Variable const &) -> Success;
+  };
+}
+#import tunitas.keyston.histogram.Boundaries.Optional
+#import tunitas.keyston.histogram.Boundaries.Outcome
+#import nonstd.container.Traits.tunitas.keyston.histogram.Boundaries
+#endiv
+#divert <ipp>
+#import tunitas.keyston.exception.Overflow
+namespace tunitas::keyston {
+  auto histogram::format(Tuple<Boundaries const &, Histogram const &> item) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>> { return {item}; }
+  auto histogram::format(Boundaries const &b, Histogram const &h)           -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>> { return Tuple<Boundaries const &, Histogram const &>{b, h}; }
+  auto histogram::swap(Boundaries &a, Boundaries &b) noexcept -> void {
+    Boundaries::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace histogram {
+    auto Boundaries::extend(error::by::Exception, Variable const &source) -> Boundaries {
+      auto ret = Boundaries{}; // develop the NRVO scenario
+      if (good(copy_extending(ret, source))) {
+        return ret;
+      } else {
+        throw exception::Overflow{"Boundaries"};
+      }
+    }
+    auto Boundaries::extend(error::by::Optional, Variable const &source) -> Optional<Boundaries> {
+      auto ret = error::Optional<Boundaries>{Boundaries{}}; // dadem ratione
+      if (good(copy_extending(*ret, source))) {
+        return ret;
+      } else {
+        return {};
+      }
+    }
+    auto Boundaries::extend(error::by::Outcome, Variable const &source) -> Outcome<Boundaries> {
+      auto ret = error::Outcome<Boundaries>{Boundaries{}}; // eadem ratione
+      if (auto filled=copy_extending(value(ret), source); good(filled)) {
+        return ret;
+      } else {
+        return error_code(filled);
+      }
+    }
+  }
+}
+#import tunitas.keyston.formatter.io // to activate format(...)
+#endiv
+#divert <cpp>
+#import std.back_inserter
+#import std.copy
+#import std.fill_n
+#import tunitas.array.Variable
+#import tunitas.keyston.error.Code
+namespace tunitas::keyston::histogram {
+  auto Boundaries::copy_extending(Boundaries &lhs, Variable const &rhs) -> Success {
+    if (rhs.size() > lhs.size()) {
+      return {error::Code::Enumeration::OVERFLOW};
+    } else if (0 == rhs.size()) {
+      std::fill_n(lhs.begin(), lhs.size(), Boundaries::Value{});
+      return SUCCESS;
+    } else {
+      auto start = lhs.begin();
+      auto const end = lhs.end();
+      auto mid = std::copy(rhs.begin(), rhs.end(), start);
+      if (end != mid) {
+        auto last = *std::prev(mid);
+        do {
+          *mid = last;
+        } while (++mid != end);
+      }
+      return SUCCESS;
+    }
+  }
+}
+#endiv

@@ -1,0 +1,99 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::numeric::constant {
+  namespace package_constant {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_constant::interface;
+}
+#import tunitas.keyston.daf.numeric.components
+#import tunitas.keyston.field.Element
+namespace tunitas::keyston::daf::numeric::constant::package_constant {
+  using namespace numeric::components;
+  namespace body {
+    using Element = field::Element<64>;
+  }
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::daf::numeric::constant::package_constant::body {
+  namespace exported {
+    //
+    // the interface to the constant DAF
+    //
+    // Specification:
+    //
+    //   According to the pattern of these things.
+    //
+    // Design:
+    //
+    //   Just what you see.
+    //
+    // Usage:
+    //
+    //   See Definition.
+    //
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
+    auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
+    auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
+  }
+}
+#endiv
+#divert <cpp>
+#import std.accumulate
+#import tunitas.keyston.daf.exception.Invariant
+#import tunitas.keyston.numeric.Augmentment
+#import tunitas.keyston.numeric.Treatment
+#import tunitas.keyston.numeric.enbiggen
+#import tunitas.keyston.numeric.ensmallen
+namespace tunitas::keyston::daf::numeric::constant::package_constant {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Randomness const &) -> Disassembled {
+    auto publick = Public<SHARE>{};
+    auto encoded = Element{enbiggen(m.value)}; // in lieu of Codec<CONSTANT>::encode(...) - there being nosuch Algorithm<CONSTANT>
+    auto enwrapped = Input<SHARE>::Count{encoded};
+    auto biggie = Input<SHARE>{move(enwrapped)};
+    auto little = Input<SHARE>{}; // ............................................. zero goes here, that's the "split" algo, that's the tweet.
+    return {move(publick), Shards(biggie, little)};
+  }
+  auto interface::computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &input) -> Computed {
+    // the compute phase is trivial here
+    auto treatment = Treatment{[](Input<SHARE>::Count const &value) -> Output<SHARE>::Count { return value; }};
+    return Output<SHARE>{visit(treatment, input)};
+  }
+  auto interface::amalgamation(Parameters const &, Series<Output<SHARE>> const &outputs) -> Amalgamated {
+    if (outputs.empty()) { throw exception::Invariant{"empty amalgamation"}; }
+    auto accumulate = [](Aggregation<SHARE> &&accumulator, Output<SHARE> const &each) -> Aggregation<SHARE> {
+      auto augmentment = Augmentment{[](Aggregation<SHARE>::Count &&accumulator, Output<SHARE>::Count const &each) -> Aggregation<SHARE>::Count {
+        // whereas the modular vectors do not have operator>, we must rely on operator!= for consistency
+        if (each != accumulator) {
+          accumulator = each; // last one wins? (dubious)
+        }
+        return move(accumulator);
+      }};
+      return {visit(augmentment, move(accumulator), each)};
+    };
+    return std::accumulate(outputs.begin(), outputs.end(), Aggregation<SHARE>{}, accumulate);
+  }
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &aggregations, Processed processed) -> Reassembled {
+    if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }
+    auto accumulate = [processed](Aggregation<WHOLE>::Count &&accumulator, Aggregation<SHARE> const &increment) -> Aggregation<WHOLE>::Count {
+      // indeed, processed is never used in this variant of the algorithm
+      auto treatment = Treatment{[processed](Aggregation<SHARE>::Count const &each) -> Aggregation<WHOLE>::Count {
+          return keyston::aggregation::Count{underlying(each.at(0))}; // in lieu of Codec<CONSTANT>::decode(...) which does not exist
+        }};
+      if (auto each=visit(treatment, increment); each > accumulator) {
+        accumulator = each; // max
+      }
+      return move(accumulator);
+    };
+    auto accumulated = std::accumulate(aggregations.begin(), aggregations.end(), Aggregation<WHOLE>::Count{}, accumulate);
+    return Aggregation<WHOLE>{accumulated};
+  }
+}
+#endiv

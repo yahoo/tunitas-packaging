@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.Executor.template
+namespace tunitas::keyston::daf {
+  //
+  // Design:
+  //
+  //   Executor<PROTOCOL> performs transduction from bytes and calls Executor<NUMERIC>
+  //
+  // Usage:
+  //
+  //   Yes, but via the descendants; some magic occurs in the inherited constructor
+  //
+  //   auto executor = Executor<PROTOCOL>{};
+  //   auto executor = Executor<PROTOCOL>{Name::ZERO};
+  //   auto executor = Executor<PROTOCOL>{Name::CONSTANT};
+  //   auto executor = Executor<PROTOCOL>{Name::PRIO3};
+  //   auto executor = Executor<PROTOCOL>{Name::POPLAR1};
+  //
+  template<> struct Executor<PROTOCOL>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.daf.Configuration
+#import tunitas.keyston.daf.generic.Executor
+#import tunitas.keyston.daf.Executor.NUMERIC
+#import tunitas.keyston.daf.Definition
+namespace tunitas::keyston::daf {
+  template<> struct Executor<PROTOCOL> : public generic::Executor<Configuration<PROTOCOL>> {
+    using Ancestor = generic::Executor<Configuration<PROTOCOL>>;
+  protected:
+    struct External {
+      using Executor = daf::Executor<PROTOCOL>;
+      using Definition = daf::Definition<PROTOCOL>;
+    };
+    struct Internal {
+      using Executor = daf::Executor<NUMERIC>;
+      using Definition = daf::Definition<NUMERIC>;
+    };
+    Internal::Executor inside{};
+  public:
+    explicit Executor() = default;
+    inline explicit Executor(Name);
+    inline explicit Executor(External::Definition, Internal::Definition);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::daf {
+  Executor<PROTOCOL>::Executor(Name name)
+    : Ancestor{name}
+    , inside{name}
+  { }
+  Executor<PROTOCOL>::Executor(External::Definition outside, Internal::Definition inside)
+    : Ancestor{outside}
+    , inside{inside}
+  { }
+}
+#endiv

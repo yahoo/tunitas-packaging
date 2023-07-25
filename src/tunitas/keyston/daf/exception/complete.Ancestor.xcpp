@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+#import tunitas.keyston.af.exception.Aspect
+#import tunitas.keyston.daf.exception.Aspect
+namespace tunitas::keyston::daf::exception::complete {
+  //
+  // The assembly of the ancestor and all the aspects.
+  //
+  // Specification:
+  //
+  //   Simplify the repeated usage.
+  //   The expected usage is an an ancestor in the inheritance.
+  //   Thus it is the completed namespace.
+  //
+  // Design:
+  //
+  //   A type alias.
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   struct my::Simple : public completed::Ancestor<partial::Access> {
+  //      Simple() = default;
+  //   };
+  //
+  //   class my::Other : public completed::Ancestor<partial::Runtime> {
+  //     using Ancestor = completed::Ancestor<partial::Runtime>;
+  //   public:
+  //     using Ancestor::Basic; ... you "just have to know" that the constructor name is Basic
+  //   };
+  //
+  template<typename PARTIAL> using Ancestor = Basic<PARTIAL, daf::exception::Aspect, af::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect>;
+}
+#endiv

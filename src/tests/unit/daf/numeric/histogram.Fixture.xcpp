@@ -1,0 +1,128 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::daf::numeric::histogram { class Fixture; }
+#endiv
+#divert <hpp>
+#import tests.unit.daf.numeric.Palette
+#import tunitas.exception.feature.Invariant
+struct tests::unit::daf::numeric::histogram::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  auto test_disassembly_good() -> void;
+  auto test_computation_good() -> void;
+  auto test_amalgamation_good() -> void;
+  auto test_reassembly_good() -> void;
+protected:
+  struct Provided;
+  struct Expected;
+  struct Exception {
+    using Invariant = ::tunitas::exception::feature::Invariant;
+  };
+};
+#endiv
+#divert <cpp>
+auto tests::unit::daf::numeric::histogram::Fixture::suite() -> Suite {
+  auto series = Stream{"histogram"sv};
+  series << []{
+              auto dis = Stream{"disassembly"sv};
+              dis << add("good", &Fixture::test_disassembly_good)
+                  << END;
+              return dis;
+            }()
+         << []{
+             auto com = Stream{"computation"sv};
+             com << add("good", &Fixture::test_computation_good)
+                 << END;
+             return com;
+           }()
+         << []{
+             auto ama = Stream{"amalgamation"sv};
+             ama << add("good", &Fixture::test_amalgamation_good)
+                 << END;
+             return ama;
+           }()
+         << []{
+             auto rea = Stream{"reassembly"sv};
+             rea << add("good", &Fixture::test_reassembly_good)
+                 << END;
+             return rea;
+           }()
+         << END;
+  return settle(series);
+}
+#import tests.unit.daf.numeric.histogram.Fixture.Provided
+#import tests.unit.daf.numeric.histogram.Fixture.Expected
+namespace tests::unit::daf::numeric::histogram {
+  auto Fixture::test_disassembly_good() -> void {
+    using Provided = Fixture::Provided::Disassembly;
+    using Expected = Fixture::Expected::Disassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    parameters.boundaries = Provided::BOUNDARIES;
+    auto measurement = Configuration::Measurement<WHOLE>{Provided::SPECIMEN};
+    auto randomness = Configuration::Randomness{Provided::RANDOMNESS};
+    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    //
+    require(ASSERTION, sizeof(publick)); // don't care what it is
+    //
+#if 1
+    auto const left = visit(expected.treatment, inputs.at(0_shard));
+    auto const right = visit(expected.treatment, inputs.at(1_shard));
+    require(ASSERTION, Expected::CANARY == left + right);
+#else
+    // This is no longer true now thta we incorporate randomness into the split algo
+    require(ASSERTION, Expected::CANARY == visit(expected.treatment, inputs.at(0_shard)));
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(1_shard)));
+#endif
+  }
+  auto Fixture::test_computation_good() -> void {
+    using Provided = Fixture::Provided::Computation;
+    using Expected = Fixture::Expected::Computation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto publick = Configuration::Public<SHARE>{};
+    auto input = Configuration::Input<SHARE>{Provided::CANARY};
+    auto output = library::computation(parameters, 0_shard, publick, input);
+    //
+    require(ASSERTION, Provided::CANARY == visit(expected.itreatment, input));
+    require(ASSERTION, Expected::CANARY == visit(expected.otreatment, output));
+  }
+  auto Fixture::test_amalgamation_good() -> void {
+    using Provided = Fixture::Provided::Amalgamation;
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto outputs = []{
+      auto one = Configuration::Output<SHARE>{Provided::ONE};
+      auto two = Configuration::Output<SHARE>{Provided::TWO};
+      auto three = Configuration::Output<SHARE>{Provided::THREE};
+      return Series<Configuration::Output<SHARE>>{one, two, three};
+    }();
+    auto amalgamated = library::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::AMALGAMATED == visit(expected.treatment, amalgamated));
+  }
+  auto Fixture::test_reassembly_good() -> void {
+    using Provided = Fixture::Provided::Reassembly;
+    using Expected = Fixture::Expected::Reassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Configuration::Parameters{};
+    auto aggregations = []{
+      auto two = Configuration::Aggregation<SHARE>{Provided::TWO};
+      auto three = Configuration::Aggregation<SHARE>{Provided::THREE};
+      return Shards<Configuration::Aggregation<SHARE>>{two, three};
+    }();
+    auto processed = Configuration::Processed{41};
+    auto reassembled = library::reassembly(parameters, aggregations, processed);
+    //
+    require(ASSERTION, Expected::FIVE == visit(expected.treatment, reassembled));
+  }
+}
+#endiv

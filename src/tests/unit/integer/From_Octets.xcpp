@@ -1,0 +1,211 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copybig Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::integer {
+  struct From_Octets;
+}
+#endiv
+#divert <hpp>
+#import std.endian
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.integer.required.Unsigned
+#import tunitas.keyston // for Octet
+#import tests.unit.integer.Palette
+namespace tests::unit {
+  struct integer::From_Octets : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+  protected:
+    template<Size WIDTH> static auto substanza() -> Stream;
+    template<std::endian ENDIAN, required::Unsigned EXPECTED> static auto exercise(EXPECTED expected, string::View specimen) -> void;
+    inline static constexpr auto const EXCEPTION = ::tunitas::error::by::Exception{};
+    inline static constexpr auto const OPTIONAL = ::tunitas::error::by::Optional{};
+    inline static constexpr auto const OUTCOME = ::tunitas::error::by::Outcome{};
+    using Octet = ::tunitas::keyston::Octet;
+  public:
+    template<std::endian, Size WIDTH> auto test_endian() -> void;
+    template<std::endian, Size WIDTH> auto test_roundtrip() -> void;
+  };
+  namespace integer {
+    template<> auto From_Octets::test_endian<std::endian::little, 8uz>() -> void;
+    template<> auto From_Octets::test_endian<std::endian::big, 8uz>() -> void;
+    //
+    template<> auto From_Octets::test_endian<std::endian::little, 16uz>() -> void;
+    template<> auto From_Octets::test_endian<std::endian::big, 16uz>() -> void;
+    //
+    template<> auto From_Octets::test_endian<std::endian::little, 32uz>() -> void;
+    template<> auto From_Octets::test_endian<std::endian::big, 32uz>() -> void;
+    //
+    template<> auto From_Octets::test_endian<std::endian::little, 64uz>() -> void;
+    template<> auto From_Octets::test_endian<std::endian::big, 64uz>() -> void;
+    //
+    template<> auto From_Octets::test_endian<std::endian::little, 128uz>() -> void;
+    template<> auto From_Octets::test_endian<std::endian::big, 128uz>() -> void;
+    //
+    template<> auto From_Octets::test_endian<std::endian::little, 256uz>() -> void;
+    template<> auto From_Octets::test_endian<std::endian::big, 256uz>() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+#import std.to_string
+#import tunitas.integer.traits.SizeOf
+#import tunitas.keyston.integer.from_octets
+#import tunitas.keyston.integer.to_octets
+#import tunitas.span.Fixed
+#import tunitas.span.Variable
+#import std.equal
+namespace tests::unit::integer {
+  template<Size WIDTH> auto From_Octets::substanza() -> Stream {
+    auto sub = Stream{std::to_string(WIDTH)};
+    sub << []{
+            auto en = Stream{"endian"sv};
+            en << add("little", &From_Octets::test_endian<std::endian::little, WIDTH>)
+               << add("big", &From_Octets::test_endian<std::endian::big, WIDTH>)
+               << END;
+            return en;
+          }()
+        << []{
+             auto ro = Stream{"roundtrip"sv};
+             ro << add("big", &From_Octets::test_roundtrip<std::endian::big, WIDTH>)
+                << add("little", &From_Octets::test_roundtrip<std::endian::little, WIDTH>)
+                << END;
+             return ro;
+           }()
+        << END;
+    return sub;
+  }
+  template<std::endian ENDIAN, Size WIDTH> auto From_Octets::test_roundtrip() -> void {
+    // NO NEED ... using Buffer = typename Palette::Octets::template Fixed<Palette::Integer::template SIZE<WIDTH>.count()>;
+    using Forward = typename Palette::Integer::template Type<WIDTH>;
+    auto const specimen = Octets::template Endian<ENDIAN>::template INTERESTING_CONSTANT<WIDTH>;
+    auto const forward = library::from_octets<Forward, ENDIAN>(specimen);// <-------------------- test this
+    auto const backward = library::to_octets<ENDIAN>(forward); // <------------------------------ test this
+    require(ASSERTION, std::equal(specimen.begin(), specimen.end(), backward.begin(), backward.end()));
+  }
+  template<std::endian ENDIAN, required::Unsigned EXPECTED> auto From_Octets::exercise(EXPECTED expected, string::View specimen) -> void {
+    // These all MUST succeed (no throwing, no overflowing)
+    constexpr auto const EXPECTED_SIZE = ::tunitas::integer::traits::SizeOf<EXPECTED>::VALUE.count();
+    using Fixed = ::tunitas::view::Fixed<Octet const, EXPECTED_SIZE>;
+    using Variable = ::tunitas::view::Variable<Octet const>;
+    auto const fixed = Fixed{reinterpret_cast<Octet const *>(specimen.data()), specimen.size()};
+    auto const variable = Variable{reinterpret_cast<Octet const *>(specimen.data()), specimen.size()};
+    auto observed0 = library::from_octets<EXPECTED, ENDIAN>(fixed);
+    auto observed1 = library::from_octets<EXPECTED, ENDIAN>(EXCEPTION, variable);
+    auto observed2 = library::from_octets<EXPECTED, ENDIAN>(OPTIONAL, variable);
+    auto observed3 = library::from_octets<EXPECTED, ENDIAN>(OUTCOME, variable);
+    {
+      auto &err{std::cerr};
+      err << "endian  = " << std::underlying_type_t<std::endian>(ENDIAN)
+          << " wherein little=" << std::underlying_type_t<std::endian>(std::endian::little)
+          << " and big=" << std::underlying_type_t<std::endian>(std::endian::big)
+          << '\n';
+      err << "specimen  = ";
+      dump(err, variable);
+      err << '\n';
+      err << "observed = ";
+      dump(err, observed0);
+      err << '\n';
+      err << "expected = ";
+      dump(err, expected);
+      err << '\n';
+    }
+    require(ASSERTION, expected == observed0);
+    require(ASSERTION, observed0 == observed1);
+    require(ASSERTION, observed1 == *observed2);
+    require(ASSERTION, observed2 == value(observed3));
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::integer::From_Octets::suite() -> Suite {
+  auto series = Stream{"from_octets"sv};
+  series << substanza<8uz>()
+         << substanza<16uz>()
+         << substanza<32uz>()
+         << substanza<64uz>()
+         << substanza<128uz>()
+         << substanza<256uz>()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::integer {
+  template<> auto From_Octets::test_endian<std::endian::little, 8uz>() -> void {
+    using Subject = library::uint8_t;
+    auto const specimen = "\x12"sv;
+    auto const expected = Subject{0x12u};
+    exercise<std::endian::little, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::big, 8uz>() -> void {
+    using Subject = library::uint8_t;
+    // 'le and 'be are the same in the 1-byte case
+    auto const specimen = "\x12"sv;
+    auto const expected = Subject{0x12u};
+    exercise<std::endian::big, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::little, 16uz>() -> void {
+    using Subject = library::uint16_t;
+    auto const specimen = "\x12\x34"sv;
+    auto const expected = Subject{0x3412u};
+    exercise<std::endian::little, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::big, 16uz>() -> void {
+    using Subject = library::uint16_t;
+    auto const specimen = "\x12\x34"sv;
+    auto const expected = Subject{0x1234u};
+    exercise<std::endian::big, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::little, 32uz>() -> void {
+    using Subject = library::uint32_t;
+    auto const specimen = "\x12\x34\x56\x78"sv;
+    auto const expected = Subject{0x78563412u};
+    exercise<std::endian::little, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::big, 32uz>() -> void {
+    using Subject = library::uint32_t;
+    auto const specimen = "\x12\x34\x56\x78"sv;
+    auto const expected = Subject{0x12345678u};
+    exercise<std::endian::big, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::little, 64uz>() -> void {
+    using Subject = library::uint64_t;
+    auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0"sv;
+    auto const expected = Subject{0xf0debc9a78563412lu};
+    exercise<std::endian::little, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::big, 64uz>() -> void {
+    using Subject = library::uint64_t;
+    auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0"sv;
+    auto const expected = Subject{0x123456789abcdef0lu};
+    exercise<std::endian::big, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::little, 128uz>() -> void {
+    using Subject = library::uint128_t;
+    auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10"sv;
+    auto const expected = (Subject{0x1032547698badcfelu} << 64) | Subject{0xf0debc9a78563412lu};
+    exercise<std::endian::little, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::big, 128uz>() -> void {
+    using Subject = library::uint128_t;
+    auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10"sv;
+    auto const expected = (Subject{0x123456789abcdef0lu} << 64) | Subject{0xfedcba9876543210lu};
+    exercise<std::endian::big, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::little, 256uz>() -> void {
+    using Subject = library::uint256_t;
+    auto const specimen = "\x11\x22\x33\x44\x55\x66\x77\x88\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10\x99\xaa\xbb\xcc\xdd\xee\xff\x00"sv;
+    auto const expected = (Subject{0x00ffeeddccbbaa99lu} << 192) | (Subject{0x1032547698badcfelu} << 128) | (Subject{0xf0debc9a78563412lu} << 64) | Subject{0x8877665544332211lu};
+    exercise<std::endian::little, Subject>(expected, specimen);
+  }
+  template<> auto From_Octets::test_endian<std::endian::big, 256uz>() -> void {
+    using Subject = library::uint256_t;
+    auto const specimen = "\x11\x22\x33\x44\x55\x66\x77\x88\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10\x99\xaa\xbb\xcc\xdd\xee\xff\x00"sv;
+    auto const expected = (Subject{0x1122334455667788lu} << 192) | (Subject{0x123456789abcdef0lu} << 128) | (Subject{0xfedcba9876543210lu} << 64) | Subject{0x99aabbccddeeff00lu};
+    exercise<std::endian::big, Subject>(expected, specimen);
+  }
+}
+#endiv

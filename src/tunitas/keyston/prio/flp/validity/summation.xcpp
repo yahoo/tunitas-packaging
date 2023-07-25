@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio::flp::validity::summation {
+  namespace package_summation {
+    namespace body::exported {}
+    namespace interface = body::exported;
+  }
+  using namespace package_summation::interface;
+}
+#import tunitas.keyston.prio.flp.validity.required // ctcnr
+#import nonstd.required.Enumeration
+#import nonstd.required.Same_As
+#import nonstd.units.required.Quantity
+namespace tunitas::keyston::prio::flp::validity::summation::package_summation {
+  template<typename HELD> concept Summable = required::Enumeration<HELD> || nonstd::units::required::Quantity<HELD> || required::Same_As<HELD, Size>;
+  namespace body {
+    template<Summable HELD> struct Summationizer;
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.gadget.required.Gadget
+#import tunitas.keyston.prio.flp.gadget.required.Gadgets
+#import tunitas.keyston.prio.flp.gadget.required.Calls
+namespace tunitas::keyston::prio::flp::validity::summation::package_summation {
+  namespace body {
+    namespace exported {
+      template<gadget::required::Gadgets GADGETS> inline constexpr auto arity() -> Size;
+      template<gadget::required::Gadgets GADGETS> inline constexpr auto degree() -> Size;
+      template<gadget::required::Calls CALLS> inline constexpr auto calls(CALLS const &) -> Size;
+    }
+  }
+  template<Summable HELD> struct body::Summationizer {
+    constexpr operator Size() const { return accretion; }
+    constexpr auto operator=(HELD noob) -> Summationizer & {
+      accretion += size_from(noob); // [[FIXTHIS]] only this (addition) differs with maximum
+      return *this;
+    }
+    static constexpr auto size_from(HELD noob) -> Size {
+      if constexpr (nonstd::units::required::Quantity<HELD>) {
+        return noob.count();
+      } else {
+        return static_cast<Size>(noob);
+      }
+    }
+  private:
+    Size accretion{};
+  };
+}
+#endiv
+#divert <ipp>
+#import std.max
+#import tunitas.keyston.prio.flp.gadget.usage.Calls
+#import tunitas.keyston.prio.flp.gadget.usage.Gadgets
+#import tunitas.sequence.Sequence
+#import tunitas.Tuple
+namespace tunitas::keyston::prio::flp::validity::summation::package_summation {
+  template<gadget::required::Gadgets GADGETS> constexpr auto interface::arity() -> Size {
+    static_assert(gadget::usage::Gadgets<GADGETS>);
+    return []<typename... GADGET>(Tuple<GADGET...> *) -> Size requires (gadget::required::Gadget<GADGET> && ... ) {
+      return (Summationizer<gadget::Arity>{} = ... = GADGET::ARITY);
+    }(static_cast<GADGETS *>(nullptr));
+  }
+  template<gadget::required::Gadgets GADGETS> constexpr auto interface::degree() -> Size {
+    static_assert(gadget::usage::Gadgets<GADGETS>);
+    return []<typename... GADGET>(Tuple<GADGET...> *) -> Size requires (gadget::required::Gadget<GADGET> && ... ) {
+      return (Summationizer<gadget::Degree>{} = ... = GADGET::DEGREE);
+    }(static_cast<GADGETS *>(nullptr));
+  }
+  template<gadget::required::Calls CALLS> constexpr auto interface::calls(CALLS const &calls) -> Size {
+    static_assert(gadget::usage::Calls<CALLS>);
+    return [&calls]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) -> Size {
+      return (Summationizer<Items>{} = ... = calls.at(INDEX));
+    }(sequence::Sequence::make<CALLS{}.size()>());
+  }
+}
+#endiv

@@ -1,0 +1,23 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_af_numeric_SUBSOURCES = \
+  obj/src/tunitas/keyston/af/numeric/namespace.cpp \
+  obj/src/tunitas/keyston/af/numeric/components.cpp \
+  \
+  obj/src/tunitas/keyston/af/numeric/zero.cpp \
+  obj/src/tunitas/keyston/af/numeric/constant.cpp \
+  obj/src/tunitas/keyston/af/numeric/count.cpp \
+  obj/src/tunitas/keyston/af/numeric/sum.cpp \
+  obj/src/tunitas/keyston/af/numeric/histogram.cpp \
+  obj/src/tunitas/keyston/af/numeric/popularity.cpp \
+  \
+  obj/src/tunitas/keyston/af/numeric/Parameters.cpp \
+  obj/src/tunitas/keyston/af/numeric/Measurement.cpp \
+  obj/src/tunitas/keyston/af/numeric/Intermediate.cpp \
+  obj/src/tunitas/keyston/af/numeric/Aggregation.cpp \
+  $(end)
+

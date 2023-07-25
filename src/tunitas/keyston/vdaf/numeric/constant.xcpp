@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -12,13 +12,16 @@ namespace tunitas::keyston::vdaf::numeric::constant {
   using namespace package_constant::interface;
 }
 #import tunitas.keyston.vdaf.numeric.components
+#import tunitas.keyston.field.Element
 namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
   using namespace numeric::components;
-  namespace body { }
+  namespace body {
+    using Element = field::Element<64>;
+  }
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Count
+#import tunitas.keyston.aggregation.Count
 namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
   namespace body::exported {
     //
@@ -33,8 +36,8 @@ namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
     //   The interface, as stated
     //
     //   (a noun form)
-    //   disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement) -> (Bytes, Vec[Bytes])
-    //   initialization ........ Vdaf.prep_init(verify_key: Bytes, agg_id: Unsigned, agg_param: AggParam, nonce: Bytes, public_share: Bytes, input_share: Bytes) -> Prep
+    //   disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement, nonce: Bytes[Vdaf.NONCE_SIZE], rand: Bytes[Vdaf.RAND_SIZE]) -> tuple[Bytes, Vec[Bytes]]
+    //   initialization ........ Vdaf.prep_init(verify_key: Bytes[Vdaf.VERIFY_KEY_SIZE], agg_id: Unsigned, agg_param: AggParam, nonce: Bytes[Vdaf.NONCE_SIZE], public_share: Bytes, input_share: Bytes) -> Prep
     //   continuation .......... Vdaf.prep_next(prep: Prep, inbound: Optional[Bytes]) -> Union[Tuple[Prep, Bytes], OutShare]
     //   amalgamation .......... Vdaf.prep_shares_to_prep(agg_param: AggParam, prep_shares: Vec[Bytes]) -> Bytes
     //   disgorgement .......... Vdaf.out_shares_to_agg_share(agg_param: AggParam, out_shares: Vec[OutShare]) -> agg_share: Bytes
@@ -48,27 +51,35 @@ namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
     //
     //   See Definition.
     //
-    auto disassembly(Measurement<WHOLE>const &) -> Disassembled;
-    auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
-    auto continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
+    auto disassembly(Parameters const &, Measurement<WHOLE> const &, Nonce, Randomness) -> Disassembled;
+    auto initialization(Parameters const &, Verify_Key const &, Shard, Nonce, Public<SHARE> const &, Input<SHARE> const &) -> Initialized;
+    auto continuation(Parameters const &, Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued;
     auto amalgamation(Parameters const &, Shards<Preparation<SHARE>> const &) -> Amalgamated;
     auto disgorgement(Parameters const &, Shards<Output<SHARE>> const &) -> Disgorged;
-    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled;
+    auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
   }
 }
 #endiv
 #divert <cpp>
 #import tunitas.keyston.exception.Unimplemented
+#import tunitas.keyston.numeric.Augmentment
+#import tunitas.keyston.numeric.Treatment
+#import tunitas.keyston.numeric.enbiggen
+#import tunitas.keyston.numeric.ensmallen
+#import tunitas.keyston.integer.to_octets
 namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
-  auto interface::disassembly(Measurement<WHOLE> const &) -> Disassembled {
+  auto interface::disassembly(Parameters const &, Measurement<WHOLE> const &m, Nonce, Randomness) -> Disassembled {
+    auto publick = Public<SHARE>{};
+    auto encoded = integer::to_octets<std::endian::big>(enbiggen(m.specimen));
+    auto biggie = Input<SHARE>{move(encoded)};
+    auto little = Input<SHARE>{}; // ............................................. zero goes here, that's the "split" algo, that's the tweet.
+    return {move(publick), Shards(biggie, little)};
+  }
+  auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce, Public<SHARE> const &, Input<SHARE> const &) -> Initialized {
     throw exception::Unimplemented{};
     return {};
   }
-  auto interface::initialization(Parameters const &, Verify_Key const &, Shard, Nonce const &, Public<SHARE> const &, Input<SHARE> const &) -> Initialized {
-    throw exception::Unimplemented{};
-    return {};
-  }
-  auto interface::continuation(Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued {
+  auto interface::continuation(Parameters const  &, Preparation<WHOLE> const &, Optional<Preparation<SHARE>> const &) -> Continued {
     throw exception::Unimplemented{};
     return {};
   }
@@ -80,7 +91,7 @@ namespace tunitas::keyston::vdaf::numeric::constant::package_constant {
     throw exception::Unimplemented{};
     return {};
   }
-  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, measurement::Count) -> Reassembled {
+  auto interface::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled {
     throw exception::Unimplemented{};
     return {};
   }

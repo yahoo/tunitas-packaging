@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
@@ -28,8 +28,8 @@ namespace tunitas::keyston::protocol::aggregation {
 #import tunitas.keyston.Opaque
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.protocol.query.Batch
-#import tunitas.keyston.protocol.function.Parameters
-#import tunitas.keyston.quantity.Count
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.vdaf.protocol.Parameters
 namespace tunitas::keyston::protocol {
   namespace aggregation {
     using std::move;
@@ -38,8 +38,8 @@ namespace tunitas::keyston::protocol {
   struct aggregation::Request {
     id::Task task_id{};
     protocol::query::Batch query{}; // was: batch_selector
-    function::Parameters aggregation_parameters{};
-    quantity::Count report_count{};
+    vdaf::protocol::Parameters aggregation_parameters{};
+    quantity::Records report_count{};
     Opaque<32> checksum{};
   };
 }

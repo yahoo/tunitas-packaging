@@ -1,0 +1,136 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::octets {
+  namespace package_string {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_string::interface;
+}
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.octets.Variable
+#import tunitas.keyston.octets.View
+#import tunitas.keyston.quantity.Bytes
+namespace tunitas::keyston::octets::package_string {
+  using Output = Variable;
+  using Input = View;
+  namespace body {
+    using quantity::Bytes;
+  }
+}
+#endiv
+#endiv
+#divert <hpp>
+#import std.convertible_to
+namespace tunitas::keyston::octets::package_string {
+  namespace body {
+    namespace exported {
+      //
+      // The byte (octets) string.
+      //
+      // Authorities:
+      //
+      //   SP 800-185 SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash, ParallelHash
+      //   https://csrc.nist.gov/CSRC/media/Publications/sp/800-185/archive/2016-08-04/documents/sp800_185_draft.pdf
+      //   Section 2.3 Other Internal Functions
+      //
+      // Design:
+      //
+      //   Only what we need to implement cSHAKE.
+      // 
+      //   Whereas the standard (SP 800-185) denominates lengths in bits,
+      //   this implementation is restricted to byte-oriented values (multiples of 8).
+      //   But the numerical values within the encodings are of course still denominated in bits per the specification.
+      //
+      //   ADL will not find any of these because Input is a type alias View which is a type alias on std::span<std::byte...>
+      //   This is inconvenient.
+      //
+      // Details
+      //
+      //   The limit is 2^2040
+      //   2^2040 == 2^8^255
+      //   Byte strings input and output will be no longer than 255 (bytes) plus a length byte (so 256 bytes).
+      //
+      // Usage:
+      //
+      //   Pretty much only within Algorithm<cSHAKE>
+      //
+      inline auto encode(Input) -> Output;
+      template<typename... INPUTS> inline auto pad(Bytes, INPUTS...) -> Output requires (0 < sizeof...(INPUTS) && (std::convertible_to<INPUTS, Input> && ... ));
+      inline auto substring(Input, Index begin, Index end) -> Output;
+      //
+      // The interface names in the standard (SP 800-185) were more lugubrious.
+      inline auto encode_string(Input in) -> Output    { return encode(in); }
+      inline auto bytepad(Input in, Bytes w) -> Output { return pad(w, in); }
+    }
+    inline auto estimate_size() -> Bytes { return Bytes{0}; }
+    template<typename FIRST, typename... REST> inline auto estimate_size(FIRST, REST...) -> Bytes requires (std::convertible_to<FIRST, Input> && ... && std::convertible_to<REST, Input>);
+    inline auto format_into(Output::Iterator start) -> Output::Iterator { return start; }
+    template<typename FIRST, typename... REST> auto format_into(Output::Iterator start, FIRST, REST ...) -> Output::Iterator requires (std::convertible_to<FIRST, Input> && ... && std::convertible_to<REST, Input>);
+  }
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.integer.encode // into_left(...)
+#import tunitas.keyston.exception.Length
+#import std.fill
+#import std.min
+#import std.copy
+#import std.back_inserter
+#import tunitas.Tuple
+namespace tunitas::keyston::octets::package_string {
+  auto interface::encode(Input input) -> Output {
+    auto ret = integer::encode::as_variable_left(input.size());
+#if __cpp_lib_containers_ranges <= __cplusplus && 12 < __GNUC__  // per https://en.cppreference.com/w/cpp/container/vector
+    ret.append_range(input.begin(), input.end());
+#else
+    std::copy(input.begin(), input.end(), std::back_inserter(ret));
+#endif
+    return ret;
+  }
+  template<typename FIRST, typename... REST> auto body::estimate_size(FIRST first, REST ...rest) -> Bytes requires (std::convertible_to<FIRST, Input> && ... && std::convertible_to<REST, Input>) {
+    return integer::encode::estimate_total_size(first.size()) + Bytes{first.size()} + estimate_size(rest...);
+  }
+  template<typename FIRST, typename... REST> auto body::format_into(Output::Iterator start, FIRST first, REST ...rest) -> Output::Iterator requires (std::convertible_to<FIRST, Input> && ... && std::convertible_to<REST, Input>) {
+    auto next = integer::encode::into_left(start, first.size());
+    auto last = std::copy(first.begin(), first.end(), next);
+    return format_into(last, rest...);
+  }
+  template<typename... INPUTS> auto interface::pad(Bytes w, INPUTS ...inputs) -> Output requires (0 < sizeof...(INPUTS) && (std::convertible_to<INPUTS, Input> && ... )) {
+    if (Bytes{0} == w) {
+      throw exception::Length{"zero"};
+    } else {
+      auto const message_size = estimate_size(inputs...);
+      auto const fractional_size = [](Bytes proposed, Bytes frame) -> Bytes {
+        auto const overflow = proposed.count() % frame.count();
+        if (0 == overflow) {
+          return Bytes{0u};
+        } else {
+          return Bytes{frame.count() - overflow}; // [[???]] there being no operator-(Bytes, Bytes)
+        }
+      }(message_size, w);
+      auto const total_size = message_size + fractional_size;
+      auto ret = Output(total_size.count());
+      auto last = format_into(ret.begin(), inputs...);
+      if (Bytes{0} != fractional_size) {
+        std::fill(last, ret.end(), Octet{});
+      }
+      return ret;
+    }
+  }
+  auto interface::substring(Input input, Index lo, Index hi) -> Output {
+    auto size = input.size();
+    if (hi < lo || size < lo) {
+      return {};
+    } else {
+      hi = std::min(hi, size); // trimmed per spec.
+      auto begin = input.begin();
+      return {begin+lo, begin+hi};
+    }
+  }
+}
+#endiv

@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.required.Validity
+namespace tunitas::keyston::prio::flp::validity::log {
+  //
+  // Commonalities among the single-gadget logs.
+  //
+  // Specification:
+  //
+  //   For a single G-gate circuit.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Save on copy-pasta.
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  template<required::Validity> struct Single;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.validity.log.Prototype
+#import tunitas.array.md.Fixed
+#import tunitas.integer.bit
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Validity VALIDITY> struct log::Single : public Prototype<VALIDITY> {
+    using Ancestor = Prototype<VALIDITY>;
+  protected:
+    ~Single() = default;
+  public:
+    static_assert(1uz == Ancestor::H);
+    inline static constexpr auto const I = 0uz;
+    //
+    // Whereas the iteration indices in the papers and in the (draft) standard are "arbitrary" and difficult to remember
+    //   e.g. i of H, j of L, k of M
+    //
+    // We introduce a simpler system with upper and lower case -----------------------------------------+--+===-=\ (as such)
+    //                                                                                                  |  |     |
+    //                                                                                                  v  v     v
+    using G = typename Ancestor::template Gadget<I>; // .................................. iteration on h (i) of H (always 1==H)
+    inline static constexpr auto const L = underlying(G::ARITY); // ...................... iteration on l (j) of [L_i]
+    inline static constexpr auto const M = Ancestor::Validity::CALLS.at(I).count(); // ... iteration on m (k) of [M_i]
+    inline static constexpr auto const P = integer::bit_ceil(1u + M);
+    inline static constexpr auto const degG = underlying(G::DEGREE);
+    using Gadget [[deprecated("remove, only use the single-letter version for the 1-gadget case")]] = G;
+    struct [[adjective]] Circuit {
+      using Seeds = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L>>;
+      using Inputs = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ M, L>>; // ...... not P but M, and order M then L
+      using Outputs = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ M>>; // ........ not P but M
+      using Pointwise = array::md::Fixed<typename Ancestor::Element, std::extents<Size, /*1==H*/ L, M>>; // ... but order L then M;  as in the papers
+      Seeds seeds{}; // ........... a.k.a. "wire seeds" of Section 7.3.3.1 & 7.3.3.2
+      Inputs inputs{}; // ......... a.k.a. "wire tables" named wire_i of Section 7.3.3.1 & 7.3.3.2
+      Pointwise pointwise{}; // ... a.k.a. "wire polynomials" in pointwise form (the y series); in the temporary variable w of Section 7.3.3.1 & 7.3.3.2
+      Outputs outputs{}; // ....... a.k.a. the evaluated poly_gadget_i of Section 7.3.3.2 Query Generation
+    };
+    Circuit circuit{};
+    using Axis = typename Ancestor::Field::template Series<1+M>;
+    inline static constexpr auto alpha(Size) -> typename Ancestor::Element; // alpha, by construction, is the Pth-root of unity
+    class [[adjective]] Polynomial {
+      inline static constexpr auto const PD = P * degG;
+    public:
+      using Wires = array::md::Fixed<typename Ancestor::Field::template Polynomial<P>::Value, std::extents<Size, /*1==H*/ L>>;
+      using Gadget = typename Ancestor::Field::template Polynomial<PD>::Value;
+      Wires wires{}; // ..... a.k.a. poly_wire_i of Section 7.3.3.1 and note how they are extended on M out to P
+      Gadget gadget{}; // ... a.k.a. poly_gadget_i of Section 7.3.3.1
+    };
+    Polynomial polynomial{};
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.sequence.Sequence
+namespace tunitas::keyston::prio::flp::validity::log {
+  template<required::Validity _> constexpr auto Single<_>::alpha(Size k) -> typename Ancestor::Element {
+    auto scale = Ancestor::Field::Generator::ORDER / P;
+    auto a0 = pow(Ancestor::Field::generator(), scale);
+    auto ak = pow(a0, k);
+    return ak;
+  }
+}
+#endiv

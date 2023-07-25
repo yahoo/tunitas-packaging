@@ -1,11 +1,12 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
 tunitas_keyston_vdaf_exception_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/exception/namespace.cpp \
+  obj/src/tunitas/keyston/vdaf/exception/complete.Ancestor.cpp \
   obj/src/tunitas/keyston/vdaf/exception/Aspect.cpp \
   obj/src/tunitas/keyston/vdaf/exception/Bound.cpp \
   obj/src/tunitas/keyston/vdaf/exception/Cast.cpp \

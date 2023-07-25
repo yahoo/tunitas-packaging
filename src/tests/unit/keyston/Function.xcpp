@@ -1,0 +1,136 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::keyston { class Function; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Function
+#import tunitas.error.by.Outcome
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Exception
+#import tunitas.error.by.required.Indicator
+#import tunitas.keyston.exception.Aspect
+struct tests::unit::keyston::Function : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Function;
+  //
+  auto test_constructor() -> void;
+  auto test_universe() -> void;
+  template<::tunitas::error::by::required::Indicator> auto test_to_string() -> void;
+  template<::tunitas::error::by::required::Indicator> auto test_to_string_view() -> void;
+protected:
+  template<typename... FUN> static auto drive([[inout]] unsigned &accumulator, FUN &&...) -> void requires (std::same_as<FUN, Subject> && ... );
+  static auto exercise([[inout]] unsigned &accumulator, Subject) -> void;
+  using Failure = ::tunitas::keyston::exception::Aspect;
+  inline static constexpr auto OPTIONAL = ::tunitas::error::by::Optional{};
+  inline static constexpr auto OUTCOME = ::tunitas::error::by::Outcome{};
+  inline static constexpr auto EXCEPTION = ::tunitas::error::by::Exception{};
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::keyston {
+  template<typename... FUN> auto Function::drive([[inout]] unsigned &accumulator, FUN &&...rest) -> void requires (std::same_as<FUN, Subject> && ... ) {
+    (exercise(accumulator, rest), ...);
+  }
+}
+#endiv
+#divert <cpp>
+//
+// The specializations must appear first so that suite() can see them
+//
+namespace tests::unit::keyston {
+  template<> auto Function::test_to_string<::tunitas::error::by::Optional>() -> void {
+    auto got = library::to_string(OPTIONAL, Subject::AF);
+    require(ASSERTION, true == (bool)got);
+    require(ASSERTION, "AF"sv == *got);
+    auto bad = library::to_string(OPTIONAL, Subject{-1});
+    require(ASSERTION, false == (bool)bad);
+  }
+  template<> auto Function::test_to_string<::tunitas::error::by::Outcome>() -> void {
+    auto got = library::to_string(OUTCOME, Subject::DAF);
+    require(ASSERTION, good(got));
+    require(ASSERTION, "DAF"sv == value(got));
+    auto bad = library::to_string(OUTCOME, Subject{-1});
+    require(ASSERTION, fail(bad));
+  }
+  template<> auto Function::test_to_string<::tunitas::error::by::Exception>() -> void {
+    auto got = library::to_string(EXCEPTION, Subject::VDAF);
+    require(ASSERTION, "VDAF"sv == got);
+    try {
+      library::to_string(EXCEPTION, Subject{-1});
+      impossible(ASSERTION);
+    } catch (Failure const &) {
+      require(ASSERTION);
+    }
+  }
+  template<> auto Function::test_to_string_view<::tunitas::error::by::Optional>() -> void {
+    auto got = library::to_string_view(OPTIONAL, Subject::AF);
+    require(ASSERTION, true == (bool) got);
+    require(ASSERTION, "AF"sv == *got);
+    auto bad = library::to_string(OPTIONAL, Subject{-1});
+    require(ASSERTION, false == (bool)bad);
+  }
+  template<> auto Function::test_to_string_view<::tunitas::error::by::Outcome>() -> void {
+    auto got = library::to_string_view(OUTCOME, Subject::DAF);
+    require(ASSERTION, good(got));
+    require(ASSERTION, "DAF"sv == value(got));
+    auto bad = library::to_string_view(OUTCOME, Subject{-1});
+    require(ASSERTION, fail(bad));
+  }
+  template<> auto Function::test_to_string_view<::tunitas::error::by::Exception>() -> void {
+    auto got = library::to_string(EXCEPTION, Subject::VDAF);
+    require(ASSERTION, "VDAF"sv == got);
+    try {
+      library::to_string(EXCEPTION, Subject{-1});
+      impossible(ASSERTION);
+    } catch (Failure const &) {
+      require(ASSERTION);
+    }
+  }
+}
+#import tests.unit.keyston.Function
+auto tests::unit::keyston::Function::suite() -> Suite {
+  auto series = Stream{"keyston"sv};
+  series << add("constructor", &Function::test_constructor)
+         << []{
+             auto tos = Stream{"to_string"sv};
+             tos << add("Optional", &Function::test_to_string<::tunitas::error::by::Optional>)
+                 << add("Outcome", &Function::test_to_string<::tunitas::error::by::Outcome>)
+                 << add("Exception", &Function::test_to_string<::tunitas::error::by::Exception>)
+                 << END;
+             return tos;
+           }()
+         << []{
+             auto tosv = Stream{"to_string_view"sv};
+             tosv << add("Optional", &Function::test_to_string<::tunitas::error::by::Optional>)
+                  << add("Outcome", &Function::test_to_string<::tunitas::error::by::Outcome>)
+                  << add("Exception", &Function::test_to_string<::tunitas::error::by::Exception>)
+                  << END;
+             return tosv;
+           }()
+         << add("universe", &Function::test_universe)
+         << END;
+  return settle(series);
+}
+namespace tests::unit::keyston {
+  auto Function::test_constructor() -> void {
+    auto subject = Subject::VIDAF;
+    require(ASSERTION, 0 != underlying(subject));
+  }
+  auto Function::test_universe() -> void {
+    auto error_accumulator{0u};
+    drive(error_accumulator, Subject::AF, Subject::DAF, Subject::VDAF, Subject::VIDAF);
+    require(ASSERTION, 0 == error_accumulator);
+  }
+  auto Function::exercise(unsigned &error_accumulator, Subject specimen) -> void try {
+    library::to_string_view(EXCEPTION, specimen); // <---------------------------------------- test this
+    require(ASSERTION); // returning anything at all is the success criteria
+  } catch (Failure const &) {
+    ++error_accumulator;
+  }
+}
+#endiv

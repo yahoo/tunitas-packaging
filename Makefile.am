@@ -1,6 +1,7 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
+# For terms and provenance see the LICENSE file at the top of this repository.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
@@ -17,7 +18,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = no-define subdir-objects foreign
 AM_MAKEFLAGS= \
-  MAKEFLAGS='$(MAKEFLAGS)' \
+  DO_NOT_REPASS_MAKEFLAGS='$(MAKEFLAGS)' \
   CPPFLAGS='$(CPPFLAGS)' \
   CXXFLAGS='$(CXXFLAGS)' \
   LDFLAGS='$(LDFLAGS)' \
@@ -36,6 +37,8 @@ noinst_LTLIBRARIES = \
   noinst/lib/libautotools-autoconf+tunitas-keyston.la \
   noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
+  noinst/lib/libtunitas+tunitas-keyston.la \
+  noinst/lib/libnonstd+tunitas-keyston.la \
   $(end)
 check_PROGRAMS = \
   check/bin/unit \
@@ -68,7 +71,9 @@ include @temerarious_flagship_datadir@/am/build.am
 
 # These match with HGTW_WITH_MODULE in configure.ac
 DEVELOPMENT_AREAS = \
+  $(module_boost_prefix) \
   $(module_cli_core_prefix) \
+  $(module_crypto_prefix) \
   $(module_fmt_prefix) \
   $(module_langu_prefix) \
   $(module_nonstd_prefix) \
@@ -81,8 +86,10 @@ TESTING_AREAS = \
   $(deprecated_TESTING_AREAS) \
   $(end)
 INSTALLATION_AREAS = \
+  $(nonstd_boost_prefix) \
   $(nonstd_fmt_prefix) \
   $(nonstd_gcc_prefix) \
+  $(nonstd_mdspan_prefix) \
   $(std_scold_prefix) \
   $(std_tunitas_prefix) \
   $(deprecated_INSTALLATION_AREAS) \
@@ -103,12 +110,11 @@ include noinst/lib/libtunitas-keyston.am
 include noinst/lib/libautotools-autoconf+tunitas-keyston.am
 include noinst/lib/libfmt+tunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am
+include noinst/lib/libnonstd+tunitas-keyston.am
+include noinst/lib/libtunitas+tunitas-keyston.am
 include lib/libtunitas-keyston.am
 
-INSTALL_MODULES = $(error FIXTHIS) \
-  $(noinst_lib_libtunitas_keyston_la_MODULES) \
-  $(noinst_lib_libwant_la_MODULES) \
-  $(end)
+include modules/Makefrag.am # this MUST be after the relevant nonstd_lib_lib${something}_la_MODULES_ variables are defined
 
 # --- Mostly boilerplate beyond here
 #
@@ -125,15 +131,15 @@ Makefile_COMPILER_CFLAGS_SET   = -Wall   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
 Makefile_COMPILER_LDFLAGS_SET  = -Wall  @LDFLAGS_gcc@  @LDFLAGS_gdb@
 
-Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_fmt_CPPFLAGS@
-Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_fmt_CFLAGS@
-Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_fmt_CXXFLAGS@
-Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_fmt_LDFLAGS@
+Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_fmt_CPPFLAGS@ @nonstd_mdspan_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_fmt_CFLAGS@ = @nonstd_mdspan_CFLAGS@
+Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_fmt_CXXFLAGS@ @nonstd_mdspan_CXXFLAGS@
+Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_fmt_LDFLAGS@  @nonstd_mdspan_LDFLAGS@
 
-Makefile_PACKAGE_CPPFLAGS_SET = 
-Makefile_PACKAGE_CFLAGS_SET   = 
-Makefile_PACKAGE_CXXFLAGS_SET = 
-Makefile_PACKAGE_LDFLAGS_SET  = 
+Makefile_PACKAGE_CPPFLAGS_SET = @CPPFLAGS_mdspan@
+Makefile_PACKAGE_CFLAGS_SET   =   @CFLAGS_mdspan@
+Makefile_PACKAGE_CXXFLAGS_SET = @CXXFLAGS_mdspan@
+Makefile_PACKAGE_LDFLAGS_SET  =  @LDFLAGS_mdspan@
 
 Makefile_nonstd_CHECK_CPPFLAGS_SET = 
 Makefile_nonstd_CHECK_CFLAGS_SET   = 

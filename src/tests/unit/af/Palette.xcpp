@@ -1,0 +1,114 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.af.Name
+#include <hpp/tunitas.keyston.af.Name>
+#import tunitas.keyston.af.numeric.Parameters
+#import tunitas.keyston.af.numeric.Intermediate
+namespace tests::unit::af {
+  //
+  // The palette ... for use in the Executor
+  // Specializations only.
+  // Hack the Spew
+  //
+  namespace [[eponymous]] palette {
+    using ::tunitas::keyston::aggregation::Count;
+    using library::Constant;
+    using library::DAF;
+    template<library::Name> struct Palette;
+    template<> struct Palette<Constant<DAF::ZERO>>;
+    template<> struct Palette<Constant<DAF::CONSTANT>>;
+    template<> struct Palette<Constant<DAF::COUNT>>;
+    template<> struct Palette<Constant<DAF::SUM>>;
+    template<> struct Palette<Constant<DAF::HISTOGRAM>>;
+    template<> struct Palette<Constant<DAF::POPULARITY>>;
+    //
+    using ::tunitas::keyston::af::numeric::Parameters;
+    using ::tunitas::keyston::af::numeric::Intermediate;
+  }
+  using palette::Palette;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::af::palette {
+  template<> struct Palette<Constant<DAF::ZERO>> {
+    static auto generate_parameters()   -> Parameters   { return {}; }
+    static auto generate_intermediate() -> Intermediate { return {Count{0}}; }
+  };
+  template<> struct Palette<Constant<DAF::CONSTANT>> {
+    static auto generate_parameters()   -> Parameters   { return {}; }
+    static auto generate_intermediate() -> Intermediate { return {Count{0}}; }
+  };
+  template<> struct Palette<Constant<DAF::COUNT>> {
+    static auto generate_parameters()   -> Parameters   { return {}; }
+    static auto generate_intermediate() -> Intermediate { return {Count{0}}; }
+  };
+  template<> struct Palette<Constant<DAF::SUM>> {
+    static auto generate_parameters()   -> Parameters   { return {}; }
+    static auto generate_intermediate() -> Intermediate { return {Count{0}}; }
+  };
+  template<> struct Palette<Constant<DAF::HISTOGRAM>> {
+    static auto generate_parameters()  -> Parameters;
+    static auto generate_intermediate() -> Intermediate;
+  };
+  template<> struct Palette<Constant<DAF::POPULARITY>> {
+    static auto generate_parameters() -> Parameters;
+    static auto generate_intermediate() -> Intermediate;
+  };
+}
+#endiv
+#divert <cpp>
+#import nonstd.runtime_assert
+#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.popularity.Prefixes
+#import tunitas.keyston.aggregation.Popularity
+#import std.views.iota
+namespace tests::unit::af::palette {
+  auto Palette<Constant<DAF::HISTOGRAM>>::generate_parameters() -> Parameters {
+    auto ret = Parameters{};
+    ret.boundaries = []{
+      using Boundaries = ::tunitas::keyston::histogram::Boundaries;
+      using V = Boundaries::Value;
+      auto ret = Boundaries{};
+      runtime_assert(0 < ret.size());
+      for (auto ith : std::views::iota(0u, ret.size())) {
+        ret.at(ith) = V{1000*ith};
+      }
+      return ret;
+    }();
+    return ret;
+  }
+  auto Palette<Constant<DAF::HISTOGRAM>>::generate_intermediate() -> Intermediate {
+    return ::tunitas::keyston::aggregation::Histogram{};
+  }
+  auto Palette<Constant<DAF::POPULARITY>>::generate_parameters() -> Parameters {
+    auto ret = Parameters{};
+    ret.prefix_length = nonstd::units::memory::Bits{10};
+    ret.prefixes = []{
+      using Prefixes = ::tunitas::keyston::popularity::Prefixes;
+      using V = Prefixes::Value;
+      auto ret = Prefixes{V{11}, V{22}, V{33}, V{44}, V{55}, V{66}, V{77}, V{88}, V{99}};
+      runtime_assert(0 < ret.size());
+      return ret;
+    }();
+    return ret;
+  }
+  auto Palette<Constant<DAF::POPULARITY>>::generate_intermediate() -> Intermediate {
+    auto ret = ::tunitas::keyston::aggregation::Popularity{};
+    {
+      // [[FIXTHIS]] because Popularity does not expose Popularity::resize(...)
+      for (auto const howmany = generate_parameters().prefixes.value().size(); auto ith : std::views::iota(0u, howmany)) {
+        require(ASSERTION, sizeof(ith)); // shutup the unused variable warning
+        ret.push_back({});
+      }
+    }
+    runtime_assert(0 < ret.size());
+    return ret;
+  }
+}
+#endiv
