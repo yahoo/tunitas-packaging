@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.required.Definition
+#import tunitas.keyston.prio.Role
+namespace tunitas::keyston::vdaf {
+  //
+  // <FIXTHIS>
+  //   <quote ref="https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html#name-upload-request">
+  //     Note that the public share might be empty, depending on the VDAF. 
+  //     For example, Prio3 has an empty public share, but Poplar1 does not.
+  //   </quote>
+  //   And as you an see, Prio3 DOS NOT have an empty public share; the public share carries the joint randommess.
+  // </FIXTHIS>
+  //
+  // Specification:
+  //  
+  //   Section 7.2.6.1. Message Serialization
+  //   Section 8.2.6.1. Message Serialization
+  //
+  // Design:
+  //
+  //   Only the PRIO3 algo(s) are implemented herein.
+  //
+  namespace [[eponymous]] publick {
+    using enum prio::role::Name;
+    template<required::Definition> struct Public;
+  }
+  using publick::Public;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.Serialization
+namespace tunitas::keyston::vdaf {
+  namespace publick {
+    using std::move;
+    template<required::Definition DEFINITION> inline constexpr auto const SIZE = prio::Role<PUBLIC, typename DEFINITION::Predefinition>::Encoded::SIZE;
+  }
+  // [FIXTHIS][] so that it works with poplar when that time comes
+  template<required::Definition DEFINITION> class publick::Public : public Serialization<SIZE<DEFINITION>> {
+    using Ancestor = Serialization<SIZE<DEFINITION>>;
+  public:
+    Public() = default;
+    using Ancestor::Serialization;
+  };
+}
+#endiv

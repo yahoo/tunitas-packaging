@@ -43,3 +43,11 @@ namespace tunitas::keyston::prio {
   };
 }
 #endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    constexpr auto const THIS = tunitas::keyston::prio::Name::COUNT;
+    using namespace tunitas::keyston::prio;
+  }
+}
+#endiv

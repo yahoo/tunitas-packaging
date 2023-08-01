@@ -49,7 +49,7 @@ namespace tunitas::keyston::prg {
     using Ancestor = Prototype;
   public:
     inline explicit Generator(Seed::View s, Custom::View c, Binder::View b) : core{s, c, b} { }
-    inline static auto derive_seed(typename Ancestor::Seed::View, typename Ancestor::Custom::View, typename Ancestor::Binder::View) -> Output::Fixed<Ancestor::SEED_SIZE.count()>;
+    inline static auto derive_seed(typename Ancestor::Seed::View, typename Ancestor::Custom::View, typename Ancestor::Binder::View) -> Output::Fixed<Ancestor::Seed::SIZE.count()>;
     //
     // Expand the bundled items into field elements (and as a vector)
     template<required::Vector VECTOR> inline static auto expand_as(typename Ancestor::Seed::View, typename Ancestor::Custom::View, typename Ancestor::Binder::View) -> VECTOR;
@@ -76,9 +76,9 @@ namespace tunitas::keyston::prg {
 #import tunitas.keyston.field.element.traits.Element
 #import nonstd.runtime_assert
 namespace tunitas::keyston::prg::generator {
-  template<Name _> auto Generator<_>::derive_seed(typename Ancestor::Seed::View seed, typename Ancestor::Custom::View custom, typename Ancestor::Binder::View binder) -> Output::Fixed<Ancestor::SEED_SIZE.count()> {
+  template<Name _> auto Generator<_>::derive_seed(typename Ancestor::Seed::View seed, typename Ancestor::Custom::View custom, typename Ancestor::Binder::View binder) -> Output::Fixed<Ancestor::Seed::SIZE.count()> {
     auto self = Generator{seed, custom, binder};
-    return self.template next<Ancestor::SEED_SIZE.count()>();
+    return self.template next<Ancestor::Seed::SIZE.count()>();
   }
   template<Name _> template<required::Vector VECTOR> auto Generator<_>::expand_as(typename Ancestor::Seed::View seed, typename Ancestor::Custom::View custom, typename Ancestor::Binder::View binder) -> VECTOR {
     auto self = Generator{seed, custom, binder};
@@ -99,7 +99,7 @@ namespace tunitas::keyston::prg::generator {
     using Field = typename field::element::traits::Element<ELEMENT>::Field;
     [[maybe_unused]] auto guard = 0uz;
     for (auto index{0uz}; index != COUNT; ++index) {
-      auto candidate = integer::from_octets<typename Field::Underlying, std::endian::little>(core.template next<Field::ENCODED_SIZE.count()>()); // little-endian "because the standard says so"
+      auto candidate = integer::from_octets<typename Field::Underlying, std::endian::little>(core.template next<Field::ENCODED_LENGTH.count()>()); // little-endian "because the standard says so"
       //
       // if the candidate is too big then slice off some bits; DO NOT take ``candidate % MODULUS'' because that will induce bias in the bits
       constexpr auto MAXIMUM = integer::bit_ceil<typename integer::traits::Double<typename Field::Underlying>::Type>(Field::MODULUS) - 1u;

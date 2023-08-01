@@ -1,0 +1,150 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.required.Function
+namespace tests::unit::vdaf {
+  template<required::Function> class Function;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Shard
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.Function
+#import std.in_place
+namespace tests::unit {
+  template<vdaf::required::Function FUNCTION> struct vdaf::Function : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = FUNCTION;
+    using enum ::tunitas::keyston::Slice;
+    using Inplace = std::in_place_t;
+    //
+    auto test_sizes() -> void;
+    auto test_disassembly() -> void;
+    auto test_initialization_leader() -> void;
+    auto test_initialization_helper() -> void;
+    auto test_continuation() -> void;
+    auto test_amalgamation() -> void;
+    auto test_finalization() -> void;
+    auto test_disgorgement() -> void;
+    auto test_reassembly() -> void;
+  protected:
+    using Shard = tunitas::keyston::Shard;
+    static auto exercise_initialization(Shard) -> void;
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.array.Variable
+namespace tests::unit::vdaf {
+  template<required::Function _> auto Function<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("sizes", &Function::test_sizes)
+           << add("disassembly", &Function::test_disassembly)
+           << []{
+             auto ini = Stream{"initialization"sv};
+             ini << add("leader", &Function::test_initialization_leader)
+                 << add("helper", &Function::test_initialization_helper)
+                 << END;
+             return ini;
+           }()
+           << add("continuation", &Function::test_continuation)
+           << add("amalgamation", &Function::test_amalgamation)
+           << add("finalization", &Function::test_finalization)
+           << add("disgorgement", &Function::test_disgorgement)
+           << add("reassembly", &Function::test_reassembly)
+           << END;
+    return settle(series);
+  }
+  template<required::Function _> auto Function<_>::test_sizes() -> void {
+    static_assert(sizeof(typename Subject::Verify_Key));
+    static_assert(sizeof(typename Subject::Nonce));
+    static_assert(sizeof(typename Subject::Randomness));
+#if 0
+    static_assert(sizeof(typename Subject::Disassembled));
+    static_assert(sizeof(typename Subject::Initialized));
+    static_assert(sizeof(typename Subject::Continued));
+    static_assert(sizeof(typename Subject::Amalgamated));
+    static_assert(sizeof(typename Subject::Disgorged));
+    static_assert(sizeof(typename Subject::Reassembled));
+#endif
+    static_assert(sizeof(typename Subject::Processed));
+    static_assert(sizeof(typename Subject::Input<WHOLE>));
+    static_assert(sizeof(typename Subject::Input<SHARE>));
+    static_assert(sizeof(typename Subject::Public));
+    static_assert(sizeof(typename Subject::State<SHARE>));
+    static_assert(sizeof(typename Subject::Check<SHARE>));
+    static_assert(sizeof(typename Subject::Check<WHOLE>));
+    static_assert(sizeof(typename Subject::Output<SHARE>));
+    static_assert(sizeof(typename Subject::Aggregation<SHARE>));
+    static_assert(sizeof(typename Subject::Aggregation<WHOLE>));
+    require(ASSERTION);
+  }
+  template<required::Function _> auto Function<_>::test_disassembly() -> void {
+    auto parameters = typename Subject::Parameters{};
+    parameters.boundaries = ::tunitas::keyston::measurement::Boundaries{}; // all zeros, but only necessary when HISTOGRAM
+    auto input = typename Subject::template Input<WHOLE>{};
+    auto nonce = typename Subject::Nonce::Storage{};
+    auto randomness = typename Subject::Randomness::Storage{};
+    auto disassembled = Subject::disassembly(parameters, input, nonce, randomness);
+    // we don't know if this is correct or not at this point ... that isn't checked here
+    require(ASSERTION, sizeof(disassembled));
+  }
+  template<required::Function _> auto Function<_>::test_initialization_leader() -> void { exercise_initialization(Shard{0u}); }
+  template<required::Function _> auto Function<_>::test_initialization_helper() -> void { exercise_initialization(Shard{1u}); }
+  template<required::Function _> auto Function<_>::exercise_initialization(Shard shard) -> void {
+    auto parameters = typename Subject::Parameters{};
+    parameters.boundaries = ::tunitas::keyston::measurement::Boundaries{}; // all zeros, but only necessary when HISTOGRAM
+    auto verify_key = typename Subject::Verify_Key::Storage{};
+    auto nonce = typename Subject::Nonce::Storage{};
+    auto randomness = typename Subject::Randomness::Storage{};
+    // it's easy to compute a dummy helper shard; but the ldader shard is function-dependent (and biggish)
+    auto input = typename Subject::template Input<WHOLE>{};
+    auto [publick, inputs] = Subject::disassembly(parameters, input, nonce, randomness);
+    auto initialized = Subject::initialization(parameters, verify_key, shard, nonce, publick, inputs.at(shard)); // <-------------------- test this
+    // eadem ratione
+    require(ASSERTION, sizeof(initialized));
+  }
+  template<required::Function _> auto Function<_>::test_continuation() -> void {
+    auto parameters = typename Subject::Parameters{};
+    auto state = typename Subject::template State<SHARE>{};
+    auto inbound = typename Subject::Optional<typename Subject::template Check<WHOLE>>{};
+    auto continued = Subject::continuation(parameters, state, inbound);
+    // eadem ratione
+    require(ASSERTION, sizeof(continued));
+  }
+  template<required::Function _> auto Function<_>::test_amalgamation() -> void {
+    auto parameters = typename Subject::Parameters{};
+    auto checks = typename Subject::Shards<typename Subject::template Check<SHARE>>{};
+    auto amalgamated = Subject::amalgamation(parameters, checks);
+    // eadem ratione
+    require(ASSERTION, sizeof(amalgamated));
+  }
+  template<required::Function _> auto Function<_>::test_finalization() -> void {
+    auto parameters = typename Subject::Parameters{};
+    auto state = typename Subject::template State<SHARE>{};
+    auto inbound = typename Subject::template Check<WHOLE>{};
+    auto finalized = Subject::finalization(parameters, state, inbound);
+    // eadem ratione
+    require(ASSERTION, sizeof(finalized));
+  }
+  template<required::Function _> auto Function<_>::test_disgorgement() -> void {
+    auto parameters = typename Subject::Parameters{};
+    auto outputs = ::tunitas::array::Variable<typename Subject::template Output<SHARE>>{}; // of zero length
+    auto disgorged = Subject::disgorgement(parameters, outputs);
+    // eadem ratione
+    require(ASSERTION, sizeof(disgorged));
+  }
+  template<required::Function _> auto Function<_>::test_reassembly() -> void {
+    auto parameters = typename Subject::Parameters{};
+    auto aggregations = typename Subject::template Aggregation<SHARE>{}; // these are fixed size (now) so they initialize to zero
+   auto processed = typename Subject::Processed{99u};
+    auto reassembled = Subject::reassembly(parameters, aggregations, processed);
+    // eadem ratione
+    require(ASSERTION, sizeof(reassembled));
+  }
+}
+#endiv

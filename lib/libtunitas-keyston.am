@@ -4,8 +4,8 @@
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #
-lib_libtunitas_keyston_la_CURRENT = 3
-lib_libtunitas_keyston_la_REVISION = 1
+lib_libtunitas_keyston_la_CURRENT = 4
+lib_libtunitas_keyston_la_REVISION = 0
 lib_libtunitas_keyston_la_AGE = 0
 lib_libtunitas_keyston_la_CRA = $(lib_libtunitas_keyston_la_CURRENT):$(lib_libtunitas_keyston_la_REVISION):$(lib_libtunitas_keyston_la_AGE)
 lib_libtunitas_keyston_la_VERSION_INFO = -version-info $(lib_libtunitas_keyston_la_CRA)

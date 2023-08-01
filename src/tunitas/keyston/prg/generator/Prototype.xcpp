@@ -37,8 +37,8 @@ namespace tunitas::keyston::prg::generator {
 #import tunitas.keyston.prg.constants
 #import tunitas.view.Fixed
 struct tunitas::keyston::prg::generator::Prototype {
-  inline static constexpr auto const SEED_SIZE = constants::SEED_SIZE;
   struct Seed {
+    inline static constexpr auto const SIZE = constants::SEED_SIZE;
     using View = view::Fixed<Octet, SEED_SIZE.count()>;
     using Storage = octets::Fixed<SEED_SIZE.count()>;
     Seed() = delete;

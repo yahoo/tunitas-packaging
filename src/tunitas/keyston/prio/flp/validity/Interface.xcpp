@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.flp.validity.required.Validity // for required::Definition
+#import tunitas.keyston.prio.flp.validity.required.Validity // for required::Predefinition
 namespace tunitas::keyston::prio::flp::validity {
   //
   // The interface to Validity
@@ -16,13 +16,13 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   // Design:
   //
-  //   A template, accepting the partially-completed Definition<NAME>
+  //   A template, accepting the partially-completed Predefinition<NAME>
   //
   // Usage:
   //
   //   It's a type aliass.  Use it widely and wisely.
   //
-  template<required::Definition> struct Interface;
+  template<required::Predefinition> struct Interface;
 }
 #endiv
 #divert <hpp>
@@ -37,7 +37,7 @@ namespace tunitas::keyston::prio::flp {
   // Convenience definitions for the function obligations of the (descendant's) interface
   // Requires the complete type of VALIDITY to operate.
   //
-  template<validity::required::Definition VALIDITY> struct validity::Interface {
+  template<validity::required::Predefinition VALIDITY> struct validity::Interface {
     using Encodable = typename VALIDITY::Measurement;
     using Encoded = array::Fixed<typename VALIDITY::Field::Element, dimension::cast<Items>(VALIDITY::INPUT_LENGTH).count()>;
     //

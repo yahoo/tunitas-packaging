@@ -29,7 +29,7 @@ namespace tunitas::keyston::protocol::aggregation {
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.protocol.query.Batch
 #import tunitas.keyston.quantity.Records
-#import tunitas.keyston.vdaf.protocol.Parameters
+#import tunitas.keyston.vdaf.Parameters
 namespace tunitas::keyston::protocol {
   namespace aggregation {
     using std::move;
@@ -38,7 +38,7 @@ namespace tunitas::keyston::protocol {
   struct aggregation::Request {
     id::Task task_id{};
     protocol::query::Batch query{}; // was: batch_selector
-    vdaf::protocol::Parameters aggregation_parameters{};
+    vdaf::Parameters aggregation_parameters{};
     quantity::Records report_count{};
     Opaque<32> checksum{};
   };

@@ -8,6 +8,7 @@
 #import tunitas.array.Variable
 #import tunitas.keyston.octets.Fixed
 #import tunitas.keyston.octets.Variable
+#import tunitas.view.Fixed
 #import tunitas.view.Variable
 namespace tunitas::keyston::octets {
   //
@@ -36,7 +37,9 @@ namespace tunitas::keyston::octets {
   //
   template<Size SIZE> inline auto join(view::Variable<octets::Fixed<SIZE>> const &) -> Variable;
   template<Size SIZE> inline auto join(array::Variable<octets::Fixed<SIZE>> const &a) -> Variable { return join(static_cast<view::Variable<octets::Fixed<SIZE>>>(a)); }
-  template<Size SIZE1, Size SIZE2> inline constexpr auto join(array::Fixed<octets::Fixed<SIZE2>, SIZE1> const &a) -> Fixed<SIZE1*SIZE2>;
+  //
+  template<Size SIZE1, Size SIZE2> inline constexpr auto join(view::Fixed<octets::Fixed<SIZE2>, SIZE1> a) -> Fixed<SIZE1*SIZE2>;
+  template<Size SIZE1, Size SIZE2> inline constexpr auto join(array::Fixed<octets::Fixed<SIZE2>, SIZE1> const &a) -> Fixed<SIZE1*SIZE2> { return join(static_cast<view::Fixed<octets::Fixed<SIZE2>, SIZE1>>(a)); }
 }
 #endiv
 #divert <ipp>
@@ -45,15 +48,15 @@ namespace tunitas::keyston {
   template<Size SIZE> auto octets::join(view::Variable<octets::Fixed<SIZE>> const &source) -> Variable {
     auto ret = Variable(SIZE*source.size());
     auto sink = ret.begin();
-    for (auto each : source) {
+    for (auto const &each : source) {
       sink = std::copy(each.begin(), each.end(), sink);
     }
     return ret;
   }
-  template<Size SIZE1, Size SIZE2> constexpr auto octets::join(array::Fixed<octets::Fixed<SIZE2>, SIZE1> const &source) -> Fixed<SIZE1*SIZE2> {
+  template<Size SIZE1, Size SIZE2> constexpr auto octets::join(view::Fixed<octets::Fixed<SIZE2>, SIZE1> source) -> Fixed<SIZE1*SIZE2> {
     auto ret = Fixed<SIZE1*SIZE2>{};
     auto sink = ret.begin();
-    for (auto each : source) {
+    for (auto const &each : source) {
       sink = std::copy(each.begin(), each.end(), sink);
     }
     return ret;

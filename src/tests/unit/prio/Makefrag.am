@@ -22,4 +22,4 @@ tests_unit_prio_SUBSOURCES = \
   $(end)
 #
 include src/tests/unit/prio/required/Makefrag.am
-include src/tests/unit/prio/split/Makefrag.am
+include src/tests/unit/prio/disassembly/Makefrag.am

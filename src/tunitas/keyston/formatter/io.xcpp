@@ -18,7 +18,7 @@
 #forward tunitas.keyston.af.numeric.Aggregation
 #forward tunitas.keyston.numeric.generic.Aggregation
 #forward tunitas.keyston.daf.numeric.Aggregation
-#forward tunitas.keyston.vdaf.numeric.Aggregation
+#forward tunitas.keyston.vdaf.Aggregation
 #forward tunitas.keyston.poplar.Algorithm
 namespace tunitas::keyston::formatter {
   //
@@ -53,9 +53,11 @@ namespace tunitas::keyston::formatter {
   auto operator<<(std::ostream &, Formatter<Tuple<Boundaries const &, Histogram const &>> const &) -> std::ostream &;
   auto operator<<(std::ostream &, Formatter<Tuple<Bits, Prefixes const &, Popularity const &>> const &) -> std::ostream &;
   //
+  inline auto operator<<(std::ostream &, Formatter<numeric::generic::Aggregation, numeric::generic::Aggregation const &> const &) -> std::ostream &; // handles Aggregation<WHOLE> in af, daf, vdaf
+  //
   inline auto operator<<(std::ostream &, Formatter<af::numeric::Aggregation, af::numeric::Aggregation const &> const &) -> std::ostream &;
-  inline auto operator<<(std::ostream &, Formatter<numeric::generic::Aggregation, numeric::generic::Aggregation const &> const &) -> std::ostream &;
   inline auto operator<<(std::ostream &, Formatter<daf::numeric::Aggregation<SHARE>, daf::numeric::Aggregation<SHARE> const &> const &) -> std::ostream &;
+  template<vdaf::required::Definition DEFINITION> inline auto operator<<(std::ostream &, Formatter<vdaf::Aggregation<SHARE, DEFINITION>, vdaf::Aggregation<SHARE, DEFINITION> const &> const &) -> std::ostream & = delete; // NOT YET (these things are just fixed octet strings (formatted messages)
   //
   namespace outer {
     template<typename TYPE> auto subformat(TYPE const &item) -> Formatter<TYPE, TYPE const &> { return {item}; } // expect Integer or Quantity or Histogram or Popularity
@@ -75,7 +77,7 @@ namespace tunitas::keyston::formatter {
 #import tunitas.keyston.aggregation.Popularity
 #import tunitas.keyston.af.numeric.Aggregation
 #import tunitas.keyston.daf.numeric.Aggregation
-#import tunitas.keyston.vdaf.numeric.Aggregation
+#import tunitas.keyston.vdaf.Aggregation
 namespace tunitas::keyston {
   template<required::Enumeration ENUM>                         auto formatter::operator<<(std::ostream &outbound, Formatter<ENUM, ENUM> const &formatter)         -> std::ostream & { return outbound << underlying(formatter.captured); }
   template<required::InstanceOf<formatter::Quantity> QUANTITY> auto formatter::operator<<(std::ostream &outbound, Formatter<QUANTITY, QUANTITY> const &formatter) -> std::ostream & { return outbound << formatter.captured.count(); }
@@ -85,6 +87,7 @@ namespace tunitas::keyston {
   auto formatter::operator<<(std::ostream &outbound, Formatter<af::numeric::Aggregation, af::numeric::Aggregation const &> const &formatter)                 -> std::ostream & { return body::variant(outbound, formatter); }
   auto formatter::operator<<(std::ostream &outbound, Formatter<numeric::generic::Aggregation, numeric::generic::Aggregation const &> const &formatter)       -> std::ostream & { return body::variant(outbound, formatter); }
   auto formatter::operator<<(std::ostream &outbound, Formatter<daf::numeric::Aggregation<SHARE>, daf::numeric::Aggregation<SHARE> const &> const &formatter) -> std::ostream & { return body::variant(outbound, formatter); }
+  // auto formatter::operator<<(std::ostream &outbound, Formatter<vdaf::Aggregation<SHARE>, vdaf::Aggregation<SHARE> const &> const &formatter)                 -> std::ostream & { ...something... }
 }
 #endiv
 #divert <tpp>

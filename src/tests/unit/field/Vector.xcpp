@@ -22,9 +22,9 @@ namespace tests::unit {
     using Field = typename Subject::Field;
     using Octet = ::tunitas::keyston::Octet;
     template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
-    inline static constexpr auto const SPECIMEN_SIZE = Field::ENCODED_SIZE.count();
+    inline static constexpr auto const SPECIMEN_SIZE = Field::ENCODED_LENGTH.count();
     //
-    auto test_zeroes() -> void;
+    auto test_zeros() -> void;
     auto test_random() -> void;
     //
     auto test_encode_returning() -> void;
@@ -41,7 +41,7 @@ namespace tests::unit {
 namespace tests::unit::field {
   template<typename _> auto Vector<_>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
-    series << add("zeroes", &Vector::test_zeroes)
+    series << add("zeros", &Vector::test_zeros)
            << add("random", &Vector::test_random)
            << []{
                 auto enc = Stream{"encode"sv};
@@ -60,23 +60,28 @@ namespace tests::unit::field {
            << END;
     return settle(series);
   }
-  template<typename _> auto Vector<_>::test_zeroes() -> void {
-    auto const observed = Subject::zeroes();
+  template<typename _> auto Vector<_>::test_zeros() -> void {
+    auto const observed = Subject::zeros();
     auto const expected = Value{};
     // Thus this is pointless: you can just use the constructor to get the same effect
     require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));
   }
   template<typename _> auto Vector<_>::test_random() -> void {
     auto source = ::tunitas::keyston::entropy::Serial{}; // who cares.
-    auto zeroes = Value{};
+    auto zeros = Value{};
     for (auto i{0u}, e{10u}; e != i; ++i) {
       auto const observed = Subject::random(source);
-      require(ASSERTION, !std::equal(zeroes.begin(), zeroes.end(), observed.begin(), observed.end()));
+      require(ASSERTION, !std::equal(zeros.begin(), zeros.end(), observed.begin(), observed.end()));
     }
   }
   template<typename _> auto Vector<_>::test_encode_returning() -> void {
     auto specimen = Value{typename Value::Inplace{}, Element{1u}, Element{2u}, Element{3u}, Element{4u}};
-    auto got = Subject::encode(specimen); // <-------------------- test t his
+    constexpr auto const SIZE = Value{}.size();
+    static_cast<::tunitas::view::View<Element const, SIZE>>(specimen);
+    (::tunitas::view::View<Element const, SIZE>)(specimen);
+    auto view = static_cast<::tunitas::view::View<Element const, SIZE>>(specimen);
+    Subject::encode(view);
+    auto got = Subject::encode(specimen); // <-------------------- test this
     auto probe = [&got](Index ith) { return got.at(ith * SPECIMEN_SIZE + SPECIMEN_SIZE-1); };
     require(ASSERTION, Octet{0x1} == probe(0u));
     require(ASSERTION, Octet{0x2} == probe(1u));

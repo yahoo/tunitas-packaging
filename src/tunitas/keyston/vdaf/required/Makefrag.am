@@ -6,4 +6,7 @@
 #
 tunitas_keyston_vdaf_required_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/required/namespace.cpp \
+  obj/src/tunitas/keyston/vdaf/required/Definition.cpp \
+  obj/src/tunitas/keyston/vdaf/required/Function.cpp \
+  obj/src/tunitas/keyston/vdaf/required/Vector.cpp \
   $(end)

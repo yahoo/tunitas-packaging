@@ -25,7 +25,7 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   //   Hack the Spew.
   //
-  template<Name> struct Definition;
+  template<Name> struct Predefinition;
   template<Name> struct Validity;
 }
 #endiv

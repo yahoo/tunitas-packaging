@@ -34,7 +34,7 @@ namespace tunitas::keyston::protocol::task {
 #import tunitas.keyston.protocol.id
 #import tunitas.keyston.time.Clock
 #import tunitas.keyston.time.Point
-#import tunitas.keyston.vdaf.protocol.Executor
+#import tunitas.keyston.vdaf.Name
 namespace tunitas::keyston::protocol {
   namespace task {
     using std::move;
@@ -56,7 +56,7 @@ namespace tunitas::keyston::protocol {
 #endif
     };
     Optional<Expiration> expiration{};
-    vdaf::protocol::Executor function{};
+    vdaf::Name function{};
   };
 }
 #endiv

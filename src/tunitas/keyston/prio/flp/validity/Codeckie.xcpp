@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.prio.Name
-#import tunitas.keyston.prio.flp.validity.required.Validity // required::Definition
+#import tunitas.keyston.prio.flp.validity.required.Validity // required::Predefinition
 namespace tunitas::keyston::prio::flp::validity {
   //
   // Make the codec interface available in a Validity<...> (which is a descendant)
@@ -24,16 +24,16 @@ namespace tunitas::keyston::prio::flp::validity {
   //   By inheritance into Validity<...>
   //   e.g.
   //
-  //   template<> class Validity<COUNT> : public Definition<COUNT>, public Lengths<Definition<COUNT>>, public Codeckie<COUNT, Definition<COUNT>> { ... more... };
+  //   template<> class Validity<COUNT> : public Predefinition<COUNT>, public Lengths<Predefinition<COUNT>>, public Codeckie<COUNT, Predefinition<COUNT>> { ... more... };
   //
-  template<Name, required::Definition> struct Codeckie;
+  template<Name, required::Predefinition> struct Codeckie;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.prio.Codec
 #import tunitas.keyston.prio.flp.validity.Interface
 namespace tunitas::keyston::prio::flp {
-  template<Name NAME, validity::required::Definition VALIDITY> class validity::Codeckie {
+  template<Name NAME, validity::required::Predefinition VALIDITY> class validity::Codeckie {
     using Face = Interface<VALIDITY>;
   protected:
     ~Codeckie() = default;

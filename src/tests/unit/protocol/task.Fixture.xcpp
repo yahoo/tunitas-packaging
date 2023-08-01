@@ -7,14 +7,14 @@
 #import tunitas.keyston.identifier
 #import tunitas.keyston.protocol.task
 #import tunitas.keyston.protocol.id
-#import tunitas.keyston.vdaf.protocol.Executor
+#import tunitas.keyston.vdaf.Name
 namespace tests::unit::protocol::task {
   class Fixture;
   namespace library = ::tunitas::keyston::protocol::task;
   namespace identifier = ::tunitas::keyston::identifier;
   namespace id = ::tunitas::keyston::protocol::id;
   namespace protocol = ::tunitas::keyston::protocol;
-  using Executor = ::tunitas::keyston::vdaf::protocol::Executor;
+  using Name = ::tunitas::keyston::vdaf::Name;
 }
 #endiv
 #divert <hpp>
@@ -58,7 +58,7 @@ namespace tests::unit::protocol::task {
                                     return Record<Type::FIXED_SIZE>{Fixed_Size{generate.batch_id()}};
                                   }();
                       ret.expiration = Subject::Expiration{};
-                      ret.function = Executor{};
+                      ret.function = Name{};
                       return ret;
                     }();
     auto tid0 = subject0.id;

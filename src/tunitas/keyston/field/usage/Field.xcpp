@@ -26,7 +26,7 @@ namespace tunitas::keyston::field::usage {
       typename FIELD::template Span<typename FIELD::Value, 2uz>;
       typename FIELD::template Span<typename FIELD::Value const, 2uz>;
       requires 0 != FIELD::MODULUS;
-      requires Bytes{0u} != FIELD::ENCODED_SIZE;
+      requires Bytes{0u} != FIELD::ENCODED_LENGTH;
       //
       // [[FIXTHIS]] Field<255> is not (yet?) endowed with a generator() per draft-irtf-cfrg-vdaf-05
       requires Has_Generator<FIELD> || !Has_Generator<FIELD>;

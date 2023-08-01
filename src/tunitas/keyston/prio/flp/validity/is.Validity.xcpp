@@ -11,9 +11,9 @@ namespace tunitas::keyston::prio::flp::validity::is {
   // Specializations only.
   // This is a customization point.
   //
-  template<typename> struct Definition;
+  template<typename> struct Predefinition;
   template<typename> struct Validity;
-  template<Name NAME> struct Definition<validity::Definition<NAME>>;
+  template<Name NAME> struct Predefinition<validity::Predefinition<NAME>>;
   template<Name NAME> struct Validity<validity::Validity<NAME>>;
 }
 #endiv
@@ -21,10 +21,10 @@ namespace tunitas::keyston::prio::flp::validity::is {
 #import std.true_type
 #import std.false_type
 namespace tunitas::keyston::prio::flp::validity {
-  template<typename> struct is::Definition : public std::false_type { };
+  template<typename> struct is::Predefinition : public std::false_type { };
   template<typename> struct is::Validity : public std::false_type { };
   namespace is {
-    template<Name NAME> struct Definition<validity::Definition<NAME>> : public std::true_type { };
+    template<Name NAME> struct Predefinition<validity::Predefinition<NAME>> : public std::true_type { };
     template<Name NAME> struct Validity<validity::Validity<NAME>> : public std::true_type { };
   }
 }

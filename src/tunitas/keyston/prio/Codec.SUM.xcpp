@@ -18,9 +18,11 @@ namespace tunitas::keyston::prio {
 namespace tunitas::keyston::prio {
   template<> class Codec<SUM> {
     inline static constexpr auto BITS = Bits{8*sizeof(std::uint64_t)};
+    inline static constexpr auto ENCODED_LENGTH = Items{BITS.count()};
   public:
     using Field = keyston::Field<128>;
-    inline static constexpr auto ENCODED_LENGTH = Items{BITS.count()};
+    inline static constexpr auto INPUT_LENGTH = ENCODED_LENGTH;
+    inline static constexpr auto OUTPUT_LENGTH = Items{1u};
     using Measurement = measurement::Specimen; // range 0, 2^bits
     using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
     using Truncated = Field::Vector<1>::Value;
@@ -69,6 +71,12 @@ namespace tunitas::keyston::prio {
     using Narrow = Decoded::Representation;
     auto narrow = static_cast<Narrow>(t.at(0));
     return Decoded{narrow};
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
   }
 }
 #endiv

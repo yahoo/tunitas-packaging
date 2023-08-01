@@ -92,6 +92,7 @@ namespace tunitas {
     using Ancestor::array;
     Fixed(Ancestor const &a) : Ancestor{a} { }
     Fixed(Ancestor &&a) : Ancestor{move(a)} { }
+    inline Fixed(span::Span<Value const, CAPACITY>);
     template<typename... VALUES> constexpr Fixed(VALUES &&...) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ) && /*overkill*/ required::Initializers<Value, VALUES...>);
     template<typename... VALUES> constexpr Fixed(Inplace, VALUES &&...) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ));
     //
@@ -139,6 +140,7 @@ namespace tunitas {
 #divert <ipp>
 #import tunitas.exception.Bound
 #import nonstd.required.Class
+#import std.copy
 namespace tunitas {
   template<array::required::Arrayable TYPE, array::Size CAPACITY> auto array::swap(Fixed<TYPE, CAPACITY> &a, Fixed<TYPE, CAPACITY> &b) noexcept -> void {
     typename Fixed<TYPE, CAPACITY>::Ancestor &aa{a}, &bb{b};
@@ -163,6 +165,7 @@ namespace tunitas {
         std::fill(begin(), end(), Value{});
       }
     }
+    template<required::Arrayable T, Size CAPACITY> Fixed<T, CAPACITY>::Fixed(span::Span<Value const, CAPACITY> s) { std::copy(s.begin(), s.end(), Ancestor::begin()); }
     template<required::Arrayable T, Size CAPACITY> template<typename... VALUES> constexpr Fixed<T, CAPACITY>::Fixed(VALUES &&...values) requires (sizeof...(VALUES) <= CAPACITY && (required::Convertible_To<VALUES, Value const &> && ... ) && required::Initializers<Value, VALUES...>)
       : Fixed{Inplace{}, forward<VALUES>(values)...}
     { }

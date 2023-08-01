@@ -27,7 +27,7 @@ struct tests::unit::prg::Palette {
 protected:
   ~Palette() = default;
 public:
-  using Seed = ::tunitas::keyston::octets::Fixed<library::generator::Prototype::SEED_SIZE.count()>;
+  using Seed = ::tunitas::keyston::octets::Fixed<library::generator::Prototype::Seed::SIZE.count()>;
   using Custom = ::tunitas::keyston::octets::Variable;
   using Binder = ::tunitas::keyston::octets::Variable;
   //

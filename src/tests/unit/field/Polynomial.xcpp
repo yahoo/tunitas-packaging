@@ -18,7 +18,7 @@ namespace tests::unit {
     using Value = typename Subject::Value; // can't call this "Polynomial"
     using Field = typename Subject::Field;
     //
-    auto test_zeroes() -> void;
+    auto test_zeros() -> void;
   };
 }
 #endiv
@@ -27,12 +27,12 @@ namespace tests::unit {
 namespace tests::unit::field {
   template<typename _> auto Polynomial<_>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
-    series << add("zeroes", &Polynomial::test_zeroes)
+    series << add("zeros", &Polynomial::test_zeros)
            << END;
     return settle(series);
   }
-  template<typename _> auto Polynomial<_>::test_zeroes() -> void {
-    auto const observed = Subject::zeroes();
+  template<typename _> auto Polynomial<_>::test_zeros() -> void {
+    auto const observed = Subject::zeros();
     auto const expected = Value{};
     // Thus this is pointless: you can just use the constructor to get the same effect
     require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));

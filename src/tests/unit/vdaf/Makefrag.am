@@ -7,13 +7,7 @@
 tests_unit_vdaf_SUBSOURCES = \
   check/obj/src/tests/unit/vdaf/namespace.cpp \
   check/obj/src/tests/unit/vdaf/Fixture.cpp \
-  check/obj/src/tests/unit/vdaf/Configuration.cpp \
-  check/obj/src/tests/unit/vdaf/Definition.cpp \
-  check/obj/src/tests/unit/vdaf/Executor.cpp \
   check/obj/src/tests/unit/vdaf/Name.cpp \
-  $(tests_unit_vdaf_numeric_SUBSOURCES) \
-  $(tests_unit_vdaf_protocol_SUBSOURCES) \
+  check/obj/src/tests/unit/vdaf/Function.cpp \
   $(end)
-#
-include src/tests/unit/vdaf/numeric/Makefrag.am
-include src/tests/unit/vdaf/protocol/Makefrag.am
+

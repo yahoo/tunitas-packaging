@@ -10,6 +10,7 @@ tunitas_keyston_octets_SUBSOURCES = \
   obj/src/tunitas/keyston/octets/string.cpp \
   obj/src/tunitas/keyston/octets/concatenate.cpp \
   obj/src/tunitas/keyston/octets/join.cpp \
+  obj/src/tunitas/keyston/octets/slice_off.cpp \
   obj/src/tunitas/keyston/octets/traits.Concatenate.cpp \
   obj/src/tunitas/keyston/octets/Fixed.cpp \
   obj/src/tunitas/keyston/octets/Variable.cpp \

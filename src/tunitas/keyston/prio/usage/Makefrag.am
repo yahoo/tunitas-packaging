@@ -7,4 +7,5 @@
 tunitas_keyston_prio_usage_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/usage/namespace.cpp \
   obj/src/tunitas/keyston/prio/usage/Codec.cpp \
+  obj/src/tunitas/keyston/prio/usage/Consistency_Codec_Validity.cpp \
   $(end)

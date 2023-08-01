@@ -34,9 +34,10 @@ namespace tunitas::keyston::field {
     inline static constexpr auto const DEGREE = THE_DEGREE;
     using Element = typename traits::Field<Field>::Element;
     using Polynomial = polynomial::Fixed<Element, DEGREE>;
-    using Value = Polynomial;
+    using Type = Polynomial;
+    using Value [[deprecated("instead prefer Definition<...>::Type")]] = Type;
     //
-    inline static constexpr auto zeroes() -> Value { return {}; }
+    inline static constexpr auto zeros() -> Value { return {}; }
   };
 }
 #endiv

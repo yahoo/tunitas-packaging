@@ -4,28 +4,25 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
-#import tunitas.keyston.vdaf.generic.continued.cast
+#import tunitas.keyston.vdaf.continued.cast
 namespace tunitas::keyston::vdaf {
   //
   // For the convenience and the lulz.
   //
-  using namespace generic::continued::package_cast::interface;
+  using namespace continued::package_cast::interface;
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.vdaf.generic.continued.alternatives // for Again<CONFIGURATION> and Final<CONFIGURATION>
-#import tunitas.keyston.vdaf.generic.continued.Continued
-#import tunitas.keyston.vdaf.Configuration
+#import tunitas.keyston.vdaf.continued.alternatives // for Again<CONFIGURATION> and Final<CONFIGURATION>
+#import tunitas.keyston.vdaf.continued.Continued
 namespace {
   namespace testate {
-    namespace continued = tunitas::keyston::vdaf::generic::continued;
+    namespace continued = tunitas::keyston::vdaf::continued;
     using tunitas::keyston::vdaf::cast; // <------------------------------ test this
-    using tunitas::keyston::vdaf::Configuration;
-    using enum tunitas::keyston::Transport;
     //
-    using Specimen = continued::Continued<Configuration<PROTOCOL>>; // ... pick one, any one will do
-    using Again = continued::Again<Configuration<PROTOCOL>>; // .......... eadem ratione
-    using Final = continued::Final<Configuration<PROTOCOL>>; // .......... eadem ratione
+    using Specimen = continued::Continued; // ... pick one, any one will do
+    using continued::Again; // .................. eadem ratione
+    using continued::Final; // .................. eadem ratione
     //
     // The constie
     static_assert(sizeof (cast<Again const &>(Specimen{})));

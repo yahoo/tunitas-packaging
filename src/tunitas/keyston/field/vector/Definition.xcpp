@@ -18,6 +18,9 @@ namespace tunitas::keyston::field::vector {
   //
   //   Lol. Whut?
   //
+  //   for encode_into(...) it is the caller's responsibility to ensure that there are enough bytes remaining in the sink
+  //   obviously this obligation can be discharged by supplying that->begin() on the appropriately-type+sized octet buffer.
+  //
   // Usage:
   //
   //   Of course, you silly goose!
@@ -37,13 +40,15 @@ namespace tunitas::keyston::field {
     inline static constexpr auto const CAPACITY = Items{THE_CAPACITY};
     using Element = typename traits::Field<Field>::Element;
     using Vector = vector::Fixed<Element, CAPACITY.count()>;
-    using Value = Vector;
+    using Type = Vector;
+    using Value [[deprecated("instead prefer Definition<...>::Type")]] = Type;
     //
-    inline static constexpr auto zeroes() -> Value { return {}; }
+    inline static constexpr auto zeros() -> Value { return {}; }
     template<entropy::required::Entropy SOURCE> [[deprecated("lol, wut?")]] inline static auto random([[inout]] SOURCE &) -> Value;
     //
-    inline static constexpr auto encode(Value const &) -> array::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()>;
-    inline static constexpr auto decode(view::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()>) -> Value;
+    inline static constexpr auto encode(view::Fixed<Element, CAPACITY.count()>) -> array::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()>;
+    inline static constexpr auto encode_into(view::Fixed<Element, CAPACITY.count()>, [[out]] typename array::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()>::Iterator) -> typename array::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()>::Iterator;
+    inline static constexpr auto decode(view::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()>) -> Value;
   };
 }
 #endiv
@@ -62,15 +67,18 @@ namespace tunitas::keyston::field::vector {
     }
     return ret;
   }
-  template<required::Field F, Size C> constexpr auto Definition<F,C>::encode(Value const &source) -> array::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()> {
-    auto ret = array::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()>{};
-    [&]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) {
-      auto position = ret.begin();
-      ((position = Field::encode_into(source.at(INDEX), position)), ... );
-    }(sequence::Sequence::make<CAPACITY.count()>());
+  template<required::Field F, Size C> constexpr auto Definition<F,C>::encode(view::Fixed<Element, CAPACITY.count()> source) -> array::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()> {
+    auto ret = array::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()>{};
+    encode_into(source, ret.begin());
     return ret;
   }
-  template<required::Field F, Size C> constexpr auto Definition<F,C>::decode(view::Fixed<Octet, Field::ENCODED_SIZE.count() * CAPACITY.count()> source) -> Value {
+  template<required::Field F, Size C> constexpr auto Definition<F,C>::encode_into(view::Fixed<Element, CAPACITY.count()> source, typename array::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()>::Iterator position) -> typename array::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()>::Iterator {
+    return [&]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) {
+      ((position = Field::encode_into(source.at(INDEX), position)), ... );
+      return position;
+    }(sequence::Sequence::make<CAPACITY.count()>());
+  }
+  template<required::Field F, Size C> constexpr auto Definition<F,C>::decode(view::Fixed<Octet, Field::ENCODED_LENGTH.count() * CAPACITY.count()> source) -> Value {
     auto ret = Value{};
     [&]<Size... INDEX>(sequence::Sequence::Pack<INDEX...>) {
       auto position = source.begin();

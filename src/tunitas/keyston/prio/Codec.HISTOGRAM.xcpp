@@ -73,3 +73,9 @@ namespace tunitas::keyston::prio {
   }
 }
 #endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+  }
+}
+#endiv

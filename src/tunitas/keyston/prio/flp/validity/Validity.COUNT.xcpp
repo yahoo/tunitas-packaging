@@ -27,7 +27,7 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   //   Yes.
   //
-  template<> struct Definition<COUNT>;
+  template<> struct Predefinition<COUNT>;
   template<> struct Validity<COUNT>;
 }
 #endiv
@@ -35,7 +35,7 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Count
 namespace tunitas::keyston::prio::flp::validity {
-  template<> struct Definition<COUNT> : public Prototype {
+  template<> struct Predefinition<COUNT> : public Prototype {
     using Field = keyston::Field<64>;
     using Measurement = measurement::Specimen; // yet reduced down to uint1_t (sic)
     using Aggregation = aggregation::Count;
@@ -45,8 +45,8 @@ namespace tunitas::keyston::prio::flp::validity {
     using Gadgets = flp::Gadgets<flp::Gadget<RANGE1>>;
     inline static constexpr auto const CALLS = gadget::calls(1u);
   };
-  template<> class Validity<COUNT> : public Definition<COUNT>, public Lengths<Definition<COUNT>>, public Codeckie<COUNT, Definition<COUNT>> {
-    using Face = Interface<Definition<COUNT>>;
+  template<> class Validity<COUNT> : public Predefinition<COUNT>, public Lengths<Predefinition<COUNT>>, public Codeckie<COUNT, Predefinition<COUNT>> {
+    using Face = Interface<Predefinition<COUNT>>;
     using Mul = typename tuple::Element<0uz, Gadgets>::type;
   public:
     template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER, Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Shards) -> Field::Element;

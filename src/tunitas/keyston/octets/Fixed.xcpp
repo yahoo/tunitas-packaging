@@ -36,6 +36,7 @@ namespace tunitas::keyston {
   public:
     Fixed() = default;
     using Ancestor::Fixed;
+    constexpr Fixed(Ancestor const &a) : Ancestor{a} { }
     using Index = Size;
     inline auto subrange(Index lo, Index hi) const -> Variable;
     template<Size SUBCAPACITY> inline auto subrange(Index lo) const -> Fixed<SUBCAPACITY>;

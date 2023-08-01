@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.required.Vector
+namespace tunitas::keyston::vdaf {
+  //
+  // The output of the rounds (the series of preparations)
+  //
+  // Specification:
+  //
+  //   Output<WHOLE, VECTOR> is never materialized
+  //   Output<SHARE, VECTOR> is a (variable) array of vector-of-elements.
+  //
+  //   <quote>
+  //
+  //       Aggregator 0    Aggregator 1        Aggregator SHARES-1
+  //       ============    ============        ===================
+  //   
+  //       out_share_0_0   out_share_1_0       out_share_[SHARES-1]_0
+  //       out_share_0_1   out_share_1_1       out_share_[SHARES-1]_1
+  //       out_share_0_2   out_share_1_2       out_share_[SHARES-1]_2
+  //            ...             ...                     ...
+  //       out_share_0_B   out_share_1_B       out_share_[SHARES-1]_B
+  //         |               |                   |
+  //         V               V                   V
+  //       +-----------+   +-----------+       +-----------+
+  //       | out2agg   |   | out2agg   |   ... | out2agg   |
+  //       +-----------+   +-----------+       +-----------+
+  //         |               |                   |
+  //         V               V                   V
+  //       agg_share_0     agg_share_1         agg_share_[SHARES-1]
+  //
+  //     Figure 3: Aggregation of output shares. `B` indicates the number of measurements in the batch.
+  //
+  //   </quote>
+  //
+  // Design:
+  //
+  //   SHARE_COUNT == Items{2} in this implementation (but is irrelevant to the Output<...>
+  //
+  template<Slice, required::Vector> struct Output;
+  template<field::required::Vector VECTOR> struct Output<SHARE, VECTOR>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::vdaf {
+  using std::move;
+  template<required::Vector VECTOR> struct Output<SHARE, VECTOR> : public VECTOR {
+    Output() = default;
+    using VECTOR::Fixed; // and you "just have to know" that the inherited construtor is named 'Fixed'
+  };
+}
+#endiv

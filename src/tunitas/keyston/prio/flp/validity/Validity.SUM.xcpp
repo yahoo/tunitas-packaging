@@ -27,7 +27,7 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   //   Yes.
   //
-  template<> struct Definition<SUM>;
+  template<> struct Predefinition<SUM>;
   template<> struct Validity<SUM>;
 }
 #endiv
@@ -35,11 +35,11 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Summation
 namespace tunitas::keyston::prio::flp::validity {
-  template<> class Definition<SUM> : public Prototype {
+  template<> class Predefinition<SUM> : public Prototype {
     inline static constexpr auto const BIT_WIDTH = 8 * sizeof(measurement::Specimen); // a.k.a. "bits" (lower case) from Section 7.4.2
     static_assert(sizeof(measurement::Specimen) <= sizeof(aggregation::Summation));
   protected:
-    ~Definition() = default;
+    ~Predefinition() = default;
   public:
     using Field = keyston::Field<128>;
     using Measurement = measurement::Specimen;
@@ -50,8 +50,8 @@ namespace tunitas::keyston::prio::flp::validity {
     using Gadgets = flp::Gadgets<flp::Gadget<RANGE2>>;
     inline static constexpr auto const CALLS = gadget::calls(BIT_WIDTH);
   };
-  template<> class Validity<SUM> : public Definition<SUM>, public Lengths<Definition<SUM>>, public Codeckie<SUM, Definition<SUM>> {
-    using Face = Interface<Definition<SUM>>;
+  template<> class Validity<SUM> : public Predefinition<SUM>, public Lengths<Predefinition<SUM>>, public Codeckie<SUM, Predefinition<SUM>> {
+    using Face = Interface<Predefinition<SUM>>;
     using Range2 = typename tuple::Element<0uz, Gadgets>::type;
   public:
     template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER, Face::Input, Face::Randomness, [[unused]] Face::Shards) -> Field::Element;

@@ -31,7 +31,7 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   namespace [[eponymous]] access {
     using namespace gadget;
-    template<required::Definition _> struct Access;
+    template<required::Predefinition _> struct Access;
   }
   using access::Access;
 }
@@ -40,7 +40,7 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.sequence.Constant
 #import tunitas.sequence.Sequence
 namespace tunitas::keyston::prio::flp::validity {
-  template<required::Definition VALIDITY> struct access::Access {
+  template<required::Predefinition VALIDITY> struct access::Access {
     using Validity = VALIDITY;
     struct Gadgets {
       inline static constexpr auto count() -> unsigned; // ................... H

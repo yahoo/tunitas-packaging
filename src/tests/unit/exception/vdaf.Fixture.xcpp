@@ -47,7 +47,6 @@ namespace tests::unit::exception::vdaf {
 #import tunitas.keyston.vdaf.exception.Null
 #import tunitas.keyston.vdaf.exception.Range
 #import tunitas.keyston.vdaf.exception.Unimplemented
-#import tests.unit.exception.vdaf.protocol.Fixture
 auto tests::unit::exception::vdaf::Fixture::suite() -> Suite {
   auto series = Stream{"vdaf"sv};
   series << stanza1string<Fixture, feature::Bound, library::Bound>("Bound")
@@ -59,7 +58,6 @@ auto tests::unit::exception::vdaf::Fixture::suite() -> Suite {
          << stanza0<Fixture, feature::Null, library::Null>("Null")         
          << stanza1string<Fixture, feature::Range, library::Range>("Range")         
          << stanza0<Fixture, feature::Unimplemented, library::Unimplemented>("Unimplemented")
-         << add<protocol::Fixture>()
          << END;
   return settle(series);
 }

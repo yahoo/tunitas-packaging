@@ -27,7 +27,7 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   //   Yes.
   //
-  template<> struct Definition<HISTOGRAM>;
+  template<> struct Predefinition<HISTOGRAM>;
   template<> struct Validity<HISTOGRAM>;
 }
 #endiv
@@ -37,10 +37,10 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.keyston.measurement.Boundaries
 #import tunitas.keyston.aggregation.Histogram
 namespace tunitas::keyston::prio::flp::validity {
-  template<> class Definition<HISTOGRAM> : public Prototype {
+  template<> class Predefinition<HISTOGRAM> : public Prototype {
     inline static constexpr auto const HISTOGRAM_WIDTH = histogram::Buckets::COUNT.count(); // a.k.a. 'length' (lower case) from Section 7.4.3
   protected:
-    ~Definition() = default;
+    ~Predefinition() = default;
   public:
     using Field = keyston::Field<128>;
     using Measurement = measurement::Specimen;
@@ -51,8 +51,8 @@ namespace tunitas::keyston::prio::flp::validity {
     using Gadgets = flp::Gadgets<flp::Gadget<RANGE2>>;
     inline static constexpr auto const CALLS = gadget::calls(HISTOGRAM_WIDTH);
   };
-  template<> class Validity<HISTOGRAM> : public Definition<HISTOGRAM>, public Lengths<Definition<HISTOGRAM>>, public Codeckie<HISTOGRAM, Definition<HISTOGRAM>> {
-    using Face = Interface<Definition<HISTOGRAM>>;
+  template<> class Validity<HISTOGRAM> : public Predefinition<HISTOGRAM>, public Lengths<Predefinition<HISTOGRAM>>, public Codeckie<HISTOGRAM, Predefinition<HISTOGRAM>> {
+    using Face = Interface<Predefinition<HISTOGRAM>>;
     using Range2 = typename tuple::Element<0uz, Gadgets>::type;
   public:
     template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER, Face::Input, Face::Randomness, Face::Shards) -> Field::Element;

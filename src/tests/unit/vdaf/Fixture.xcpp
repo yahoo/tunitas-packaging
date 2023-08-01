@@ -7,69 +7,68 @@
 namespace tests::unit::vdaf { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.Transport
+#import tunitas.keyston.Slice
+#import tunitas.keyston.vdaf.Definition
+#import tunitas.keyston.vdaf.Name
 struct tests::unit::vdaf::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using enum ::tunitas::keyston::Transport;
+  using enum ::tunitas::keyston::Slice;
+  using Definition = library::Definition<library::Name::PRIO3_COUNT>; // pick one, any one will do
   //
   auto test_usage_Name() -> void;
+  //
+  auto test_usage_Input() -> void;
+  auto test_usage_Public() -> void;
+  auto test_usage_State() -> void;
+  auto test_usage_Check() -> void;
+  auto test_usage_Output() -> void;
+  auto test_usage_Aggregation() -> void;
+  //
 };
 #endiv
 #divert <cpp>
-#import tunitas.keyston.vdaf.Configuration
-#import tunitas.keyston.vdaf.Definition
-#import tunitas.keyston.vdaf.Executor
-#import tests.unit.vdaf.Configuration
-#import tests.unit.vdaf.Definition
-#import tests.unit.vdaf.Executor
 #import tests.unit.vdaf.Name
-#import tests.unit.vdaf.numeric.Fixture
-#import tests.unit.vdaf.protocol.Fixture
+#import tests.unit.vdaf.Function
 auto tests::unit::vdaf::Fixture::suite() -> Suite {
   auto series = Stream{"vdaf"sv};
   series << []{
               auto use = Stream{"usage"sv};
               use << add("Name", &Fixture::test_usage_Name)
+                  << add("Input", &Fixture::test_usage_Input)
+                  << add("Public", &Fixture::test_usage_Public)
+                  << add("State", &Fixture::test_usage_State)
+                  << add("Check", &Fixture::test_usage_Check)
+                  << add("Output", &Fixture::test_usage_Output)
+                  << add("Aggregation", &Fixture::test_usage_Aggregation)
                   << END;
               return use;
             }()
          << add<Name>()
          << []{
-              auto cfg = Stream{"Configuration"sv};
-              cfg << add<Configuration<library::Configuration<NUMERIC>>>()
-#if 0 // [[REMOVETHIS]]
-                  << add<Configuration<library::Configuration<PROTOCOL>>>()
-#endif
-                  << END;
-              return cfg;
-            }()
-         << []{
-              auto def = Stream{"Definition"sv};
-              def << add<Definition<library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
-#if 0 // [[REMOVETHIS]]
-                  << add<Definition<library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
-#endif
-                  << END;
-              return def;
-            }()
-         << []{
-              auto exe = Stream{"Executor"sv};
-              exe << add<Executor<library::Executor<NUMERIC>, library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
-#if 0 // [[REMOVETHIS]]
-                  << add<Executor<library::Executor<PROTOCOL>, library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
-#endif
-                  << END;
-              return exe;
-            }()
-         << add<numeric::Fixture>()
-#if 0 // [[REMOVETHIS]]
-         << add<protocol::Fixture>()
-#endif
+           using enum ::tunitas::keyston::Scheme;
+           using enum ::tunitas::keyston::vdaf::Name;
+           auto fun = Stream{"function"sv};
+           fun << add<Function<library::Function<PRIO, PRIO3_COUNT>>>()
+               << add<Function<library::Function<PRIO, PRIO3_SUM>>>()
+               << add<Function<library::Function<PRIO, PRIO3_HISTOGRAM>>>()
+             // POPLAR1
+             // DOPLAR
+               << END;
+           return fun;
+         }()
          << END;
   return settle(series);
 }
 #import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.Input
+#import tunitas.keyston.vdaf.Public
+#import tunitas.keyston.vdaf.State
+#import tunitas.keyston.vdaf.Check
+#import tunitas.keyston.vdaf.Output
+#import tunitas.keyston.vdaf.Aggregation
+#import tunitas.keyston.vdaf.Definition
+#import std.ostringstream
 namespace tests::unit::vdaf {
   auto Fixture::test_usage_Name() -> void {
     using Subject = library::Name;
@@ -80,6 +79,43 @@ namespace tests::unit::vdaf {
     swap(subject0, subject1);
     // The other testers wil examine the output value; here we just call the core function to prove it exists & is callable
     render(subject);
+  }
+  auto Fixture::test_usage_Input() -> void {
+    auto whole = library::Input<WHOLE, Definition>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Input<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Public() -> void {
+    auto whole = library::Public<Definition>{};
+    require(ASSERTION, sizeof(whole));
+  }
+  auto Fixture::test_usage_State() -> void {
+    auto share = library::State<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Check() -> void {
+    auto whole = library::Check<WHOLE, Definition>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Check<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Output() -> void {
+    using Vector = typename Definition::Field::Vector<99>::Type; // pick one
+    auto share = library::Output<SHARE, Vector>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Aggregation() -> void {
+    auto whole = library::Aggregation<WHOLE, Definition>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Aggregation<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+    {
+      auto buf = std::ostringstream{};
+      buf << format(whole); // <------------------------------ test this
+      auto str = buf.str();
+      require(ASSERTION, !str.empty());
+    }
   }
 }
 #endiv

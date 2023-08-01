@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.required.Definition
+#import tunitas.keyston.prio.Role
+#import tunitas.Tuple
+#import tunitas.keyston.Shards
+#import tunitas.keyston.octets.Variable
+#include <hpp/tunitas.keyston.octets.Variable> // because Shards<...> requires the complete type
+namespace tunitas::keyston::prio::package_disassembly {
+  //
+  // A tuple of the public and the input shards
+  //
+  // Specification:
+  //
+  //    get<0>(Disassembly) ... is the Public shard; it is of fixed size, but that size dependent upon the DEFINITON
+  //    get<1>(Disassembly) ... is the the Inputs{...} is a Shards{...}, which is a fixed-size array, of the input shards, which are all variable-length octet arrays.
+  //      Shard{0} ............ is a "big" array of encoded elements ... for the "leader role
+  //      Shard{1} & onward ... is a "short" array of seeds ............ for the "helper" role
+  //      the current implementation only admits to two shards
+  //
+  // Design:
+  //
+  //   Since this thing is only used in a structured binding in that one certain place, the named get-accessors are not implemented.
+  //
+  // Usage:
+  //
+  //   auto specimen_input = measurement::Specimen{...somehow...};
+  //   auto encoded_input = Definition::Codec::encode(...specimen...somehow...);
+  //   auto const &[publick, inputs] = disassembly<Definition>(encoded_input, nonce, randomness);
+  //   ...use them...
+  //  
+  template<required::Definition DEFINITION> using Disassembled = Tuple<typename Role<role::Name::PUBLIC, DEFINITION>::Encoded::Storage, Shards<octets::Variable>>;
+}
+#endiv

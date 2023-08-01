@@ -20,7 +20,7 @@ namespace tests::unit {
     using Element = typename Subject::Element;
     using Octet = ::tunitas::keyston::Octet;
     template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
-    inline static constexpr auto const SPECIMEN_SIZE = Subject::ENCODED_SIZE.count();
+    inline static constexpr auto const SPECIMEN_SIZE = Subject::ENCODED_LENGTH.count();
     //
     auto test_encode_returning() -> void;
     auto test_encode_into() -> void;

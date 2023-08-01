@@ -1,0 +1,98 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Role.template
+namespace tunitas::keyston::prio::role {
+  //
+  // Specification:
+  //
+  //   Yes.
+  //
+  // Design:
+  //
+  //   The leader works with encoded vectors (of field elements).
+  //
+  template<required::Definition DEFINITION> struct Role<LEADER, DEFINITION>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::prio::role {
+  template<required::Definition DEFINITION> class Uncoded<LEADER, DEFINITION> {
+    // vector of field elements
+    struct Each {
+      using Element = typename DEFINITION::Field::Element;
+      template<Size COUNT> using Vector = typename DEFINITION::Field::template Vector<COUNT>;
+      inline static constexpr auto const SIZE = DEFINITION::Field::ENCODED_LENGTH.count();
+    };
+  public:
+    struct Input {
+      inline static constexpr auto const COUNT = Count<DEFINITION>::Input::COUNT;
+      using Vector = typename Each::template Vector<COUNT>;
+      using Storage = typename Vector::Type;
+      struct View {
+        using Fixed = view::Fixed<typename Each::Element, COUNT>;
+      };
+    };
+    struct Proof {
+      inline static constexpr auto const COUNT = Count<DEFINITION>::Proof::COUNT;
+      using Vector = typename Each::template Vector<COUNT>;
+      using Storage = typename Vector::Type;
+      struct View {
+        using Fixed = view::Fixed<typename Each::Element, COUNT>;
+      };
+    };
+    using Blind = role::Blind<DEFINITION>;
+  };
+  template<required::Definition DEFINITION> struct Role<LEADER, DEFINITION> : public Outline<LEADER, DEFINITION> {
+    Role() = delete;
+    Role(Role const &) = delete;
+    //
+    // because we're in a template so either we redeclare these or we use a longer pathname to get at them
+    using Definition = DEFINITION;
+    using Uncoded = role::Uncoded<LEADER, DEFINITION>;
+    using Decoded = typename Outline<LEADER, DEFINITION>::Decoded;
+    using Encoded = typename Outline<LEADER, DEFINITION>::template Encoded<Definition::Field::ENCODED_LENGTH.count(), Count<DEFINITION>>;
+    //
+    // def encode_leader_share(Prio3, meas_share, proof_share, k_blind) -> Bytes
+    inline static constexpr auto encode(typename Uncoded::Input::View::Fixed, typename Uncoded::Proof::View::Fixed, typename Uncoded::Blind::View::Fixed) -> typename Encoded::Storage;
+    //
+    // def decode_leader_share(Prio3, encoded) -> Tuple<Input, Proof, Blind>;
+    inline static constexpr auto decode(typename Encoded::View::Variable) -> typename Decoded::Triple;
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.octets.concatenate
+namespace tunitas::keyston::prio::role {
+  template<required::Definition _> constexpr auto Role<LEADER, _>::encode(typename Uncoded::Input::View::Fixed input, typename Uncoded::Proof::View::Fixed proof, typename Uncoded::Blind::View::Fixed blind) -> typename Encoded::Storage {
+    if constexpr (Definition::use_joint_randomness()) {
+      return octets::concatenate(Uncoded::Input::Vector::encode(input), Uncoded::Proof::Vector::encode(proof), blind);
+    } else {
+      return octets::concatenate(Uncoded::Input::Vector::encode(input), Uncoded::Proof::Vector::encode(proof));
+    }
+  }
+  template<required::Definition _> constexpr auto Role<LEADER, _>::decode(typename Encoded::View::Variable encoded0) -> typename Decoded::Triple {
+    auto [k_input_share, encoded1] = octets::slice_off<typename Encoded::Input::View::Fixed, exception::Decode>(encoded0);
+    auto input_share = Decoded::Input::Vector::decode(k_input_share);
+    auto [k_proof_share, encoded2] = octets::slice_off<typename Encoded::Proof::View::Fixed, exception::Decode>(encoded1);
+    auto proof_share = Decoded::Proof::Vector::decode(k_proof_share);
+    if constexpr (!Definition::use_joint_randomness()) {
+      if (!encoded2.empty()) {
+        throw exception::Decode{};
+      } else {
+        return {move(input_share), move(proof_share), typename Decoded::Blind::Storage{}};
+      }
+    } else {
+      auto [k_blind, encoded3] = octets::slice_off<typename Decoded::Blind::View::Fixed, exception::Decode>(encoded2);
+      if (!encoded3.empty()) {
+        throw exception::Decode{};
+      } else {
+        return {move(input_share), move(proof_share), move(k_blind)};
+      }
+    }
+  }
+}
+#endiv

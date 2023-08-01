@@ -18,7 +18,7 @@ namespace tunitas::keyston::prio::flp {
   template<field::required::Field FIELD, typename CONSTANT> struct system::Length {
     using Field = FIELD;
     using Element = typename Field::Element;
-    inline static constexpr Bytes const VALUE = CONSTANT::VALUE;
+    inline static constexpr Items const VALUE = CONSTANT::VALUE;
     using View = typename Field::View::template Fixed<VALUE.count()>;
     template<typename ELEMENT> requires field::required::Spanable<ELEMENT, Element> using Span = typename Field::template Span<ELEMENT, VALUE.count()>;
     using Vector = typename Field::template Vector<VALUE.count()>::Value;

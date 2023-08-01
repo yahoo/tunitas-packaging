@@ -4,25 +4,25 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
-#import tunitas.keyston.vdaf.generic.disassembled.get
+#import tunitas.keyston.vdaf.disassembled.get
 namespace tunitas::keyston::vdaf {
   //
   // For the convenience and the lulz.
   //
-  using generic::disassembled::get;
+  using disassembled::get;
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.vdaf.generic.disassembled.Disassembled
-#import tunitas.keyston.vdaf.Configuration
+#import tunitas.keyston.vdaf.disassembled.Disassembled
+#import tunitas.keyston.vdaf.Definition
 namespace {
   namespace testate {
-    namespace disassembled = tunitas::keyston::vdaf::generic::disassembled;
+    namespace disassembled = tunitas::keyston::vdaf::disassembled;
+    using tunitas::keyston::vdaf::Definition;
+    using enum tunitas::keyston::vdaf::Name;
     using tunitas::keyston::vdaf::get; // <------------------------------ test this
-    using tunitas::keyston::vdaf::Configuration;
-    using enum tunitas::keyston::Transport;
     //
-    using Specimen = disassembled::Disassembled<Configuration<PROTOCOL>>; // ... pick one, any one will do
+    using Specimen = disassembled::Disassembled<Definition<PRIO3_COUNT>>; // ... pick one, any one will do
     //
     static_assert(sizeof (get<0>(std::declval<Specimen>())));
     static_assert(sizeof (get<0>(std::declval<Specimen const>())));

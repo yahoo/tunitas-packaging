@@ -64,7 +64,6 @@ namespace tests::unit::integer {
     require(ASSERTION, expected_size == observed_size);
   }
   template<std::endian ENDIAN, Size WIDTH> auto To_Octets::test_roundtrip() -> void {
-    using Forward = typename Palette::Octets::template Fixed<Palette::Integer::template SIZE<WIDTH>.count()>;
     using Backward = typename Palette::Integer::template Type<WIDTH>;
     auto const specimen = Integer::INTERESTING_CONSTANT<WIDTH>;
     auto const forward = library::to_octets<ENDIAN>(specimen);// <------------------ test this

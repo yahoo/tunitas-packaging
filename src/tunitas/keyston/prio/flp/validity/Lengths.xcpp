@@ -25,7 +25,7 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   // Design:
   //
-  //   Descendants only, by MI with the Definition.
+  //   Descendants only, by MI with the Predefinition.
   //   This is CRTP (the Curiously-Recurring Template Pattern)
   //   Everything here MUST be constexpr.
   //
@@ -33,12 +33,12 @@ namespace tunitas::keyston::prio::flp::validity {
   //
   //   Hack the Spew.  But you get it, righ?
   //
-  //   template<> class Validity<COUNT> : public Definition<COUNT>, public Lengths<Definition<COUNT>> { ...body... };
+  //   template<> class Validity<COUNT> : public Predefinition<COUNT>, public Lengths<Predefinition<COUNT>> { ...body... };
   //
   namespace [[eponymous]] lengths {
     using namespace gadget;
     using namespace dimension;
-    template<required::Definition> struct Lengths;
+    template<required::Predefinition> struct Lengths;
   }
   using lengths::Lengths;
 }
@@ -46,7 +46,7 @@ namespace tunitas::keyston::prio::flp::validity {
 #divert <hpp>
 #import tunitas.keyston.prio.flp.validity.Access
 namespace tunitas::keyston::prio::flp::validity {
-  template<required::Definition VALIDITY> class lengths::Lengths {
+  template<required::Predefinition VALIDITY> class lengths::Lengths {
     using Self = VALIDITY; // can't use 'Validity' because descendants would see that (and it becomes ambiguous)
     using Access = validity::Access<Self>;
   protected:
@@ -65,19 +65,19 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.keyston.prio.flp.validity.Access
 #import std.bit_ceil
 namespace tunitas::keyston::prio::flp::validity::lengths {
-  template<required::Definition _> constexpr auto Lengths<_>::use_joint_randomness() -> bool { return underlying(Self::JOINT_RANDOMNESS_LENGTH) > 0u; }
-  template<required::Definition _> constexpr auto Lengths<_>::joint_randomness_length() -> Joint { return Self::JOINT_RANDOMNESS_LENGTH; }
-  template<required::Definition _> constexpr auto Lengths<_>::prove_randomness_length() -> Prove {
+  template<required::Predefinition _> constexpr auto Lengths<_>::use_joint_randomness() -> bool { return underlying(Self::JOINT_RANDOMNESS_LENGTH) > 0u; }
+  template<required::Predefinition _> constexpr auto Lengths<_>::joint_randomness_length() -> Joint { return Self::JOINT_RANDOMNESS_LENGTH; }
+  template<required::Predefinition _> constexpr auto Lengths<_>::prove_randomness_length() -> Prove {
     // a.k.a. sum(map(lambda g: g.ARITY, Valid.GADGETS))
     return []<Size... INDEX>(typename Access::Sequence::template Pack<INDEX...>) {
       return Prove{(underlying(Access::Gadgets::template arity<INDEX>()) + ... )};
     }(Access::Sequence::make());
   }
-  template<required::Definition _> constexpr auto Lengths<_>::query_randomness_length() -> Query {
+  template<required::Predefinition _> constexpr auto Lengths<_>::query_randomness_length() -> Query {
     // len(Valid.GADGETS)
     return Query{tuple::Size<typename Self::Gadgets>::value};
   }
-  template<required::Definition _> constexpr auto Lengths<_>::proof_length() -> Proof {
+  template<required::Predefinition _> constexpr auto Lengths<_>::proof_length() -> Proof {
     // length = 0
     // for (g, g_calls) in zip(Valid.GADGETS, Valid.GADGET_CALLS):
     //    P = next_power_of_2(1 + g_calls)
@@ -90,7 +90,7 @@ namespace tunitas::keyston::prio::flp::validity::lengths {
       return Proof{(0u + ... + term(Access::Gadgets::template arity<INDEX>(), Access::Gadgets::template degree<INDEX>(), Access::Gadgets::template calls<INDEX>()))};
     }(Access::Sequence::make());
   }
-  template<required::Definition _> constexpr auto Lengths<_>::verifier_length() -> Verifier {
+  template<required::Predefinition _> constexpr auto Lengths<_>::verifier_length() -> Verifier {
     // length = 1
     // for g in Valid.GADGETS:
     //   length += g.ARITY + 1

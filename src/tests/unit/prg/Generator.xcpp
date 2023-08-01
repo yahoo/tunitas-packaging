@@ -127,7 +127,7 @@ namespace tests::unit::prg {
       auto guard{0uz};
       auto const LIMIT{1'000'000'000uz};
       for (auto index{0uz}; index != COUNT; ++index) {
-        auto x = ::tunitas::keyston::integer::from_octets<typename Field::Underlying, std::endian::little>(subject.template next<Field::ENCODED_SIZE.count()>());
+        auto x = ::tunitas::keyston::integer::from_octets<typename Field::Underlying, std::endian::little>(subject.template next<Field::ENCODED_LENGTH.count()>());
         require(ASSERTION, 0 != x);
         x &= MAXIMUM;
         if (x < Field::MODULUS) {

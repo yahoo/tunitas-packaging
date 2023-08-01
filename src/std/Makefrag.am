@@ -14,24 +14,26 @@ std_SUBSOURCES = \
   obj/src/std/iterator_traits/tunitas.ranges.package_enumerate.Iterator.SUBITERATOR.MUTABILITY.cpp \
   \
   obj/src/std/tuple_element/N.tunitas.keyston.daf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
-  obj/src/std/tuple_element/N.tunitas.keyston.vdaf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
+  obj/src/std/tuple_element/N.tunitas.keyston.vdaf.disassembled.Disassembled.DEFINITION.cpp \
   \
   obj/src/std/tuple_size/tunitas.keyston.daf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
-  obj/src/std/tuple_size/tunitas.keyston.vdaf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
+  obj/src/std/tuple_size/tunitas.keyston.vdaf.disassembled.Disassembled.DEFINITION.cpp \
   \
   obj/src/std/variant_alternative/N.tunitas.keyston.protocol.query.batch.Batch.cpp \
   obj/src/std/variant_alternative/N.tunitas.keyston.protocol.query.partial.Partial.cpp \
   obj/src/std/variant_alternative/N.tunitas.keyston.protocol.preparation.step.Step.cpp \
-  obj/src/std/variant_alternative/N.tunitas.keyston.vdaf.generic.continued.Continued.CONFIGURATION.cpp \
   \
   obj/src/std/variant_size/tunitas.keyston.protocol.query.batch.Batch.cpp \
   obj/src/std/variant_size/tunitas.keyston.protocol.query.partial.Partial.cpp \
   obj/src/std/variant_size/tunitas.keyston.protocol.preparation.step.Step.cpp \
-  obj/src/std/variant_size/tunitas.keyston.vdaf.generic.continued.Continued.CONFIGURATION.cpp \
   \
   obj/src/std/visit/tunitas.keyston.protocol.query.batch.Batch.cpp \
   obj/src/std/visit/tunitas.keyston.protocol.query.partial.Partial.cpp \
   obj/src/std/visit/tunitas.keyston.protocol.preparation.step.Step.cpp \
-  obj/src/std/visit/tunitas.keyston.vdaf.generic.continued.Continued.CONFIGURATION.cpp \
   obj/src/std/visit/tunitas.keyston.numeric.Ensmallenment.cpp \
+  $(end)
+deprecated = \
+  obj/src/std/visit/tunitas.keyston.vdaf.continued.Continued.VECTOR.cpp \
+  obj/src/std/variant_alternative/N.tunitas.keyston.vdaf.continued.Continued.VECTOR.cpp \
+  obj/src/std/variant_size/tunitas.keyston.vdaf.continued.Continued.VECTOR.cpp \
   $(end)

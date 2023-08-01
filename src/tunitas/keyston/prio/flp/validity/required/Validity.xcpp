@@ -13,7 +13,7 @@ namespace tunitas::keyston::prio::flp::validity::required {
   // This MUST be diagnosable with only the type name (without the complete type of VALIDITY)
   // Using the is trickery to announc the gadgets.
   //
-  template<typename VALIDITY> concept Definition = is::Definition<VALIDITY>::value || is::Validity<VALIDITY>::value;
+  template<typename VALIDITY> concept Predefinition = is::Predefinition<VALIDITY>::value || is::Validity<VALIDITY>::value;
   template<typename VALIDITY> concept Validity = is::Validity<VALIDITY>::value;
 }
 #endiv

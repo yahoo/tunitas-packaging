@@ -1,0 +1,92 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.required.Definition
+namespace tunitas::keyston::vdaf {
+  //
+  // This is the moral inverse of Measurement<...>
+  //
+  // Specification:
+  //
+  //   Aggregation<WHOLE> is the data type we're aggregating (count, sum, histogram)
+  //   Aggregation<SHARE> is a fixed-array-of-octet encoding of a field-vector that represents this value.
+  //
+  //   <quote>
+  //
+  //        Aggregator 0    Aggregator 1        Aggregator SHARES-1
+  //        ============    ============        ===================
+  //    
+  //        agg_share_0     agg_share_1         agg_share_[SHARES-1]
+  //          |               |                   |
+  //          V               V                   V
+  //        +-----------------------------------------------+
+  //        | agg_shares_to_result                          |
+  //        +-----------------------------------------------+
+  //          |
+  //          V
+  //        agg_result
+  //    
+  //        Collector
+  //        =========
+  //
+  //      Figure 4: Computation of the final aggregate result from aggregate shares.
+  //
+  //   </quote>
+  //
+  // Design:
+  //
+  //   SHARE_COUNT == Items{2} in this implementation.
+  //
+  template<Slice SLICE, required::Definition> struct Aggregation;
+  template<required::Definition DEFINITION> struct Aggregation<SHARE, DEFINITION>;
+  template<required::Definition DEFINITION> struct Aggregation<WHOLE, DEFINITION>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.formatter.Formatter
+#import tunitas.keyston.vdaf.Serialization
+#import tunitas.keyston.numeric.generic.Aggregation
+namespace tunitas::keyston::vdaf {
+  using std::move;
+  // swap(...) from the ancestor
+  // everything else is inherited from the ancestor
+  template<required::Definition DEFINITION> inline auto format(Aggregation<SHARE, DEFINITION> const &) -> formatter::Formatter<Aggregation<SHARE, DEFINITION>, Aggregation<SHARE, DEFINITION> const &>;
+  template<required::Definition DEFINITION> class Aggregation<SHARE, DEFINITION> : public Serialization<DEFINITION::Codec::OUTPUT_LENGTH.count(), DEFINITION::Field::ENCODED_LENGTH.count()> {
+    using Ancestor = Serialization<DEFINITION::Codec::OUTPUT_LENGTH.count(), DEFINITION::Field::ENCODED_LENGTH.count()>;
+  public:
+    Aggregation() = default;
+    using Ancestor::Serialization;
+  };
+  template<required::Definition DEFINITION> struct Aggregation<WHOLE, DEFINITION> : public numeric::generic::Aggregation {
+    using Ancestor = numeric::generic::Aggregation;
+  public:
+    Aggregation() = default;
+    using Ancestor::Aggregation;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston {
+  template<vdaf::required::Definition DEFINITION> auto vdaf::format(Aggregation<SHARE, DEFINITION> const &item) -> formatter::Formatter<Aggregation<SHARE, DEFINITION>, Aggregation<SHARE, DEFINITION> const &> { return {item}; }
+}
+#import tunitas.keyston.formatter.io
+#endiv
+#divert <cpp>
+#import tunitas.keyston.vdaf.Definition
+namespace {
+  namespace testate {
+    using tunitas::keyston::vdaf::Aggregation;
+    using enum tunitas::keyston::Slice;
+    using Definition = tunitas::keyston::vdaf::Definition<tunitas::keyston::vdaf::Name::PRIO3_COUNT>; // any one will work
+    //
+    static_assert(std::semiregular<Aggregation<SHARE, Definition>>);
+    static_assert(std::swappable<Aggregation<SHARE, Definition>>);
+    //
+    static_assert(std::semiregular<Aggregation<WHOLE, Definition>>);
+    static_assert(std::swappable<Aggregation<WHOLE, Definition>>);
+  }
+}
+#endiv

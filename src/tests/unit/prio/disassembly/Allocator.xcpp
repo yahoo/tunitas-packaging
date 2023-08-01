@@ -1,0 +1,84 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.prio.disassembly.required.Allocator
+namespace tests::unit::prio::disassembly {
+  template<required::Allocator, Size SHARDS, Size STRIDE, Size SEED> struct Allocator;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.prio.disassembly.Embodied
+namespace tests::unit::prio {
+  template<disassembly::required::Allocator SUBJECT, Size THE_SHARDS, Size THE_STRIDE, Size THE_SEED> class disassembly::Allocator : public rigging::suite::Fixture,
+                                                                                                                         protected Embodied<SUBJECT, THE_SHARDS, THE_STRIDE, THE_SEED> {
+    using Ancestor = Embodied<SUBJECT, THE_SHARDS, THE_STRIDE, THE_SEED>;
+  public:
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor() -> void;
+    auto test_slice() -> void;
+    auto test_operator_indirect() -> void;
+    auto test_operator_increment_pre() -> void;
+    auto test_operator_increment_post() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::prio::disassembly {
+  template<required::Allocator A, Size H, Size T, Size E> auto Allocator<A,H,T,E>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("constructor", &Allocator::test_constructor)
+           << add("slice", &Allocator::test_slice)
+           << add("operator*", &Allocator::test_operator_indirect)
+           << []{
+               auto op = Stream{"operator++"sv};
+               op << add("pre", &Allocator::test_operator_increment_pre)
+                  << add("post", &Allocator::test_operator_increment_post)
+                  << END;
+               return op;
+           }()
+           << END;
+    return settle(series);
+  }
+}
+#import tests.unit.prio.format
+#import tunitas.keyston.prio.disassembly.Allocator
+namespace tests::unit::prio::disassembly {
+  template<required::Allocator A, Size H, Size T, Size E> auto Allocator<A,H,T,E>::test_constructor() -> void {
+    auto buf = Ancestor::generate();
+    auto subject = Subject{buf.data(), buf.size()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<required::Allocator A, Size H, Size T, Size E> auto Allocator<A,H,T,E>::test_slice() -> void {
+    auto buf = Ancestor::generate();
+    auto subject = Subject{buf.data(), buf.size()};
+    auto sliced = subject.template slice<Ancestor::SHARD_COUNT.count(), Ancestor::STRIDE_COUNT.count()>();
+    [&sliced]<Size... STRIDE_OFFSET>(::tunitas::sequence::Sequence::Pack<STRIDE_OFFSET...>) {
+      auto each = [&]<Index OFFSET>(::tunitas::sequence::Constant::Pack<OFFSET>) {
+        auto shards = sliced.template stride<OFFSET>(); // <------------------------------------------------- testthis
+        std::cerr << "offset=" << OFFSET << ' ' << format(shards) << '\n';
+      };
+      (each(::tunitas::sequence::Constant::make<STRIDE_OFFSET>()), ...);
+    }(::tunitas::sequence::Sequence::make<Ancestor::STRIDE_COUNT.count()>());
+  }
+  template<required::Allocator A, Size H, Size T, Size E> auto Allocator<A,H,T,E>::test_operator_indirect() -> void {
+    auto buf = Ancestor::generate();
+    auto subject = Subject{buf.data(), buf.size()};
+    // There's enough space in the allocator to allow this to work out
+    std::cerr << "indirect=" << format(*subject++) << '\n'; // <-------------------- test this (operator*)
+    std::cerr << "indirect=" << format(*subject++) << '\n';
+    std::cerr << "indirect=" << format(*subject++) << '\n';
+  }
+  template<required::Allocator A, Size H, Size T, Size E> auto Allocator<A,H,T,E>::test_operator_increment_pre() -> void {
+    // operator_indirect already tested this
+  }
+  template<required::Allocator A, Size H, Size T, Size E> auto Allocator<A,H,T,E>::test_operator_increment_post() -> void {
+    // whatever man...
+  }
+}
+#endiv

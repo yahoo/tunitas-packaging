@@ -384,7 +384,7 @@ namespace tunitas::keyston::prio::flp::system {
         //
         // Combine the verifier shares into the verifier (return that).
         return [](auto const &shares) {
-          auto ret = typename Message::Verifier::Series{}; // a.k.a. "zeroes"
+          auto ret = typename Message::Verifier::Series{}; // a.k.a. "zeros"
           for (auto const &each : shares) {
             ret += each;
           }

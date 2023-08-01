@@ -6,15 +6,11 @@
 #divert <fpp>
 #import tests.unit
 #import tunitas.keyston.vdaf
+#import tunitas.keyston.vdaf.required
 #import tunitas.keyston.Transport
-#import tests.required
-#import tunitas.error.by.required
 namespace tests::unit::vdaf {
   namespace library = ::tunitas::keyston::vdaf;
-  using ::tunitas::keyston::Transport;
-  namespace [[nodirectory]] required {
-    using namespace tests::required; // ambiguities can happen when blending indiscriminately like this
-    using namespace ::tunitas::error::by::required;
-  }
+  using ::tunitas::keyston::Transport; // [[REMOVETHIS]] when we no longer need Transport::NUMERIC
+  namespace required = ::tunitas::keyston::vdaf::required;
 }
 #endiv

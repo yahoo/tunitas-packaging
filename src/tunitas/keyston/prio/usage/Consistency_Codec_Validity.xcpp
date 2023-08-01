@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.prio.required.Codec
+#import tunitas.keyston.prio.flp.validity.required.Validity
+#import tunitas.keyston.prio.flp.dimension.cast
+#import tunitas.keyston.quantity.Items
+#include <ipp/tunitas.keyston.quantity.Items>
+namespace tunitas::keyston::prio::usage {
+  //
+  // Are the mutual definitions in CODEC and VALIDITY similar?
+  //
+  // [[FIXTHIS]] This can go away if we can figure out how to make one be defined in terms of the other.
+  // Seems obvious, and yet.
+  //
+  template<typename CODEC, typename VALIDITY> concept Consistency_Codec_Validity = requires {
+    requires prio::required::Codec<CODEC>;
+    requires flp::validity::required::Validity<VALIDITY>;
+    requires CODEC::INPUT_LENGTH == cast<quantity::Items>(VALIDITY::INPUT_LENGTH);
+    requires CODEC::OUTPUT_LENGTH == cast<quantity::Items>(VALIDITY::OUTPUT_LENGTH);
+  };
+}
+#endiv

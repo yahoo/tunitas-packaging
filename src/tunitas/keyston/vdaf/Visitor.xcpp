@@ -21,7 +21,7 @@ namespace tunitas::keyston::vdaf {
   // Usage:
   //
   //   auto visitor = Visitor{...};
-  //   auto continued = Definition::Continued{...somehow...};
+  //   auto continued = Stages::Continued{...somehow...};
   //
   //   auto visitor, continued);
   //

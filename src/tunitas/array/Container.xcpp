@@ -115,8 +115,13 @@ namespace tunitas {
     //
     template<typename VALUE, Size EXTENT = std::dynamic_extent> requires (std::same_as<std::remove_const_t<VALUE>, Value>) using Span = span::Span<VALUE, EXTENT>;
     template<Size EXTENT = std::dynamic_extent> using View = view::View<Value, EXTENT>;
-    template<Size SUBCAPACITY = std::dynamic_extent> inline constexpr operator View<SUBCAPACITY>() const;
-    template<typename SUBVALUE, Size SUBCAPACITY> inline constexpr operator Span<SUBVALUE, SUBCAPACITY>() requires (SUBCAPACITY != std::dynamic_extent); // std::span(Range) already covers the dynamic_extent case
+    //
+    // these operator casts are explicit because std::span already has a constructor for these cases
+    // to wit: candidate: ‘constexpr std::span<_Type, _Extent>::span(_Range&&) [with _Type = const std::byte; long unsigned int _Extent = 18446744073709551615]’
+    // these throw exception::Invalid if SUBCAPACITY != std::dynamic_extent and the fixed capacity cannot be obtained form the dynamic-sized container
+    template<Size SUBCAPACITY = std::dynamic_extent> inline constexpr explicit operator View<SUBCAPACITY>() const;
+    template<typename SUBVALUE, Size SUBCAPACITY> inline constexpr explicit operator Span<SUBVALUE const, SUBCAPACITY>() const;
+    template<typename SUBVALUE, Size SUBCAPACITY> inline constexpr explicit operator Span<SUBVALUE, SUBCAPACITY>();
     //
     using Ancestor::empty;
     using Ancestor::size;
@@ -161,6 +166,7 @@ namespace tunitas {
 #import tunitas.array.Fixed
 #import tunitas.array.Series
 #import tunitas.exception.Bound
+#import tunitas.exception.Invalid
 #import nonstd.required.iterator.Undirected
 #import nonstd.move
 #import std.make_move_iterator
@@ -211,11 +217,62 @@ namespace tunitas {
     template<required::Containable _> template<required::Containable OTHER> Container<_>::Container(Container<OTHER> &&other) { manually_move_because_sometimes_copy_is_selected(std::forward<Container<OTHER>>(other)); }
     template<required::Containable _> Container<_>::Container(Container &&other)                                              { manually_move_because_sometimes_copy_is_selected(std::forward<Container>(other)); }
 #endif
-    // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent ----------------------------------------------------------------------------------------------------------------\\\\\\\\\\\\\\\\\\\\\\\\\ (here)
-    //                                                                                                                                                                                              |||||||||||||||||||||||||
-    //                                                                                                                                                                                              vvvvvvvvvvvvvvvvvvvvvvvvv
-    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT> constexpr Container<_>::operator Span<SUBVALUE, SUBEXTENT>() requires (SUBEXTENT != std::dynamic_extent) { return Span<SUBVALUE, SUBEXTENT>{Ancestor::data(), Ancestor::size()}; }
-    template<required::Containable _> template<Size SUBEXTENT>                    constexpr Container<_>::operator View<SUBEXTENT>() const                                                 { return View<SUBEXTENT>{Ancestor::data(), Ancestor::size()}; }
+#if 202312 < __cplusplus
+#if 0 // this won't work
+    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT, typename SELF> constexpr Container<_>::operator Span<SUBVALUE, SUBEXTENT>(this SELF *self) {
+      using Result = Span<std::conditional_t<std::is_const_v<SELF>, SUBVALUE const, SUBVALUE>, SUBEXTENT>;
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      //
+      // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent
+      //
+      //     //////-------------------------------------------------- (here)
+      //     ||||||
+      //     vvvvvv
+      return Result{Ancestor::data(), Ancestor::size()};
+    }
+#endif
+#endif
+    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT> constexpr Container<_>::operator Span<SUBVALUE const, SUBEXTENT>() const {
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      //
+      // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent
+      //
+      //     ///////////////////////||||||//-------------------------------------------------- (here)
+      //     |||||||||||||||||||||||||||||||
+      //     vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      return Span<SUBVALUE const, SUBEXTENT>{Ancestor::data(), Ancestor::size()};
+    }
+    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT> constexpr Container<_>::operator Span<SUBVALUE, SUBEXTENT>() {
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      //
+      // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent
+      //
+      //     /////////////////////////-------------------------------------------------- (here)
+      //     |||||||||||||||||||||||||
+      //     vvvvvvvvvvvvvvvvvvvvvvvvv
+      return Span<SUBVALUE, SUBEXTENT>{Ancestor::data(), Ancestor::size()};
+    }
+    template<required::Containable _> template<Size SUBEXTENT> constexpr Container<_>::operator View<SUBEXTENT>() const {
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      // eadem ratione
+      return View<SUBEXTENT>{Ancestor::data(), Ancestor::size()};
+    }
 #if 202312 < __cplusplus
     template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> { return self->operator[](index); }
     template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {

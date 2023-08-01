@@ -44,20 +44,20 @@ namespace tunitas::keyston::prio::flp::system {
   template<required::Field FIELD, interface::Joint JOINT, interface::Prove PROVE, interface::Query QUERY, interface::Input INPUT, interface::Output OUTPUT, interface::Proof PROOF, interface::Verifier VERIFIER> class interface::Interface<FIELD, interface::Randomness<JOINT, PROVE, QUERY>, interface::Message<INPUT, OUTPUT, PROOF, VERIFIER>> {
     static_assert(usage::Field<FIELD>);
     using Field = FIELD;
-    template<auto COUNT> requires required::Enumeration<decltype(COUNT)> struct [[FIXTHIS("this should be in nonstd::units as a Constant similar to std::integral_constnat<...>")]] Constant_Of_Bytes {
-      inline static constexpr auto const VALUE = Bytes{std::underlying_type_t<decltype(COUNT)>(COUNT)};
+    template<auto COUNT> requires required::Enumeration<decltype(COUNT)> struct [[FIXTHIS("this should be in nonstd::units as a Constant similar to std::integral_constnat<...>")]] Constant_Of_Items {
+      inline static constexpr auto const VALUE = Items{std::underlying_type_t<decltype(COUNT)>(COUNT)};
     };
   public:
     struct Randomness {
-      using Prove = Length<Field, Constant_Of_Bytes<PROVE>>;
-      using Query = Length<Field, Constant_Of_Bytes<QUERY>>;
-      using Joint = Length<Field, Constant_Of_Bytes<JOINT>>;
+      using Prove = Length<Field, Constant_Of_Items<PROVE>>;
+      using Query = Length<Field, Constant_Of_Items<QUERY>>;
+      using Joint = Length<Field, Constant_Of_Items<JOINT>>;
     };
     struct Message {
-      using Input    = Length<Field, Constant_Of_Bytes<INPUT>>;
-      using Output   = Length<Field, Constant_Of_Bytes<OUTPUT>>;
-      using Proof    = Length<Field, Constant_Of_Bytes<PROOF>>;
-      using Verifier = Length<Field, Constant_Of_Bytes<VERIFIER>>;
+      using Input    = Length<Field, Constant_Of_Items<INPUT>>;
+      using Output   = Length<Field, Constant_Of_Items<OUTPUT>>;
+      using Proof    = Length<Field, Constant_Of_Items<PROOF>>;
+      using Verifier = Length<Field, Constant_Of_Items<VERIFIER>>;
     };
   };
 }

@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf::function {
+  //
+  // Stages commonalities among the functions.
+  //
+  // Specificatoin:
+  //
+  //   Each Function carries its own.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Inheritance nito each Function<...>
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+class tunitas::keyston::vdaf::function::Prototype {
+protected:
+  ~Prototype() = default;
+public:
+#if 0
+  // and thus there is no purpose to Prototype
+  template<shards::required::Shardable TYPE> using Shards = keyston::Shards<TYPE>;
+  template<array::required::Arrayable TYPE> using Series = components::Series<TYPE>;
+  using Verify_Key   = components::Verify_Key;
+  using Processed    = components::Processed;
+  // the descendants each have more specific ideas about the storage-vs-view sense of these
+  using Nonce        = components::Nonce;
+  using Randomness   = components::Randomness;
+  //
+  using Disassembled = executor::Configuration<NUMERIC>::Disassembled;
+  using Initialized  = components::Initialized;
+  using Continued    = executor::Configuration<NUMERIC>::Continued;
+  using Amalgamated  = components::Amalgamated;
+  using Disgorged    = components::Disgorged;
+  using Reassembled  = components::Reassembled;
+  //
+  template<Slice SLICE> using Measurement = components::Measurement<SLICE>;
+  template<Slice SLICE> using Input       = components::Input<SLICE>;
+  template<Slice SLICE> using Public      = components::Public<SLICE>;
+  template<Slice SLICE> using Output      = components::Output<SLICE>;
+  template<Slice SLICE> using Aggregation = components::Aggregation<SLICE>;
+#endif
+};
+#endiv

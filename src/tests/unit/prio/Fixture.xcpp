@@ -17,7 +17,7 @@ struct tests::unit::prio::Fixture : public rigging::suite::Fixture {
 #import tests.unit.prio.Codec
 #import tests.unit.prio.Customizer
 #import tests.unit.prio.Definition
-#import tests.unit.prio.split.Fixture
+#import tests.unit.prio.disassembly.Fixture
 auto tests::unit::prio::Fixture::suite() -> Suite {
   auto series = Stream{"prio"sv};
   series << []{
@@ -37,7 +37,7 @@ auto tests::unit::prio::Fixture::suite() -> Suite {
                  << END;
              return def;
          }()
-         << add<split::Fixture>()
+         << add<disassembly::Fixture>()
          << END;
   return settle(series);
 }

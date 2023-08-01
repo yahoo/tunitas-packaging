@@ -24,7 +24,7 @@ namespace tunitas::keyston::vdaf::constants {
   //
   // Specification:
   //
-  //   Section 5. Definition of VDAFs
+  //   Section 5. Stages of VDAFs
   //   Table 2. Constants and types defined for each VDAF
   //
   //   Table 5.  VDAF parameters for Prio3.

@@ -15,7 +15,7 @@ dnl make check &&
 dnl make install &&
 dnl echo OK DONE
 dnl
-AC_INIT([keyston], [0.0.0], [tunitas@yahooinc.com])
+AC_INIT([keyston], [0.1.0], [tunitas@yahooinc.com])
 TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
 AM_SILENT_RULES([yes]) dnl See the AUTOMAKE_OPTIONS in the Makefile.am
 

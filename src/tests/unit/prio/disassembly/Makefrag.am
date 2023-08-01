@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tests_unit_prio_split_SUBSOURCES = \
+  $(tests_unit_prio_split_required_SUBSOURCES) \
+  check/obj/src/tests/unit/prio/disassembly/namespace.cpp \
+  check/obj/src/tests/unit/prio/disassembly/Fixture.cpp \
+  check/obj/src/tests/unit/prio/disassembly/Allocator.cpp \
+  check/obj/src/tests/unit/prio/disassembly/Slicer.cpp \
+  check/obj/src/tests/unit/prio/disassembly/Embodied.cpp \
+  check/obj/src/tests/unit/prio/disassembly/Prototype.cpp \
+  check/obj/src/tests/unit/prio/disassembly/Split.cpp \
+  $(end)
+#
+include src/tests/unit/prio/disassembly/required/Makefrag.am
