@@ -12,6 +12,7 @@ namespace tests::unit::prio::disassembly {
 #divert <hpp>
 #import tests.unit.prio.disassembly.Prototype
 #import tunitas.keyston.octets.required.Fixed
+#import tunitas.keyston.prio.Codec
 namespace tests::unit::prio {
   template<required::Definition DEFINITION> class disassembly::Split : public rigging::suite::Fixture, protected Prototype {
     using Ancestor = Prototype;
@@ -19,6 +20,7 @@ namespace tests::unit::prio {
     static auto suite() -> Suite;
     //
     using Definition = DEFINITION;
+    using Encoded = typename ::tunitas::keyston::prio::Codec<Definition::PRIO>::Encoded;
     //
     auto test_call() -> void;
   protected:
@@ -31,8 +33,8 @@ namespace tests::unit::prio {
 #import tests.unit.prio.disassembly
 namespace tests::unit::prio::disassembly {
   template<required::Definition _> auto Split<_>::suite() -> Suite {
-    auto series = Stream{"disassembly<"s + typeid(Definition::PRIO).name() + ">"s};
-    series << add("disassembly", &Split::test_call)
+    auto series = Stream{typeid(Definition)};
+    series << add("call", &Split::test_call)
            << END;
     return settle(series);
   }
@@ -45,19 +47,21 @@ namespace tests::unit::prio::disassembly {
     return ret;
   }
   template<required::Definition _> auto Split<_>::test_call() -> void {
-    auto specimen = typename Ancestor::Specimen{0u};
+    auto encoded = []{
+      // MUST generate the encoded form which has some internal properties; else disssembly will fail in proof verification throwing exception::Prove
+      auto specimen = ::tunitas::keyston::measurement::Specimen{};
+      if constexpr (Definition::PRIO != ::tunitas::keyston::prio::Name::HISTOGRAM) {
+        return Definition::Codec::encode(specimen);
+      } else {
+        auto boundaries = ::tunitas::keyston::measurement::Boundaries{}; // all zeros, but only necessary when HISTOGRAM
+        return Definition::Codec::encode(specimen, boundaries);
+      }
+    }();
     auto nonce = generate<::tunitas::keyston::octets::Fixed<Definition::NONCE_SIZE.count()>>();
     auto randomness = generate<::tunitas::keyston::octets::Fixed<Definition::randomness_size().count()>>();
     auto viewof = []<Size SIZE>(::tunitas::array::Fixed<typename Ancestor::Octet, SIZE> const &a) -> ::tunitas::view::View<typename Ancestor::Octet, SIZE> { return /*explicit constructor*/ ::tunitas::view::View<typename Ancestor::Octet, SIZE>{a.data(), a.size()}; };
-    auto splat = [&]{
-      if constexpr (::tunitas::keyston::prio::Name::HISTOGRAM == Definition::PRIO) {
-        auto boundaries = ::tunitas::keyston::measurement::Boundaries{std::in_place, typename Ancestor::Specimen{1u}, typename Ancestor::Specimen{2u}, typename Ancestor::Specimen{2u}};
-        return ::tunitas::keyston::prio::disassembly<Definition>(specimen, boundaries, viewof(nonce), viewof(randomness)); // <-------------------- test this
-      } else {
-        return ::tunitas::keyston::prio::disassembly<Definition>(specimen, viewof(nonce), viewof(randomness)); // <-------------------- test this
-      }
-    }();
-    dump(splat);
+    auto disassembled = ::tunitas::keyston::prio::disassembly<Definition>(encoded, viewof(nonce), viewof(randomness)); // <-------------------- test this
+    dump(disassembled);
   }
 }
 #endiv

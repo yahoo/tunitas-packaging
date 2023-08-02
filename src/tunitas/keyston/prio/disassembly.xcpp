@@ -86,8 +86,7 @@ namespace tunitas::keyston::prio::package_disassembly {
       //   You need a tutorial on calling a function?
       //   See Function<PRIO,NAME>::disassembly(...)
       //
-      template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> inline auto disassembly(Specimen, Nonce<OF_NONCE> const &, Randomness<OF_RANDOMNESS> const &) -> Disassembled<DEFINITION> requires (Name::HISTOGRAM != DEFINITION::PRIO);
-      template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> inline auto disassembly(Specimen, Boundaries const &, Nonce<OF_NONCE> const &, Randomness<OF_RANDOMNESS> const &) -> Disassembled<DEFINITION> requires (Name::HISTOGRAM == DEFINITION::PRIO);
+      template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> inline auto disassembly(typename DEFINITION::Codec::Encoded const &, Nonce<OF_NONCE> const &, Randomness<OF_RANDOMNESS> const &) -> Disassembled<DEFINITION>;
     }
     template<required::OutlineOf OUTLINE, Size OF_NONCE, Size OF_RANDOMNESS> auto continued(typename OUTLINE::Codec::Encoded const &, Nonce<OF_NONCE> const &, Randomness<OF_RANDOMNESS> const &) -> typename OUTLINE::Disassembled;
   }
@@ -146,15 +145,9 @@ namespace tunitas::keyston::prio::package_disassembly {
 #import tunitas.keyston.octets.concatenate
 #import tunitas.keyston.prio.Definition
 namespace tunitas::keyston::prio::package_disassembly {
-  template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> auto interface::disassembly(Specimen specimen, Nonce<OF_NONCE> const &nonce, Randomness<OF_RANDOMNESS> const &randomness) -> Disassembled<DEFINITION> requires (Name::HISTOGRAM != DEFINITION::PRIO) {
+  template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> auto interface::disassembly(typename DEFINITION::Codec::Encoded const &encoded, Nonce<OF_NONCE> const &nonce, Randomness<OF_RANDOMNESS> const &randomness) -> Disassembled<DEFINITION> {
     static_assert(usage::Arguments<DEFINITION, OF_NONCE, OF_RANDOMNESS>);
-    auto input = DEFINITION::Codec::encode(specimen);
-    return continued<Outline<DEFINITION>>(input, nonce, randomness);
-  }
-  template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> auto interface::disassembly(Specimen specimen, Boundaries const &boundaries, Nonce<OF_NONCE> const &nonce, Randomness<OF_RANDOMNESS> const &randomness) -> Disassembled<DEFINITION> requires (Name::HISTOGRAM == DEFINITION::PRIO) {
-    static_assert(usage::Arguments<DEFINITION, OF_NONCE, OF_RANDOMNESS>);
-    auto input = DEFINITION::Codec::encode(specimen, boundaries);
-    return continued<Outline<DEFINITION>>(input, nonce, randomness);
+    return continued<Outline<DEFINITION>>(encoded, nonce, randomness);
   }
 }
 #endiv

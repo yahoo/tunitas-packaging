@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.required.Definition
+#import tunitas.keyston.prio.role.Name
+namespace tunitas::keyston::prio::role {
+  //
+  // Specification:
+  //
+  //   Decoded recovers the LEADER-like uncoded representation
+  //   Encoding treats the LEADER with big numbers
+  //                   the HELPER(s) with small fixed-size seeds
+  //
+  //   The "blind" can be empty when there is no join6 randomness in play.
+  //
+  // Design:
+  //
+  //   Sure, why do you ask?
+  //
+  //   Outline<PUBLIC, ...> is a separate specialization
+  //
+  template<Name, required::Definition> struct Outline;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.prio.role.Uncoded
+#import tunitas.keyston.prio.role.required.Countshape
+#import tunitas.Tuple
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+#import tunitas.keyston.octets.Fixed
+namespace tunitas::keyston::prio {
+  template<role::Name ROLE, required::Definition DEFINITION> struct role::Outline {
+    struct Decoded {
+      using Input = typename Uncoded<LEADER, DEFINITION>::Input;
+      using Proof = typename Uncoded<LEADER, DEFINITION>::Proof;
+      using Blind = typename Uncoded<LEADER, DEFINITION>::Blind;
+      using Triple = tunitas::Tuple<typename Input::Storage, typename Proof::Storage, typename Blind::Storage>;
+    };
+    // The Leader, Helper & Public vary the size.
+    template<Size EACH, required::Countshape COUNTSHAPE> struct Encoded {
+      struct Input {
+        inline static constexpr auto const SIZE = EACH * COUNTSHAPE::Input::COUNT;
+        struct View {
+          using Fixed = view::Fixed<Octet, SIZE>;
+        };
+      };
+      struct Proof {
+        inline static constexpr auto const SIZE = EACH * COUNTSHAPE::Proof::COUNT;
+        struct View {
+          using Fixed = view::Fixed<Octet, SIZE>;
+        };
+      };
+      using Blind = typename Uncoded<ROLE, DEFINITION>::Blind;
+      using Storage = octets::Fixed<Input::SIZE + Proof::SIZE + Blind::SIZE>;
+      struct View {
+        // use Variable here because it's coming in off-the-wire and ew don't know anythin about it; decoding validates the length.
+        using Variable = view::Variable<Octet>;
+      };
+    };
+  };
+}
+#endiv

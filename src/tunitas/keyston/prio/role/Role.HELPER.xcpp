@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.Role.template
+#import tunitas.keyston.prio.role.Role.template
 namespace tunitas::keyston::prio::role {
   //
   // Specification:
@@ -19,13 +19,11 @@ namespace tunitas::keyston::prio::role {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.Shard
+#import tunitas.keyston.prio.role.Literal
+#import tunitas.keyston.prio.role.Uncoded
+#import tunitas.keyston.prio.role.Outline
 namespace tunitas::keyston::prio::role {
-  template<required::Definition DEFINITION> struct Uncoded<HELPER, DEFINITION> {
-    // array of seed-length octet arrays
-    using Input = role::Seed<DEFINITION>;
-    using Proof = role::Seed<DEFINITION>;
-    using Blind = role::Blind<DEFINITION>;
-  };
   template<required::Definition DEFINITION> struct Role<HELPER, DEFINITION> : public Outline<HELPER, DEFINITION> {
     Role() = delete;
     Role(Role const &) = delete;
@@ -34,7 +32,7 @@ namespace tunitas::keyston::prio::role {
     using Definition = DEFINITION;
     using Uncoded = role::Uncoded<HELPER, DEFINITION>;
     using Decoded = typename Outline<HELPER, DEFINITION>::Decoded;
-    using Encoded = typename Outline<HELPER, DEFINITION>::template Encoded<DEFINITION::Amplifier::Seed::SIZE.count(), shapedlike::Count<1uz>>;
+    using Encoded = typename Outline<HELPER, DEFINITION>::template Encoded<DEFINITION::Amplifier::Seed::SIZE.count(), Literal<1uz>>;
     //
     // def encode_helper_share(Prio3, meas_share, proof_share, k_blind):
     inline static constexpr auto encode(typename Uncoded::Input::View::Fixed, typename Uncoded::Proof::View::Fixed, typename Uncoded::Blind::View::Fixed) -> typename Encoded::Storage;
@@ -45,6 +43,8 @@ namespace tunitas::keyston::prio::role {
 }
 #endiv
 #divert <ipp>
+#import tunitas.keyston.prio.binder
+#import tunitas.keyston.prio.Usage
 namespace tunitas::keyston::prio::role {
   template<required::Definition _> constexpr auto Role<HELPER, _>::encode(typename Uncoded::Input::View::Fixed input, typename Uncoded::Proof::View::Fixed proof, typename Uncoded::Blind::View::Fixed blind) -> typename Encoded::Storage {
     if constexpr (Definition::use_joint_randomness()) {

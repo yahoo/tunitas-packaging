@@ -42,6 +42,7 @@ namespace tunitas::keyston::vdaf::function {
 #import tunitas.keyston.Shard
 #import tunitas.keyston.Shards
 #import tunitas.keyston.hpke.Key
+#import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.octets.Fixed
 #import tunitas.keyston.quantity.Bits
@@ -119,6 +120,7 @@ namespace tunitas::keyston::vdaf::function {
     };
     //
     using Public = vdaf::Public<Definition>;
+    using Specimen = measurement::Specimen;
     using Disassembled = vdaf::Disassembled<Definition>;
     template<Slice SLICE> using Input       = vdaf::Input<SLICE, Definition>;
     template<Slice SLICE> using State       = vdaf::State<SLICE, Definition>;
@@ -126,31 +128,8 @@ namespace tunitas::keyston::vdaf::function {
     template<Slice SLICE> using Output      = vdaf::Output<SLICE, typename Field::template Vector<Codec::OUTPUT_LENGTH.count()>::Value>;
     template<Slice SLICE> using Aggregation = vdaf::Aggregation<SLICE, Definition>;
     //
-#if 0
-    struct [[REMOVETHIS("?")]] Tableau_From_The_Standard {
-      //
-      // Specification:
-      //
-      //   Table 2. Constants and types defined by each concrete VDAF.
-      //   Section 5. Definition of VDAFs                      
-      //
-      //   Table 5. VDAF parameters for Prio3
-      //   Section 7.2. Construction
-      //
-      inline static constexpr auto const ID = underlying(NAME);
-      inline static constexpr auto const VERIFY_KEY_SIZE = VERIFY_KEY_BYTE_COUNT;
-      inline static constexpr auto const NONCE_SIZE = Definition::NONCE_SIZE;
-      inline static constexpr auto const ROUNDS = Definition::ROUND_COUNT;
-      inline static constexpr auto const SHARDS = shards::SHARD_COUNT;
-      [[deprecated("instead prefer Tableau::SHARDS")]]inline static constexpr auto const SHARES = SHARDS; // as named in Table 2
-      using Measurement = typename Function::Input<WHOLE>;
-      // These are non-obvious names with the missing vowels and pidgin spelling
-      using AggParam = Parameters;
-      using Prep = void; // it's unclear what this was supposed to be
-      using OutShare = Output<SHARE>;
-      using AggResult = Aggregation<WHOLE>;
-    };
-#endif
+    // There is no (draft) section which justifies separatingout the encoding step.  But it does simplify the HISTOGRAM case which reqwuires the idiosyncratic application of the Parameters.
+    static auto admission(Parameters const &, measurement::Specimen) -> Input<WHOLE>;
     //
     // Section 5.1 Sharding
     // disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement, nonce: Bytes[Vdaf.NONCE_SIZE], rand: Bytes[Vdaf.RAND_SIZE]) -> tuple[Bytes, Vec[Bytes]]
@@ -192,15 +171,26 @@ namespace tunitas::keyston::vdaf::function {
 #import tunitas.keyston.quantity.Items
 #import tunitas.sequence.Sequence
 namespace tunitas::keyston::vdaf::function {
+  template<Name NAME> auto Function<PRIO, NAME>::admission(Parameters const &parameters, measurement::Specimen specimen) -> Input<WHOLE> {
+    constexpr auto VARIANT = Definition::PRIO;
+    if constexpr (prio::Name::HISTOGRAM == VARIANT) {
+      return Codec::encode(specimen, parameters.boundaries.value());
+    } else {
+      return Codec::encode(specimen);
+    }
+  }
   template<Name NAME> auto Function<PRIO, NAME>::disassembly(Parameters const &parameters, Input<WHOLE> const &input, typename Nonce::View::Fixed nonce, typename Randomness::View::Fixed randomness) -> Disassembled { 
-#if 0
+#if 1
+    return prio::disassembly<typename Definition::Predefinition>(input, nonce, randomness);
+#else
+    constexpr auto VARIANT = Definition::PRIO;
+#if 1
     if constexpr (prio::Name::HISTOGRAM == VARIANT) {
       return prio::disassembly<typename Definition::Predefinition>(input.specimen, parameters.boundaries.value(), nonce, randomness);
     } else {
       return prio::disassembly<typename Definition::Predefinition>(input.specimen, nonce, randomness);
     }
 #else
-    constexpr auto VARIANT = Definition::PRIO;
     auto reformat = [](auto splat) -> Disassembled {
       auto &[publick, inputs] = splat;
       return [&]<Index... INDEX>(sequence::Sequence::Pack<INDEX...>) -> Disassembled {
@@ -214,6 +204,7 @@ namespace tunitas::keyston::vdaf::function {
     } else {
       return reformat(prio::disassembly<typename Definition::Predefinition>(input.specimen, nonce, randomness));
     }
+#endif
 #endif
   }
   template<Name _> auto Function<PRIO, _>::initialization(Parameters const &, typename Verify_Key::View::Fixed verify_key, Shard shard, typename Nonce::View::Fixed nonce, Public const &publick, Input<SHARE> const &input) -> State<SHARE> {

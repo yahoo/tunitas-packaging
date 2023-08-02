@@ -24,12 +24,14 @@ namespace tunitas::keyston::vdaf::disassembled {
   //
   // Design:
   //
-  //   Noting that std::tuple doesn't require the complete type of its components.
+  //   Noting that std::tuple DOES require the complete type of its components.
   //   Create a new type to allow forward references to the Disassembled<...>
+  //
+  //   That PRIO-specific constructor is an important part of the interface; it simplifies vdaf::Function<PRIO, NAME>::disassembly(...) to a 1-liner.
   //
   // Usage:
   //
-  //   And then see Stages<...>
+  //   And then see vdaf::Function<...>
   //
   template<required::Definition> struct Disassembled;
 }
@@ -38,12 +40,32 @@ namespace tunitas::keyston::vdaf::disassembled {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.vdaf.disassembled.Tuple
+#import tunitas.keyston.prio.disassembly.Disassembled
 namespace tunitas::keyston::vdaf {
   template<required::Definition DEFINITION> struct disassembled::Disassembled : public Tuple<DEFINITION> {
     using Ancestor = Tuple<DEFINITION>;
   public:
     [[implicit]] Disassembled() = default;
-    using Ancestor::tuple; // and indeed, you "just have to know" that the real ancetsor class name is 'tuple' (lower case)
+    using Ancestor::tuple; // and indeed, you "just have to know" that the real ancestor class name is 'tuple' (lower case)
+    static_assert(sizeof(prio::package_disassembly::Disassembled<typename DEFINITION::Predefinition>));
+    inline constexpr Disassembled(std::same_as<prio::package_disassembly::Disassembled<typename DEFINITION::Predefinition>> auto &&);
   };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.Shards
+#import tunitas.keyston.vdaf.Input
+#import tunitas.keyston.vdaf.Public
+#import tunitas.sequence.Sequence
+namespace tunitas::keyston::vdaf::disassembled {
+  template<required::Definition DEFINITION> constexpr Disassembled<DEFINITION>::Disassembled(std::same_as<prio::package_disassembly::Disassembled<typename DEFINITION::Predefinition>> auto &&raw)
+    : Ancestor{[](auto splat) -> Disassembled {
+      auto &[publick, inputs] = splat;
+      return [&]<Index... INDEX>(sequence::Sequence::Pack<INDEX...>) -> Disassembled {
+        // This is a hack to reflow the constructors against the octets::Variable structures which were produced by prio::disassembly<...>(...)
+        return {Public<DEFINITION>{move(publick)}, Shards<Input<SHARE, DEFINITION>>{typename Shards<Input<SHARE, DEFINITION>>::Inplace{}, move(inputs.at(Shard{INDEX}))...}};
+      }(sequence::Sequence::make<shards::SHARD_COUNT.count()>());
+    }(std::forward< prio::package_disassembly::Disassembled<typename DEFINITION::Predefinition> >(raw))}
+  { }
 }
 #endiv

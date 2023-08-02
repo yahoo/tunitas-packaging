@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.Role.template
+#import tunitas.keyston.prio.role.Role.template
 namespace tunitas::keyston::prio::role {
   //
   // <FIXTHIS>
@@ -23,7 +23,6 @@ namespace tunitas::keyston::prio::role {
   //
   //   Only the PRIO3 algo(s) are implemented herein.
   //
-  template<required::Definition DEFINITION> struct Outline<PUBLIC, DEFINITION>;
   template<required::Definition DEFINITION> struct Role<PUBLIC, DEFINITION>;
 }
 #endiv
@@ -31,39 +30,9 @@ namespace tunitas::keyston::prio::role {
 #import tunitas.view.View
 #import tunitas.keyston.Shards
 #import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.Span
+#import tunitas.keyston.prio.role.Outline
+#import tunitas.keyston.prio.role.Uncoded
 namespace tunitas::keyston::prio::role {
-  template<required::Definition DEFINITION> class Uncoded<PUBLIC, DEFINITION> {
-    using Element = typename DEFINITION::Amplifier::Seed::Storage;
-    inline static constexpr auto const COUNT = shards::SHARD_COUNT.count();
-  public:
-    struct View {
-      using Fixed = view::View<Element, COUNT>;
-    };
-  };
-  template<required::Definition DEFINITION> struct Outline<PUBLIC, DEFINITION> {
-    struct Decoded {
-      using Storage = Shards<typename DEFINITION::Amplifier::Seed::Storage>;
-    };
-    class Encoded {
-      template<role::Name, required::Definition> friend struct role::Role;
-      struct Each {
-        inline static constexpr auto const SIZE = DEFINITION::Amplifier::Seed::SIZE.count();
-        using Storage = DEFINITION::Amplifier::Seed::Storage;
-        struct View {
-          using Fixed = octets::Span<Octet const, SIZE>;
-        };
-      };
-    public:
-      inline static constexpr auto const COUNT = shards::SHARD_COUNT.count();
-      inline static constexpr auto const SIZE = COUNT * Each::SIZE;
-      using Storage = octets::Fixed<SIZE>;
-      struct View {
-        using Fixed = octets::Span<Octet const, SIZE>;
-        using Variable = octets::Span<Octet const>;
-      };
-    };
-  };
   template<required::Definition DEFINITION> struct Role<PUBLIC, DEFINITION> : public Outline<PUBLIC, DEFINITION> {
     Role() = delete;
     Role(Role const &) = delete;
@@ -84,9 +53,6 @@ namespace tunitas::keyston::prio::role {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.octets.join
-#import tunitas.keyston.octets.slice_off
-#import tunitas.keyston.prio.exception.Decode
 namespace tunitas::keyston::prio::role {
   template<required::Definition _> constexpr auto Role<PUBLIC, _>::encode(typename Uncoded::View::Fixed pieces) -> typename Encoded::Storage {
     if constexpr (Definition::use_joint_randomness()) {

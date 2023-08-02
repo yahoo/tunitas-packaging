@@ -23,6 +23,7 @@ namespace tests::unit {
     using Inplace = std::in_place_t;
     //
     auto test_sizes() -> void;
+    auto test_admission() -> void;
     auto test_disassembly() -> void;
     auto test_initialization_leader() -> void;
     auto test_initialization_helper() -> void;
@@ -43,6 +44,7 @@ namespace tests::unit::vdaf {
   template<required::Function _> auto Function<_>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
     series << add("sizes", &Function::test_sizes)
+           << add("admission", &Function::test_admission)
            << add("disassembly", &Function::test_disassembly)
            << []{
              auto ini = Stream{"initialization"sv};
@@ -83,10 +85,22 @@ namespace tests::unit::vdaf {
     static_assert(sizeof(typename Subject::Aggregation<WHOLE>));
     require(ASSERTION);
   }
+  template<required::Function _> auto Function<_>::test_admission() -> void {
+    auto parameters = typename Subject::Parameters{};
+    parameters.boundaries = ::tunitas::keyston::measurement::Boundaries{}; // all zeros, but only necessary when HISTOGRAM
+    auto specimen = typename Subject::Specimen{};
+    auto admitted = Subject::admission(parameters, specimen);
+    // we don't know if this is correct or not at this point ... that isn't checked here
+    require(ASSERTION, sizeof(admitted));
+  }
   template<required::Function _> auto Function<_>::test_disassembly() -> void {
     auto parameters = typename Subject::Parameters{};
     parameters.boundaries = ::tunitas::keyston::measurement::Boundaries{}; // all zeros, but only necessary when HISTOGRAM
-    auto input = typename Subject::template Input<WHOLE>{};
+    auto input = [parameters]{
+      // MUST generate the encoded form, not a value-initialized version because such will fail disassembly throwing exception::Prove.
+      auto specimen = typename Subject::Specimen{};
+      return Subject::admission(parameters, specimen);
+    }();
     auto nonce = typename Subject::Nonce::Storage{};
     auto randomness = typename Subject::Randomness::Storage{};
     auto disassembled = Subject::disassembly(parameters, input, nonce, randomness);
@@ -100,10 +114,14 @@ namespace tests::unit::vdaf {
     parameters.boundaries = ::tunitas::keyston::measurement::Boundaries{}; // all zeros, but only necessary when HISTOGRAM
     auto verify_key = typename Subject::Verify_Key::Storage{};
     auto nonce = typename Subject::Nonce::Storage{};
-    auto randomness = typename Subject::Randomness::Storage{};
     // it's easy to compute a dummy helper shard; but the ldader shard is function-dependent (and biggish)
-    auto input = typename Subject::template Input<WHOLE>{};
-    auto [publick, inputs] = Subject::disassembly(parameters, input, nonce, randomness);
+    auto [publick, inputs] = [parameters, nonce]{
+      // MUST generate the encoded form, not a value-initialized version because such will fail disassembly throwing exception::Prove.
+      auto specimen = typename Subject::Specimen{};
+      auto input = Subject::admission(parameters, specimen);
+      auto randomness = typename Subject::Randomness::Storage{};
+      return Subject::disassembly(parameters, input, nonce, randomness);
+    }();
     auto initialized = Subject::initialization(parameters, verify_key, shard, nonce, publick, inputs.at(shard)); // <-------------------- test this
     // eadem ratione
     require(ASSERTION, sizeof(initialized));

@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.role.Role
-namespace tunitas::keyston::prio {
-  using role::Role;
-}
+#import tunitas.keyston.prio.role.Role.LEADER
+#import tunitas.keyston.prio.role.Role.HELPER
+#import tunitas.keyston.prio.role.Role.PUBLIC
 #endiv
+

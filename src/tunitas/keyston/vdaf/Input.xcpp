@@ -9,8 +9,10 @@ namespace tunitas::keyston::vdaf {
   //
   // Specification:
   //
-  //   Input<WHOLE> contains the measurement directly and in plaintext.
-  //   Input<SHARE> contains the two shards of the (one) leader and the (one) helper.
+  //   Input<WHOLE> contains the ENCODED measurement before sharding
+  //   Input<SHARE> contains one of the two types of shards
+  //                  (a) (exactly-one) leader shard which is biggish and laden with field elements
+  //                  (b) (one-or-more) helper(s) which are a single seed.
   //
   // Design:
   //
@@ -31,7 +33,7 @@ namespace tunitas::keyston::vdaf {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.vdaf.Serialization
-#import tunitas.keyston.measurement.Specimen
+#import std.same_as
 namespace tunitas::keyston {
   namespace vdaf {
     using std::move;
@@ -39,8 +41,12 @@ namespace tunitas::keyston {
     // everything else is inherited from the ancestor
   }
   namespace vdaf {
-    template<required::Definition DEFINITION> struct Input<WHOLE, DEFINITION> {
-      measurement::Specimen specimen{};
+    template<required::Definition DEFINITION> class Input<WHOLE, DEFINITION> : public /*prio-specific*/ DEFINITION::Predefinition::Codec::Encoded {
+      using Ancestor = DEFINITION::Predefinition::Codec::Encoded;
+    public:
+      [[implicit]] Input() = default;
+      using Ancestor::Fixed; // and you "just have to know" that this is a vector:Fixed<Element, SIZE> for some definition-specific SIZE
+      constexpr Input(std::same_as<Ancestor> auto &&a) : Ancestor{std::forward<Ancestor>(a)} { } 
     };
     template<required::Definition DEFINITION> struct Input<SHARE, DEFINITION> : public Serialization<> {
       // either LEADER-sized or HELPER-sized.

@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio::role::required {
+  //
+  // Is this type a countshape?
+  // The complete type is required to make the diagnosis.
+  //
+  template<typename COUNTSHAPE> concept Countshape = requires {
+    typename COUNTSHAPE::Input;
+    { COUNTSHAPE::Input::COUNT } -> convertible_to<Size>;
+    typename COUNTSHAPE::Proof;
+    { COUNTSHAPE::Proof::COUNT } -> convertible_to<Size>;
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.prio.role.Count
+#import tunitas.keyston.prio.role.Literal
+#import tunitas.keyston.prio.Definition
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::prio::role::required;
+    using tunitas::keyston::prio::Definition;
+    using enum tunitas::keyston::prio::Name;
+    using tunitas::keyston::prio::role::Count;
+    using tunitas::keyston::prio::role::Literal;
+    static_assert(required::Countshape<Count<Definition<COUNT>>>);
+    static_assert(required::Countshape<Count<Definition<SUM>>>);
+    static_assert(required::Countshape<Count<Definition<HISTOGRAM>>>);
+    static_assert(required::Countshape<Literal<1>>);
+  }
+}
+#endiv

@@ -4,8 +4,11 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.prio.role.Role
-namespace tunitas::keyston::prio {
-  using role::Role;
+#import tunitas.keyston.prio.role.Seed
+namespace tunitas::keyston::prio::role {
+  //
+  // As a verb?  Eeew.  How gory.
+  //
+  template<required::Definition DEFINITION> using Blind = seed::Sized<DEFINITION, DEFINITION::use_joint_randomness() ? DEFINITION::Amplifier::Seed::SIZE.count() : 0uz>;
 }
 #endiv

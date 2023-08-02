@@ -9,6 +9,7 @@ tunitas_keyston_prio_SUBSOURCES = \
   $(tunitas_keyston_prio_exception_SUBSOURCES) \
   $(tunitas_keyston_prio_flp_SUBSOURCES) \
   $(tunitas_keyston_prio_required_SUBSOURCES) \
+  $(tunitas_keyston_prio_role_SUBSOURCES) \
   $(tunitas_keyston_prio_usage_SUBSOURCES) \
   obj/src/tunitas/keyston/prio/Name.cpp \
   obj/src/tunitas/keyston/prio/Codec.template.cpp \
@@ -17,11 +18,6 @@ tunitas_keyston_prio_SUBSOURCES = \
   obj/src/tunitas/keyston/prio/Codec.HISTOGRAM.cpp \
   obj/src/tunitas/keyston/prio/Codec.cpp \
   obj/src/tunitas/keyston/prio/Definition.cpp \
-  obj/src/tunitas/keyston/prio/Role.template.cpp \
-  obj/src/tunitas/keyston/prio/Role.LEADER.cpp \
-  obj/src/tunitas/keyston/prio/Role.HELPER.cpp \
-  obj/src/tunitas/keyston/prio/Role.PUBLIC.cpp \
-  obj/src/tunitas/keyston/prio/Role.cpp \
   obj/src/tunitas/keyston/prio/Usage.cpp \
   obj/src/tunitas/keyston/prio/Customizer.cpp \
   obj/src/tunitas/keyston/prio/binder.cpp \
@@ -35,4 +31,5 @@ tunitas_keyston_prio_SUBSOURCES = \
 include src/tunitas/keyston/prio/exception/Makefrag.am
 include src/tunitas/keyston/prio/flp/Makefrag.am
 include src/tunitas/keyston/prio/required/Makefrag.am
+include src/tunitas/keyston/prio/role/Makefrag.am
 include src/tunitas/keyston/prio/usage/Makefrag.am
