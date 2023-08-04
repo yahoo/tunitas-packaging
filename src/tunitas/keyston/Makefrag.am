@@ -35,6 +35,7 @@ tunitas_keyston_SUBSOURCES = \
   $(tunitas_keyston_poplar_SUBSOURCES) \
   $(tunitas_keyston_popularity_SUBSOURCES) \
   $(tunitas_keyston_prg_SUBSOURCES) \
+  $(tunitas_keyston_parameters_SUBSOURCES) \
   $(tunitas_keyston_protocol_SUBSOURCES) \
   $(tunitas_keyston_quantity_SUBSOURCES) \
   $(tunitas_keyston_required_SUBSOURCES) \
@@ -67,6 +68,7 @@ include src/tunitas/keyston/name/Makefrag.am
 include src/tunitas/keyston/nonce/Makefrag.am
 include src/tunitas/keyston/numeric/Makefrag.am
 include src/tunitas/keyston/octets/Makefrag.am
+include src/tunitas/keyston/parameters/Makefrag.am
 include src/tunitas/keyston/poplar/Makefrag.am
 include src/tunitas/keyston/popularity/Makefrag.am
 include src/tunitas/keyston/prg/Makefrag.am

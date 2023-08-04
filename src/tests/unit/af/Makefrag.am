@@ -8,12 +8,8 @@ tests_unit_af_SUBSOURCES = \
   check/obj/src/tests/unit/af/namespace.cpp \
   check/obj/src/tests/unit/af/Fixture.cpp \
   check/obj/src/tests/unit/af/Name.cpp \
-  check/obj/src/tests/unit/af/Configuration.cpp \
-  check/obj/src/tests/unit/af/Definition.cpp \
-  check/obj/src/tests/unit/af/Executor.cpp \
   check/obj/src/tests/unit/af/Palette.cpp \
   $(tests_unit_af_numeric_SUBSOURCES) \
   $(end)
 #
 include src/tests/unit/af/numeric/Makefrag.am
-

@@ -8,7 +8,6 @@
 #endiv
 #divert <hpp>
 #import tests.unit.daf.numeric.Palette
-#include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Count{...}
 namespace tests::unit::daf::numeric::histogram {
   struct Fixture::Provided : public Palette {
     using Ct = ::tunitas::keyston::aggregation::Count;
@@ -20,16 +19,16 @@ namespace tests::unit::daf::numeric::histogram {
       inline static constexpr auto BOUNDARIES = ::tunitas::keyston::histogram::Boundaries{Sp{3},Sp{6},Sp{9},Sp{12},Sp{15}};
     };
     struct Computation {
-      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Histogram{El{1u},El{0u},El{1u}};
+      inline static constexpr auto const CANARY = Input<SHARE>::Histogram{El{1u},El{0u},El{1u}};
     };
     struct Amalgamation {
-      inline static constexpr auto const ONE = Configuration::Output<SHARE>::Histogram{El{1u},El{0u},El{1u}};
-      inline static constexpr auto const TWO = Configuration::Output<SHARE>::Histogram{El{0u},El{1u},El{1u}};
-      inline static constexpr auto const THREE = Configuration::Output<SHARE>::Histogram{El{0u},El{1u},El{1u}};
+      inline static constexpr auto const ONE = Output<SHARE>::Histogram{El{1u},El{0u},El{1u}};
+      inline static constexpr auto const TWO = Output<SHARE>::Histogram{El{0u},El{1u},El{1u}};
+      inline static constexpr auto const THREE = Output<SHARE>::Histogram{El{0u},El{1u},El{1u}};
     };
     struct Reassembly {
-      inline static constexpr auto const TWO = Configuration::Aggregation<SHARE>::Histogram{El{0u},El{2u},El{2u}};
-      inline static constexpr auto const THREE = Configuration::Aggregation<SHARE>::Histogram{El{1u},El{0u},El{1u}};
+      inline static constexpr auto const TWO = Aggregation<SHARE>::Histogram{El{0u},El{2u},El{2u}};
+      inline static constexpr auto const THREE = Aggregation<SHARE>::Histogram{El{1u},El{0u},El{1u}};
     };
   };
 }

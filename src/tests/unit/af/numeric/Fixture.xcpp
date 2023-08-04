@@ -15,10 +15,6 @@ struct tests::unit::af::numeric::Fixture : public rigging::suite::Fixture {
   using enum ::tunitas::keyston::Slice;
   template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
   //
-  auto test_usage_Measurement() -> void;
-  auto test_usage_Intermediate() -> void;
-  auto test_usage_Aggregation() -> void;
-  //
   auto test_components_Computed() -> void;
   auto test_components_Finalized() -> void;
 };
@@ -34,9 +30,7 @@ auto tests::unit::af::numeric::Fixture::suite() -> Suite {
   auto series = Stream{"numeric"sv};
   series << []{
               auto use = Stream{"usage"sv};
-              use << add("Measurement", &Fixture::test_usage_Measurement)
-                  << add("Intermediate", &Fixture::test_usage_Intermediate)
-                  << add("Aggregation", &Fixture::test_usage_Aggregation)
+              use // NONE?
                   << END;
               return use;
             }()
@@ -56,30 +50,6 @@ auto tests::unit::af::numeric::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.af.numeric.Measurement
-#import tunitas.keyston.af.numeric.Intermediate
-#import tunitas.keyston.af.numeric.Aggregation
-#import std.ostringstream
-namespace tests::unit::af::numeric {
-  auto Fixture::test_usage_Measurement() -> void {
-    auto subject = library::Measurement{};
-    require(ASSERTION, sizeof(subject));
-  }
-  auto Fixture::test_usage_Intermediate() -> void {
-    auto subject = library::Intermediate{};
-    require(ASSERTION, sizeof(subject));
-  }
-  auto Fixture::test_usage_Aggregation() -> void {
-    auto subject = library::Aggregation{};
-    require(ASSERTION, sizeof(subject));
-    {
-      auto buf = std::ostringstream{};
-      buf << format(subject); // <------------------------------ test this
-      auto str = buf.str();
-      require(ASSERTION, !str.empty());
-    }
-  }
-}
 #import tunitas.keyston.af.numeric.components
 namespace tests::unit::af::numeric {
   auto Fixture::test_components_Computed() -> void {
@@ -89,7 +59,7 @@ namespace tests::unit::af::numeric {
     auto subject0 = Subject{};
     require(ASSERTION, sizeof(subject0));
     //
-    auto specimen = library::Intermediate{};
+    auto specimen = ::tunitas::keyston::af::Intermediate{};
     auto subject1 = Subject{specimen};
     require(ASSERTION, sizeof(subject1));
   }
@@ -100,7 +70,7 @@ namespace tests::unit::af::numeric {
     auto subject0 = Subject{};
     require(ASSERTION, sizeof(subject0));
     //
-    auto specimen = library::Aggregation{};
+    auto specimen = ::tunitas::keyston::af::Aggregation{};
     auto subject1 = Subject{specimen};
     require(ASSERTION, sizeof(subject1));
   }

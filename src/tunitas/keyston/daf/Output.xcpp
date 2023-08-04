@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Codec
+#include <hpp/tunitas.keyston.prio.Codec>
+#import tunitas.keyston.poplar.Algorithm
+#include <hpp/tunitas.keyston.poplar.Algorithm>
+namespace tunitas::keyston::daf {
+  namespace [[eponymous]] output {
+    template<Slice SLICE> struct Output;
+    template<> struct Output<WHOLE>; // never materialized; see Aggregation<WHOLE>
+    template<> struct Output<SHARE>;
+    using Count = prio::Codec<prio::Name::COUNT>::Truncated;
+    using Sum = prio::Codec<prio::Name::SUM>::Truncated;
+    using Histogram = prio::Codec<prio::Name::HISTOGRAM>::Truncated;
+    using Popularity = poplar::Algorithm<poplar::Name::ONE>::Continuation;
+  }
+  using output::Output;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::daf::output {
+  using Variant = std::variant<Count, Sum, Histogram, Popularity>;
+  template<> class Output<SHARE> : public Variant {
+    using Ancestor = Variant;
+  public:
+    Output() = default;
+    using Ancestor::variant; // yep, you "just have to know" that the constructor name is 'variant' therein
+    using Count = output::Count;
+    using Sum = output::Sum;
+    using Histogram = output::Histogram;
+    using Popularity = output::Popularity;
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::daf;
+    using enum tunitas::keyston::Slice;
+    //
+    static_assert(std::semiregular<Output<SHARE>>);
+    static_assert(std::swappable<Output<SHARE>>);
+  }
+}
+#endiv

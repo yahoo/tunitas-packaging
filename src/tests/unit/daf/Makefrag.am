@@ -7,9 +7,6 @@
 tests_unit_daf_SUBSOURCES = \
   check/obj/src/tests/unit/daf/namespace.cpp \
   check/obj/src/tests/unit/daf/Fixture.cpp \
-  check/obj/src/tests/unit/daf/Configuration.cpp \
-  check/obj/src/tests/unit/daf/Definition.cpp \
-  check/obj/src/tests/unit/daf/Executor.cpp \
   check/obj/src/tests/unit/daf/Name.cpp \
   $(tests_unit_daf_numeric_SUBSOURCES) \
   $(end)

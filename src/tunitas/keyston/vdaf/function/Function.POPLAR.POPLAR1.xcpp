@@ -28,17 +28,17 @@ namespace tunitas::keyston::vdaf::function {
   //
   //   Within Stages<NAME> and Executor<NAME>
   //
-  template<> struct Function<POPLAR, Name::POPLAR1>;
+  template<Name NAME> struct Function<POPLAR, NAME>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.keyston.poplar.Algorithm
 #import tunitas.keyston.vdaf.function.Prototype
 namespace tunitas::keyston::vdaf::function {
-  template<> struct Function<POPLAR, Name::POPLAR1> : public poplar::Algorithm<poplar::Name::ONE>, public Prototype {
+  template<Name NAME> struct Function<POPLAR, NAME> : public poplar::Algorithm<poplar::Name::ONE>, public Prototype<vdaf::Definition<NAME>> {
     struct Ancestors {
       using Algorithm = poplar::Algorithm<poplar::Name::ONE>;
-      using Prototype = function::Prototype;
+      using Prototype = function::Prototype<vdaf::Definition<NAME>>;
     };
   public:
     // [[FINISH]]

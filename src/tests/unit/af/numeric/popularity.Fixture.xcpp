@@ -12,15 +12,13 @@ namespace tests::unit::af::numeric::popularity {
 #endiv
 #divert <hpp>
 #import tests.unit.af.numeric.Palette
-#import tunitas.keyston.measurement.Specimen
 struct tests::unit::af::numeric::popularity::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
   auto test_computation() -> void;
   auto test_finalization() -> void;
 protected:
-    using S = ::tunitas::keyston::measurement::Specimen;
-  static auto generate_some_parameters() -> Configuration::Parameters;
+  static auto generate_some_parameters() -> Inventory::Parameters;
 };
 #endiv
 #divert <cpp>
@@ -35,16 +33,17 @@ auto tests::unit::af::numeric::popularity::Fixture::suite() -> Suite {
 #import tunitas.keyston.popularity.Prefixes
 #import nonstd.units.memory.scale // in unts of bits
 namespace tests::unit::af::numeric::popularity {
-  auto Fixture::generate_some_parameters() -> Configuration::Parameters {
-    auto ret = Configuration::Parameters{};
+  auto Fixture::generate_some_parameters() -> Inventory::Parameters {
+    auto ret = Inventory::Parameters{};
     ret.prefix_length = nonstd::units::memory::Bits{4};
+    using S = Inventory::Specimen;
     ret.prefixes = ::tunitas::keyston::popularity::Prefixes{S{1}, S{2}, S{3}, S{4}};
     return ret;
   }
   auto Fixture::test_computation() -> void try {
     auto parameters = generate_some_parameters();
     auto intermediate = Initial::generate_population(parameters);
-    auto measurement = Configuration::Measurement{MEASUREMENT};
+    auto measurement = Inventory::Measurement{SPECIMEN};
     auto more = library::computation(parameters, intermediate, measurement);
     require(ASSERTION, sizeof(more));
   } catch (nonstd::exception::Unimplemented const &) {

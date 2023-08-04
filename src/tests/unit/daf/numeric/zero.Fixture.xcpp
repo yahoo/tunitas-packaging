@@ -4,18 +4,27 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.daf.numeric.zero
 namespace tests::unit::daf::numeric::zero {
   class Fixture;
-  namespace library = ::tunitas::keyston::daf::numeric::zero;
 }
 #endiv
 #divert <hpp>
 #import tunitas.exception.feature.Invariant
 #import tunitas.exception.feature.Variant
+#import tunitas.keyston.daf.Function
 #import tests.unit.daf.numeric.Palette
 struct tests::unit::daf::numeric::zero::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
+  //
+  struct Function : public library::Function<ADHOC, library::Name::ZERO> {
+    template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+    using Parameters = library::Parameters;
+    template<Slice SLICE> using Measurement = library::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = library::Input<SLICE>;
+    template<Slice SLICE> using Public      = library::Public<SLICE>;
+    template<Slice SLICE> using Output      = library::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = library::Aggregation<SLICE>;
+  };
   //
   auto test_disassembly() -> void;
   auto test_computation() -> void;
@@ -64,10 +73,10 @@ namespace tests::unit::daf::numeric::zero {
     using Expected = Fixture::Expected::Disassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto measurement = Configuration::Measurement<WHOLE>{Provided::ZERO};
-    auto randomness = Configuration::Randomness{};
-    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    auto parameters = Function::Parameters{};
+    auto measurement = Function::Measurement<WHOLE>{Provided::ZERO};
+    auto randomness = Function::Randomness{};
+    auto [publick, inputs] = Function::disassembly(parameters, measurement, randomness);
     require(ASSERTION, sizeof(publick)); // don't care what it is
     // Because this is what the constants algo does on disassembly
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(0_shard)));
@@ -78,16 +87,16 @@ namespace tests::unit::daf::numeric::zero {
     using Expected = Fixture::Expected::Computation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto publick = Configuration::Public<SHARE>{};
-    auto input = Configuration::Input<SHARE>{Provided::ZERO};
-    auto output = library::computation(parameters, 0_shard, publick, input);
+    auto parameters = Function::Parameters{};
+    auto publick = Function::Public<SHARE>{};
+    auto input = Function::Input<SHARE>{Provided::ZERO};
+    auto output = Function::computation(parameters, 0_shard, publick, input);
     require(ASSERTION, visit(expected.otreatment, output) == visit(expected.itreatment, input));
   }
   auto Fixture::test_amalgamation_empty() -> void try {
-    auto parameters = Configuration::Parameters{};
-    auto outputs = Series<Configuration::Output<SHARE>>{}; // <------------------------------ empty
-    library::amalgamation(parameters, outputs);
+    auto parameters = Function::Parameters{};
+    auto outputs = Function::Series<Function::Output<SHARE>>{}; // <------------------------------ empty
+    Function::amalgamation(parameters, outputs);
     impossible(ASSERTION);
   } catch (Exception::Invariant const &) {
     require(ASSERTION);
@@ -97,19 +106,19 @@ namespace tests::unit::daf::numeric::zero {
     using Expected = Fixture::Expected::Amalgamation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto zero = Configuration::Output<SHARE>{Provided::ZERO};
-    auto outputs = Series<Configuration::Output<SHARE>>{zero, zero, zero};
-    auto amalgamated = library::amalgamation(parameters, outputs);
+    auto parameters = Function::Parameters{};
+    auto zero = Function::Output<SHARE>{Provided::ZERO};
+    auto outputs = Function::Series<Function::Output<SHARE>>{zero, zero, zero};
+    auto amalgamated = Function::amalgamation(parameters, outputs);
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, amalgamated));
   }
   auto Fixture::test_amalgamation_fail() -> void try {
     using Provided = Fixture::Provided::Amalgamation;
     //
-    auto parameters = Configuration::Parameters{};
-    auto nonzero = Configuration::Output<SHARE>{Provided::CANARY};
-    auto outputs = Series<Configuration::Output<SHARE>>{nonzero, nonzero, nonzero};
-    library::amalgamation(parameters, outputs);
+    auto parameters = Function::Parameters{};
+    auto nonzero = Function::Output<SHARE>{Provided::CANARY};
+    auto outputs = Function::Series<Function::Output<SHARE>>{nonzero, nonzero, nonzero};
+    Function::amalgamation(parameters, outputs);
     impossible(ASSERTION);
   } catch (Exception::Invariant const &) {
     require(ASSERTION);
@@ -118,16 +127,16 @@ namespace tests::unit::daf::numeric::zero {
     using Expected = Fixture::Expected::Reassembly;
     auto expected = Expected{};
     //
-    // Actually the aggregations cannot be "empty" because Shards<...> is already fixed size.
+    // Actually the aggregations cannot be "empty" because Function::Shards<...> is already fixed size.
     // What WILL fail here is that the aggregations within each shard are not the correct variant type
     // So the exception that will be thrown will signal that eventuality (catch exception::Variant)
     //
-    auto parameters = Configuration::Parameters{};
-    auto aggregations = Shards<Configuration::Aggregation<SHARE>>{}; // <------------------------------ empty
-    auto records = Records{3456}; // recall: this count is the number of samples that this aggregation contains
+    auto parameters = Function::Parameters{};
+    auto aggregations = Function::Shards<Function::Aggregation<SHARE>>{}; // <------------------------------ empty
+    auto processed = Processed{3456}; // recall: this count is the number of samples that this aggregation contains
     //
     // yup, it turns out that reassembly on "empty" cannot fail (not for Invariant and not for Variant)
-    auto reassembled = library::reassembly(parameters, aggregations, records);
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, reassembled));
   } catch (Exception::Exception::Variant const &) {
     impossible(ASSERTION);
@@ -139,11 +148,11 @@ namespace tests::unit::daf::numeric::zero {
     using Expected = Fixture::Expected::Reassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto zero = Configuration::Aggregation<SHARE>{Provided::ZERO};
-    auto aggregations = Shards<Configuration::Aggregation<SHARE>>{zero, zero};
-    auto records = Records{3456}; // recall: this count is the number of samples that this aggregation contains
-    auto reassembled = library::reassembly(parameters, aggregations, records);
+    auto parameters = Function::Parameters{};
+    auto zero = Function::Aggregation<SHARE>{Provided::ZERO};
+    auto aggregations = Function::Shards<Function::Aggregation<SHARE>>{zero, zero};
+    auto processed = Processed{3456}; // recall: this count is the number of samples that this aggregation contains
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, reassembled));
   }
 }

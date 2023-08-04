@@ -9,40 +9,39 @@
 #divert <hpp>
 #import tests.unit.daf.numeric.Palette
 #import tunitas.keyston.numeric.Treatment
-#include <ipp/tunitas.keyston.daf.Configuration> // because the constexpr constructor must be visible
 namespace tests::unit::daf::numeric::constant {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
   struct Fixture::Expected : public Palette {
     class Disassembly {
-      class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Count const &that) -> Configuration::Input<SHARE>::Count { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Input<SHARE>::Count const &that) -> Input<SHARE>::Count { return that; })> { };
       using El = Element<64>;
     public:
-      inline static constexpr auto const ZERO = Configuration::Input<SHARE>::Count{El{0}};
-      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Count{El{14795}};
+      inline static constexpr auto const ZERO = Input<SHARE>::Count{El{0}};
+      inline static constexpr auto const CANARY = Input<SHARE>::Count{El{14795}};
       _Treatment treatment{};
     };
     class Computation {
-      class _iTreatment : public Treatment<decltype([](Configuration::Input<SHARE>::Count const &that) -> Configuration::Input<SHARE>::Count { return that; })> { };
-      class _oTreatment : public Treatment<decltype([](Configuration::Output<SHARE>::Count const &that) -> Configuration::Output<SHARE>::Count { return that; })> { };
+      class _iTreatment : public Treatment<decltype([](Input<SHARE>::Count const &that) -> Input<SHARE>::Count { return that; })> { };
+      class _oTreatment : public Treatment<decltype([](Output<SHARE>::Count const &that) -> Output<SHARE>::Count { return that; })> { };
     public:
       _iTreatment itreatment{};
       _oTreatment otreatment{};
     };
     class Amalgamation {
-      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<SHARE>::Count const &that) -> Configuration::Aggregation<SHARE>::Count { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Aggregation<SHARE>::Count const &that) -> Aggregation<SHARE>::Count { return that; })> { };
       using El = Element<64>;
     public:
-      inline static constexpr auto const ZERO = Configuration::Aggregation<SHARE>::Count{El{0}};
-      inline static constexpr auto const CANARY = Configuration::Aggregation<SHARE>::Count{El{27950}};
-      inline static constexpr auto const SMALLER = Configuration::Aggregation<SHARE>::Count{El{27950}}; // and "last one wins"
-      inline static constexpr auto const BIGGER = Configuration::Aggregation<SHARE>::Count{El{27951}};
+      inline static constexpr auto const ZERO = Aggregation<SHARE>::Count{El{0}};
+      inline static constexpr auto const CANARY = Aggregation<SHARE>::Count{El{27950}};
+      inline static constexpr auto const SMALLER = Aggregation<SHARE>::Count{El{27950}}; // and "last one wins"
+      inline static constexpr auto const BIGGER = Aggregation<SHARE>::Count{El{27951}};
       _Treatment treatment{};
     };
     class Reassembly {
-      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<WHOLE>::Count const &that) -> Configuration::Aggregation<WHOLE>::Count { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Aggregation<WHOLE>::Count const &that) -> Aggregation<WHOLE>::Count { return that; })> { };
     public:
-      inline static auto const CANARY = Configuration::Aggregation<WHOLE>::Count{4642};
+      inline static auto const CANARY = Aggregation<WHOLE>::Count{4642};
       _Treatment treatment{};
     };
   };

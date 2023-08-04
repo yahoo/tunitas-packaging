@@ -61,22 +61,22 @@ namespace tunitas::keyston::vdaf::function {
 #import tunitas.keyston.vdaf.Aggregation
 #import tunitas.keyston.vdaf.Disassembled
 namespace tunitas::keyston::vdaf::function {
-  template<Name NAME> class Function<PRIO, NAME> : public Prototype {
-    using Ancestor = function::Prototype;
+  template<Name NAME> class Function<PRIO, NAME> : public Prototype<vdaf::Definition<NAME>> {
+    using Ancestor = function::Prototype<vdaf::Definition<NAME>>;
   public:
-    using Definition = vdaf::Definition<NAME>;
+    using Definition = typename Ancestor::Definition;
     //
     using enum prio::role::Name;
-    template<prio::role::Name NOM> using Role = prio::Role<NOM, typename Definition::Predefinition>;
+    template<prio::role::Name ROLE> using Role = prio::Role<ROLE, typename Definition::Predefinition>;
     //
     using Prover = typename Definition::Prover; // a.k.a. flp::Generic<Validity>
     using Codec = typename Definition::Codec;
     using Field = typename Codec::Field;
     using Amplifier = typename Definition::Amplifier;
     //
-    // names as used in The Standard. 
-    using Flp = Prover;
-    using Prg = Amplifier;
+    // The names as used in The Standard (for expository purposes, they are never used herein)
+    using Flp [[deprecated("Flip, flop?  Sounds undgood; instead prefer the mellifluous Function<PRIO,NAME>::Prover")]] = Prover;
+    using Prg [[deprecated("Purg(e?)  Sounds ungood; instead prefer the mellifluous Function<PRIO,NAME>::Amplifier")]] = Amplifier;
     //
     // Otherwise it's too lugubrious to reference these in the ancestry with 'typename Ancestors::Prototype' always and everywhere
     using Shard = keyston::Shard;
@@ -88,7 +88,7 @@ namespace tunitas::keyston::vdaf::function {
     using Processed  = quantity::Records;
     //
     struct Verify_Key {
-      using General [[deprecated("avoid")]] = hpke::Key<hpke::Side::SECRET>; // [[FIXTHIS]] use a view since the size need not be known here.
+      using General [[deprecated("avoid")]] = hpke::Key<hpke::Side::SECRET>; // [[FIXTHIS]] use a view since the size required here is not need known there in hpke.
       inline static constexpr auto const SIZE = Definition::VERIFY_KEY_SIZE.count();
       using Storage = octets::Fixed<SIZE>;
       struct View {
@@ -128,7 +128,7 @@ namespace tunitas::keyston::vdaf::function {
     template<Slice SLICE> using Output      = vdaf::Output<SLICE, typename Field::template Vector<Codec::OUTPUT_LENGTH.count()>::Value>;
     template<Slice SLICE> using Aggregation = vdaf::Aggregation<SLICE, Definition>;
     //
-    // There is no (draft) section which justifies separatingout the encoding step.  But it does simplify the HISTOGRAM case which reqwuires the idiosyncratic application of the Parameters.
+    // There is no (draft) section which justifies separating out the encoding step.  But it does simplify the HISTOGRAM case which requires the idiosyncratic application of the Parameters.
     static auto admission(Parameters const &, measurement::Specimen) -> Input<WHOLE>;
     //
     // Section 5.1 Sharding

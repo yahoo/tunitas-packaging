@@ -12,6 +12,8 @@ tunitas_keyston_aggregation_SUBSOURCES = \
   obj/src/tunitas/keyston/aggregation/Histogram.cpp \
   obj/src/tunitas/keyston/aggregation/Popularity.cpp \
   \
+  obj/src/tunitas/keyston/aggregation/Container.cpp \
+  \
   obj/src/tunitas/keyston/aggregation/Limits.template.cpp \
   obj/src/tunitas/keyston/aggregation/Limits.Count.cpp \
   obj/src/tunitas/keyston/aggregation/Limits.Simple.cpp \

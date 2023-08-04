@@ -42,7 +42,7 @@ namespace tunitas::keyston::af {
 #import tunitas.string.View
 #import tunitas.string.Storage
 namespace tunitas::keyston {
-  struct af::DAF{
+  struct af::DAF {
     using Name = daf::Name;
     using enum daf::Name;
     DAF() = delete;

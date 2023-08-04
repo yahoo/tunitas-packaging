@@ -27,6 +27,7 @@ tests_unit_SUBSOURCES = \
   $(tests_unit_nonce_SUBSOURCES) \
   $(tests_unit_numeric_SUBSOURCES) \
   $(tests_unit_octets_SUBSOURCES) \
+  $(tests_unit_parameters_SUBSOURCES) \
   $(tests_unit_poplar_SUBSOURCES) \
   $(tests_unit_popularity_SUBSOURCES) \
   $(tests_unit_prg_SUBSOURCES) \
@@ -67,6 +68,7 @@ include src/tests/unit/name/Makefrag.am
 include src/tests/unit/nonce/Makefrag.am
 include src/tests/unit/numeric/Makefrag.am
 include src/tests/unit/octets/Makefrag.am
+include src/tests/unit/parameters/Makefrag.am
 include src/tests/unit/poplar/Makefrag.am
 include src/tests/unit/popularity/Makefrag.am
 include src/tests/unit/prg/Makefrag.am

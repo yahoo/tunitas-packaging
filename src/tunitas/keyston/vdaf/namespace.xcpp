@@ -24,7 +24,10 @@ namespace tunitas::keyston::vdaf {
   //   Yes.
   //
   using enum Transport;
-  namespace [[nodirectory]] components { }
+  namespace [[nodirectory,REMOVETHIS]] components { }
+  namespace [[nodirectory]] is { }
+  namespace [[nodirectory]] indexed { }
+  namespace [[nodirectory]] traits { }
 }
 #import tunitas.keyston.Slice
 #endiv

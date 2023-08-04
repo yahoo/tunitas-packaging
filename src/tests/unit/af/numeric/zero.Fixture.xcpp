@@ -29,15 +29,15 @@ auto tests::unit::af::numeric::zero::Fixture::suite() -> Suite {
 }
 namespace tests::unit::af::numeric::zero {
   auto Fixture::test_computation() -> void {
-    auto parameters = Configuration::Parameters{};
-    auto intermediate = Configuration::Intermediate{INTERMEDIATE0};
-    auto measurement = Configuration::Measurement{MEASUREMENT};
+    auto parameters = Inventory::Parameters{};
+    auto intermediate = Inventory::Intermediate{INTERMEDIATE0};
+    auto measurement = Inventory::Measurement{SPECIMEN};
     auto more = library::computation(parameters, intermediate, measurement);
     require(ASSERTION, sizeof(more));
   }
   auto Fixture::test_finalization() -> void {
-    auto parameters = Configuration::Parameters{};
-    auto intermediate = Configuration::Intermediate{INTERMEDIATE0};
+    auto parameters = Inventory::Parameters{};
+    auto intermediate = Inventory::Intermediate{INTERMEDIATE0};
     auto finalized = library::finalization(parameters, intermediate);
     require(ASSERTION, sizeof(finalized));
   }

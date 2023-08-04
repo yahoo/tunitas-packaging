@@ -14,10 +14,5 @@ tunitas_keyston_af_numeric_SUBSOURCES = \
   obj/src/tunitas/keyston/af/numeric/sum.cpp \
   obj/src/tunitas/keyston/af/numeric/histogram.cpp \
   obj/src/tunitas/keyston/af/numeric/popularity.cpp \
-  \
-  obj/src/tunitas/keyston/af/numeric/Parameters.cpp \
-  obj/src/tunitas/keyston/af/numeric/Measurement.cpp \
-  obj/src/tunitas/keyston/af/numeric/Intermediate.cpp \
-  obj/src/tunitas/keyston/af/numeric/Aggregation.cpp \
   $(end)
 

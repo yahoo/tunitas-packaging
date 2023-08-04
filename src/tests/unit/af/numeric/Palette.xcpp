@@ -20,22 +20,26 @@ namespace tests::unit::af::numeric {
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Simple
 #import tunitas.keyston.aggregation.Summation
-#import tunitas.keyston.af.numeric.Intermediate
-#import tunitas.keyston.af.numeric.Parameters
+#import tunitas.keyston.af.Parameters
+#import tunitas.keyston.af.Measurement
+#import tunitas.keyston.af.Intermediate
+#import tunitas.keyston.af.Aggregation
 class tests::unit::af::numeric::Palette {
 protected:
   ~Palette() = default;
 public:
   struct Inventory {
-    // at test sites, these types will be referenced from the nearby Configuration (but not here)
-    using Count = ::tunitas::keyston::aggregation::Count;
     using Specimen = ::tunitas::keyston::measurement::Specimen;
+    //
+    using Count = ::tunitas::keyston::aggregation::Count;
     using Summation = ::tunitas::keyston::aggregation::Summation;
-    using Parameters = ::tunitas::keyston::af::numeric::Parameters;
-    using Intermediate = ::tunitas::keyston::af::numeric::Intermediate;
+    //
+    using Parameters = ::tunitas::keyston::af::Parameters;
+    using Measurement = ::tunitas::keyston::af::Measurement;
+    using Intermediate = ::tunitas::keyston::af::Intermediate;
     using Aggregation = ::tunitas::keyston::aggregation::Simple;
   };
-  inline static auto const MEASUREMENT = Inventory::Specimen{3};
+  inline static auto const SPECIMEN = Inventory::Specimen{3};
   inline static auto const INTERMEDIATE0 = Inventory::Intermediate{Inventory::Count{0}};
   inline static auto const INTERMEDIATE = Inventory::Intermediate{Inventory::Count{4}};
   inline static auto const ZERO = Inventory::Aggregation{0};

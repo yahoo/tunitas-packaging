@@ -24,13 +24,14 @@ namespace tunitas::keyston::vdaf {
   //       IANA Considerations
   //       Note that values 0xFFFF0000 through 0xFFFFFFFF are reserved for private use.
   //
-  //       Value                         Transport                  Type        Reference
+  //       Value                         Transport              Type        Reference
   //       --------------------------------------------------------------------------------
   //       0x00000000                    Prio3Count              VDAF        Section 7.4.1
   //       0x00000001                    Prio3Sum                VDAF        Section 7.4.2
   //       0x00000002                    Prio3Histogram          VDAF        Section 7.4.3
   //       0x00000003 to 0x00000FFF      Prio3 reserved          VDAF        n/a
   //       0x00001000                    Poplar1                 VDAF        Section 8.4
+  //       0x00001000 to 0x00001FFF      Doplar et al.           VDAF        (not mentioned in the standard)
   //       0xFFFF0000 to 0xFFFFFFFF      private use             n/a         n/a
   //
   //       Table 16: Unique identifiers for (V)DAFs.
@@ -67,8 +68,10 @@ namespace tunitas::keyston::vdaf {
     PRIO3_HISTOGRAM = 0x0000'0002,
     Prio3Histogram = PRIO3_HISTOGRAM,
     //
-    POPLAR1 = 0x0000'1000,
+    POPLAR1 = 0x0000'1000, // poplar algorithm #1 is numbered "zero" in the series?  hmmm that's gonna cause some confusion as time grows old
     Poplar1 = POPLAR1,
+    DOPLAR = 0x0000'1001, // not-normative but see [DPRS2023] https://ia.cr/2023/130, Verifiable Distributed Aggregation Functions
+    Doplar = DOPLAR,
     //
     // As known herein.
     ZERO = 0xffff'0000u, // ... the zero function

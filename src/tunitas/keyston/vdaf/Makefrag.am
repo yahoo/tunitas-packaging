@@ -8,6 +8,7 @@ tunitas_keyston_vdaf_SUBSOURCES = \
   obj/src/tunitas/keyston/vdaf/namespace.cpp \
   obj/src/tunitas/keyston/vdaf/constants.cpp \
   obj/src/tunitas/keyston/vdaf/Name.cpp \
+  obj/src/tunitas/keyston/vdaf/is.Algorithm.cpp \
   \
   obj/src/tunitas/keyston/vdaf/Definition.cpp \
   obj/src/tunitas/keyston/vdaf/Serialization.cpp \

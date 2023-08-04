@@ -13,10 +13,10 @@ std_SUBSOURCES = \
   \
   obj/src/std/iterator_traits/tunitas.ranges.package_enumerate.Iterator.SUBITERATOR.MUTABILITY.cpp \
   \
-  obj/src/std/tuple_element/N.tunitas.keyston.daf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
+  obj/src/std/tuple_element/N.tunitas.keyston.daf.disassembled.Disassembled.cpp \
   obj/src/std/tuple_element/N.tunitas.keyston.vdaf.disassembled.Disassembled.DEFINITION.cpp \
   \
-  obj/src/std/tuple_size/tunitas.keyston.daf.generic.disassembled.Disassembled.CONFIGURATION.cpp \
+  obj/src/std/tuple_size/tunitas.keyston.daf.disassembled.Disassembled.cpp \
   obj/src/std/tuple_size/tunitas.keyston.vdaf.disassembled.Disassembled.DEFINITION.cpp \
   \
   obj/src/std/variant_alternative/N.tunitas.keyston.protocol.query.batch.Batch.cpp \

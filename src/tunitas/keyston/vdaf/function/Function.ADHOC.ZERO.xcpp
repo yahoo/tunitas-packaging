@@ -29,7 +29,7 @@ namespace tunitas::keyston::vdaf::function {
 #divert <hpp>
 #import tunitas.keyston.vdaf.function.Prototype
 namespace tunitas::keyston::vdaf::function {
-  template<> struct Function<ADHOC, Name::ZERO> : public Prototype {
+  template<> struct Function<ADHOC, Name::ZERO> : public Prototype<Definition<Name::ZERO>> {
   };
 }
 #endiv

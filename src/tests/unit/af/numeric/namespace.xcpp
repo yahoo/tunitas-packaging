@@ -6,11 +6,7 @@
 #divert <fpp>
 #import tests.unit.af
 #import tunitas.keyston.af.numeric
-//
-#import tunitas.keyston.af.Configuration
 namespace tests::unit::af::numeric {
   namespace library = ::tunitas::keyston::af::numeric;
-  //
-  using Configuration = ::tunitas::keyston::af::Configuration<Transport::NUMERIC>;
 }
 #endiv

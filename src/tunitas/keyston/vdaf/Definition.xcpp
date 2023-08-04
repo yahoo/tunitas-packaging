@@ -35,13 +35,15 @@ namespace tunitas::keyston::vdaf {
   namespace [[eponymous]] definition {
     using quantity::Items;
     template<typename PERSONALITY> struct Convenience;
-    template<vdaf::Name> struct Personality;
-    template<> struct Personality<vdaf::Name::PRIO3_COUNT>;
-    template<> struct Personality<vdaf::Name::PRIO3_SUM>;
-    template<> struct Personality<vdaf::Name::PRIO3_HISTOGRAM>;
-    // TODO Name::POPLAR
-    // TODO Name::DOPLAR
-    template<vdaf::Name> struct Definition;
+    template<Name> struct Personality;
+    template<> struct Personality<Name::PRIO3_COUNT>;
+    template<> struct Personality<Name::PRIO3_SUM>;
+    template<> struct Personality<Name::PRIO3_HISTOGRAM>;
+    template<Name> struct Definition;
+    template<> struct Definition<Name::ZERO>;
+    template<> struct Definition<Name::CONSTANT>;
+    template<> struct Definition<Name::POPLAR1>;
+    template<> struct Definition<Name::DOPLAR>;
   }
   using definition::Definition;
 }
@@ -55,31 +57,37 @@ namespace tunitas::keyston::vdaf {
     inline static constexpr auto const VERIFY_KEY_SIZE = constants::VERIFY_KEY_BYTE_COUNT;
   };
   namespace definition {
-    template<> struct Personality<vdaf::Name::PRIO3_COUNT> : public prio::Definition<prio::Name::COUNT> {
+    template<> struct Personality<Name::PRIO3_COUNT> : public prio::Definition<prio::Name::COUNT> {
       using Predefinition = prio::Definition<prio::Name::COUNT>;
-      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_COUNT;
+      inline static constexpr auto const VDAF = Name::PRIO3_COUNT;
       using Customizer = prio::Customizer<VDAF>;
       inline static constexpr auto const ROUND_COUNT = Items{1u};
       static_assert(sizeof(ROUND_COUNT), "from the ancestor");
       static_assert(sizeof(NONCE_SIZE), "from the ancestor");
     };
-    template<> struct Personality<vdaf::Name::PRIO3_SUM> : public prio::Definition<prio::Name::SUM> {
+    template<> struct Personality<Name::PRIO3_SUM> : public prio::Definition<prio::Name::SUM> {
       using Predefinition = prio::Definition<prio::Name::SUM>;
-      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_SUM;
+      inline static constexpr auto const VDAF = Name::PRIO3_SUM;
       using Customizer = prio::Customizer<VDAF>;
       static_assert(sizeof(ROUND_COUNT), "from the ancestor");
       static_assert(sizeof(NONCE_SIZE), "from the ancestor");
     };
-    template<> struct Personality<vdaf::Name::PRIO3_HISTOGRAM> : public prio::Definition<prio::Name::HISTOGRAM> {
+    template<> struct Personality<Name::PRIO3_HISTOGRAM> : public prio::Definition<prio::Name::HISTOGRAM> {
       using Predefinition = prio::Definition<prio::Name::HISTOGRAM>;
-      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_HISTOGRAM;
+      inline static constexpr auto const VDAF = Name::PRIO3_HISTOGRAM;
       using Customizer = prio::Customizer<VDAF>;
       static_assert(sizeof(ROUND_COUNT), "from the ancestor");
       static_assert(sizeof(NONCE_SIZE), "from the ancestor");
     };
-    // TODO Personality<vdaf::Name::POPLAR1>
-    // TODO Personality<vdaf::Name::DOPLAR_SOMETING>
+    // TODO Personality<Name::POPLAR1>
+    // TODO Personality<Name::DOPLAR_SOMETING>
   }
-  template<vdaf::Name NAME> struct definition::Definition : public Personality<NAME>, public Convenience<Personality<NAME>> { };
+  template<Name NAME> struct definition::Definition : public Personality<NAME>, public Convenience<Personality<NAME>> { };
+  namespace definition {
+    template<> struct Definition<Name::ZERO> { };
+    template<> struct Definition<Name::CONSTANT> { };
+    template<> struct Definition<Name::POPLAR1> { };
+    template<> struct Definition<Name::DOPLAR> { };
+  }
 }
 #endiv

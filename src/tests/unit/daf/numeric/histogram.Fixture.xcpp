@@ -8,9 +8,20 @@ namespace tests::unit::daf::numeric::histogram { class Fixture; }
 #endiv
 #divert <hpp>
 #import tests.unit.daf.numeric.Palette
+#import tunitas.keyston.daf.Function
 #import tunitas.exception.feature.Invariant
 struct tests::unit::daf::numeric::histogram::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
+  //
+  struct Function : public library::Function<PRIO, library::Name::HISTOGRAM> {
+    template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+    using Parameters = library::Parameters;
+    template<Slice SLICE> using Measurement = library::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = library::Input<SLICE>;
+    template<Slice SLICE> using Public      = library::Public<SLICE>;
+    template<Slice SLICE> using Output      = library::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = library::Aggregation<SLICE>;
+  };
   //
   auto test_disassembly_good() -> void;
   auto test_computation_good() -> void;
@@ -62,11 +73,11 @@ namespace tests::unit::daf::numeric::histogram {
     using Expected = Fixture::Expected::Disassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     parameters.boundaries = Provided::BOUNDARIES;
-    auto measurement = Configuration::Measurement<WHOLE>{Provided::SPECIMEN};
-    auto randomness = Configuration::Randomness{Provided::RANDOMNESS};
-    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    auto measurement = Function::Measurement<WHOLE>{Provided::SPECIMEN};
+    auto randomness = Function::Randomness{Provided::RANDOMNESS};
+    auto [publick, inputs] = Function::disassembly(parameters, measurement, randomness);
     //
     require(ASSERTION, sizeof(publick)); // don't care what it is
     //
@@ -85,10 +96,10 @@ namespace tests::unit::daf::numeric::histogram {
     using Expected = Fixture::Expected::Computation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto publick = Configuration::Public<SHARE>{};
-    auto input = Configuration::Input<SHARE>{Provided::CANARY};
-    auto output = library::computation(parameters, 0_shard, publick, input);
+    auto parameters = Function::Parameters{};
+    auto publick = Function::Public<SHARE>{};
+    auto input = Function::Input<SHARE>{Provided::CANARY};
+    auto output = Function::computation(parameters, 0_shard, publick, input);
     //
     require(ASSERTION, Provided::CANARY == visit(expected.itreatment, input));
     require(ASSERTION, Expected::CANARY == visit(expected.otreatment, output));
@@ -98,14 +109,14 @@ namespace tests::unit::daf::numeric::histogram {
     using Expected = Fixture::Expected::Amalgamation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto outputs = []{
-      auto one = Configuration::Output<SHARE>{Provided::ONE};
-      auto two = Configuration::Output<SHARE>{Provided::TWO};
-      auto three = Configuration::Output<SHARE>{Provided::THREE};
-      return Series<Configuration::Output<SHARE>>{one, two, three};
+      auto one = Function::Output<SHARE>{Provided::ONE};
+      auto two = Function::Output<SHARE>{Provided::TWO};
+      auto three = Function::Output<SHARE>{Provided::THREE};
+      return Function::Series<Function::Output<SHARE>>{one, two, three};
     }();
-    auto amalgamated = library::amalgamation(parameters, outputs);
+    auto amalgamated = Function::amalgamation(parameters, outputs);
     require(ASSERTION, Expected::AMALGAMATED == visit(expected.treatment, amalgamated));
   }
   auto Fixture::test_reassembly_good() -> void {
@@ -113,14 +124,14 @@ namespace tests::unit::daf::numeric::histogram {
     using Expected = Fixture::Expected::Reassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto aggregations = []{
-      auto two = Configuration::Aggregation<SHARE>{Provided::TWO};
-      auto three = Configuration::Aggregation<SHARE>{Provided::THREE};
-      return Shards<Configuration::Aggregation<SHARE>>{two, three};
+      auto two = Function::Aggregation<SHARE>{Provided::TWO};
+      auto three = Function::Aggregation<SHARE>{Provided::THREE};
+      return Function::Shards<Function::Aggregation<SHARE>>{two, three};
     }();
-    auto processed = Configuration::Processed{41};
-    auto reassembled = library::reassembly(parameters, aggregations, processed);
+    auto processed = Processed{41};
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
     //
     require(ASSERTION, Expected::FIVE == visit(expected.treatment, reassembled));
   }

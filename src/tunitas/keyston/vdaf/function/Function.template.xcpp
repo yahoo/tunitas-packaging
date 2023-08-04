@@ -6,6 +6,8 @@
 #divert <fpp>
 #import tunitas.keyston.Scheme
 #import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.is.Algorithm
+#include <hpp/tunitas.keyston.vdaf.is.Algorithm>
 namespace tunitas::keyston::vdaf::function {
   //
   // The Verifiable Distributed Aggregation Function Function
@@ -24,6 +26,6 @@ namespace tunitas::keyston::vdaf::function {
   //
   //   Within Stages<NAME> and Executor<NAME>
   //
-  template<Scheme, Name> struct Function;
+  template<Scheme SCHEME, Name NAME> requires (is::Algorithm<SCHEME, NAME>::value) struct Function;
 }
 #endiv

@@ -4,17 +4,26 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.daf.numeric.constant
 namespace tests::unit::daf::numeric::constant {
   class Fixture;
-  namespace library = ::tunitas::keyston::daf::numeric::constant;
 }
 #endiv
 #divert <hpp>
 #import tunitas.exception.feature.Invariant
+#import tunitas.keyston.daf.Function
 #import tests.unit.daf.numeric.Palette
 struct tests::unit::daf::numeric::constant::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
+  //
+  struct Function : public library::Function<ADHOC, library::Name::CONSTANT> {
+    template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+    using Parameters = library::Parameters;
+    template<Slice SLICE> using Measurement = library::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = library::Input<SLICE>;
+    template<Slice SLICE> using Public      = library::Public<SLICE>;
+    template<Slice SLICE> using Output      = library::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = library::Aggregation<SLICE>;
+  };
   //
   auto test_disassembly_good() -> void;
   auto test_computation_good() -> void;
@@ -70,10 +79,10 @@ namespace tests::unit::daf::numeric::constant {
     using Expected = Fixture::Expected::Disassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto measurement = Configuration::Measurement<WHOLE>{Provided::CANARY};
-    auto randomness = Configuration::Randomness{};
-    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    auto parameters = Function::Parameters{};
+    auto measurement = Function::Measurement<WHOLE>{Provided::CANARY};
+    auto randomness = Function::Randomness{};
+    auto [publick, inputs] = Function::disassembly(parameters, measurement, randomness);
     //
     require(ASSERTION, sizeof(publick)); // don't care what it is
     require(ASSERTION, Expected::CANARY == visit(expected.treatment, inputs.at(0_shard)));
@@ -84,10 +93,10 @@ namespace tests::unit::daf::numeric::constant {
     using Expected = Fixture::Expected::Computation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto publick = Configuration::Public<SHARE>{};
-    auto input = Configuration::Input<SHARE>{Provided::CANARY};
-    auto output = library::computation(parameters, 0_shard, publick, input);
+    auto parameters = Function::Parameters{};
+    auto publick = Function::Public<SHARE>{};
+    auto input = Function::Input<SHARE>{Provided::CANARY};
+    auto output = Function::computation(parameters, 0_shard, publick, input);
     //
     require(ASSERTION, visit(expected.otreatment, output) == visit(expected.itreatment, input));
   }
@@ -95,9 +104,9 @@ namespace tests::unit::daf::numeric::constant {
     using Expected = Fixture::Expected::Amalgamation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto outputs = Series<Configuration::Output<SHARE>>{}; // <-------------------- empty, see?
-    auto amalgamated = library::amalgamation(parameters, outputs);
+    auto parameters = Function::Parameters{};
+    auto outputs = Function::Series<Function::Output<SHARE>>{}; // <-------------------- empty, see?
+    auto amalgamated = Function::amalgamation(parameters, outputs);
     //
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, amalgamated));
   } catch (Exception::Invariant const &) {
@@ -108,12 +117,12 @@ namespace tests::unit::daf::numeric::constant {
     using Expected = Fixture::Expected::Amalgamation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto outputs = []{
-      auto output = Configuration::Output<SHARE>{Provided::CANARY};
-      return Series<Configuration::Output<SHARE>>{output, output, output};
+      auto output = Function::Output<SHARE>{Provided::CANARY};
+      return Function::Series<Function::Output<SHARE>>{output, output, output};
     }();
-    auto amalgamated = library::amalgamation(parameters, outputs);
+    auto amalgamated = Function::amalgamation(parameters, outputs);
     require(ASSERTION, Expected::CANARY == visit(expected.treatment, amalgamated));
   }
   auto Fixture::test_amalgamation_fail() -> void try {
@@ -121,19 +130,19 @@ namespace tests::unit::daf::numeric::constant {
     using Expected = Fixture::Expected::Amalgamation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto outputs = []{
-      auto smaller = Configuration::Output<SHARE>{Provided::CANARY};
-      auto bigger = Configuration::Output<SHARE>{Provided::OTHER};
+      auto smaller = Function::Output<SHARE>{Provided::CANARY};
+      auto bigger = Function::Output<SHARE>{Provided::OTHER};
       // whereas the modular vectors do not have operator>, we must rely on operator!= for consistency
       // so herein we will find that the "last one wins" -------------------\\\\\\\ (here)
       //                                                                    |||||||
       //                                                                    vvvvvvv
-      return Series<Configuration::Output<SHARE>>{smaller, smaller, bigger, smaller};
+      return Function::Series<Function::Output<SHARE>>{smaller, smaller, bigger, smaller};
     }();
     //
     // reminder: this won't (can't) fail by exception, rather it just returns 'bigger'
-    auto amalgamated = library::amalgamation(parameters, outputs);
+    auto amalgamated = Function::amalgamation(parameters, outputs);
     //
     //                           ///////------------------------------ "last one wins"
     //                           |||||||
@@ -147,13 +156,13 @@ namespace tests::unit::daf::numeric::constant {
     using Expected = Fixture::Expected::Reassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto aggregations = []{
-      auto shard = Configuration::Aggregation<SHARE>{Provided::CANARY};
-      return Shards<Configuration::Aggregation<SHARE>>{shard, shard};
+      auto shard = Function::Aggregation<SHARE>{Provided::CANARY};
+      return Function::Shards<Function::Aggregation<SHARE>>{shard, shard};
     }();
-    auto const processed = Configuration::Processed{1234};
-    auto reassembled = library::reassembly(parameters, aggregations, processed);
+    auto const processed = Processed{1234};
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
     //
     require(ASSERTION, Expected::CANARY == visit(expected.treatment, reassembled));
   }

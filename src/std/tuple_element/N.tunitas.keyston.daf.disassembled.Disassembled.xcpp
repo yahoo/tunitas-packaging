@@ -1,0 +1,19 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.tuple_element
+#import std.size_t
+#forward tunitas.keyston.daf.disassembled.Disassembled
+namespace std {
+  template<size_t N> struct tuple_element<N, tunitas::keyston::daf::disassembled::Disassembled>;
+}
+#endiv
+#divert <hpp>
+#import  tunitas.keyston.daf.disassembled.Tuple
+namespace std {
+  template<size_t N> struct tuple_element<N, tunitas::keyston::daf::disassembled::Disassembled> : public std::tuple_element<N, tunitas::keyston::daf::disassembled::Tuple> { };
+}
+#endiv

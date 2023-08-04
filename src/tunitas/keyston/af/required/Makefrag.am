@@ -6,5 +6,4 @@
 #
 tunitas_keyston_af_required_SUBSOURCES = \
   obj/src/tunitas/keyston/af/required/namespace.cpp \
-  obj/src/tunitas/keyston/af/required/Configuration.cpp \
   $(end)

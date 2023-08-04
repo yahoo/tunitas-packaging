@@ -7,8 +7,8 @@
 #import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.af.Name
 #include <hpp/tunitas.keyston.af.Name>
-#import tunitas.keyston.af.numeric.Parameters
-#import tunitas.keyston.af.numeric.Intermediate
+#import tunitas.keyston.af.Parameters
+#import tunitas.keyston.af.Intermediate
 namespace tests::unit::af {
   //
   // The palette ... for use in the Executor
@@ -27,8 +27,8 @@ namespace tests::unit::af {
     template<> struct Palette<Constant<DAF::HISTOGRAM>>;
     template<> struct Palette<Constant<DAF::POPULARITY>>;
     //
-    using ::tunitas::keyston::af::numeric::Parameters;
-    using ::tunitas::keyston::af::numeric::Intermediate;
+    using ::tunitas::keyston::af::Parameters;
+    using ::tunitas::keyston::af::Intermediate;
   }
   using palette::Palette;
 }

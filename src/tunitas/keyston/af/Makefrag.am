@@ -7,18 +7,16 @@
 tunitas_keyston_af_SUBSOURCES = \
   obj/src/tunitas/keyston/af/namespace.cpp \
   obj/src/tunitas/keyston/af/Name.cpp \
-  obj/src/tunitas/keyston/af/Configuration.cpp \
-  obj/src/tunitas/keyston/af/Definition.template.cpp \
-  obj/src/tunitas/keyston/af/Definition.NUMERIC.cpp \
-  obj/src/tunitas/keyston/af/Definition.cpp \
-  obj/src/tunitas/keyston/af/Executor.cpp \
+  obj/src/tunitas/keyston/af/Parameters.cpp \
+  obj/src/tunitas/keyston/af/Measurement.cpp \
+  obj/src/tunitas/keyston/af/Intermediate.cpp \
+  obj/src/tunitas/keyston/af/Aggregation.cpp \
   $(tunitas_keyston_af_exception_SUBSOURCES) \
   $(tunitas_keyston_af_numeric_SUBSOURCES) \
   $(tunitas_keyston_af_required_SUBSOURCES) \
-  $(tunitas_keyston_af_usage_SUBSOURCES) \
   $(end)
 #
 include src/tunitas/keyston/af/exception/Makefrag.am
 include src/tunitas/keyston/af/numeric/Makefrag.am
 include src/tunitas/keyston/af/required/Makefrag.am
-include src/tunitas/keyston/af/usage/Makefrag.am
+

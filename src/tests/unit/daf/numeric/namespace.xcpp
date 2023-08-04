@@ -5,15 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit.daf
-#import tunitas.keyston.daf.numeric
-#import tunitas.keyston.daf.numeric.zero
-#import tunitas.keyston.daf.numeric.constant
-#import tunitas.keyston.daf.numeric.count
-#import tunitas.keyston.daf.numeric.sum
-#import tunitas.keyston.daf.numeric.histogram
-#import tunitas.keyston.daf.numeric.popularity
-//
-#import tunitas.keyston.daf.Configuration
+#import tunitas.keyston.Scheme
 #import tunitas.keyston.Slice
 #import tunitas.keyston.Shards
 #import tunitas.keyston.shards.literals
@@ -22,25 +14,38 @@
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.aggregation.Count
 #import tunitas.keyston.quantity.Records
+#import tunitas.keyston.daf.Parameters
+#import tunitas.keyston.daf.Measurement
+#import tunitas.keyston.daf.Input
+#import tunitas.keyston.daf.Public
+#import tunitas.keyston.daf.Output
+#import tunitas.keyston.daf.Aggregation
 namespace tests::unit::daf::numeric {
-  namespace library = ::tunitas::keyston::daf::numeric;
-  //
   using namespace ::tunitas::keyston::shards::literals;
-  using Configuration = ::tunitas::keyston::daf::Configuration<Transport::NUMERIC>;
   using ::tunitas::keyston::field::Element;
   template<::tunitas::keyston::shards::required::Shardable TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
   template<::tunitas::array::required::Arrayable TYPE> using Series = ::tunitas::array::Series<TYPE>;
+  using enum ::tunitas::keyston::Scheme;
+  using ::tunitas::keyston::Slice;
   using enum ::tunitas::keyston::Slice;
   using ::tunitas::keyston::measurement::Specimen;
-  using ::tunitas::keyston::aggregation::Count; // [[FIXTHIS]] why is this here and not also Summation, Histogram, Popularity?
-  using ::tunitas::keyston::quantity::Records;
+  //
+  using Processed = ::tunitas::keyston::quantity::Records;
+  // NOT ---> using Randomness = ::tunitas::keyston::daf::function::Prototype::Randomness; // [[FIXTHIS]] find a better source for this
+  //
+  using ::tunitas::keyston::daf::Parameters;
+  using ::tunitas::keyston::daf::Measurement;
+  using ::tunitas::keyston::daf::Input;
+  using ::tunitas::keyston::daf::Public;
+  using ::tunitas::keyston::daf::Output;
+  using ::tunitas::keyston::daf::Aggregation;
   namespace [[nodirectory]] defaults { }
-  namespace [[nodirectory]] zero       { namespace library = ::tunitas::keyston::daf::numeric::zero; }
-  namespace [[nodirectory]] constant   { namespace library = ::tunitas::keyston::daf::numeric::constant; }
-  namespace [[nodirectory]] count      { namespace library = ::tunitas::keyston::daf::numeric::count; }
-  namespace [[nodirectory]] sum        { namespace library = ::tunitas::keyston::daf::numeric::sum; }
-  namespace [[nodirectory]] histogram  { namespace library = ::tunitas::keyston::daf::numeric::histogram; }
-  namespace [[nodirectory]] popularity { namespace library = ::tunitas::keyston::daf::numeric::popularity; }
+  namespace [[nodirectory]] zero       { }
+  namespace [[nodirectory]] constant   { }
+  namespace [[nodirectory]] count      { }
+  namespace [[nodirectory]] sum        { }
+  namespace [[nodirectory]] histogram  { }
+  namespace [[nodirectory]] popularity { }
 }
 #endiv
 #divert <hpp>

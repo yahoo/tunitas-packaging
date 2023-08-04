@@ -32,6 +32,7 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.nonce.Fixture
 #import tests.unit.numeric.Fixture
 #import tests.unit.octets.Fixture
+#import tests.unit.parameters.Fixture
 #import tests.unit.poplar.Fixture
 #import tests.unit.popularity.Fixture
 #import tests.unit.prg.Fixture
@@ -79,6 +80,7 @@ auto tests::unit::Fixture::suite() -> Suite {
           << add<nonce::Fixture>()
           << add<numeric::Fixture>()
           << add<octets::Fixture>()
+          << add<parameters::Fixture>()
           << add<poplar::Fixture>()
           << add<popularity::Fixture>()
           << add<prg::Fixture>()

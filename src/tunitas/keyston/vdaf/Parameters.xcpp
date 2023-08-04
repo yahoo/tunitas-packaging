@@ -29,14 +29,14 @@ namespace tunitas::keyston::vdaf {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.numeric.generic.Parameters
+#import tunitas.keyston.parameters.Generic
 namespace tunitas::keyston {
   namespace vdaf {
     using std::move;
     inline auto swap(Parameters &, Parameters &) noexcept -> void;
   }
-  class vdaf::Parameters : public numeric::generic::Parameters {
-    using Ancestor = numeric::generic::Parameters;
+  class vdaf::Parameters : public parameters::Generic {
+    using Ancestor = parameters::Generic;
     friend auto vdaf::swap(Parameters &, Parameters &) noexcept -> void;
   public:
     Parameters() = default;

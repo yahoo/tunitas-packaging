@@ -48,7 +48,7 @@ namespace tunitas::keyston::vdaf {
 #divert <hpp>
 #import tunitas.keyston.formatter.Formatter
 #import tunitas.keyston.vdaf.Serialization
-#import tunitas.keyston.numeric.generic.Aggregation
+#import tunitas.keyston.aggregation.Container
 namespace tunitas::keyston::vdaf {
   using std::move;
   // swap(...) from the ancestor
@@ -60,11 +60,11 @@ namespace tunitas::keyston::vdaf {
     Aggregation() = default;
     using Ancestor::Serialization;
   };
-  template<required::Definition DEFINITION> struct Aggregation<WHOLE, DEFINITION> : public numeric::generic::Aggregation {
-    using Ancestor = numeric::generic::Aggregation;
+  template<required::Definition DEFINITION> struct Aggregation<WHOLE, DEFINITION> : public aggregation::Container {
+    using Ancestor = aggregation::Container;
   public:
     Aggregation() = default;
-    using Ancestor::Aggregation;
+    using Ancestor::Container;
   };
 }
 #endiv

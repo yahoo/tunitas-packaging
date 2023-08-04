@@ -7,45 +7,44 @@
 #include <hpp/tests.unit.daf.numeric.sum.Fixture>
 #endiv
 #divert <hpp>
-#include <ipp/tunitas.keyston.daf.Configuration> // need the constexpr constructors for Sum{...}
 #import tunitas.keyston.numeric.Treatment
 namespace tests::unit::daf::numeric::sum {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsubobject-linkage"
   struct Fixture::Expected : public Palette {
     class Disassembly {
-      class _Treatment : public Treatment<decltype([](Configuration::Input<SHARE>::Sum const &that) -> Configuration::Input<SHARE>::Sum { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Input<SHARE>::Sum const &that) -> Input<SHARE>::Sum { return that; })> { };
       using El = Element<128>;
     public:
-      inline static constexpr auto const ZERO = Configuration::Input<SHARE>::Sum{El{0u}, El{0u}, El{0u}};
-      inline static constexpr auto const ONE = Configuration::Input<SHARE>::Sum{El{1u}, El{0u}, El{0u}};
-      inline static constexpr auto const TWO = Configuration::Input<SHARE>::Sum{El{0u}, El{1u}, El{0u}};
-      inline static constexpr auto const THREE = Configuration::Input<SHARE>::Sum{El{1u}, El{1u}, El{0u}};
+      inline static constexpr auto const ZERO = Input<SHARE>::Sum{El{0u}, El{0u}, El{0u}};
+      inline static constexpr auto const ONE = Input<SHARE>::Sum{El{1u}, El{0u}, El{0u}};
+      inline static constexpr auto const TWO = Input<SHARE>::Sum{El{0u}, El{1u}, El{0u}};
+      inline static constexpr auto const THREE = Input<SHARE>::Sum{El{1u}, El{1u}, El{0u}};
       _Treatment treatment{};
       // CANARY=3296; ( echo obase=2; echo $CANARY ) | bc | rev | sed -e 's/./&u, /g'
-      inline static constexpr auto const CANARY = Configuration::Input<SHARE>::Sum{El{0u}, El{0u}, El{0u}, El{0u}, El{0u}, El{1u}, El{1u}, El{1u}, El{0u}, El{0u}, El{1u}, El{1u}};
+      inline static constexpr auto const CANARY = Input<SHARE>::Sum{El{0u}, El{0u}, El{0u}, El{0u}, El{0u}, El{1u}, El{1u}, El{1u}, El{0u}, El{0u}, El{1u}, El{1u}};
     };
     class Computation {
-      class _iTreatment : public Treatment<decltype([](Configuration::Input<SHARE>::Sum const &that) -> Configuration::Input<SHARE>::Sum { return that; })> { };
-      class _oTreatment : public Treatment<decltype([](Configuration::Output<SHARE>::Sum const &that) -> Configuration::Output<SHARE>::Sum { return that; })> { };
+      class _iTreatment : public Treatment<decltype([](Input<SHARE>::Sum const &that) -> Input<SHARE>::Sum { return that; })> { };
+      class _oTreatment : public Treatment<decltype([](Output<SHARE>::Sum const &that) -> Output<SHARE>::Sum { return that; })> { };
       using El = Element<128>;
     public:
       _iTreatment itreatment{};
       _oTreatment otreatment{};
-      inline static constexpr auto const CANARY = Configuration::Output<SHARE>::Sum{El{3296u}};
+      inline static constexpr auto const CANARY = Output<SHARE>::Sum{El{3296u}};
     };
     class Amalgamation {
-      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<SHARE>::Sum const &that) -> Configuration::Aggregation<SHARE>::Sum { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Aggregation<SHARE>::Sum const &that) -> Aggregation<SHARE>::Sum { return that; })> { };
       using El = Element<128>;
     public:
-      inline static constexpr auto const ZERO = Configuration::Aggregation<SHARE>::Sum{El{0u}};
-      inline static constexpr auto const AMALGAMATED = Configuration::Aggregation<SHARE>::Sum{El{6u}};
+      inline static constexpr auto const ZERO = Aggregation<SHARE>::Sum{El{0u}};
+      inline static constexpr auto const AMALGAMATED = Aggregation<SHARE>::Sum{El{6u}};
       _Treatment treatment{};
     };
     class Reassembly {
-      class _Treatment : public Treatment<decltype([](Configuration::Aggregation<WHOLE>::Sum const &that) -> Configuration::Aggregation<WHOLE>::Sum { return that; })> { };
+      class _Treatment : public Treatment<decltype([](Aggregation<WHOLE>::Sum const &that) -> Aggregation<WHOLE>::Sum { return that; })> { };
     public:
-      inline static constexpr auto const FIVE = Configuration::Aggregation<WHOLE>::Sum{5u};
+      inline static constexpr auto const FIVE = Aggregation<WHOLE>::Sum{5u};
       _Treatment treatment{};
     };
   };

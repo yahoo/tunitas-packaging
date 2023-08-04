@@ -59,7 +59,7 @@ namespace tunitas::keyston::field {
   template<required::Element ELEMENT, Size CAPACITY> struct vector::Fixed : public array::Fixed<ELEMENT, CAPACITY> {
     using Ancestor = array::Fixed<ELEMENT, CAPACITY>;
   public:
-    constexpr Fixed() = default;
+    Fixed() = default;
     using Ancestor::Fixed;
     constexpr [[implicit]] Fixed(Ancestor const &);
     //

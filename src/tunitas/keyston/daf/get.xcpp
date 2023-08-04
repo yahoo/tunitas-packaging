@@ -4,24 +4,21 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
-#import tunitas.keyston.daf.generic.get
+#import tunitas.keyston.daf.disassembled.get
 namespace tunitas::keyston::daf {
   //
   // For the convenience and the lulz.
   //
-  using generic::get;
+  using disassembled::get;
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.daf.generic.disassembled.Disassembled
-#import tunitas.keyston.daf.Configuration
+#import tunitas.keyston.daf.Disassembled
 namespace {
   namespace testate {
     using tunitas::keyston::daf::get; // <------------------------------ test this
     //
-    using tunitas::keyston::daf::Configuration;
-    using enum tunitas::keyston::Transport;
-    using Specimen = tunitas::keyston::daf::generic::disassembled::Disassembled<Configuration<PROTOCOL>>; // ... pick one, any one will do
+    using Specimen = tunitas::keyston::daf::Disassembled;
     //
     static_assert(sizeof(get<0>(std::declval<Specimen>())));
     static_assert(sizeof(get<0>(std::declval<Specimen const>())));

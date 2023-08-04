@@ -7,13 +7,21 @@
 namespace tests::unit::daf::numeric::popularity { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.daf.Configuration
 #import tunitas.keyston.daf.Name
+#import tunitas.keyston.daf.Function
 #import tests.unit.daf.numeric.Palette
 struct tests::unit::daf::numeric::popularity::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
-  using Configuration = ::tunitas::keyston::daf::Configuration<Transport::NUMERIC>;
+  struct Function : public library::Function<POPLAR, library::Name::POPULARITY> {
+    template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+    using Parameters = library::Parameters;
+    template<Slice SLICE> using Measurement = library::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = library::Input<SLICE>;
+    template<Slice SLICE> using Public      = library::Public<SLICE>;
+    template<Slice SLICE> using Output      = library::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = library::Aggregation<SLICE>;
+  };
   //
   auto test_disassembly() -> void;
   auto test_computation() -> void;

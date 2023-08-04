@@ -12,15 +12,13 @@ namespace tests::unit::af::numeric::histogram {
 #endiv
 #divert <hpp>
 #import tests.unit.af.numeric.Palette
-#import tunitas.keyston.measurement.Specimen
 struct tests::unit::af::numeric::histogram::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
   //
   auto test_computation() -> void;
   auto test_finalization() -> void;
 protected:
-    using S = ::tunitas::keyston::measurement::Specimen;
-  static auto generate_some_parameters() -> Configuration::Parameters;
+  static auto generate_some_parameters() -> Inventory::Parameters;
 };
 #endiv
 #divert <cpp>
@@ -34,13 +32,13 @@ auto tests::unit::af::numeric::histogram::Fixture::suite() -> Suite {
 #import tunitas.keyston.histogram.Boundaries
 #import nonstd.exception.Unimplemented
 namespace tests::unit::af::numeric::histogram {
-  auto Fixture::generate_some_parameters() -> Configuration::Parameters {
-    auto ret = Configuration::Parameters{};
+  auto Fixture::generate_some_parameters() -> Inventory::Parameters {
+    auto ret = Inventory::Parameters{};
     ret.boundaries = []{
       auto init = ::tunitas::keyston::histogram::Boundaries{};
       runtime_assert(init.size());
       for (auto percent : std::views::iota(0u, init.size())) {
-        init.at(percent) = S{1000*percent};
+        init.at(percent) = Inventory::Specimen{1000*percent};
       }
       return init;
     }();
@@ -48,8 +46,8 @@ namespace tests::unit::af::numeric::histogram {
   }
   auto Fixture::test_computation() -> void try {
     auto parameters = generate_some_parameters();
-    auto intermediate = Configuration::Intermediate{Initial::HISTOGRAM};
-    auto measurement = Configuration::Measurement{MEASUREMENT};
+    auto intermediate = Inventory::Intermediate{Initial::HISTOGRAM};
+    auto measurement = Inventory::Measurement{SPECIMEN};
     auto more = library::computation(parameters, intermediate, measurement);
     require(ASSERTION, sizeof(more));
   } catch (nonstd::exception::Unimplemented const &) {
@@ -57,7 +55,7 @@ namespace tests::unit::af::numeric::histogram {
   }
   auto Fixture::test_finalization() -> void try {
     auto parameters = generate_some_parameters();
-    auto intermediate = Configuration::Intermediate{Initial::HISTOGRAM};
+    auto intermediate = Inventory::Intermediate{Initial::HISTOGRAM};
     auto finalized = library::finalization(parameters, intermediate);
     require(ASSERTION, sizeof(finalized));
   } catch (nonstd::exception::Unimplemented const &) {

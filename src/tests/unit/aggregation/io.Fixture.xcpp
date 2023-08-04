@@ -43,7 +43,6 @@ namespace tests::unit::aggregation::io {
 }
 #endiv
 #divert <cpp>
-#import tests.unit.aggregation.io.Fixture
 auto tests::unit::aggregation::io::Fixture::suite() -> Suite {
   auto series = Stream{"io"sv};
   series << add("Count", &Fixture::test_Count)

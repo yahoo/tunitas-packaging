@@ -7,22 +7,21 @@
 namespace tests::unit::daf { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.Transport
+#import tunitas.keyston.Slice
 struct tests::unit::daf::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using enum ::tunitas::keyston::Transport;
+  using enum ::tunitas::keyston::Slice;
   //
   auto test_usage_Name() -> void;
+  auto test_usage_Measurement() -> void;
+  auto test_usage_Input() -> void;
+  auto test_usage_Public() -> void;
+  auto test_usage_Output() -> void;
+  auto test_usage_Aggregation() -> void;
 };
 #endiv
 #divert <cpp>
-#import tunitas.keyston.daf.Configuration
-#import tunitas.keyston.daf.Definition
-#import tunitas.keyston.daf.Executor
-#import tests.unit.daf.Configuration
-#import tests.unit.daf.Definition
-#import tests.unit.daf.Executor
 #import tests.unit.daf.Name
 #import tests.unit.daf.numeric.Fixture
 auto tests::unit::daf::Fixture::suite() -> Suite {
@@ -30,36 +29,25 @@ auto tests::unit::daf::Fixture::suite() -> Suite {
   series << []{
               auto use = Stream{"usage"sv};
               use << add("Name", &Fixture::test_usage_Name)
+                  << add("Measurement", &Fixture::test_usage_Measurement)
+                  << add("Input", &Fixture::test_usage_Input)
+                  << add("Public", &Fixture::test_usage_Public)
+                  << add("Output", &Fixture::test_usage_Output)
+                  << add("Aggregation", &Fixture::test_usage_Aggregation)
                   << END;
               return use;
             }()
          << add<Name>()
-         << []{
-              auto cfg = Stream{"Configuration"sv};
-              cfg << add<Configuration<library::Configuration<NUMERIC>>>()
-                  << add<Configuration<library::Configuration<PROTOCOL>>>()
-                  << END;
-              return cfg;
-            }()
-         << []{
-              auto def = Stream{"Definition"sv};
-              def << add<Definition<library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
-                  << add<Definition<library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
-                  << END;
-              return def;
-            }()
-         << []{
-              auto exe = Stream{"Executor"sv};
-              exe << add<Executor<library::Executor<NUMERIC>, library::Definition<NUMERIC>, library::Configuration<NUMERIC>>>()
-                  << add<Executor<library::Executor<PROTOCOL>, library::Definition<PROTOCOL>, library::Configuration<PROTOCOL>>>()
-                  << END;
-              return exe;
-            }()
-         << add<numeric::Fixture>()
          << END;
   return settle(series);
 }
 #import tunitas.keyston.daf.Name
+#import tunitas.keyston.daf.Measurement
+#import tunitas.keyston.daf.Input
+#import tunitas.keyston.daf.Public
+#import tunitas.keyston.daf.Output
+#import tunitas.keyston.daf.Aggregation
+#import std.ostringstream
 namespace tests::unit::daf {
   auto Fixture::test_usage_Name() -> void {
     using Subject = library::Name;
@@ -70,6 +58,50 @@ namespace tests::unit::daf {
     swap(subject0, subject1);
     // The other testers wil examine the output value; here we just call the core function to prove it exists & is callable
     render(subject);
+  }
+  auto Fixture::test_usage_Measurement() -> void {
+    auto whole = library::Measurement<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+#if 0
+    // this one is never materialized
+    auto share = library::Measurement<SHARE>{};
+    require(ASSERTION, sizeof(share));
+#endif
+  }
+  auto Fixture::test_usage_Input() -> void {
+#if 0 // this one is never materialized as such
+    auto whole = library::Input<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+#endif
+    auto share = library::Input<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Public() -> void {
+    auto whole = library::Public<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Public<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Output() -> void {
+#if 0
+    // this one is never materialized
+    auto whole = library::Output<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+#endif
+    auto share = library::Output<SHARE>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Aggregation() -> void {
+    auto whole = library::Aggregation<WHOLE>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Aggregation<SHARE>{};
+    require(ASSERTION, sizeof(share));
+    {
+      auto buf = std::ostringstream{};
+      buf << format(whole); // <------------------------------ test this
+      auto str = buf.str();
+      require(ASSERTION, !str.empty());
+    }
   }
 }
 #endiv

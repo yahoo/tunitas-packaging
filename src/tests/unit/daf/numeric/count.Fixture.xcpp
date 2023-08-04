@@ -4,17 +4,26 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.daf.numeric.count
 namespace tests::unit::daf::numeric::count {
   class Fixture;
-  namespace library = ::tunitas::keyston::daf::numeric::count;
 }
 #endiv
 #divert <hpp>
 #import tunitas.exception.feature.Invariant
+#import tunitas.keyston.daf.Function
 #import tests.unit.daf.numeric.Palette
 struct tests::unit::daf::numeric::count::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
+  //
+  struct Function : public library::Function<PRIO, library::Name::COUNT> {
+    template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+    using Parameters = library::Parameters;
+    template<Slice SLICE> using Measurement = library::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = library::Input<SLICE>;
+    template<Slice SLICE> using Public      = library::Public<SLICE>;
+    template<Slice SLICE> using Output      = library::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = library::Aggregation<SLICE>;
+  };
   //
   auto test_disassembly_good() -> void;
   auto test_computation_good() -> void;
@@ -68,10 +77,10 @@ namespace tests::unit::daf::numeric::count {
     using Expected = Fixture::Expected::Disassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto measurement = Configuration::Measurement<WHOLE>{Provided::CANARY};
-    auto randomness = Configuration::Randomness{Provided::RANDOMNESS};
-    auto [publick, inputs] = library::disassembly(parameters, measurement, randomness);
+    auto parameters = Function::Parameters{};
+    auto measurement = Function::Measurement<WHOLE>{Provided::CANARY};
+    auto randomness = Function::Randomness{Provided::RANDOMNESS};
+    auto [publick, inputs] = Function::disassembly(parameters, measurement, randomness);
     //
     require(ASSERTION, sizeof(publick)); // don't care what it is
 #if 1
@@ -89,10 +98,10 @@ namespace tests::unit::daf::numeric::count {
     using Expected = Fixture::Expected::Computation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto publick = Configuration::Public<SHARE>{};
-    auto input = Configuration::Input<SHARE>{Provided::CANARY};
-    auto output = library::computation(parameters, 0_shard, publick, input);
+    auto parameters = Function::Parameters{};
+    auto publick = Function::Public<SHARE>{};
+    auto input = Function::Input<SHARE>{Provided::CANARY};
+    auto output = Function::computation(parameters, 0_shard, publick, input);
     //
     require(ASSERTION, visit(expected.otreatment, output) == visit(expected.itreatment, input));
   }
@@ -100,9 +109,9 @@ namespace tests::unit::daf::numeric::count {
     using Expected = Fixture::Expected::Amalgamation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
-    auto outputs = Series<Configuration::Output<SHARE>>{};// empty, see?
-    auto amalgamated = library::amalgamation(parameters, outputs);
+    auto parameters = Parameters{};
+    auto outputs = Function::Series<Function::Output<SHARE>>{};// empty, see?
+    auto amalgamated = Function::amalgamation(parameters, outputs);
     require(ASSERTION, Expected::ZERO == visit(expected.treatment, amalgamated));
   } catch (Exception::Invariant const &) {
     require(ASSERTION);
@@ -112,23 +121,23 @@ namespace tests::unit::daf::numeric::count {
     using Expected = Fixture::Expected::Amalgamation;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto outputs = []{
-      auto output = Configuration::Output<SHARE>{Provided::ONE};
-      return Series<Configuration::Output<SHARE>>{output, output, output};
+      auto output = Function::Output<SHARE>{Provided::ONE};
+      return Function::Series<Function::Output<SHARE>>{output, output, output};
     }();
-    auto amalgamated = library::amalgamation(parameters, outputs);
+    auto amalgamated = Function::amalgamation(parameters, outputs);
     require(ASSERTION, Expected::AMALGAMATED == visit(expected.treatment, amalgamated));
   }
   auto Fixture::test_amalgamation_fail() -> void try {
     using Provided = Fixture::Provided::Amalgamation;
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto outputs = []{
-      Configuration::Output<SHARE> outputs[]{Provided::ZERO, Provided::ONE};
-      return Series<Configuration::Output<SHARE>>{outputs[0], outputs[1], outputs[1]};
+      Function::Output<SHARE> outputs[]{Provided::ZERO, Provided::ONE};
+      return Function::Series<Function::Output<SHARE>>{outputs[0], outputs[1], outputs[1]};
     }();
-    library::amalgamation(parameters, outputs);
+    Function::amalgamation(parameters, outputs);
     impossible(ASSERTION);
   } catch (Exception::Invariant const &) {
     require(ASSERTION);
@@ -138,13 +147,13 @@ namespace tests::unit::daf::numeric::count {
     using Expected = Fixture::Expected::Reassembly;
     auto expected = Expected{};
     //
-    auto parameters = Configuration::Parameters{};
+    auto parameters = Function::Parameters{};
     auto aggregations = []{
-      auto aggregation = Configuration::Aggregation<SHARE>{Provided::CANARY};
-      return Shards<Configuration::Aggregation<SHARE>>{aggregation, aggregation};
+      auto aggregation = Function::Aggregation<SHARE>{Provided::CANARY};
+      return Function::Shards<Function::Aggregation<SHARE>>{aggregation, aggregation};
     }();
-    auto records = Records{11}; // this number is irrelevant (unused)
-    auto reassembled = library::reassembly(parameters, aggregations, records);
+    auto processed = Function::Processed{11}; // this number is irrelevant (unused)
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
     //
     require(ASSERTION, Expected::CANARY == visit(expected.treatment, reassembled));
   }
