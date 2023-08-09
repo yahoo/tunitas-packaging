@@ -14,6 +14,7 @@ struct tests::unit::entropy::Fixture : public rigging::suite::Fixture {
   auto test_usage_Device() -> void;
   auto test_usage_None() -> void;
   auto test_usage_Serial() -> void;
+  auto test_usage_Sequence() -> void;
   auto test_usage_Jitter() -> void;
 };
 #endiv
@@ -32,6 +33,8 @@ auto tests::unit::entropy::Fixture::suite() -> Suite {
                        sou << add("Source", &Fixture::test_usage_Source)
                            << add("None", &Fixture::test_usage_None)
                            << add("Serial", &Fixture::test_usage_Serial)
+                           << add("Sequence", &Fixture::test_usage_Sequence)
+                           << add("Jitter", &Fixture::test_usage_Jitter)
                            << END;
                        return sou;
                      }()
@@ -45,6 +48,7 @@ auto tests::unit::entropy::Fixture::suite() -> Suite {
               sou << add<Source<library::Source>>()
                   << add<Source<library::None>>()
                   << add<Source<library::Serial>>()
+                  << add<Source<library::Sequence>>()
                   << END;
               return sou;
             }()
@@ -65,9 +69,10 @@ auto tests::unit::entropy::Fixture::suite() -> Suite {
         << END;
   return settle(series);
 }
-#import tunitas.keyston.entropy.Source
 #import tunitas.keyston.entropy.None
 #import tunitas.keyston.entropy.Serial
+#import tunitas.keyston.entropy.Sequence
+#import tunitas.keyston.entropy.Source
 #import tunitas.keyston.entropy.Jitter
 #import std.views.iota
 #import tunitas.keyston.time.literals
@@ -82,6 +87,10 @@ namespace tests::unit::entropy {
   }
   auto Fixture::test_usage_Serial() -> void {
     auto subject = library::Serial{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Sequence() -> void {
+    auto subject = library::Sequence{};
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_Device() -> void {

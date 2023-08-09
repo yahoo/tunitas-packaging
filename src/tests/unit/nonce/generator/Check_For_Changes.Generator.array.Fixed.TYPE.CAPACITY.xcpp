@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.nonce.generator.Check_For_Changes.template
+#forward tests.unit.nonce.generator.Generator
+namespace tests::unit::nonce::generator {
+  //
+  // assert that there was a change from the previous
+  // [[FIXTHIS]] this is copy-pasta with Check_For_Changes<Generator<octets::Fixed<CAPACITY>>>
+  //
+  template<typename TYPE, Size CAPACITY, required::Entropy ENTROPY> struct Check_For_Changes<library::Generator<array::Fixed<TYPE, CAPACITY>, ENTROPY>>;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::nonce::generator {
+  template<typename TYPE, Size CAPACITY, required::Entropy ENTROPY> struct Check_For_Changes<library::Generator<array::Fixed<TYPE, CAPACITY>, ENTROPY>> {
+    using Subject = library::Generator<array::Fixed<TYPE, CAPACITY>, ENTROPY>;
+    using Result = typename Subject::Result;
+    //
+    static auto check([[inout]] Subject &, Result const &previous) -> void;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.equal
+namespace tests::unit::nonce::generator {
+  template<typename T, Size C, required::Entropy E> auto Check_For_Changes<library::Generator<array::Fixed<T, C>, E>>::check(Subject &subject, Result const &previous) -> void {
+    auto again = subject();
+    auto zero = [&]{ return previous.empty() && again.size() == previous.size(); };
+    auto equal = [&]{ return std::equal(again.begin(), again.end(), previous.begin(), previous.end()); };
+    require(ASSERTION, zero() || !equal());
+  }
+}
+#endiv

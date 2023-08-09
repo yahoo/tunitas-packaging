@@ -6,9 +6,12 @@
 #
 XFAIL_TESTS = \
   $(tests_unit_XFAIL_TESTS) \
+  $(tests_exhibition_XFAIL_TESTS) \
   $(end)
 TESTS = \
   $(tests_unit_TESTS) \
+  $(tests_exhibition_TESTS) \
   $(end)
 #
+include tests/exhibition/Makefrag.am
 include tests/unit/Makefrag.am

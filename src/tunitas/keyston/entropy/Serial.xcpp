@@ -6,15 +6,16 @@
 #divert <fpp>
 namespace tunitas::keyston::entropy {
   //
-  // Not much entroyp at all.
+  // Not much entropy at all.
   //
   // Specification:
   //
+  //   A process-global source of "serial" entropy.
   //   Rhymes with Source but has no entropy
   //
   // Design:
   //
-  //   Some
+  //   Starts at 1; DOES NOT start at 0.
   //
   // Usage:
   //
@@ -24,20 +25,12 @@ namespace tunitas::keyston::entropy {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.time.Clock
-#import nonstd.units.cast
-struct tunitas::keyston::entropy::Serial {
-  using Draw = unsigned int;
-  using Since = time::Clock::duration;
-  inline static constexpr auto const BYTES = Bytes{sizeof(Draw)};
-  inline static constexpr auto const BITS = nonstd::units::cast<Bits>(BYTES);
-  inline auto entropy() const noexcept -> double { return {}; }
-  inline auto draw() -> Draw                     { return ++serial; } // never returns 0
-  inline static auto now() -> Since              { return time::Clock::now().time_since_epoch(); }
+#import tunitas.keyston.entropy.basis.Unsigned
+#import tunitas.keyston.entropy.basis.Timefull
+struct tunitas::keyston::entropy::Serial : public basis::Unsigned, public basis::Timefull {
+  inline auto draw() -> Draw { return ++serial; } // never returns 0
   explicit Serial() = default;
-  Serial(Serial const &) = delete;
-  Serial &operator=(Serial const &) = delete;
-private:
+protected:
   static Draw serial;
 };
 #endiv

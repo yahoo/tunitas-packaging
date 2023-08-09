@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.octets.Fixed
+#import tunitas.keyston.nonce.generator.Generator.template
+namespace tunitas::keyston::nonce::generator {
+  //
+  // Fill up a fixed array of octets.
+  // pesky: octets::Fixed<...> is a descendant of array::Fixed<...> but inheritance doesn't helpu us here.
+  //
+  // The Randomness (subgenerator) models integer::distribution::{required,usage}::Randomness
+  //
+  template<Size CAPACITY, required::Entropy ENTROPY> struct Generator<octets::Fixed<CAPACITY>, ENTROPY>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.integer.traits.SizeOf
+#import tunitas.integer.integers // uint8_t
+namespace tunitas::keyston::nonce::generator {
+  template<Size CAPACITY, required::Entropy ENTROPY> struct Generator<octets::Fixed<CAPACITY>, ENTROPY> {
+    using Entropy = ENTROPY;
+    inline explicit Generator(Entropy &held);
+    using Result = octets::Fixed<CAPACITY>;
+    inline auto operator()() -> Result;
+  protected:
+    entropy::Device<integer::traits::SizeOf<integer::integers::uint8_t>::VALUE.count(), Entropy> device;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::nonce::generator {
+  template<Size C, required::Entropy E> Generator<octets::Fixed<C>, E>::Generator(Entropy &e) : device{e} { }
+  template<Size C, required::Entropy E> auto Generator<octets::Fixed<C>, E>::operator()() -> Result {
+    auto ret = Result{}; // rely upon NRVO
+    for (auto &place : ret) {
+      place = Octet(device.draw()); // narwowing is expected
+    }
+    return ret;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.nonce.usage.Generator
+#import tunitas.keyston.entropy.None
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::nonce;
+    namespace entropy = tunitas::keyston::entropy;
+    namespace usage = tunitas::keyston::nonce::usage;
+    namespace octets = tunitas::keyston::octets;
+    using tunitas::keyston::Octet;;
+    //
+    static_assert(usage::Generator<Generator<octets::Fixed<1>, entropy::None>>);
+  }
+}
+#endiv

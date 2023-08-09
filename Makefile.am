@@ -37,11 +37,13 @@ noinst_LTLIBRARIES = \
   noinst/lib/libautotools-autoconf+tunitas-keyston.la \
   noinst/lib/libfmt+tunitas-keyston.la \
   noinst/lib/libstd+tunitas-keyston.la \
+  noinst/lib/libyaml+tunitas-keyston.la \
   noinst/lib/libtunitas+tunitas-keyston.la \
   noinst/lib/libnonstd+tunitas-keyston.la \
   $(end)
 check_PROGRAMS = \
   check/bin/unit \
+  check/bin/exhibition \
   $(end)
 check_LTLIBRARIES = \
   check/lib/libtests.la \
@@ -78,6 +80,7 @@ DEVELOPMENT_AREAS = \
   $(module_langu_prefix) \
   $(module_nonstd_prefix) \
   $(module_sys_prefix) \
+  $(module_yaml_prefix) \
   $(tunitas_basics_prefix) \
   $(deprecated_DEVELOPMENT_AREAS) \
   $(end)
@@ -90,6 +93,7 @@ INSTALLATION_AREAS = \
   $(nonstd_fmt_prefix) \
   $(nonstd_gcc_prefix) \
   $(nonstd_mdspan_prefix) \
+  $(nonstd_yaml_cpp_prefix) \
   $(std_scold_prefix) \
   $(std_tunitas_prefix) \
   $(deprecated_INSTALLATION_AREAS) \
@@ -103,6 +107,7 @@ clean-dependencies::
 clean-local:: clean-dependencies
 
 include noinst/lib/libapp.am
+include check/bin/exhibition.am
 include check/bin/unit.am
 include check/lib/libtests.am
 include noinst/lib/libwant.am
@@ -110,6 +115,7 @@ include noinst/lib/libtunitas-keyston.am
 include noinst/lib/libautotools-autoconf+tunitas-keyston.am
 include noinst/lib/libfmt+tunitas-keyston.am
 include noinst/lib/libstd+tunitas-keyston.am
+include noinst/lib/libyaml+tunitas-keyston.am
 include noinst/lib/libnonstd+tunitas-keyston.am
 include noinst/lib/libtunitas+tunitas-keyston.am
 include lib/libtunitas-keyston.am

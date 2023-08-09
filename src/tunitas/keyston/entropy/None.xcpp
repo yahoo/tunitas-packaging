@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston::entropy {
   //
-  // No entroyp at all.
+  // No entropy at all.
   //
   // Specification:
   //
@@ -25,19 +25,10 @@ namespace tunitas::keyston::entropy {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.time.Clock
-#import nonstd.units.cast
-struct tunitas::keyston::entropy::None {
-  using Draw = unsigned int;
-  using Since = time::Clock::duration;
-  inline static constexpr auto const BYTES = Bytes{sizeof(Draw)};
-  inline static constexpr auto const BITS = nonstd::units::cast<Bits>(BYTES);
-  inline auto entropy() const noexcept -> double { return {}; }
-  inline auto draw() -> Draw                     { return {}; }
-  inline static auto now() -> Since              { return {}; }
+#import tunitas.keyston.entropy.basis.Unsigned
+#import tunitas.keyston.entropy.basis.Timefull
+struct tunitas::keyston::entropy::None : public basis::Unsigned, public basis::Timefull {
   explicit None() = default;
-  None(None const &) = delete;
-  None &operator=(None const &) = delete;
 };
 #endiv
 #divert <cpp>

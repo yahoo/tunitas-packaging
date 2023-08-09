@@ -35,7 +35,7 @@ namespace tunitas::keyston::integer::package_to_octets {
       //
       //    Setion 2. Conventions and Definitions
       //
-      //   [[recall "Bytes" in the specification's Python != our quantity::Bytes, use Octets instead]]
+      //   [[recall "Bytes" in the specification's Python != our quantity::Bytes; use keyston::Octets instead]]
       //   <quote>
       //     to_be_bytes(val: Unsigned, length: Unsigned) -> Bytes
       //          converts val to big-endian bytes;

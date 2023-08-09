@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/texhibitionas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.texhibitionas.technology/all/components/keyston/tree/LICENSE
+#
+tests_exhibition_inventory_SUBSOURCES = \
+  check/obj/src/tests/exhibition/Inventory.cpp \
+  check/obj/src/tests/exhibition/inventory/namespace.cpp \
+  check/obj/src/tests/exhibition/inventory/Inventory.cpp \
+  check/obj/src/tests/exhibition/inventory/io.cpp \
+  check/obj/src/tests/exhibition/inventory/Recital.template.cpp \
+  check/obj/src/tests/exhibition/inventory/Recital.PRIO.COUNT.cpp \
+  check/obj/src/tests/exhibition/inventory/Recital.PRIO.SUM.cpp \
+  check/obj/src/tests/exhibition/inventory/Recital.PRIO.HISTOGRAM.cpp \
+  check/obj/src/tests/exhibition/inventory/Recital.POPLAR.POPLAR1.cpp \
+  check/obj/src/tests/exhibition/inventory/Recital.POPLAR.DOPLAR.cpp \
+  check/obj/src/tests/exhibition/inventory/Recital.cpp \
+  $(end)

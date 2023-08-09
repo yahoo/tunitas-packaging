@@ -15,9 +15,3 @@ namespace tests {
 #import tunitas.string.View
 #import tunitas.string.Storage
 #endiv
-#divert <hpp>
-#import rigging.ASSERTION
-namespace tests {
-  using rigging::ASSERTION; // anchor for ADL on require(ASSERTION, ...) and impossible(ASSERTION, ...)
-}
-#endiv

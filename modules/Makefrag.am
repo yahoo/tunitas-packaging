@@ -21,6 +21,7 @@ modules_INSTALLABLE_FILES_GENERATED = \
   $(noinst_lib_libstd_tunitas_keyston_la_MODULES) \
   \
   $(noinst_lib_libtunitas_keyston_la_MODULES) \
+  $(noinst_lib_libyaml_tunitas_keyston_la_MODULES) \
   \
   $(NOT_noinst_lib_libwant_la_MODULES) \
   $(end)

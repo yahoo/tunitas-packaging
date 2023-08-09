@@ -17,5 +17,6 @@ namespace tunitas::keyston::entropy {
   using quantity::Bytes;
   namespace [[nodirectory]] is { }
   namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] basis { }
 }
 #endiv

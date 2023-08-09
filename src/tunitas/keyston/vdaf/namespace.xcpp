@@ -5,14 +5,11 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.Transport
 namespace tunitas::keyston::vdaf {
   //
   // Specification:
   //
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-04.html
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
   //   Section 5. Verifiable Distributed Aggregation Functions
   //
   // Design:
@@ -23,8 +20,6 @@ namespace tunitas::keyston::vdaf {
   //
   //   Yes.
   //
-  using enum Transport;
-  namespace [[nodirectory,REMOVETHIS]] components { }
   namespace [[nodirectory]] is { }
   namespace [[nodirectory]] indexed { }
   namespace [[nodirectory]] traits { }

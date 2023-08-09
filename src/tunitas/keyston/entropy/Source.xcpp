@@ -45,18 +45,13 @@ namespace tunitas::keyston::entropy {
 #endiv
 #divert <hpp>
 #import std.random_device
-#import tunitas.keyston.time.Clock
-#import nonstd.units.cast
-class tunitas::keyston::entropy::Source {
+#import tunitas.keyston.entropy.basis.Unsigned
+#import tunitas.keyston.entropy.basis.Timefull
+class tunitas::keyston::entropy::Source : public basis::Unsigned, public basis::Timefull {
   std::random_device the_dev_random_device{};
 public:
-  using Draw = std::random_device::result_type;
-  using Since = std::chrono::nanoseconds;
-  inline static constexpr auto const BYTES = Bytes{sizeof(Draw)};
-  inline static constexpr auto const BITS = nonstd::units::cast<Bits>(BYTES);
   auto entropy() const noexcept -> double { return the_dev_random_device.entropy(); }
   auto draw() -> Draw                     { return the_dev_random_device(); }
-  static auto now() -> Since              { return time::Clock::now().time_since_epoch(); }
   explicit Source() = default;
 };
 #endiv

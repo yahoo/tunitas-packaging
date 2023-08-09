@@ -6,6 +6,8 @@
 #divert <fpp>
 #import tunitas.keyston.Scheme
 #import tunitas.keyston.daf.Name
+#import tunitas.keyston.daf.is.Algorithm
+#include <hpp/tunitas.keyston.daf.is.Algorithm>
 namespace tunitas::keyston::daf::function {
   //
   // The Distributed Aggregation Function Function
@@ -24,7 +26,7 @@ namespace tunitas::keyston::daf::function {
   //
   //   Within Definition<NAME> and Executor<NAME>
   //
-  template<Scheme, Name> struct Function;
+  template<Scheme SCHEME, Name NAME> requires (is::Algorithm<SCHEME, NAME>::value) struct Function;
 }
 #endiv
 #divert <hpp>
@@ -36,5 +38,5 @@ namespace tunitas::keyston::daf::function {
 #import tunitas.keyston.daf.Output
 #import tunitas.keyston.daf.Aggregation
 #import tunitas.keyston.prio.Codec
-#import tunitas.keyston.daf.function.indexed.Name
+#import tunitas.keyston.daf.Definition
 #endiv

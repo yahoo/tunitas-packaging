@@ -5,6 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.nonce.generator.Generator.template
+#import tunitas.keyston.nonce.generator.Generator.array.Fixed.Octet.CAPACITY
+#import tunitas.keyston.nonce.generator.Generator.octets.Fixed.CAPACITY
 #import tunitas.keyston.nonce.generator.Generator.Bits.N
 #import tunitas.keyston.nonce.generator.Generator.Bundle.NONCES
 #import tunitas.keyston.nonce.generator.Generator.Element.ELEMENT

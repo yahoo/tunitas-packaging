@@ -8,8 +8,5 @@
 #import tunitas.keyston.Scheme
 namespace tunitas::keyston::daf::function {
   using enum Scheme;
-  namespace [[nodirectory]] traits { }
-  namespace [[nodirectory]] is { }
-  namespace [[nodirectory]] indexed { }
 }
 #endiv

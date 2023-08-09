@@ -13,6 +13,7 @@ namespace tests::unit::entropy {
 #import tunitas.keyston.entropy.Source
 #import tunitas.keyston.entropy.None
 #import tunitas.keyston.entropy.Serial
+#import tunitas.keyston.entropy.Sequence
 #import tunitas.keyston.entropy.Device
 namespace tests::unit {
   template<entropy::required::Entropy SUBJECT> struct entropy::Source : public rigging::suite::Fixture {
@@ -21,6 +22,7 @@ namespace tests::unit {
     using Subject = SUBJECT;
     static_assert(std::same_as<Subject, library::Source> ||
                   std::same_as<Subject, library::None> ||
+                  std::same_as<Subject, library::Sequence> ||
                   std::same_as<Subject, library::Serial>);
     //
     auto test_constructor_default() -> void;

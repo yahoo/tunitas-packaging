@@ -46,6 +46,7 @@ namespace tunitas::keyston {
 }
 #endiv
 #divert <ipp>
+#import tunitas.array.Fixed
 #import tunitas.keyston.exception.Bound
 #import tunitas.keyston.octets.Variable
 #import std.copy

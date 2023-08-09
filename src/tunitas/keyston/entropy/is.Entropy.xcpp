@@ -5,6 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #forward tunitas.keyston.entropy.Source
+#forward tunitas.keyston.entropy.Sequence
 #forward tunitas.keyston.entropy.Serial
 #forward tunitas.keyston.entropy.None
 namespace tunitas::keyston::entropy::is {
@@ -15,6 +16,7 @@ namespace tunitas::keyston::entropy::is {
   //
   template<typename> struct Entropy;
   template<> struct Entropy<Source>;
+  template<> struct Entropy<Sequence>;
   template<> struct Entropy<Serial>;
   template<> struct Entropy<None>;
 }
@@ -25,9 +27,10 @@ namespace tunitas::keyston::entropy::is {
 namespace tunitas::keyston::entropy {
   template<typename> struct is::Entropy : public std::false_type { };
   namespace is {
-    template<> struct Entropy<Source> : public std::true_type { };
-    template<> struct Entropy<Serial> : public std::true_type { };
-    template<> struct Entropy<None> : public std::true_type { };
+    template<> struct Entropy<Source>   : public std::true_type { };
+    template<> struct Entropy<Sequence> : public std::true_type { };
+    template<> struct Entropy<Serial>   : public std::true_type { };
+    template<> struct Entropy<None>     : public std::true_type { };
   }
 }
 #endiv

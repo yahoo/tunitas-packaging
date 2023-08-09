@@ -9,3 +9,9 @@ namespace tests::fixture {
   namespace [[nodirectory]] generic { }
 }
 #endiv
+#divert <hpp>
+#import rigging.ASSERTION
+namespace tests::fixture {
+  using rigging::ASSERTION; // enable require(ASSERTION< ...) by ADL
+}
+#endiv

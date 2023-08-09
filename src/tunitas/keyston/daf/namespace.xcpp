@@ -5,14 +5,11 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.Transport
 namespace tunitas::keyston::daf {
   //
   // Specification:
   //
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-03.html
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-04.html
-  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-06.html
   //   Section 4. Distributed Aggregation Functions
   //
   // Design:
@@ -23,7 +20,9 @@ namespace tunitas::keyston::daf {
   //
   //   Yes.
   //
-  using enum Transport;
+  namespace [[nodirectory]] is { }
+  namespace [[nodirectory]] indexed { }
+  namespace [[nodirectory]] traits { }
 }
 #import tunitas.keyston.Slice
 #endiv

@@ -7,7 +7,9 @@
 tunitas_keyston_daf_SUBSOURCES = \
   obj/src/tunitas/keyston/daf/namespace.cpp \
   obj/src/tunitas/keyston/daf/constants.cpp \
+  obj/src/tunitas/keyston/daf/is.Algorithm.cpp \
   obj/src/tunitas/keyston/daf/Name.cpp \
+  obj/src/tunitas/keyston/daf/Definition.cpp \
   obj/src/tunitas/keyston/daf/Parameters.cpp \
   obj/src/tunitas/keyston/daf/Measurement.cpp \
   obj/src/tunitas/keyston/daf/Public.cpp \

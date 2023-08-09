@@ -10,8 +10,12 @@ tunitas_keyston_entropy_SUBSOURCES = \
   obj/src/tunitas/keyston/entropy/Device.cpp \
   obj/src/tunitas/keyston/entropy/Limits.cpp \
   obj/src/tunitas/keyston/entropy/Source.cpp \
+  obj/src/tunitas/keyston/entropy/basis.Unsigned.cpp \
+  obj/src/tunitas/keyston/entropy/basis.Timeless.cpp \
+  obj/src/tunitas/keyston/entropy/basis.Timefull.cpp \
   obj/src/tunitas/keyston/entropy/None.cpp \
   obj/src/tunitas/keyston/entropy/Serial.cpp \
+  obj/src/tunitas/keyston/entropy/Sequence.cpp \
   obj/src/tunitas/keyston/entropy/Jitter.cpp \
   $(tunitas_keyston_entropy_required_SUBSOURCES) \
   $(tunitas_keyston_entropy_usage_SUBSOURCES) \

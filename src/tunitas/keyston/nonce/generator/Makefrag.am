@@ -13,6 +13,8 @@ tunitas_keyston_nonce_generator_SUBSOURCES = \
   obj/src/tunitas/keyston/nonce/generator/Generator.Element.ELEMENT.cpp \
   obj/src/tunitas/keyston/nonce/generator/Generator.Unsigned.UNSIGNED.cpp \
   obj/src/tunitas/keyston/nonce/generator/Generator.Since.PRECISION.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.array.Fixed.Octet.CAPACITY.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.octets.Fixed.CAPACITY.cpp \
   obj/src/tunitas/keyston/nonce/generator/Generator.cpp \
   \
   obj/src/tunitas/keyston/nonce/generator/Randomness.template.cpp \

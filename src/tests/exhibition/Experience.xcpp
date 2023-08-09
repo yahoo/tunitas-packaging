@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::exhibition {
+  //
+  // The UX experience
+  //
+  // Specification:
+  //
+  //   like cli::experience::Console which isn't yet available in the tunitas::application system
+  //
+  // Design:
+  //
+  //   Make it look and feel like that.
+  //
+  // Usage:
+  //
+  //   [[deprecating]]
+  //   auto program = Program{...somehow...};
+  //   auto exp = Experience{program}
+  //   auto &cfg = exp;
+  //   
+  //   [[aspirationally, TODO]]
+  //   auto program = Program{...somehow...};
+  //   auto cfg = Configuration{};
+  //   auto exp = Experience{move(program), cfg};
+  //   
+  //   [[continued]]
+  //   verbose(exp) << "loudly!";
+  //   notice(exp) << "notice me!";
+  //   warning(exp) << "should not";
+  //   error(exp) << "must not";
+  //
+  struct Experience;
+}
+#endiv
+#divert <hpp>
+#import tests.exhibition.Configuration // [[TODO, FIXTHIS]] replace this with cli::experience::Console when appropriate
+struct tests::exhibition::Experience : public Configuration {
+  using Configuration::Configuration;
+};
+#endiv

@@ -16,7 +16,7 @@ namespace tests::unit::nonce {
     //
     template<required::Nonce NONCE> auto test_usage_Generator() -> void;
   protected:
-    // We must use Serial here because the usage tests check that the generated value changes
+    // We must use Serial here because the usage tests check that the generated value changes in check_for_changes(...)
     using Entropy = ::tunitas::keyston::entropy::Serial;
     Entropy source{};
   };
@@ -27,14 +27,14 @@ namespace tests::unit::nonce {
 #endiv
 #divert <tpp>
 #import tunitas.keyston.nonce.generator.Generator
+#import tests.unit.nonce.generator.Check_For_Changes
 namespace tests::unit::nonce::generator {
   template<required::Nonce NONCE> auto Fixture::test_usage_Generator() -> void {
     using Subject = library::Generator<NONCE, Entropy>;
     auto subject = Subject{source};
     // We'll test the non-zero values in and aroundx Generator<Subject>
-    auto got1 = subject();
-    auto got2 = subject();
-    require(ASSERTION, got1 != got2);
+    auto got = subject();
+    Check_For_Changes<Subject>::check(subject, got);
   }
 }
 #endiv
@@ -48,6 +48,8 @@ namespace tests::unit::nonce::generator {
 #import tunitas.keyston.nonce.Since
 #import tunitas.keyston.integer
 #import tunitas.keyston.field.Element
+#import tunitas.array.Fixed
+#import tunitas.keyston.octets.Fixed
 auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
   auto series = Stream{"Generator"sv};
   series << []{
@@ -58,6 +60,8 @@ auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
                   << add("Since<seconds>,Bits<4>", &Fixture::test_usage_Generator<noncelib::Bundle<noncelib::Since<Seconds>, noncelib::Bits<64>>>)
                   << add("Unsigned<uint128_t>", &Fixture::test_usage_Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint128_t>>)
                   << add("Element<128>", &Fixture::test_usage_Generator<noncelib::Element<::tunitas::keyston::field::Element<128>>>)
+                  << add("array::Fixed<Octet, 123>", &Fixture::test_usage_Generator<array::Fixed<Octet, 123>>)
+                  << add("octets::Fixed<321>", &Fixture::test_usage_Generator<octets::Fixed<321>>)
                   << END;
               return use;
             }()
@@ -65,6 +69,22 @@ auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
          << add<generator::Generator<library::Generator<noncelib::Since<Seconds>, Entropy>>>()
          << add<generator::Generator<library::Generator<noncelib::Bundle<noncelib::Bits<32>, noncelib::Since<Seconds>>, Entropy>>>()
          << add<generator::Generator<library::Generator<noncelib::Bundle<noncelib::Since<Seconds>, noncelib::Bits<64>>, Entropy>>>()
+         << []{
+              auto oct = Stream{"array-of-octets"sv};
+              oct << add<generator::Generator<library::Generator<array::Fixed<Octet, 0>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<array::Fixed<Octet, 1>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<array::Fixed<Octet, 10>, Entropy>>>()
+                  << END;
+              return oct;
+         }()
+         << []{
+              auto oct = Stream{"octets"sv};
+              oct << add<generator::Generator<library::Generator<octets::Fixed<0>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<octets::Fixed<1>, Entropy>>>()
+                  << add<generator::Generator<library::Generator<octets::Fixed<10>, Entropy>>>()
+                  << END;
+              return oct;
+         }()
          << []{
               auto uns = Stream{"Unsigned"sv};
               uns << add<generator::Generator<library::Generator<noncelib::Unsigned<::tunitas::keyston::integer::uint64_t>, Entropy>>>()
@@ -84,16 +104,14 @@ auto tests::unit::nonce::generator::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
+#import tests.unit.nonce.generator.Check_For_Changes
 namespace tests::unit::nonce::generator {
   template<> auto Fixture::test_usage_Generator<noncelib::Since<Palette::Seconds>>() -> void {
     using Subject = library::Generator<noncelib::Since<Seconds>, Entropy>;
-    auto subject = Subject{source};
-    // We'll test the non-zero values in and aroundx Generator<Subject>
-    auto got1 = subject();
-    if (Palette::delay<Seconds>()) {
-      auto got2 = subject();
-      require(ASSERTION, got1 != got2);
-    }
+     auto subject = Subject{source};
+    // We'll test the non-zero values in and around Generator<Subject>
+    auto got = subject();
+    Check_For_Changes<Subject>::check(subject, got);
   }
 }
 #endiv

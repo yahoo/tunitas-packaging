@@ -1,3 +1,4 @@
 .libs
 !*.am
+exhibition
 unit

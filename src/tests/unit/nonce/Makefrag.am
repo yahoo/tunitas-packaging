@@ -14,6 +14,7 @@ tests_unit_nonce_SUBSOURCES = \
   check/obj/src/tests/unit/nonce/since.Since.cpp \
   check/obj/src/tests/unit/nonce/bundle.Fixture.cpp \
   check/obj/src/tests/unit/nonce/bundle.Bundle.cpp \
-  check/obj/src/tests/unit/nonce/generator.Fixture.cpp \
-  check/obj/src/tests/unit/nonce/generator.Generator.cpp \
+  $(tests_unit_nonce_generator_SUBSOURCES) \
   $(end)
+#
+include src/tests/unit/nonce/generator/Makefrag.am

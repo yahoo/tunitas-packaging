@@ -6,9 +6,7 @@
 #divert <fpp>
 #import tests.unit
 #import tunitas.keyston.nonce
-#import tunitas.keyston.nonce.generator
 #import tunitas.keyston.nonce.required
-#import std.size_t
 namespace tests::unit::nonce {
   namespace library = ::tunitas::keyston::nonce;
   namespace required = ::tunitas::keyston::nonce::required;
@@ -16,9 +14,5 @@ namespace tests::unit::nonce {
   namespace [[nodirectory]] bits { }
   namespace [[nodirectory]] since { }
   namespace [[nodirectory]] bundle { }
-  namespace [[nodirectory]] generator {
-    namespace library = tunitas::keyston::nonce::generator;
-    namespace noncelib = tunitas::keyston::nonce;
-  }
 }
 #endiv

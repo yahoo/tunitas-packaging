@@ -24,6 +24,7 @@ namespace tunitas::keyston::entropy::required {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.entropy.Source
+#import tunitas.keyston.entropy.Sequence
 #import tunitas.keyston.entropy.Serial
 #import tunitas.keyston.entropy.None
 namespace {
@@ -31,6 +32,7 @@ namespace {
     namespace required = tunitas::keyston::entropy::required;
     using namespace tunitas::keyston::entropy;
     static_assert(required::Entropy<Source>);
+    static_assert(required::Entropy<Sequence>);
     static_assert(required::Entropy<Serial>);
     static_assert(required::Entropy<None>);
   }

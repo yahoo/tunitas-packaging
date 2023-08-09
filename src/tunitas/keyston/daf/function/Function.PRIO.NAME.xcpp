@@ -35,7 +35,7 @@ namespace tunitas::keyston::daf::function {
   template<Name NAME> class Function<PRIO, NAME> : public Prototype {
     using Ancestor = Prototype;
   protected:
-    using Codec = prio::Codec<indexed::Name<NAME>::PRIO>;
+    using Codec = prio::Codec<Definition<NAME>::PRIO>;
     using Encoded = typename Codec::Encoded;
     using Field = typename Codec::Field;
   public:

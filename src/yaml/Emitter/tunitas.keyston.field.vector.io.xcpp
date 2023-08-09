@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import yaml.Emitter
+#forward tunitas.keyston.field.vector.Fixed
+#forward tunitas.keyston.field.required.Element
+#import std.size_t
+namespace YAML {
+  // follow https://github.com/jbeder/yaml-cpp/wiki/How-To-Emit-YAML STL Containers and Other Overloads
+  template<tunitas::keyston::field::required::Element ELEMENT, std::size_t DIMENSIONS> inline auto operator<<(Emitter &, tunitas::keyston::field::vector::Fixed<ELEMENT, DIMENSIONS> const &) -> Emitter &;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.field.vector.Fixed
+#import yaml.Emitter.tunitas.keyston.field.io
+template<tunitas::keyston::field::required::Element ELEMENT, std::size_t DIMENSIONS> auto YAML::operator<<(Emitter &e, tunitas::keyston::field::vector::Fixed<ELEMENT, DIMENSIONS> const &v) -> Emitter & {
+  e << yaml::BeginSeq;
+  for (auto const &each : v) {
+    e << each;
+  }
+  e << yaml::EndSeq;
+  return e;
+}
+#endiv

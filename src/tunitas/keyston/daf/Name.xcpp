@@ -46,13 +46,10 @@ namespace tunitas::keyston::daf {
   //  You need a tutorial on how to use an enum (class)? o.rly?
   //
   enum class Name : std::uint32_t {
-    COUNT = 0x00000000,
-    //
-    SUM = 0x00000001,
-    //
-    HISTOGRAM = 0x00000002,
-    //
-    POPULARITY = 0x00001000,
+    COUNT      = 0x0000'0000,
+    SUM        = 0x0000'0001,
+    HISTOGRAM  = 0x0000'0002,
+    POPULARITY = 0x0000'1000,
     //
     // As known herein.
     ZERO = 0xffff0000u, // ... the zero function

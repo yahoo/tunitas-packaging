@@ -30,7 +30,7 @@ namespace tunitas::keyston::measurement {
 #divert <hpp>
 #import std.underlying_type
 #import std.strong_ordering
-#import tunitas.keyston.formatter.Formatter
+#forward tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston::measurement {
   inline constexpr auto underlying(Specimen c) { return std::underlying_type_t<Specimen>(c); }
   inline auto swap(Specimen &a, Specimen &b) noexcept -> void { std::swap(a, b); }
@@ -39,6 +39,7 @@ namespace tunitas::keyston::measurement {
 }
 #endiv
 #divert <ipp>
+#import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston {
   auto measurement::format(Specimen item) -> formatter::Formatter<Specimen> { return {item}; }
 }

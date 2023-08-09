@@ -180,32 +180,7 @@ namespace tunitas::keyston::vdaf::function {
     }
   }
   template<Name NAME> auto Function<PRIO, NAME>::disassembly(Parameters const &parameters, Input<WHOLE> const &input, typename Nonce::View::Fixed nonce, typename Randomness::View::Fixed randomness) -> Disassembled { 
-#if 1
     return prio::disassembly<typename Definition::Predefinition>(input, nonce, randomness);
-#else
-    constexpr auto VARIANT = Definition::PRIO;
-#if 1
-    if constexpr (prio::Name::HISTOGRAM == VARIANT) {
-      return prio::disassembly<typename Definition::Predefinition>(input.specimen, parameters.boundaries.value(), nonce, randomness);
-    } else {
-      return prio::disassembly<typename Definition::Predefinition>(input.specimen, nonce, randomness);
-    }
-#else
-    auto reformat = [](auto splat) -> Disassembled {
-      auto &[publick, inputs] = splat;
-      return [&]<Index... INDEX>(sequence::Sequence::Pack<INDEX...>) -> Disassembled {
-        // This is a hack to reflow the constructors against the octets::Variable structures which were produced by prio::disassembly<...>(...)
-         return {Public{move(publick)}, Shards<Input<SHARE>>{typename Shards<Input<SHARE>>::Inplace{}, move(inputs.at(Shard{INDEX}))...}};
-      }(sequence::Sequence::make<shards::SHARD_COUNT.count()>());
-    };
-    if constexpr (prio::Name::HISTOGRAM == VARIANT) {
-      // yes, this is quirky and ugly, but what are we to do?   the parameters.boundaries are only used with histogram to cut up the specimen
-      return reformat(prio::disassembly<typename Definition::Predefinition>(input.specimen, parameters.boundaries.value(), nonce, randomness));
-    } else {
-      return reformat(prio::disassembly<typename Definition::Predefinition>(input.specimen, nonce, randomness));
-    }
-#endif
-#endif
   }
   template<Name _> auto Function<PRIO, _>::initialization(Parameters const &, typename Verify_Key::View::Fixed verify_key, Shard shard, typename Nonce::View::Fixed nonce, Public const &publick, Input<SHARE> const &input) -> State<SHARE> {
     // Section 7.2.2 Preparation (prep_init, as modified)

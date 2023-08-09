@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import yaml.Emitter
+#forward tunitas.array.Fixed
+#forward tunitas.array.Variable
+#forward tunitas.keyston // for Octet
+#import std.size_t
+namespace YAML {
+  // This overload is (these overloads are necessary because it occludes the earlier operator<< against std::vector or such that is provided by yaml_cpp (we don't want that behavior here)
+  //
+  // follow https://github.com/jbeder/yaml-cpp/wiki/How-To-Emit-YAML STL Containers and Other Overloads
+  inline auto operator<<(Emitter &, tunitas::array::Variable<tunitas::keyston::Octet> const &) -> Emitter &;
+  template<std::size_t CAPACITY> inline auto operator<<(Emitter &, tunitas::array::Fixed<tunitas::keyston::Octet, CAPACITY> const &) -> Emitter &;
+  template<typename TYPE> inline auto operator<<(Emitter &, tunitas::array::Variable<TYPE> const &) -> Emitter &;
+  template<typename TYPE, std::size_t CAPACITY> inline auto operator<<(Emitter &, tunitas::array::Fixed<TYPE, CAPACITY> const &) -> Emitter &;
+}
+#endiv
+#divert <ipp>
+#import tunitas.array.Fixed
+#import tunitas.array.Variable
+#import tunitas.keyston.octets.to_hexidecimal
+#import yaml.Emitter.tunitas.view.io
+/* ....................................... */ auto YAML::operator<<(Emitter &e, tunitas::array::Variable<tunitas::keyston::Octet> const &a)        -> Emitter & { return e << tunitas::keyston::octets::to_hexidecimal(a); }
+/* ........ */ template<std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::array::Fixed<tunitas::keyston::Octet, CAPACITY> const &a) -> Emitter & { return e << tunitas::keyston::octets::to_hexidecimal(a); }
+/* ................ */template<typename TYPE> auto YAML::operator<<(Emitter &e, tunitas::array::Variable<TYPE> const &a)                           -> Emitter & { return e << static_cast<tunitas::view::Variable<TYPE>>(a); }
+template<typename TYPE, std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::array::Fixed<TYPE, CAPACITY> const &a)                    -> Emitter & { return e << static_cast<tunitas::view::Fixed<TYPE, CAPACITY>>(a); }
+#endiv

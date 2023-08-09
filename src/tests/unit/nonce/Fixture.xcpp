@@ -18,6 +18,7 @@ struct tests::unit::nonce::Fixture : public rigging::suite::Fixture, protected P
   auto test_usage_Since() -> void;
   auto test_usage_Unsigned() -> void;
   auto test_usage_Element() -> void;
+  auto test_usage_once() -> void;
   //
   auto test_usage_Bundle_Bits() -> void;
   auto test_usage_Bundle_Since() -> void;
@@ -80,6 +81,7 @@ auto tests::unit::nonce::Fixture::suite() -> Suite {
                            << END;
                        return gen;
                      }()
+                  << add("Element", &Fixture::test_usage_once)
                   << END;
               return use;
             }()
@@ -90,13 +92,17 @@ auto tests::unit::nonce::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
+#import tunitas.keyston.entropy.Sequence
 #import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.nonce.Since
 #import tunitas.keyston.nonce.Unsigned
 #import tunitas.keyston.nonce.Element
 #import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.nonce.once
 #import tunitas.keyston.integer
 #import tunitas.keyston.field.Element
+#import tunitas.array.Fixed
+#import tunitas.keyston // for Octet
 namespace tests::unit::nonce {
   auto Fixture::test_usage_Bits() -> void {
     auto subject = library::Bits<64>{};
@@ -163,6 +169,17 @@ namespace tests::unit::nonce {
   auto Fixture::test_usage_Generator_Bundle_Since_Bits() -> void {
     auto specimen = library::Generator<library::Bundle<library::Bits<4>, library::Since<Microseconds>>, Entropy>{source}();
     require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_once() -> void {
+    constexpr auto const SIZE = 10uz;
+    using ::tunitas::keyston::Octet;
+    auto got = library::once<::tunitas::array::Fixed<Octet, SIZE>, ::tunitas::keyston::entropy::Sequence>();
+    std::uint8_t ith{};
+    for (auto each : got) {
+      // check for the sequentiality
+      require(ASSERTION, Octet{ith++} == each); // rollover is expected
+    }
+    require(ASSERTION, SIZE == ith);
   }
 }
 #endiv

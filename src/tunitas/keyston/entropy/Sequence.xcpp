@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::entropy {
+  //
+  // Not much entropy at all.
+  //
+  // Specification:
+  //
+  //   a class-local sequential draw (number)
+  //   Rhymes with Source but has no entropy
+  //
+  // Design:
+  //
+  //   Starts at zero (0); DOES NOT start at 1.
+  //   Starting at zero is needed for the test vector generators specified in the appendix at:
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-test-vectors
+  //
+  // Usage:
+  //
+  //   Some.   Er ... maybe for testing.
+  // 
+  struct Sequence;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.entropy.basis.Unsigned
+#import tunitas.keyston.entropy.basis.Timefull
+struct tunitas::keyston::entropy::Sequence : public basis::Unsigned, public basis::Timefull {
+  inline auto draw() -> Draw { return sequence++; } // returns 0 on the first call
+  explicit Sequence() = default;
+protected:
+  Draw sequence{};
+};
+#endiv
+#import tunitas.keyston.entropy.usage.Entropy
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::entropy::usage;
+    using tunitas::keyston::entropy::Sequence;
+    static_assert(usage::Entropy<Sequence>);
+  }
+}
+#endiv

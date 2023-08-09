@@ -15,6 +15,7 @@ struct tests::unit::octets::Fixture : public rigging::suite::Fixture, protected 
   auto test_usage_Span() -> void;
   auto test_usage_Variable() -> void;
   template<Size> auto test_usage_Fixed() -> void;
+  auto test_usage_to_hexidecimal() -> void;
 };
 #endiv
 #divert <tpp>
@@ -55,6 +56,7 @@ auto tests::unit::octets::Fixture::suite() -> Suite {
                           << END;
                       return fix;
                     }()
+                 << add("to_hexidecimal", &Fixture::test_usage_to_hexidecimal)
                  << END;
              return use;
           }()
@@ -83,6 +85,7 @@ auto tests::unit::octets::Fixture::suite() -> Suite {
 #import tunitas.keyston.octets.View
 #import tunitas.keyston.octets.Span
 #import tunitas.keyston.octets.Variable
+#import tunitas.keyston.octets.to_hexidecimal
 namespace tests::unit::octets {
   auto Fixture::test_usage_View() -> void {
     using Subject = library::View;
@@ -101,6 +104,27 @@ namespace tests::unit::octets {
     using Subject = library::Variable;
     auto subject = Subject{};
     require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_to_hexidecimal() -> void {
+    using Specimen = library::Variable;
+    auto specimen = []{
+      auto ret = Specimen(256, Specimen::Value{});
+      auto ith{0u};
+      for (auto &each : ret) {
+        each = Specimen::Value(ith++);
+      }
+      return ret;
+    }();
+    require(ASSERTION, 256 == specimen.size());
+    auto hex = library::to_hexidecimal(specimen);
+    require(ASSERTION, 512 == hex.size());
+    require(ASSERTION, '0' == hex.at(0));
+    require(ASSERTION, '0' == hex.at(1));
+    require(ASSERTION, '0' == hex.at(2));
+    require(ASSERTION, '1' == hex.at(3));
+    require(ASSERTION, '0' == hex.at(4));
+    require(ASSERTION, '2' == hex.at(5));
+    // and we're willing to believe the rest are correct
   }
 }
 #endiv

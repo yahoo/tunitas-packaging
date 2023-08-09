@@ -18,9 +18,14 @@ namespace {
   namespace testate {
     namespace required = tunitas::keyston::nonce::required;
     using namespace tunitas::integer::integers;
+    using tunitas::keyston::nonce::Unsigned;
     //
     static_assert(!required::Unsigned<uint8_t>);
+    static_assert(!required::Unsigned<Unsigned<uint8_t>>);
+    //
     static_assert(!required::Unsigned<uint16_t>);
+    static_assert(!required::Unsigned<Unsigned<uint16_t>>);
+    //
     static_assert(!required::Unsigned<uint32_t>);
     static_assert(!required::Unsigned<uint64_t>);
     static_assert(!required::Unsigned<uint128_t>);

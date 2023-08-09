@@ -52,6 +52,7 @@ TF_WITH_MODULE([fmt])
 TF_WITH_MODULE([langu])
 TF_WITH_MODULE([nonstd])
 TF_WITH_MODULE([sys])
+TF_WITH_MODULE([yaml])
 TF_WITH_MODULE([rigging-core])
 
 dnl deprecating (being subsumed by the above)
@@ -66,6 +67,7 @@ TF_WITH_NONSTD([boost])
 TF_WITH_NONSTD([cppunit])
 TF_WITH_NONSTD([fmt])
 TF_WITH_NONSTD([gcc]) dnl but modern gcc-12 & beyond is fine
+TF_WITH_NONSTD([yaml_cpp])
 
 AC_PREREQ([2.71])
 LT_PREREQ([2.4.7])

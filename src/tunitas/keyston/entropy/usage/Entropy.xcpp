@@ -13,7 +13,6 @@ namespace tunitas::keyston::entropy::usage {
   // Is this type an entropy source?
   //
   // You will need the complete type of the entropy source to make the determination
-  // [[MAYBE]] move this to usage::Entropy
   //
   // Usage:
   //
@@ -49,6 +48,7 @@ namespace tunitas::keyston::entropy::usage {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.entropy.Source
+#import tunitas.keyston.entropy.Sequence
 #import tunitas.keyston.entropy.Serial
 #import tunitas.keyston.entropy.None
 namespace {
@@ -56,6 +56,7 @@ namespace {
     namespace usage = tunitas::keyston::entropy::usage;
     using namespace tunitas::keyston::entropy;
     static_assert(usage::Entropy<Source>);
+    static_assert(usage::Entropy<Sequence>);
     static_assert(usage::Entropy<Serial>);
     static_assert(usage::Entropy<None>);
   }
