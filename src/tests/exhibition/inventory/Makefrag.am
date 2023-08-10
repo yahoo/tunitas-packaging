@@ -9,11 +9,4 @@ tests_exhibition_inventory_SUBSOURCES = \
   check/obj/src/tests/exhibition/inventory/namespace.cpp \
   check/obj/src/tests/exhibition/inventory/Inventory.cpp \
   check/obj/src/tests/exhibition/inventory/io.cpp \
-  check/obj/src/tests/exhibition/inventory/Recital.template.cpp \
-  check/obj/src/tests/exhibition/inventory/Recital.PRIO.COUNT.cpp \
-  check/obj/src/tests/exhibition/inventory/Recital.PRIO.SUM.cpp \
-  check/obj/src/tests/exhibition/inventory/Recital.PRIO.HISTOGRAM.cpp \
-  check/obj/src/tests/exhibition/inventory/Recital.POPLAR.POPLAR1.cpp \
-  check/obj/src/tests/exhibition/inventory/Recital.POPLAR.DOPLAR.cpp \
-  check/obj/src/tests/exhibition/inventory/Recital.cpp \
   $(end)

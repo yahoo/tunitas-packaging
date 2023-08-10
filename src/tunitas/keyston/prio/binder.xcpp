@@ -4,51 +4,30 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-namespace tunitas::keyston::prio {
-  //
-  // the binder can represent the "no binder" condition.
-  //
-  // Specification:
-  //
-  //   An anchor for ADL.
-  //
-  // Usage:
-  //
-  //   binder(Binder:NOSHARD));
-  //
-  class Binder;
-}
-#endiv
 #divert <hpp>
 #import tunitas.array.Fixed
 #import tunitas.view.Fixed
 #import tunitas.keyston.Shard
-namespace tunitas::keyston {
-  struct prio::Binder {
-    enum Noshard { NOSHARD, JOINT = NOSHARD };
-    [[implicit]] constexpr Binder(Noshard) : code{0u} { }
-    [[implicit]] constexpr Binder(Shard s) : code{static_cast<Octet>(1u+underlying(s))} { }
-    Octet code{};
-  };
-  namespace prio {
-    //
-    // Compute the binder for the seed synthesis [Amplifier::derive_seed(...)]
-    //
-    inline constexpr auto binder() -> array::Fixed<Octet, 0uz> { return {}; }
-    inline constexpr auto binder(Binder) -> array::Fixed<Octet, 1uz>;
-    //
-    // reminder: cannot do template argument inference and salso implicit conversion in the same step
-    template<Size NONCE> inline constexpr auto binder(Binder, view::Fixed<Octet, NONCE>) -> array::Fixed<Octet, 1uz+NONCE>;
-    template<Size NONCE, Size ENCODED> inline constexpr auto binder(Binder, view::Fixed<Octet, NONCE>, view::Fixed<Octet, ENCODED>) -> array::Fixed<Octet, 1uz+NONCE+ENCODED>;
-    template<Size NONCE, Size ENCODED> inline constexpr auto binder(Binder b, view::Fixed<Octet, NONCE> n, array::Fixed<Octet, ENCODED> const &a) -> array::Fixed<Octet, 1uz+NONCE+ENCODED> { return binder(b, n, static_cast<view::Fixed<Octet, ENCODED>>(a)); }
-  }
+namespace tunitas::keyston::prio {
+  //
+  // Compute the binder for the seed synthesis [Amplifier::derive_seed(...)]
+  // The binder can represent the "vacuous binder" condition.
+  //
+  inline constexpr auto binder() -> array::Fixed<Octet, 0uz> { return {}; }
+  inline constexpr auto binder(Shard s) -> array::Fixed<Octet, 1uz>;
+  //
+  // reminder: cannot do template argument inference and also implicit conversion in the same step
+  template<Size NONCE> inline constexpr auto binder(view::Fixed<Octet, NONCE>) -> array::Fixed<Octet, NONCE>;
+  template<Size NONCE> inline constexpr auto binder(array::Fixed<Octet, NONCE> const &n) -> array::Fixed<Octet, NONCE> { return binder(static_cast<view::Fixed<Octet, NONCE>>(n)); }
+  template<Size NONCE, Size ENCODED> inline constexpr auto binder(Shard, view::Fixed<Octet, NONCE>, view::Fixed<Octet, ENCODED>) -> array::Fixed<Octet, 1uz+NONCE+ENCODED>;
+  template<Size NONCE, Size ENCODED> inline constexpr auto binder(Shard s, view::Fixed<Octet, NONCE> n, array::Fixed<Octet, ENCODED> const &a) -> array::Fixed<Octet, 1uz+NONCE+ENCODED> { return binder(s, n, static_cast<view::Fixed<Octet, ENCODED>>(a)); }
 }
 #endiv
 #divert <ipp>
 #import tunitas.keyston.octets.concatenate
 namespace tunitas::keyston {
-  constexpr auto prio::binder(Binder b)                                                                                                          -> array::Fixed<Octet, 1uz>               { return {array::Fixed<Octet, 1uz>::Inplace{}, b.code}; }
-  template<Size NONCE> constexpr auto prio::binder(Binder b, view::Fixed<Octet, NONCE> nonce)                                                    -> array::Fixed<Octet, 1uz+NONCE>         { return octets::concatenate(binder(b), nonce); }
-  template<Size NONCE, Size ENCODED> constexpr auto prio::binder(Binder b, view::Fixed<Octet, NONCE> nonce, view::Fixed<Octet, ENCODED> encoded) -> array::Fixed<Octet, 1uz+NONCE+ENCODED> { return octets::concatenate(binder(b), nonce, encoded); }
+  constexpr auto prio::binder(Shard s)                                                                                                          -> array::Fixed<Octet, 1uz>               { return {array::Fixed<Octet, 1uz>::Inplace{}, static_cast<Octet>(s)}; }
+  template<Size NONCE> constexpr auto prio::binder(view::Fixed<Octet, NONCE> nonce)                                                             -> array::Fixed<Octet, NONCE>             { return octets::concatenate(nonce); }
+  template<Size NONCE, Size ENCODED> constexpr auto prio::binder(Shard s, view::Fixed<Octet, NONCE> nonce, view::Fixed<Octet, ENCODED> encoded) -> array::Fixed<Octet, 1uz+NONCE+ENCODED> { return octets::concatenate(binder(s), nonce, encoded); }
 }
 #endiv

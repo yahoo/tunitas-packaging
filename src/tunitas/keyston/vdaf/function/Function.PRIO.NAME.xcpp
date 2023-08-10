@@ -184,6 +184,7 @@ namespace tunitas::keyston::vdaf::function {
   }
   template<Name _> auto Function<PRIO, _>::initialization(Parameters const &, typename Verify_Key::View::Fixed verify_key, Shard shard, typename Nonce::View::Fixed nonce, Public const &publick, Input<SHARE> const &input) -> State<SHARE> {
     // Section 7.2.2 Preparation (prep_init, as modified)
+    static_assert(Verify_Key::View::Fixed::extent == Amplifier::Seed::View::extent);
     auto [input_share, proof_share, k_blind] = [input, shard]{
       if (Shard{0u} == shard) {
         return Role<LEADER>::decode(input);
@@ -192,13 +193,10 @@ namespace tunitas::keyston::vdaf::function {
       }
     }();
     auto output_share = Codec::truncate(input_share);
-    auto finish = [verify_key, nonce, input_share, proof_share, output_share](auto &&corrected, auto &&rederived, auto &&rebuilt) -> State<SHARE> {
-      if (verify_key.size() != Amplifier::Seed::View::extent) {
-        throw prio::exception::Verifier{"bad key"};
-      }
+    auto finish = [verify_key, nonce, input_share, proof_share, output_share](auto &&corrected, auto &&rederived, auto &&joint_randomness) -> State<SHARE> {
       using Query_Randomness = typename Field::template Vector<Prover::Randomness::Query::VALUE.count()>::Value;
-      auto query_randomness = Amplifier::template expand_as<Query_Randomness>(verify_key, Definition::Customizer::template domain_separation_tag<prio::Usage::QUERY_RANDOMNESS>(), binder(prio::Binder::NOSHARD, nonce));
-      auto verifier_share = Prover::query(input_share, proof_share, query_randomness, rebuilt, shards::SHARD_COUNT);
+      auto query_randomness = Amplifier::template expand_as<Query_Randomness>(verify_key, Definition::Customizer::template domain_separation_tag<prio::Usage::QUERY_RANDOMNESS>(), prio::binder(nonce));
+      auto verifier_share = Prover::query(input_share, proof_share, query_randomness, joint_randomness, shards::SHARD_COUNT);
       auto check_whole = Check<WHOLE>(move(corrected));
       auto check_share = Check<SHARE>::encode(verifier_share, rederived); 
       return {move(output_share), move(check_whole), move(check_share)};
@@ -212,19 +210,19 @@ namespace tunitas::keyston::vdaf::function {
       constexpr auto const SIZE = Prover::Randomness::Joint::VALUE.count();
       static_assert(0 == SIZE);
       octets::Fixed<SIZE> rederived{};
-      typename Field::template Vector<SIZE>::Value rebuilt{};
+      typename Field::template Vector<SIZE>::Value joint_randomness{};
       typename Seed::Storage corrected{};
-      return finish(move(corrected), move(rederived), move(rebuilt));
+      return finish(move(corrected), move(rederived), move(joint_randomness));
     } else {
       //
       // lol wut?
       auto encoded = Field::template Vector<Prover::Message::Input::VALUE.count()>::encode(input_share);
-      auto rederived = Amplifier::derive_seed(k_blind, Definition::Customizer::template domain_separation_tag<prio::Usage::JOINT_RANDOMNESS_PART>(), binder(prio::Binder{shard}, nonce, encoded));
+      auto rederived = Amplifier::derive_seed(k_blind, Definition::Customizer::template domain_separation_tag<prio::Usage::JOINT_RANDOMNESS_PART>(), prio::binder(shard, nonce, encoded));
       well_known.at(shard) = rederived;
       auto corrected = Definition::joint_randomness(well_known);
       using Joint_Randomness = typename Field::template Vector<Prover::Randomness::Joint::VALUE.count()>::Value;
-      auto rebuilt = Amplifier::template expand_as<Joint_Randomness>(corrected, Definition::Customizer::template domain_separation_tag<prio::Usage::JOINT_RANDOMNESS>(), binder(prio::Binder::NOSHARD));
-      return finish(move(corrected), move(rederived), move(rebuilt));
+      auto joint_randomness = Amplifier::template expand_as<Joint_Randomness>(corrected, Definition::Customizer::template domain_separation_tag<prio::Usage::JOINT_RANDOMNESS>(), prio::binder(nonce));
+      return finish(move(corrected), move(rederived), move(joint_randomness));
     }
   }
   template<Name _> auto Function<PRIO, _>::continuation(Parameters const &, State<SHARE> const &state, Optional<Check<WHOLE>> const &inbound) -> Check<SHARE> {
@@ -254,7 +252,7 @@ namespace tunitas::keyston::vdaf::function {
       throw prio::exception::Verifier{};
     }
     auto check = [&]{
-      if constexpr (Definition::use_joint_randomness()) {
+      if constexpr (!Definition::use_joint_randomness()) {
         return typename Seed::Storage{};
       } else {
         return Definition::joint_randomness(k_joint_randomness_parts);

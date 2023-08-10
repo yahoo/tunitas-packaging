@@ -11,6 +11,8 @@ tests_exhibition_SUBSOURCES = \
   check/obj/src/tests/exhibition/Experience.cpp \
   check/obj/src/tests/exhibition/Configuration.cpp \
   $(tests_exhibition_inventory_SUBSOURCES) \
+  $(tests_exhibition_recital_SUBSOURCES) \
   $(end)
 #
 include src/tests/exhibition/inventory/Makefrag.am
+include src/tests/exhibition/recital/Makefrag.am

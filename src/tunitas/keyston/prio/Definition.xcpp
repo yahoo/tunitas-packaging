@@ -144,7 +144,7 @@ namespace tunitas::keyston::prio {
 namespace tunitas::keyston::prio::definition {
   template<typename PERSONALITY> constexpr auto Convenience<PERSONALITY>::randomness_size() -> Bytes { return prio::randomness_size(Validity::JOINT_RANDOMNESS_LENGTH); }
   template<typename PERSONALITY> auto Convenience<PERSONALITY>::joint_randomness(view::Variable<typename Amplifier::Seed::Storage> const &joint_randomness_parts) -> octets::Fixed<Amplifier::Seed::SIZE.count()> {
-    // This can't be constexpr derive_seed(...) is not constexpr
+    // This can't be constexpr because derive_seed(...) is not constexpr [[can that be changed?]]
     return Amplifier::derive_seed(/*seed(zeros)*/ Amplifier::Seed::Storage{},
                                   /*custom*/ Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_SEED>(),
                                   /*binder*/ octets::join(joint_randomness_parts));

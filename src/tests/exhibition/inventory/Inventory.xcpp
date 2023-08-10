@@ -46,7 +46,7 @@ namespace tests::exhibition::inventory {
 #import tunitas.keyston.formatter.Formatter
 namespace tests::exhibition {
   namespace inventory {
-    inline constexpr auto format(Inventory const &i) -> formatter::Formatter<Inventory, Inventory const &> { return {i}; }
+    inline constexpr auto format(Inventory const &i) -> tunitas::keyston::formatter::Formatter<Inventory, Inventory const &> { return {i}; }
   }
   struct inventory::Inventory : private std::map<tunitas::string::Storage, std::function<void (std::ostream &)>, std::less<>> {
     using Ancestor = std::map<tunitas::string::Storage, std::function<void (std::ostream &)>, std::less<>>;
@@ -65,7 +65,7 @@ namespace tests::exhibition {
 #import tests.exhibition.inventory.io
 #endiv
 #divert <cpp>
-#import tests.exhibition.inventory.Recital
+#import tests.exhibition.Recital
 namespace tests::exhibition::inventory {
   Inventory::Inventory()
     : Ancestor{{"count", Recital<PRIO, PRIO3_COUNT>::show},

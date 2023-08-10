@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.Scheme
+#import tunitas.keyston.vdaf.required.Function
+namespace tests::exhibition::recital {
+  //
+  // Exhibition of the normative tests.
+  // With the vdaf::Function<...> in hand.
+  //
+  // Authority:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //
+  // Specification:
+  //
+  //   [Appendix] Test Vectors
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-test-vectors
+  //
+  //   https://github.com/cfrg/draft-irtf-cfrg-vdaf/tree/main/poc/test_vec.
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //
+  // Usage:
+  //
+  //   As (private?) ancestor of Recital<...>, which supplies the implementation thereto.
+  //
+  template<tunitas::keyston::Scheme, required::Function> struct Of;
+}
+#endiv
+#divert <hpp>
+// All specializations will need this (these)
+#import std.ostream
+#import tunitas.array.Variable
+#import tunitas.keyston.vdaf.Function
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.nonce.once
+#import tunitas.keyston.entropy.Sequence
+//
+// Yet Another Markup Language
+//
+#import yaml.Emitter
+#import yaml.Emitter.tunitas.array.io
+#import yaml.Emitter.tunitas.keyston.aggregation.io
+#import yaml.Emitter.tunitas.keyston.measurement.io
+#import yaml.Emitter.tunitas.keyston.field.vector.io
+#import yaml.Emitter.tunitas.keyston.octets.io
+#import yaml.Emitter.tunitas.view.io
+#import yaml.Emitter.nonstd.units.quantity.io
+#endiv

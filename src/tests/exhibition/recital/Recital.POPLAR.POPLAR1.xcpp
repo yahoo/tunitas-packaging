@@ -4,20 +4,20 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tests.exhibition.inventory.Recital.template
-namespace tests::exhibition::inventory {
+#import tests.exhibition.recital.Recital.template
+namespace tests::exhibition::recital {
   template<> struct Recital<POPLAR, POPLAR1>;
 }
 #endiv
 #divert <hpp>
-namespace tests::exhibition::inventory {
+namespace tests::exhibition::recital {
   template<> struct Recital<POPLAR, POPLAR1> {
     static auto show(std::ostream &) -> void;
   };
 }
 #endiv
 #divert <cpp>
-namespace tests::exhibition::inventory {
+namespace tests::exhibition::recital {
   auto Recital<POPLAR, POPLAR1>::show(std::ostream &outbound) -> void {
     outbound << "not implemented\n";
   }

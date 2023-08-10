@@ -24,7 +24,7 @@ namespace tests::exhibition::inventory {
   //
   //   cout << format(Inventory{}) << '\n';
   //
-  inline auto operator<<(std::ostream &, formatter::Formatter<Inventory, Inventory const &> const &) -> std::ostream &;
+  inline auto operator<<(std::ostream &, tunitas::keyston::formatter::Formatter<Inventory, Inventory const &> const &) -> std::ostream &;
 }
 #endiv
 #divert <ipp>
@@ -34,7 +34,7 @@ namespace tests::exhibition::inventory {
 #import tunitas.keyston.formatter.Formatter
 #import tests.exhibition.inventory.Inventory
 namespace tests::exhibition {
-  auto inventory::operator<<(std::ostream &o, formatter::Formatter<Inventory, Inventory const &> const &f) -> std::ostream & {
+  auto inventory::operator<<(std::ostream &o, tunitas::keyston::formatter::Formatter<Inventory, Inventory const &> const &f) -> std::ostream & {
     for (auto comma=tunitas::Optional<tunitas::string::View>{}; auto const &item : f.captured) {
       if (comma) {
         o << *comma;

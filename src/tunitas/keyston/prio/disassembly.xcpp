@@ -190,7 +190,7 @@ namespace tunitas::keyston::prio::package_disassembly {
         // k_leader_blind remains full of null
       }
       k_prove = *allocator++;
-      if (allocator) { throw exception::Invariant{"the randomness allocator should have been exhausted"}; }
+      if (allocator) { throw exception::Invariant{"the randomness allocator was not exhausted"}; }
     }
     //
     // Finish measurement shares and joint randomness parts.
@@ -199,52 +199,54 @@ namespace tunitas::keyston::prio::package_disassembly {
     auto k_joint_randomness_parts = Shards<typename Outline::Amplifier::Seed::Storage>{};
     auto kjrp0 = k_joint_randomness_parts.begin();
     {
-      auto kjrp = 1+kjrp0;
-      for (auto shard : std::views::iota(Shard{}, Shard{SHARDSM1})) {
-        auto helper_input_shard = Outline::Amplifier::template expand_as<typename Outline::Encoded::Input::Vector>(/*seed*/ k_helper_input_shards.at(underlying(shard)), Outline::Customizer::template domain_separation_tag<Usage::MEASUREMENT_SHARE>(), binder(shard));
+      for (auto kjrp=1+kjrp0; auto helper : std::views::iota(0u, SHARDSM1)) {
+        auto shard = Shard{1u+helper};
+        auto helper_input_shard = Outline::Amplifier::template expand_as<typename Outline::Encoded::Input::Vector>(/*seed*/ k_helper_input_shards.at(helper), Outline::Customizer::template domain_separation_tag<Usage::INPUT_SHARE>(), binder(shard));
         leader_input_shard -= helper_input_shard;
         if constexpr (Outline::use_joint_randomness()) {
           auto encoded = Outline::Encoded::Input::Definition::encode(helper_input_shard);
-          auto part = Outline::Amplifier::derive_seed(k_helper_blind.at(underlying(shard)), Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_PART>(), binder(shard, nonce, encoded));
-          *kjrp++ = move(part);
+          *kjrp++ = Outline::Amplifier::derive_seed(k_helper_blind.at(helper), Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_PART>(), binder(shard, nonce, encoded));
         }
       }
     }
     //
     // Finish joint randomness (maybe writing into the 0th position of k_joint_randomness_parts)
     auto joint_randomness = [&]() -> typename Outline::Encoded::Randomness::Joint::Vector {
-      if constexpr (Outline::use_joint_randomness()) {
-        auto encoded = Outline::Encoded::Input::Definition::encode(leader_input_shard);
-        auto part = Outline::Amplifier::derive_seed(k_leader_blind, Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_PART>(), binder(prio::Binder::JOINT, nonce, encoded));
-        *kjrp0 = move(part);
-        auto ret = typename Outline::Encoded::Randomness::Joint::Vector{};
-        Outline::Amplifier::expand_into(ret, Outline::joint_randomness(k_joint_randomness_parts), Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS>(), prio::binder());
-        return ret;
-      } else {
+      if constexpr (!Outline::use_joint_randomness()) {
         return {};
+      } else {
+        auto encoded = Outline::Encoded::Input::Definition::encode(leader_input_shard);
+        *kjrp0 = Outline::Amplifier::derive_seed(k_leader_blind, Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_PART>(), binder(Shard{0u}, nonce, encoded));
+        auto ret = typename Outline::Encoded::Randomness::Joint::Vector{};
+        Outline::Amplifier::expand_into(ret, Outline::joint_randomness(k_joint_randomness_parts), Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS>(), binder());
+        return ret;
       }
     }();
     //
     // Finish the proof shares.
     auto leader_proof_shard = [&]() -> typename Outline::Encoded::Proof::Vector {
       auto prove_randomness = typename Outline::Encoded::Randomness::Prove::Vector{};
-      Outline::Amplifier::expand_into(prove_randomness, /*seed*/ k_prove, Outline::Customizer::template domain_separation_tag<Usage::PROVE_RANDOMNESS>(), prio::binder());
+      Outline::Amplifier::expand_into(prove_randomness, /*seed*/ k_prove, Outline::Customizer::template domain_separation_tag<Usage::PROVE_RANDOMNESS>(), binder());
       auto leader_proof_shard = static_cast<typename Outline::Encoded::Proof::Vector>(Outline::Prover::prove(input, prove_randomness, joint_randomness));
-      for (auto shard : std::views::iota(Shard{}, Shard{SHARDSM1})) {
-        auto helper_proof_shard = Outline::Amplifier::template expand_as<typename Outline::Encoded::Proof::Vector>(k_helper_proof_shards.at(underlying(shard)), Outline::Customizer::template domain_separation_tag<Usage::PROOF_SHARE>(), binder(prio::Binder{shard}));
+      for (auto helper : std::views::iota(0u, SHARDSM1)) {
+        auto shard = Shard{1u+helper};
+        auto helper_proof_shard = Outline::Amplifier::template expand_as<typename Outline::Encoded::Proof::Vector>(k_helper_proof_shards.at(helper), Outline::Customizer::template domain_separation_tag<Usage::PROOF_SHARE>(), binder(shard));
         leader_proof_shard -= helper_proof_shard;
       }
       return leader_proof_shard;
     }();
     //
     // Each Aggregator's input share contains its measurement share, proof share, and blind.
-    // The public share contains the Aggregators' joint randomness parts.
+    //   the leader is made of biggish numbers (as octet strings)
+    //   the helpers are made of (short, fixed-length) seeds.
+    // The public share contains the welll-known joint randomness parts for all Aggregators..
+    //
     auto input_shards = [&]{
       auto inputs = Shards<octets::Variable>{};
       auto in = inputs.begin();
       *in++ = Outline::template Role<LEADER>::encode(leader_input_shard, leader_proof_shard, k_leader_blind);
-      for (auto shard : std::views::iota(Shard{}, Shard{SHARDSM1})) {
-        *in++ = Outline::template Role<HELPER>::encode(k_helper_input_shards.at(underlying(shard)), k_helper_proof_shards.at(underlying(shard)), k_helper_blind.at(underlying(shard)));
+      for (auto helper : std::views::iota(0u, SHARDSM1)) {
+        *in++ = Outline::template Role<HELPER>::encode(k_helper_input_shards.at(helper), k_helper_proof_shards.at(helper), k_helper_blind.at(helper));
       }
       return inputs;
     }();

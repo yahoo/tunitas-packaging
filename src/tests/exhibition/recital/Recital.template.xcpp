@@ -6,7 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.Scheme
 #import tunitas.keyston.vdaf.Name
-namespace tests::exhibition::inventory {
+namespace tests::exhibition::recital {
   //
   // Exhibition of the normative tests.
   //
@@ -29,7 +29,7 @@ namespace tests::exhibition::inventory {
   //
   //   See tests::exhibition::Inventory.
   //
-  template<Scheme, vdaf::Name> struct Recital;
+  template<tunitas::keyston::Scheme, Name> struct Recital;
 }
 #endiv
 #divert <hpp>
@@ -41,7 +41,7 @@ namespace tests::exhibition::inventory {
 #import tunitas.keyston.nonce.once
 #import tunitas.keyston.entropy.Sequence
 //
-// Yet Anolther Markup Language
+// Yet Another Markup Language
 //
 #import yaml.Emitter
 #import yaml.Emitter.tunitas.array.io

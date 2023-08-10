@@ -6,6 +6,7 @@
 #
 tunitas_keyston_measurement_SUBSOURCES = \
   obj/src/tunitas/keyston/measurement/namespace.cpp \
+  obj/src/tunitas/keyston/measurement/literals.cpp \
   obj/src/tunitas/keyston/measurement/Specimen.cpp \
   obj/src/tunitas/keyston/measurement/Boundaries.cpp \
   obj/src/tunitas/keyston/measurement/Prefixes.cpp \

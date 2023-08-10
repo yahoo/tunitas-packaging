@@ -1,0 +1,21 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/texhibitionas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.texhibitionas.technology/all/components/keyston/tree/LICENSE
+#
+tests_exhibition_recital_SUBSOURCES = \
+  check/obj/src/tests/exhibition/Recital.cpp \
+  check/obj/src/tests/exhibition/recital/namespace.cpp \
+  check/obj/src/tests/exhibition/recital/Recital.template.cpp \
+  check/obj/src/tests/exhibition/recital/Recital.PRIO.COUNT.cpp \
+  check/obj/src/tests/exhibition/recital/Recital.PRIO.SUM.cpp \
+  check/obj/src/tests/exhibition/recital/Recital.PRIO.HISTOGRAM.cpp \
+  check/obj/src/tests/exhibition/recital/Recital.POPLAR.POPLAR1.cpp \
+  check/obj/src/tests/exhibition/recital/Recital.POPLAR.DOPLAR.cpp \
+  check/obj/src/tests/exhibition/recital/Recital.cpp \
+  \
+  check/obj/src/tests/exhibition/recital/Of.template.cpp \
+  check/obj/src/tests/exhibition/recital/Of.PRIO.FUNCTION.cpp \
+  check/obj/src/tests/exhibition/recital/Of.cpp \
+  $(end)

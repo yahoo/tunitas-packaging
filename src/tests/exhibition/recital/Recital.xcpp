@@ -4,9 +4,9 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tests.exhibition.inventory.Recital.PRIO.COUNT
-#import tests.exhibition.inventory.Recital.PRIO.SUM
-#import tests.exhibition.inventory.Recital.PRIO.HISTOGRAM
-#import tests.exhibition.inventory.Recital.POPLAR.POPLAR1
-#import tests.exhibition.inventory.Recital.POPLAR.DOPLAR
+#import tests.exhibition.recital.Recital.PRIO.COUNT
+#import tests.exhibition.recital.Recital.PRIO.SUM
+#import tests.exhibition.recital.Recital.PRIO.HISTOGRAM
+#import tests.exhibition.recital.Recital.POPLAR.POPLAR1
+#import tests.exhibition.recital.Recital.POPLAR.DOPLAR
 #endiv

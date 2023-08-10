@@ -4,22 +4,24 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tests.exhibition.inventory.Recital.template
-namespace tests::exhibition::inventory {
-  template<> struct Recital<PRIO, PRIO3_HISTOGRAM>;
+#import tests.exhibition.recital.Recital.template
+namespace tests::exhibition::recital {
+  template<> struct Recital<PRIO, PRIO3_SUM>;
 }
 #endiv
 #divert <hpp>
-namespace tests::exhibition::inventory {
-  template<> struct Recital<PRIO, PRIO3_HISTOGRAM> {
+#import tests.exhibition.recital.Of.PRIO.FUNCTION
+#import tunitas.keyston.vdaf.Function
+namespace tests::exhibition::recital {
+  template<> struct Recital<PRIO, PRIO3_SUM> : private Of<PRIO, recital::Function<PRIO, PRIO3_SUM>> {
     static auto show(std::ostream &) -> void;
   };
 }
 #endiv
 #divert <cpp>
-namespace tests::exhibition::inventory {
-  auto Recital<PRIO, PRIO3_HISTOGRAM>::show(std::ostream &outbound) -> void {
-    outbound << "not implemented\n";
+namespace tests::exhibition::recital {
+  auto Recital<PRIO, PRIO3_SUM>::show(std::ostream &outbound) -> void {
+    trace(outbound, Parameters{}, 1_specimen);
   }
 }
 #endiv

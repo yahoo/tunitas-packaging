@@ -4,10 +4,12 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.measurement.literals
 #import tunitas.keyston.shards.literals
 #import tunitas.keyston.time.literals
 #import tunitas.string.literals
 namespace tunitas::keyston::literals {
+  using namespace measurement::literals;
   using namespace string::literals;
   using namespace time::literals;
   using namespace shards::literals;
@@ -17,6 +19,9 @@ namespace tunitas::keyston::literals {
 namespace {
   namespace testate {
     using namespace tunitas::keyston::literals;
+    //
+    // measurement
+    static_assert(sizeof (1_specimen));
     //
     // strings (of course)
     static_assert(sizeof (""s));
@@ -32,7 +37,7 @@ namespace {
     static_assert(sizeof (1_week));
     static_assert(sizeof (1_month));
     //
-    // vdaf
+    // shards
     static_assert(sizeof (1_shard));
   }
 }
