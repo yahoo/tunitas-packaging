@@ -10,10 +10,11 @@ namespace tests::exhibition::recital {
 }
 #endiv
 #divert <hpp>
+#import tests.exhibition.recital.Of.PRIO.FUNCTION
+#import tunitas.keyston.vdaf.Function
 namespace tests::exhibition::recital {
-  template<> struct Recital<PRIO, PRIO3_COUNT> {
+  template<> struct Recital<PRIO, PRIO3_COUNT> : private Of<PRIO, recital::Function<PRIO, PRIO3_COUNT>> {
     static auto show(std::ostream &) -> void;
-    using Function = recital::Function<PRIO, PRIO3_COUNT>;
   };
 }
 #endiv
@@ -22,6 +23,9 @@ namespace tests::exhibition::recital {
 #import tunitas.keyston.prio.exception.Verifier
 namespace tests::exhibition::recital {
   auto Recital<PRIO, PRIO3_COUNT>::show(std::ostream &outbound) -> void {
+#if 1
+    trace(outbound, Parameters{}, 1_specimen);
+#else
     auto specimen = 1_specimen;
     auto processed = Function::Processed{1u};
     auto parameters = Function::Parameters{};
@@ -86,6 +90,7 @@ namespace tests::exhibition::recital {
       out << yaml::EndMap;
     }
     out << yaml::EndDoc;
+#endif
   }
 }
 #endiv

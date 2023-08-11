@@ -18,8 +18,8 @@ namespace tunitas::keyston::histogram {
   //
   // Schema:
   //
-  //   A boundaries has one fewer bucket than the number of histogram buckets.
-  //   A histogram has one more bucket than the number of boundary buckets.
+  //   A Boundaries has one fewer bucket than the number of histogram buckets.
+  //   A Histogram has one more bucket than the number of boundary buckets.
   //
   //   Histogram: | H0 | H1 | H2 | H3 | ...more... | Hn-1 | Hn |
   //              |____|____|____|____|            |______|____|
@@ -48,7 +48,7 @@ namespace tunitas::keyston::histogram {
 #import tunitas.array.Fixed
 #import tunitas.keyston.aggregation.Count
 #import tunitas.array.Fixed
-#import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.histogram.Definition
 #import tunitas.keyston.formatter.Formatter
 namespace tunitas::keyston {
   namespace histogram {
@@ -62,9 +62,9 @@ namespace tunitas::keyston {
     inline auto operator+(Histogram const &, Histogram &&) -> Histogram;
     inline auto operator+(Histogram const &, Histogram const &) -> Histogram;
   }
-  class histogram::Histogram : public array::Fixed<aggregation::Count, histogram::Buckets::COUNT.count()> {
+  class histogram::Histogram : public array::Fixed<aggregation::Count, histogram::Definition::COUNT.count()> {
     // WATCHOUT 'array' names a constructor in the Ancestor
-    using Ancestor = tunitas::array::Fixed<aggregation::Count, histogram::Buckets::COUNT.count()>;
+    using Ancestor = tunitas::array::Fixed<aggregation::Count, histogram::Definition::COUNT.count()>;
   public:
     Histogram() = default;
     using Ancestor::Fixed;
@@ -102,7 +102,7 @@ namespace tunitas::keyston {
       throw exception::Length{"size mismatch"};
     }
     for (auto [index, location] : enumerate(*this)) {
-#if 1
+#if 0
       // [[FIXTHIS]] nonstd::units::count::Unit<> should admit to operator+ (one can add and subtract counts)
       location = Value{location.count() + other.at(index).count()};
 #else

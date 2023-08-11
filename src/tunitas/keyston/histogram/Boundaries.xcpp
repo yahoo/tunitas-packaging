@@ -10,7 +10,7 @@ namespace tunitas::keyston::histogram {
   //
   // Specification
   //
-  //   See the relationship among Histogram<-->Boundaries<-->Buckets
+  //   See the relationship among Histogram<-->Boundaries<-->Definition
   //   laid out in tunitas.keyston.histogram.Histogram
   //
   // Design:
@@ -33,7 +33,7 @@ namespace tunitas::keyston::histogram {
 #import tunitas.array.Fixed
 #forward tunitas.array.Variable
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.histogram.Definition
 #import tunitas.keyston.histogram.required // ctcnr (cascade that certain 'namespace required')
 #import tunitas.error.by.Exception
 #import tunitas.error.by.Optional
@@ -49,9 +49,9 @@ namespace tunitas::keyston {
     inline auto format(Tuple<Boundaries const &, Histogram const &>) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
     inline auto format(Boundaries const &, Histogram const &) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
   }
-  class histogram::Boundaries : public array::Fixed<measurement::Specimen, Buckets::COUNT.count()> {
+  class histogram::Boundaries : public array::Fixed<measurement::Specimen, Definition::COUNT.count()> {
     // WATCHOUT - the ancestor is std::array so the constructor name wins inside the class
-    using Ancestor = tunitas::array::Fixed<measurement::Specimen, Buckets::COUNT.count()>;
+    using Ancestor = tunitas::array::Fixed<measurement::Specimen, Definition::COUNT.count()>;
     using Variable = tunitas::array::Variable<measurement::Specimen>;
     friend auto swap(Boundaries &, Boundaries &) noexcept -> void;
   public:

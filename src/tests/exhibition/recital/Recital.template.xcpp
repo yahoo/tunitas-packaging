@@ -35,20 +35,6 @@ namespace tests::exhibition::recital {
 #divert <hpp>
 // All specializations will need this (these)
 #import std.ostream
-#import tunitas.array.Variable
+#import tests.exhibition.recital.Of
 #import tunitas.keyston.vdaf.Function
-#import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.nonce.once
-#import tunitas.keyston.entropy.Sequence
-//
-// Yet Another Markup Language
-//
-#import yaml.Emitter
-#import yaml.Emitter.tunitas.array.io
-#import yaml.Emitter.tunitas.keyston.aggregation.io
-#import yaml.Emitter.tunitas.keyston.measurement.io
-#import yaml.Emitter.tunitas.keyston.field.vector.io
-#import yaml.Emitter.tunitas.keyston.octets.io
-#import yaml.Emitter.tunitas.view.io
-#import yaml.Emitter.nonstd.units.quantity.io
 #endiv

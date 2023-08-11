@@ -13,7 +13,7 @@ namespace tunitas::keyston::histogram {
   //   This is a bundle of constants and types.
   //   You are looking for histogram::Boundaries, which is nearby
   //
-  //   See the relationship among Histogram<-->Boundaries<-->Buckets
+  //   See the relationship among Histogram<-->Boundaries<-->Definition
   //   laid out in tunitas.keyston.histogram.Histogram
   //
   // Design:
@@ -22,23 +22,22 @@ namespace tunitas::keyston::histogram {
   //
   // Usage:
   //
-  //   auto something = [&encoded, ...somehow...]<Buckets::Index... INDEX>(Buckets::Sequence<INDEX...>) {
+  //   auto something = [&encoded, ...somehow...]<Definition::Index... INDEX>(Definition::Sequence<INDEX...>) {
   //      return something::something_else::dark_side(encoded.at(INDEX))...};
-  //   }(Buckets::sequence());
+  //   }(Definition::sequence());
   //
-  struct Buckets;
+  struct Definition;
 }
 #endiv
 #divert <hpp>
 #import std.index_sequence
 #import std.make_index_sequence
 #import std.size_t
-struct tunitas::keyston::histogram::Buckets {
+struct tunitas::keyston::histogram::Definition {
   inline static constexpr auto COUNT = Items{100u};
-  using Index = std::size_t;
   template<Index... INDEX> using Sequence = std::index_sequence<INDEX...>;
   static constexpr auto sequence() { return std::make_index_sequence<COUNT.count()>{}; }
-  Buckets() = delete;
-  Buckets(Buckets const &) = delete;
+  Definition() = delete;
+  Definition(Definition const &) = delete;
 };
 #endiv

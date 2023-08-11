@@ -10,10 +10,8 @@ namespace tests::exhibition::recital {
 }
 #endiv
 #divert <hpp>
-#import tests.exhibition.recital.Of.PRIO.FUNCTION
-#import tunitas.keyston.vdaf.Function
 namespace tests::exhibition::recital {
-  template<> struct Recital<PRIO, PRIO3_HISTOGRAM> : public Of<PRIO, recital::Function<PRIO, PRIO3_HISTOGRAM>> {
+  template<> struct Recital<PRIO, PRIO3_HISTOGRAM> : private Of<PRIO, recital::Function<PRIO, PRIO3_HISTOGRAM>> {
     static auto show(std::ostream &) -> void;
   };
 }
@@ -29,7 +27,6 @@ namespace tests::exhibition::recital {
     auto parameters = Parameters{};
     parameters.boundaries = measurement::Boundaries{Inplace{}, 1_specimen, 2_specimen, 3_specimen, 4_specimen};
     trace(outbound, parameters, 2_specimen);
-    outbound << "not implemented\n";
   }
 }
 #endiv

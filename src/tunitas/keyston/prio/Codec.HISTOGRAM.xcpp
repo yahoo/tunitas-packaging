@@ -18,14 +18,14 @@ namespace tunitas::keyston::prio {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.histogram.Definition
 #import tunitas.keyston.histogram.Boundaries
 #import tunitas.keyston.aggregation.Histogram
 namespace tunitas::keyston::prio {
   template<> class Codec<HISTOGRAM> {
-    using Buckets = histogram::Buckets;
-    inline static constexpr auto INDEX_INFINITY  = Buckets::COUNT.count()-1u;
-    inline static constexpr auto ENCODED_LENGTH  = Items{Buckets::COUNT.count()};
+    using Definition = histogram::Definition;
+    inline static constexpr auto INDEX_INFINITY  = Definition::COUNT.count()-1u;
+    inline static constexpr auto ENCODED_LENGTH  = Items{Definition::COUNT.count()};
   public:
     using Field = keyston::Field<128>;
     inline static constexpr auto INPUT_LENGTH  = ENCODED_LENGTH;
@@ -67,9 +67,9 @@ namespace tunitas::keyston::prio {
     return encoded;
   }
   constexpr auto Codec<HISTOGRAM>::decode(Truncated const &encoded, Processed) -> Decoded {
-    return [&encoded]<Buckets::Index... INDEX>(Buckets::Sequence<INDEX...>) {
+    return [&encoded]<Index... INDEX>(Definition::Sequence<INDEX...>) {
       return Decoded{narrow(encoded.at(INDEX))...};
-    }(Buckets::sequence());
+    }(Definition::sequence());
   }
 }
 #endiv

@@ -32,13 +32,13 @@ namespace tunitas::keyston::prio::flp::validity {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.histogram.Buckets
+#import tunitas.keyston.histogram.Definition
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.measurement.Boundaries
 #import tunitas.keyston.aggregation.Histogram
 namespace tunitas::keyston::prio::flp::validity {
   template<> class Predefinition<HISTOGRAM> : public Prototype {
-    inline static constexpr auto const HISTOGRAM_WIDTH = histogram::Buckets::COUNT.count(); // a.k.a. 'length' (lower case) from Section 7.4.3
+    inline static constexpr auto const HISTOGRAM_WIDTH = histogram::Definition::COUNT.count(); // a.k.a. 'length' (lower case) from Section 7.4.3
   protected:
     ~Predefinition() = default;
   public:

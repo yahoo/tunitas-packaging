@@ -29,13 +29,13 @@ namespace tunitas::keyston::histogram {
   //   auto boundaries = histogram::Boundaries{...somehow...};
   //   auto encoded = histogram::encode(specimen, boundaries);
   //
-  inline auto encode(measurement::Specimen, Boundaries const &) -> aggregation::Histogram;
+  inline constexpr auto encode(measurement::Specimen, Boundaries const &) -> aggregation::Histogram;
 }
 #endiv
 #divert <ipp>
 #import tunitas.array.enumerate
 namespace tunitas::keyston {
-  auto histogram::encode(measurement::Specimen specimen, Boundaries const &boundaries) -> aggregation::Histogram {
+  constexpr auto histogram::encode(measurement::Specimen specimen, Boundaries const &boundaries) -> aggregation::Histogram {
     auto encoded = aggregation::Histogram{};
     for (auto [index, boundary] : enumerate(boundaries)) {
       if (underlying(specimen) <= underlying(boundary)) {

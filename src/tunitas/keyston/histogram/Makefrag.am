@@ -9,7 +9,7 @@ tunitas_keyston_histogram_SUBSOURCES = \
   obj/src/tunitas/keyston/histogram/Boundaries.cpp \
   obj/src/tunitas/keyston/histogram/Boundaries.Optional.cpp \
   obj/src/tunitas/keyston/histogram/Boundaries.Outcome.cpp \
-  obj/src/tunitas/keyston/histogram/Buckets.cpp \
+  obj/src/tunitas/keyston/histogram/Definition.cpp \
   obj/src/tunitas/keyston/histogram/encode.cpp \
   obj/src/tunitas/keyston/histogram/Histogram.cpp \
   $(tunitas_keyston_histogram_required_SUBSOURCES) \
