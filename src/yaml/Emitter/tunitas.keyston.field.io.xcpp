@@ -15,9 +15,9 @@ namespace YAML {
 #divert <ipp>
 #import tunitas.keyston.field.vector.Fixed
 #import yaml.Emitter.tunitas.keyston.field.io
-#import tunitas.keyston.integer.to_octets
-#import tunitas.keyston.octets.to_hexidecimal
+#import tunitas.integer.to_octets
+#import tunitas.octets.to_hexidecimal
 template<tunitas::keyston::field::required::Element ELEMENT> auto YAML::operator<<(Emitter &m, ELEMENT const &l) -> Emitter & {
-  return m << tunitas::keyston::octets::to_hexidecimal(tunitas::keyston::integer::to_octets<std::endian::big>(underlying(l)));
+  return m << tunitas::octets::to_hexidecimal(tunitas::integer::to_octets<std::endian::big>(underlying(l)));
 }
 #endiv

@@ -10,7 +10,7 @@ namespace tests::unit::crypto {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.keyston.crypto.algorithm.Algorithm.cSHAKE
 #import tests.unit.crypto.Palette
 namespace tests::unit::crypto {
@@ -18,7 +18,7 @@ namespace tests::unit::crypto {
     static auto suite() -> Suite;
     //
     using Subject = library::Algorithm<cSHAKE>;
-    using Buffer = ::tunitas::keyston::octets::Fixed<27>; // some odd size
+    using Buffer = ::tunitas::octets::Fixed<27>; // some odd size
     //
     auto test_constructor() -> void;
     auto test_operator_call2() -> void;

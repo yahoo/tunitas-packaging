@@ -6,14 +6,15 @@
 #divert <fpp>
 #import tests.unit.nonce
 #import tunitas.array
-#import tunitas.keyston // for Octet
 #import tunitas.keyston.nonce.generator
-#import tunitas.keyston.octets
+#import tunitas.octets.Octet
+#import tunitas.integer.integers
 namespace tests::unit::nonce::generator {
   namespace library = ::tunitas::keyston::nonce::generator;
   namespace noncelib = ::tunitas::keyston::nonce;
   namespace array = ::tunitas::array;
-  namespace octets = ::tunitas::keyston::octets;
-  using Octet = ::tunitas::keyston::Octet;
+  namespace octets = ::tunitas::octets;
+  namespace integers = ::tunitas::integer::integers;
+  using Octet = ::tunitas::octets::Octet;
 }
 #endiv

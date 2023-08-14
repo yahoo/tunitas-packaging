@@ -1,0 +1,71 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.hale.identifier.generator.required.Unique
+namespace tunitas::hale::identifier::generator {
+  //
+  // The serial number generator & formatter
+  //
+  // Specification:
+  //
+  //   Obvious.
+  //   Not-so-obvious: every identifier type gets its own serialization series
+  //   Is thead safe when operated with the Guard and the mutex by the descendant
+  //
+  // Obligations:
+  //
+  //   The descendant MUST declare a trivial implicit default constructor (one way or another).
+  //   declared as:
+  //
+  //     Generator() = default
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //   Descendants only
+  //   Be trivial to descend into Generator<IDENTIFIRE, Policy::SERIAL>
+  //
+  //   If an explicit default constructor is used here, then list initialization towards the default constructor won't work.
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  template<required::Unique IDENTIFIER> struct Serializer;
+}
+#endiv
+#divert <hpp>
+#import std.lock_guard
+#import std.mutex
+#import tunitas.hale.identifier.generator.Supplier
+namespace tunitas::hale::identifier {
+  template<generator::required::Unique IDENTIFIER> struct generator::Serializer {
+    using Result = IDENTIFIER;
+    inline auto operator()() -> Result;
+   protected:
+    ~Serializer() = default;
+    using Serial = unsigned long long;
+    using Guard = std::lock_guard<std::mutex>;
+    static std::mutex mutex;
+    static Serial serial;
+    Supplier<Result> builder;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::hale::identifier::generator {
+  template<required::Unique _> auto Serializer<_>::operator()() -> Result {
+    auto guard = Guard{mutex};
+    return builder(serial++);
+  }
+}
+#endiv
+#divert <tpp>
+namespace tunitas::hale::identifier::generator {
+  template<required::Unique _> std::mutex Serializer<_>::mutex{};
+  template<required::Unique _> typename Serializer<_>::Serial Serializer<_>::serial{};
+}
+#endiv

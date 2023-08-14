@@ -5,9 +5,10 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.field
-#import tunitas.keyston.integer
+#import tunitas.integer.integers
 namespace tunitas::keyston::field::element {
-  using namespace keyston::integer;
+  using namespace tunitas::integer::integers; // ... does make available uint64_t, uint128_t, uint256_t
+  using namespace tunitas::integer; // ............. can make available powm(...), invm(...) etc.
   namespace [[nodirectory]] traits { }
   namespace [[nodirectory]] is { }
 }

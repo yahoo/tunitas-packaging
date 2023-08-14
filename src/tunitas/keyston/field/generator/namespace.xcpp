@@ -6,7 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.field
 #import tunitas.integer.integers
-#import tunitas.keyston.integer // ctcnr (cascade that certain namespace integer')
+#import tunitas.integer // ctcnr (cascade that certain namespace integer')
 namespace tunitas::keyston::field::generator {
   namespace [[nodirectory]] traits {
     using namespace integer::integers;

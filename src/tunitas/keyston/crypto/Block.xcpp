@@ -27,9 +27,9 @@ namespace tunitas::keyston::crypto {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.Variable
-#import tunitas.keyston.octets.View
+#import tunitas.octets.Fixed
+#import tunitas.octets.Variable
+#import tunitas.octets.View
 #import std.invocable
 namespace tunitas::keyston {
   namespace crypto {

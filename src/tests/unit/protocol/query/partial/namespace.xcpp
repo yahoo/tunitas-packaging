@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit.protocol.query
-#import tunitas.keyston.protocol.query.partial
+#import tunitas.rheem.protocol.query.partial
 namespace tests::unit::protocol::query::partial {
-  namespace library = ::tunitas::keyston::protocol::query::partial;
+  namespace library = ::tunitas::rheem::protocol::query::partial;
 }
 #endiv

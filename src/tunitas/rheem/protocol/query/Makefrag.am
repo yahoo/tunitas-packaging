@@ -1,0 +1,25 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_rheem_protocol_query_SUBSOURCES = \
+  obj/src/tunitas/rheem/protocol/query/namespace.cpp \
+  obj/src/tunitas/rheem/protocol/query/Type.cpp \
+  obj/src/tunitas/rheem/protocol/query/Query.cpp \
+  obj/src/tunitas/rheem/protocol/query/Empty.cpp \
+  obj/src/tunitas/rheem/protocol/query/Time_Interval.cpp \
+  obj/src/tunitas/rheem/protocol/query/Fixed_Size.cpp \
+  obj/src/tunitas/rheem/protocol/query/traits.Cast.cpp \
+  obj/src/tunitas/rheem/protocol/query/cast.cpp \
+  obj/src/tunitas/rheem/protocol/query/Visitor.cpp \
+  obj/src/tunitas/rheem/protocol/query/visit.cpp \
+  $(tunitas_rheem_protocol_query_batch_SUBSOURCES) \
+  $(tunitas_rheem_protocol_query_partial_SUBSOURCES) \
+  $(tunitas_rheem_protocol_query_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/rheem/protocol/query/batch/Makefrag.am
+include src/tunitas/rheem/protocol/query/partial/Makefrag.am
+include src/tunitas/rheem/protocol/query/required/Makefrag.am

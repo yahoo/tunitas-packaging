@@ -14,7 +14,7 @@ namespace tests::unit::integer {
 #import tunitas.error.by.Optional
 #import tunitas.error.by.Outcome
 #import tunitas.integer.required.Unsigned
-#import tunitas.keyston // for Octet
+#import tunitas.octets // for Octet
 #import tests.unit.integer.Palette
 namespace tests::unit {
   struct integer::From_Octets : public rigging::suite::Fixture, protected Palette {
@@ -25,7 +25,7 @@ namespace tests::unit {
     inline static constexpr auto const EXCEPTION = ::tunitas::error::by::Exception{};
     inline static constexpr auto const OPTIONAL = ::tunitas::error::by::Optional{};
     inline static constexpr auto const OUTCOME = ::tunitas::error::by::Outcome{};
-    using Octet = ::tunitas::keyston::Octet;
+    using Octet = ::tunitas::octets::Octet;
   public:
     template<std::endian, Size WIDTH> auto test_endian() -> void;
     template<std::endian, Size WIDTH> auto test_roundtrip() -> void;
@@ -54,8 +54,8 @@ namespace tests::unit {
 #divert <tpp>
 #import std.to_string
 #import tunitas.integer.traits.SizeOf
-#import tunitas.keyston.integer.from_octets
-#import tunitas.keyston.integer.to_octets
+#import tunitas.integer.from_octets
+#import tunitas.integer.to_octets
 #import tunitas.span.Fixed
 #import tunitas.span.Variable
 #import std.equal
@@ -135,74 +135,74 @@ auto tests::unit::integer::From_Octets::suite() -> Suite {
 }
 namespace tests::unit::integer {
   template<> auto From_Octets::test_endian<std::endian::little, 8uz>() -> void {
-    using Subject = library::uint8_t;
+    using Subject = integers::uint8_t;
     auto const specimen = "\x12"sv;
     auto const expected = Subject{0x12u};
     exercise<std::endian::little, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::big, 8uz>() -> void {
-    using Subject = library::uint8_t;
+    using Subject = integers::uint8_t;
     // 'le and 'be are the same in the 1-byte case
     auto const specimen = "\x12"sv;
     auto const expected = Subject{0x12u};
     exercise<std::endian::big, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::little, 16uz>() -> void {
-    using Subject = library::uint16_t;
+    using Subject = integers::uint16_t;
     auto const specimen = "\x12\x34"sv;
     auto const expected = Subject{0x3412u};
     exercise<std::endian::little, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::big, 16uz>() -> void {
-    using Subject = library::uint16_t;
+    using Subject = integers::uint16_t;
     auto const specimen = "\x12\x34"sv;
     auto const expected = Subject{0x1234u};
     exercise<std::endian::big, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::little, 32uz>() -> void {
-    using Subject = library::uint32_t;
+    using Subject = integers::uint32_t;
     auto const specimen = "\x12\x34\x56\x78"sv;
     auto const expected = Subject{0x78563412u};
     exercise<std::endian::little, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::big, 32uz>() -> void {
-    using Subject = library::uint32_t;
+    using Subject = integers::uint32_t;
     auto const specimen = "\x12\x34\x56\x78"sv;
     auto const expected = Subject{0x12345678u};
     exercise<std::endian::big, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::little, 64uz>() -> void {
-    using Subject = library::uint64_t;
+    using Subject = integers::uint64_t;
     auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0"sv;
     auto const expected = Subject{0xf0debc9a78563412lu};
     exercise<std::endian::little, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::big, 64uz>() -> void {
-    using Subject = library::uint64_t;
+    using Subject = integers::uint64_t;
     auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0"sv;
     auto const expected = Subject{0x123456789abcdef0lu};
     exercise<std::endian::big, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::little, 128uz>() -> void {
-    using Subject = library::uint128_t;
+    using Subject = integers::uint128_t;
     auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10"sv;
     auto const expected = (Subject{0x1032547698badcfelu} << 64) | Subject{0xf0debc9a78563412lu};
     exercise<std::endian::little, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::big, 128uz>() -> void {
-    using Subject = library::uint128_t;
+    using Subject = integers::uint128_t;
     auto const specimen = "\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10"sv;
     auto const expected = (Subject{0x123456789abcdef0lu} << 64) | Subject{0xfedcba9876543210lu};
     exercise<std::endian::big, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::little, 256uz>() -> void {
-    using Subject = library::uint256_t;
+    using Subject = integers::uint256_t;
     auto const specimen = "\x11\x22\x33\x44\x55\x66\x77\x88\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10\x99\xaa\xbb\xcc\xdd\xee\xff\x00"sv;
     auto const expected = (Subject{0x00ffeeddccbbaa99lu} << 192) | (Subject{0x1032547698badcfelu} << 128) | (Subject{0xf0debc9a78563412lu} << 64) | Subject{0x8877665544332211lu};
     exercise<std::endian::little, Subject>(expected, specimen);
   }
   template<> auto From_Octets::test_endian<std::endian::big, 256uz>() -> void {
-    using Subject = library::uint256_t;
+    using Subject = integers::uint256_t;
     auto const specimen = "\x11\x22\x33\x44\x55\x66\x77\x88\x12\x34\x56\x78\x9a\xbc\xde\xf0\xfe\xdc\xba\x98\x76\x54\x32\x10\x99\xaa\xbb\xcc\xdd\xee\xff\x00"sv;
     auto const expected = (Subject{0x1122334455667788lu} << 192) | (Subject{0x123456789abcdef0lu} << 128) | (Subject{0xfedcba9876543210lu} << 64) | Subject{0x99aabbccddeeff00lu};
     exercise<std::endian::big, Subject>(expected, specimen);

@@ -21,7 +21,7 @@ protected:
 //
 // The specializations MUST occur before suite() so that their address is known
 //
-#import tunitas.keyston.octets.join
+#import tunitas.octets.join
 namespace tests::unit::octets {
   template<> auto Join::test_variable<0>() -> void {
     auto got = library::join(generate2<WIDTH>(0)); // <--------------- test this

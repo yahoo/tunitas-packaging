@@ -1,0 +1,16 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_hale_SUBSOURCES = \
+  obj/src/tunitas/hale/namespace.cpp \
+  $(tunitas_hale_hpke_SUBSOURCES) \
+  $(tunitas_hale_identifier_SUBSOURCES) \
+  $(tunitas_hale_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/hale/hpke/Makefrag.am
+include src/tunitas/hale/identifier/Makefrag.am
+include src/tunitas/hale/required/Makefrag.am

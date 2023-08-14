@@ -19,7 +19,7 @@ struct tests::unit::octets::Concatenate : public rigging::suite::Fixture, protec
 //
 // The specializations MUST occur before suite() so that their address is known
 //
-#import tunitas.keyston.octets.concatenate
+#import tunitas.octets.concatenate
 namespace tests::unit::octets {
   template<> auto Concatenate::test_variable<0>() -> void {
     auto got = library::concatenate(); // <--------------- test this

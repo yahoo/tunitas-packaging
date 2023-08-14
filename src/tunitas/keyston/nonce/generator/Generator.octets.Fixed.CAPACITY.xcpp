@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.keyston.nonce.generator.Generator.template
 namespace tunitas::keyston::nonce::generator {
   //
@@ -44,14 +44,14 @@ namespace tunitas::keyston::nonce::generator {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.nonce.usage.Generator
-#import tunitas.keyston.entropy.None
+#import tunitas.entropy.None
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
-    namespace entropy = tunitas::keyston::entropy;
+    namespace entropy = tunitas::entropy;
     namespace usage = tunitas::keyston::nonce::usage;
-    namespace octets = tunitas::keyston::octets;
-    using tunitas::keyston::Octet;;
+    namespace octets = tunitas::octets;
+    using tunitas::octets::Octet;;
     //
     static_assert(usage::Generator<Generator<octets::Fixed<1>, entropy::None>>);
   }

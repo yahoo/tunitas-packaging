@@ -7,8 +7,8 @@
 #import tunitas.keyston.prio.required.Codec
 #import tunitas.keyston.prio.flp.validity.required.Validity
 #import tunitas.keyston.prio.flp.dimension.cast
-#import tunitas.keyston.quantity.Items
-#include <ipp/tunitas.keyston.quantity.Items>
+#import tunitas.units.Items
+#include <ipp/tunitas.units.Items>
 namespace tunitas::keyston::prio::usage {
   //
   // Are the mutual definitions in CODEC and VALIDITY similar?
@@ -19,8 +19,8 @@ namespace tunitas::keyston::prio::usage {
   template<typename CODEC, typename VALIDITY> concept Consistency_Codec_Validity = requires {
     requires prio::required::Codec<CODEC>;
     requires flp::validity::required::Validity<VALIDITY>;
-    requires CODEC::INPUT_LENGTH == cast<quantity::Items>(VALIDITY::INPUT_LENGTH);
-    requires CODEC::OUTPUT_LENGTH == cast<quantity::Items>(VALIDITY::OUTPUT_LENGTH);
+    requires CODEC::INPUT_LENGTH == cast<units::Items>(VALIDITY::INPUT_LENGTH);
+    requires CODEC::OUTPUT_LENGTH == cast<units::Items>(VALIDITY::OUTPUT_LENGTH);
   };
 }
 #endiv

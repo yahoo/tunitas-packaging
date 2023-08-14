@@ -37,7 +37,7 @@ namespace tunitas::keyston::vdaf {
 #divert <hpp>
 #import tunitas.keyston.vdaf.Definition
 #import tunitas.keyston.prg.constants
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.keyston.vdaf.Check
 namespace tunitas::keyston::vdaf {
   template<required::Definition DEFINITION> class State<SHARE, DEFINITION> {

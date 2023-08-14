@@ -91,7 +91,7 @@ namespace tunitas::keyston::crypto::algorithm {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.octets.string // pad(...), encode(...)
+#import tunitas.octets.string // pad(...), encode(...)
 #import tunitas.keyston.exception.Null
 namespace tunitas::keyston::crypto::algorithm {
   auto Algorithm<cSHAKE>::operator()(Message m, Bytes output_length, Custom s) -> Output { return operator()(m, output_length, s, {}); }

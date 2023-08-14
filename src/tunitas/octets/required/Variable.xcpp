@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.octets.Variable
+namespace tunitas::octets::required {
+  //
+  // Is this type (a descendant of) either a variable octets (buffer)?
+  // Unless other steps are taken, only the type name is used to diagnose the condition.
+  //
+  template<typename VARIABLE> concept Variable = convertible_to<VARIABLE *, octets::Variable *>;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace required = tunitas::octets::required;
+    using namespace tunitas::octets;
+    //
+    static_assert(required::Variable<Variable>);
+  }
+}
+#endiv

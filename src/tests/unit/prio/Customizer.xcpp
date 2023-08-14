@@ -9,6 +9,7 @@ namespace tests::unit::prio { struct Customizer; }
 #divert <hpp>
 #import tunitas.keyston.prio.Customizer
 #import tunitas.keyston.prio.Usage
+#import tunitas.octets.View
 #import std.uint32_t
 struct tests::unit::prio::Customizer : public rigging::suite::Fixture {
   static auto suite() -> Suite;
@@ -19,7 +20,7 @@ struct tests::unit::prio::Customizer : public rigging::suite::Fixture {
   //
   template<Usage> auto test_domain_separation_tag() -> void;
 protected:
-  static auto dump(Usage, ::tunitas::view::View<::tunitas::keyston::Octet>) -> void;
+  static auto dump(Usage, ::tunitas::octets::View) -> void;
 };
 #endiv
 #divert <tpp>
@@ -45,7 +46,7 @@ auto tests::unit::prio::Customizer::suite() -> Suite {
 }
 #import tests.unit.prio.format
 namespace tests::unit::prio {
-  auto Customizer::dump(Usage usage, ::tunitas::view::View<::tunitas::keyston::Octet> got) -> void {
+  auto Customizer::dump(Usage usage, ::tunitas::octets::View got) -> void {
     std::cerr << "usage=" << underlying(usage) << " domain_separation_tag=" << format(got) << '\n';
   }
 }

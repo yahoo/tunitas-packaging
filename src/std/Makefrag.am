@@ -6,10 +6,10 @@
 #
 std_SUBSOURCES = \
   obj/src/std/is_error_code_enum/tunitas.keyston.error.code.Unpackaged.Enumeration.cpp \
-  obj/src/std/is_error_code_enum/tunitas.keyston.transport.error.code.Unpackaged.Enumeration.cpp \
+  obj/src/std/is_error_code_enum/tunitas.rheem.transport.error.code.Unpackaged.Enumeration.cpp \
   \
   obj/src/std/is_error_condition_enum/tunitas.keyston.error.condition.Unpackaged.Enumeration.cpp \
-  obj/src/std/is_error_condition_enum/tunitas.keyston.transport.error.condition.Unpackaged.Enumeration.cpp \
+  obj/src/std/is_error_condition_enum/tunitas.rheem.transport.error.condition.Unpackaged.Enumeration.cpp \
   \
   obj/src/std/iterator_traits/tunitas.ranges.package_enumerate.Iterator.SUBITERATOR.MUTABILITY.cpp \
   \
@@ -19,21 +19,16 @@ std_SUBSOURCES = \
   obj/src/std/tuple_size/tunitas.keyston.daf.disassembled.Disassembled.cpp \
   obj/src/std/tuple_size/tunitas.keyston.vdaf.disassembled.Disassembled.DEFINITION.cpp \
   \
-  obj/src/std/variant_alternative/N.tunitas.keyston.protocol.query.batch.Batch.cpp \
-  obj/src/std/variant_alternative/N.tunitas.keyston.protocol.query.partial.Partial.cpp \
-  obj/src/std/variant_alternative/N.tunitas.keyston.protocol.preparation.step.Step.cpp \
+  obj/src/std/variant_alternative/N.tunitas.rheem.protocol.query.batch.Batch.cpp \
+  obj/src/std/variant_alternative/N.tunitas.rheem.protocol.query.partial.Partial.cpp \
+  obj/src/std/variant_alternative/N.tunitas.rheem.protocol.preparation.step.Step.cpp \
   \
-  obj/src/std/variant_size/tunitas.keyston.protocol.query.batch.Batch.cpp \
-  obj/src/std/variant_size/tunitas.keyston.protocol.query.partial.Partial.cpp \
-  obj/src/std/variant_size/tunitas.keyston.protocol.preparation.step.Step.cpp \
+  obj/src/std/variant_size/tunitas.rheem.protocol.query.batch.Batch.cpp \
+  obj/src/std/variant_size/tunitas.rheem.protocol.query.partial.Partial.cpp \
+  obj/src/std/variant_size/tunitas.rheem.protocol.preparation.step.Step.cpp \
   \
-  obj/src/std/visit/tunitas.keyston.protocol.query.batch.Batch.cpp \
-  obj/src/std/visit/tunitas.keyston.protocol.query.partial.Partial.cpp \
-  obj/src/std/visit/tunitas.keyston.protocol.preparation.step.Step.cpp \
+  obj/src/std/visit/tunitas.rheem.protocol.query.batch.Batch.cpp \
+  obj/src/std/visit/tunitas.rheem.protocol.query.partial.Partial.cpp \
+  obj/src/std/visit/tunitas.rheem.protocol.preparation.step.Step.cpp \
   obj/src/std/visit/tunitas.keyston.numeric.Ensmallenment.cpp \
-  $(end)
-deprecated = \
-  obj/src/std/visit/tunitas.keyston.vdaf.continued.Continued.VECTOR.cpp \
-  obj/src/std/variant_alternative/N.tunitas.keyston.vdaf.continued.Continued.VECTOR.cpp \
-  obj/src/std/variant_size/tunitas.keyston.vdaf.continued.Continued.VECTOR.cpp \
   $(end)

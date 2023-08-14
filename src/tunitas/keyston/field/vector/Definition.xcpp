@@ -31,7 +31,7 @@ namespace tunitas::keyston::field::vector {
 #divert <hpp>
 #import tunitas.array.Fixed
 #import tunitas.view.Fixed
-#import tunitas.keyston.entropy.required.Entropy
+#import tunitas.entropy.required.Entropy
 #import tunitas.keyston.field.vector.Fixed
 #import tunitas.keyston.field.traits.Field
 namespace tunitas::keyston::field {
@@ -55,7 +55,7 @@ namespace tunitas::keyston::field {
 #divert <ipp>
 #import tunitas.sequence.Sequence
 #import tunitas.keyston.nonce.Generator
-#import tunitas.keyston.entropy.usage.Entropy
+#import tunitas.entropy.usage.Entropy
 #import std.tie
 namespace tunitas::keyston::field::vector {
   template<required::Field F, Size C> template<entropy::required::Entropy SOURCE> auto Definition<F,C>::random(SOURCE &source) -> Value {

@@ -36,7 +36,7 @@ namespace tunitas::keyston::vdaf::check {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.octets.slice_off
+#import tunitas.octets.slice_off
 #import tunitas.keyston.prio.exception.Decode
 namespace tunitas::keyston::vdaf::check {
   //

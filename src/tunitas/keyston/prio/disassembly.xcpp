@@ -42,7 +42,7 @@ namespace tunitas::keyston::prio::package_disassembly {
 #import tunitas.array.Fixed
 #import tunitas.view.Fixed
 #import tunitas.view.Variable
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.keyston.prio.required.Definition
 #import tunitas.keyston.prio.disassembly.Disassembled
 #import tunitas.keyston.prio.randomness_size
@@ -142,7 +142,7 @@ namespace tunitas::keyston::prio::package_disassembly {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.octets.concatenate
+#import tunitas.octets.concatenate
 #import tunitas.keyston.prio.Definition
 namespace tunitas::keyston::prio::package_disassembly {
   template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> auto interface::disassembly(typename DEFINITION::Codec::Encoded const &encoded, Nonce<OF_NONCE> const &nonce, Randomness<OF_RANDOMNESS> const &randomness) -> Disassembled<DEFINITION> {
@@ -155,7 +155,7 @@ namespace tunitas::keyston::prio::package_disassembly {
 #import std.views.iota
 #import tunitas.array.Variable
 #import tunitas.keyston.exception.Unimplemented
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.keyston.prio.exception.Invariant
 #import tunitas.keyston.prio.flp.dimension.cast // ... find this by ADL for flp dimensions -> Items or Bytes
 #import tunitas.keyston.prio.binder

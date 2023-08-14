@@ -6,7 +6,4 @@
 #
 tunitas_keyston_required_SUBSOURCES = \
   obj/src/tunitas/keyston/required/namespace.cpp \
-  obj/src/tunitas/keyston/required/Has_Single_Bit.cpp \
-  obj/src/tunitas/keyston/required/span.Castable.cpp \
-  obj/src/tunitas/keyston/required/Unique.cpp \
   $(end)

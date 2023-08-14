@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::rheem::protocol::collection {
+  //
+  // The collection response
+  //
+  // Specification:
+  //  
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.5.1 Collection Initialization
+  //
+  // Design:
+  //
+  //   As shown.
+  //
+  // Usage:
+  //
+  //   Use designated initialization.
+  //
+  struct Response;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Opaque
+#import tunitas.hale.hpke.Ciphertext
+#import tunitas.rheem.protocol.query.Partial
+#import tunitas.keyston.quantity.Records
+namespace tunitas::rheem::protocol {
+  namespace collection {
+    using std::move;
+    inline auto swap(Response &, Response &) noexcept -> void;
+  }
+  struct collection::Response {
+    query::Partial partial_batch_selector{};
+    keyston::quantity::Records report_count{};
+    array::Bounded<hale::hpke::Ciphertext, (1uz<<32)> encrypted_aggregation_shares{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::rheem::protocol {
+  auto collection::swap(Response &a, Response &b) noexcept -> void {
+    swap(a.partial_batch_selector, b.partial_batch_selector);
+    swap(a.report_count, b.report_count);
+    swap(a.encrypted_aggregation_shares, b.encrypted_aggregation_shares);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::rheem::protocol::collection;
+    static_assert(std::is_default_constructible_v<Response>);
+    static_assert(std::is_copy_constructible_v<Response>);
+    static_assert(std::is_move_constructible_v<Response>);
+    static_assert(std::is_copy_assignable_v<Response>);
+    static_assert(std::is_move_assignable_v<Response>);
+    static_assert(std::is_swappable_v<Response>);
+  }
+}
+#endiv

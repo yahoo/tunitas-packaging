@@ -21,12 +21,12 @@ namespace tunitas::keyston::nonce::required {
 }
 #endiv
 #import tunitas.array.Fixed
-#import tunitas.keyston // for Octet
+#import tunitas.octets.Octet
 namespace {
   namespace testate {
     namespace required = tunitas::keyston::nonce::required;
     namespace array = tunitas::array;
-    using tunitas::keyston::Octet;
+    using tunitas::octets::Octet;
     //
     static_assert(required::Octets<array::Fixed<Octet, 0>>);
     static_assert(required::Octets<array::Fixed<Octet, 1>>);

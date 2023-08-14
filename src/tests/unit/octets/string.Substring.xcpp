@@ -37,7 +37,7 @@ auto tests::unit::octets::string::Substring::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.octets.string // for substring(...)
+#import tunitas.octets.string // for substring(...)
 namespace tests::unit::octets::string {
   auto Substring::test_good_middle() -> void {
     auto specimen = generate<Variable>(99);

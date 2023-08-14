@@ -10,11 +10,11 @@ namespace tests::unit::entropy {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.Source
-#import tunitas.keyston.entropy.None
-#import tunitas.keyston.entropy.Serial
-#import tunitas.keyston.entropy.Sequence
-#import tunitas.keyston.entropy.Device
+#import tunitas.entropy.Source
+#import tunitas.entropy.None
+#import tunitas.entropy.Serial
+#import tunitas.entropy.Sequence
+#import tunitas.entropy.Device
 namespace tests::unit {
   template<entropy::required::Entropy SUBJECT> struct entropy::Source : public rigging::suite::Fixture {
     static auto suite() -> Suite;

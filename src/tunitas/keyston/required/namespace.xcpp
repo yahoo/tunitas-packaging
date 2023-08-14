@@ -9,6 +9,5 @@
 namespace tunitas::keyston::required {
   using namespace tunitas::required;
   static_assert(same_as<int, int>);
-  namespace [[nodirectory]] span { }
 }
 #endiv

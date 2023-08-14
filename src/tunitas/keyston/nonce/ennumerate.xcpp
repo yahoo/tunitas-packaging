@@ -22,9 +22,9 @@ namespace tunitas::keyston::nonce {
   using namespace package_ennumerate::interface;
 }
 // namespaces
-#import tunitas.keyston.integer
+#import tunitas.integer.integers
 namespace tunitas::keyston::nonce::package_ennumerate {
-  using namespace tunitas::keyston::integer;
+  using namespace tunitas::integer::integers;
 }
 // types
 #import std.integral_constant

@@ -8,9 +8,9 @@
 namespace tunitas::keyston {
   enum CONFIG { }; // the anchor for autotools::autoconf::Config<CONFIG>
 }
-#import std.byte
+#import tunitas.octets.Octet
 namespace tunitas::keyston {
-  using Octet = std::byte;
+  using octets::Octet;
 }
 #import std.size_t
 #import std.ptrdiff_t

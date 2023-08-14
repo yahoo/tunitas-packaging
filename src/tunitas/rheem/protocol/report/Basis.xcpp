@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::rheem::protocol::report {
+  //
+  // The basis of every report {whole, share}
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   As stated; the common parts of whole::Produced and share::Produced.
+  //   Descendants only.
+  //
+  // Erudition:
+  //
+  //   "base" data being "basically about data";  there you have it.
+  //
+  // Usage:
+  //
+  //   By inheritance into whole and share to (ahem) share the code.
+  //
+  struct Basis;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Opaque
+#import tunitas.rheem.protocol.report.Metadata
+namespace tunitas::rheem::protocol {
+  namespace report {
+    using std::move;
+    inline auto swap(Basis &, Basis &) noexcept -> void;
+  }
+  struct report::Basis : public Metadata {
+    using Ancestor = Metadata;
+    friend auto swap(Basis &, Basis &) noexcept -> void;
+  public:
+    using Public_Share = Opaque<(1uz<<32)>;
+    Public_Share public_share{};
+  protected:
+    ~Basis() = default;
+    explicit Basis() = default;
+    inline explicit Basis(Metadata);
+    inline explicit Basis(Metadata, Public_Share);
+    inline explicit Basis(id::Report, time::Point, extension::Array);
+    inline explicit Basis(id::Report, time::Point, extension::Array, Public_Share);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::rheem::protocol {
+  auto report::swap(Basis &a, Basis &b) noexcept -> void {
+    Basis::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+    swap(a.public_share, b.public_share);
+  }
+  namespace report {
+    Basis::Basis(Metadata m) : Ancestor{move(m)} { }
+    Basis::Basis(Metadata m, Public_Share ps)
+      : Ancestor{move(m)}
+      , public_share{move(ps)}
+    { }
+    Basis::Basis(id::Report ir, time::Point tp, extension::Array ea) : Ancestor{move(ir), move(tp), move(ea)} { }
+    Basis::Basis(id::Report ir, time::Point tp, extension::Array ea, Public_Share ps)
+      : Ancestor{move(ir), move(tp), move(ea)}
+      , public_share{move(ps)}
+    { }
+  }
+}
+#endiv

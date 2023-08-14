@@ -5,10 +5,10 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.quantity.Items
-#import tunitas.keyston.quantity.Bits
+#import tunitas.units.Items
+#import tunitas.units.Bits
 namespace tunitas::keyston::histogram {
-  using quantity::Bits;
-  using quantity::Items;
+  using units::Bits;
+  using units::Items;
 }
 #endiv

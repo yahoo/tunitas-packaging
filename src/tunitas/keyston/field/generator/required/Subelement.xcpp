@@ -6,7 +6,7 @@
 #divert <fpp>
 #import tunitas.integer.required.Unsigned
 #import tunitas.integer.required.Small
-#import tunitas.keyston.integer.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.integer.required // ctcnr (cascade that certain 'namespace required')
 namespace tunitas::keyston::field::generator::required {
   //
   // A subelement in the numeric "field" is an (unsigned) "small integer" that is used to create a bigger one.
@@ -17,10 +17,10 @@ namespace tunitas::keyston::field::generator::required {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.integer
+#import tunitas.integer.integers
 namespace {
   namespace testate {
-    using namespace tunitas::keyston::integer;
+    using namespace tunitas::integer::integers;
     namespace required = tunitas::keyston::field::generator::required;
     //
     static_assert(required::Subelement<uint8_t>);

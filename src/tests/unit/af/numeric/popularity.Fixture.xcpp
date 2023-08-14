@@ -31,11 +31,11 @@ auto tests::unit::af::numeric::popularity::Fixture::suite() -> Suite {
 }
 #import nonstd.exception.Unimplemented
 #import tunitas.keyston.popularity.Prefixes
-#import nonstd.units.memory.scale // in unts of bits
+#import tunitas.units.Bits
 namespace tests::unit::af::numeric::popularity {
   auto Fixture::generate_some_parameters() -> Inventory::Parameters {
     auto ret = Inventory::Parameters{};
-    ret.prefix_length = nonstd::units::memory::Bits{4};
+    ret.prefix_length = ::tunitas::units::Bits{4};
     using S = Inventory::Specimen;
     ret.prefixes = ::tunitas::keyston::popularity::Prefixes{S{1}, S{2}, S{3}, S{4}};
     return ret;

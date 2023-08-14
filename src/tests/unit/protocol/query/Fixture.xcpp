@@ -35,9 +35,9 @@ auto tests::unit::protocol::query::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.query.Batch
-#import tunitas.keyston.protocol.query.Partial
-#import tunitas.keyston.protocol.query.Query
+#import tunitas.rheem.protocol.query.Batch
+#import tunitas.rheem.protocol.query.Partial
+#import tunitas.rheem.protocol.query.Query
 namespace tests::unit::protocol::query {
   auto Fixture::test_usage_Query() -> void {
     using Subject = library::Query;

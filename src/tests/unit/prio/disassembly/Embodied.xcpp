@@ -15,19 +15,19 @@ namespace tests::unit::prio::disassembly {
 #endiv
 #divert <hpp>
 #import tunitas.array.Fixed
-#import tunitas.keyston // for Octet
+#import tunitas.octets // for Octet
 namespace tests::unit::prio {
   template<disassembly::required::Allocator ALLOCATOR, Size THE_SHARDS, Size THE_STRIDE, Size THE_SEED> class disassembly::Embodied {
   protected:
     ~Embodied() = default;
   public:
-    inline static constexpr auto const SHARD_COUNT = ::tunitas::keyston::quantity::Items{THE_SHARDS};
-    inline static constexpr auto const STRIDE_COUNT = ::tunitas::keyston::quantity::Items{THE_STRIDE};
-    inline static constexpr auto const SEED_COUNT = ::tunitas::keyston::quantity::Bytes{THE_SEED};
-    inline static constexpr auto const MANAGED_SIZE = ::tunitas::keyston::quantity::Bytes{SHARD_COUNT.count() * STRIDE_COUNT.count() * SEED_COUNT.count()}; // [[FIXTHIS]] operator* should andle the unit algebra
+    inline static constexpr auto const SHARD_COUNT = ::tunitas::units::Items{THE_SHARDS};
+    inline static constexpr auto const STRIDE_COUNT = ::tunitas::units::Items{THE_STRIDE};
+    inline static constexpr auto const SEED_COUNT = ::tunitas::units::Bytes{THE_SEED};
+    inline static constexpr auto const MANAGED_SIZE = ::tunitas::units::Bytes{SHARD_COUNT.count() * STRIDE_COUNT.count() * SEED_COUNT.count()}; // [[FIXTHIS]] operator* should andle the unit algebra
     //
     using Allocator = ALLOCATOR;
-    using Octet = ::tunitas::keyston::Octet;
+    using Octet = ::tunitas::octets::Octet;
     using Buffer = ::tunitas::array::Fixed<Octet, MANAGED_SIZE.count()>;
     static auto generate() -> Buffer;
   };

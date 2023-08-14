@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.id
+#import tunitas.rheem.protocol.id
 namespace tests::unit::protocol::id {
   class Fixture;
-  namespace library = ::tunitas::keyston::protocol::id;
+  namespace library = ::tunitas::rheem::protocol::id;
 }
 #endiv
 #divert <hpp>
@@ -29,7 +29,7 @@ namespace tests::unit::protocol::id {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.protocol.id
+#import tunitas.rheem.protocol.id
 auto tests::unit::protocol::id::Fixture::suite() -> Suite {
   auto series = Stream{"id"sv};
   series << add("Batch", &Fixture::test_simple<library::Batch>)

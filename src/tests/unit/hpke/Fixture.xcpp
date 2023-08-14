@@ -7,7 +7,7 @@
 namespace tests::unit::hpke { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Side
+#import tunitas.hale.hpke.Side
 struct tests::unit::hpke::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -35,8 +35,8 @@ namespace tests::unit::hpke {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.hpke.Key
-#import tunitas.keyston.hpke.Configuration
+#import tunitas.hale.hpke.Key
+#import tunitas.hale.hpke.Configuration
 #import tests.unit.hpke.id.Fixture
 #import tests.unit.hpke.configuration.Fixture
 #import tests.unit.hpke.key.Fixture
@@ -76,7 +76,7 @@ auto tests::unit::hpke::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.hpke.io
+#import tunitas.hale.hpke.io
 #import fmt.format
 namespace tests::unit::hpke {
   auto Fixture::test_usage_identifiers() -> void {

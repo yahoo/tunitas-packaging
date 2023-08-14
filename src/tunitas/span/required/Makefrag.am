@@ -6,4 +6,5 @@
 #
 tunitas_span_required_SUBSOURCES = \
   obj/src/tunitas/span/required/namespace.cpp \
+  obj/src/tunitas/span/required/Castable.cpp \
   $(end)

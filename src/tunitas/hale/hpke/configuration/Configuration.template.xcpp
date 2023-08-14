@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::hale::hpke::configuration {
+  //
+  // An HPKE Configuration
+  //
+  // Specification:
+  //
+  //   RFC 9180
+  //   https://www.ietf.org/rfc/rfc9180.html
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //   The SECRET side has both the PUBLIC and the SECRET key.
+  //
+  // Usage:
+  //
+  //  Yes.
+  //
+  template<Side> struct Configuration;
+}
+#endiv

@@ -15,35 +15,35 @@ namespace tests::unit::integer {
 #divert <hpp>
 #import tunitas.integer.from.Bytes
 #import tunitas.integer.traits.SizeOf
-#import tunitas.keyston.octets.Variable
-#import tunitas.keyston.octets.Fixed
-#include <ipp/tunitas.keyston.octets.Fixed> // because cast<...>(...) uses it
-#import tunitas.keyston.octets.View
-#import tunitas.keyston.quantity.Bytes
+#import tunitas.octets.Variable
+#import tunitas.octets.Fixed
+#include <ipp/tunitas.octets.Fixed> // because cast<...>(...) uses it
+#import tunitas.octets.View
+#import tunitas.units.Bytes
 #import std.ostream
 namespace tests::unit {
   class integer::Palette {
   protected:
     ~Palette() = default;
   public:
-    using Bytes = ::tunitas::keyston::quantity::Bytes;
+    using Bytes = ::tunitas::units::Bytes;
     struct Integer {
       template<Size BIT_WIDTH> using Type = typename library::from::Bits<BIT_WIDTH>::Unsigned;
       template<Size BIT_WIDTH> inline static constexpr auto const SIZE = library::traits::SizeOf<typename library::from::Bits<BIT_WIDTH>::Unsigned>::VALUE;
       template<Size BIT_WIDTH> inline static constexpr auto const INTERESTING_CONSTANT = 0u;
     };
     struct Octets {
-      using Octet = ::tunitas::keyston::Octet;
-      using View = ::tunitas::keyston::octets::View;
-      using Variable = ::tunitas::keyston::octets::Variable;
-      template<Size CAPACITY> using Fixed = ::tunitas::keyston::octets::Fixed<CAPACITY>;
+      using Octet = ::tunitas::octets::Octet;
+      using View = ::tunitas::octets::View;
+      using Variable = ::tunitas::octets::Variable;
+      template<Size CAPACITY> using Fixed = ::tunitas::octets::Fixed<CAPACITY>;
       template<std::endian> struct Endian {
-        template<Size BIT_WIDTH> inline static constexpr auto const INTERESTING_CONSTANT = ::tunitas::keyston::octets::Fixed<BIT_WIDTH/8>{};
+        template<Size BIT_WIDTH> inline static constexpr auto const INTERESTING_CONSTANT = ::tunitas::octets::Fixed<BIT_WIDTH/8>{};
       };
     private:
       // for fixed-length views & spans, the constructor is explicit (no implicit conversion from a bare initializer list)
-      template<Size BIT_WIDTH, Size ACTUAL_LENGTH> requires (BIT_WIDTH/8 == ACTUAL_LENGTH-1u) inline static constexpr auto cast(char const (&literal)[ACTUAL_LENGTH]) -> ::tunitas::keyston::octets::Fixed<BIT_WIDTH/8> {
-        auto ret = ::tunitas::keyston::octets::Fixed<BIT_WIDTH/8>{};
+      template<Size BIT_WIDTH, Size ACTUAL_LENGTH> requires (BIT_WIDTH/8 == ACTUAL_LENGTH-1u) inline static constexpr auto cast(char const (&literal)[ACTUAL_LENGTH]) -> ::tunitas::octets::Fixed<BIT_WIDTH/8> {
+        auto ret = ::tunitas::octets::Fixed<BIT_WIDTH/8>{};
         for (auto i{0uz}, e{ACTUAL_LENGTH-1}; e != i; ++i) {
           ret.at(i) = Octet(literal[i]);
         }
@@ -54,15 +54,15 @@ namespace tests::unit {
     template<required::Unsigned  UNSIGNED> static auto dump(std::ostream &, UNSIGNED const &) -> void;
   };
   namespace integer {
-    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<8uz> = library::uint8_t{0b1001'0110u};
-    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<16uz> = library::uint16_t{0b1100'0011'1001'0110u};
-    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<32uz> = library::uint32_t{0x7654'3210u};
-    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<64uz> = library::uint64_t{0x7654'3210'fedc'ba98lu};
-    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<128uz> = (library::uint128_t{0x7654'3210'fedc'ba98lu} << 64) | library::uint128_t{0xfedc'ba98'7654'3210lu};
-    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<256uz> = ((library::uint256_t{0x7654'3210'fedc'ba98lu} << 192) |
-                                                                                            (library::uint256_t{0xfedc'ba98'7654'3210lu} << 128) | 
-                                                                                            (library::uint256_t{0x1122'3344'5566'7788lu} << 64) |
-                                                                                            (library::uint256_t{0xfedc'ba98'7654'3210lu} << 0));
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<8uz> = integers::uint8_t{0b1001'0110u};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<16uz> = integers::uint16_t{0b1100'0011'1001'0110u};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<32uz> = integers::uint32_t{0x7654'3210u};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<64uz> = integers::uint64_t{0x7654'3210'fedc'ba98lu};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<128uz> = (integers::uint128_t{0x7654'3210'fedc'ba98lu} << 64) | integers::uint128_t{0xfedc'ba98'7654'3210lu};
+    template<> inline constexpr auto const Palette::Integer::INTERESTING_CONSTANT<256uz> = ((integers::uint256_t{0x7654'3210'fedc'ba98lu} << 192) |
+                                                                                            (integers::uint256_t{0xfedc'ba98'7654'3210lu} << 128) | 
+                                                                                            (integers::uint256_t{0x1122'3344'5566'7788lu} << 64) |
+                                                                                            (integers::uint256_t{0xfedc'ba98'7654'3210lu} << 0));
     template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<8uz>    = cast<8uz>("\x96");
     template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::little>::INTERESTING_CONSTANT<8uz> = cast<8uz>("\x96");
     template<> template<> inline constexpr auto const Palette::Octets::Endian<std::endian::big>::INTERESTING_CONSTANT<16uz>    = cast<16uz>("\xb3\x96");

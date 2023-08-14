@@ -41,8 +41,8 @@ namespace tunitas::keyston::nonce::package_to_octets::body {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.integer.to_octets
-#import tunitas.keyston.integer.into_octets
+#import tunitas.integer.to_octets
+#import tunitas.integer.into_octets
 namespace tunitas::keyston::nonce::package_to_octets {
   template<std::endian ENDIAN, Size N> requires (4u < N && std::has_single_bit(N)) auto interface::to_octets(Bits<N> const &bits) -> array::Fixed<Octet, N/8> {
     if constexpr (N <= bits::MAXIMUM_SPECIALIZED_WIDTH) {

@@ -11,7 +11,7 @@ namespace tests::unit::nonce::since {
 #divert <hpp>
 #import tunitas.keyston.nonce.Generator
 #import tests.unit.nonce.Palette
-#import tunitas.keyston.entropy.Serial
+#import tunitas.entropy.Serial
 namespace tests::unit::nonce {
   template<typename SUBJECT> struct since::Since : public rigging::suite::Fixture, protected Palette {
     static auto suite() -> Suite;
@@ -24,7 +24,7 @@ namespace tests::unit::nonce {
     auto test_operator_eq() -> void;
     auto test_operator_ne() -> void;
   protected:
-    library::Generator<Subject, ::tunitas::keyston::entropy::Serial> generate{};
+    library::Generator<Subject, ::tunitas::entropy::Serial> generate{};
   };
 }
 #endiv

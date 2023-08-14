@@ -9,8 +9,8 @@ namespace tunitas::keyston::daf {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.quantity.Bits
-#import tunitas.keyston.quantity.Bytes
+#import tunitas.units.Bits
+#import tunitas.units.Bytes
 #import nonstd.units.memory.cast
 namespace tunitas::keyston::daf::constants {
   //
@@ -31,7 +31,7 @@ namespace tunitas::keyston::daf::constants {
   //   Yes.
   //
   namespace construct {
-    using namespace quantity;
+    using namespace units;
     namespace random_count {
       inline constexpr auto RANDOMNESS_BYTE_COUNT = Bytes{16};
       inline constexpr auto RANDOMNESS_BIT_COUNT = cast<Bits>(RANDOMNESS_BYTE_COUNT);

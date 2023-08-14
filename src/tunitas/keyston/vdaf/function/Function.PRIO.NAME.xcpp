@@ -41,11 +41,10 @@ namespace tunitas::keyston::vdaf::function {
 #import tunitas.view.Variable
 #import tunitas.keyston.Shard
 #import tunitas.keyston.Shards
-#import tunitas.keyston.hpke.Key
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.nonce.Bits
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.quantity.Bits
+#import tunitas.octets.Fixed
+#import tunitas.units.Bits
 #import tunitas.keyston.quantity.Records
 #import tunitas.keyston.prio.Codec
 #import tunitas.keyston.prio.Role
@@ -88,7 +87,6 @@ namespace tunitas::keyston::vdaf::function {
     using Processed  = quantity::Records;
     //
     struct Verify_Key {
-      using General [[deprecated("avoid")]] = hpke::Key<hpke::Side::SECRET>; // [[FIXTHIS]] use a view since the size required here is not need known there in hpke.
       inline static constexpr auto const SIZE = Definition::VERIFY_KEY_SIZE.count();
       using Storage = octets::Fixed<SIZE>;
       struct View {
@@ -162,13 +160,13 @@ namespace tunitas::keyston::vdaf::function {
 #import tunitas.keyston.Shard
 #import tunitas.keyston.exception.Unimplemented
 #import tunitas.keyston.nonce.to_octets
-#import tunitas.keyston.octets.Variable
+#import tunitas.octets.Variable
 #import tunitas.keyston.prio.disassembly
 #import tunitas.keyston.prio.binder
 #import tunitas.keyston.prio.Usage
 #import tunitas.keyston.exception.Invariant
 #import tunitas.keyston.prio.exception.Verifier
-#import tunitas.keyston.quantity.Items
+#import tunitas.units.Items
 #import tunitas.sequence.Sequence
 namespace tunitas::keyston::vdaf::function {
   template<Name NAME> auto Function<PRIO, NAME>::admission(Parameters const &parameters, measurement::Specimen specimen) -> Input<WHOLE> {
@@ -271,7 +269,7 @@ namespace tunitas::keyston::vdaf::function {
   }
   template<Name _> auto Function<PRIO, _>::disgorgement(Parameters const &, view::Variable<Output<SHARE>> outputs) -> Aggregation<SHARE> {
     // Section 7.2.4 Aggregation (for PRIO)
-    using Vecdef = typename Field::template Vector<cast<quantity::Items>(Prover::Validity::OUTPUT_LENGTH).count()>;
+    using Vecdef = typename Field::template Vector<cast<units::Items>(Prover::Validity::OUTPUT_LENGTH).count()>;
     auto coalesced = typename Vecdef::Value{};
     for (auto const &output : outputs) {
       coalesced += output;

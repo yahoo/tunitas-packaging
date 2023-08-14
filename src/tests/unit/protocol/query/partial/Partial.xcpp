@@ -8,6 +8,6 @@ namespace tests::unit::protocol::query::partial { class Partial; }
 #endiv
 #divert <hpp>
 #import tests.unit.protocol.query.similar.Object
-#import tunitas.keyston.protocol.query.partial.Partial
+#import tunitas.rheem.protocol.query.partial.Partial
 struct tests::unit::protocol::query::partial::Partial : public similar::Object<library::Partial, library::Record> { };
 #endiv

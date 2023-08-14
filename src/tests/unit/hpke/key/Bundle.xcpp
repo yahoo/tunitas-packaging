@@ -7,14 +7,14 @@
 namespace tests::unit::hpke::key { class Bundle; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Side
-#import tunitas.keyston.hpke.key.Key
-#import tunitas.keyston.hpke.key.Bundle
+#import tunitas.hale.hpke.Side
+#import tunitas.hale.hpke.key.Key
+#import tunitas.hale.hpke.key.Bundle
 namespace tests::unit::hpke {
   struct key::Bundle : public rigging::suite::Fixture {
     static auto suite() -> Suite;
     //
-    using enum ::tunitas::keyston::hpke::Side;
+    using enum ::tunitas::hale::hpke::Side;
     //
     template<typename SUBJECT> auto test_usage() -> void;
   };

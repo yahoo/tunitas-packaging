@@ -6,7 +6,7 @@
 #divert <hpp>
 #import tunitas.keyston.prio.required.Codec
 #import tunitas.keyston.field.usage.Field
-#import tunitas.keyston.quantity.Items
+#import tunitas.units.Items
 namespace tunitas::keyston::prio::usage {
   //
   // The full set of conditions that an Codec must obey
@@ -58,8 +58,8 @@ namespace tunitas::keyston::prio::usage {
     };
     template<typename CODEC> concept Codec = required::Codec<CODEC> && requires(CODEC) {
       typename CODEC::Field;
-      { CODEC::INPUT_LENGTH } -> convertible_to<quantity::Items>;
-      { CODEC::OUTPUT_LENGTH } -> convertible_to<quantity::Items>;
+      { CODEC::INPUT_LENGTH } -> convertible_to<units::Items>;
+      { CODEC::OUTPUT_LENGTH } -> convertible_to<units::Items>;
       requires field::usage::Field<typename CODEC::Field>;
       requires Encode<CODEC>;
       requires Truncate<CODEC>;

@@ -9,7 +9,7 @@
 #import tunitas.keyston.Scheme
 #import tunitas.keyston.Slice
 #import tunitas.keyston.shards.literals
-#import tunitas.keyston.entropy
+#import tunitas.entropy
 #import tunitas.keyston.measurement
 #import tunitas.keyston.measurement.literals
 #import tunitas.keyston.nonce
@@ -18,7 +18,7 @@
 #import tests.exhibition
 namespace tests::exhibition::recital {
   namespace array = tunitas::array;
-  namespace entropy = tunitas::keyston::entropy;
+  namespace entropy = tunitas::entropy;
   namespace measurement = tunitas::keyston::measurement;
   namespace nonce = tunitas::keyston::nonce;
   using namespace tunitas::keyston::vdaf;

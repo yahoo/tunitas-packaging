@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.hpke.id
+#import tunitas.hale.hpke.id
 namespace tests::unit::hpke::id {
   class Fixture;
-  namespace library = ::tunitas::keyston::hpke::id;
+  namespace library = ::tunitas::hale::hpke::id;
 }
 #endiv
 #divert <hpp>
@@ -30,7 +30,7 @@ namespace tests::unit::hpke::id {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.hpke.id
+#import tunitas.hale.hpke.id
 auto tests::unit::hpke::id::Fixture::suite() -> Suite {
   auto series = Stream{"id"sv};
   series << add("AEAD", &Fixture::test_simple<library::AEAD>)

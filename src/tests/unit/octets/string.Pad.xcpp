@@ -18,7 +18,7 @@ struct tests::unit::octets::string::Pad : public rigging::suite::Fixture, protec
 //
 // The specializations MUST occur before suite() so that their address is known
 //
-#import tunitas.keyston.octets.string // for pad(...)
+#import tunitas.octets.string // for pad(...)
 namespace tests::unit::octets::string {
   template<> auto Pad::test_pad<0>() -> void {
     auto got = library::pad(Bytes{9}, generate<Fixed<3>>()); // <--------------- test this

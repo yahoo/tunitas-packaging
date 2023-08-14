@@ -1,0 +1,71 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-hale/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/hale/tree/LICENSE
+#divert <fpp>
+#import fmt.formatter
+#forward tunitas.hale.hpke.Side
+#import nonstd.required.Character
+namespace fmt {
+  template<nonstd::required::Character CHAR> struct formatter<tunitas::hale::hpke::Side, CHAR>;
+}
+#endiv
+#divert <hpp>
+namespace fmt {
+  //
+  // Specification:
+  //
+  //   https://en.cppreference.com/w/cpp/utility/format/formatter
+  //   https://en.cppreference.com/w/cpp/named_req/Formatter
+  //   https://en.cppreference.com/w/cpp/named_req/BasicFormatter
+  //   callables parse(...) and format(...)
+  //   ParseContext, an alias of std::basic_format_parse_context<CharT>
+  //   FormatContext, an alias of std::basic_format_context<OutputIt, CharT>
+  //   ParseContext::iterator
+  //   FormatContext::iterator
+  // 
+  template<nonstd::required::Character CHAR> struct formatter<tunitas::hale::hpke::Side, CHAR> {
+    using Value = tunitas::hale::hpke::Side;
+    template<typename ParseContext> inline constexpr auto parse(ParseContext &ctx) -> decltype(ctx.begin());
+    template<typename FormatContext> inline auto format(Value const &, FormatContext &ctx) const -> decltype(ctx.out());
+  };
+}
+#endiv
+#divert <ipp>
+#import std.copy
+#import std.same_as
+#import std.type_info
+#import std.to_string
+namespace fmt {
+  template<nonstd::required::Character C> 
+  template<typename ParseContext> 
+  constexpr auto formatter<tunitas::hale::hpke::Side,C>::parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+    //
+    // {} only
+    //
+    if (auto end=ctx.end(); end != ctx.begin()) {
+      throw fmt::format_error{"only the trivial format {} is supported"};
+    } else {
+      return end;
+    }
+  }
+  template<nonstd::required::Character CHAR> 
+  template<typename FormatContext> 
+  auto formatter<tunitas::hale::hpke::Side,CHAR>::format(Value const &specimen, FormatContext &ctx) const -> decltype(ctx.out()) {
+    static_assert(std::same_as<char, CHAR>, "fixthis, generalize to any character");
+    auto pump = [](auto outbound, std::basic_string_view<CHAR> literal) { return std::copy(literal.begin(), literal.end(), outbound); };
+    if (Value::PUBLIC == specimen) {
+      return pump(ctx.out(), "PUBLIC");
+    } else if (Value::SECRET == specimen) {
+      return pump(ctx.out(), "SECRET");
+    } else {
+      // yuck - this case isn't common and it is heavy
+      auto o0 = ctx.out();
+      auto o1 = pump(o0, typeid(Value).name());
+      auto o2 = pump(o1, "-");
+      return pump(o2, std::to_string(underlying(specimen)));
+    }
+  }
+}
+#endiv

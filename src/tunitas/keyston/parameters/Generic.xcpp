@@ -30,10 +30,10 @@ namespace tunitas::keyston::parameters {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.Optional
+#import tunitas.Optional
 #import tunitas.keyston.histogram.Boundaries
 #import tunitas.keyston.popularity.Prefixes
-#import tunitas.keyston.quantity.Bits
+#import tunitas.units.Bits
 namespace tunitas::keyston {
   namespace parameters {
     using std::move;
@@ -44,7 +44,7 @@ namespace tunitas::keyston {
     ~Generic() = default;
   public:
     Optional<keyston::histogram::Boundaries> boundaries{}; // ... required for prio HISTOGRAM
-    Optional<quantity::Bits> prefix_length{}; // ................ required for poplar POPULARITY
+    Optional<units::Bits> prefix_length{}; // ................... required for poplar POPULARITY
     Optional<keyston::popularity::Prefixes> prefixes{}; // ...... eadem ratione
   };
 }

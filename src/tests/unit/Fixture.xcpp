@@ -9,8 +9,6 @@ namespace tests::unit { class Fixture; }
 #divert <hpp>
 struct tests::unit::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  auto test_usage_Unique() -> void;
-  auto test_usage_Opaque() -> void;
 };
 #endiv
 #divert <cpp>
@@ -55,74 +53,48 @@ struct tests::unit::Fixture : public rigging::suite::Fixture {
 #import tests.unit.idpf.Fixture
 auto tests::unit::Fixture::suite() -> Suite {
   auto series = Stream{"unit"sv};
-  series  << []{
-              auto use = Stream{"usage"sv};
-              use << add("Unique", &Fixture::test_usage_Unique)
-                  << add("Opaque", &Fixture::test_usage_Opaque)
-                  << END;
-              return use;
-            }()
-          << add<aggregation::Fixture>()
-          << add<array::Fixture>()
-          << add<crypto::Fixture>()
-          << add<entropy::Fixture>()
-          << add<error::Fixture>()
-          << add<exception::Fixture>()
-          << add<field::Fixture>()
-          << add<flp::Fixture>()
-          << add<fmt::Fixture>()
-          << add<histogram::Fixture>()
-          << add<hpke::Fixture>()
-          << add<identifier::Fixture>()
-          << add<integer::Fixture>()
-          << add<keyston::Fixture>()
-          << add<measurement::Fixture>()
-          << add<nonce::Fixture>()
-          << add<numeric::Fixture>()
-          << add<octets::Fixture>()
-          << add<parameters::Fixture>()
-          << add<poplar::Fixture>()
-          << add<popularity::Fixture>()
-          << add<prg::Fixture>()
-          << add<prio::Fixture>()
-          << add<protocol::Fixture>()
-          << add<quantity::Fixture>()
-          << add<ranges::Fixture>()
-          << add<shards::Fixture>()
-          << add<span::Fixture>()
-          << add<time::Fixture>()
-          << add<transport::Fixture>()
-          << add<view::Fixture>()
-          << add<want::Fixture>()
-          << add<wire::Fixture>()
+  series << add<aggregation::Fixture>()
+         << add<array::Fixture>()
+         << add<crypto::Fixture>()
+         << add<entropy::Fixture>()
+         << add<error::Fixture>()
+         << add<exception::Fixture>()
+         << add<field::Fixture>()
+         << add<flp::Fixture>()
+         << add<fmt::Fixture>()
+         << add<histogram::Fixture>()
+         << add<hpke::Fixture>()
+         << add<identifier::Fixture>()
+         << add<integer::Fixture>()
+         << add<keyston::Fixture>()
+         << add<measurement::Fixture>()
+         << add<nonce::Fixture>()
+         << add<numeric::Fixture>()
+         << add<octets::Fixture>()
+         << add<parameters::Fixture>()
+         << add<poplar::Fixture>()
+         << add<popularity::Fixture>()
+         << add<prg::Fixture>()
+         << add<prio::Fixture>()
+         << add<protocol::Fixture>()
+         << add<quantity::Fixture>()
+         << add<ranges::Fixture>()
+         << add<shards::Fixture>()
+         << add<span::Fixture>()
+         << add<time::Fixture>()
+         << add<transport::Fixture>()
+         << add<view::Fixture>()
+         << add<want::Fixture>()
+         << add<wire::Fixture>()
     //
-          << add<af::Fixture>()
-          << add<daf::Fixture>()
-          << add<vdaf::Fixture>()
-          << add<wire::Fixture>()
-          << add<pf::Fixture>()
-          << add<dpf::Fixture>()
-          << add<idpf::Fixture>()
-          << END;
+         << add<af::Fixture>()
+         << add<daf::Fixture>()
+         << add<vdaf::Fixture>()
+         << add<wire::Fixture>()
+         << add<pf::Fixture>()
+         << add<dpf::Fixture>()
+         << add<idpf::Fixture>()
+         << END;
   return settle(series);
-}
-#import tunitas.keyston.Opaque
-#import tunitas.keyston.Unique
-namespace tests::unit {
-  auto Fixture::test_usage_Unique() -> void {
-    using Subject = library::Unique<4, Fixture>;
-    auto subject = Subject{};
-    require(ASSERTION, 4 == subject.size());
-  }
-  auto Fixture::test_usage_Opaque() -> void {
-    using Subject = library::Opaque<4>;
-    auto subject = Subject{};
-    require(ASSERTION, 0 == subject.size());
-    subject.push_back({});
-    subject.push_back({});
-    subject.push_back({});
-    subject.push_back({});
-    require(ASSERTION, 4 == subject.size());
-  }
 }
 #endiv

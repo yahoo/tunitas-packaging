@@ -1,0 +1,22 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_octets_required_SUBSOURCES = \
+  obj/src/tunitas/octets/required/namespace.cpp \
+  obj/src/tunitas/octets/required/Castable.cpp \
+  obj/src/tunitas/octets/required/Octets.cpp \
+  obj/src/tunitas/octets/required/Fixed.cpp \
+  obj/src/tunitas/octets/required/Variable.cpp \
+  obj/src/tunitas/octets/required/concatenate.Fixed.cpp \
+  obj/src/tunitas/octets/required/concatenate.Mixed.cpp \
+  obj/src/tunitas/octets/required/view.Fixed.cpp \
+  obj/src/tunitas/octets/required/view.Mixed.cpp \
+  obj/src/tunitas/octets/required/view.Variable.cpp \
+  obj/src/tunitas/octets/required/array.Fixed.cpp \
+  obj/src/tunitas/octets/required/array.Mixed.cpp \
+  obj/src/tunitas/octets/required/array.Variable.cpp \
+  obj/src/tunitas/octets/required/Unique.cpp \
+  $(end)

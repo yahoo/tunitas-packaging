@@ -8,7 +8,7 @@ namespace tests::unit::octets { struct Variable; }
 #endiv
 #divert <hpp>
 #import tests.unit.octets.Palette
-#import tunitas.keyston.octets.Variable
+#import tunitas.octets.Variable
 #import tunitas.exception.Aspect
 struct tests::unit::octets::Variable : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;

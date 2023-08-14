@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.batch
+#import tunitas.rheem.protocol.batch
 namespace tests::unit::protocol::batch {
   class Fixture;
-  namespace library = ::tunitas::keyston::protocol::batch;
+  namespace library = ::tunitas::rheem::protocol::batch;
 }
 #endiv
 #divert <hpp>
@@ -29,7 +29,7 @@ auto tests::unit::protocol::batch::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.batch.Batch
+#import tunitas.rheem.protocol.batch.Batch
 namespace tests::unit::protocol::batch {
   auto Fixture::test_usage_Batch() -> void {
     using Subject = library::Batch;

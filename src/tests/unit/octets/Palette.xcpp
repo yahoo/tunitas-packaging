@@ -15,17 +15,17 @@ namespace tests::unit::octets {
 #divert <hpp>
 #import tunitas.array.Variable
 #import tunitas.array.Fixed
-#import tunitas.keyston.octets.required.Octets
-#import tunitas.keyston.octets.required.Variable
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.Variable
-#import tunitas.keyston.quantity.Bytes
+#import tunitas.octets.required.Octets
+#import tunitas.octets.required.Variable
+#import tunitas.octets.Fixed
+#import tunitas.octets.Variable
+#import tunitas.units.Bytes
 class tests::unit::octets::Palette {
 protected:
   ~Palette() = default;
 public:
-  using Bytes = ::tunitas::keyston::quantity::Bytes;
-  using Octet = ::tunitas::keyston::Octet;
+  using Bytes = ::tunitas::units::Bytes;
+  using Octet = ::tunitas::octets::Octet;
   template<Size CAPACITY> using Fixed = library::Fixed<CAPACITY>;
   using Variable = library::Variable;
   //

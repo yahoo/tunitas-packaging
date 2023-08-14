@@ -1,0 +1,18 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.variant_size
+#forward tunitas.rheem.protocol.query.batch.Batch
+namespace std {
+  template<> struct variant_size<tunitas::rheem::protocol::query::batch::Batch>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.query.batch.Variant
+namespace std {
+  template<> struct variant_size<tunitas::rheem::protocol::query::batch::Batch> : public variant_size<tunitas::rheem::protocol::query::batch::Variant> { };
+}
+#endiv

@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::time {
+  //
+  // The standard time interval
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   Not really.
+  //   Use aggregate initialization.
+  //
+  // Usage:
+  //
+  //    Yes.
+  //
+  struct Interval;
+}
+#endiv
+#divert <hpp>
+#import tunitas.time.Point
+#import tunitas.time.Duration
+namespace tunitas {
+  namespace time {
+    using std::move;
+    inline auto swap(Interval &, Interval &) noexcept -> void;
+  }
+  struct time::Interval {
+    Point start{};
+    Duration duration{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas {
+  auto time::swap(Interval &a, Interval &b) noexcept -> void{
+    swap(a.start, b.start);
+    swap(a.duration, b.duration);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::time;
+    static_assert(std::is_default_constructible_v<Interval>);
+    static_assert(std::is_copy_constructible_v<Interval>);
+    static_assert(std::is_move_constructible_v<Interval>);
+    static_assert(std::is_copy_assignable_v<Interval>);
+    static_assert(std::is_move_assignable_v<Interval>);
+    static_assert(std::is_swappable_v<Interval>);
+  }
+}
+#endiv

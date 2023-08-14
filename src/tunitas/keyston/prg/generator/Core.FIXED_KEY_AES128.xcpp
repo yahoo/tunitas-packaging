@@ -136,7 +136,8 @@ namespace tunitas::keyston::prg::generator {
   { }
 }
 #import std.views.iota
-#import tunitas.keyston.integer.into_octets
+#import tunitas.integer.into_octets
+#import tunitas.integer.integers
 namespace tunitas::keyston::prg::generator {
   auto Core<FIXED_KEY_AES128>::next(Bytes length) -> Output::Variable {
     auto [offset, generated] = generate_next(length);
@@ -149,7 +150,7 @@ namespace tunitas::keyston::prg::generator {
   auto Core<FIXED_KEY_AES128>::generate_next(Bytes length) -> Tuple<Index, Output::Variable> {
     constexpr auto BLOCK_SIZE = SEED_SIZE.count();
     static_assert(16uz == BLOCK_SIZE);
-    using integer::uint128_t;
+    using integer::integers::uint128_t;
     static_assert(16uz == sizeof(uint128_t));
     auto offset = length_consumed.count() % BLOCK_SIZE;
     auto old_position = length_consumed;

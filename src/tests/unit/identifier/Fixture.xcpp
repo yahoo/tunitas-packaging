@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.identifier
+#import tunitas.hale.identifier
 namespace tests::unit::identifier {
   class Fixture;
-  namespace library = ::tunitas::keyston::identifier;
+  namespace library = ::tunitas::hale::identifier;
 }
 #endiv
 #divert <hpp>
@@ -26,7 +26,7 @@ auto tests::unit::identifier::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.identifier.Service
+#import tunitas.hale.identifier.Service
 namespace tests::unit::identifier { 
   auto Fixture::test_Service() -> void {
     using Subject = library::Service;

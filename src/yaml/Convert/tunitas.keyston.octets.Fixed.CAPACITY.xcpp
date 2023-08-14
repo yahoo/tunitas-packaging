@@ -5,10 +5,10 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import yaml.Convert
-#forward tunitas.keyston.octets.Fixed
+#forward tunitas.octets.Fixed
 #import std.size_t
 namespace YAML {
   // follow https://github.com/jbeder/yaml-cpp/wiki/Tutorial Section Converting To/From NAtive Data Types
-  template<std::size_t CAPACITY> struct convert<tunitas::keyston::octets::Fixed<CAPACITY>>;
+  template<std::size_t CAPACITY> struct convert<tunitas::octets::Fixed<CAPACITY>>;
 }
 #endiv

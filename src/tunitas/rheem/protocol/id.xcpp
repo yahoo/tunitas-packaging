@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.hale.identifier
+namespace tunitas::rheem::protocol::id {
+  using namespace hale::identifier;
+}
+#import tunitas.Unique
+#import tunitas.hale.identifier.Service
+#forward tunitas.rheem.protocol.batch.Batch
+#forward tunitas.rheem.protocol.job.Job
+#forward tunitas.rheem.protocol.report.Produced
+#forward tunitas.rheem.protocol.task.Task
+namespace tunitas::rheem::protocol::id {
+  //
+  // The various identifiers of size.
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  //   These are expected ot be initialied from <zzz>something something cryptographically magic</zzz> random bytes.
+  //
+  // Design:
+  //
+  //   No (obvious)
+  //
+  //   Because these are all type aliases, the ADL context is actually namespace tunitas::array
+  //
+  // Usage:
+  //
+  //   Sure, use it, that's what it's there for.
+  //
+  using Batch = Unique<32, batch::Batch>;
+  using Job = Unique<32, job::Job>;
+  using Report = Unique<32, report::produced::Identifier_Tag>;
+  using Service = hale::identifier::Service;
+  using Task = Unique<32, task::Task>;
+}
+#import fmt.formatter.tunitas.Unique.SIZE.STAMP
+#endiv

@@ -13,13 +13,13 @@ namespace tests::unit::prio {
 }
 #import tunitas.array
 #import tunitas.view
-#import tunitas.keyston // Octet
+#import tunitas.octets.Octet
 namespace tests::unit::prio::package_format {
   template<typename TYPE> struct Formatter;
   namespace library {
     namespace view = ::tunitas::view;
     namespace array = ::tunitas::array;
-    using ::tunitas::keyston::Octet;
+    using ::tunitas::octets::Octet;
   }
   namespace body { }
 }
@@ -28,8 +28,8 @@ namespace tests::unit::prio::package_format {
 #import tunitas.view.Variable
 #import tunitas.array.Fixed
 #import tunitas.span.Span
-#import tunitas.keyston.octets.Variable
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Variable
+#import tunitas.octets.Fixed
 #import std.ostream
 namespace tests::unit::prio {
   template<typename TYPE> struct package_format::Formatter {
@@ -41,8 +41,8 @@ namespace tests::unit::prio {
   namespace package_format {
     inline auto emit_as_octet_string(std::ostream &o, ::tunitas::span::Span<library::Octet const>) -> std::ostream &;
     template<typename TYPE> inline auto operator<<(std::ostream &, Formatter<TYPE> const &) -> std::ostream &;
-    template<Size SIZE> inline auto operator<<(std::ostream &o, Formatter<::tunitas::keyston::octets::Fixed<SIZE>> const &) -> std::ostream &;
-    template<> inline auto operator<<(std::ostream &o, Formatter<::tunitas::keyston::octets::Variable> const &) -> std::ostream &;
+    template<Size SIZE> inline auto operator<<(std::ostream &o, Formatter<::tunitas::octets::Fixed<SIZE>> const &) -> std::ostream &;
+    template<> inline auto operator<<(std::ostream &o, Formatter<::tunitas::octets::Variable> const &) -> std::ostream &;
     template<> inline auto operator<<(std::ostream &, Formatter<library::view::Variable<library::Octet>> const &) -> std::ostream &;
     template<Size SIZE> inline auto operator<<(std::ostream &, Formatter<library::array::Fixed<library::Octet, SIZE>> const &) -> std::ostream &;
     template<Size SIZE1, Size SIZE2> inline auto operator<<(std::ostream &, Formatter<library::array::Fixed<library::array::Fixed<library::Octet, SIZE2>, SIZE1>> const &) -> std::ostream &;
@@ -89,8 +89,8 @@ namespace tests::unit::prio {
     return o << std::dec;
   }
   template<typename TYPE> auto package_format::operator<<(std::ostream &o, Formatter<TYPE> const &f) -> std::ostream & { return o << f.value; }
-  template<Size SIZE> auto package_format::operator<<(std::ostream &o, Formatter<::tunitas::keyston::octets::Fixed<SIZE>> const &f) -> std::ostream &     { return emit_as_octet_string(o, f.value); }
-  template<> auto package_format::operator<<(std::ostream &o, Formatter<::tunitas::keyston::octets::Variable> const &f) -> std::ostream &                 { return emit_as_octet_string(o, f.value); }
+  template<Size SIZE> auto package_format::operator<<(std::ostream &o, Formatter<::tunitas::octets::Fixed<SIZE>> const &f) -> std::ostream &     { return emit_as_octet_string(o, f.value); }
+  template<> auto package_format::operator<<(std::ostream &o, Formatter<::tunitas::octets::Variable> const &f) -> std::ostream &                 { return emit_as_octet_string(o, f.value); }
   template<> auto package_format::operator<<(std::ostream &o, Formatter<library::view::Variable<library::Octet>> const &f) -> std::ostream &              { return emit_as_octet_string(o, f.value); }
   template<Size SIZE> auto package_format::operator<<(std::ostream &o, Formatter<library::array::Fixed<library::Octet, SIZE>> const &f) -> std::ostream & { return emit_as_octet_string(o, f.value); }
   template<Size SIZE1, Size SIZE2> auto package_format::operator<<(std::ostream &o, Formatter<library::array::Fixed<library::array::Fixed<library::Octet, SIZE2>, SIZE1>> const &f) -> std::ostream & {

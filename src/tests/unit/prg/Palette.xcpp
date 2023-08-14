@@ -17,8 +17,8 @@ namespace tests::unit::prg {
 #import tunitas.array.Variable
 #import tunitas.array.Fixed
 #import tunitas.view.View
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.Variable
+#import tunitas.octets.Fixed
+#import tunitas.octets.Variable
 #import tunitas.keyston.prg.generator.Prototype
 #import tunitas.keyston.prg.generator.required.Element
 #import tests.unit.prg.Palette
@@ -27,15 +27,15 @@ struct tests::unit::prg::Palette {
 protected:
   ~Palette() = default;
 public:
-  using Seed = ::tunitas::keyston::octets::Fixed<library::generator::Prototype::Seed::SIZE.count()>;
-  using Custom = ::tunitas::keyston::octets::Variable;
-  using Binder = ::tunitas::keyston::octets::Variable;
+  using Seed = ::tunitas::octets::Fixed<library::generator::Prototype::Seed::SIZE.count()>;
+  using Custom = ::tunitas::octets::Variable;
+  using Binder = ::tunitas::octets::Variable;
   //
   // reminder: cannot use both an implicit coercion (from array) and also infer the ELEMENT
   template<required::Element ELEMENT>             static auto dump(::tunitas::view::View<ELEMENT>) -> void;
   template<required::Element ELEMENT>             static auto dump(::tunitas::array::Variable<ELEMENT> const &a) -> void     { dump(static_cast<::tunitas::view::View<ELEMENT>>(a)); }
   template<required::Element ELEMENT, Size COUNT> static auto dump(::tunitas::array::Fixed<ELEMENT, COUNT> const &a) -> void { dump(static_cast<::tunitas::view::View<ELEMENT>>(a)); }
-  static auto dump(::tunitas::view::View<::tunitas::keyston::Octet>) -> void;
+  static auto dump(::tunitas::view::View<::tunitas::octets::Octet>) -> void;
   //
   static auto generate_seed(::tunitas::Optional<nonstd::uint128_t> = {}) -> Seed;
   static auto generate_custom(::tunitas::Optional<nonstd::uint128_t> = {}) -> Custom;
@@ -48,9 +48,9 @@ protected:
 #divert <tpp>
 #import tunitas.integer.SizeOf
 #import tunitas.keyston.field.element.traits.Element
-#import tunitas.keyston.integer.into_octets
-#import tunitas.keyston.octets.cast
-#import tunitas.keyston.octets.View
+#import tunitas.integer.into_octets
+#import tunitas.octets.cast
+#import tunitas.octets.View
 #import nonstd.to_string
 #import std.hex
 #import std.dec
@@ -61,7 +61,7 @@ namespace tests::unit::prg {
   template<typename SOMETHING> auto Palette::generate_by_number(::tunitas::Optional<nonstd::uint128_t> init) -> SOMETHING {
     auto thing = SOMETHING{};
     if (init) {
-      ::tunitas::keyston::integer::into_octets<std::endian::little>(*init, thing);
+      ::tunitas::integer::into_octets<std::endian::little>(*init, thing);
     }
     return thing;
   }
@@ -74,7 +74,7 @@ namespace tests::unit::prg {
 #else
       auto str = nonstd::to_string(*init);
 #endif
-      auto redo = ::tunitas::keyston::octets::cast<::tunitas::keyston::octets::View>( std::span{str.data(), str.size()} );
+      auto redo = ::tunitas::octets::cast<::tunitas::octets::View>( std::span{str.data(), str.size()} );
       return SOMETHING{redo.begin(), redo.end()};
     }
   }
@@ -95,7 +95,7 @@ namespace tests::unit::prg {
   auto Palette::generate_seed(::tunitas::Optional<nonstd::uint128_t> init) -> Seed     { return generate_by_number<Seed>(init); }
   auto Palette::generate_custom(::tunitas::Optional<nonstd::uint128_t> init) -> Custom { return generate_by_string<Custom>(init); }
   auto Palette::generate_binder(::tunitas::Optional<nonstd::uint128_t> init) -> Binder { return generate_by_string<Binder>(init); }
-  auto Palette::dump(::tunitas::view::View<::tunitas::keyston::Octet> generated) -> void {
+  auto Palette::dump(::tunitas::view::View<::tunitas::octets::Octet> generated) -> void {
     auto &out{std::cerr};
     if (generated.empty()) {
       out << "(empty)";

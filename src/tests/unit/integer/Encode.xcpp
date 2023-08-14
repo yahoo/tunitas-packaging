@@ -4,11 +4,11 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.integer.encode // a whold bunch of functions
+#import tunitas.integer.encode // a whold bunch of functions
 namespace tests::unit::integer {
   namespace [[eponymous]] encode {
     struct Encode;
-    namespace library = ::tunitas::keyston::integer::encode;
+    namespace library = ::tunitas::integer::encode;
   }
   using encode::Encode;
 }

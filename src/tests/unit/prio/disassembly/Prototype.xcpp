@@ -13,7 +13,7 @@ namespace tests::unit::prio::disassembly {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.octets.Variable
+#import tunitas.octets.Variable
 #import tunitas.keyston.Shards
 #import tunitas.keyston.Shard
 #import tunitas.Tuple
@@ -21,11 +21,11 @@ struct tests::unit::prio::disassembly::Prototype {
 protected:
   ~Prototype() = default;
 public:
-  using Octet = ::tunitas::keyston::Octet;
+  using Octet = ::tunitas::octets::Octet;
   using Specimen = ::tunitas::keyston::measurement::Specimen;
-  using Publick = ::tunitas::keyston::octets::Variable;
+  using Publick = ::tunitas::octets::Variable;
   using Shard = ::tunitas::keyston::Shard;
-  using Inputs = ::tunitas::keyston::Shards<::tunitas::keyston::octets::Variable>;
+  using Inputs = ::tunitas::keyston::Shards<::tunitas::octets::Variable>;
   template<typename... TYPE> using Tuple = ::tunitas::Tuple<TYPE...>;
   //
   using Splat = Tuple<Publick, Inputs>;

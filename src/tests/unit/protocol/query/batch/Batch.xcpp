@@ -8,7 +8,7 @@ namespace tests::unit::protocol::query::batch { class Batch; }
 #endiv
 #divert <hpp>
 #import tests.unit.protocol.query.similar.Object
-#import tunitas.keyston.protocol.query.batch.Batch
+#import tunitas.rheem.protocol.query.batch.Batch
 #import tunitas.variant.Visitor
 struct tests::unit::protocol::query::batch::Batch : public similar::Object<library::Batch, library::Record> {
   using Ancestor = similar::Object<library::Batch, library::Record>;

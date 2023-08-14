@@ -27,10 +27,10 @@ auto tests::unit::fmt::fixture::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.id // for id::Batch and the formatters
+#import tunitas.rheem.protocol.id // for id::Batch and the formatters
 namespace tests::unit::fmt::fixture {
   auto Fixture::test_Unique() -> void {
-    using Specimen = ::tunitas::keyston::protocol::id::Batch;
+    using Specimen = ::tunitas::rheem::protocol::id::Batch;
     auto specimen = Specimen{};
     std::cerr << library::format("formatting batch {}", specimen);
     require(ASSERTION, true);

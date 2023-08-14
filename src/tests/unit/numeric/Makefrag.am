@@ -7,5 +7,4 @@
 tests_unit_numeric_SUBSOURCES = \
   check/obj/src/tests/unit/numeric/namespace.cpp \
   check/obj/src/tests/unit/numeric/Fixture.cpp \
-  check/obj/src/tests/unit/numeric/Fixture.Hard.cpp \
   $(end)

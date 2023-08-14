@@ -10,8 +10,8 @@ namespace tunitas::keyston::prio::role {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Span
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Span
+#import tunitas.octets.Fixed
 #forward tunitas.keyston.prio.role.Role
 #import tunitas.keyston.Shards // and shards::SHARD_COUNT
 namespace tunitas::keyston::prio::role {

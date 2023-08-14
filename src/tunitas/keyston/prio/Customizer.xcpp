@@ -72,8 +72,8 @@ namespace tunitas::keyston::prio {
 #endiv
 #divert <ipp>
 #import std.copy
-#import tunitas.keyston.octets.concatenate
-#import tunitas.keyston.integer.to_octets
+#import tunitas.octets.concatenate
+#import tunitas.integer.to_octets
 namespace tunitas::keyston::prio::customizer {
   template<auto _> template<Usage USAGE> constexpr auto Customizer<_>::domain_separation_tag() -> array::Fixed<Octet, DOMAIN_SEPARATION_TAG_SIZE> {
     return format(Version{0}, Class::VDAF, ALGORITHM, USAGE);

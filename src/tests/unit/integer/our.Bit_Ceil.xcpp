@@ -5,12 +5,12 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.integer.integers
-#import tunitas.keyston.integer.encode // there's a 'namespace our' in there
+#import tunitas.integer.encode // there's a 'namespace our' in there
 namespace tests::unit::integer::our {
   namespace [[eponymous]] bit_ceil {
     struct Bit_Ceil;
     // [[FIXTHIS]] move this out to namespace our
-    namespace library = ::tunitas::keyston::integer::encode::package_encode::body::our;
+    namespace library = ::tunitas::integer::encode::package_encode::body::our;
     using namespace ::tunitas::integer::integers;
   }
   using bit_ceil::Bit_Ceil;

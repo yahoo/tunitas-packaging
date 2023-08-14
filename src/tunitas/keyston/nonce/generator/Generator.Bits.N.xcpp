@@ -5,8 +5,9 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.nonce.generator.Generator.template
-#import tunitas.keyston.required.Has_Single_Bit
+#import tunitas.required.Has_Single_Bit
 #import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.nonce.required // ctcnr (cascade that certain 'namespace required')
 namespace tunitas::keyston::nonce::generator {
   //
   // Fill up a Bits<N>
@@ -46,12 +47,12 @@ namespace tunitas::keyston::nonce::generator {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.nonce.usage.Generator
-#import tunitas.keyston.entropy.Serial
+#import tunitas.entropy.Serial
 #import  std.declval
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
-    namespace entropy = tunitas::keyston::entropy;
+    namespace entropy = tunitas::entropy;
     namespace usage = tunitas::keyston::nonce::usage;
 #if 1
     static_assert(usage::Generator<Generator<Bits<1>, entropy::Serial>>);

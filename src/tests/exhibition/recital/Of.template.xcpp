@@ -40,7 +40,7 @@ namespace tests::exhibition::recital {
 #import tunitas.keyston.vdaf.Function
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.keyston.nonce.once
-#import tunitas.keyston.entropy.Sequence
+#import tunitas.entropy.Sequence
 //
 // Yet Another Markup Language
 //
@@ -49,7 +49,7 @@ namespace tests::exhibition::recital {
 #import yaml.Emitter.tunitas.keyston.aggregation.io
 #import yaml.Emitter.tunitas.keyston.measurement.io
 #import yaml.Emitter.tunitas.keyston.field.vector.io
-#import yaml.Emitter.tunitas.keyston.octets.io
+#import yaml.Emitter.tunitas.octets.io
 #import yaml.Emitter.tunitas.view.io
 #import yaml.Emitter.nonstd.units.quantity.io
 #endiv

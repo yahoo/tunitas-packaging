@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit
-#import tunitas.keyston.identifier
+#import tunitas.hale.identifier
 namespace tests::unit::identifier {
-  namespace library = ::tunitas::keyston::identifier;
+  namespace library = ::tunitas::hale::identifier;
 }
 #endiv

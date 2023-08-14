@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit
-#import tunitas.keyston.protocol
+#import tunitas.rheem.protocol
 namespace tests::unit::protocol {
-  namespace library = ::tunitas::keyston::protocol;
+  namespace library = ::tunitas::rheem::protocol;
 }
 #endiv

@@ -7,9 +7,11 @@
 #import tests.unit
 #import tunitas.keyston.nonce
 #import tunitas.keyston.nonce.required
+#import tunitas.integer.integers
 namespace tests::unit::nonce {
   namespace library = ::tunitas::keyston::nonce;
   namespace required = ::tunitas::keyston::nonce::required;
+  namespace integers = ::tunitas::integer::integers;;
   static_assert(sizeof(Size), "already visible");
   namespace [[nodirectory]] bits { }
   namespace [[nodirectory]] since { }

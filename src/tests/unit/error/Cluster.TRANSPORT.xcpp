@@ -10,16 +10,16 @@ namespace tests::unit::error::cluster {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.transport.error.Code
-#import tunitas.keyston.transport.error.Condition
-#import tunitas.keyston.transport.error.Category
-#import tunitas.keyston.transport.error.category
+#import tunitas.rheem.transport.error.Code
+#import tunitas.rheem.transport.error.Condition
+#import tunitas.rheem.transport.error.Category
+#import tunitas.rheem.transport.error.category
 namespace tests::unit::error::cluster {
   template<> struct Cluster<TRANSPORT> {
-    using Code = ::tunitas::keyston::transport::error::Code;
-    using Condition = ::tunitas::keyston::transport::error::Condition;
-    using Category = ::tunitas::keyston::transport::error::Category;
-    inline static auto category() -> Category const & { return ::tunitas::keyston::transport::error::category(); }
+    using Code = ::tunitas::rheem::transport::error::Code;
+    using Condition = ::tunitas::rheem::transport::error::Condition;
+    using Category = ::tunitas::rheem::transport::error::Category;
+    inline static auto category() -> Category const & { return ::tunitas::rheem::transport::error::category(); }
   };
 }
 #endiv

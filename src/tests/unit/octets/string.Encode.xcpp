@@ -21,7 +21,7 @@ auto tests::unit::octets::string::Encode::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.octets.string // for encode(...)
+#import tunitas.octets.string // for encode(...)
 namespace tests::unit::octets::string {
   auto Encode::test_encode() -> void {
     for (auto i{0uz}, e{17uz}; e != i; ++i) {

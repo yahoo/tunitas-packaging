@@ -118,8 +118,8 @@ namespace {
     static_assert(usage::Validity<Validity<HISTOGRAM>>);
     //
     // Whereas there was some confusion over counts (off-by-one) among the histogram, the boundaries and the bucket (count)
-    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::INPUT_LENGTH == cast<tunitas::keyston::quantity::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::INPUT_LENGTH));
-    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::OUTPUT_LENGTH == cast<tunitas::keyston::quantity::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::OUTPUT_LENGTH));
+    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::INPUT_LENGTH == cast<tunitas::units::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::INPUT_LENGTH));
+    static_assert(tunitas::keyston::prio::Codec<HISTOGRAM>::OUTPUT_LENGTH == cast<tunitas::units::Items>(tunitas::keyston::prio::flp::validity::Validity<HISTOGRAM>::OUTPUT_LENGTH));
   }
 }
 #endiv

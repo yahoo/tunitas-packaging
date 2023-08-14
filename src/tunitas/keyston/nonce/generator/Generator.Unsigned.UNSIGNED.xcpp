@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.integer.required.Unsigned
-#import tunitas.keyston.integer.required // ctcnr (cascade that certain namespace required)
+#import tunitas.integer.required // ctcnr (cascade that certain namespace required)
 #import tunitas.keyston.nonce.generator.Generator.template
 #import tunitas.keyston.nonce.Unsigned
 namespace tunitas::keyston::nonce::generator {
@@ -38,11 +38,11 @@ namespace tunitas::keyston::nonce::generator {
 #endiv
 #divert <cpp>
 #import tunitas.keyston.nonce.usage.Generator
-#import tunitas.keyston.entropy.Serial
+#import tunitas.entropy.Serial
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
-    namespace entropy = tunitas::keyston::entropy;
+    namespace entropy = tunitas::entropy;
     namespace usage = tunitas::keyston::nonce::usage;
     using namespace tunitas::integer::integers;
     //

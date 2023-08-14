@@ -7,11 +7,11 @@
 namespace tests::unit::hpke::key { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Side
+#import tunitas.hale.hpke.Side
 struct tests::unit::hpke::key::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using enum ::tunitas::keyston::hpke::Side;
+  using enum ::tunitas::hale::hpke::Side;
   //
   auto test_usage_Public() -> void;
   auto test_usage_Secret() -> void;
@@ -22,7 +22,7 @@ struct tests::unit::hpke::key::Fixture : public rigging::suite::Fixture {
 #endiv
 #divert <cpp>
 #import tests.unit.hpke.key.Bundle
-#import tunitas.keyston.hpke.key.Bundle
+#import tunitas.hale.hpke.key.Bundle
 auto tests::unit::hpke::key::Fixture::suite() -> Suite {
   auto series = Stream{"key"sv};
   series << []{
@@ -61,9 +61,9 @@ auto tests::unit::hpke::key::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.hpke.key.Public
-#import tunitas.keyston.hpke.key.Secret
-#import tunitas.keyston.hpke.key.Bundle
+#import tunitas.hale.hpke.key.Public
+#import tunitas.hale.hpke.key.Secret
+#import tunitas.hale.hpke.key.Bundle
 namespace tests::unit::hpke::key {
   auto Fixture::test_usage_Public() -> void {
     using Subject = library::Public;

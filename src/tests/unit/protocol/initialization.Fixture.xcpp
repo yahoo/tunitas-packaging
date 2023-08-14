@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.initialization
+#import tunitas.rheem.protocol.initialization
 namespace tests::unit::protocol::initialization {
   class Fixture;
-  namespace library = ::tunitas::keyston::protocol::initialization;
+  namespace library = ::tunitas::rheem::protocol::initialization;
 }
 #endiv
 #divert <hpp>
@@ -31,8 +31,8 @@ auto tests::unit::protocol::initialization::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.initialization.Request
-#import tunitas.keyston.protocol.initialization.Response
+#import tunitas.rheem.protocol.initialization.Request
+#import tunitas.rheem.protocol.initialization.Response
 namespace tests::unit::protocol::initialization {
   auto Fixture::test_usage_Request() -> void {
     auto subject0 = library::Request{};

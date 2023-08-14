@@ -41,8 +41,8 @@ namespace tunitas::keyston::field {
 #import tunitas.Tuple
 #import tunitas.keyston.field.required.Spanable
 #import std.dynamic_extent
-#import tunitas.keyston.integer.required.iterator.Sink
-#import tunitas.keyston.integer.required.iterator.Source
+#import tunitas.integer.required.iterator.Sink
+#import tunitas.integer.required.iterator.Source
 namespace tunitas::keyston {
   template<field::required::Element VALUE, Size THE_ENCODED_LENGTH> class field::Predefinition {
   protected:
@@ -64,9 +64,9 @@ namespace tunitas::keyston {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.integer.from_octets
-#import tunitas.keyston.integer.into_octets
-#import tunitas.keyston.integer.to_octets
+#import tunitas.integer.from_octets
+#import tunitas.integer.into_octets
+#import tunitas.integer.to_octets
 #import tunitas.keyston.field.element.traits.Element
 namespace tunitas::keyston::field {
   template<field::required::Element V, Size C> constexpr auto Predefinition<V,C>::encode(Value const &value) -> array::Fixed<Octet, ENCODED_LENGTH.count()> { return integer::to_octets<std::endian::big>(underlying(value)); }

@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.quantity.required.Quantity
+#import tunitas.units.required.Quantity
 #import tunitas.keyston.quantity.is.Convertible_To
 #include <hpp/tunitas.keyston.quantity.is.Convertible_To>
 namespace tunitas::keyston::quantity::required {
@@ -13,8 +13,8 @@ namespace tunitas::keyston::quantity::required {
   // The argument order rhymes with convertible_to<SOURCE, TARGET>
   //
   template<typename SOURCE, typename TARGET> concept Convertible_To = requires(SOURCE, TARGET) {
-    requires Quantity<TARGET>;
-    requires Quantity<SOURCE>;
+    requires units::required::Quantity<TARGET>;
+    requires units::required::Quantity<SOURCE>;
     requires is::Convertible_To<SOURCE, TARGET>::value;
   };
 }

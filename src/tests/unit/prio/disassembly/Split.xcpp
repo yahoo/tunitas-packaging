@@ -11,7 +11,7 @@ namespace tests::unit::prio::disassembly {
 #endiv
 #divert <hpp>
 #import tests.unit.prio.disassembly.Prototype
-#import tunitas.keyston.octets.required.Fixed
+#import tunitas.octets.required.Fixed
 #import tunitas.keyston.prio.Codec
 namespace tests::unit::prio {
   template<required::Definition DEFINITION> class disassembly::Split : public rigging::suite::Fixture, protected Prototype {
@@ -25,7 +25,7 @@ namespace tests::unit::prio {
     auto test_call() -> void;
   protected:
     // fill with something obvious (but deterministic)
-    template<::tunitas::keyston::octets::required::Fixed BUFFER> static auto generate() -> BUFFER;
+    template<::tunitas::octets::required::Fixed BUFFER> static auto generate() -> BUFFER;
   };
 }
 #endiv
@@ -38,7 +38,7 @@ namespace tests::unit::prio::disassembly {
            << END;
     return settle(series);
   }
-  template<required::Definition _> template<::tunitas::keyston::octets::required::Fixed BUFFER> auto Split<_>::generate() -> BUFFER {
+  template<required::Definition _> template<::tunitas::octets::required::Fixed BUFFER> auto Split<_>::generate() -> BUFFER {
     auto ret = BUFFER{};
     unsigned ith{};
     for (auto &each : ret) {
@@ -57,8 +57,8 @@ namespace tests::unit::prio::disassembly {
         return Definition::Codec::encode(specimen, boundaries);
       }
     }();
-    auto nonce = generate<::tunitas::keyston::octets::Fixed<Definition::NONCE_SIZE.count()>>();
-    auto randomness = generate<::tunitas::keyston::octets::Fixed<Definition::randomness_size().count()>>();
+    auto nonce = generate<::tunitas::octets::Fixed<Definition::NONCE_SIZE.count()>>();
+    auto randomness = generate<::tunitas::octets::Fixed<Definition::randomness_size().count()>>();
     auto viewof = []<Size SIZE>(::tunitas::array::Fixed<typename Ancestor::Octet, SIZE> const &a) -> ::tunitas::view::View<typename Ancestor::Octet, SIZE> { return /*explicit constructor*/ ::tunitas::view::View<typename Ancestor::Octet, SIZE>{a.data(), a.size()}; };
     auto disassembled = ::tunitas::keyston::prio::disassembly<Definition>(encoded, viewof(nonce), viewof(randomness)); // <-------------------- test this
     dump(disassembled);

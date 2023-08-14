@@ -11,8 +11,8 @@ namespace tunitas::keyston::vdaf {
 #divert <hpp>
 #import nonstd.units.memory.cast
 #import tunitas.keyston.prg.constants // SEED_SIZE
-#import tunitas.keyston.quantity.Bits
-#import tunitas.keyston.quantity.Bytes
+#import tunitas.units.Bits
+#import tunitas.units.Bytes
 namespace tunitas::keyston::vdaf::constants {
   //
   // Constants that are invariant across all implementations or within this implementation.

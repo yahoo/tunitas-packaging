@@ -8,8 +8,8 @@
 #import tunitas.keyston.prio.Role
 #import tunitas.Tuple
 #import tunitas.keyston.Shards
-#import tunitas.keyston.octets.Variable
-#include <hpp/tunitas.keyston.octets.Variable> // because Shards<...> requires the complete type
+#import tunitas.octets.Variable
+#include <hpp/tunitas.octets.Variable> // because Shards<...> requires the complete type
 namespace tunitas::keyston::prio::package_disassembly {
   //
   // A tuple of the public and the input shards

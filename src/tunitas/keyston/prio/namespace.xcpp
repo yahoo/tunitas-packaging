@@ -5,13 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.quantity.Bits
-#import tunitas.keyston.quantity.Bytes
-#import tunitas.keyston.quantity.Items
+#import tunitas.units.Bits
+#import tunitas.units.Bytes
+#import tunitas.units.Items
 namespace tunitas::keyston::prio {
-  using quantity::Bits;
-  using quantity::Bytes;
-  using quantity::Items;
+  using units::Bits;
+  using units::Bytes;
+  using units::Items;
   namespace [[nodirectory]] is { }
   namespace [[nodirectory]] indexed { }
   namespace [[nodirectory]] traits { }

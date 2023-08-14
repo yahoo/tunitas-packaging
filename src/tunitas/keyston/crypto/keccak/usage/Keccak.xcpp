@@ -5,15 +5,15 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.keyston.crypto.keccak.required.Keccak
-#import tunitas.keyston.octets.View
-#import tunitas.keyston.octets.Span
+#import tunitas.octets.View
+#import tunitas.octets.Span
 namespace tunitas::keyston::crypto::keccak::usage {
   //
   // The usage of all the KECCAK[c] functions is all the same.
   // This is diagnosed with the complete type of KECCAK.
   //
   namespace [[eponymous]] keccak {
-    namespace octets = ::tunitas::keyston::octets;
+    namespace octets = ::tunitas::octets;
     template<typename KECCAK> concept Keccak = required::Keccak<KECCAK> && requires(KECCAK keccak, octets::View input, octets::Span<Octet> output) {
       { KECCAK{} };
       { keccak.update(input) };

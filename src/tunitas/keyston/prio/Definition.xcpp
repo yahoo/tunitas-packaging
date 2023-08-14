@@ -66,7 +66,7 @@ namespace tunitas::keyston::prio {
 #endiv
 #divert <hpp>
 #import tunitas.array.Fixed
-#import tunitas.keyston.octets.Variable
+#import tunitas.octets.Variable
 #import tunitas.keyston.prg.Generator
 #import tunitas.keyston.prio.Name
 #import tunitas.keyston.vdaf.Name
@@ -75,8 +75,8 @@ namespace tunitas::keyston::prio {
 #import tunitas.keyston.prio.Role
 #import tunitas.keyston.prio.flp.Generic
 #import tunitas.keyston.prio.flp.Validity
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.View
+#import tunitas.octets.Fixed
+#import tunitas.octets.View
 #import tunitas.keyston.Shards
 #import tunitas.view.Variable
 #import tunitas.keyston.quantity.convert
@@ -138,7 +138,7 @@ namespace tunitas::keyston::prio {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.octets.join
+#import tunitas.octets.join
 #import tunitas.keyston.prio.randomness_size
 #import tunitas.keyston.prio.Usage
 namespace tunitas::keyston::prio::definition {

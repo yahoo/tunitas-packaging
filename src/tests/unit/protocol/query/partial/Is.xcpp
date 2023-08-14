@@ -8,10 +8,10 @@ namespace tests::unit::protocol::query::partial { class Is; }
 #endiv
 #divert <hpp>
 #import tests.unit.protocol.query.similar.Is
-#import tunitas.keyston.protocol.query.partial.Partial
+#import tunitas.rheem.protocol.query.partial.Partial
 struct tests::unit::protocol::query::partial::Is : public similar::Is<library::Partial, library::Record> { };
 #endiv
 #divert <ipp>
 // Additionally, test bodies require visibility to this (these)
-#import tunitas.keyston.protocol.query.partial.cast
+#import tunitas.rheem.protocol.query.partial.cast
 #endiv

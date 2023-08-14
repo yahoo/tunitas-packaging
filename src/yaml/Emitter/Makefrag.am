@@ -7,7 +7,7 @@ yaml_Emitter_SUBSOURCES = \
   obj/src/yaml/Emitter/tunitas.keyston.field.vector.io.cpp \
   obj/src/yaml/Emitter/tunitas.keyston.aggregation.io.cpp \
   obj/src/yaml/Emitter/tunitas.keyston.measurement.io.cpp \
-  obj/src/yaml/Emitter/tunitas.keyston.octets.io.cpp \
+  obj/src/yaml/Emitter/tunitas.octets.io.cpp \
   obj/src/yaml/Emitter/tunitas.view.io.cpp \
   obj/src/yaml/Emitter/nonstd.units.quantity.io.cpp \
   $(end)

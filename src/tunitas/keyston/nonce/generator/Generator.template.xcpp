@@ -6,7 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.nonce.required.Nonce
 #import tunitas.keyston.nonce.required.Entropy
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 namespace tunitas::keyston::nonce::generator {
   //
   // The nonce generator
@@ -33,5 +33,5 @@ namespace tunitas::keyston::nonce::generator {
 #endiv
 #divert <hpp>
 // Every specialization will need this (these)
-#import tunitas.keyston.entropy.Device
+#import tunitas.entropy.Device
 #endiv

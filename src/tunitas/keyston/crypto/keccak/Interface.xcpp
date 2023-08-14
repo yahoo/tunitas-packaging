@@ -46,8 +46,8 @@ namespace tunitas::keyston::crypto::keccak {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Span
-#import tunitas.keyston.octets.View
+#import tunitas.octets.Span
+#import tunitas.octets.View
 #import cryptopp.HashTransformation // for cryptopp::byte and (obviously) the basic HashTransformation interface definition
 class tunitas::keyston::crypto::keccak::Interface {
 protected:

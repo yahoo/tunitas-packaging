@@ -8,11 +8,11 @@
 #import tunitas.keyston.prg
 #import tunitas.keyston.prg.generator.required
 #import tunitas.keyston.prg.Name
-#import nonstd.units.memory.scale // Bytes
+#import tunitas.units.Bytes
 namespace tests::unit::prg {
   namespace library = ::tunitas::keyston::prg;
   namespace required = ::tunitas::keyston::prg::generator::required; // this is unusual, but is convenient
   using enum ::tunitas::keyston::prg::Name;
-  using nonstd::units::memory::Bytes;
+  using ::tunitas::units::Bytes;
 }
 #endiv

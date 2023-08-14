@@ -2,6 +2,6 @@
 # For terms and provenance see the LICENSE file at the top of this repository.
 #
 fmt_SUBSOURCES = \
-  obj/src/fmt/formatter/tunitas.keyston.hpke.Side.cpp \
-  obj/src/fmt/formatter/tunitas.keyston.Unique.SIZE.STAMP.cpp \
+  obj/src/fmt/formatter/tunitas.hale.hpke.Side.cpp \
+  obj/src/fmt/formatter/tunitas.Unique.SIZE.STAMP.cpp \
   $(end)

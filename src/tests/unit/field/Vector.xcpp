@@ -10,7 +10,7 @@ namespace tests::unit::field {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston // Octet
+#import tunitas.octets.Octet
 #import tunitas.array.Fixed
 namespace tests::unit {
   template<typename SUBJECT> requires field::required::definition::Vector<SUBJECT> struct field::Vector : public rigging::suite::Fixture {
@@ -20,7 +20,7 @@ namespace tests::unit {
     using Value = typename Subject::Value; // can't call this "Vector"
     using Element = typename Subject::Element;
     using Field = typename Subject::Field;
-    using Octet = ::tunitas::keyston::Octet;
+    using Octet = ::tunitas::octets::Octet;
     template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
     inline static constexpr auto const SPECIMEN_SIZE = Field::ENCODED_LENGTH.count();
     //
@@ -37,7 +37,7 @@ namespace tests::unit {
 #endiv
 #divert <tpp>
 #import std.equal
-#import tunitas.keyston.entropy.Serial
+#import tunitas.entropy.Serial
 namespace tests::unit::field {
   template<typename _> auto Vector<_>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
@@ -67,7 +67,7 @@ namespace tests::unit::field {
     require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));
   }
   template<typename _> auto Vector<_>::test_random() -> void {
-    auto source = ::tunitas::keyston::entropy::Serial{}; // who cares.
+    auto source = ::tunitas::entropy::Serial{}; // who cares.
     auto zeros = Value{};
     for (auto i{0u}, e{10u}; e != i; ++i) {
       auto const observed = Subject::random(source);

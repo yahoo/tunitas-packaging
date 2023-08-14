@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit
-#import tunitas.keyston.wire
+#import tunitas.rheem.wire
 namespace tests::unit::wire {
-  namespace library = ::tunitas::keyston::wire;
+  namespace library = ::tunitas::rheem::wire;
 }
 #endiv

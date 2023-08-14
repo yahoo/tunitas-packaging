@@ -35,7 +35,7 @@ namespace tests::unit {
 #endiv
 #divert <tpp>
 #import tests.unit.prio.format
-#import tunitas.keyston.quantity.Bytes
+#import tunitas.units.Bytes
 namespace tests::unit::prio {
   template<required::Definition _> auto Definition<_>::suite() -> Suite {
     auto series = Stream{typeid(Subject)};
@@ -60,7 +60,7 @@ namespace tests::unit::prio {
   }
   template<required::Definition _> auto Definition<_>::test_randomness_size() -> void {
     auto size = Subject::randomness_size();
-    require(ASSERTION, ::tunitas::keyston::quantity::Bytes{} != size);
+    require(ASSERTION, ::tunitas::units::Bytes{} != size);
   }
 }
 #endiv

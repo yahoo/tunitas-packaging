@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.hale.identifier.generator.required.Generatable
+namespace tunitas::hale::identifier::generator {
+  //
+  // Generators of identifiers
+  //
+  // Specification:
+  //
+  //   Under a policy
+  //   RANDOM ........ something about reading bits from /dev/random
+  //   SERIAL ........ has a serial number generator.
+  //   SUPPLIED ...... has a serial number supplied by the caller; e.g. in an uint64_t uint128_t
+  //
+  // Design:
+  //
+  //   Specializations mostly.
+  //
+  // Usage:
+  //
+  //   auto generator = identifier::Generator<id::Batch, identifier::Policy::SERIAL>{};
+  //   auto generated0 = generator();
+  //   auto generated1 = generator();
+  //
+  enum class Policy { RANDOM, SERIAL, SUPPLIED };
+  template<required::Generatable IDENTIFER, Policy, typename = void> struct Generator;
+}
+#endiv

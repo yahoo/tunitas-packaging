@@ -24,8 +24,8 @@ namespace tunitas::keyston::crypto::algorithm {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.View
+#import tunitas.octets.Fixed
+#import tunitas.octets.View
 class tunitas::keyston::crypto::algorithm::Prototype {
 protected:
   ~Prototype() = default;

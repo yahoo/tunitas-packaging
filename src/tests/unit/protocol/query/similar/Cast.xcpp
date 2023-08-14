@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.query.Type
+#import tunitas.rheem.protocol.query.Type
 namespace tests::unit::protocol::query::similar {
   //
   // Reminder:
@@ -16,8 +16,8 @@ namespace tests::unit::protocol::query::similar {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.exception.Cast
-#import tunitas.keyston.exception.Aspect
+#import tunitas.rheem.protocol.exception.Cast
+#import tunitas.rheem.exception.Aspect
 #import tunitas.exception.Aspect
 namespace tests::unit::protocol::query {
   template<typename SUBJECT, template<library::Type> class RECORD> struct similar::Cast : public rigging::suite::Fixture {
@@ -40,8 +40,8 @@ namespace tests::unit::protocol::query {
     template<Type> auto test_pointer_good() -> void;
     template<Type> auto test_pointer_fail() -> void;
   protected:
-    using Failure = ::tunitas::keyston::protocol::exception::Cast;
-    using Backup = ::tunitas::keyston::exception::Aspect;
+    using Failure = ::tunitas::rheem::protocol::exception::Cast;
+    using Backup = ::tunitas::rheem::exception::Aspect;
     using Failsafe = ::tunitas::exception::Aspect;
   };
 }

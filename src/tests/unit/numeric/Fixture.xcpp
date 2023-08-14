@@ -7,135 +7,15 @@
 namespace tests::unit::numeric { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.integer.required.Unsigned
-#import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.aggregation.Simple
 struct tests::unit::numeric::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  //
-  using Simple = ::tunitas::keyston::aggregation::Simple;
-  using Specimen = ::tunitas::keyston::measurement::Specimen;
-#if 0 // [[REMOVETHIS]]
-  auto test_enbiggen_easy() -> void;
-  auto test_enbiggen_hard() -> void;
-  //
-  auto test_ensmallen_easy() -> void;
-  auto test_ensmallen_hard() -> void;
-  auto test_ensmallen_negative() -> void;
-  auto test_ensmallen_clipped() -> void;
-#endif
-protected:
-  struct Hard;
-  inline static constexpr auto DIMENSIONS = 3uz;
 };
 #endiv
 #divert <cpp>
 auto tests::unit::numeric::Fixture::suite() -> Suite {
-  using namespace tunitas::keyston::numeric; // pulls in all the bignum integers (that we care about)
-  static_assert(sizeof(uint256_t));
   auto series = Stream{"numeric"sv};
-  series 
-#if 0 // [[REMOVETHIS]]
-    << []{
-              auto en = Stream{"enbiggen"sv};
-              en << add("easy", &Fixture::test_enbiggen_easy)
-                 << add("hard", &Fixture::test_enbiggen_hard)
-                 << END;
-              return en;
-            }()
-         << []{
-              auto en = Stream{"ensmallen"sv};
-              en << add("easy", &Fixture::test_ensmallen_easy)
-                 << add("hard", &Fixture::test_ensmallen_hard)
-                 << add("negative", &Fixture::test_ensmallen_negative)
-                 << add("clipped", &Fixture::test_ensmallen_clipped)
-                 << END;
-              return en;
-            }()
-#endif
+  series // any? (nope, not any any more)
          << END;
   return settle(series);
-}
-#import tests.unit.numeric.Fixture.Hard
-#import tunitas.keyston.numeric.enbiggen
-#import tunitas.keyston.numeric.ensmallen
-namespace tests::unit::numeric { 
-#if 0 // [[REMOVETHIS]]
-  auto Fixture::test_enbiggen_easy() -> void {
-    constexpr auto SMALL = 3u;
-    constexpr auto specimen = Specimen{SMALL};
-    constexpr auto expected = Simple{SMALL};
-    auto intermediate = library::enbiggen(specimen);
-    require(ASSERTION, SMALL == intermediate.get<int>());
-    auto [observed, clipped] = library::ensmallen(intermediate);
-    require(ASSERTION, expected == observed);
-    require(ASSERTION, false == clipped);
-  }
-  auto Fixture::test_enbiggen_hard() -> void {
-    auto const specimen = Hard::Special::whole<Specimen>();
-    std::cerr << "specimen=" << underlying(specimen) << '\n';
-    auto const expected_value = Hard::Special::whole<Simple>();
-    auto const expected_clipped = false;
-    std::cerr << "expected=" << underlying(expected_value) << '\n';
-    auto intermediate = library::enbiggen(specimen);
-    std::cerr << "intermediate=" << intermediate << '\n';
-    auto [observed_value, observed_clipped] = library::ensmallen(intermediate); // this will clip
-    std::cerr << "observed=" << underlying(observed_value) << '\n';
-    require(ASSERTION, expected_value == observed_value);
-    require(ASSERTION, expected_clipped == observed_clipped);
-  }
-  auto Fixture::test_ensmallen_easy() -> void {
-    constexpr auto SMALL = 3;
-    auto const specimen = Integer{SMALL};
-    auto const expected = Integer{SMALL};
-    auto intermediate0 = library::ensmallen(library::Clip::SILENTLY, specimen);
-    require(ASSERTION, SMALL == underlying(intermediate0));
-    auto intermediate1 = Specimen{underlying(intermediate0)};
-    auto observed = library::enbiggen(intermediate1);
-    require(ASSERTION, SMALL == observed.get<int>());
-    require(ASSERTION, expected == observed);
-  }
-  auto Fixture::test_ensmallen_hard() -> void {
-    std::cerr << "FRAG=" << Hard::Special::FRAG << ' ' << Integer{Hard::Special::FRAG} << '\n';
-    std::cerr << "MENT=" << Hard::Special::MENT << ' ' << Integer{Hard::Special::MENT} << '\n';
-    std::cerr << "more=" << (1+Hard::Special::MENT) << ' ' << (1+Integer{Hard::Special::MENT}) << '\n';
-    Integer const specimen = Integer{Hard::Special::FRAG} + Integer{Hard::Special::MENT};
-    std::cerr << "specimen=" << specimen << '\n';
-    auto const expected = Hard::Special::whole<Hard::Type >();
-    std::cerr << "expected=" << expected << '\n';
-    auto [observed, clipped] = library::ensmallen(specimen);
-    require(ASSERTION, false == clipped);
-    std::cerr << "observed=" << underlying(observed) << '\n';
-    require(ASSERTION, expected == underlying(observed));
-  }
-  auto Fixture::test_ensmallen_negative() -> void {
-    constexpr auto NEGATIVE = -3;
-    auto const specimen = Integer{NEGATIVE};
-    constexpr auto const expected_value = Simple{0};
-    constexpr auto const expected_clipped = true;
-    auto [observed_value, observed_clipped] = library::ensmallen(specimen);
-    require(ASSERTION, expected_value == observed_value);
-    require(ASSERTION, expected_clipped == observed_clipped);
-  }
-  auto Fixture::test_ensmallen_clipped() -> void {
-    // WATCHOUT - do not use 'auto' here because that will leave the unevaluated expressions on the stack with dangling references into their sub-expressions.
-    Integer const WOOFA = 2 * Hard::Special::whole<Integer>() + 37; // any biggie value will work
-    Integer const copy0 = WOOFA;
-    Integer const copy1 = Integer{WOOFA};
-    auto const specimen = Integer{WOOFA};
-    std::cerr << "whole<Integer>=" << Hard::Special::whole<Integer>() << '\n';
-    std::cerr << "WOOFA=" << WOOFA << '\n';
-    std::cerr << "copy0=" << copy0 << '\n';
-    std::cerr << "copy1=" << copy1 << '\n';
-    std::cerr << "specimen=" << specimen << '\n';
-    constexpr auto const expected_value = Simple{Hard::Limits::Unsigned::max()};
-    constexpr auto const expected_clipped = true;
-    std::cerr << "expected=" << underlying(expected_value) << ' ' << (expected_clipped ? "clipped" : "correct") << '\n';
-    auto [observed_value, observed_clipped] = library::ensmallen(specimen);
-    std::cerr << "observed=" << underlying(observed_value) << ' ' << (observed_clipped ? "clipped" : "correct") << '\n';
-    require(ASSERTION, expected_value == observed_value);
-    require(ASSERTION, expected_clipped == observed_clipped);
-  }
-#endif
 }
 #endiv

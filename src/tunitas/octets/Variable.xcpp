@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::octets {
+  //
+  // A variable array of octets (bytes)
+  //
+  // Specification:
+  //
+  //   Just what it says on the label
+  //   With subrange(...)
+  //
+  // Design:
+  //
+  //   Obvious.
+  //
+  // Usage:
+  //
+  //   As one does.
+  //
+  struct Variable;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Variable
+#forward tunitas.octets.Fixed
+#import tunitas.octets.Octet
+namespace tunitas {
+  namespace octets {
+    using std::move;
+  }
+  class octets::Variable : public array::Variable<Octet> {
+    using Ancestor = array::Variable<Octet>;
+  public:
+    Variable() = default;
+    using Ancestor::Variable;
+    inline auto subrange(Index lo, Index hi) const -> Variable;
+    template<Size SUBCAPACITY> inline auto subrange(Index lo) const -> Fixed<SUBCAPACITY>;
+  protected:
+    template<typename RESULT> inline auto recover(Index lo, Index hi) const -> RESULT;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.exception.Bound
+#import tunitas.octets.Fixed
+#import std.copy
+namespace tunitas::octets {
+  auto Variable::subrange(Index lo, Index hi) const                            -> Variable { return recover<Variable>(lo, hi); }
+  template<octets::Size SUBCAPACITY> auto Variable::subrange(Index lo) const -> Fixed<SUBCAPACITY> { return recover<Fixed<SUBCAPACITY>>(lo, lo + SUBCAPACITY); }
+  template<typename RECOVERED> auto Variable::recover(Index lo, Index hi) const -> RECOVERED {
+    if (auto size=Ancestor::size(); hi < lo || size < lo || size < hi) {
+      throw exception::Bound{"index out of range"};
+    } else {
+      auto begin = Ancestor::begin();
+      if constexpr (std::same_as<RECOVERED, Variable>) {
+        return {begin+lo, begin+hi};
+      } else {
+        auto ret = RECOVERED{};
+        // ew already know size==hi-lo
+        std::copy(begin+lo, begin+hi, ret.begin());
+        return ret;
+      }
+    }
+  }
+}
+#endiv

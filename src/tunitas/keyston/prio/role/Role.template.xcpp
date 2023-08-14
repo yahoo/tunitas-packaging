@@ -16,8 +16,8 @@ namespace tunitas::keyston::prio::role {
 #divert <hpp>
 // Because all the descendants will need these
 #import tunitas.keyston.prio.exception.Decode
-#import tunitas.keyston.octets.concatenate
-#import tunitas.keyston.octets.join
-#import tunitas.keyston.octets.slice_off
+#import tunitas.octets.concatenate
+#import tunitas.octets.join
+#import tunitas.octets.slice_off
 #import tunitas.keyston.prio.exception.Decode
 #endiv

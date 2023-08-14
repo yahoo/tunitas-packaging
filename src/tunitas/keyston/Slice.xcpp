@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::keyston {
   //
-  // Whereas the Slice concept is referenced in keyston::function (numerics) and keyston::protocol (bytes, buffers & data layout)
+  // Whereas the Slice concept is referenced in keyston::function (numerics) and rheem::protocol (bytes, buffers & data layout)
   // the canonical definition is provided here; but should be conceived as also being sourced in keyston::protocol.
   enum class Slice { WHOLE, SHARD, SHARE = SHARD };
   using enum Slice; // within the namespace allow the unqualified names.

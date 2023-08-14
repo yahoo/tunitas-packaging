@@ -26,13 +26,13 @@ namespace tunitas::keyston::prio::role {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.keyston.prio.role.Uncoded
 #import tunitas.keyston.prio.role.required.Countshape
 #import tunitas.Tuple
 #import tunitas.view.Fixed
 #import tunitas.view.Variable
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 namespace tunitas::keyston::prio {
   template<role::Name ROLE, required::Definition DEFINITION> struct role::Outline {
     struct Decoded {

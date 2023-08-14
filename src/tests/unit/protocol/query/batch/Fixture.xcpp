@@ -7,7 +7,7 @@
 namespace tests::unit::protocol::query::batch { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.query.batch.Batch
+#import tunitas.rheem.protocol.query.batch.Batch
 #import tests.unit.protocol.query.similar.Fixture
 struct tests::unit::protocol::query::batch::Fixture : public similar::Fixture<library::Batch, library::Record> {
   using Ancestor = similar::Fixture<library::Batch, library::Record>;
@@ -17,7 +17,7 @@ public:
 #endiv
 #divert <ipp>
 // Additionally, test bodies require visibility to this (these)
-#import tunitas.keyston.protocol.query.batch.cast
+#import tunitas.rheem.protocol.query.batch.cast
 #endiv
 #divert <cpp>
 #import tests.unit.protocol.query.similar.Object

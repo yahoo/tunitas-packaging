@@ -8,7 +8,7 @@
 #import tunitas.keyston.crypto.required.Castable
 namespace tunitas::keyston::crypto {
   //
-  // Cast from the other octets to keyston::Octet
+  // Cast from the other octets to octets::Octet
   //
   // Specification:
   //
@@ -38,10 +38,11 @@ namespace tunitas::keyston {
 #import std.span
 #import tunitas.keyston.crypto.Span
 #import tunitas.keyston.crypto.View
+#import tunitas.octets.Octet
 #import std.byte
 namespace {
   namespace testate {
-    using tunitas::keyston::Octet;
+    using tunitas::octets::Octet;
     using tunitas::keyston::crypto::Span;
     using tunitas::keyston::crypto::View;
     using tunitas::keyston::crypto::cast;

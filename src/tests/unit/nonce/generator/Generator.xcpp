@@ -11,7 +11,7 @@ namespace tests::unit::nonce::generator {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.None
+#import tunitas.entropy.None
 #import tunitas.keyston.nonce.Bundle
 #import tunitas.keyston.nonce.Since
 #import tests.unit.nonce.Palette

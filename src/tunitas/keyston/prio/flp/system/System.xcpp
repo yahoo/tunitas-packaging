@@ -40,7 +40,7 @@ namespace tunitas::keyston::prio::flp::system {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.required.Entropy
+#import tunitas.entropy.required.Entropy
 #import tunitas.keyston.prio.flp.system.usage.Interface
 #import tunitas.keyston.prio.flp.system.usage.Validity
 #import tunitas.keyston.prio.flp.system.interface.Standard
@@ -137,7 +137,7 @@ namespace tunitas::keyston::prio::flp::system {
 #endiv
 #divert <tpp>
 #import tunitas.integer.bit
-#import tunitas.keyston.entropy.usage.Entropy
+#import tunitas.entropy.usage.Entropy
 #import tunitas.keyston.exception.Unimplemented
 #import tunitas.keyston.field.Polynomial
 #import tunitas.keyston.prio.exception.Invalid

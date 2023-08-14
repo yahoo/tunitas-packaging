@@ -55,7 +55,7 @@ namespace tunitas::keyston::prg::generator {
 #endiv
 #divert <hpp>
 #import tunitas..keyston.prg.generator.Prototype
-#import tunitas..keyston.octets.Variable
+#import tunitas..octets.Variable
 namespace tunitas::keyston::prg::generator {
   template<> class Core<SHA3_cSHAKE128> : public Prototype {
     using Ancestor = Prototype;
@@ -74,7 +74,7 @@ namespace tunitas::keyston::prg::generator {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.octets.concatenate
+#import tunitas.octets.concatenate
 namespace tunitas::keyston::prg::generator {
   Core<SHA3_cSHAKE128>::Core(Seed::View seed, Custom::View custom, Binder::View binder)
     : x{octets::concatenate(seed, binder)}

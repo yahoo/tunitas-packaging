@@ -49,7 +49,7 @@ public:
 // All specializations will need this (these)
 #import std.underlying_type
 #import tunitas.integer.integers
-#import tunitas.keyston.integer // ctcnr
+#import tunitas.integer // ctcnr
 #import tunitas.keyston.Field
 #import tunitas.array.Fixed
 #import tunitas.keyston.prio.flp.Gadgets

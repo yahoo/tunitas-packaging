@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.keyston.quantity.required.Convertible_To
-#import tunitas.keyston.quantity.required.Quantity
+#import tunitas.units.required.Quantity
 namespace tunitas::keyston::quantity {
   //
   // Convert one quantity to another quantity
@@ -28,12 +28,12 @@ namespace tunitas::keyston::quantity {
   //   auto some_records = Records{...somehow...};
   //   auto some_items = quantity::convert<Items>(some_records);
   //
-  template<required::Quantity TARGET, required::Quantity SOURCE> inline constexpr auto convert(SOURCE) -> TARGET requires required::Convertible_To<SOURCE, TARGET>;
+  template<units::required::Quantity TARGET, units::required::Quantity SOURCE> inline constexpr auto convert(SOURCE) -> TARGET requires required::Convertible_To<SOURCE, TARGET>;
 }
 #endiv
 #divert <ipp>
 #import std.underlying_type
 namespace tunitas::keyston {
-  template<quantity::required::Quantity TARGET, quantity::required::Quantity SOURCE> constexpr auto quantity::convert(SOURCE source) -> TARGET requires required::Convertible_To<SOURCE, TARGET> { return TARGET{source.count()}; }
+  template<units::required::Quantity TARGET, units::required::Quantity SOURCE> constexpr auto quantity::convert(SOURCE source) -> TARGET requires required::Convertible_To<SOURCE, TARGET> { return TARGET{source.count()}; }
 }
 #endiv

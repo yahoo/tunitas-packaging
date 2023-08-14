@@ -8,10 +8,10 @@ namespace tests::unit::protocol::query::batch { class Is; }
 #endiv
 #divert <hpp>
 #import tests.unit.protocol.query.similar.Is
-#import tunitas.keyston.protocol.query.batch.Batch
+#import tunitas.rheem.protocol.query.batch.Batch
 struct tests::unit::protocol::query::batch::Is : public similar::Is<library::Batch, library::Record> { };
 #endiv
 #divert <ipp>
 // Additionally, test bodies require visibility to this (these)
-#import tunitas.keyston.protocol.query.batch.cast
+#import tunitas.rheem.protocol.query.batch.cast
 #endiv

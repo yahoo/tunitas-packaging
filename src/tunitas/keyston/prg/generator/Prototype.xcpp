@@ -29,9 +29,9 @@ namespace tunitas::keyston::prg::generator {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.Variable
-#import tunitas.keyston.octets.View
+#import tunitas.octets.Fixed
+#import tunitas.octets.Variable
+#import tunitas.octets.View
 #forward tunitas.keyston.crypto.Algorithm
 #import tunitas.keyston.crypto.algorithm.Algorithm.cSHAKE
 #import tunitas.keyston.prg.constants

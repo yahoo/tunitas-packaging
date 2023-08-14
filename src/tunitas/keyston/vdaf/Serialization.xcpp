@@ -30,7 +30,7 @@ namespace tunitas::keyston::vdaf {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Variable
+#import tunitas.octets.Variable
 namespace tunitas::keyston {
   template<Size... SIZE> class vdaf::Serialization : public octets::Fixed<(SIZE * ... )> {
     using Ancestor = octets::Fixed<(SIZE * ... )>;

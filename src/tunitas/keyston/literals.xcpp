@@ -6,7 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.measurement.literals
 #import tunitas.keyston.shards.literals
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 #import tunitas.string.literals
 namespace tunitas::keyston::literals {
   using namespace measurement::literals;

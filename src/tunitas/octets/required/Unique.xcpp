@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.octets.Unique
+namespace tunitas::octets::required {
+  //
+  // Is type this a unique (octets)?
+  //
+  // Specification:
+  //
+  //   Oh come on! Look. At. It.
+  //
+  // Design:
+  //
+  //   This is required::InstanceOf<...> as copy-pasta.
+  //   Arguably it should be supplied as part of octets::required::Unique<...>>
+  //
+  //  Usage:
+  //
+  //   You know how it works.
+  //
+  template<typename UNIQUE> concept Unique = requires(UNIQUE) {
+    { []<Size SIZE, typename STAMP>(Unique<SIZE, STAMP> *)
+      {} (static_cast<UNIQUE *>(nullptr)) };
+  };
+}
+#endiv

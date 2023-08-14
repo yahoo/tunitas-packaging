@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.rheem.protocol.query.Type
+namespace tunitas::rheem::protocol::query::batch {
+  //
+  // The record wrappings to generate unique types
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.1. Queries
+  //
+  //     struct Query
+  //
+  //   Section 4.1.1.2 Helper Initialization
+  //
+  //     struct BatchSelector
+  //
+  // Design:
+  //
+  //   importing query::Type, though lexically visible from here, makes it convienient at site-of-use to say:
+  //      using namespace tunitas::rheem::protocol::query::batch;
+  //      return Record<Type::SOMETHING>{...somehow...};
+  //
+  // Usage:
+  //
+  //   As needed.
+  //
+  using query::Type;
+  template<Type> struct Record;
+  template<> struct Record<Type::RESERVED>;
+  template<> struct Record<Type::TIME_INTERVAL>;
+  template<> struct Record<Type::FIXED_SIZE>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.query.Empty
+#import tunitas.rheem.protocol.query.Time_Interval
+#import tunitas.rheem.protocol.query.Fixed_Size
+namespace tunitas::rheem::protocol::query::batch {
+  template<> struct Record<Type::RESERVED>       : public Empty { };
+  template<> struct Record<Type::TIME_INTERVAL>  : public Time_Interval {
+    Record() = default;
+    constexpr Record(Time_Interval const &ti) : Time_Interval{ti} { }
+  };
+  template<> struct Record<Type::FIXED_SIZE>     : public Fixed_Size {
+    Record() = default;
+    constexpr Record(Fixed_Size const &fs) : Fixed_Size{fs} { }
+  };
+}
+#endiv

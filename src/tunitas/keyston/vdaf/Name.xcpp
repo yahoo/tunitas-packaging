@@ -24,7 +24,7 @@ namespace tunitas::keyston::vdaf {
   //       IANA Considerations
   //       Note that values 0xFFFF0000 through 0xFFFFFFFF are reserved for private use.
   //
-  //       Value                         Transport              Type        Reference
+  //       Value                         Function (Family)       Type        Reference
   //       --------------------------------------------------------------------------------
   //       0x00000000                    Prio3Count              VDAF        Section 7.4.1
   //       0x00000001                    Prio3Sum                VDAF        Section 7.4.2

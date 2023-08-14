@@ -7,10 +7,8 @@
 #import tests.unit
 #import tunitas.keyston.vdaf
 #import tunitas.keyston.vdaf.required
-#import tunitas.keyston.Transport
 namespace tests::unit::vdaf {
   namespace library = ::tunitas::keyston::vdaf;
-  using ::tunitas::keyston::Transport; // [[REMOVETHIS]] when we no longer need Transport::NUMERIC
   namespace required = ::tunitas::keyston::vdaf::required;
 }
 #endiv

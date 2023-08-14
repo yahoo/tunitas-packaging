@@ -5,13 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.integer
+#import tunitas.integer
 namespace tunitas::keyston::numeric {
   //
   // Numerical Methods
   // Working across the smallnum-bignum boundary
   //
-  using namespace keyston::integer;
+  using namespace tunitas::integer;
   namespace [[nodirectory]] traits { }
   namespace [[nodirectory]] returned { }
 }

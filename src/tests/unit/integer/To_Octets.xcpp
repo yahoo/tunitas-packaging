@@ -22,9 +22,9 @@ public:
 #endiv
 #divert <tpp>
 #import std.to_string
-#import tunitas.keyston.integer.to_octets
-#import tunitas.keyston.integer.into_octets
-#import tunitas.keyston.integer.from_octets
+#import tunitas.integer.to_octets
+#import tunitas.integer.into_octets
+#import tunitas.integer.from_octets
 namespace tests::unit::integer {
   template<Size WIDTH> auto To_Octets::substanza() -> Stream {
     auto sub = Stream{std::to_string(WIDTH)};

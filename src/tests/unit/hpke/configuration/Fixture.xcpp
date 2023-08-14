@@ -7,11 +7,11 @@
 namespace tests::unit::hpke::configuration { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Side
+#import tunitas.hale.hpke.Side
 struct tests::unit::hpke::configuration::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using enum ::tunitas::keyston::hpke::Side;
+  using enum ::tunitas::hale::hpke::Side;
   //
   auto test_usage_Public() -> void;
   auto test_usage_Secret() -> void;
@@ -35,7 +35,7 @@ auto tests::unit::hpke::configuration::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.hpke.configuration.Configuration
+#import tunitas.hale.hpke.configuration.Configuration
 namespace tests::unit::hpke::configuration {
   auto Fixture::test_usage_Public() -> void {
     using Subject = library::Configuration<PUBLIC>;

@@ -10,7 +10,7 @@ namespace tests::unit::octets {
 #endiv
 #divert <hpp>
 #import tests.unit.octets.Palette
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.exception.Aspect
 namespace tests::unit {
   template<typename SUBJECT> struct octets::Fixed : public rigging::suite::Fixture, protected Palette {

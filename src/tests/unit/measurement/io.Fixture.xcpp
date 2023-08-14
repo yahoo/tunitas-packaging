@@ -9,7 +9,7 @@ namespace tests::unit::measurement::io { class Fixture; }
 #divert <hpp>
 #import tunitas.keyston.histogram.Histogram
 #import tunitas.keyston.popularity.Popularity
-#import nonstd.units.memory.scale // Bits
+#import tunitas.units.Bits
 struct tests::unit::measurement::io::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -23,7 +23,7 @@ protected:
   template<typename SUBJECT> static auto singleton(string::Storage expected, SUBJECT specimen) -> void;
   using Histogram = ::tunitas::keyston::histogram::Histogram;
   using Popularity = ::tunitas::keyston::popularity::Popularity;
-  using Bits = ::nonstd::units::memory::Bits;
+  using Bits = ::tunitas::units::Bits;
 };
 #endiv
 #divert <tpp>

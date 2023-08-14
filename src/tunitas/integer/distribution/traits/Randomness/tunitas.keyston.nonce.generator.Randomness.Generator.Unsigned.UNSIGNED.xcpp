@@ -8,11 +8,11 @@
 #import tunitas.integer.distribution.traits.Randomness.template
 namespace tunitas::integer::distribution::traits {
   // Only the unsigned=-producing generator can pretend to be a randomness source.
-  template<required::Unsigned UNSIGNED, keyston::entropy::required::Entropy ENTROPY> struct Randomness<tunitas::keyston::nonce::generator::Randomness<tunitas::keyston::nonce::generator::Generator<tunitas::keyston::nonce::Unsigned<UNSIGNED>, ENTROPY>>>;
+  template<required::Unsigned UNSIGNED, entropy::required::Entropy ENTROPY> struct Randomness<tunitas::keyston::nonce::generator::Randomness<tunitas::keyston::nonce::generator::Generator<tunitas::keyston::nonce::Unsigned<UNSIGNED>, ENTROPY>>>;
 }
 #endiv
 #divert <hpp>
 namespace tunitas::integer::distribution::traits {
-  template<required::Unsigned UNSIGNED, keyston::entropy::required::Entropy ENTROPY> struct Randomness<tunitas::keyston::nonce::generator::Randomness<tunitas::keyston::nonce::generator::Generator<tunitas::keyston::nonce::Unsigned<UNSIGNED>, ENTROPY>>> : public std::true_type { };
+  template<required::Unsigned UNSIGNED, entropy::required::Entropy ENTROPY> struct Randomness<tunitas::keyston::nonce::generator::Randomness<tunitas::keyston::nonce::generator::Generator<tunitas::keyston::nonce::Unsigned<UNSIGNED>, ENTROPY>>> : public std::true_type { };
 }
 #endiv

@@ -1,0 +1,29 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.span.Span
+#forward tunitas.view.View
+#import tunitas.octets.Octet
+namespace tunitas::octets::required::view {
+  //
+  // A fixed view-or-span of (constie) octets?
+  //
+  namespace [[eponymous]] mixed {
+    template<typename MIXED> concept Span = requires(MIXED) {
+      { []<Size CAPACITY>(tunitas::span::Span<octets::Octet const, CAPACITY> *)
+        // CAPACITY is or is not dynamic_extent
+        {}(static_cast<MIXED *>(nullptr)) };
+    };
+    template<typename MIXED> concept View = requires(MIXED) {
+      { []<Size CAPACITY>(tunitas::view::View<octets::Octet, CAPACITY> *)
+        // CAPACITY is or is not dynamic_extent
+        {}(static_cast<MIXED *>(nullptr)) };
+    };
+    template<typename MIXED> concept Mixed = View<MIXED> || Span<MIXED>;
+  }
+  using mixed::Mixed;
+}
+#endiv

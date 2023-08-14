@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.hpke.Side
-#import tunitas.keyston.hpke.Key
-#import tunitas.keyston.hpke.key.Bundle
-#import tunitas.keyston.hpke.Configuration
+#import tunitas.hale.hpke.Side
+#import tunitas.hale.hpke.Key
+#import tunitas.hale.hpke.key.Bundle
+#import tunitas.hale.hpke.Configuration
 namespace tests::unit::hpke {
   namespace [[eponymous]] filter {
     using Side = library::Side;
@@ -29,7 +29,7 @@ struct tests::unit::hpke::filter::Filter : public rigging::suite::Fixture {
 };
 #endiv
 #divert <cpp>
-#import tunitas.keyston.hpke.filter
+#import tunitas.hale.hpke.filter
 namespace tests::unit::hpke::filter {
   //
   // lazy... put these specializations first so that their address is known before it is taken in suite()

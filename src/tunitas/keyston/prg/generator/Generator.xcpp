@@ -19,7 +19,7 @@ namespace tunitas::keyston::prg::generator {
   //   Section 6.2. Pseudorandom Generators
   //   Figure 10. Derived class methods for PRGs.
   //
-  //   [[recall "Bytes" in the specification's Python != our quantity::Bytes, use Octets instead]]
+  //   [[recall "Bytes" in the specification's Python != units::Bytes, use Octets instead]]
   //   def next(length: Unsigned) -> Bytes
   //   def derive_seed(Prg, seed: Bytes[Prg.SEED_SIZE], custom: Bytes, binder: Bytes) -> Vec[Bytes]
   //   def next_vec(self, Field, length: Unsigned) -> Vec[Field.Element]
@@ -72,7 +72,7 @@ namespace tunitas::keyston::prg {
 #import tunitas.integer.bit // bit_ceil(...)
 #import tunitas.integer.traits.Double
 #import tunitas.keyston.exception.Randomness
-#import tunitas.keyston.integer.from_octets
+#import tunitas.integer.from_octets
 #import tunitas.keyston.field.element.traits.Element
 #import nonstd.runtime_assert
 namespace tunitas::keyston::prg::generator {

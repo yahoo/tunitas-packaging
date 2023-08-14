@@ -9,7 +9,7 @@ namespace tests::unit::entropy {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.Device
+#import tunitas.entropy.Device
 namespace tests::unit {
   template<typename SUBJECT> struct entropy::Device : public rigging::suite::Fixture {
     static auto suite() -> Suite;

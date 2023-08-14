@@ -7,7 +7,7 @@
 namespace tests::unit::prg { struct Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.octets.Fixed
+#import tunitas.octets.Fixed
 #import tunitas.keyston.prg.generator.Prototype
 #import tests.unit.prg.Palette
 struct tests::unit::prg::Fixture : public rigging::suite::Fixture, protected Palette {

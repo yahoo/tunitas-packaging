@@ -4,13 +4,13 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.query.Type
+#import tunitas.rheem.protocol.query.Type
 namespace tests::unit::protocol::query::similar {
   template<typename SUBJECT, template<library::Type> class RECORD> class Object;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.query.Visitor
+#import tunitas.rheem.protocol.query.Visitor
 namespace tests::unit::protocol::query {
   template<typename SUBJECT, template<library::Type> class RECORD> struct similar::Object : public rigging::suite::Fixture {
   public: static auto suite() -> Suite;

@@ -51,13 +51,13 @@ namespace tunitas::keyston::nonce::generator {
 #import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.nonce.Bundle
 #import tunitas.keyston.nonce.required.Bundleable
-#import tunitas.keyston.entropy.None
+#import tunitas.entropy.None
 #import std.declval
 namespace {
   namespace testate {
     using namespace tunitas::keyston::nonce;
     namespace usage = tunitas::keyston::nonce::usage;
-    using Entropy = tunitas::keyston::entropy::None;
+    using Entropy = tunitas::entropy::None;
 #if 1
     static_assert(usage::Generator<Generator<Bundle<Bits<1>>, Entropy>>);
     static_assert(usage::Generator<Generator<Bundle<Since<std::chrono::seconds>>, Entropy>>);

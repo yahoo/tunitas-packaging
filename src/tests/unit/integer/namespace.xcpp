@@ -5,11 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit
-#import tunitas.keyston.integer
-#import tunitas.keyston.integer.required
+#import tunitas.integer
+#import tunitas.integer.required
+#import tunitas.integer.integers
 namespace tests::unit::integer {
-  namespace library = ::tunitas::keyston::integer;
-  namespace required = ::tunitas::keyston::integer::required;
+  namespace library = ::tunitas::integer;
+  namespace integers = ::tunitas::integer::integers;
+  namespace required = ::tunitas::integer::required;
   namespace [[nodirectory]] our { }
 }
 #endiv

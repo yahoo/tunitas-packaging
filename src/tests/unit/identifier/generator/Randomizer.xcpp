@@ -10,18 +10,18 @@ namespace tests::unit::identifier::generator {
 }
 #endiv
 #divert <hpp>
-#forward tunitas.keyston.protocol.task.Task
-#import tunitas.keyston.entropy.Source
-#import tunitas.keyston.Unique
-#import tunitas.keyston.identifier.generator.Randomizer
+#forward tunitas.rheem.protocol.task.Task
+#import tunitas.entropy.Source
+#import tunitas.Unique
+#import tunitas.hale.identifier.generator.Randomizer
 #import tests.unit.identifier.generator.Formatter
 namespace tests::unit::identifier {
   template<unsigned THE_WIDTH> struct generator::Randomizer : public rigging::suite::Fixture, protected Formatter {
     static auto suite() -> Suite;
     //
     inline static constexpr auto const WIDTH = THE_WIDTH;
-    using Stamped = ::tunitas::keyston::protocol::task::Task; // pick one, any one will do
-    template<unsigned W> using Unique = ::tunitas::keyston::Unique<W, Stamped>;
+    using Stamped = ::tunitas::rheem::protocol::task::Task; // pick one, any one will do
+    template<unsigned W> using Unique = ::tunitas::Unique<W, Stamped>;
     class Subject : public library::Randomizer<Unique<WIDTH>> {
       using Ancestor = library::Randomizer<Unique<WIDTH>>;
     public:
@@ -32,7 +32,7 @@ namespace tests::unit::identifier {
     auto test_constructor_default() -> void;
     auto test_operator_call() -> void;
   protected:
-    ::tunitas::keyston::entropy::Source source{};
+    ::tunitas::entropy::Source source{};
   };
 }
 #endiv

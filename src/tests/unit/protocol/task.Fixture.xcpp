@@ -4,21 +4,21 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.identifier
-#import tunitas.keyston.protocol.task
-#import tunitas.keyston.protocol.id
+#import tunitas.hale.identifier
+#import tunitas.rheem.protocol.task
+#import tunitas.rheem.protocol.id
 #import tunitas.keyston.vdaf.Name
 namespace tests::unit::protocol::task {
   class Fixture;
-  namespace library = ::tunitas::keyston::protocol::task;
-  namespace identifier = ::tunitas::keyston::identifier;
-  namespace id = ::tunitas::keyston::protocol::id;
-  namespace protocol = ::tunitas::keyston::protocol;
+  namespace library = ::tunitas::rheem::protocol::task;
+  namespace identifier = ::tunitas::hale::identifier;
+  namespace id = ::tunitas::rheem::protocol::id;
+  namespace protocol = ::tunitas::rheem::protocol;
   using Name = ::tunitas::keyston::vdaf::Name;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.identifier.Generator
+#import tunitas.hale.identifier.Generator
 struct tests::unit::protocol::task::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -42,8 +42,8 @@ auto tests::unit::protocol::task::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.task.Task
-#import tunitas.keyston.protocol.query.Fixed_Size
+#import tunitas.rheem.protocol.task.Task
+#import tunitas.rheem.protocol.query.Fixed_Size
 namespace tests::unit::protocol::task {
   auto Fixture::test_usage_Task() -> void {
     using Subject = library::Task;

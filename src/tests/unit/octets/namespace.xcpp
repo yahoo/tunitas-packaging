@@ -5,12 +5,13 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit
-#import tunitas.keyston.octets
-#import tunitas.keyston.octets.required
+#import tunitas.octets
+#import tunitas.octets.Octet
+#import tunitas.octets.required
 namespace tests::unit::octets {
-  namespace library = ::tunitas::keyston::octets;
-  namespace required = ::tunitas::keyston::octets::required;
-  using Octet = ::tunitas::keyston::Octet;
+  namespace library = ::tunitas::octets;
+  namespace required = ::tunitas::octets::required;
+  using Octet = library::Octet;
   namespace [[nodirectory]] string { } // WATCHOUT - this occludes tests::string or tests::unit::string
 }
 #endiv

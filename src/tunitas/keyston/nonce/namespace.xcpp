@@ -5,9 +5,9 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.integer
+#import tunitas.integer.integers
 namespace tunitas::keyston::nonce {
-  using namespace tunitas::keyston::integer;
+  using namespace tunitas::integer::integers;
   static_assert(sizeof (uint32_t), "already visible");
   static_assert(sizeof (uint64_t), "already visible");
   static_assert(sizeof (uint128_t), "already visible");

@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.InstanceOf
+#import nonstd.required.Constie
+#import nonstd.required.Mutable
+#import std.span
+#import std.size_t
+#import std.dynamic_extent
+namespace tunitas::span::required {
+  //
+  // Is are these types suitable for cast<SPAN>(std::span<OCTET, EXTENT>)?
+  //
+  // Specification:
+  //
+  //   Is RESULT a span of MATCH?
+  //   Is Are the OTHER and EXTENT suitable for constexpr static cast conversion to such?
+  //
+  // Usage:
+  //
+  //   Use this to build other concepts
+  //   #import tunitas.keyston.crypto.required.Castable
+  //   #import tunitas.octets.required.Castable
+  //
+  template<typename RESULT, typename OTHER, std::size_t EXTENT, typename MATCH> concept Castable = requires(RESULT, OTHER) {
+    { // the moral equivalent of InstanceOf<RESULT, std::span>;
+      []<typename T, std::size_t E>(std::span<T, E> *)
+      {}(static_cast<RESULT *>(nullptr)) };
+    typename RESULT::element_type;
+    { RESULT::extent } -> convertible_to<std::size_t>;
+    requires RESULT::extent <= EXTENT || std::dynamic_extent == RESULT::extent;
+    typename RESULT::pointer; // will be used in cast<...>(...)
+    requires !Constie<MATCH>;
+    requires 1 == sizeof(MATCH);
+    requires same_as<MATCH, std::remove_const_t<typename RESULT::element_type>>;
+    requires 1 == sizeof(OTHER); // constie or mutable
+    // OTHER constie => RESULT constie;
+    // !(OTHER constie) || RESULT constie; 
+    // OTHER mutable || RESULT constie; 
+    requires Mutable<OTHER> || Constie<typename RESULT::element_type>;
+  };
+}
+#endiv

@@ -9,7 +9,7 @@ namespace tests::unit::nonce::bits {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.Serial
+#import tunitas.entropy.Serial
 #import tunitas.keyston.nonce.Generator
 namespace tests::unit::nonce {
   template<typename SUBJECT> struct bits::Bits : public rigging::suite::Fixture {
@@ -25,7 +25,7 @@ namespace tests::unit::nonce {
     auto test_ennumerate() -> void;
     auto test_ennumerate2() -> void;
   protected:
-    using Entropy = ::tunitas::keyston::entropy::Serial;
+    using Entropy = ::tunitas::entropy::Serial;
     Entropy source{};
     library::Generator<Subject, Entropy> generate{source};
   };

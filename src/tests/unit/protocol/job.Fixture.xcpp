@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.job
+#import tunitas.rheem.protocol.job
 namespace tests::unit::protocol::job {
   class Fixture;
-  namespace library = ::tunitas::keyston::protocol::job;
+  namespace library = ::tunitas::rheem::protocol::job;
 }
 #endiv
 #divert <hpp>
@@ -29,7 +29,7 @@ auto tests::unit::protocol::job::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.job.Job
+#import tunitas.rheem.protocol.job.Job
 namespace tests::unit::protocol::job {
   auto Fixture::test_usage_Job() -> void {
     using Subject = library::Job;

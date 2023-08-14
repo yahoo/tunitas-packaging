@@ -5,7 +5,6 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston
-#import tunitas.keyston.Transport
 namespace tunitas::keyston::vidaf {
   //
   // Specification:
@@ -20,7 +19,6 @@ namespace tunitas::keyston::vidaf {
   //
   //   Yes.
   //
-  using enum Transport;
 }
 #import tunitas.keyston.Slice
 #endiv

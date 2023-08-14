@@ -1,0 +1,97 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.rheem.protocol.preparation.step.Step.template
+namespace tunitas::rheem::protocol::preparation::step {
+  //
+  // The aggregation preparation step.
+  //
+  // Specification:
+  //  
+  //   The tagged form; tagged with the id::Report whence it came.
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.4.1.2 Helper Initialization
+  //
+  // Design:
+  //
+  //   As shown.
+  //
+  // Usage:
+  //
+  //   Use the constructor because designated initialization isn't possible.
+  //
+  template<> struct Step<TAGGED>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.id // for id::.Report
+#import tunitas.rheem.protocol.preparation.step.Step.POSITIONED
+namespace tunitas::rheem::protocol::preparation::step {
+  using std::move;
+  inline auto swap(Step<TAGGED> &, Step<TAGGED> &) noexcept -> void;
+  template<> struct Step<TAGGED> : public Step<POSITIONED> {
+    using Ancestor = Step<POSITIONED>;
+    friend auto step::swap(Step &, Step &) noexcept -> void;
+  public:
+    Step() = default;
+    inline [[implicit]] Step(id::Report, Undetermined = {});
+    inline [[implicit]] Step(id::Report, Continued);
+    inline [[implicit]] Step(id::Report, Finished);
+    inline [[implicit]] Step(id::Report, Failed);
+    inline [[implicit]] Step(id::Report, Ancestor);
+    id::Report report_id{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::rheem::protocol::preparation {
+  auto step::swap(Step<TAGGED> &a, Step<TAGGED> &b) noexcept -> void {
+    Step<TAGGED>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+    swap(a.report_id, b.report_id);
+  }
+  namespace step {
+    Step<TAGGED>::Step(id::Report rid, Undetermined payload)
+      : Ancestor{move(payload)}
+      , report_id{rid}
+    { }
+    Step<TAGGED>::Step(id::Report rid, Continued payload)
+      : Ancestor{move(payload)}
+      , report_id{rid}
+    { }
+    Step<TAGGED>::Step(id::Report rid, Finished payload)
+      : Ancestor{move(payload)}
+      , report_id{rid}
+    { }
+    Step<TAGGED>::Step(id::Report rid, Failed payload)
+      : Ancestor{move(payload)}
+      , report_id{rid}
+    { }
+    Step<TAGGED>::Step(id::Report rid, Ancestor payload)
+      : Ancestor{move(payload)}
+      , report_id{rid}
+    { }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::rheem::protocol::preparation::step::Step;
+    using enum tunitas::rheem::protocol::preparation::Mark;
+    //
+    static_assert(std::semiregular<Step<TAGGED>>);
+    //
+    static_assert(std::is_default_constructible_v<Step<TAGGED>>);
+    static_assert(std::is_copy_constructible_v<Step<TAGGED>>);
+    static_assert(std::is_move_constructible_v<Step<TAGGED>>);
+    static_assert(std::is_copy_assignable_v<Step<TAGGED>>);
+    static_assert(std::is_move_assignable_v<Step<TAGGED>>);
+    static_assert(std::is_swappable_v<Step<TAGGED>>);
+  }
+}
+#endiv

@@ -10,7 +10,7 @@ namespace tests::unit::field {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston // Octet
+#import tunitas.octets.Octet
 #import tunitas.array.Fixed
 namespace tests::unit {
   template<typename SUBJECT> requires field::required::definition::Field<SUBJECT> struct field::Field : public rigging::suite::Fixture {
@@ -18,7 +18,7 @@ namespace tests::unit {
     //
     using Subject = SUBJECT;
     using Element = typename Subject::Element;
-    using Octet = ::tunitas::keyston::Octet;
+    using Octet = ::tunitas::octets::Octet;
     template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
     inline static constexpr auto const SPECIMEN_SIZE = Subject::ENCODED_LENGTH.count();
     //

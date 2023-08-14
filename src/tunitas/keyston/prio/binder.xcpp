@@ -24,7 +24,7 @@ namespace tunitas::keyston::prio {
 }
 #endiv
 #divert <ipp>
-#import tunitas.keyston.octets.concatenate
+#import tunitas.octets.concatenate
 namespace tunitas::keyston {
   constexpr auto prio::binder(Shard s)                                                                                                          -> array::Fixed<Octet, 1uz>               { return {array::Fixed<Octet, 1uz>::Inplace{}, static_cast<Octet>(s)}; }
   template<Size NONCE> constexpr auto prio::binder(view::Fixed<Octet, NONCE> nonce)                                                             -> array::Fixed<Octet, NONCE>             { return octets::concatenate(nonce); }

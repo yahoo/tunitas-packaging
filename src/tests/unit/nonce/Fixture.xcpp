@@ -8,8 +8,8 @@ namespace tests::unit::nonce { struct Fixture; }
 #endiv
 #divert <hpp>
 #import tests.unit.nonce.Palette
-#import tunitas.keyston.entropy.Serial
-#import tunitas.keyston.entropy.usage.Entropy
+#import tunitas.entropy.Serial
+#import tunitas.entropy.usage.Entropy
 #import tunitas.integer.distribution.usage.Randomness
 struct tests::unit::nonce::Fixture : public rigging::suite::Fixture, protected Palette {
   static auto suite() -> Suite;
@@ -35,8 +35,8 @@ struct tests::unit::nonce::Fixture : public rigging::suite::Fixture, protected P
   auto test_usage_Generator_Bundle_Since_Bits() -> void;
 protected:
   // We must use Serial here because the Generator tests look for non-zero generation
-  using Entropy = ::tunitas::keyston::entropy::Serial;
-  static_assert(::tunitas::keyston::entropy::usage::Entropy<Entropy>);
+  using Entropy = ::tunitas::entropy::Serial;
+  static_assert(::tunitas::entropy::usage::Entropy<Entropy>);
   static_assert(not ::tunitas::integer::distribution::usage::Randomness<Entropy>, "no surprise, Entropy does NOT look like std::random_device");
   Entropy source{};
 };
@@ -92,17 +92,17 @@ auto tests::unit::nonce::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.entropy.Sequence
+#import tunitas.entropy.Sequence
 #import tunitas.keyston.nonce.Bits
 #import tunitas.keyston.nonce.Since
 #import tunitas.keyston.nonce.Unsigned
 #import tunitas.keyston.nonce.Element
 #import tunitas.keyston.nonce.Generator
 #import tunitas.keyston.nonce.once
-#import tunitas.keyston.integer
+#import tunitas.integer.integers
 #import tunitas.keyston.field.Element
 #import tunitas.array.Fixed
-#import tunitas.keyston // for Octet
+#import tunitas.octets // for Octet
 namespace tests::unit::nonce {
   auto Fixture::test_usage_Bits() -> void {
     auto subject = library::Bits<64>{};
@@ -113,7 +113,7 @@ namespace tests::unit::nonce {
     require(ASSERTION, decltype(subject){} == subject);
   }
   auto Fixture::test_usage_Unsigned() -> void {
-    auto subject = library::Unsigned<::tunitas::keyston::integer::uint256_t>{};
+    auto subject = library::Unsigned<::tunitas::integer::integers::uint256_t>{};
     // recall: library::Unsigned is a shim which wraps uint256_t to allow for specialization of Generator
     require(ASSERTION, sizeof(subject));
   }
@@ -143,7 +143,7 @@ namespace tests::unit::nonce {
     require(ASSERTION, decltype(specimen){} != specimen);
   }
   auto Fixture::test_usage_Generator_Unsigned() -> void {
-    auto specimen = library::Generator<library::Unsigned<::tunitas::keyston::integer::uint256_t>, Entropy>{source}();
+    auto specimen = library::Generator<library::Unsigned<integers::uint256_t>, Entropy>{source}();
     require(ASSERTION, decltype(specimen){} != specimen);
   }
   auto Fixture::test_usage_Generator_Element() -> void {
@@ -172,8 +172,8 @@ namespace tests::unit::nonce {
   }
   auto Fixture::test_usage_once() -> void {
     constexpr auto const SIZE = 10uz;
-    using ::tunitas::keyston::Octet;
-    auto got = library::once<::tunitas::array::Fixed<Octet, SIZE>, ::tunitas::keyston::entropy::Sequence>();
+    using ::tunitas::octets::Octet;
+    auto got = library::once<::tunitas::array::Fixed<Octet, SIZE>, ::tunitas::entropy::Sequence>();
     std::uint8_t ith{};
     for (auto each : got) {
       // check for the sequentiality

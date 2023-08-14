@@ -17,17 +17,18 @@ namespace tests::unit::crypto {
 }
 #endiv
 #divert <hpp>
-#import nonstd.units.memory.scale // Bytes
+#import tunitas.units.Bytes
 #import std.ostream
 #import std.span
 #import tunitas.array.Fixed
 #import tunitas.array.required.Fixed
+#import tunitas.octets.Octet
 class tests::unit::crypto::Palette {
 protected:
   ~Palette() = default;
 public:
-  using Bytes = ::nonstd::units::memory::Bytes;
-  using Octet = ::tunitas::keyston::Octet;
+  using Bytes = ::tunitas::units::Bytes;
+  using Octet = ::tunitas::octets::Octet;
   template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
   template<typename BUFFER> static auto generate_buffer() -> BUFFER requires ::tunitas::array::required::Fixed<BUFFER>;
   static auto dump(std::ostream &, std::span<Octet const>, char terminator = '\n') -> void;

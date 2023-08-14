@@ -7,11 +7,8 @@
 namespace tests::unit::af { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.Transport
 struct tests::unit::af::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  //
-  using enum ::tunitas::keyston::Transport;
   //
   auto test_usage_Name() -> void;
   auto test_usage_Measurement() -> void;

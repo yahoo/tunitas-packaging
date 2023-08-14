@@ -16,7 +16,7 @@ struct tests::unit::protocol::preparation::Fixture : public rigging::suite::Fixt
 };
 #endiv
 #divert <cpp>
-#import tunitas.keyston.protocol.preparation.Step
+#import tunitas.rheem.protocol.preparation.Step
 #import tests.unit.protocol.preparation.Step
 auto tests::unit::protocol::preparation::Fixture::suite() -> Suite {
   auto series = Stream{"protocol"sv};
@@ -38,8 +38,8 @@ auto tests::unit::protocol::preparation::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.preparation.Message
-#import tunitas.keyston.protocol.preparation.Step
+#import tunitas.rheem.protocol.preparation.Message
+#import tunitas.rheem.protocol.preparation.Step
 namespace tests::unit::protocol::preparation {
   auto Fixture::test_usage_Message() -> void {
     auto subject0 = library::Message{};

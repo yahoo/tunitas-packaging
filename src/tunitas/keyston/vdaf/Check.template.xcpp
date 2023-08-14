@@ -69,8 +69,8 @@ namespace tunitas::keyston::vdaf {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.prg.constants // SEED_SIZE
-#import tunitas.keyston.octets.Fixed
-#import tunitas.keyston.octets.Span
+#import tunitas.octets.Fixed
+#import tunitas.octets.Span
 #import tunitas.view.Fixed
 namespace tunitas::keyston::vdaf {
   template<required::Definition DEFINITION> struct check::Outline {
@@ -112,6 +112,6 @@ namespace tunitas::keyston::vdaf {
     static constexpr auto whole_size() { return Encoded::Randomness::SIZE; }
   };
 }
-#import tunitas.keyston.octets.Variable
+#import tunitas.octets.Variable
 #import tunitas.view.Variable
 #endiv

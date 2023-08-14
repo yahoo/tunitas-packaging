@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.vdaf.Name
-#import tunitas.keyston.quantity.Items
+#import tunitas.units.Items
 namespace tunitas::keyston::vdaf {
   //
   // Constants of VDAF as indexed by Name
@@ -33,7 +33,7 @@ namespace tunitas::keyston::vdaf {
   //   using Definition = vdaf::Definition<Name:SOMETHING>;
   //
   namespace [[eponymous]] definition {
-    using quantity::Items;
+    using units::Items;
     template<typename PERSONALITY> struct Convenience;
     template<Name> struct Personality;
     template<> struct Personality<Name::PRIO3_COUNT>;

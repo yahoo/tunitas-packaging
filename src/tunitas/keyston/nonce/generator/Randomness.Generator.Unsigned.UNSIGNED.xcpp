@@ -33,14 +33,14 @@ namespace tunitas::keyston::nonce::generator {
 #endiv
 #divert <cpp>
 #import tunitas.integer.distribution.usage.Randomness
-#import tunitas.keyston.entropy.None
+#import tunitas.entropy.None
 namespace {
   namespace testate {
     using tunitas::keyston::nonce::generator::Randomness;
     using tunitas::keyston::nonce::generator::Generator;
     using tunitas::keyston::nonce::Unsigned;
     namespace usage = tunitas::integer::distribution::usage;
-    using Entropy = tunitas::keyston::entropy::None; // pick one
+    using Entropy = tunitas::entropy::None; // pick one
     //
     static_assert(usage::Randomness<Randomness<Generator<Unsigned<unsigned>, Entropy>>>);
   }

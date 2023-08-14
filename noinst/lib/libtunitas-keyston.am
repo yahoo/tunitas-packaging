@@ -16,6 +16,8 @@ noinst_lib_libtunitas_keyston_la_LIBADD = \
   noinst/lib/libstd+tunitas-keyston.la \
   noinst/lib/libnonstd+tunitas-keyston.la \
   noinst/lib/libtunitas+tunitas-keyston.la \
+  noinst/lib/libtunitas-hale+tunitas-keyston.la \
+  noinst/lib/libtunitas-rheem+tunitas-keyston.la \
   noinst/lib/libwant.la \
   -ltunitas-application -lnonstd++ -lcryptopp -lfmt \
   $(end)

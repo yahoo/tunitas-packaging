@@ -21,9 +21,9 @@ struct tests::unit::entropy::Fixture : public rigging::suite::Fixture {
 #divert <cpp>
 #import tests.unit.entropy.Source
 #import tests.unit.entropy.Device
-#import tunitas.keyston.entropy.Source
-#import tunitas.keyston.entropy.None
-#import tunitas.keyston.entropy.Serial
+#import tunitas.entropy.Source
+#import tunitas.entropy.None
+#import tunitas.entropy.Serial
 auto tests::unit::entropy::Fixture::suite() -> Suite {
   auto series = Stream{"entropy"sv};
   series << []{
@@ -69,13 +69,13 @@ auto tests::unit::entropy::Fixture::suite() -> Suite {
         << END;
   return settle(series);
 }
-#import tunitas.keyston.entropy.None
-#import tunitas.keyston.entropy.Serial
-#import tunitas.keyston.entropy.Sequence
-#import tunitas.keyston.entropy.Source
-#import tunitas.keyston.entropy.Jitter
+#import tunitas.entropy.None
+#import tunitas.entropy.Serial
+#import tunitas.entropy.Sequence
+#import tunitas.entropy.Source
+#import tunitas.entropy.Jitter
 #import std.views.iota
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 namespace tests::unit::entropy {
   auto Fixture::test_usage_Source() -> void {
     auto subject = library::Source{};
@@ -99,7 +99,7 @@ namespace tests::unit::entropy {
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_Jitter() -> void {
-    using namespace tunitas::keyston::time::literals;
+    using namespace tunitas::time::literals;
     using Subject = library::Jitter<library::Source>;
     auto source = library::Source{};
     auto subject = Subject{source, 100ms, 10ms};

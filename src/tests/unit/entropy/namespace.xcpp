@@ -5,10 +5,10 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit.nonce
-#import tunitas.keyston.entropy
-#import tunitas.keyston.entropy.required
+#import tunitas.entropy
+#import tunitas.entropy.required
 namespace tests::unit::entropy {
-  namespace library = ::tunitas::keyston::entropy;
-  namespace required = ::tunitas::keyston::entropy::required;
+  namespace library = ::tunitas::entropy;
+  namespace required = ::tunitas::entropy::required;
 }
 #endiv

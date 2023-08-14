@@ -13,7 +13,7 @@ namespace tunitas::keyston::field::element {
 }
 #import tunitas.integer.required.Large
 #import tunitas.integer.required.Unsigned
-#import tunitas.keyston.integer.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.integer.required // ctcnr (cascade that certain 'namespace required')
 #import nonstd.numeric_limits
 namespace tunitas::keyston::field::element::package_narrow {
   template<typename TARGET, typename SOURCE> concept Narrowable = requires(TARGET, SOURCE) {

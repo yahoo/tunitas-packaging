@@ -5,8 +5,8 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tests.unit
-#import tunitas.keyston.hpke
+#import tunitas.hale.hpke
 namespace tests::unit::hpke {
-  namespace library = ::tunitas::keyston::hpke;
+  namespace library = ::tunitas::hale::hpke;
 }
 #endiv

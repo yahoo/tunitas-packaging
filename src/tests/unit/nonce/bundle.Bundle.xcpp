@@ -9,7 +9,7 @@ namespace tests::unit::nonce::bundle {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.Serial
+#import tunitas.entropy.Serial
 #import tunitas.keyston.nonce.Generator
 #import tests.unit.nonce.Palette
 #import std.same_as
@@ -27,7 +27,7 @@ namespace tests::unit::nonce {
     auto test_operator_eq() -> void;
     auto test_operator_ne() -> void;
   protected:
-    using Entropy = ::tunitas::keyston::entropy::Serial;
+    using Entropy = ::tunitas::entropy::Serial;
     Entropy source{};
     library::Generator<Subject, Entropy> generate{source};
     // Any other Bundles of Since with wider precision we don't detect and can't remediate around

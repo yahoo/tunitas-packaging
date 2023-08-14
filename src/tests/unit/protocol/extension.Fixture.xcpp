@@ -4,10 +4,10 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.extension
+#import tunitas.rheem.protocol.extension
 namespace tests::unit::protocol::extension {
   class Fixture;
-  namespace library = ::tunitas::keyston::protocol::extension;
+  namespace library = ::tunitas::rheem::protocol::extension;
 }
 #endiv
 #divert <hpp>
@@ -33,9 +33,9 @@ auto tests::unit::protocol::extension::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.extension.Type
-#import tunitas.keyston.protocol.extension.Container
-#import tunitas.keyston.protocol.extension.Array
+#import tunitas.rheem.protocol.extension.Type
+#import tunitas.rheem.protocol.extension.Container
+#import tunitas.rheem.protocol.extension.Array
 namespace tests::unit::protocol::extension {
   auto Fixture::test_usage_Type() -> void {
     using Subject = library::Type;
