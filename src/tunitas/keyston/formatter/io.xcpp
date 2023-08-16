@@ -48,9 +48,9 @@ namespace tunitas::keyston::formatter {
   auto operator<<(std::ostream &, Formatter<poplar::Algorithm<ONE>::Initialization, poplar::Algorithm<ONE>::Initialization const &> const &) -> std::ostream &;  // unimplemented
   auto operator<<(std::ostream &, Formatter<poplar::Algorithm<ONE>::Continuation, poplar::Algorithm<ONE>::Continuation const &> const &) -> std::ostream &;  // unimplemented
   //
-  inline auto operator<<(std::ostream &, Formatter<Histogram, Histogram const &> const &) -> std::ostream &;
+  template<Size CAPACITY> inline auto operator<<(std::ostream &, Formatter<Histogram<CAPACITY>, Histogram<CAPACITY> const &> const &) -> std::ostream &;
   inline auto operator<<(std::ostream &, Formatter<Popularity, Popularity const &> const &) -> std::ostream &;
-  auto operator<<(std::ostream &, Formatter<Tuple<Boundaries const &, Histogram const &>> const &) -> std::ostream &;
+  template<Size CAPACITY> auto operator<<(std::ostream &, Formatter<Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>> const &) -> std::ostream &;
   auto operator<<(std::ostream &, Formatter<Tuple<Bits, Prefixes const &, Popularity const &>> const &) -> std::ostream &;
   //
   inline auto operator<<(std::ostream &, Formatter<aggregation::Container, aggregation::Container const &> const &) -> std::ostream &; // handles Aggregation<WHOLE> in af, daf, vdaf
@@ -81,7 +81,7 @@ namespace tunitas::keyston::formatter {
 namespace tunitas::keyston {
   template<required::Enumeration ENUM>                         auto formatter::operator<<(std::ostream &outbound, Formatter<ENUM, ENUM> const &formatter)         -> std::ostream & { return outbound << underlying(formatter.captured); }
   template<required::InstanceOf<formatter::Quantity> QUANTITY> auto formatter::operator<<(std::ostream &outbound, Formatter<QUANTITY, QUANTITY> const &formatter) -> std::ostream & { return outbound << formatter.captured.count(); }
-  auto formatter::operator<<(std::ostream &outbound, Formatter<Histogram, Histogram const &> const &formatter)                                                    -> std::ostream & { return body::container(outbound, formatter.captured); }
+  template<Size CAPACITY> auto formatter::operator<<(std::ostream &outbound, Formatter<Histogram<CAPACITY>, Histogram<CAPACITY> const &> const &formatter)        -> std::ostream & { return body::container(outbound, formatter.captured); }
   auto formatter::operator<<(std::ostream &outbound, Formatter<Popularity, Popularity const &> const &formatter)                                                  -> std::ostream & { return body::container(outbound, formatter.captured); }
   //
   auto formatter::operator<<(std::ostream &outbound, Formatter<aggregation::Container, aggregation::Container const &> const &formatter)   -> std::ostream & { return body::variant(outbound, formatter); }
@@ -109,13 +109,7 @@ namespace tunitas::keyston::formatter {
     auto visitor = variant::Visitor{[&outbound](auto const &something) -> std::ostream & { return outbound << subformat(something); }};
     return visit(visitor, formatter.captured);
   }
-}
-#endiv
-#divert <cpp>
-#import nonstd.runtime_assert
-#import langu.age.q
-namespace tunitas::keyston {
-  auto formatter::operator<<(std::ostream &outbound, Formatter<Tuple<Boundaries const &, Histogram const &>> const &formatter) -> std::ostream & {
+  template<Size CAPACITY> auto formatter::operator<<(std::ostream &outbound, Formatter<Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>> const &formatter) -> std::ostream & {
 #if 0
     auto const &boundaries = get<0>(formatter.captured);
     auto const &histogram = get<1>(formatter.captured);
@@ -130,6 +124,12 @@ namespace tunitas::keyston {
     }
     return outbound;
   }
+}
+#endiv
+#divert <cpp>
+#import nonstd.runtime_assert
+#import langu.age.q
+namespace tunitas::keyston {
   auto formatter::operator<<(std::ostream &outbound, Formatter<Tuple<Bits, Prefixes const &, Popularity const &>> const &formatter) -> std::ostream & {
 #if 0
     auto const &prefix_length = get<0>(formatter.captured);

@@ -7,7 +7,7 @@
 namespace tests::unit::aggregation::io { class Fixture; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.aggregation.Histogram
 #import tunitas.keyston.popularity.Prefixes
 #import tunitas.units.Bits
 struct tests::unit::aggregation::io::Fixture : public rigging::suite::Fixture {
@@ -23,7 +23,7 @@ struct tests::unit::aggregation::io::Fixture : public rigging::suite::Fixture {
 protected:
   template<typename TYPE> static auto exhibit(TYPE const &) -> string::Storage;
   template<typename SUBJECT> static auto singleton(string::Storage expected, SUBJECT specimen) -> void;
-  using Boundaries = ::tunitas::keyston::histogram::Boundaries;
+  using Boundaries = ::tunitas::keyston::aggregation::Histogram::Boundaries;
   using Prefixes = ::tunitas::keyston::popularity::Prefixes;
   using Bits = ::tunitas::units::Bits;
 };

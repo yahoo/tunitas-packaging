@@ -8,6 +8,7 @@
 #endiv
 #divert <hpp>
 #import tests.unit.daf.numeric.Palette
+#import tunitas.keyston.measurement.Boundaries
 namespace tests::unit::daf::numeric::histogram {
   struct Fixture::Provided : public Palette {
     using Ct = ::tunitas::keyston::aggregation::Count;
@@ -16,7 +17,7 @@ namespace tests::unit::daf::numeric::histogram {
     struct Disassembly {
       inline static constexpr auto const SPECIMEN = ::tunitas::keyston::measurement::Specimen{10};
       inline static constexpr auto RANDOMNESS = defaults::RANDOMNESS;
-      inline static constexpr auto BOUNDARIES = ::tunitas::keyston::histogram::Boundaries{Sp{3},Sp{6},Sp{9},Sp{12},Sp{15}};
+      inline static constexpr auto BOUNDARIES = ::tunitas::keyston::measurement::Boundaries{Sp{3},Sp{6},Sp{9},Sp{12}};
     };
     struct Computation {
       inline static constexpr auto const CANARY = Input<SHARE>::Histogram{El{1u},El{0u},El{1u}};

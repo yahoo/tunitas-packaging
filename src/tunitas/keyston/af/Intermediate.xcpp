@@ -43,7 +43,7 @@ namespace tunitas::keyston::af {
 #forward tunitas.keyston.af.Aggregation
 namespace tunitas::keyston::af {
   namespace intermediate {
-    using Variant = std::variant<Count, Histogram, Popularity>;
+    using Variant = std::variant<Count, /*FIXTHIS* Summation*/ Histogram, Popularity>;
     inline auto finalize(Intermediate const &) -> Aggregation;
   }
   class intermediate::Intermediate : public Variant {
@@ -54,7 +54,7 @@ namespace tunitas::keyston::af {
     using Ancestor::variant;
 #else
     explicit Intermediate(Count n) : Ancestor{move(n)} { }
-    explicit Intermediate(Histogram h) : Ancestor{move(h)} { }
+    explicit Intermediate(Histogram<> h) : Ancestor{move(h)} { }
     explicit Intermediate(Popularity p) : Ancestor{move(p)} { }
 #endif
   };

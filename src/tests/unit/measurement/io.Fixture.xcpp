@@ -21,7 +21,7 @@ struct tests::unit::measurement::io::Fixture : public rigging::suite::Fixture {
 protected:
   template<typename TYPE> static auto exhibit(TYPE const &) -> string::Storage;
   template<typename SUBJECT> static auto singleton(string::Storage expected, SUBJECT specimen) -> void;
-  using Histogram = ::tunitas::keyston::histogram::Histogram;
+  using Histogram = ::tunitas::keyston::histogram::Histogram<>;
   using Popularity = ::tunitas::keyston::popularity::Popularity;
   using Bits = ::tunitas::units::Bits;
 };

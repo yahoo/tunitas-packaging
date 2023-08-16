@@ -42,7 +42,7 @@ namespace tests::unit::daf::numeric::histogram {
       class _Treatment : public Treatment<decltype([](Aggregation<WHOLE>::Histogram const &that) -> Aggregation<WHOLE>::Histogram { return that; })> { };
     public:
       _Treatment treatment{};
-      inline static constexpr auto const FIVE = ::tunitas::keyston::histogram::Histogram{Ct{1u},Ct{2u},Ct{3u}};
+      inline static constexpr auto const FIVE = ::tunitas::keyston::aggregation::Histogram{Ct{1u},Ct{2u},Ct{3u}};
     };
   };
 #pragma GCC diagnostic pop

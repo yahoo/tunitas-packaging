@@ -4,13 +4,15 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.constants
+#include <hpp/tunitas.keyston.constants>
 namespace tunitas::keyston::histogram {
   //
   // The boundaries of the histogram.
   //
   // Specification
   //
-  //   See the relationship among Histogram<-->Boundaries<-->Definition
+  //   See the relationship among Histogram<CAPACITY> <--> Boundaries<CAPACITY> <--> Definition<CAPACITY>
   //   laid out in tunitas.keyston.histogram.Histogram
   //
   // Design:
@@ -25,7 +27,7 @@ namespace tunitas::keyston::histogram {
   //   auto variable = array::Variable<measurement::Specimen>{...somehow...};
   //   auto boundaries = Boundaries::extend(EXCEPTION, variable);
   //
-  struct Boundaries;
+  template<Size CAPACITY = constants::HISTOGRAM_BUCKET_COUNT> struct Boundaries;
 }
 #endiv
 #divert <hpp>
@@ -45,15 +47,15 @@ namespace tunitas::keyston::histogram {
 namespace tunitas::keyston {
   namespace histogram {
     using std::move;
-    inline auto swap(Boundaries &, Boundaries &) noexcept -> void;
-    inline auto format(Tuple<Boundaries const &, Histogram const &>) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
-    inline auto format(Boundaries const &, Histogram const &) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>>;
+    template<Size CAPACITY> inline auto swap(Boundaries<CAPACITY> &, Boundaries<CAPACITY> &) noexcept -> void;
+    template<Size CAPACITY> inline auto format(Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>) -> formatter::Formatter<Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>>;
+    template<Size CAPACITY> inline auto format(Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &) -> formatter::Formatter<Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>>;
   }
-  class histogram::Boundaries : public array::Fixed<measurement::Specimen, Definition::COUNT.count()> {
+  template<Size CAPACITY> class histogram::Boundaries : public array::Fixed<measurement::Specimen, Definition<CAPACITY>::COUNT.count()> {
     // WATCHOUT - the ancestor is std::array so the constructor name wins inside the class
-    using Ancestor = tunitas::array::Fixed<measurement::Specimen, Definition::COUNT.count()>;
+    using Ancestor = tunitas::array::Fixed<measurement::Specimen, Definition<CAPACITY>::COUNT.count()>;
     using Variable = tunitas::array::Variable<measurement::Specimen>;
-    friend auto swap(Boundaries &, Boundaries &) noexcept -> void;
+    friend auto histogram::swap<>(Boundaries &, Boundaries &) noexcept -> void;
   public:
     Boundaries() = default;
     using Ancestor::Fixed;
@@ -68,19 +70,19 @@ namespace tunitas::keyston {
 }
 #import tunitas.keyston.histogram.Boundaries.Optional
 #import tunitas.keyston.histogram.Boundaries.Outcome
-#import nonstd.container.Traits.tunitas.keyston.histogram.Boundaries
+#import nonstd.container.Traits.tunitas.keyston.histogram.Boundaries.CAPACITY
 #endiv
 #divert <ipp>
 #import tunitas.keyston.exception.Overflow
 namespace tunitas::keyston {
-  auto histogram::format(Tuple<Boundaries const &, Histogram const &> item) -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>> { return {item}; }
-  auto histogram::format(Boundaries const &b, Histogram const &h)           -> formatter::Formatter<Tuple<Boundaries const &, Histogram const &>> { return Tuple<Boundaries const &, Histogram const &>{b, h}; }
-  auto histogram::swap(Boundaries &a, Boundaries &b) noexcept -> void {
-    Boundaries::Ancestor &aa{a}, &bb{b};
+  template<Size CAPACITY> auto histogram::format(Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &> item) -> formatter::Formatter<Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>> { return {item}; }
+  template<Size CAPACITY> auto histogram::format(Boundaries<CAPACITY> const &b, Histogram<CAPACITY> const &h)           -> formatter::Formatter<Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>> { return Tuple<Boundaries<CAPACITY> const &, Histogram<CAPACITY> const &>{b, h}; }
+  template<Size CAPACITY> auto histogram::swap(Boundaries<CAPACITY> &a, Boundaries<CAPACITY> &b) noexcept -> void {
+    typename Boundaries<CAPACITY>::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
   }
   namespace histogram {
-    auto Boundaries::extend(error::by::Exception, Variable const &source) -> Boundaries {
+    template<Size _> auto Boundaries<_>::extend(error::by::Exception, Variable const &source) -> Boundaries {
       auto ret = Boundaries{}; // develop the NRVO scenario
       if (good(copy_extending(ret, source))) {
         return ret;
@@ -88,7 +90,7 @@ namespace tunitas::keyston {
         throw exception::Overflow{"Boundaries"};
       }
     }
-    auto Boundaries::extend(error::by::Optional, Variable const &source) -> Optional<Boundaries> {
+    template<Size _> auto Boundaries<_>::extend(error::by::Optional, Variable const &source) -> Optional<Boundaries> {
       auto ret = error::Optional<Boundaries>{Boundaries{}}; // dadem ratione
       if (good(copy_extending(*ret, source))) {
         return ret;
@@ -96,7 +98,7 @@ namespace tunitas::keyston {
         return {};
       }
     }
-    auto Boundaries::extend(error::by::Outcome, Variable const &source) -> Outcome<Boundaries> {
+    template<Size _> auto Boundaries<_>::extend(error::by::Outcome, Variable const &source) -> Outcome<Boundaries> {
       auto ret = error::Outcome<Boundaries>{Boundaries{}}; // eadem ratione
       if (auto filled=copy_extending(value(ret), source); good(filled)) {
         return ret;
@@ -108,18 +110,18 @@ namespace tunitas::keyston {
 }
 #import tunitas.keyston.formatter.io // to activate format(...)
 #endiv
-#divert <cpp>
+#divert <tpp>
 #import std.back_inserter
 #import std.copy
 #import std.fill_n
 #import tunitas.array.Variable
 #import tunitas.keyston.error.Code
 namespace tunitas::keyston::histogram {
-  auto Boundaries::copy_extending(Boundaries &lhs, Variable const &rhs) -> Success {
+  template<Size _> auto Boundaries<_>::copy_extending(Boundaries &lhs, Variable const &rhs) -> Success {
     if (rhs.size() > lhs.size()) {
       return {error::Code::Enumeration::OVERFLOW};
     } else if (0 == rhs.size()) {
-      std::fill_n(lhs.begin(), lhs.size(), Boundaries::Value{});
+      std::fill_n(lhs.begin(), lhs.size(), typename Boundaries::Value{});
       return SUCCESS;
     } else {
       auto start = lhs.begin();

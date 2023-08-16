@@ -29,7 +29,7 @@ protected:
 };
 #endiv
 #divert <tpp>
-#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.aggregation.Histogram
 namespace tests::unit::flp {
   template<typename SERIES> auto Fixture::generate_randomness() -> SERIES {
     auto ret = SERIES{};
@@ -46,9 +46,9 @@ namespace tests::unit::flp {
     auto message = [measurement]{
       if constexpr (std::same_as<typename SYSTEM::Codec, typename Fixture::Specimen::Histogram::Codec>) {
         // Ick [[FIXTHIS]] how are we supposed to bury the boundaries?
-        using B = ::tunitas::keyston::histogram::Boundaries;
+        using B = ::tunitas::keyston::aggregation::Histogram::Boundaries;
         using S = ::tunitas::keyston::measurement::Specimen;
-        auto boundaries = B{B::Inplace{}, S{1u}, S{3u}, S{5u}, S{7u}, S{9u}};
+        auto boundaries = B{B::Inplace{}, S{1u}, S{3u}, S{5u}, S{9u}};
         return Subject::Codec::encode(measurement, boundaries);
       } else {
         return Subject::Codec::encode(measurement);

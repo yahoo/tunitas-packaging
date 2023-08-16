@@ -16,7 +16,7 @@ namespace tests::unit {
   struct histogram::Boundaries : public rigging::suite::Fixture {
     static auto suite() -> Suite;
     //
-    using Subject = library::Boundaries;
+    using Subject = library::Boundaries<>;
     //
     auto test_constructor() -> void;
     template<error::by::required::Indicator> auto test_extend_good() -> void;
@@ -54,7 +54,7 @@ namespace tests::unit::histogram {
         return variable;
       }
     case Generate::FAIL:
-      return Variable(1+library::Boundaries{}.size(), library::Boundaries::Value{99});;
+      return Variable(1+Subject{}.size(), Subject::Value{99});;
     case Generate::DEFAULT:
     default:
       return Variable{};
@@ -64,40 +64,40 @@ namespace tests::unit::histogram {
 namespace tests::unit::histogram {
   template<> auto Boundaries::test_extend_good<error::by::Exception>() -> void {
     auto variable = generate<Variable>(Generate::GOOD);
-    auto extended = library::Boundaries::extend(error::by::Exception{}, variable); // <----- test this
+    auto extended = Subject::extend(error::by::Exception{}, variable); // <----- test this
     require(ASSERTION, 0 < extended.size());
-    require(ASSERTION, library::Boundaries::Value{3} == extended.at(extended.size()-1));
+    require(ASSERTION, Subject::Value{3} == extended.at(extended.size()-1));
   }
   template<> auto Boundaries::test_extend_fail<error::by::Exception>() -> void try {
     auto variable = generate<Variable>(Generate::FAIL);
-    library::Boundaries::extend(error::by::Exception{}, variable); // <----- test this
+    Subject::extend(error::by::Exception{}, variable); // <----- test this
     impossible(ASSERTION);
   } catch (Failure const &) {
     require(ASSERTION);
   }
   template<> auto Boundaries::test_extend_good<error::by::Optional>() -> void {
     auto variable = generate<Variable>(Generate::GOOD);
-    auto extended = library::Boundaries::extend(error::by::Optional{}, variable); // <---- test this
+    auto extended = Subject::extend(error::by::Optional{}, variable); // <---- test this
     require(ASSERTION, true == (bool) extended);
     require(ASSERTION, 0 < extended->size());
-    require(ASSERTION, library::Boundaries::Value{3} == extended->at(extended->size()-1));
+    require(ASSERTION, Subject::Value{3} == extended->at(extended->size()-1));
   }
   template<> auto Boundaries::test_extend_fail<error::by::Optional>() -> void {
     auto variable = generate<Variable>(Generate::FAIL);
-    auto extended = library::Boundaries::extend(error::by::Optional{}, variable);
+    auto extended = Subject::extend(error::by::Optional{}, variable);
     require(ASSERTION, false == (bool) extended);
   }
   template<> auto Boundaries::test_extend_good<error::by::Outcome>() -> void {
     auto variable = generate<Variable>(Generate::GOOD);
-    auto extended = library::Boundaries::extend(error::by::Outcome{}, variable); // <---- test this
+    auto extended = Subject::extend(error::by::Outcome{}, variable); // <---- test this
     require(ASSERTION, good(extended));
     auto const &inside{value(extended)};
     require(ASSERTION, 0 < inside.size());
-    require(ASSERTION, library::Boundaries::Value{3} == inside.at(inside.size()-1));
+    require(ASSERTION, Subject::Value{3} == inside.at(inside.size()-1));
   }
   template<> auto Boundaries::test_extend_fail<error::by::Outcome>() -> void {
     auto variable = generate<Variable>(Generate::FAIL);
-    auto extended = library::Boundaries::extend(error::by::Outcome{}, variable);
+    auto extended = Subject::extend(error::by::Outcome{}, variable);
     require(ASSERTION, fail(extended));
   }
 }
@@ -140,7 +140,6 @@ auto tests::unit::histogram::Boundaries::suite() -> Suite {
 }
 namespace tests::unit::histogram {
   auto Boundaries::test_constructor() -> void {
-    using Subject = library::Boundaries;
     auto subject = Subject{};
     require(ASSERTION, sizeof(subject));
     // these things come already filled-to-size

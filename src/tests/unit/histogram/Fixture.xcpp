@@ -32,24 +32,24 @@ protected:
 namespace tests::unit::histogram {
   template<> auto Fixture::test_usage_Boundaries_extend<error::by::Exception>() -> void {
     auto variable = generate();
-    auto extended = library::Boundaries::extend(error::by::Exception{}, variable); // <----- test this
+    auto extended = library::Boundaries<>::extend(error::by::Exception{}, variable); // <----- test this
     require(ASSERTION, 0 < extended.size());
-    require(ASSERTION, library::Boundaries::Value{3} == extended.at(extended.size()-1));
+    require(ASSERTION, library::Boundaries<>::Value{3} == extended.at(extended.size()-1));
   }
   template<> auto Fixture::test_usage_Boundaries_extend<error::by::Optional>() -> void {
     auto variable = generate();
-    auto extended = library::Boundaries::extend(error::by::Optional{}, variable); // <---- test this
+    auto extended = library::Boundaries<>::extend(error::by::Optional{}, variable); // <---- test this
     require(ASSERTION, true == (bool) extended);
     require(ASSERTION, 0 < extended->size());
-    require(ASSERTION, library::Boundaries::Value{3} == extended->at(extended->size()-1));
+    require(ASSERTION, library::Boundaries<>::Value{3} == extended->at(extended->size()-1));
   }
   template<> auto Fixture::test_usage_Boundaries_extend<error::by::Outcome>() -> void {
     auto variable = generate();
-    auto extended = library::Boundaries::extend(error::by::Outcome{}, variable); // <---- test this
+    auto extended = library::Boundaries<>::extend(error::by::Outcome{}, variable); // <---- test this
     require(ASSERTION, good(extended));
     auto const &inside{value(extended)};
     require(ASSERTION, 0 < inside.size());
-    require(ASSERTION, library::Boundaries::Value{3} == inside.at(inside.size()-1));
+    require(ASSERTION, library::Boundaries<>::Value{3} == inside.at(inside.size()-1));
   }
 }
 #import tests.unit.histogram.Boundaries
@@ -88,13 +88,13 @@ namespace tests::unit::histogram {
     return variable;
   }
   auto Fixture::test_usage_Boundaries() -> void {
-    using Subject = library::Boundaries;
+    using Subject = library::Boundaries<>;
     auto subject = Subject{};
     require(ASSERTION, sizeof(subject));
     require(ASSERTION, 0 < subject.size());
   }
   auto Fixture::test_usage_Histogram() -> void {
-    using Subject = library::Histogram;
+    using Subject = library::Histogram<>;
     auto subject = Subject{};
     require(ASSERTION, 0 < subject.size());
     require(ASSERTION, subject == subject); // ...... operator== exists

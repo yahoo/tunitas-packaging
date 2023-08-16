@@ -4,6 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
+#import tunitas.keyston.constants
+#include <hpp/tunitas.keyston.constants>
 namespace tunitas::keyston::histogram {
   //
   // The specification of the buckets of the histogram
@@ -26,18 +28,20 @@ namespace tunitas::keyston::histogram {
   //      return something::something_else::dark_side(encoded.at(INDEX))...};
   //   }(Definition::sequence());
   //
-  struct Definition;
+  template<Size CAPACITY = constants::HISTOGRAM_BUCKET_COUNT> struct Definition;
 }
 #endiv
 #divert <hpp>
-#import std.index_sequence
-#import std.make_index_sequence
+#import tunitas.sequence.Sequence
+#include <ipp/tunitas.sequence.Sequence>
 #import std.size_t
-struct tunitas::keyston::histogram::Definition {
-  inline static constexpr auto COUNT = Items{100u};
-  template<Index... INDEX> using Sequence = std::index_sequence<INDEX...>;
-  static constexpr auto sequence() { return std::make_index_sequence<COUNT.count()>{}; }
-  Definition() = delete;
-  Definition(Definition const &) = delete;
-};
+namespace tunitas::keyston {
+  template<Size CAPACITY> struct histogram::Definition {
+    inline static constexpr auto COUNT = Items{CAPACITY};
+    template<Index... INDEX> using Sequence = typename tunitas::sequence::Sequence::template Pack<INDEX...>;
+    static constexpr auto sequence() { return tunitas::sequence::Sequence::make<CAPACITY>(); }
+    Definition() = delete;
+    Definition(Definition const &) = delete;
+  };
+}
 #endiv

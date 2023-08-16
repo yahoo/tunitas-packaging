@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <hpp>
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.histogram.Histogram
 #import tunitas.keyston.histogram.Boundaries
 namespace tunitas::keyston::histogram {
   //
@@ -18,6 +18,7 @@ namespace tunitas::keyston::histogram {
   // Design:
   //
   //   This is a for loop,  You can see that now.
+  //   ADL can find it from Boundaries
   //
   // Invariant:
   //
@@ -29,14 +30,14 @@ namespace tunitas::keyston::histogram {
   //   auto boundaries = histogram::Boundaries{...somehow...};
   //   auto encoded = histogram::encode(specimen, boundaries);
   //
-  inline constexpr auto encode(measurement::Specimen, Boundaries const &) -> aggregation::Histogram;
+  template<Size CAPACITY> inline constexpr auto encode(measurement::Specimen, Boundaries<CAPACITY> const &) -> Histogram<CAPACITY>;
 }
 #endiv
 #divert <ipp>
 #import tunitas.array.enumerate
 namespace tunitas::keyston {
-  constexpr auto histogram::encode(measurement::Specimen specimen, Boundaries const &boundaries) -> aggregation::Histogram {
-    auto encoded = aggregation::Histogram{};
+    template<Size CAPACITY> constexpr auto histogram::encode(measurement::Specimen specimen, Boundaries<CAPACITY> const &boundaries) -> Histogram<CAPACITY> {
+    auto encoded = Histogram<CAPACITY>{};
     for (auto [index, boundary] : enumerate(boundaries)) {
       if (underlying(specimen) <= underlying(boundary)) {
         encoded.at(index) = aggregation::Count{1};

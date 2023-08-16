@@ -38,7 +38,7 @@ namespace tunitas::keyston::prio::flp::validity {
 #import tunitas.keyston.aggregation.Histogram
 namespace tunitas::keyston::prio::flp::validity {
   template<> class Predefinition<HISTOGRAM> : public Prototype {
-    inline static constexpr auto const HISTOGRAM_WIDTH = histogram::Definition::COUNT.count(); // a.k.a. 'length' (lower case) from Section 7.4.3
+    inline static constexpr auto const HISTOGRAM_WIDTH = histogram::Definition<>::COUNT.count(); // a.k.a. 'length' (lower case) from Section 7.4.3
   protected:
     ~Predefinition() = default;
   public:

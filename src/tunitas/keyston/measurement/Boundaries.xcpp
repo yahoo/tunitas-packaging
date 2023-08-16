@@ -5,7 +5,18 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.histogram.Definition
+#include <hpp/tunitas.keyston.histogram.Definition>
 namespace tunitas::keyston::measurement {
-  using histogram::Boundaries;
+  using Boundaries = histogram::Boundaries<histogram::Definition<>::COUNT.count()>;
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.aggregation.Histogram
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston;
+    static_assert(measurement::Boundaries{}.size() == aggregation::Histogram{}.size());
+  }
 }
 #endiv

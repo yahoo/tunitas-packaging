@@ -40,7 +40,7 @@ namespace tunitas::keyston::shards::literals::package_literals {
       //   Whereas the VDF theory only tolerates very small integers,
       //   the literals 0..9.
       //
-      //   Allowed literals MUST be less-than-or-equal to the magic constant SHARD_COUNT
+      //   Allowed literals MUST be less-than-or-equal to the magic constant constants::SHARD_COUNT
       //
       // Design:
       //
@@ -77,10 +77,11 @@ namespace tunitas::keyston::shards::literals::package_literals {
 }
 #endiv
 #divert <ipp>
+#import tunitas.keyston.constants
 namespace tunitas::keyston::shards::literals::package_literals {
   template<char... CHARS> constexpr auto interface::operator""_shard() -> Shard requires (0 < sizeof...(CHARS)) {
     auto const value = Convert<CHARS...>::value;
-    static_assert(value <= SHARD_COUNT.count());
+    static_assert(value <= constants::SHARD_COUNT);
     return Shard(value);
   }
 }

@@ -9,7 +9,7 @@
 #divert <hpp>
 #import tunitas.error.Optional
 namespace tunitas::keyston::histogram {
-  template<typename TYPE> requires required::Same_As<TYPE, Boundaries> class Boundaries::Optional : public error::Optional<Boundaries> {
+  template<Size CAPACITY> template<typename TYPE> requires required::Same_As<TYPE, Boundaries<CAPACITY>> class Boundaries<CAPACITY>::Optional : public error::Optional<Boundaries> {
     using Ancestor = error::Optional<Boundaries>;
   public:
     constexpr Optional() = default;

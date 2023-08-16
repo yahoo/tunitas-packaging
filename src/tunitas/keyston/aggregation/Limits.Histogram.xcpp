@@ -7,7 +7,7 @@
 #import tunitas.keyston.aggregation.Limits.template
 #forward tunitas.keyston.aggregation.Histogram
 namespace tunitas::keyston::aggregation {
-  template<> struct Limits<Histogram>;
+  struct Limits<Histogram>;
 }
 #endiv
 #divert <hpp>

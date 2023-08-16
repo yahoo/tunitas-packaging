@@ -9,9 +9,10 @@ namespace tests::unit::prio::disassembly { struct Fixture; }
 #divert <hpp>
 #import tunitas.keyston.shards.Shards // ... for SHARD_COUNT
 #import tunitas.keyston.prg.constants // ... for SEED_SIZE
+#import tunitas.keyston.constants
 struct tests::unit::prio::disassembly::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
-  inline static constexpr auto SHARDS = ::tunitas::keyston::shards::SHARD_COUNT.count();
+  inline static constexpr auto SHARDS = ::tunitas::keyston::constants::SHARD_COUNT;
   inline static constexpr auto WITHOUT = 2uz; // with joint randomness (add one more for the blinding thingie)
   inline static constexpr auto WITH = 1uz + WITHOUT;
   inline static constexpr auto SEED = ::tunitas::keyston::prg::SEED_SIZE.count();

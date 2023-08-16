@@ -13,7 +13,7 @@ namespace tunitas::keyston {
   enum class Function {
     AF, // ...... __________________________________ Aggregation Function; a.k.a. Unverifiable, Batched,     Centralized
     DAF, // ..... ______________________ Distributed Aggregation Function; a.k.a. Unverifiable, Batched,     Distributed
-    VDAF, // .... Verifiable ___________ Distributed Aggregation Function; a.k.a. Verifiable,   Batched,     Distributed, e.g. PRIO, POPLAR
+    VDAF, // .... Verifiable ___________ Distributed Aggregation Function; a.k.a. Verifiable,   Batched,     Distributed, e.g. PRIO, POPLAR, DOPLAR
     VIDAF, // ... Verifiable Incremental Distributed Aggregation Function; a.k.a. Verifiable,   Incremental, Distributed, e.g. PLASMA
   };
 }

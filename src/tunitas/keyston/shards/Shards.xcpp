@@ -12,7 +12,7 @@ namespace tunitas::keyston::shards {
   //
   // Specification:
   //
-  //   It's a fixed array at SHARD_COUNT
+  //   It's a fixed array at constants::SHARD_COUNT
   //   The index operations accept a Shard (an enum (class))
   //
   // Design:
@@ -35,6 +35,7 @@ namespace tunitas::keyston::shards {
 #endiv
 #divert <hpp>
 // SOON ---> #import nonstd.like
+#import tunitas.keyston.constants
 #import tunitas.keyston.shards.Shard
 #import tunitas.array.Fixed
 #import std.ranges.iota_view
@@ -45,14 +46,14 @@ namespace tunitas::keyston {
     template<required::Shardable TYPE> inline auto swap(Shards<TYPE> &, Shards<TYPE> &) noexcept -> void;
     template<required::Shardable TYPE> inline auto iota(Shards<TYPE> const &) -> std::ranges::iota_view<Shard, Size>;
   }
-  template<shards::required::Shardable TYPE> struct shards::Shards : public array::Fixed<TYPE, SHARD_COUNT.count()> {
-    using Ancestor = array::Fixed<TYPE, SHARD_COUNT.count()>;
+  template<shards::required::Shardable TYPE> struct shards::Shards : public array::Fixed<TYPE, constants::SHARD_COUNT> {
+    using Ancestor = array::Fixed<TYPE, constants::SHARD_COUNT>;
     friend auto shards::swap<>(Shards &, Shards &) noexcept -> void;
   public:
-#if 0
+#if 1
     [[implicit]] Shards() = default;
-#else
-    // because 
+#else // [[REMOVETHIS]] because array::Fixed<...> does this now
+    // because  we require the explicit initialization
     constexpr [[implicit]] Shards() : Ancestor{typename Ancestor::Inplace{}, typename Ancestor::Value{}, typename Ancestor::Value{}} { }
 #endif
     using Ancestor::Fixed;
@@ -67,7 +68,7 @@ namespace tunitas::keyston {
 #endif
   };
   namespace shards {
-    template<typename... TYPES> requires (required::Shardable<std::common_type_t<TYPES...>> && SHARD_COUNT.count() == sizeof...(TYPES)) Shards(TYPES &&...) -> Shards<std::common_type_t<TYPES...>>;
+    template<typename... TYPES> requires (required::Shardable<std::common_type_t<TYPES...>> && constants::SHARD_COUNT == sizeof...(TYPES)) Shards(TYPES &&...) -> Shards<std::common_type_t<TYPES...>>;
   }
 }
 #endiv

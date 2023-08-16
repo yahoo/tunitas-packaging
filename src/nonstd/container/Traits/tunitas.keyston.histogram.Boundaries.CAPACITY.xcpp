@@ -5,22 +5,23 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
 #divert <fpp>
 #import nonstd.container.Traits
-#forward tunitas.keyston.histogram.Histogram
+#forward tunitas.keyston.histogram.Boundaries
+#import std.size_t
 namespace nonstd::container {
-  template<> struct Traits<tunitas::keyston::histogram::Histogram>;
-  template<> struct Traits<tunitas::keyston::histogram::Histogram const>;
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY>>;
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY> const>;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.histogram.Histogram
+#import tunitas.keyston.histogram.Boundaries
 namespace nonstd::container {
-  template<> struct Traits<tunitas::keyston::histogram::Histogram const> {
-    using Container = tunitas::keyston::histogram::Histogram const;
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY> const> {
+    using Container = tunitas::keyston::histogram::Boundaries<CAPACITY> const;
     using Value = typename Container::Value;
     using Iterator = typename Container::Basic_Iterator<Container>;
   };
-  template<> struct Traits<tunitas::keyston::histogram::Histogram> {
-    using Container = tunitas::keyston::histogram::Histogram;
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY>> {
+    using Container = tunitas::keyston::histogram::Boundaries<CAPACITY>;
     using Value = typename Container::Value;
     using Iterator = typename Container::Basic_Iterator<Container>;
   };

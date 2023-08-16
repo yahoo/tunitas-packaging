@@ -19,24 +19,23 @@ namespace tunitas::keyston::prio {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.histogram.Definition
-#import tunitas.keyston.histogram.Boundaries
 #import tunitas.keyston.aggregation.Histogram
 namespace tunitas::keyston::prio {
   template<> class Codec<HISTOGRAM> {
-    using Definition = histogram::Definition;
-    inline static constexpr auto INDEX_INFINITY  = Definition::COUNT.count()-1u;
+    using Definition = histogram::Definition<>;
+    inline static constexpr auto INDEX_INFINITY  = Definition::COUNT.count() - 1u;
     inline static constexpr auto ENCODED_LENGTH  = Items{Definition::COUNT.count()};
   public:
     using Field = keyston::Field<128>;
     inline static constexpr auto INPUT_LENGTH  = ENCODED_LENGTH;
     inline static constexpr auto OUTPUT_LENGTH = ENCODED_LENGTH;
     using Measurement = measurement::Specimen; // "any integer" but here: std::uint64_t;
+    using Boundaries = aggregation::Histogram::Boundaries;
     using Encoded = Field::Vector<ENCODED_LENGTH.count()>::Value;
     using Truncated = Encoded;
     using Decoded = aggregation::Histogram; // .... the payload
     using Processed = quantity::Records; // ....... the record count itself
     using Result [[deprecated("instead use Codec<HISTOGRAM>::Decoded")]] = Decoded;
-    using Boundaries = histogram::Boundaries;
     inline static constexpr auto encode(Measurement, Boundaries const &) -> Encoded;
     inline static constexpr auto truncate(Encoded e) -> Truncated { return move(e); }
     inline static constexpr auto decode(Truncated const &, Processed) -> Decoded;
@@ -47,7 +46,10 @@ namespace tunitas::keyston::prio {
 #endiv
 #divert <ipp>
 #import std.views.iota
+#import tunitas.array.enumerate
 namespace tunitas::keyston::prio {
+  static_assert(Items{aggregation::Histogram{}.size()} == Codec<HISTOGRAM>::INPUT_LENGTH);
+  static_assert(Items{aggregation::Histogram{}.size()} == Codec<HISTOGRAM>::OUTPUT_LENGTH);
   constexpr auto Codec<HISTOGRAM>::narrow(Field::Value wide) -> Decoded::Value {
     // The narrowing cast is safe when decode(...) is preceded by truncate(...)
     using Narrow = Decoded::Value::Representation;
@@ -57,12 +59,21 @@ namespace tunitas::keyston::prio {
   constexpr auto Codec<HISTOGRAM>::encode(Measurement specimen, Boundaries const &boundaries) -> Encoded {
     auto encoded = Encoded{};
     constexpr auto const ONE = Field::Element{1u};
+#if 1
+    for (auto [index, boundary] : enumerate(boundaries)) {
+      if (specimen < boundary) {
+        encoded.at(index) = ONE;
+        return encoded;
+      }
+    }
+#else
     for (auto index : std::views::iota(0u, boundaries.size())) {
       if (specimen < boundaries.at(index)) {
         encoded.at(index) = ONE;
         return encoded;
       }
     }
+#endif
     encoded.at(INDEX_INFINITY) = ONE;
     return encoded;
   }

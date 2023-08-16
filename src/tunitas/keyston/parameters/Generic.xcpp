@@ -43,7 +43,7 @@ namespace tunitas::keyston {
   protected:
     ~Generic() = default;
   public:
-    Optional<keyston::histogram::Boundaries> boundaries{}; // ... required for prio HISTOGRAM
+    Optional<keyston::histogram::Boundaries<>> boundaries{}; // ... required for prio HISTOGRAM
     Optional<units::Bits> prefix_length{}; // ................... required for poplar POPULARITY
     Optional<keyston::popularity::Prefixes> prefixes{}; // ...... eadem ratione
   };

@@ -36,8 +36,8 @@ namespace tests::unit::measurement::limits {
     static_assert(0 <= Subject::min());
     static_assert(0 <= Subject::max());
   }
-  template<> auto Limits::test_Limits<library::Limits<histogram::Boundaries>>() -> void {
-    using Subject = library::Limits<histogram::Boundaries>;
+  template<> auto Limits::test_Limits<library::Limits<histogram::Boundaries<>>>() -> void {
+    using Subject = library::Limits<histogram::Boundaries<>>;
     static_assert(0 <= Subject::Index::min());
     static_assert(0 <= Subject::Index::max());
   }
@@ -58,7 +58,7 @@ auto tests::unit::measurement::limits::Limits::suite() -> Suite {
          << []{
               auto lim = Stream{"Limits"sv};
               lim << add("Specimen", &Limits::test_Limits<library::Limits<library::Specimen>>)
-                  << add("Boundaries", &Limits::test_Limits<library::Limits<histogram::Boundaries>>)
+                  << add("Boundaries", &Limits::test_Limits<library::Limits<histogram::Boundaries<>>>)
                   << add("Prefixes", &Limits::test_Limits<library::Limits<popularity::Prefixes>>)
                   << END;
               return lim;

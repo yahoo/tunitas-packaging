@@ -48,7 +48,7 @@ namespace tests::unit::measurement {
     using Subject = library::Boundaries;
     using S = Subject::Value;
     auto subject = Subject{Subject::Inplace{}, S{1u}, S{3u}, S{5u}, S{7u}};
-    require(ASSERTION, 4uz < subject.size()); // n.b. Boundaries is a fixed array
+    require(ASSERTION, 3uz < subject.size()); // n.b. Boundaries is a fixed array controlled by tunitas::keyston::constants::SHARDS_COUNT
   }
   auto Fixture::test_usage_Prefixes() -> void {
     using Subject = library::Prefixes;

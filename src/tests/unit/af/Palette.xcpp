@@ -72,7 +72,7 @@ namespace tests::unit::af::palette {
   auto Palette<Constant<DAF::HISTOGRAM>>::generate_parameters() -> Parameters {
     auto ret = Parameters{};
     ret.boundaries = []{
-      using Boundaries = ::tunitas::keyston::histogram::Boundaries;
+      using Boundaries = ::tunitas::keyston::histogram::Boundaries<>;
       using V = Boundaries::Value;
       auto ret = Boundaries{};
       runtime_assert(0 < ret.size());

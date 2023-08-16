@@ -35,8 +35,8 @@ namespace tunitas::keyston::aggregation {
   // 
   // Usage:
   //
-  //   auto histogram = Histogram{};
+  //   auto histogram = Histogram<>{};
   //
-  using histogram::Histogram;
+  using Histogram = histogram::Histogram<>;
 }
 #endiv
