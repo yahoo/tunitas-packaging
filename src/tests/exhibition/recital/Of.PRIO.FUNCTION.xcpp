@@ -11,7 +11,7 @@ namespace tests::exhibition::recital {
 #endiv
 #divert <hpp>
 #import tunitas.keyston.vdaf.Parameters
-#import tunitas.keyston.measurement.Specimen
+#import tests.exhibition.recital.required.iterator.Specimen
 #import std.ostream
 namespace tests::exhibition::recital {
   template<required::Function FUNCTION> class Of<PRIO, FUNCTION> {
@@ -20,12 +20,16 @@ namespace tests::exhibition::recital {
   public:
     using Function = FUNCTION;
     static auto trace(std::ostream &, Parameters const &, measurement::Specimen) -> void;
+    template<required::iterator::Specimen ITERATOR> static auto trace(std::ostream &, Parameters const &, ITERATOR start, ITERATOR finish) -> void;
   };
 }
 #endiv
 #divert <tpp>
 #import tunitas.Tuple
+#import tunitas.keyston.shards.Iota
 #import tunitas.keyston.prio.exception.Verifier
+#import std.ranges.subrange
+#import std.tie
 namespace tests::exhibition::recital {
   template<required::Function _> auto Of<PRIO, _>::trace(std::ostream &outbound, Parameters const &parameters, measurement::Specimen specimen) -> void {
     auto processed = typename Function::Processed{1u};
@@ -73,16 +77,11 @@ namespace tests::exhibition::recital {
           out << yaml::Key << "round_0" << yaml::BeginMap;
           out << yaml::Key << "prep_share_0" << yaml::Value << check_share_0;
           out << yaml::Key << "prep_share_1" << yaml::Value << check_share_1;
-          out << yaml::Key << "prep_message";
-          if (check_success) {
-            out << yaml::Value << check_whole;
-          } else {
-            out << yaml::Value << "Proof Verification Failed"s;
-          }
+          out << yaml::Key << "prep_message" << yaml::Value << std::tie(check_success, check_whole);
           out << yaml::EndMap;
         }
-        out << yaml::Key << "out_share_0" << yaml::Value << outputs_share_0;
-        out << yaml::Key << "out_share_1" << yaml::Value << outputs_share_1;
+        out << yaml::Key << "out_shares_0" << yaml::Value << outputs_share_0;
+        out << yaml::Key << "out_shares_1" << yaml::Value << outputs_share_1;
         out << yaml::EndMap;
       }
       out << yaml::Key << "agg_share_0" << yaml::Value << aggregation_share_0;
@@ -90,6 +89,104 @@ namespace tests::exhibition::recital {
       out << yaml::Key << "agg_result" << yaml::Value << aggregation;
       out << yaml::EndMap;
     }
+    out << yaml::EndDoc;
+  }
+  template<required::Function _> template<required::iterator::Specimen ITERATOR> auto Of<PRIO, _>::trace(std::ostream &outbound, Parameters const &parameters, ITERATOR start, ITERATOR finish) -> void {
+    auto out = yaml::Emitter{outbound};
+    auto entropy = recital::entropy::Sequence{};
+    auto verify_key = recital::nonce::once<typename Function::Nonce::Storage>(entropy);
+    out << yaml::BeginDoc;
+    out << yaml::BeginMap;
+    {
+      out << yaml::Key << "general" << yaml::BeginMap;
+      out << yaml::Key << "verify_key" << yaml::Value << verify_key;
+      out << yaml::EndMap;
+    }
+    Shards<array::Variable<typename Function::template Output<SHARE>>> outputs_shares{};
+    auto processed = typename Function::Processed{0u};
+    {
+      out << yaml::Key << "specimens" << yaml::Value << yaml::BeginSeq;
+      for (auto specimen : std::ranges::subrange{start, finish}) {
+        // executed in the gateway (the leader)
+        ++processed;
+        auto input = Function::admission(parameters, specimen);
+        auto nentropy = recital::entropy::Sequence{};
+        auto nonce = recital::nonce::once<typename Function::Verify_Key::Storage>(nentropy);
+        auto rentropy = recital::entropy::Sequence{};
+        auto randomness = recital::nonce::once<typename Function::Randomness::Storage>(rentropy);
+        auto [publick, inputs] = Function::disassembly(parameters, input, nonce, randomness);
+        {
+          out << yaml::BeginMap;
+          out << yaml::Key << "measurement" << yaml::Value << specimen;
+          out << yaml::Key << "encoded_input" << yaml::Value << input;
+          out << yaml::Key << "nonce" << yaml::Value << nonce;
+          out << yaml::Key << "randomness" << yaml::Value << randomness;
+          out << yaml::Key << "public_share" << publick;
+          out << yaml::Key << "input_shares" << yaml::Value << yaml::BeginSeq << inputs.at(0_shard) << inputs.at(1_shard) << yaml::EndSeq;
+        }
+        //
+        {
+          // executed in each helper(leader) and back in the gateway (the leader)
+          auto preparation0 = [parameters, verify_key, nonce, publick](Shard shard, typename Function::template Input<SHARE> const &input) -> tunitas::Tuple<typename Function::template State<SHARE>, typename Function::template Check<SHARE>> {
+            auto state_share = Function::initialization(parameters, verify_key, shard, nonce, publick, input);
+            auto check_share = Function::continuation(parameters, state_share, {});
+            return {move(state_share), move(check_share)};
+          };
+          auto preparation1 = [parameters](Shards<typename Function::template Check<SHARE>> const &check_shares) -> tunitas::Tuple<bool, typename Function::template Check<WHOLE>> {
+            try {
+              return {true, Function::amalgamation(parameters, check_shares)};
+            } catch (tunitas::keyston::prio::exception::Verifier const &) {
+              // any other exception is a true hard error; e.g. Prove, Query, Exhausted, Decode or (obviously) out-of-bounds or runtime or logic or whatever
+              return {false, typename Function::template Check<WHOLE>{}};
+            }
+          };
+          auto state_shares = Shards<typename Function::template State<SHARE>>{};
+          auto check_shares = Shards<typename Function::template Check<SHARE>>{};
+          for (auto shard : shards::Iota{}) {
+            //       returning to the gateway (leader)                 executed in each helper
+            std::tie(state_shares.at(shard), check_shares.at(shard)) = preparation0(shard, inputs.at(shard));
+          }
+          // executed in the gateway (leader) and broadcast out to each helper
+          auto [check_success, check_whole] = preparation1(check_shares);
+          for (auto shard : shards::Iota{}) {
+            // executed in each helper
+            outputs_shares.at(shard).push_back(Function::finalization(parameters, state_shares.at(shard), check_whole));
+          }
+          out << yaml::Key << "round_0" << yaml::BeginMap;
+          out << yaml::Key << "prep_shares" << yaml::Value << yaml::BeginSeq << check_shares.at(0_shard) << check_shares.at(1_shard) << yaml::EndSeq;
+          out << yaml::Key << "prep_message" << yaml::Value << std::tie(check_success, check_whole);
+          out << yaml::EndMap;
+          out << yaml::EndMap;
+          if (!check_success) {
+            out << yaml::EndSeq << yaml::EndMap << yaml::EndDoc;
+            return;
+          }
+        }
+      }
+      out << yaml::EndSeq;
+    }
+    // executed in the gateway (leader)
+    auto aggregation_shares = Shards<typename Function::template Aggregation<SHARE>>(Inplace{}, Function::disgorgement(parameters, outputs_shares.at(0_shard)), Function::disgorgement(parameters, outputs_shares.at(1_shard)));
+    auto aggregation = Function::reassembly(parameters, aggregation_shares, processed);
+    {
+      out << yaml::Key << "out_shares" << yaml::Value << yaml::BeginSeq;
+      for (auto shard : shards::Iota()) {
+        out << yaml::BeginSeq;
+        for (auto const &output : outputs_shares.at(shard)) {
+          out << output;
+        }
+        out << yaml::EndSeq;
+      }
+      out << yaml::EndSeq;
+    } {
+      out << yaml::Key << "agg_shares" << yaml::Value << yaml::BeginSeq;
+      for (auto shard : shards::Iota()) {
+        out << aggregation_shares.at(shard);
+      }
+      out << yaml::EndSeq;
+    }
+    out << yaml::Key << "agg_result" << yaml::Value << aggregation;
+    out << yaml::EndMap;
     out << yaml::EndDoc;
   }
 }

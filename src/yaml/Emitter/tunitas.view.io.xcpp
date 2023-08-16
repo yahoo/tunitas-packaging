@@ -23,9 +23,9 @@ namespace YAML {
 #import tunitas.view.Variable
 /* ....................................... */ auto YAML::operator<<(Emitter &e, tunitas::view::Variable<tunitas::octets::Octet> v)        -> Emitter & { return e << tunitas::octets::to_hexidecimal(v); }
 /* ........ */ template<std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::view::Fixed<tunitas::octets::Octet, CAPACITY> v) -> Emitter & { return e << tunitas::octets::to_hexidecimal(v); }
-template<typename TYPE, std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::view::Fixed<TYPE, CAPACITY> v)                    -> Emitter & { return e << static_cast<tunitas::view::Variable<TYPE>>(v); }
+template<typename TYPE, std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::view::Fixed<TYPE, CAPACITY> v)                   -> Emitter & { return e << static_cast<tunitas::view::Variable<TYPE>>(v); }
 /* ............... */ template<typename TYPE> auto YAML::operator<<(Emitter &e, tunitas::view::Variable<TYPE> v) -> Emitter & {
-  if (v.size() < 10 /*arbitrary wideness*/) {
+  if (v.size() < 4 /*arbitrary wideness*/) {
     e << yaml::Flow;
   }
   e << yaml::BeginSeq;

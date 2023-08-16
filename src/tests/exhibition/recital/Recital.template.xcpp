@@ -36,5 +36,7 @@ namespace tests::exhibition::recital {
 // All specializations will need this (these)
 #import std.ostream
 #import tests.exhibition.recital.Of
+#import tunitas.keyston.vdaf.Parameters
 #import tunitas.keyston.vdaf.Function
+#import tests.exhibition.recital.required.iterator.Specimen
 #endiv

@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.exhibition.recital.required.iterator.Specimen
+#import tunitas.keyston.measurement.Specimen
+namespace tests::exhibition::inventory {
+  //
+  // The inventory of exhibitions that accept a series of specimens
+  // (not all have such implemented)
+  //
+  // Specification:
+  //
+  //   It's a map, lookup by name.
+  //   Call the exhibition function to emit on an ostream
+  //
+  // Design:
+  //
+  //   Supply the constructor to initialize the map, binding the name to the function pointer
+  //   The template default argument is a convenience hack
+  //
+  // Usage:
+  //
+  //   Hack The Spew (this is a test, rig after all)
+  //
+  //   Also, see tests::exhibition::main(...)
+  //   To wit:
+  //        auto inventory = Specimens<>{};
+  //        auto found = inventory.find(word);
+  //        if (INVENTORY.end() == found) {
+  //          ...complain...
+  //        } else {
+  //          found->second();
+  //        }
+  //      }
+  //
+  //
+  namespace [[eponymous]] specimens {
+    template<typename ITERATOR> concept It = recital::required::iterator::Specimen<ITERATOR>;
+    template<It = ::tunitas::keyston::measurement::Specimen const *> struct Specimens;
+  }
+  using specimens::Specimens;
+}
+#endiv
+#divert <hpp>
+#import tests.exhibition.inventory.Function
+namespace tests::exhibition::inventory {
+  template<specimens::It ITERATOR> struct specimens::Specimens : public Function<void (std::ostream &, ITERATOR, ITERATOR)> {
+    using Ancestor = Function<void (std::ostream &, ITERATOR, ITERATOR)>;
+    using Iterator = ITERATOR;
+  public:
+    Specimens();
+  };
+}
+#endiv
+#divert <tpp>
+#import tests.exhibition.Recital
+namespace tests::exhibition::inventory::specimens {
+  template<It _> Specimens<_>::Specimens()
+    : Ancestor{{"count", Recital<PRIO, PRIO3_COUNT>::specimens<Iterator>},
+               {"sum", Recital<PRIO, PRIO3_SUM>::specimens<Iterator>},
+               {"histogram", Recital<PRIO, PRIO3_HISTOGRAM>::specimens<Iterator>}}
+  { }
+}
+#endiv

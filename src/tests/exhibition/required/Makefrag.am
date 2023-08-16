@@ -1,0 +1,9 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/texhibitionas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.texhibitionas.technology/all/components/keyston/tree/LICENSE
+#
+tests_exhibition_required_SUBSOURCES = \
+  check/obj/src/tests/exhibition/required/namespace.cpp \
+  $(end)

@@ -21,6 +21,8 @@ namespace tunitas::keyston::quantity {
   //   This is job-dependent and "large"
   //   It's a standard unit of "count" "items" or "each"
   //
+  //   ADL finds the operator++ candidates.
+  //
   // Usage:
   //
   //   Standard stuff.  RTM.
@@ -32,5 +34,24 @@ namespace tunitas::keyston::quantity {
     using Records = nonstd::units::quantity::Quantity<Tag, std::ratio<1>, std::uintmax_t>;
   }
   using records::Records;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::quantity::records {
+  inline constexpr auto operator++([[inout]] Records &) -> Records &;
+  inline constexpr auto operator++([[inout]] Records &, int) -> Records;
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::quantity {
+  constexpr auto records::operator++(Records &left) -> Records & {
+    left = Records{1} + left;
+    return left;
+  }
+  constexpr auto records::operator++(Records &left, int) -> Records {
+    auto old = auto{left};
+    ++left;
+    return old;
+  }
 }
 #endiv

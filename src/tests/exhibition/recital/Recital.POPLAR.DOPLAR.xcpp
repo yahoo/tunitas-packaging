@@ -12,13 +12,13 @@ namespace tests::exhibition::recital {
 #divert <hpp>
 namespace tests::exhibition::recital {
   template<> struct Recital<POPLAR, DOPLAR> {
-    static auto show(std::ostream &) -> void;
+    static auto standard(std::ostream &) -> void;
   };
 }
 #endiv
 #divert <cpp>
 namespace tests::exhibition::recital {
-  auto Recital<POPLAR, DOPLAR>::show(std::ostream &outbound) -> void {
+  auto Recital<POPLAR, DOPLAR>::standard(std::ostream &outbound) -> void {
     outbound << "not implemented\n";
   }
 }

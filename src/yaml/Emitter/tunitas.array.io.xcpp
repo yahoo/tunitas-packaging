@@ -26,6 +26,6 @@ namespace YAML {
 #import yaml.Emitter.tunitas.view.io
 /* ....................................... */ auto YAML::operator<<(Emitter &e, tunitas::array::Variable<tunitas::octets::Octet> const &a)        -> Emitter & { return e << tunitas::octets::to_hexidecimal(a); }
 /* ........ */ template<std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::array::Fixed<tunitas::octets::Octet, CAPACITY> const &a) -> Emitter & { return e << tunitas::octets::to_hexidecimal(a); }
-/* ................ */template<typename TYPE> auto YAML::operator<<(Emitter &e, tunitas::array::Variable<TYPE> const &a)                           -> Emitter & { return e << static_cast<tunitas::view::Variable<TYPE>>(a); }
-template<typename TYPE, std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::array::Fixed<TYPE, CAPACITY> const &a)                    -> Emitter & { return e << static_cast<tunitas::view::Fixed<TYPE, CAPACITY>>(a); }
+/* ................ */template<typename TYPE> auto YAML::operator<<(Emitter &e, tunitas::array::Variable<TYPE> const &a)                          -> Emitter & { return e << static_cast<tunitas::view::Variable<TYPE>>(a); }
+template<typename TYPE, std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::array::Fixed<TYPE, CAPACITY> const &a)                   -> Emitter & { return e << static_cast<tunitas::view::Fixed<TYPE, CAPACITY>>(a); }
 #endiv

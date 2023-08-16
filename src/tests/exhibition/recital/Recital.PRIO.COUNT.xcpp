@@ -14,83 +14,24 @@ namespace tests::exhibition::recital {
 #import tunitas.keyston.vdaf.Function
 namespace tests::exhibition::recital {
   template<> struct Recital<PRIO, PRIO3_COUNT> : private Of<PRIO, recital::Function<PRIO, PRIO3_COUNT>> {
-    static auto show(std::ostream &) -> void;
+    static auto standard(std::ostream &) -> void;
+    template<required::iterator::Specimen ITERATOR = measurement::Specimen const *> static auto specimens(std::ostream &, ITERATOR start, ITERATOR finish) -> void;
   };
+}
+#endiv
+#divert <tpp>
+namespace tests::exhibition::recital {
+  template<required::iterator::Specimen ITERATOR> auto Recital<PRIO, PRIO3_COUNT>::specimens(std::ostream &outbound, ITERATOR start, ITERATOR finish) -> void {
+    trace(outbound, Parameters{}, start, finish);
+  }
 }
 #endiv
 #divert <cpp>
 #import tunitas.Tuple
 #import tunitas.keyston.prio.exception.Verifier
 namespace tests::exhibition::recital {
-  auto Recital<PRIO, PRIO3_COUNT>::show(std::ostream &outbound) -> void {
-#if 1
+  auto Recital<PRIO, PRIO3_COUNT>::standard(std::ostream &outbound) -> void {
     trace(outbound, Parameters{}, 1_specimen);
-#else
-    auto specimen = 1_specimen;
-    auto processed = Function::Processed{1u};
-    auto parameters = Function::Parameters{};
-    auto input = Function::admission(parameters, specimen);
-    auto randomness = recital::nonce::once<Function::Randomness::Storage, entropy::Sequence>();
-    auto nonce = recital::nonce::once<Function::Verify_Key::Storage, entropy::Sequence>();
-    auto [publick, inputs] = Function::disassembly(parameters, input, nonce, randomness);
-    auto verify_key = recital::nonce::once<Function::Nonce::Storage, entropy::Sequence>();
-    auto state_share_0 = Function::initialization(parameters, verify_key, 0_shard, nonce, publick, inputs.at(0_shard));
-    auto state_share_1 = Function::initialization(parameters, verify_key, 1_shard, nonce, publick, inputs.at(1_shard));
-    auto check_share_0 = Function::continuation(parameters, state_share_0, {});
-    auto check_share_1 = Function::continuation(parameters, state_share_1, {});
-    auto [check_success, check_whole] = [=]() -> tunitas::Tuple<bool, Function::Check<WHOLE>> {
-      try {
-        return {true, Function::amalgamation(parameters, {check_share_0, check_share_1})};
-      } catch (tunitas::keyston::prio::exception::Verifier const &) {
-        // any other exception is a true hard error; e.g. Prove, Query, Exhausted, Decode or (obviously) out-of-bounds or runtime or logic or whatever
-        return {false, Function::Check<WHOLE>{}};
-      }
-    }();
-    auto output_share_0 = Function::finalization(parameters, state_share_0, check_whole);
-    auto output_share_1 = Function::finalization(parameters, state_share_1, check_whole);
-    auto outputs_share_0 = array::Variable<Function::Output<SHARE>>{Inplace{}, output_share_0};
-    auto outputs_share_1 = array::Variable<Function::Output<SHARE>>{Inplace{}, output_share_1};
-    auto aggregation_share_0 = Function::disgorgement(parameters, outputs_share_0);
-    auto aggregation_share_1 = Function::disgorgement(parameters, outputs_share_1);
-    auto aggregation = Function::reassembly(parameters, {aggregation_share_0, aggregation_share_1}, processed);
-    //
-    auto out = yaml::Emitter{outbound};
-    out << yaml::BeginDoc;
-    {
-      out << yaml::BeginMap;
-      out << yaml::Key << "verify_key" << yaml::Value << verify_key;
-      {
-        out << yaml::Key << "upload_0" << yaml::BeginMap;
-        out << yaml::Key << "measurement" << yaml::Value << specimen;
-        out << yaml::Key << "encoded_input" << yaml::Value << input;
-        out << yaml::Key << "nonce" << yaml::Value << nonce;
-        out << yaml::Key << "randomness" << yaml::Value << randomness;
-        out << yaml::Key << "public_share" << publick;
-        out << yaml::Key << "input_share_0" << inputs.at(0_shard);
-        out << yaml::Key << "input_share_1" << inputs.at(1_shard);
-        {
-          out << yaml::Key << "round_0" << yaml::BeginMap;
-          out << yaml::Key << "prep_share_0" << yaml::Value << check_share_0;
-          out << yaml::Key << "prep_share_1" << yaml::Value << check_share_1;
-          out << yaml::Key << "prep_message";
-          if (check_success) {
-            out << yaml::Value << check_whole;
-          } else {
-            out << yaml::Value << "Proof Verification Failed"s;
-          }
-          out << yaml::EndMap;
-        }
-        out << yaml::Key << "out_share_0" << yaml::Value << output_share_0;
-        out << yaml::Key << "out_share_1" << yaml::Value << output_share_1;
-        out << yaml::EndMap;
-      }
-      out << yaml::Key << "agg_share_0" << yaml::Value << aggregation_share_0;
-      out << yaml::Key << "agg_share_1" << yaml::Value << aggregation_share_1;
-      out << yaml::Key << "agg_result" << yaml::Value << aggregation;
-      out << yaml::EndMap;
-    }
-    out << yaml::EndDoc;
-#endif
   }
 }
 #endiv

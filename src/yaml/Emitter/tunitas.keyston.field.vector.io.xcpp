@@ -17,7 +17,7 @@ namespace YAML {
 #import tunitas.keyston.field.vector.Fixed
 #import yaml.Emitter.tunitas.keyston.field.io
 template<tunitas::keyston::field::required::Element ELEMENT, std::size_t DIMENSIONS> auto YAML::operator<<(Emitter &e, tunitas::keyston::field::vector::Fixed<ELEMENT, DIMENSIONS> const &v) -> Emitter & {
-  e << yaml::BeginSeq;
+  e << yaml::Flow << yaml::BeginSeq;
   for (auto const &each : v) {
     e << each;
   }

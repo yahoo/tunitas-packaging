@@ -27,7 +27,7 @@ namespace tunitas::keyston::shards {
   //     ...more...
   //   }
   //
-  struct [[deprecated("amirite?")]] Iota;
+  struct Iota;
 }
 #endiv
 #divert <hpp>

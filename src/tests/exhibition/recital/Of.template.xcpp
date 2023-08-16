@@ -6,6 +6,7 @@
 #divert <fpp>
 #import tunitas.keyston.Scheme
 #import tunitas.keyston.vdaf.required.Function
+#import tests.exhibition.recital.required // ctcnr (cascade that certain 'namespace required', and blend in vdaf::required)
 namespace tests::exhibition::recital {
   //
   // Exhibition of the normative tests.
@@ -47,8 +48,9 @@ namespace tests::exhibition::recital {
 #import yaml.Emitter
 #import yaml.Emitter.tunitas.array.io
 #import yaml.Emitter.tunitas.keyston.aggregation.io
-#import yaml.Emitter.tunitas.keyston.measurement.io
 #import yaml.Emitter.tunitas.keyston.field.vector.io
+#import yaml.Emitter.tunitas.keyston.measurement.io
+#import yaml.Emitter.tunitas.keyston.vdaf.io
 #import yaml.Emitter.tunitas.octets.io
 #import yaml.Emitter.tunitas.view.io
 #import yaml.Emitter.nonstd.units.quantity.io

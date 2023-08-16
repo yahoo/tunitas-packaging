@@ -8,6 +8,9 @@
 #import tunitas.array
 #import tunitas.keyston.Scheme
 #import tunitas.keyston.Slice
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
+#import tunitas.keyston.shards
 #import tunitas.keyston.shards.literals
 #import tunitas.entropy
 #import tunitas.keyston.measurement
@@ -21,10 +24,13 @@ namespace tests::exhibition::recital {
   namespace entropy = tunitas::entropy;
   namespace measurement = tunitas::keyston::measurement;
   namespace nonce = tunitas::keyston::nonce;
-  using namespace tunitas::keyston::vdaf;
+  namespace shards = tunitas::keyston::shards;
+  using namespace tunitas::keyston::vdaf; // reminder - 'namespace required' requires (sic) a special #import tests.exhibition.recital.required
   //
   using enum tunitas::keyston::Scheme;
   using enum tunitas::keyston::Slice;
+  using tunitas::keyston::Shards;
+  using tunitas::keyston::Shard;
   using Inplace = std::in_place_t;
   using enum tunitas::keyston::vdaf::Name;
   using namespace ::tunitas::keyston::shards::literals;

@@ -12,13 +12,21 @@ namespace tests::exhibition::recital {
 #divert <hpp>
 namespace tests::exhibition::recital {
   template<> struct Recital<PRIO, PRIO3_SUM> : private Of<PRIO, recital::Function<PRIO, PRIO3_SUM>> {
-    static auto show(std::ostream &) -> void;
+    static auto standard(std::ostream &) -> void;
+    template<required::iterator::Specimen ITERATOR = measurement::Specimen const *> static auto specimens(std::ostream &, ITERATOR start, ITERATOR finish) -> void;
   };
+}
+#endiv
+#divert <tpp>
+namespace tests::exhibition::recital {
+  template<required::iterator::Specimen ITERATOR> auto Recital<PRIO, PRIO3_SUM>::specimens(std::ostream &outbound, ITERATOR start, ITERATOR finish) -> void {
+    trace(outbound, Parameters{}, start, finish);
+  }
 }
 #endiv
 #divert <cpp>
 namespace tests::exhibition::recital {
-  auto Recital<PRIO, PRIO3_SUM>::show(std::ostream &outbound) -> void {
+  auto Recital<PRIO, PRIO3_SUM>::standard(std::ostream &outbound) -> void {
     trace(outbound, Parameters{}, 1_specimen);
   }
 }

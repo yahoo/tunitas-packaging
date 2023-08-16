@@ -7,6 +7,7 @@
 tests_exhibition_recital_SUBSOURCES = \
   check/obj/src/tests/exhibition/Recital.cpp \
   check/obj/src/tests/exhibition/recital/namespace.cpp \
+  $(tests_exhibition_recital_required_SUBSOURCES) \
   check/obj/src/tests/exhibition/recital/Recital.template.cpp \
   check/obj/src/tests/exhibition/recital/Recital.PRIO.COUNT.cpp \
   check/obj/src/tests/exhibition/recital/Recital.PRIO.SUM.cpp \
@@ -19,3 +20,5 @@ tests_exhibition_recital_SUBSOURCES = \
   check/obj/src/tests/exhibition/recital/Of.PRIO.FUNCTION.cpp \
   check/obj/src/tests/exhibition/recital/Of.cpp \
   $(end)
+#
+include src/tests/exhibition/recital/required/Makefrag.am

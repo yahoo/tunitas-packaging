@@ -18,6 +18,6 @@ namespace YAML {
 #import tunitas.integer.to_octets
 #import tunitas.octets.to_hexidecimal
 template<tunitas::keyston::field::required::Element ELEMENT> auto YAML::operator<<(Emitter &m, ELEMENT const &l) -> Emitter & {
-  return m << tunitas::octets::to_hexidecimal(tunitas::integer::to_octets<std::endian::big>(underlying(l)));
+  return m << tunitas::octets::to_hexidecimal("0e'", tunitas::integer::to_octets<std::endian::big>(underlying(l)));
 }
 #endiv

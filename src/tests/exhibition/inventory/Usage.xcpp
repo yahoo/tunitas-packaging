@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::exhibition::inventory {
+  //
+  // Usage, the usable ones.
+  //
+  // Specification:
+  //
+  //   It's a map, lookup by name.
+  //   Call the exhibition function to emit on an ostream
+  //
+  // Design:
+  //
+  //   Trivial; everything interesting is in the ancestor.
+  //   The bound "usage" function is trivial.
+  //   Supply the constructor to initialize the map, binding the name to the function pointer
+  //
+  // Usage:
+  //
+  //   Hack The Spew (this is a test, rig after all)
+  //
+  //   Also, see tests::exhibition::main(...)
+  //   To wit:
+  //        auto inventory = Usage{};
+  //        auto found = inventory.find(word);
+  //        if (INVENTORY.end() == found) {
+  //          ...complain...
+  //        } else {
+  //          found->second();
+  //        }
+  //      }
+  //
+  //
+  struct Usage;
+}
+#endiv
+#divert <hpp>
+#import tests.exhibition.inventory.Function
+class tests::exhibition::inventory::Usage : public Function<void (std::ostream &)> {
+  using Ancestor = Function<void (std::ostream &)>;
+  static auto usage(std::ostream &) -> void;
+public:
+  Usage();
+};
+#endiv
+#divert <cpp>
+namespace tests::exhibition::inventory {
+  Usage::Usage()
+    : Ancestor{{"count", usage},
+               {"sum", usage},
+               {"histogram", usage},
+               {"poplar", usage},
+               {"doplar", usage}}
+  { }
+  auto Usage::usage(std::ostream &o) -> void {
+    o << "Use '--usage' to see the alternatives."; // since we just want Usage{} for its key set.
+  }
+}
+#endiv

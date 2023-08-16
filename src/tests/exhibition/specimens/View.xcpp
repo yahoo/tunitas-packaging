@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.view.View
+#import tunitas.keyston.measurement.Specimen
+namespace tests::exhibition::specimens {
+  //
+  // A view on some specimens
+  //
+  // Specification:
+  //
+  //   Obvious.
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Usage:
+  //
+  //   Oh come on.
+  //
+  using View = tunitas::view::View<Specimen>;
+}
+#endiv
+#divert <cpp>
+#import tests.exhibition.specimens.Storage
+#import std.convertible_to
+namespace {
+  namespace testate {
+    using namespace tests::exhibition::specimens;
+    static_assert(std::convertible_to<Storage, View>);
+  }
+}
+#endiv

@@ -6,7 +6,7 @@
 #divert <hpp>
 #import std.ostream
 #forward tunitas.keyston.formatter.Formatter
-#forward tests.exhibition.inventory.Inventory
+#forward tests.exhibition.inventory.Function
 namespace tests::exhibition::inventory {
   //
   // The formatter
@@ -18,13 +18,13 @@ namespace tests::exhibition::inventory {
   // Design:
   //
   //   All the magic happens in operator<<
-  //   ADL will find this based upon the template arguments
+  //   ADL will find this based upon the template arguments, specifically inventory::Function<...>
   //
   // Usage:
   //
   //   cout << format(Inventory{}) << '\n';
   //
-  inline auto operator<<(std::ostream &, tunitas::keyston::formatter::Formatter<Inventory, Inventory const &> const &) -> std::ostream &;
+  template<required::Callable CALLABLE> inline auto operator<<(std::ostream &, tunitas::keyston::formatter::Formatter<Function<CALLABLE>, Function<CALLABLE> const &> const &) -> std::ostream &;
 }
 #endiv
 #divert <ipp>
@@ -32,9 +32,9 @@ namespace tests::exhibition::inventory {
 #import tunitas.Optional
 #import tunitas.string.View
 #import tunitas.keyston.formatter.Formatter
-#import tests.exhibition.inventory.Inventory
+#import tests.exhibition.inventory.Function
 namespace tests::exhibition {
-  auto inventory::operator<<(std::ostream &o, tunitas::keyston::formatter::Formatter<Inventory, Inventory const &> const &f) -> std::ostream & {
+  template<inventory::required::Callable CALLABLE> auto inventory::operator<<(std::ostream &o, tunitas::keyston::formatter::Formatter<Function<CALLABLE>, Function<CALLABLE> const &> const &f) -> std::ostream & {
     for (auto comma=tunitas::Optional<tunitas::string::View>{}; auto const &item : f.captured) {
       if (comma) {
         o << *comma;

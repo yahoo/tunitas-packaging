@@ -129,6 +129,7 @@ namespace tunitas {
     //
     template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Container> using Basic_Iterator = std::conditional_t<std::is_const_v<SELF>, typename Ancestor::const_iterator, typename Ancestor::iterator>;
     using Iterator = Basic_Iterator<Container>;
+    using Const_Iterator = Basic_Iterator<Container const>;
     //
     using Ancestor::begin;
     using Ancestor::end;
