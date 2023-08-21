@@ -1,0 +1,35 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.Semiregular
+namespace tunitas::array::required {
+  //
+  // Is this type suitable for the arrays?  Fixed, Bounded, Variable?
+  //
+  // Semiregular ~ copyable
+  // Otherwise ~ a moveable type; e.g. unique_ptr<T>
+  //
+  // And thus the definition of TYPE must already be known.
+  //
+  template<typename TYPE> concept Arrayable = Semiregular<TYPE> || requires(TYPE) {
+    requires std::is_default_constructible_v<TYPE>;
+    requires std::is_move_constructible_v<TYPE>;
+    requires std::is_move_assignable_v<TYPE>;
+    requires std::is_swappable_v<TYPE>;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.unique_ptr
+namespace {
+  namespace testate {
+    namespace required = tunitas::array::required;
+    static_assert(required::Arrayable<int>);
+    static_assert(required::Arrayable<int *>);
+    static_assert(required::Arrayable<std::unique_ptr<int>>);
+  }
+}
+#endiv

@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.prio.flp.dimension // for Joint
+namespace tunitas::keyston::prio {
+  //
+  // Compute RAND_SIZE (the randomness size)
+  //
+  // Specification:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //   Table 5. VDAF parameters for Prio3, Section 7.2 Construction
+  //
+  //   <quote>
+  //     RAND_SIZE	Prg.SEED_SIZE * (1 + 2 * (SHARES - 1)) if Flp.JOINT_RAND_LEN == 0 else
+  //                    Prg.SEED_SIZE * (1 + 2 * (SHARES - 1) + SHARES)
+  //   </quote>
+  //
+  // Design:
+  //
+  //   Returns the unit-laden quantities.
+  //   ADL won't find this from namespace prio, but will find it from namespace dimension
+  //
+  // Usage:
+  //
+  //   Whut, you need a tutorial on how to call a function?
+  //
+  //   auto p = randomness_size<Prove>(JOINT_RANDOMNESS_LENGTH);
+  //   auto q = randomness_size<Query>(JOINT_RANDOMNESS_LENGTH);
+  //   auto a = array::Fixed<Octet, randomness_size<Size>(JOINT_RANDOMNESS_LENGTH).count()>{};
+  //
+  namespace flp::dimension {
+    inline constexpr auto randomness_size(Joint) -> Bytes;
+  }
+  using flp::dimension::randomness_size;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.prg.constants
+#import tunitas.keyston.shards.Shards // for shards::SHARD_COUNT
+namespace tunitas::keyston::prio::flp {
+  constexpr auto dimension::randomness_size(Joint joint) -> Bytes {
+    constexpr auto SHARDS = shards::SHARD_COUNT.count();
+    auto scale     = [](Joint)       { return 1u + 2u * (SHARDS - 1u); };
+    auto increment = [](Joint joint) { return Joint{0u} == joint ? 0u : SHARDS; };
+    return Bytes{prg::constants::SEED_SIZE * (scale(joint) + increment(joint))};
+  }
+}
+#endiv

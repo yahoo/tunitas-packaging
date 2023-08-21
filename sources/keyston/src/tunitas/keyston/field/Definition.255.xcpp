@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.Definition.template
+namespace tunitas::keyston::field {
+  //
+  // See https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-parameters-2
+  // Section 6.1.3 Parameters
+  //
+  // Derivation:
+  //
+  //   2^255 - 19
+  //   57896044618658097711785492504343953926634992332820282019728792003956564819949
+  //
+  //   obase=16
+  //   7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED
+  //
+  template<> struct Definition<255>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::field {
+  template<> struct Definition<255> : public Predefinition<traits::Field<Definition<255>>::Element, 32u> {
+    using Element = traits::Field<Definition>::Element;
+    using Underlying = traits::Field<Definition>::Underlying;
+    using Temporary = traits::Field<Definition>::Temporary;
+    template<Size CAPACITY> using Series = array::Fixed<Element, CAPACITY>;
+    template<Size CAPACITY> using Vector = vector::Definition<Definition, CAPACITY>;
+    template<Size DEGREE> using Polynomial = polynomial::Definition<Definition, DEGREE>;
+    inline static constexpr Underlying const MODULUS = (Underlying{1} << 255) - 19;
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.Field
+#import tunitas.keyston.field.usage.Field
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::field::usage;
+    using tunitas::keyston::Field;
+    static_assert(usage::Field<Field<255>>);
+  }
+}
+#endiv

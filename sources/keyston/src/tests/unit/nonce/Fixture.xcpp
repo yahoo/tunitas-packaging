@@ -1,0 +1,185 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tests.unit.nonce.Palette
+#import tunitas.entropy.Serial
+#import tunitas.entropy.usage.Entropy
+#import tunitas.integer.distribution.usage.Randomness
+struct tests::unit::nonce::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Bits() -> void;
+  auto test_usage_Since() -> void;
+  auto test_usage_Unsigned() -> void;
+  auto test_usage_Element() -> void;
+  auto test_usage_once() -> void;
+  //
+  auto test_usage_Bundle_Bits() -> void;
+  auto test_usage_Bundle_Since() -> void;
+  auto test_usage_Bundle_Bits_Since() -> void;
+  auto test_usage_Bundle_Since_Bits() -> void;
+  //
+  auto test_usage_Generator_Bits() -> void;
+  auto test_usage_Generator_Since() -> void;
+  auto test_usage_Generator_Unsigned() -> void;
+  auto test_usage_Generator_Element() -> void;
+  auto test_usage_Generator_Bundle_Bits() -> void;
+  auto test_usage_Generator_Bundle_Since() -> void;
+  auto test_usage_Generator_Bundle_Bits_Since() -> void;
+  auto test_usage_Generator_Bundle_Since_Bits() -> void;
+protected:
+  // We must use Serial here because the Generator tests look for non-zero generation
+  using Entropy = ::tunitas::entropy::Serial;
+  static_assert(::tunitas::entropy::usage::Entropy<Entropy>);
+  static_assert(not ::tunitas::integer::distribution::usage::Randomness<Entropy>, "no surprise, Entropy does NOT look like std::random_device");
+  Entropy source{};
+};
+#endiv
+#divert <cpp>
+#import tests.unit.nonce.bits.Fixture
+#import tests.unit.nonce.since.Fixture
+#import tests.unit.nonce.bundle.Fixture
+#import tests.unit.nonce.generator.Fixture
+auto tests::unit::nonce::Fixture::suite() -> Suite {
+  auto series = Stream{"nonce"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Bits", &Fixture::test_usage_Bits)
+                  << add("Since", &Fixture::test_usage_Since)
+                  << add("Unsigned", &Fixture::test_usage_Unsigned)
+                  << add("Element", &Fixture::test_usage_Element)
+                  << []{
+                       auto bun = Stream{"Bundle<...>"sv};
+                       bun << add("Bundle<Bits<...>>", &Fixture::test_usage_Bundle_Bits)
+                           << add("Bundle<Since<...>", &Fixture::test_usage_Bundle_Since)
+                           << add("Bundle<Bits<...>, Since<...>", &Fixture::test_usage_Bundle_Bits_Since)
+                           << add("Bundle<Since<...>, Bits<...>", &Fixture::test_usage_Bundle_Since_Bits)
+                           << END;
+                       return bun;
+                     }()
+                  << []{
+                       auto gen = Stream{"Generator"sv};
+                       gen << add("Bits", &Fixture::test_usage_Generator_Bits)
+                           << add("Since", &Fixture::test_usage_Generator_Since)
+                           << add("Unsigned", &Fixture::test_usage_Generator_Unsigned)
+                           << add("Element", &Fixture::test_usage_Generator_Element)
+                           << []{
+                                auto bun = Stream{"Generator<Bundle<...>"sv};
+                                bun << add("Bundle<Bits<...>>", &Fixture::test_usage_Generator_Bundle_Bits)
+                                    << add("Bundle<Since<...>", &Fixture::test_usage_Generator_Bundle_Since)
+                                    << add("Bundle<Bits<...>, Since<...>", &Fixture::test_usage_Generator_Bundle_Bits_Since)
+                                    << add("Bundle<Since<...>, Bits<...>", &Fixture::test_usage_Generator_Bundle_Since_Bits)
+                                    << END;
+                                return bun;
+                              }()
+                           << END;
+                       return gen;
+                     }()
+                  << add("Element", &Fixture::test_usage_once)
+                  << END;
+              return use;
+            }()
+         << add<bits::Fixture>()
+         << add<since::Fixture>()
+         << add<bundle::Fixture>() 
+         << add<generator::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.entropy.Sequence
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.nonce.Since
+#import tunitas.keyston.nonce.Unsigned
+#import tunitas.keyston.nonce.Element
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.nonce.once
+#import tunitas.integer.integers
+#import tunitas.keyston.field.Element
+#import tunitas.array.Fixed
+#import tunitas.octets // for Octet
+namespace tests::unit::nonce {
+  auto Fixture::test_usage_Bits() -> void {
+    auto subject = library::Bits<64>{};
+    require(ASSERTION, decltype(subject){} == subject);
+  }
+  auto Fixture::test_usage_Since() -> void {
+    auto subject = library::Since<Microseconds>{};
+    require(ASSERTION, decltype(subject){} == subject);
+  }
+  auto Fixture::test_usage_Unsigned() -> void {
+    auto subject = library::Unsigned<::tunitas::integer::integers::uint256_t>{};
+    // recall: library::Unsigned is a shim which wraps uint256_t to allow for specialization of Generator
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Element() -> void {
+    auto subject = library::Element<::tunitas::keyston::field::Element<255>>{};
+    // recall: library::Unsigned is a shim which wraps uint256_t to allow for specialization of Generator
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Bundle_Bits() -> void {
+    auto subject = library::Bundle<library::Bits<32>>{};
+    require(ASSERTION, decltype(subject){} == subject);
+  }
+  auto Fixture::test_usage_Bundle_Since() -> void {
+    auto subject = library::Bundle<library::Since<Microseconds>>{};
+    require(ASSERTION, decltype(subject){} == subject);
+  }
+  auto Fixture::test_usage_Bundle_Bits_Since() -> void {
+    auto subject = library::Bundle<library::Bits<32>, library::Since<Microseconds>>{};
+    require(ASSERTION, decltype(subject){} == subject);
+  }
+  auto Fixture::test_usage_Bundle_Since_Bits() -> void {
+    auto subject = library::Bundle<library::Since<Microseconds>, library::Bits<16>>{};
+    require(ASSERTION, decltype(subject){} == subject);
+  }
+  auto Fixture::test_usage_Generator_Bits() -> void {
+    auto specimen = library::Generator<library::Bits<8>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_Generator_Unsigned() -> void {
+    auto specimen = library::Generator<library::Unsigned<integers::uint256_t>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_Generator_Element() -> void {
+    auto specimen = library::Generator<library::Element<::tunitas::keyston::field::Element<255>>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_Generator_Since() -> void {
+    auto specimen = library::Generator<library::Since<Microseconds>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_Generator_Bundle_Bits() -> void {
+    auto specimen = library::Generator<library::Bundle<library::Bits<8>>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_Generator_Bundle_Since() -> void {
+    auto specimen = library::Generator<library::Bundle<library::Since<Microseconds>>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_Generator_Bundle_Bits_Since() -> void {
+    auto specimen = library::Generator<library::Bundle<library::Bits<64>, library::Since<Microseconds>>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_Generator_Bundle_Since_Bits() -> void {
+    auto specimen = library::Generator<library::Bundle<library::Bits<4>, library::Since<Microseconds>>, Entropy>{source}();
+    require(ASSERTION, decltype(specimen){} != specimen);
+  }
+  auto Fixture::test_usage_once() -> void {
+    constexpr auto const SIZE = 10uz;
+    using ::tunitas::octets::Octet;
+    auto got = library::once<::tunitas::array::Fixed<Octet, SIZE>, ::tunitas::entropy::Sequence>();
+    std::uint8_t ith{};
+    for (auto each : got) {
+      // check for the sequentiality
+      require(ASSERTION, Octet{ith++} == each); // rollover is expected
+    }
+    require(ASSERTION, SIZE == ith);
+  }
+}
+#endiv

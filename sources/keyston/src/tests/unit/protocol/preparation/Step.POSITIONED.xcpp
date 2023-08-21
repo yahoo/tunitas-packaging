@@ -1,0 +1,84 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tests.unit.protocol.preparation.Step.template
+namespace tests::unit::protocol::preparation::step {
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_default() -> void;
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_conversion() -> void;
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_undetermined() -> void;
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_continued() -> void;
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_finished() -> void;
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_failed() -> void;
+};
+#endiv
+#divert <cpp>
+namespace tests::unit::protocol::preparation::step {
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_default() -> void {
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+  }
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_conversion() -> void {
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+    require(ASSERTION, Result::UNDETERMINED == subject1.result());
+  }
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_undetermined() -> void {
+    auto subject0 = Subject{library::Undetermined{}};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+    require(ASSERTION, Result::UNDETERMINED == subject1.result());
+  }
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_continued() -> void {
+    auto subject0 = Subject{library::Continued{}};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+    require(ASSERTION, Result::CONTINUED == subject1.result());
+  }
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_finished() -> void {
+    auto subject0 = Subject{library::Finished{}};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+    require(ASSERTION, Result::FINISHED == subject1.result());
+  }
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_failed() -> void {
+    auto subject0 = Subject{library::Failed{}};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+    require(ASSERTION, Result::FAILED == subject1.result());
+  }
+  template<> auto Step<library::Step<POSITIONED>>::test_constructor_positioned() -> void {
+    using Positioned = library::Step<POSITIONED>;
+    auto positioned = Positioned{library::Failed{}}; // any one will do
+    auto subject0 = Subject{positioned};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+    require(ASSERTION, Result::UNDETERMINED == subject0.result());
+    require(ASSERTION, Result::FAILED == subject1.result());
+  }
+}
+#endiv

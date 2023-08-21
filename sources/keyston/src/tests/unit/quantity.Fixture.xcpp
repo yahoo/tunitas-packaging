@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.quantity
+namespace tests::unit::quantity {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::keyston::quantity;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::quantity::fixture::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  template<typename QUANTITY> auto test_Quantity() -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::quantity::fixture { 
+  template<typename QUANTITY> auto Fixture::test_Quantity() -> void {
+    using Subject = QUANTITY;
+    auto subject0 = Subject{0};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    require(ASSERTION, 0u == subject1.count());
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.units.Bits
+#import tunitas.units.Bytes
+#import tunitas.units.Items
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.quantity.Shards
+auto tests::unit::quantity::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"quantity"sv};
+  series << []{
+              auto units = Stream{"units"sv};
+              units << add("Bits", &Fixture::test_Quantity<::tunitas::units::Bits>)
+                   << add("Bytes", &Fixture::test_Quantity<::tunitas::units::Bytes>)
+                   << add("Items", &Fixture::test_Quantity<::tunitas::units::Items>)
+                   << END;
+              return units;
+            }()
+         << add("Records", &Fixture::test_Quantity<library::Records>)
+         << add("Shards", &Fixture::test_Quantity<library::Shards>)
+         << END;
+  return settle(series);
+}
+#endiv

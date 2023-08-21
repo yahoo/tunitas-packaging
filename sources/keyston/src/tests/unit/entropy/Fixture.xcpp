@@ -1,0 +1,118 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::entropy { struct Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::entropy::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Source() -> void;
+  auto test_usage_Device() -> void;
+  auto test_usage_None() -> void;
+  auto test_usage_Serial() -> void;
+  auto test_usage_Sequence() -> void;
+  auto test_usage_Jitter() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.entropy.Source
+#import tests.unit.entropy.Device
+#import tunitas.entropy.Source
+#import tunitas.entropy.None
+#import tunitas.entropy.Serial
+auto tests::unit::entropy::Fixture::suite() -> Suite {
+  auto series = Stream{"entropy"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << []{
+                       auto sou = Stream{"sources"sv};
+                       sou << add("Source", &Fixture::test_usage_Source)
+                           << add("None", &Fixture::test_usage_None)
+                           << add("Serial", &Fixture::test_usage_Serial)
+                           << add("Sequence", &Fixture::test_usage_Sequence)
+                           << add("Jitter", &Fixture::test_usage_Jitter)
+                           << END;
+                       return sou;
+                     }()
+                  << add("Device", &Fixture::test_usage_Device)
+                  << add("Jitter", &Fixture::test_usage_Jitter)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto sou = Stream{"sources"sv};
+              sou << add<Source<library::Source>>()
+                  << add<Source<library::None>>()
+                  << add<Source<library::Serial>>()
+                  << add<Source<library::Sequence>>()
+                  << END;
+              return sou;
+            }()
+         << []{
+              auto dev = Stream{"Device"sv};
+              // we must use Serial here because the test rigging checks for changes in output
+              dev << add<Device<library::Device<1, library::Serial>>>()
+                  << add<Device<library::Device<2, library::Serial>>>()
+                  << add<Device<library::Device<4, library::Serial>>>()
+                  << add<Device<library::Device<8, library::Serial>>>()
+                  << add<Device<library::Device<16, library::Serial>>>()
+                  << add<Device<library::Device<32, library::Serial>>>()
+                  << add<Device<library::Device<64, library::Serial>>>()
+                  << add<Device<library::Device<128, library::Serial>>>()
+                  << END;
+              return dev;
+            }()
+        << END;
+  return settle(series);
+}
+#import tunitas.entropy.None
+#import tunitas.entropy.Serial
+#import tunitas.entropy.Sequence
+#import tunitas.entropy.Source
+#import tunitas.entropy.Jitter
+#import std.views.iota
+#import tunitas.time.literals
+namespace tests::unit::entropy {
+  auto Fixture::test_usage_Source() -> void {
+    auto subject = library::Source{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_None() -> void {
+    auto subject = library::None{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Serial() -> void {
+    auto subject = library::Serial{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Sequence() -> void {
+    auto subject = library::Sequence{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Device() -> void {
+    auto source = library::None{};
+    auto subject = library::Device<8, library::None>{source};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Jitter() -> void {
+    using namespace tunitas::time::literals;
+    using Subject = library::Jitter<library::Source>;
+    auto source = library::Source{};
+    auto subject = Subject{source, 100ms, 10ms};
+    require(ASSERTION, sizeof (subject));
+    auto count{0};
+    auto const LIMIT{10};
+    for (auto ith : std::views::iota(0, LIMIT)) {
+      require(ASSERTION, sizeof (ith));
+      ++count;
+      auto delay = subject();
+      require(ASSERTION, 10ms <= delay && delay <= 110ms);
+    }
+    require(ASSERTION, LIMIT == count);
+  }
+}
+#endiv

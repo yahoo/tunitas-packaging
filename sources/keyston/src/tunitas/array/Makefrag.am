@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_array_SUBSOURCES = \
+  obj/src/tunitas/array/namespace.cpp \
+  obj/src/tunitas/array/Bounded.cpp \
+  obj/src/tunitas/array/Container.cpp \
+  obj/src/tunitas/array/Fixed.cpp \
+  obj/src/tunitas/array/Series.cpp \
+  obj/src/tunitas/array/Variable.cpp \
+  $(tunitas_array_md_SUBSOURCES) \
+ $(tunitas_array_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/array/md/Makefrag.am
+include src/tunitas/array/required/Makefrag.am

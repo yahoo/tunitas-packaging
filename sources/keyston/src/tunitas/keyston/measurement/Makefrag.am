@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_measurement_SUBSOURCES = \
+  obj/src/tunitas/keyston/measurement/namespace.cpp \
+  obj/src/tunitas/keyston/measurement/literals.cpp \
+  obj/src/tunitas/keyston/measurement/Specimen.cpp \
+  obj/src/tunitas/keyston/measurement/Boundaries.cpp \
+  obj/src/tunitas/keyston/measurement/Prefixes.cpp \
+  \
+  obj/src/tunitas/keyston/measurement/Limits.template.cpp \
+  obj/src/tunitas/keyston/measurement/Limits.Specimen.cpp \
+  obj/src/tunitas/keyston/measurement/Limits.Boundaries.cpp \
+  obj/src/tunitas/keyston/measurement/Limits.Prefixes.cpp \
+  obj/src/tunitas/keyston/measurement/Limits.cpp \
+  $(end)

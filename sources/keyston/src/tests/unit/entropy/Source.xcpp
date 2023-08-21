@@ -1,0 +1,78 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.nonce.required.Entropy
+namespace tests::unit::entropy {
+  template<required::Entropy SUBJECT> struct Source;
+}
+#endiv
+#divert <hpp>
+#import tunitas.entropy.Source
+#import tunitas.entropy.None
+#import tunitas.entropy.Serial
+#import tunitas.entropy.Sequence
+#import tunitas.entropy.Device
+namespace tests::unit {
+  template<entropy::required::Entropy SUBJECT> struct entropy::Source : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    static_assert(std::same_as<Subject, library::Source> ||
+                  std::same_as<Subject, library::None> ||
+                  std::same_as<Subject, library::Sequence> ||
+                  std::same_as<Subject, library::Serial>);
+    //
+    auto test_constructor_default() -> void;
+    auto test_draw() -> void;
+    auto test_entropy() -> void;
+    auto test_now() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::entropy {
+  template<required::Entropy _> auto Source<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Source::test_constructor_default)
+                    << END;
+                return con;
+              }()
+           << add("entropy", &Source::test_entropy)
+           << add("draw", &Source::test_draw)
+           << add("now", &Source::test_now)
+           << END;
+    return settle(series);
+  }
+  template<required::Entropy _> auto Source<_>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<required::Entropy _> auto Source<_>::test_entropy() -> void {
+    auto subject = Subject{};
+    auto const got = subject.entropy();
+    auto const tag = (0.0 == got) ? "WARNING-ZERO-ENTROPY "sv : ""sv;
+    std::cerr << "entropy: " << tag << got << '\n';
+    require(ASSERTION, 0.0 <= got);
+  }
+  template<required::Entropy _> auto Source<_>::test_draw() -> void {
+    auto subject = Subject{};
+    auto d0 = subject.draw();
+    auto d1 = subject.draw();
+    auto d2 = subject.draw();
+    auto d3 = subject.draw();
+    if constexpr (!std::same_as<Subject, library::None>) {
+      // Ok, you're right.  This could happen, but let's pretend that it can never happen
+      impossible(ASSERTION, d0 == d1 && d1 == d2 && d2 == d3 && d3 == d0);
+    }
+  }
+  template<required::Entropy _> auto Source<_>::test_now() -> void {
+    auto subject = Subject::now(); // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv

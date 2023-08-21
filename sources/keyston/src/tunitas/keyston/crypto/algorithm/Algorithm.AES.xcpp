@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.crypto.algorithm.Algorithm.template
+namespace tunitas::keyston::crypto::algorithm {
+  //
+  // The AES 128 encryption as a function.
+  //
+  // Specification:
+  //
+  //   Whatnow?
+  //
+  // Design:
+  //
+  //   Single-shot use.
+  //
+  // Exceptions:
+  //
+  //   Yes.  Crypto++ throws on data structure consistency failures.
+  //
+  // Usage: (one shot)
+  //
+  //   auto algorithm = Algorithm<AES>{};
+  //   auto key = Block<WIDTH>{...somehow...};
+  //   auto sigma = Block<WIDTH>{...somehow...};
+  //   auto crypted = algorithm(key, sigma);
+  //
+  template<> struct Algorithm<AES>;
+}
+#endiv
+#divert <hpp>
+#import cryptopp.CBC_Mode
+#import cryptopp.AES
+#import tunitas.keyston.crypto.Block
+#import tunitas.keyston.crypto.algorithm.Prototype
+namespace tunitas::keyston::crypto::algorithm {
+  template<> struct Algorithm<AES> : public Prototype {
+    template<Size WIDTH> inline auto operator()(Block<WIDTH> const &key, Block<WIDTH> const &block) -> Block<WIDTH>;
+    template<Size WIDTH> struct Function;
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.crypto.algorithm.Algorithm.AES.Function
+namespace tunitas::keyston::crypto::algorithm {
+  template<Size WIDTH> auto Algorithm<AES>::operator()(Block<WIDTH> const &key, Block<WIDTH> const &block) -> Block<WIDTH> {
+    return Function<WIDTH>{key}(block);
+  }
+}
+#endiv

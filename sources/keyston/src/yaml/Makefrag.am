@@ -1,0 +1,10 @@
+# This is a -*- Makefile -*- fragment
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+yaml_SUBSOURCES = \
+  $(yaml_Convert_SUBSOURCES) \
+  $(yaml_Emitter_SUBSOURCES) \
+  $(end)
+#
+include src/yaml/Convert/Makefrag.am
+include src/yaml/Emitter/Makefrag.am

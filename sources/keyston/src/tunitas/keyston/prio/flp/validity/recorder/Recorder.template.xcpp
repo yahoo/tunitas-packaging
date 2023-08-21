@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.required.Validity
+#import tunitas.keyston.prio.flp.validity.recorder.required.Loggable
+namespace tunitas::keyston::prio::flp::validity::recorder {
+  //
+  // How to log for the Validity
+  //
+  // Specification:
+  //
+  //   What now?
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //   void or into some arrays.
+  //
+  // Usage:
+  //
+  //   using Log = Log<Validity>{};
+  //   using Recorder0 = Recorder<Validity, void>;
+  //   using Recorder1 = Recorder<Validity, Log>;
+  //
+  //   auto recorder0 = Recorder0{};
+  //   auto recorder1 = Recorder1{};
+  //
+  //   auto got0 = Validity::evaluate(recorder0, input, joint_randomness, count_of_records);
+  //   auto got1 = Validity::evaluate(recorder1, input, joint_randomness, count_of_records);
+  //
+  template<required::Validity VALIDITY, required::Loggable<VALIDITY>> struct Recorder;
+}
+#endiv
+#divert <hpp>
+// Because every specialization will need this (these)
+#import tunitas.keyston.prio.flp.validity.recorder.Single // expect only single-gadget schemes (for now)
+#import tunitas.keyston.prio.flp.gadget.Recorder
+#endiv

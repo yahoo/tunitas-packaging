@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.Scheme
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.is.Algorithm
+#include <hpp/tunitas.keyston.vdaf.is.Algorithm>
+namespace tunitas::keyston::vdaf::function {
+  //
+  // The Verifiable Distributed Aggregation Function Function
+  //
+  // Specification:
+  //
+  //   What they all do.
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //
+  // Design:
+  //
+  //   Right out of the manual.
+  //
+  // Usage:
+  //
+  //   Within Stages<NAME> and Executor<NAME>
+  //
+  template<Scheme SCHEME, Name NAME> requires (is::Algorithm<SCHEME, NAME>::value) struct Function;
+}
+#endiv

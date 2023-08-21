@@ -1,0 +1,17 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+XFAIL_TESTS = \
+  $(tests_unit_XFAIL_TESTS) \
+  $(tests_exhibition_XFAIL_TESTS) \
+  $(end)
+TESTS = \
+  $(tests_unit_TESTS) \
+  $(tests_exhibition_TESTS) \
+  $(end)
+#
+include tests/exhibition/Makefrag.am
+include tests/unit/Makefrag.am

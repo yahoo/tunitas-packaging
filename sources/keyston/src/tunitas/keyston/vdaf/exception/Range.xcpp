@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf::exception {
+  //
+  // Some value is out of the allowed range in Tunitas Keyston VDAF.
+  // The range of a (mathematical) function is the output of such a function.
+  //
+  // Specification:
+  //
+  //   Yes.
+  //
+  //   Reminder: the exception for use with such a value when indexign is Bound
+  //   Bound (index is out of range, std::out_of_range)
+  //   Range (value is out of range, std::range_error)
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Range;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.partial.Range
+#import tunitas.keyston.vdaf.exception.complete.Ancestor
+class tunitas::keyston::vdaf::exception::Range final : public complete::Ancestor<partial::Range> {
+  using Ancestor = complete::Ancestor<partial::Range>;
+public:
+  using Ancestor::Basic;
+};
+#endiv
+#divert <cpp>
+#import std.derived_from
+namespace {
+  namespace testate {
+    using tunitas::keyston::vdaf::exception::Range;
+    static_assert(std::derived_from<Range, std::range_error>);
+  }
+}
+#endiv

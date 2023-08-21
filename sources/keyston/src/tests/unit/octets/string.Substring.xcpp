@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::octets::string { struct Substring; }
+#endiv
+#divert <hpp>
+#import tests.unit.octets.Palette
+struct tests::unit::octets::string::Substring : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  auto test_good_middle() -> void;
+  auto test_good_end() -> void;
+  auto test_fail_low() -> void;
+  auto test_fail_inverted() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::octets::string::Substring::suite() -> Suite {
+  auto series = Stream{"substring"sv};
+  series << []{
+              auto good = Stream{"good"sv};
+              good << add("middle", &Substring::test_good_middle)
+                   << add("end", &Substring::test_good_end)
+                   << END;
+              return good;
+            }()
+         << []{
+              auto fail = Stream{"fail"sv};
+              fail << add("low", &Substring::test_fail_low)
+                   << add("inverted", &Substring::test_fail_inverted)
+                   << END;
+              return fail;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.octets.string // for substring(...)
+namespace tests::unit::octets::string {
+  auto Substring::test_good_middle() -> void {
+    auto specimen = generate<Variable>(99);
+    auto subject = library::substring(specimen, 33, 66);
+    require(ASSERTION, 33 == subject.size());
+  }
+  auto Substring::test_good_end() -> void {
+    auto specimen = generate<Variable>(99);
+    auto subject = library::substring(specimen, 66, 200);
+    require(ASSERTION, 33 == subject.size());
+  }
+  auto Substring::test_fail_low() -> void {
+    auto specimen = generate<Variable>(99);
+    auto subject = library::substring(specimen, 100, 200);
+    require(ASSERTION, 0 == subject.size());
+  }
+  auto Substring::test_fail_inverted() -> void {
+    auto specimen = generate<Variable>(99);
+    auto subject = library::substring(specimen, 200, 100);
+    require(ASSERTION, 0 == subject.size());
+  }
+}
+#endiv

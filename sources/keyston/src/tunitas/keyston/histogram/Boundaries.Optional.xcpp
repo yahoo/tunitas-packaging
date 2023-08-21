@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.keyston.histogram.Boundaries>
+#endiv
+#divert <hpp>
+#import tunitas.error.Optional
+namespace tunitas::keyston::histogram {
+  template<Size CAPACITY> template<typename TYPE> requires required::Same_As<TYPE, Boundaries<CAPACITY>> class Boundaries<CAPACITY>::Optional : public error::Optional<Boundaries> {
+    using Ancestor = error::Optional<Boundaries>;
+  public:
+    constexpr Optional() = default;
+    using Ancestor::optional; // and yes you "just have to know" that the ancestor's constructor name is 'optional' from std::optional
+    Optional(Ancestor &&a) : Ancestor{move(a)} { }
+    constexpr Optional(Ancestor const &a) : Ancestor{a} { }
+    using Ancestor::operator=;
+    auto operator=(Ancestor &&a)      -> Optional & { Ancestor::operator=(move(a)); return  *this; }
+    auto operator=(Ancestor const &a) -> Optional & { Ancestor::operator=(a);       return  *this; }
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.histogram.Boundaries // shutup warnings about inline functions of histogram::Boundaries declared but never defined
+#endiv

@@ -1,0 +1,83 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio::package_disassembly::body {
+  //
+  // slide with stride
+  //
+  // Problem Definition:
+  //
+  //   With joint randomness (3 == STRIDE)
+  //
+  //     |<--------------------------------- span of the allocation----------------------------------->|
+  //     |<----------- shard 0 ------------->|<----------- shard 1 ------------->| ...more shards?...  |
+  //     |<--input-->|<--proof-->|<--blind-->|<--input-->|<--proof-->|<--blind-->| ...more shards?...  |
+  //
+  //   Without joint randomness (2 == STRIDE)
+  //
+  //     |<--------------------------- span of the allocation----------------->|
+  //     |<--------shard 0 ----->|<----- shard 1 ------->| ...more shards?...  |
+  //     |<--input-->|<--proof-->|<--input-->|<--proof-->| ...more shards?...  |
+  //
+  //
+  //   And each item is SEED_SIZE octets in length.
+  //
+  // Specification:
+  //
+  //   sub-allocation of the randomness
+  //   STRIDE = 2  ----> no  use joint randomness
+  //   STRIDE = 3  ----> yes use joint randomness
+  //
+  // Design:
+  //
+  //   The stride count is mediated by the use of joint randomness, which is off stage (known to the caller).
+  //
+  // Usage:
+  //
+  //   Hack the Spew.
+  //
+  template<Size SHARD_COUNT, Size STRIDE_COUNT>  requires (2 == STRIDE_COUNT || 3 == STRIDE_COUNT) struct Slicer;
+}
+#endiv
+#divert <hpp>
+#import tunitas.span.md.Fixed
+#import tunitas.array.Fixed
+#import tunitas.keyston.prg.constants // for the definition of SEED_SIZE
+#forward tunitas.keyston.prio.disassembly.Allocator
+#import tunitas.units.Items
+#import tunitas.keyston.quantity.Shards
+namespace tunitas::keyston::prio::package_disassembly {
+  template<Size THE_SHARD_COUNT, Size THE_STRIDE_COUNT> requires (2 == THE_STRIDE_COUNT || 3 == THE_STRIDE_COUNT) struct body::Slicer : public span::md::Fixed<Octet const, std::extents<Size, THE_SHARD_COUNT, THE_STRIDE_COUNT, prg::SEED_SIZE.count()>> {
+    using Ancestor = span::md::Fixed<Octet const, std::extents<Size, THE_SHARD_COUNT, THE_STRIDE_COUNT, prg::SEED_SIZE.count()>>;
+    template<Size COUNT> requires (0 == COUNT % prg::SEED_SIZE.count()) friend struct body::Allocator;
+    constexpr Slicer(Octet const *d) : Ancestor{d} { } // there MUST be delegated_size() octets herein
+    static constexpr auto delegated_size() -> Size { return THE_SHARD_COUNT * THE_STRIDE_COUNT * prg::SEED_SIZE.count() * sizeof(Octet); }
+  public:
+    inline static constexpr auto SHARD_COUNT = quantity::Shards{THE_SHARD_COUNT};
+    inline static constexpr auto STRIDE_COUNT = units::Items{THE_STRIDE_COUNT};
+    inline static constexpr auto SEED_SIZE = prg::SEED_SIZE;
+    using Seed = array::Fixed<Octet, SEED_SIZE.count()>;
+    using Shards = array::Fixed<Seed, SHARD_COUNT.count()>;
+    template<Index STRIDE_OFFSET> inline constexpr auto stride() -> Shards requires (units::Items{STRIDE_OFFSET} < STRIDE_COUNT);
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.sequence.Sequence
+#import tunitas.sequence.Constant
+namespace tunitas::keyston::prio::package_disassembly::body {
+  template<Size H, Size T> template<Index STRIDE_OFFSET> constexpr auto Slicer<H,T>::stride() -> Shards requires (units::Items{STRIDE_OFFSET} < STRIDE_COUNT) {
+    using Inplace = std::in_place_t;
+    return [&self=*this]<Index... SHARD_INDEXes>(sequence::Sequence::Pack<SHARD_INDEXes...>) -> Shards {
+      auto seed = [&self]<Index SHARD_INDEX, Index... SEED_INDEXes>(sequence::Constant::Pack<SHARD_INDEX>, sequence::Sequence::Pack<SEED_INDEXes...>) -> Seed {
+        return {Inplace{}, self[SHARD_INDEX, STRIDE_OFFSET, SEED_INDEXes]...};
+      };
+      return {Inplace{}, seed(sequence::Constant::make<SHARD_INDEXes>(), sequence::Sequence::make<SEED_SIZE.count()>())...};
+    }(sequence::Sequence::make<SHARD_COUNT.count()>());
+  }
+}
+#endiv
+ 

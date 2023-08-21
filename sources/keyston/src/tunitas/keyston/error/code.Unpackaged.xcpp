@@ -1,0 +1,39 @@
+seek register-k or register-d
+#divert <fpp>
+namespace tunitas::keyston::error::code {
+  //
+  // The Unpackaged Error Codes of Tunitas Denniston.
+  //
+  // Usage:
+  //
+  //   std::error_code ec(BAD, error::category());
+  //   std::cout << ec.message();
+  //
+  struct Unpackaged {
+    enum class Enumeration {
+      SUCCESS, // ........ improper success (which is a failure)
+      FAILURE, // ........ sic, generic failure
+      //
+      OVERFLOW, // ....... e.g. when stuffing a variable array into a fixed array; a bignum into a smallnum
+      CRYPTO, // ......... a crypto++ primitive has failed (misconfigured or a resource limit was reached)
+    };
+    using enum Enumeration;
+  };
+}
+#import std.is_error_code_enum.tunitas.keyston.error.code.Unpackaged.Enumeration // enable that certain magic template constructor
+#endiv
+#divert <hpp>
+#import std.error_code
+#import std.underlying_type
+namespace tunitas::keyston::error::code {
+  inline auto make_error_code(Unpackaged::Enumeration) noexcept -> std::error_code;
+  inline constexpr auto underlying(Unpackaged::Enumeration e) noexcept { return std::underlying_type_t<Unpackaged::Enumeration>(e); }
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.error.category
+namespace tunitas::keyston::error {
+  auto code::make_error_code(Unpackaged::Enumeration e) noexcept -> std::error_code { return {underlying(e), category()}; }
+}
+#endiv
+                  

@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.nonce.required.Generator
+namespace tunitas::keyston::nonce::usage {
+  //
+  // Does this type have all the behaviors of a Generator<...>?
+  // This is diagnosable WITH the complete type of GENERATOR
+  //
+  template<typename GENERATOR> concept Generator = required::Generator<GENERATOR> && requires(GENERATOR generator, typename GENERATOR::Entropy &source) {
+    typename GENERATOR::Entropy;
+    typename GENERATOR::Result;
+    // NO SUCH ---> typename GENERATOR::Traits; <--- NO SUCH (not every generator has a Traits)
+    //
+#if 0
+    // some are default constructible
+    // construction from an entropy source is always allowed, and is usually the only option
+    requires not std::is_default_constructible_v<GENERATOR>;
+#endif
+    requires std::is_copy_constructible_v<GENERATOR>;
+    requires std::is_move_constructible_v<GENERATOR>;
+    requires not std::is_copy_assignable_v<GENERATOR>; // there are references inside
+    requires not std::is_move_assignable_v<GENERATOR>; // there are references inside
+    requires not std::is_swappable_v<GENERATOR>;
+    //
+    { GENERATOR{source} };
+    { generator() } -> convertible_to<typename GENERATOR::Result>;
+  };
+}
+#endiv

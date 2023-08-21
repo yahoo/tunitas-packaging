@@ -1,0 +1,114 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::prio {
+  namespace package_format {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_format::interface;
+}
+#import tunitas.array
+#import tunitas.view
+#import tunitas.octets.Octet
+namespace tests::unit::prio::package_format {
+  template<typename TYPE> struct Formatter;
+  namespace library {
+    namespace view = ::tunitas::view;
+    namespace array = ::tunitas::array;
+    using ::tunitas::octets::Octet;
+  }
+  namespace body { }
+}
+#endiv
+#divert <hpp>
+#import tunitas.view.Variable
+#import tunitas.array.Fixed
+#import tunitas.span.Span
+#import tunitas.octets.Variable
+#import tunitas.octets.Fixed
+#import std.ostream
+namespace tests::unit::prio {
+  template<typename TYPE> struct package_format::Formatter {
+    using Value = TYPE;
+    using Captured = Value const &;
+    Captured value;
+    Formatter(Captured v) : value{v} { }
+  };
+  namespace package_format {
+    inline auto emit_as_octet_string(std::ostream &o, ::tunitas::span::Span<library::Octet const>) -> std::ostream &;
+    template<typename TYPE> inline auto operator<<(std::ostream &, Formatter<TYPE> const &) -> std::ostream &;
+    template<Size SIZE> inline auto operator<<(std::ostream &o, Formatter<::tunitas::octets::Fixed<SIZE>> const &) -> std::ostream &;
+    template<> inline auto operator<<(std::ostream &o, Formatter<::tunitas::octets::Variable> const &) -> std::ostream &;
+    template<> inline auto operator<<(std::ostream &, Formatter<library::view::Variable<library::Octet>> const &) -> std::ostream &;
+    template<Size SIZE> inline auto operator<<(std::ostream &, Formatter<library::array::Fixed<library::Octet, SIZE>> const &) -> std::ostream &;
+    template<Size SIZE1, Size SIZE2> inline auto operator<<(std::ostream &, Formatter<library::array::Fixed<library::array::Fixed<library::Octet, SIZE2>, SIZE1>> const &) -> std::ostream &;
+    namespace body::exported {
+      //
+      // A formatter
+      //
+      // Specification:
+      //
+      //   Some highlighted formatting for special types.
+      //   e.g. hex dumping of octet strings
+      //
+      // Design:
+      //
+      //   The magic happens in the specializations of operator<<
+      //
+      // Lifetimes:
+      //
+      //   lifetime(specimen) > lifetime(Formatter)
+      //
+      // Usage:
+      //
+      //   std::cerr << format(something) << '\n';
+      //
+      template<typename TYPE> inline auto format(TYPE const &t) -> Formatter<TYPE> { return {t}; }
+    }
+  }
+}
+#endiv
+#divert <ipp>
+#import std.dec
+#import std.hex
+#import nonstd.setfill
+#import nonstd.setwidth
+#import langu.age.curly
+#import langu.age.commalist
+#import tunitas.span.Fixed
+namespace tests::unit::prio {
+  auto package_format::emit_as_octet_string(std::ostream &o, ::tunitas::span::Span<library::Octet const> span) -> std::ostream & {
+    o << std::hex;
+    for (auto each : span) {
+      o << nonstd::setfill('0') << nonstd::setwidth(2) << static_cast<unsigned>(each);
+    }
+    return o << std::dec;
+  }
+  template<typename TYPE> auto package_format::operator<<(std::ostream &o, Formatter<TYPE> const &f) -> std::ostream & { return o << f.value; }
+  template<Size SIZE> auto package_format::operator<<(std::ostream &o, Formatter<::tunitas::octets::Fixed<SIZE>> const &f) -> std::ostream &     { return emit_as_octet_string(o, f.value); }
+  template<> auto package_format::operator<<(std::ostream &o, Formatter<::tunitas::octets::Variable> const &f) -> std::ostream &                 { return emit_as_octet_string(o, f.value); }
+  template<> auto package_format::operator<<(std::ostream &o, Formatter<library::view::Variable<library::Octet>> const &f) -> std::ostream &              { return emit_as_octet_string(o, f.value); }
+  template<Size SIZE> auto package_format::operator<<(std::ostream &o, Formatter<library::array::Fixed<library::Octet, SIZE>> const &f) -> std::ostream & { return emit_as_octet_string(o, f.value); }
+  template<Size SIZE1, Size SIZE2> auto package_format::operator<<(std::ostream &o, Formatter<library::array::Fixed<library::array::Fixed<library::Octet, SIZE2>, SIZE1>> const &f) -> std::ostream & {
+#if 0
+    using Span = ::tunitas::span::Fixed<library::array::Fixed<library::Octet, SIZE2> const, SIZE1>; // because span::Fixed<...> will work with commalist where array::Fixed<...> won't
+    return langu::age::curly(langu::age::commalist((Span)f.value));
+#else
+    o << "{ ";
+    auto rest{false};
+    for (auto &each : f.value) {
+      if (rest) {
+        o << ", ";
+      }
+      o << format(each);
+    }
+    o << " }";
+    return o;
+#endif
+  }
+}
+#endiv

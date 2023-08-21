@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::time {
+  namespace package_cast {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_cast::interface;
+}
+#import std.chrono.duration
+#import std.chrono.time_point
+#import tunitas.time.required.Duration
+#import tunitas.time.required.Point
+#import nonstd.required.Ratio // ..... [[FIXTHIS]] should be seen as tunitas.required.Ratio
+#import nonstd.required.Integer // ... [[FIXTHIS]] should be seen as tunitas.required.Integer
+#import nonstd.required.Class // ..... [[FIXTHIS]] should be seen as tunitas.required.Class
+namespace tunitas::time::package_cast {
+  template<required::Integer REPRESENTATION, required::Ratio RATIO> using Duration = std::chrono::duration<REPRESENTATION, RATIO>;
+  template<required::Class CLOCK, required::Duration PERIOD> using Point = std::chrono::time_point<CLOCK, PERIOD>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::time::package_cast {
+  namespace body::exported {
+    //
+    // Cast this to that
+    //
+    // Specification:
+    //
+    //   https://en.cppreference.com/w/cpp/chrono/time_point/time_point_cast
+    //   https://en.cppreference.com/w/cpp/chrono/duration/duration_cast
+    //
+    // Design:
+    //
+    //   Why yes of course it was designed, why are you asking?
+    //
+    //   The casts only allow for a change of precision
+    //   - no change in representation on the duration
+    //   - no change in clock on the time_point
+    //
+    // Usage:
+    //
+    //   You know.
+    //
+    template<required::Duration DESTINATION, required::Integer REPRESENTATION, required::Ratio RATIO> inline auto cast(Duration<REPRESENTATION, RATIO> const &) -> DESTINATION;
+    template<required::Duration DESTINATION, typename CLOCK, required::Duration PERIOD>               inline auto cast(Point<CLOCK, PERIOD> const &) -> Point<CLOCK, PERIOD>;
+  }
+}
+#endiv
+#divert <ipp>
+namespace tunitas::time::package_cast {
+  template<required::Duration DESTINATION, required::Integer REPRESENTATION, required::Ratio RATIO> auto interface::cast(Duration<REPRESENTATION, RATIO> const &source) -> DESTINATION    { return std::chrono::duration_cast<DESTINATION>(source); }
+  template<required::Duration DESTINATION, typename CLOCK, time::required::Point PERIOD>            auto interface::cast(Point<CLOCK, PERIOD> const &source) -> Point<CLOCK, DESTINATION> { return std::chrono::time_point_cast<DESTINATION>(source); }
+}
+#endiv
+#divert <cpp>
+#import tunitas.time.Clock
+namespace {
+  namespace testate {
+    using namespace tunitas::time;
+    static_assert(sizeof (decltype(cast<Clock::duration>(Clock::duration{}))));
+    static_assert(sizeof (decltype(cast<Clock::duration>(Clock::now()))));
+  }
+}
+#endiv

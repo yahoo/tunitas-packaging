@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.popularity.Popularity
+namespace tunitas::keyston::aggregation {
+  //
+  // A population (of counrs) of the results relative to the prefixes (stored separately)
+  //
+  // Authorities:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Specification:
+  //
+  //   It's in there.
+  //
+  // Design:
+  //
+  //   A new type so that ADL will find the associated operators.
+  // 
+  // Usage:
+  //
+  //   auto population = Popularity{}; .................... list initialization
+  //   auto population = Popularity{1,2,3}; ............... list initialization
+  //   auto population = Popularity(3, {}); ............... note the use of the parenthesis for the constructor call (not list initialization)
+  //
+  using popularity::Popularity;
+}
+#endiv

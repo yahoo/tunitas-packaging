@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.af.Parameters
+#import tunitas.keyston.af.Measurement
+#import tunitas.keyston.af.Intermediate
+#import tunitas.keyston.af.Aggregation
+namespace tunitas::keyston::af::numeric {
+  //
+  // Specification:
+  //
+  //   A bundle of types for convenient use in the algorithms.
+  //   A convenience.
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Usage:
+  //
+  //   #import tunitas.keyston.af.numeric.components
+  //   namespace something::something_else::dark_side {
+  //     using namespace tunitas::keyston::dav::numeric::components;
+  //     ...use them freely
+  //   }
+  //
+  namespace components {
+    using Initialized = Intermediate;
+    using Computed = Intermediate;
+    using Finalized = Aggregation;
+    using Processed = quantity::Records;
+  }
+}
+#endiv

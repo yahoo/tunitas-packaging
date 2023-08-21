@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Codec
+#include <hpp/tunitas.keyston.prio.Codec>
+#import tunitas.keyston.poplar.Algorithm
+#include <hpp/tunitas.keyston.poplar.Algorithm>
+namespace tunitas::keyston::daf {
+  namespace [[eponymous]] input {
+    template<Slice> struct Input;
+    template<> struct Input<WHOLE>; // never materialized; see Measurement<WHOLE>
+    template<> struct Input<SHARE>;
+    using Count = prio::Codec<prio::Name::COUNT>::Encoded;
+    using Sum = prio::Codec<prio::Name::SUM>::Encoded;
+    using Histogram = prio::Codec<prio::Name::HISTOGRAM>::Encoded;
+    using Popularity = poplar::Algorithm<poplar::Name::ONE>::Initialization;
+  }
+  using input::Input;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::keyston::daf::input {
+  using std::move;
+  // swap is trivial and taken by an ancestor
+  using Variant = std::variant<Count, Sum, Histogram, Popularity>;
+  template<> class Input<SHARE> : public Variant {
+    using Ancestor = Variant;
+  public:
+    Input() = default;
+    using Ancestor::variant; // yep, you "just have to know" that the constructor name is 'variant' therein
+    using Count = input::Count;
+    using Sum = input::Sum;
+    using Histogram = input::Histogram;
+    using Popularity = input::Popularity;
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::daf;
+    using enum tunitas::keyston::Slice;
+    //
+    static_assert(std::semiregular<Input<SHARE>>);
+    static_assert(std::swappable<Input<SHARE>>);
+  }
+}
+#endiv

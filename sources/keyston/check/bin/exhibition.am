@@ -1,0 +1,27 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/texhibitionas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.texhibitionas.technology/all/components/keyston/tree/LICENSE
+#
+check_bin_exhibition_CPPFLAGS = $(CHECK_CPPFLAGS_SET)
+check_bin_exhibition_CXXFLAGS = $(CHECK_CXXFLAGS_SET)
+check_bin_exhibition_LDFLAGS = $(CHECK_LDFLAGS_SET)
+check_bin_exhibition_LDADD = \
+  check/lib/libtests.la \
+  noinst/lib/libtunitas-keyston.la \
+  noinst/lib/libyaml+tunitas-keyston.la \
+  $(end)
+check_bin_exhibition_SOURCES = $(tests_exhibition_SUBSOURCES)
+include src/tests/exhibition/Makefrag.am
+$(check_bin_exhibition_SOURCES) : disco_objdir=check/obj
+$(check_bin_exhibition_SOURCES) : scold_objdir=$(disco_objdir)
+$(check_bin_exhibition_SOURCES) : check/obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
+$(tf_check_mkdir)/exhibition.mk: $(check_bin_exhibition_SOURCES)
+$(tf_check_mkdir)/exhibition.mk:
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
+include $(tf_check_mkdir)/exhibition.mk
+clean-dependencies:: ; rm -f $(tf_check_mkdir)/exhibition.mk

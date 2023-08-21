@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_units_SUBSOURCES = \
+  obj/src/tunitas/units/namespace.cpp \
+  $(tunitas_units_required_SUBSOURCES) \
+  obj/src/tunitas/units/Bits.cpp \
+  obj/src/tunitas/units/Bytes.cpp \
+  obj/src/tunitas/units/Items.cpp \
+  $(end)
+#
+include src/tunitas/units/required/Makefrag.am

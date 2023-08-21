@@ -1,0 +1,23 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_nonce_generator_SUBSOURCES = \
+  obj/src/tunitas/keyston/nonce/Generator.cpp \
+  obj/src/tunitas/keyston/nonce/generator/namespace.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.template.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.Bits.N.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.Bundle.NONCES.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.Element.ELEMENT.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.Unsigned.UNSIGNED.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.Since.PRECISION.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.array.Fixed.Octet.CAPACITY.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.octets.Fixed.CAPACITY.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Generator.cpp \
+  \
+  obj/src/tunitas/keyston/nonce/generator/Randomness.template.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Randomness.Generator.Unsigned.UNSIGNED.cpp \
+  obj/src/tunitas/keyston/nonce/generator/Randomness.cpp \
+  $(end)

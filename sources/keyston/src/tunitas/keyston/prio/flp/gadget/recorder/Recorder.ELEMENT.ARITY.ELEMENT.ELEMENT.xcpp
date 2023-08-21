@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.Recorder.template
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element ELEMENT, Arity ARITY> struct Recorder<ELEMENT, ARITY, ELEMENT, ELEMENT>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.Inputs
+#import tunitas.keyston.prio.flp.gadget.recorder.Output
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element ELEMENT, Arity ARITY> class Recorder<ELEMENT, ARITY, ELEMENT, ELEMENT> : public Inputs<ELEMENT, ARITY>, public Output<ELEMENT> {
+    struct Ancestors {
+      using Inputs = recorder::Inputs<ELEMENT, ARITY>;
+      using Output = recorder::Output<ELEMENT>;
+    };
+    constexpr explicit Recorder(typename Ancestors::Inputs::Reference, typename Ancestors::Output::Reference);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element E, Arity A> constexpr Recorder<E,A,E,E>::Recorder(typename Ancestors::Inputs::Reference irf, typename Ancestors::Output::Reference orf)
+    : Ancestors::Inputs{irf}
+    , Ancestors::Output{orf}
+  { }
+}
+#endiv

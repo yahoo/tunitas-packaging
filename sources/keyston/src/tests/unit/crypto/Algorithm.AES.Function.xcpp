@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.crypto.Algorithm.AES
+namespace tests::unit::crypto {
+  // pointless: template<Size> struct Algorithm<library::Algorithm<AES>>::Function;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.crypto.Palette
+#import tunitas.keyston.crypto.algorithm.Algorithm.AES.Function
+namespace tests::unit::crypto {
+  template<Size THE_WIDTH> struct Algorithm<library::Algorithm<AES>>::Function : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    inline static constexpr auto const WIDTH = THE_WIDTH;
+    //
+    using Subject = library::Algorithm<AES>::Function<WIDTH>;
+    using Block = library::Block<WIDTH>;
+    //
+    auto test_constructor() -> void;
+    auto test_operator_call() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::crypto {
+  template<Size _> auto Algorithm<library::Algorithm<AES>>::Function<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("constructor", &Algorithm::test_constructor)
+           << add("operator()",  &Algorithm::test_operator_call)
+           << END;
+    return settle(series);
+  }
+  template<Size _> auto Algorithm<library::Algorithm<AES>>::Function<_>::test_constructor() -> void {
+    auto subject = Subject{Palette::template generate_buffer<Block>()};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<Size _> auto Algorithm<library::Algorithm<AES>>::Function<_>::test_operator_call() -> void {
+    auto subject = Subject{generate_buffer<Block>()};
+    auto got = subject(generate_buffer<Block>());
+    auto &out{std::cerr};
+    dump(out, got);
+    dump(out, subject(generate_buffer<Block>()));
+    dump(out, subject(generate_buffer<Block>()));
+    dump(out, subject(generate_buffer<Block>()));
+  }
+}
+#endiv

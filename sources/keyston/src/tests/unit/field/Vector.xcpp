@@ -1,0 +1,101 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.definition.Vector
+namespace tests::unit::field {
+  template<typename SUBJECT> requires required::definition::Vector<SUBJECT> struct Vector;
+}
+#endiv
+#divert <hpp>
+#import tunitas.octets.Octet
+#import tunitas.array.Fixed
+namespace tests::unit {
+  template<typename SUBJECT> requires field::required::definition::Vector<SUBJECT> struct field::Vector : public rigging::suite::Fixture {
+    static auto suite() -> rigging::Suite;
+    //
+    using Subject = SUBJECT;
+    using Value = typename Subject::Value; // can't call this "Vector"
+    using Element = typename Subject::Element;
+    using Field = typename Subject::Field;
+    using Octet = ::tunitas::octets::Octet;
+    template<Size CAPACITY> using Buffer = ::tunitas::array::Fixed<Octet, CAPACITY>;
+    inline static constexpr auto const SPECIMEN_SIZE = Field::ENCODED_LENGTH.count();
+    //
+    auto test_zeros() -> void;
+    auto test_random() -> void;
+    //
+    auto test_encode_returning() -> void;
+    // NOTYET ---> auto test_encode_into() -> void;
+    //
+    auto test_decode_returning() -> void;
+    // NOTYET ---> auto test_decode_from() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.equal
+#import tunitas.entropy.Serial
+namespace tests::unit::field {
+  template<typename _> auto Vector<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("zeros", &Vector::test_zeros)
+           << add("random", &Vector::test_random)
+           << []{
+                auto enc = Stream{"encode"sv};
+                enc << add("returning", &Vector::test_encode_returning)
+                  // NOTYET ---> << add("into", &Vector::test_encode_into)
+                    << END;
+                return enc;
+              }()
+           << []{
+                auto enc = Stream{"decode"sv};
+                enc << add("returning", &Vector::test_decode_returning)
+                  // NOTYET ---> << add("from", &Vector::test_decode_from)
+                    << END;
+                return enc;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Vector<_>::test_zeros() -> void {
+    auto const observed = Subject::zeros();
+    auto const expected = Value{};
+    // Thus this is pointless: you can just use the constructor to get the same effect
+    require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));
+  }
+  template<typename _> auto Vector<_>::test_random() -> void {
+    auto source = ::tunitas::entropy::Serial{}; // who cares.
+    auto zeros = Value{};
+    for (auto i{0u}, e{10u}; e != i; ++i) {
+      auto const observed = Subject::random(source);
+      require(ASSERTION, !std::equal(zeros.begin(), zeros.end(), observed.begin(), observed.end()));
+    }
+  }
+  template<typename _> auto Vector<_>::test_encode_returning() -> void {
+    auto specimen = Value{typename Value::Inplace{}, Element{1u}, Element{2u}, Element{3u}, Element{4u}};
+    constexpr auto const SIZE = Value{}.size();
+    static_cast<::tunitas::view::View<Element const, SIZE>>(specimen);
+    (::tunitas::view::View<Element const, SIZE>)(specimen);
+    auto view = static_cast<::tunitas::view::View<Element const, SIZE>>(specimen);
+    Subject::encode(view);
+    auto got = Subject::encode(specimen); // <-------------------- test this
+    auto probe = [&got](Index ith) { return got.at(ith * SPECIMEN_SIZE + SPECIMEN_SIZE-1); };
+    require(ASSERTION, Octet{0x1} == probe(0u));
+    require(ASSERTION, Octet{0x2} == probe(1u));
+    require(ASSERTION, Octet{0x3} == probe(2u));
+    require(ASSERTION, Octet{0x4} == probe(3u));
+  }
+  template<typename _> auto Vector<_>::test_decode_returning() -> void {
+    auto specimen = Value{typename Value::Inplace{}, Element{1u}, Element{2u}, Element{3u}, Element{4u}};
+    auto encoded = Subject::encode(specimen);
+    auto got = Subject::decode(encoded); // <-------------------- test this
+    require(ASSERTION, Element{1u} == got.at(0uz));
+    require(ASSERTION, Element{2u} == got.at(1uz));
+    require(ASSERTION, Element{3u} == got.at(2uz));
+    require(ASSERTION, Element{4u} == got.at(3uz));
+  }
+}
+#endiv

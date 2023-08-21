@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.function.Function.template
+#import tunitas.keyston.vdaf.Name
+namespace tunitas::keyston::vdaf::function {
+  //
+  // The Distributed Aggregation Function - POPLAR (Version 1, a.k.a. "POPLAR1")
+  //
+  // Specification:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   There's some section in there that covers this.
+  //   And there's papers in the references section; e.g. CGB2017
+  //
+  //   Section 8. Poplar
+  //   though Poplar is oonly formally defined in the context of the *Verifiable* Distributed Aggregation Function (VDAF),
+  //   contrariwise, Poplar is not (really) defined in the context of the *unverifiable* Distributed Aggregation Function (DAF)
+  //
+  // Design:
+  //
+  //   Right out of the manual.
+  //
+  // Usage:
+  //
+  //   Within Stages<NAME> and Executor<NAME>
+  //
+  template<Name NAME> struct Function<POPLAR, NAME>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.poplar.Algorithm
+#import tunitas.keyston.vdaf.function.Prototype
+namespace tunitas::keyston::vdaf::function {
+  template<Name NAME> struct Function<POPLAR, NAME> : public poplar::Algorithm<poplar::Name::ONE>, public Prototype<vdaf::Definition<NAME>> {
+    struct Ancestors {
+      using Algorithm = poplar::Algorithm<poplar::Name::ONE>;
+      using Prototype = function::Prototype<vdaf::Definition<NAME>>;
+    };
+  public:
+    // [[FINISH]]
+  };
+}
+#endiv

@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::function {
+  //
+  // Definitional commonalities among the functions.
+  //
+  // Specificatoin:
+  //
+  //   Each Function carries its own.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Inheritance nito each Function<...>
+  //
+  // Usage:
+  //
+  //   By inheritance.
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
+#import tunitas.array.Series
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.daf.constants
+#import tunitas.keyston.daf.Disassembled
+#import tunitas.keyston.daf.Parameters
+#import tunitas.keyston.daf.Measurement
+#import tunitas.keyston.daf.Input
+#import tunitas.keyston.daf.Public
+#import tunitas.keyston.daf.Output
+#import tunitas.keyston.daf.Aggregation
+class tunitas::keyston::daf::function::Prototype {
+protected:
+  ~Prototype() = default;
+public:
+  template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
+  //
+  using Randomness = nonce::Bits<constants::RANDOMNESS_BIT_COUNT.count()>;
+  using Processed = quantity::Records;
+  //
+  using Disassembled = daf::Disassembled;
+  using Disassembly = Disassembled (*)(Parameters const &, Measurement<WHOLE> const &, Randomness const &);
+  //
+  using Computed = Output<SHARE>;
+  using Computation = Computed (*)(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &);
+  //
+  using Amalgamated = Aggregation<SHARE>;
+  using Amalgamation = Amalgamated (*)(Parameters const &, Series<Output<SHARE>> const &);
+  //
+  using Reassembled = Aggregation<WHOLE>;
+  using Reassembly = Reassembled (*)(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed);
+};
+#endiv

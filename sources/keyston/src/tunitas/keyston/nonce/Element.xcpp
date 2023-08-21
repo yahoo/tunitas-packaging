@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Element
+namespace tunitas::keyston::nonce {
+  //
+  // A (nearly-trivial) shim to facilitate the specialization of Generator<...>
+  //
+  // Specification:
+  //
+  //   As you see.
+  //
+  // Design:
+  //
+  //   As one does.
+  //
+  // Usage:
+  //
+  //   See tunitas::keyston::nonce::Generator<nonce::Element<ELEMENT>, ENTROPY>
+  //
+  template<field::required::Element ELEMENT> struct Element;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.element.traits.Element
+#import tunitas.integer.traits.SizeOf
+namespace tunitas::keyston {
+  template<field::required::Element ELEMENT> struct nonce::Element {
+    using Type = ELEMENT;
+    inline static constexpr auto const SIZE = integer::traits::SizeOf<typename field::element::traits::Element<Type>::Underlying>::VALUE;
+  };
+}
+#endiv

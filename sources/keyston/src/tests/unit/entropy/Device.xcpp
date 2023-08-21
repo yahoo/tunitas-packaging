@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::entropy {
+  template<typename SUBJECT> struct Device;
+}
+#endiv
+#divert <hpp>
+#import tunitas.entropy.Device
+namespace tests::unit {
+  template<typename SUBJECT> struct entropy::Device : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_default() -> void;
+    auto test_draw() -> void;
+    auto test_entropy() -> void;
+    auto test_min_max() -> void;
+  protected:
+    using Entropy = typename Subject::Entropy;
+    Entropy source{};
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::entropy {
+  template<typename _> auto Device<_>::suite() -> Suite {
+    auto series = Stream{"Device"sv};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Device::test_constructor_default)
+                    << END;
+                return con;
+              }()
+           << add("entropy", &Device::test_entropy)
+           << add("draw", &Device::test_draw)
+           << add("min-max", &Device::test_min_max)
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Device<_>::test_constructor_default() -> void {
+    auto subject = Subject{source}; // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Device<_>::test_entropy() -> void {
+    auto subject = Subject{source};
+    auto const got = subject.entropy(); // <---------------------------------------- test this
+    auto const tag = (0.0 == got) ? "WARNING-ZERO-ENTROPY "sv : ""sv;
+    std::cerr << "entropy: " << tag << got << '\n';
+    require(ASSERTION, 0.0 <= got);
+  }
+  template<typename _> auto Device<_>::test_draw() -> void {
+    auto subject = Subject{source};
+    auto d0 = subject.draw(); // <---------------------------------------- test this
+    auto d1 = subject.draw();
+    auto d2 = subject.draw();
+    auto d3 = subject.draw();
+    auto d4 = subject.draw();
+    auto d5 = subject.draw();
+    auto d6 = subject.draw();
+    auto d7 = subject.draw();
+    // Ok, you're right.  This could happen, but let's pretend that it can never happen
+    impossible(ASSERTION, d0 == d1 && d1 == d2 && d2 == d3 && d3 == d4 && d4 == d5 && d5 == d6 && d6 == d7 && d7 == d0);
+  }
+  template<typename _> auto Device<_>::test_min_max() -> void {
+    auto min = Subject::min(); // <---------------------------------------- test this
+    auto max = Subject::max(); // <---------------------------------------- test this
+    require(ASSERTION, min < max);
+  }
+}
+#endiv

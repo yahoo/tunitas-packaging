@@ -1,0 +1,65 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.af.numeric.histogram
+namespace tests::unit::af::numeric::histogram {
+  class Fixture;
+  namespace library = ::tunitas::keyston::af::numeric::histogram;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.af.numeric.Palette
+struct tests::unit::af::numeric::histogram::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  auto test_computation() -> void;
+  auto test_finalization() -> void;
+protected:
+  static auto generate_some_parameters() -> Inventory::Parameters;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::af::numeric::histogram::Fixture::suite() -> Suite {
+  auto series = Stream{"histogram"sv};
+  series << add("computation", &Fixture::test_computation)
+         << add("finalization", &Fixture::test_finalization)
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.histogram.Boundaries
+#import nonstd.exception.Unimplemented
+namespace tests::unit::af::numeric::histogram {
+  auto Fixture::generate_some_parameters() -> Inventory::Parameters {
+    auto ret = Inventory::Parameters{};
+    ret.boundaries = []{
+      auto init = ::tunitas::keyston::histogram::Boundaries{};
+      runtime_assert(init.size());
+      for (auto percent : std::views::iota(0u, init.size())) {
+        init.at(percent) = Inventory::Specimen{1000*percent};
+      }
+      return init;
+    }();
+    return ret;
+  }
+  auto Fixture::test_computation() -> void try {
+    auto parameters = generate_some_parameters();
+    auto intermediate = Inventory::Intermediate{Initial::HISTOGRAM};
+    auto measurement = Inventory::Measurement{SPECIMEN};
+    auto more = library::computation(parameters, intermediate, measurement);
+    require(ASSERTION, sizeof(more));
+  } catch (nonstd::exception::Unimplemented const &) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_finalization() -> void try {
+    auto parameters = generate_some_parameters();
+    auto intermediate = Inventory::Intermediate{Initial::HISTOGRAM};
+    auto finalized = library::finalization(parameters, intermediate);
+    require(ASSERTION, sizeof(finalized));
+  } catch (nonstd::exception::Unimplemented const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

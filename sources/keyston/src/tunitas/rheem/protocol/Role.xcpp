@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::rheem::protocol {
+  //
+  // The named roles of the system.
+  //
+  // Specification
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   An enum (class).
+  //
+  // USage:
+  //
+  //   You need a tutorial on how to use an enum (class)?  o.rly?
+  //
+  enum class Role : std::uint8_t {
+    COLLECTOR,
+    CLIENT,
+    GATEWAY,
+    PROCESSOR,
+    // The specifications are varied in how they name these roles.  We provide aliases.
+    LEADER = GATEWAY,
+    HELPER = PROCESSOR,
+  };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+namespace tunitas::rheem::protocol {
+  inline constexpr auto underlying(Role r) { return std::underlying_type_t<Role>(r); }
+}
+#endiv

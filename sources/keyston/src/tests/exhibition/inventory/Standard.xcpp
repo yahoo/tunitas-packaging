@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::exhibition::inventory {
+  //
+  // The inventory of standard exhibitions (i.e. those mentioned in The Standard (draft) document itself)
+  //
+  // Specification:
+  //
+  //   It's a map, lookup by name.
+  //   Call the exhibition function to emit on an ostream
+  //
+  // Design:
+  //
+  //   Supply the constructor to initialize the map, binding the name to the function pointer
+  //
+  // Usage:
+  //
+  //   Hack The Spew (this is a test, rig after all)
+  //
+  //   Also, see tests::exhibition::main(...)
+  //   To wit:
+  //        auto inventory = Standard{};
+  //        auto found = inventory.find(word);
+  //        if (INVENTORY.end() == found) {
+  //          ...complain...
+  //        } else {
+  //          found->second();
+  //        }
+  //      }
+  //
+  //
+  struct Standard;
+}
+#endiv
+#divert <hpp>
+#import tests.exhibition.inventory.Function
+class tests::exhibition::inventory::Standard : public Function<void (std::ostream &)> {
+  using Ancestor = Function<void (std::ostream &)>;
+public:
+  Standard();
+};
+#endiv
+#divert <cpp>
+#import tests.exhibition.Recital
+namespace tests::exhibition::inventory {
+  Standard::Standard()
+    : Ancestor{{"count", Recital<PRIO, PRIO3_COUNT>::standard},
+               {"sum", Recital<PRIO, PRIO3_SUM>::standard},
+               {"histogram", Recital<PRIO, PRIO3_HISTOGRAM>::standard},
+               {"poplar", Recital<POPLAR, POPLAR1>::standard},
+               {"doplar", Recital<POPLAR, DOPLAR>::standard}}
+  { }
+}
+#endiv

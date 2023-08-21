@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf::disassembled {
+  //
+  // Specification:
+  // 
+  //   (The usual place) I-D.irtf-cfrg-daf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-03.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-04.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //   Section 4. Definition of a DAF (Distributed Aggregation Function)
+  //
+  //   Basically this is
+  //     using Disassembled = Tuple<Public<SHARE>, Shards<Input<SHARE>>>;
+  //   but make it more convenient.
+  //
+  //   Lookit all that convenience nearby with:
+  //   get<0>(...)
+  //   get<1>(...)
+  //   auto [publick, shares] = disassembly(...somehow...)
+  //
+  // Design:
+  //
+  //   Noting that std::tuple doesn't require the complete type of its components.
+  //   Create a new type to allow forward references to the Disassembled<...>
+  //
+  // Usage:
+  //
+  //   And then see Definition<...>
+  //
+  struct Disassembled;
+}
+#import std.tuple_size.tunitas.keyston.daf.disassembled.Disassembled
+#import std.tuple_element.N.tunitas.keyston.daf.disassembled.Disassembled
+#endiv
+#divert <hpp>
+#import tunitas.keyston.daf.disassembled.Tuple
+namespace tunitas::keyston::daf {
+  struct disassembled::Disassembled : public Tuple {
+    using Ancestor = Tuple;
+  public:
+    [[implicit]] Disassembled() = default;
+    using Ancestor::tuple; // and indeed, you "just have to know" that the real ancestor class name is 'tuple' (lower case)
+  };
+}
+#endiv

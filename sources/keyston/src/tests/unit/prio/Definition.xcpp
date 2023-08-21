@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.prio.required.Definition
+namespace tests::unit::prio {
+  template<required::Definition> struct Definition;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit {
+  template<prio::required::Definition SUBJECT> struct prio::Definition : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_usage() -> void;
+    auto test_use_joint_randomness() -> void;
+    auto test_joint_randomness() -> void;
+    auto test_randomness_size() -> void;
+#if 0
+    auto encode_leader_shard() -> void;
+    auto decode_leader_shard() -> void;
+    //
+    auto encode_helper_shard() -> void;
+    auto decode_helper_shard() -> void;
+    //
+    auto encode_public_shard() -> void;
+    auto decode_public_shard() -> void;
+#endif
+  };
+}
+#endiv
+#divert <tpp>
+#import tests.unit.prio.format
+#import tunitas.units.Bytes
+namespace tests::unit::prio {
+  template<required::Definition _> auto Definition<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("usage", &Definition::test_usage)
+           << add("use_joint_randomness", &Definition::test_use_joint_randomness)
+           << add("joint_randomness", &Definition::test_joint_randomness)
+           << add("randomness_size", &Definition::test_randomness_size)
+           << END;
+    return settle(series);
+  }
+  template<required::Definition _> auto Definition<_>::test_usage() -> void {
+    require(ASSERTION, sizeof (Subject)); // well?
+  }
+  template<required::Definition _> auto Definition<_>::test_use_joint_randomness() -> void {
+    auto use = Subject::use_joint_randomness(); // <------------------------------ test this
+    require(ASSERTION, sizeof(use));
+  }
+  template<required::Definition _> auto Definition<_>::test_joint_randomness() -> void {
+    auto source = ::tunitas::array::Fixed<typename Subject::Amplifier::Seed::Storage, 2>{}; // full of sero
+    auto got = Subject::joint_randomness(source); // <------------------------------ test this
+    std::cerr << "joint randomness=" << format(got) << '\n';
+  }
+  template<required::Definition _> auto Definition<_>::test_randomness_size() -> void {
+    auto size = Subject::randomness_size();
+    require(ASSERTION, ::tunitas::units::Bytes{} != size);
+  }
+}
+#endiv

@@ -1,0 +1,29 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.container.Traits
+#forward tunitas.keyston.histogram.Boundaries
+#import std.size_t
+namespace nonstd::container {
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY>>;
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY> const>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.histogram.Boundaries
+namespace nonstd::container {
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY> const> {
+    using Container = tunitas::keyston::histogram::Boundaries<CAPACITY> const;
+    using Value = typename Container::Value;
+    using Iterator = typename Container::Basic_Iterator<Container>;
+  };
+  template<std::size_t CAPACITY> struct Traits<tunitas::keyston::histogram::Boundaries<CAPACITY>> {
+    using Container = tunitas::keyston::histogram::Boundaries<CAPACITY>;
+    using Value = typename Container::Value;
+    using Iterator = typename Container::Basic_Iterator<Container>;
+  };
+}
+#endiv

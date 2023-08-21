@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.prio.flp.validity.Validity
+namespace tunitas::keyston::prio::flp::validity::is {
+  //
+  // Mark the candiate Validity structures.
+  // Specializations only.
+  // This is a customization point.
+  //
+  template<typename> struct Predefinition;
+  template<typename> struct Validity;
+  template<Name NAME> struct Predefinition<validity::Predefinition<NAME>>;
+  template<Name NAME> struct Validity<validity::Validity<NAME>>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::keyston::prio::flp::validity {
+  template<typename> struct is::Predefinition : public std::false_type { };
+  template<typename> struct is::Validity : public std::false_type { };
+  namespace is {
+    template<Name NAME> struct Predefinition<validity::Predefinition<NAME>> : public std::true_type { };
+    template<Name NAME> struct Validity<validity::Validity<NAME>> : public std::true_type { };
+  }
+}
+#endiv

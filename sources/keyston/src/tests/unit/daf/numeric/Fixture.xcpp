@@ -1,0 +1,43 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::daf::numeric { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Slice
+#import tunitas.keyston.Shards
+struct tests::unit::daf::numeric::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using enum ::tunitas::keyston::Slice;
+  template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.daf.numeric.zero.Fixture
+#import tests.unit.daf.numeric.constant.Fixture
+#import tests.unit.daf.numeric.count.Fixture
+#import tests.unit.daf.numeric.sum.Fixture
+#import tests.unit.daf.numeric.histogram.Fixture
+#import tests.unit.daf.numeric.popularity.Fixture
+auto tests::unit::daf::numeric::Fixture::suite() -> Suite {
+  auto series = Stream{"numeric"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use // none?   (none net?)
+                  << END;
+              return use;
+            }()
+         << add<zero::Fixture>()
+         << add<constant::Fixture>()
+         << add<count::Fixture>()
+         << add<sum::Fixture>()
+         << add<histogram::Fixture>()
+         << add<popularity::Fixture>()
+         << END;
+  return settle(series);
+}
+#endiv

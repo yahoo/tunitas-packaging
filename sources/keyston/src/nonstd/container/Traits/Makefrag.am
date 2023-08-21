@@ -1,0 +1,21 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc,
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+nonstd_container_Traits_SUBSOURCES = \
+  obj/src/nonstd/container/Traits/tunitas.array.Series.TYPE.cpp \
+  obj/src/nonstd/container/Traits/tunitas.array.Fixed.TYPE.CAPACITY.cpp \
+  obj/src/nonstd/container/Traits/tunitas.array.Bounded.TYPE.CAPACITY.cpp \
+  obj/src/nonstd/container/Traits/tunitas.array.Variable.TYPE.cpp \
+  obj/src/nonstd/container/Traits/tunitas.ranges.package_enumerate.Range.CONTAINER.cpp \
+  \
+  obj/src/nonstd/container/Traits/tunitas.keyston.field.polynomial.Fixed.ELEMENT.DEGREE.cpp \
+  obj/src/nonstd/container/Traits/tunitas.keyston.field.vector.Fixed.ELEMENT.CAPACITY.cpp \
+  obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Histogram.CAPACITY.cpp \
+  obj/src/nonstd/container/Traits/tunitas.keyston.histogram.Boundaries.CAPACITY.cpp \
+  obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Popularity.cpp \
+  obj/src/nonstd/container/Traits/tunitas.keyston.popularity.Prefixes.cpp \
+  obj/src/nonstd/container/Traits/tunitas.rheem.protocol.preparation.Steps.MARK.cpp \
+  $(end)

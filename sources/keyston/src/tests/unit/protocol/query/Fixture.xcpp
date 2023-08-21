@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::protocol::query { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::query::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Partial() -> void;
+  auto test_usage_Query() -> void;
+  auto test_usage_Batch() -> void;
+  auto test_usage_partialize() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.protocol.query.batch.Fixture
+#import tests.unit.protocol.query.partial.Fixture
+auto tests::unit::protocol::query::Fixture::suite() -> Suite {
+  auto series = Stream{"query"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Query", &Fixture::test_usage_Query)
+                  << add("Batch", &Fixture::test_usage_Batch)
+                  << add("Partial", &Fixture::test_usage_Partial)
+                  << add("partialize", &Fixture::test_usage_partialize)
+                  << END;
+              return use;
+            }()
+         << add<batch::Fixture>()
+         << add<partial::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.rheem.protocol.query.Batch
+#import tunitas.rheem.protocol.query.Partial
+#import tunitas.rheem.protocol.query.Query
+namespace tests::unit::protocol::query {
+  auto Fixture::test_usage_Query() -> void {
+    using Subject = library::Query;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Batch() -> void {
+    using Subject = library::Batch;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Partial() -> void {
+    using Subject = library::Partial;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_partialize() -> void {
+    using library::Type;
+    using library::batch::Record;
+    using library::Batch;
+    {
+      auto source = Batch{Record<Type::RESERVED>{}};
+      auto subject = partialize(source);
+      require(ASSERTION, sizeof (subject));
+    } {
+      auto source = Batch{Record<Type::TIME_INTERVAL>{}};
+      auto subject = partialize(source);
+      require(ASSERTION, sizeof (subject));
+    } {
+      auto source = Batch{Record<Type::FIXED_SIZE>{}};
+      auto subject = partialize(source);
+      require(ASSERTION, sizeof (subject));
+    }
+  }
+}
+#endiv

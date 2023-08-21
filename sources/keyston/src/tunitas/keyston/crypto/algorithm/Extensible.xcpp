@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::crypto::algorithm {
+  //
+  // Commonalities among all the extensible-output function (XOF) algorithms.
+  //
+  // Specification:
+  //
+  //   They all accept the same message type
+  //   They all return the same digest (variable-sized given the length parameter)
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   By inheritance in the Algorithm<NAME> for SHAKE and cSHAKE
+  //
+  struct Extensible;
+}
+#endiv
+#divert <hpp>
+#import tunitas.octets.Variable
+#import tunitas.keyston.crypto.algorithm.Prototype
+class tunitas::keyston::crypto::algorithm::Extensible : public Prototype {
+protected:
+  ~Extensible() = default;
+public:
+  using Output = octets::Variable;
+};
+#endiv

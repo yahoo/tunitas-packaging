@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.required.Element
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  //
+  // The input side of a recorder
+  //
+  // Specification:
+  //
+  //   Well?
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Designed for convenient MI blending in the descendant.
+  //
+  // Usage:
+  //
+  //   By inheritance into the relevant Recorder<...> specialization.
+  //
+  template<required::Element, Arity> struct Inputs;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.flp.gadget.recorder.required.Recordable
+#import tunitas.keyston.prio.flp.gadget.recorder.cursor.Inputs
+#import tunitas.sequence.Sequence
+#import tunitas.Tuple
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element ELEMENT, Arity THE_ARITY> struct Inputs {
+    // mirrored in Empty<...>
+    using Element = ELEMENT;
+    static inline constexpr auto const ARITY = THE_ARITY;
+    template<typename... IN> constexpr auto inputs(IN ...packed) -> void requires required::Recordable<Element, ARITY, IN...>;
+  protected:
+    using Reference = typename cursor::Inputs<Element, ARITY>::Reference;
+    Inputs() = default;
+    inline constexpr explicit Inputs(Reference);
+  private:
+    cursor::Inputs<ELEMENT, ARITY> record_inputs{};
+    using Sequence = sequence::Sequence;
+    template<typename... TYPES> using Tuple = tunitas::Tuple<TYPES...>;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.prio.exception.Exhausted
+#import std.remove_cvref
+namespace tunitas::keyston::prio::flp::gadget::recorder {
+  template<required::Element E, Arity A> constexpr Inputs<E,A>::Inputs(Reference irf) : record_inputs{irf} { }
+  template<required::Element E, Arity A> template<typename... IN> constexpr auto Inputs<E,A>::inputs(IN ...packed) -> void requires required::Recordable<Element, ARITY, IN...> {
+    if (!record_inputs) {
+      throw exception::Exhausted{};
+    } else {
+      [this, indexed = Tuple<std::remove_cvref_t<IN> const &...>{packed...}]<Size... INDEX>(typename Sequence::template Pack<INDEX...>) {
+        ((record_inputs[INDEX] = get<INDEX>(indexed)), ... );
+      }(Sequence::template make<sizeof...(IN)>());
+      ++record_inputs;
+    }
+  }
+}
+#endiv

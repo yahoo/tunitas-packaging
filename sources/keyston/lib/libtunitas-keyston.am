@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+lib_libtunitas_keyston_la_CURRENT = 5
+lib_libtunitas_keyston_la_REVISION = 0
+lib_libtunitas_keyston_la_AGE = 0
+lib_libtunitas_keyston_la_CRA = $(lib_libtunitas_keyston_la_CURRENT):$(lib_libtunitas_keyston_la_REVISION):$(lib_libtunitas_keyston_la_AGE)
+lib_libtunitas_keyston_la_VERSION_INFO = -version-info $(lib_libtunitas_keyston_la_CRA)
+
+lib_libtunitas_keyston_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+lib_libtunitas_keyston_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+lib_libtunitas_keyston_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+lib_libtunitas_keyston_la_LIBADD = noinst/lib/libtunitas-keyston.la
+lib_libtunitas_keyston_la_MODULES = $(none)
+lib_libtunitas_keyston_la_SOURCES = $(none) obj/src/tunitas/keyston/namespace.cpp

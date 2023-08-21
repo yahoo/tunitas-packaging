@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::exhibition {
+  //
+  // The configuration of the application
+  //
+  // Specification:
+  //
+  //   Like cli::configuration::Core (no UX)
+  //
+  // Design:
+  //
+  //   Use tunitas::application::Configuration until that is converted to the separated Experience-versus-Configuratoin scheme.
+  //
+  // Usage:
+  //
+  //   [[deprecating]]
+  //   auto program = Program{...somehow...};
+  //   auto exp = Experience{move(program)};
+  //   auto &cfg = exp;
+  //   
+  //   [[asprationally, TODO]]
+  //   auto program = Program{argv};
+  //   auto cfg = Configuration{};
+  //   auto exp = Experience{program, cfg};
+  //
+  struct Configuration;
+}
+#endiv
+#divert <hpp>
+#import tunitas.application.Configuration // [[TODO, FIXTHIS]] replace with cli::experience::Console (and invert the inheritance)
+class tests::exhibition::Configuration : public tunitas::application::Configuration {
+  using Ancestor = tunitas::application::Configuration;
+public:
+  using Ancestor::Configuration;
+};
+#endiv

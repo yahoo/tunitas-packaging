@@ -1,0 +1,117 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.required.Definition
+namespace tunitas::keyston::vdaf {
+  //
+  // the preparation message
+  // 
+  // Legend:
+  //
+  //   prep_init(...) -> State<SHARE>     a.k.a. (Output<SHARE>, Randomness, Check<SHARE>)
+  //   prep_next(...) -> Check<SHARE>)
+  //   prep_final(...) -> Output<SHARE>
+  //   prep_share_to_prep(...) -> Check<WHOLE>
+  //
+  // <quote>
+  //
+  //        Aggregator 0   Aggregator 1        Aggregator SHARES-1
+  //        ============   ============        ===================
+  //    
+  //        input_share_0  input_share_1       input_share_[SHARES-1]
+  //          |              |              ...  |
+  //          V              V                   V
+  //        +-----------+  +-----------+       +-----------+
+  //        | prep_init |  | prep_init |       | prep_init |
+  //        +-----------+  +------------+      +-----------+
+  //          |              |              ...  |             \ (here)
+  //          V              V                   V             |
+  //        +-----------+  +-----------+       +-----------+   |
+  //        | prep_next |  | prep_next |       | prep_next |   |
+  //        +-----------+  +-----------+       +-----------+   |
+  //          |              |              ...  |             |
+  //          V              V                   V             | x ROUNDS
+  //        +----------------------------------------------+   |
+  //        | prep_shares_to_prep                          |   |
+  //        +----------------------------------------------+   |
+  //                         |                                 |
+  //          +--------------+-------------------+             |
+  //          |              |              ...  |             |
+  //          V              V                   V             /
+  //         ...            ...                 ...
+  //          |              |                   |
+  //          V              V                   V
+  //        +-----------+  +-----------+       +-----------+
+  //        | prep_next |  | prep_next |       | prep_next |
+  //        +-----------+  +-----------+       +-----------+
+  //          |              |              ...  |
+  //          V              V                   V
+  //        out_share_0    out_share_1         out_share_[SHARES-1]
+  //
+  //     Figure 6: VDAF preparation process on the input shares for a single measurement.
+  //     At the end of the computation, each Aggregator holds an output share or an error.
+  //
+  // <quote>
+  //      
+  // Design:
+  //
+  //   Lotsa variant records here.  Dragons (complexity).
+  //
+  namespace [[eponymous]] check {
+    template<required::Definition> struct Outline;
+    template<Slice, required::Definition> struct Check;
+  }
+  using check::Check;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prg.constants // SEED_SIZE
+#import tunitas.octets.Fixed
+#import tunitas.octets.Span
+#import tunitas.view.Fixed
+namespace tunitas::keyston::vdaf {
+  template<required::Definition DEFINITION> struct check::Outline {
+    using Definition = DEFINITION;
+    static constexpr auto use_joint_randomness() -> bool { return DEFINITION::use_joint_randomness(); }
+    struct Uncoded {
+      struct Verifier {
+        inline static constexpr auto const COUNT = DEFINITION::Prover::Message::Verifier::VALUE.count();
+        using Vector = typename DEFINITION::Field::template Vector<COUNT>;
+        using Element = typename DEFINITION::Field::Element;
+        struct View {
+          using Fixed = view::Fixed<Element, COUNT>;
+        };
+      };
+      struct Randomness {
+        inline static constexpr auto const SIZE = use_joint_randomness() ? prg::SEED_SIZE.count() : 0uz;
+        using Storage = octets::Fixed<SIZE>;
+        struct View {
+          using Fixed = octets::Span<Octet const, SIZE>;
+        };
+      };
+    };
+    struct Decoded {
+      struct Verifier {
+        using Storage = typename Uncoded::Verifier::Vector::Type;
+      };
+      using Randomness = typename Uncoded::Randomness;
+    };
+    struct Encoded {
+      struct Verifier {
+        inline static constexpr auto const SIZE = DEFINITION::Field::ENCODED_LENGTH.count() * Uncoded::Verifier::COUNT;
+        struct View {
+          using Fixed = view::Fixed<Octet, SIZE>;
+        };
+      };
+      using Randomness = typename Uncoded::Randomness;
+    };
+    static constexpr auto share_size() { return Encoded::Verifier::SIZE + Encoded::Randomness::SIZE; }
+    static constexpr auto whole_size() { return Encoded::Randomness::SIZE; }
+  };
+}
+#import tunitas.octets.Variable
+#import tunitas.view.Variable
+#endiv

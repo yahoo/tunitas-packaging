@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.aggregation.Count
+#import tunitas.keyston.aggregation.Simple
+#import tunitas.keyston.aggregation.Summation
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.aggregation.Popularity
+namespace tunitas::keyston::aggregation {
+  //
+  // The final aggregation
+  //
+  // Specification:
+  //
+  //   The usual variant-record machinery
+  //   Also presentation UX machinery [[and what is that Jim? What is that?]]
+  //
+  // Design:
+  //
+  //   Descendants only into af::Aggregation, daf::Aggregation<WHOLE>, vdaf::Aggregation<WHOLE> and so on unto vidaf::Aggregation<WHOLE>
+  //   Sure, why do you ask?  You don't think we got this off ChatGEEPEETEE do you?
+  //
+  // Usage:
+  //
+  //   As one does.
+  //
+  // [[WATCHOUT]] avoid the namespace name 'aggregation' here as that causes ambiguities with the nearby namespace keyston::aggregation
+  namespace [[eponymous]] container {
+    using aggregation::Count;
+    using Sum = aggregation::Summation;
+    using aggregation::Simple;
+    using aggregation::Histogram;
+    using aggregation::Popularity;
+    struct Container;
+  }
+  using container::Container;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Variant
+#import tunitas.keyston.formatter.Formatter
+namespace tunitas::keyston::aggregation {
+  namespace container {
+    using Variant = tunitas::Variant<Count, Sum, Histogram, Popularity>;
+    using std::move;
+    inline auto format(Container const &) -> formatter::Formatter<Container, Container const &>;
+  }
+  struct container::Container : public Variant {
+    using Ancestor = Variant;
+  protected:
+    ~Container() = default;
+  public:
+    Container() = default;
+    using Ancestor::variant; // yep, you "just have to know" that the constructor name is 'variant' therein
+    using Count = container::Count;
+    using Sum = container::Sum;
+    using Histogram = container::Histogram;
+    using Popularity = container::Popularity;
+  };
+};
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::aggregation {
+  auto container::format(Container const &item) -> formatter::Formatter<Container, Container const &> { return {item}; }
+}
+#import tunitas.keyston.formatter.io
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    struct Subject : public tunitas::keyston::aggregation::Container {
+      Subject() = default;
+    };
+    static_assert(std::semiregular<Subject>);
+    static_assert(std::swappable<Subject>);
+  }
+}
+#endiv

@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce::bundle { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tests.unit.nonce.Palette
+struct tests::unit::nonce::bundle::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  template<typename... BUNDLABLES> requires (0 < sizeof...(BUNDLABLES)) auto test_usage_Bundle() -> void;
+};
+#endiv
+#divert <tpp>
+#import tunitas.keyston.nonce.Bundle
+namespace tests::unit::nonce::bundle {
+  template<typename... BUNDLABLES> requires (0 < sizeof...(BUNDLABLES)) auto Fixture::test_usage_Bundle() -> void {
+    using Subject = library::Bundle<BUNDLABLES...>;
+    auto subject = Subject{};
+    // We'll test the non-zero values in and aroundx Generator<Subject>
+    require(ASSERTION, Subject{} == subject);
+    require(ASSERTION, !(Subject{} != subject));
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.nonce.bundle.Bundle
+#import tunitas.keyston.nonce.Since
+#import tunitas.keyston.nonce.Bits
+auto tests::unit::nonce::bundle::Fixture::suite() -> Suite {
+  auto series = Stream{"bundle"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Bits<4>", &Fixture::test_usage_Bundle<library::Bits<4>>)
+                  << add("Since<seconds>", &Fixture::test_usage_Bundle<library::Since<Seconds>>)
+                  << add("Bits<4>,Since<seconds>", &Fixture::test_usage_Bundle<library::Bits<4>, library::Since<Seconds>>)
+                  << add("Since<seconds>,Bits<4>", &Fixture::test_usage_Bundle<library::Since<Seconds>, library::Bits<4>>)
+                  << END;
+              return use;
+            }()
+         << add<bundle::Bundle<library::Bundle<library::Bits<8>>>>()
+         << add<bundle::Bundle<library::Bundle<library::Since<Seconds>>>>()
+         << add<bundle::Bundle<library::Bundle<library::Bits<8>, library::Since<Seconds>>>>()
+         << add<bundle::Bundle<library::Bundle<library::Since<Seconds>, library::Bits<8>>>>()
+         << END;
+  return settle(series);
+}
+#endiv

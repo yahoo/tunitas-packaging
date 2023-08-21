@@ -1,0 +1,172 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::exhibition {
+  namespace package_main {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_main::interface;
+}
+#import tunitas.application.exits.constants
+#import tunitas.string.literals
+#import langu.age
+namespace tests::exhibition::package_main {
+  namespace body {
+    using namespace tunitas::application::exits::constants;
+    using namespace tunitas::string::literals;
+    using namespace langu::age;
+  }
+}
+#import tunitas.application.exits.Code
+#import tunitas.application.options.c.Argv
+#import tunitas.application.options.Arguments
+#import tunitas.application.options.Program
+#import tests.exhibition.Experience
+#import tests.exhibition.Configuration
+namespace tests::exhibition::package_main {
+  using Exit = tunitas::application::exits::Code;
+  using tunitas::application::options::c::Argv;
+  using tunitas::application::options::Arguments;
+  namespace body {
+    using tunitas::application::options::Program;
+    inline constexpr auto const EXHIBITION_NAME = "<exhibition-name>"sv;
+  }
+}
+#endiv
+#divert <hpp>
+#import std.ostream
+namespace tests::exhibition::package_main::body {
+  namespace exported {
+    inline auto main(Argv) -> Exit;
+    inline auto main(Arguments) -> Exit; // .................... arguments are argv[0]..argv[argc-1]
+    inline auto main(Program const &, Arguments) -> Exit; // ... arguments are argv[1]..argv[argc-1]
+  }
+  auto process([[inout]] Experience &, [[inout]] Configuration &, Arguments) -> Exit; // ... arguments are argv[1]..argv[argc-1]
+  auto process_one([[inout]] Experience &, [[inout]] Configuration &, Arguments) -> Exit;
+  auto process_many([[inout]] Experience &, [[inout]] Configuration &, Arguments) -> Exit;
+  auto helpful(Experience &) -> void;
+  auto emit_usage(std::ostream &, Program const &) -> void;
+}
+#endiv
+#divert <ipp>
+#import substd.exception.Exception
+#import std.cerr
+#import langu.age.q
+namespace tests::exhibition::package_main {
+  auto interface::main(Argv argv) -> Exit { return main({argv.begin(), argv.end()}); }
+  auto interface::main(Arguments arguments) -> Exit {
+    auto program = Program{arguments.front()};
+    arguments.pop_front();
+    return main(program, move(arguments));
+  }
+  auto interface::main(Program const &program, Arguments arguments) -> Exit try {
+    // [[FIXTHIS]] move to the modern stylings with a separated Experience+Configuration+Arguments
+    auto exp = Experience{program};
+    auto &cfg = exp;
+    return process(exp, cfg, move(arguments));
+  } catch (substd::exception::Exception const &e) {
+    std::cerr << program << ": error, there was an unexpected exception " << q(e.what()) << '\n';
+    return SOFTWARE;
+  } catch (...) {
+    std::cerr << program << ": error, there was an unknown exception\n";
+    return SOFTWARE;
+  }
+}
+#endiv
+#divert <cpp>
+#import langu.age.q
+#import std.cout
+#import tests.exhibition.inventory.Usage
+#import tests.exhibition.inventory.Standard
+#import tests.exhibition.inventory.Specimens
+#import tests.exhibition.Specimens
+#import tests.exhibition.specimens.recover
+#import tunitas.application.exception.feature.Quitting
+#import tunitas.exception.Aspect
+namespace tests::exhibition::package_main {
+  auto body::emit_usage(std::ostream &outbound, Program const &name) -> void {
+    outbound << "usage: " << name << " [...options...] " << EXHIBITION_NAME
+             << ("\n"
+                 "\nwith ") << EXHIBITION_NAME << " among " << format(inventory::Usage{})
+             << ("\n"
+                 "\nLimitations:")
+             << "\n<standard> mode supports  " << format(inventory::Standard{})
+             << "\n<specimens> mode supports " << format(inventory::Specimens<>{})
+             << ("\n"
+                 "\nStandard Options:"
+                 "\n--usage, --help, -h             emit this message"
+                 "\n");
+  }
+  auto body::helpful(Experience &exp) -> void {
+    notice(exp) << "the " <<EXHIBITION_NAME << " must be among " << format(inventory::Usage{}) << '\n';
+    notice(exp) << "use '--usage' or '--help''\n";
+  }
+  auto body::process(Experience &exp, Configuration &cfg, Arguments arguments) -> Exit try {
+    if (auto argcount=arguments.size(); 0 == argcount) {
+      error(exp) << "missing <exhibition-name>\n";
+      helpful(exp);
+      return USAGE;
+    } else if (auto const &word=arguments.front(); "-h"s == word || "--help"s == word || "--usage"s == word) {
+      emit_usage(std::cout, exp.NAME);
+      return OK;
+    } else if (word.empty()) {
+      error(exp) << "empty " << EXHIBITION_NAME << '\n';
+      helpful(exp);
+      return CONFIGURATION;
+    } else if ('-' == word.front()) {
+      error(exp) << "invalid option " << q(word) << '\n';
+      return USAGE;
+    } else if (1u < argcount) {
+      // happy
+      return process_many(exp, cfg, move(arguments));
+    } else {
+    // happy
+      return process_one(exp, cfg, move(arguments));
+    }
+  } catch (tunitas::application::exception::feature::Quitting const &q) {
+    q.stream() << q.what() << '\n'; // these are somewhat "normal" and are expected to be fully-grammatical explanations in one line.
+    return q.exit();
+  } catch (tunitas::exception::Aspect const &e) {
+    error(exp) << "there was a library exception " << q(e.what()) << '\n'; // which is somewhat unexpected at this point.
+    return SOFTWARE;
+  }
+  auto body::process_many(Experience &exp, Configuration &cfg, Arguments arguments) -> Exit {
+    auto word = move(arguments.front());
+    if (auto recovered=specimens::recover(exp, cfg, {1+arguments.begin(), arguments.end()}); fail(recovered)) {
+      error(exp) << "the specification series is unusable\n";
+      return exit_code(recovered);
+    } else {
+      auto ventory = inventory::Specimens<Specimens::Const_Iterator>{};
+      auto found = ventory.find(word);
+      if (ventory.end() == found) {
+        error(exp) << "invalid " << EXHIBITION_NAME << " for the specimen-series mode (the multiple-mple exhibition)\n";
+        helpful(exp);
+        return CONFIGURATION;
+      } else {
+        // happiest
+        auto const &specimens = value(recovered);
+        found->second(std::cout, specimens.begin(), specimens.end());
+        return OK;
+      }
+    }
+  }
+  auto body::process_one(Experience &exp, Configuration &cfg, Arguments arguments) -> Exit {
+    auto word = move(arguments.front());
+    auto ventory = inventory::Standard{};
+    auto found = ventory.find(word);
+    if (ventory.end() == found) {
+      error(exp) << "invalid " << EXHIBITION_NAME << " for the standard mode (the single-sample exhibition)\n";
+      helpful(exp);
+      return CONFIGURATION;
+    } else {
+      // happiest
+      found->second(std::cout);
+      return OK;
+    }
+  }
+}
+#endiv

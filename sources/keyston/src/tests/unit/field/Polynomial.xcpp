@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.definition.Polynomial
+namespace tests::unit::field {
+  template<typename SUBJECT> requires required::definition::Polynomial<SUBJECT> struct Polynomial;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit {
+  template<typename SUBJECT> requires field::required::definition::Polynomial<SUBJECT> struct field::Polynomial : public rigging::suite::Fixture {
+    static auto suite() -> rigging::Suite;
+    //
+    using Subject = SUBJECT;
+    using Value = typename Subject::Value; // can't call this "Polynomial"
+    using Field = typename Subject::Field;
+    //
+    auto test_zeros() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.equal
+namespace tests::unit::field {
+  template<typename _> auto Polynomial<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("zeros", &Polynomial::test_zeros)
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Polynomial<_>::test_zeros() -> void {
+    auto const observed = Subject::zeros();
+    auto const expected = Value{};
+    // Thus this is pointless: you can just use the constructor to get the same effect
+    require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));
+  }
+}
+#endiv

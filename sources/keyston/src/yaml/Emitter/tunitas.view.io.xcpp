@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import yaml.Emitter
+#forward tunitas.view.Fixed
+#forward tunitas.view.Variable
+#forward tunitas.octets.Octet
+#import std.size_t
+namespace YAML {
+  // follow https://github.com/jbeder/yaml-cpp/wiki/How-To-Emit-YAML STL Containers and Other Overloads
+  inline auto operator<<(Emitter &, tunitas::view::Variable<tunitas::octets::Octet>) -> Emitter &;
+  template<std::size_t CAPACITY> inline auto operator<<(Emitter &, tunitas::view::Fixed<tunitas::octets::Octet, CAPACITY>) -> Emitter &;
+  template<typename TYPE> inline auto operator<<(Emitter &, tunitas::view::Variable<TYPE>) -> Emitter &;
+  template<typename TYPE, std::size_t CAPACITY> inline auto operator<<(Emitter &, tunitas::view::Fixed<TYPE, CAPACITY>) -> Emitter &;
+}
+#endiv
+#divert <ipp>
+#import tunitas.octets.to_hexidecimal
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+/* ....................................... */ auto YAML::operator<<(Emitter &e, tunitas::view::Variable<tunitas::octets::Octet> v)        -> Emitter & { return e << tunitas::octets::to_hexidecimal(v); }
+/* ........ */ template<std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::view::Fixed<tunitas::octets::Octet, CAPACITY> v) -> Emitter & { return e << tunitas::octets::to_hexidecimal(v); }
+template<typename TYPE, std::size_t CAPACITY> auto YAML::operator<<(Emitter &e, tunitas::view::Fixed<TYPE, CAPACITY> v)                   -> Emitter & { return e << static_cast<tunitas::view::Variable<TYPE>>(v); }
+/* ............... */ template<typename TYPE> auto YAML::operator<<(Emitter &e, tunitas::view::Variable<TYPE> v) -> Emitter & {
+  if (v.size() < 4 /*arbitrary wideness*/) {
+    e << yaml::Flow;
+  }
+  e << yaml::BeginSeq;
+  for (auto const &each : v) {
+    e << each;
+  }
+  e << yaml::EndSeq;
+  return e;
+}
+#endiv

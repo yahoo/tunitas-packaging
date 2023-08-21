@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::protocol::preparation { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::preparation::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Message() -> void;
+  auto test_usage_Step_POSITIONED() -> void;
+  auto test_usage_Step_TAGGED() -> void;
+};
+#endiv
+#divert <cpp>
+#import tunitas.rheem.protocol.preparation.Step
+#import tests.unit.protocol.preparation.Step
+auto tests::unit::protocol::preparation::Fixture::suite() -> Suite {
+  auto series = Stream{"protocol"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Message", &Fixture::test_usage_Message)
+                  << add("Step<POSITIONED>", &Fixture::test_usage_Step_POSITIONED)
+                  << add("Step<TAGGED>", &Fixture::test_usage_Step_TAGGED)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto step = Stream{"Step"sv};
+              step << add<Step<library::Step<library::Mark::POSITIONED>>>()
+                   << add<Step<library::Step<library::Mark::TAGGED>>>()
+                   << END;
+              return step;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.rheem.protocol.preparation.Message
+#import tunitas.rheem.protocol.preparation.Step
+namespace tests::unit::protocol::preparation {
+  auto Fixture::test_usage_Message() -> void {
+    auto subject0 = library::Message{};
+    auto subject1 = library::Message{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+  auto Fixture::test_usage_Step_POSITIONED() -> void {
+    auto subject0 = library::Step<library::Mark::POSITIONED>{};
+    auto subject1 = library::Step<library::Mark::POSITIONED>{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+  auto Fixture::test_usage_Step_TAGGED() -> void {
+    auto subject0 = library::Step<library::Mark::TAGGED>{};
+    auto subject1 = library::Step<library::Mark::TAGGED>{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+}
+#endiv

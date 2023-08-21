@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_time_SUBSOURCES = \
+  obj/src/tunitas/time/namespace.cpp \
+  obj/src/tunitas/time/literals.cpp \
+  obj/src/tunitas/time/Clock.cpp \
+  obj/src/tunitas/time/Duration.cpp \
+  obj/src/tunitas/time/Point.cpp \
+  obj/src/tunitas/time/Interval.cpp \
+  obj/src/tunitas/time/cast.cpp \
+  $(tunitas_time_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/time/required/Makefrag.am

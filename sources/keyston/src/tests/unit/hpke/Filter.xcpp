@@ -1,0 +1,143 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.hale.hpke.Side
+#import tunitas.hale.hpke.Key
+#import tunitas.hale.hpke.key.Bundle
+#import tunitas.hale.hpke.Configuration
+namespace tests::unit::hpke {
+  namespace [[eponymous]] filter {
+    using Side = library::Side;
+    using enum Side;
+    struct Filter;
+    using library::Key;
+    using library::key::Bundle;
+    using library::Configuration;
+  }
+  using filter::Filter;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::hpke::filter::Filter : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  template<Side DESTINATION, typename BUNDLE> auto test_bundle() -> void;
+  template<Side DESTINATION, Side SOURCE> auto test_configuration() -> void;
+};
+#endiv
+#divert <cpp>
+#import tunitas.hale.hpke.filter
+namespace tests::unit::hpke::filter {
+  //
+  // lazy... put these specializations first so that their address is known before it is taken in suite()
+  //
+  template<> auto Filter::test_bundle<SECRET,Bundle<Key<PUBLIC>>>() -> void {
+#if 0 // this combination is deleted
+    using Left = Bundle<Key<SECRET>>;
+    using Right = Bundle<Key<PUBLIC>>;
+    Left left = library::filter<SECRET>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+#endif
+  }
+  template<> auto Filter::test_bundle<PUBLIC,Bundle<Key<PUBLIC>>>() -> void {
+    using Left = Bundle<Key<PUBLIC>>;
+    using Right = Bundle<Key<PUBLIC>>;
+    Left left = library::filter<PUBLIC>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_bundle<SECRET,Bundle<Key<SECRET>>>() -> void {
+    using Left = Bundle<Key<SECRET>>;
+    using Right = Bundle<Key<SECRET>>;
+    Left left = library::filter<SECRET>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_bundle<PUBLIC,Bundle<Key<SECRET>>>() -> void {
+#if 0 // this combination is deleted
+    using Left = Bundle<Key<PUBLIC>>;
+    using Right = Bundle<Key<SECRET>>;
+    Left left = library::filter<PUBLIC>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+#endif
+  }
+  template<> auto Filter::test_bundle<PUBLIC,Bundle<Key<SECRET>,Key<PUBLIC>>>() -> void {
+    using Left = Bundle<Key<PUBLIC>>;
+    using Right = Bundle<Key<SECRET>,Key<PUBLIC>>;
+    Left left = library::filter<PUBLIC>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_bundle<SECRET,Bundle<Key<SECRET>,Key<PUBLIC>>>() -> void {
+    using Left = Bundle<Key<SECRET>>;
+    using Right = Bundle<Key<SECRET>,Key<PUBLIC>>;
+    Left left = library::filter<SECRET>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_bundle<PUBLIC,Bundle<Key<PUBLIC>,Key<SECRET>>>() -> void {
+    using Left = Bundle<Key<PUBLIC>>;
+    using Right = Bundle<Key<PUBLIC>,Key<SECRET>>;
+    Left left = library::filter<PUBLIC>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_bundle<SECRET,Bundle<Key<PUBLIC>,Key<SECRET>>>() -> void {
+    using Left = Bundle<Key<SECRET>>;
+    using Right = Bundle<Key<PUBLIC>,Key<SECRET>>;
+    Left left = library::filter<SECRET>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_configuration<SECRET,PUBLIC>() -> void {
+#if 0 // this combination is deleted
+    using Left = Configuration<SECRET>;
+    using Right = Configuration<PUBLIC>;
+    Left left = library::filter<SECRET>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+#endif
+  }
+  template<> auto Filter::test_configuration<PUBLIC,PUBLIC>() -> void {
+    using Left = Configuration<PUBLIC>;
+    using Right = Configuration<PUBLIC>;
+    Left left = library::filter<PUBLIC>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_configuration<SECRET,SECRET>() -> void {
+    using Left = Configuration<SECRET>;
+    using Right = library::Configuration<SECRET>;
+    Left left = library::filter<SECRET>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+  template<> auto Filter::test_configuration<PUBLIC,SECRET>() -> void {
+    using Left = Configuration<PUBLIC>;
+    using Right = Configuration<SECRET>;
+    Left left = library::filter<PUBLIC>(Right{}); // <------------------------------ test this (was it callable at all?)
+    require(ASSERTION, sizeof (left));
+  }
+}
+auto tests::unit::hpke::filter::Filter::suite() -> Suite {
+  auto series = Stream{"filter"sv};
+  series << []{
+              auto bun = Stream{"Bundle<...>"sv};
+              bun << add("PUBLIC->SECRET", &Filter::test_bundle<SECRET,Bundle<Key<PUBLIC>>>) // of course this won't work
+                  << add("PUBLIC->PUBLIC", &Filter::test_bundle<PUBLIC,Bundle<Key<PUBLIC>>>)
+                  << add("SECRET->SECRET", &Filter::test_bundle<SECRET,Bundle<Key<SECRET>>>)
+                  << add("SECRET->PUBLIC", &Filter::test_bundle<PUBLIC,Bundle<Key<SECRET>>>) // of course this won't work
+                  << add("(SECRET+PUBLIC)->PUBLIC", &Filter::test_bundle<PUBLIC,Bundle<Key<SECRET>,Key<PUBLIC>>>)
+                  << add("(SECRET+PUBLIC)->SECRET", &Filter::test_bundle<SECRET,Bundle<Key<SECRET>,Key<PUBLIC>>>)
+                  << add("(PUBLIC+SECRET)->PUBLIC", &Filter::test_bundle<PUBLIC,Bundle<Key<PUBLIC>,Key<SECRET>>>)
+                  << add("(PUBLIC+SECRET)->SECRET", &Filter::test_bundle<SECRET,Bundle<Key<PUBLIC>,Key<SECRET>>>)
+                  << END;
+              return bun;
+            }()
+         << []{
+              auto con = Stream{"Configuration<...>"sv};
+              con << add("PUBLIC->SECRET", &Filter::test_configuration<SECRET,PUBLIC>) // of course this won't work
+                  << add("PUBLIC->PUBLIC", &Filter::test_configuration<PUBLIC,PUBLIC>)
+                  << add("SECRET->SECRET", &Filter::test_configuration<SECRET,SECRET>)
+                  << add("SECRET->PUBLIC", &Filter::test_configuration<PUBLIC,SECRET>)
+                  << END;
+              return con;
+            }()    
+         << END;
+  return settle(series);
+}
+#endiv

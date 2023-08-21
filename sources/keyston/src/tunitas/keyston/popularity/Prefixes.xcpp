@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::popularity {
+  //
+  // The prefixes of the popularity.
+  //
+  // Specification:
+  //
+  //   The prefixes of the popularity {inventory, profile, thingie}
+  //   This is a variable-length array and can legitimately be zero length.
+  //
+  //   The companion "bit width" is indicated separately.
+  //
+  // Design:
+  //
+  //   A new type so that ADL works to find at least format(...)
+  //   But also nonstd::container::Traits<Prefixes>
+  //
+  // Usage:
+  //
+  //   auto prefixes = Prefixes{...somehow...};
+  //
+  struct Prefixes;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Variable
+#import tunitas.keyston.measurement.Specimen
+#forward tunitas.keyston.popularity.Popularity
+#import tunitas.keyston.formatter.Formatter
+#import tunitas.Tuple
+namespace tunitas::keyston {
+  namespace popularity {
+    using std::move;
+    // swap(...) from the ancestor is fine
+    inline auto format(Tuple<Bits, Prefixes const &, Popularity const &>) -> formatter::Formatter<Tuple<Bits, Prefixes const &, Popularity const &>>;
+    inline auto format(Bits, Prefixes const &, Popularity const &) -> formatter::Formatter<Tuple<Bits, Prefixes const &, Popularity const &>>;
+  }
+  class popularity::Prefixes : public array::Variable<measurement::Specimen> {
+    using Ancestor = array::Variable<measurement::Specimen>;
+  public:
+    using Ancestor::Variable;
+  };
+}
+#import nonstd.container.Traits.tunitas.keyston.popularity.Prefixes
+#endiv
+#divert <ipp>
+namespace tunitas::keyston {
+  auto popularity::format(Tuple<Bits, Prefixes const &, Popularity const &> item) -> formatter::Formatter<Tuple<Bits, Prefixes const &, Popularity const &>> { return {item}; }
+  auto popularity::format(Bits b, Prefixes const &p, Popularity const &h)         -> formatter::Formatter<Tuple<Bits, Prefixes const &, Popularity const &>> { return Tuple<Bits, Prefixes const &, Popularity const &>{b, p, h}; }
+}
+#import tunitas.keyston.formatter.io // to activate format(...)
+#endiv

@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copybig Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::integer {
+  struct To_Octets;
+}
+#endiv
+#divert <hpp>
+#import std.endian
+#import tests.unit.integer.Palette
+struct tests::unit::integer::To_Octets : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+protected:
+  template<Size WIDTH> static auto substanza() -> Stream;
+public:
+  template<std::endian, Size WIDTH> auto test_endian() -> void;
+  template<std::endian, Size WIDTH> auto test_roundtrip() -> void;
+};
+#endiv
+#divert <tpp>
+#import std.to_string
+#import tunitas.integer.to_octets
+#import tunitas.integer.into_octets
+#import tunitas.integer.from_octets
+namespace tests::unit::integer {
+  template<Size WIDTH> auto To_Octets::substanza() -> Stream {
+    auto sub = Stream{std::to_string(WIDTH)};
+    sub << []{
+            auto en = Stream{"endian"sv};
+            en << add("little", &To_Octets::test_endian<std::endian::little, WIDTH>)
+               << add("big", &To_Octets::test_endian<std::endian::big, WIDTH>)
+               << END;
+            return en;
+          }()
+        << []{
+             auto ro = Stream{"roundtrip"sv};
+             ro << add("big", &To_Octets::test_roundtrip<std::endian::big, WIDTH>)
+                << add("little", &To_Octets::test_roundtrip<std::endian::little, WIDTH>)
+                << END;
+             return ro;
+           }()
+        << END;
+    return sub;
+  }
+  template<std::endian ENDIAN, Size WIDTH> auto To_Octets::test_endian() -> void {
+    using Buffer = typename Palette::Octets::template Fixed<Palette::Integer::template SIZE<WIDTH>.count()>;
+    auto specimen = typename Palette::Integer::template Type<WIDTH>{Integer::INTERESTING_CONSTANT<WIDTH>};
+    auto got = library::to_octets<ENDIAN>(specimen); // <-------------------- test this
+    auto regot = Buffer{};
+    library::into_octets<ENDIAN>(specimen, regot);
+    {
+      auto &err{std::cerr};
+      err << "at WIDTH=" << WIDTH << " by ENDIAN=" << std::underlying_type_t<std::endian>(ENDIAN) << ' ';
+      dump(err, got);
+      err << ' ';
+      dump(err, regot);
+      err << '\n';
+    }
+    auto const expected_size = Integer::template SIZE<WIDTH>;
+    auto const observed_size = Bytes{got.size()};
+    require(ASSERTION, expected_size == observed_size);
+  }
+  template<std::endian ENDIAN, Size WIDTH> auto To_Octets::test_roundtrip() -> void {
+    using Backward = typename Palette::Integer::template Type<WIDTH>;
+    auto const specimen = Integer::INTERESTING_CONSTANT<WIDTH>;
+    auto const forward = library::to_octets<ENDIAN>(specimen);// <------------------ test this
+    auto const backward = library::from_octets<Backward, ENDIAN>(forward); // <------------------------ test this
+    require(ASSERTION, specimen == backward);
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::integer::To_Octets::suite() -> Suite {
+  auto series = Stream{"to_octets"sv};
+  series << substanza<8uz>()
+         << substanza<16uz>()
+         << substanza<32uz>()
+         << substanza<64uz>()
+         << substanza<128uz>()
+         << substanza<256uz>()
+         << END;
+  return settle(series);
+}
+#endiv

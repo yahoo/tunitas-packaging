@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.Enumeration
+#import tunitas.keyston.prio.flp.dimension.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::prio::flp::dimension::is {
+  //
+  // Is the type a dimension?
+  // Specializations mostly.
+  //
+  template<required::Enumeration> struct Dimension;
+  template<> struct Dimension<Prove>;
+  template<> struct Dimension<Query>;
+  template<> struct Dimension<Joint>;
+  template<> struct Dimension<Input>;
+  template<> struct Dimension<Output>;
+  template<> struct Dimension<Proof>;
+  template<> struct Dimension<Verifier>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::keyston::prio::flp::dimension {
+  template<required::Enumeration> struct is::Dimension : public std::false_type { };
+  namespace is {
+    template<> struct Dimension<Prove> : public std::true_type { };
+    template<> struct Dimension<Query> : public std::true_type { };
+    template<> struct Dimension<Joint> : public std::true_type { };
+    template<> struct Dimension<Input> : public std::true_type { };
+    template<> struct Dimension<Output> : public std::true_type { };
+    template<> struct Dimension<Proof> : public std::true_type { };
+    template<> struct Dimension<Verifier> : public std::true_type { };
+  }
+}
+#endiv

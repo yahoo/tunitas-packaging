@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::measurement { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::measurement::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Specimen() -> void;
+  auto test_usage_Boundaries() -> void;
+  auto test_usage_Prefixes() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.measurement.io.Fixture
+#import tests.unit.measurement.Limits
+auto tests::unit::measurement::Fixture::suite() -> Suite {
+  auto series = Stream{"measurement"sv};
+  series << []{
+             auto use = Stream{"usage"sv};
+             use << add("Specimen", &Fixture::test_usage_Specimen)
+                 << add("Boundaries", &Fixture::test_usage_Boundaries)
+                 << add("Prefixes", &Fixture::test_usage_Prefixes)
+                 << END;
+             return use;
+           }()
+         << add<io::Fixture>()
+         << add<Limits>()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Boundaries
+#import tunitas.keyston.measurement.Prefixes
+namespace tests::unit::measurement { 
+  auto Fixture::test_usage_Specimen() -> void {
+    using Subject = library::Specimen;
+    auto subject0 = Subject{0};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    require(ASSERTION, 0u == underlying(subject1));
+  }
+  auto Fixture::test_usage_Boundaries() -> void {
+    using Subject = library::Boundaries;
+    using S = Subject::Value;
+    auto subject = Subject{Subject::Inplace{}, S{1u}, S{3u}, S{5u}, S{7u}};
+    require(ASSERTION, 3uz < subject.size()); // n.b. Boundaries is a fixed array controlled by tunitas::keyston::constants::SHARDS_COUNT
+  }
+  auto Fixture::test_usage_Prefixes() -> void {
+    using Subject = library::Prefixes;
+    using P = Subject::Value;
+    auto subject = Subject{Subject::Inplace{}, P{1u}, P{3u}, P{5u}, P{7u}};
+    require(ASSERTION, 4uz == subject.size()); // n.b. Prefixes is a variable array
+  }
+}
+#endiv

@@ -1,0 +1,115 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::rheem::protocol::report::whole {
+  //
+  // The report
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.3.2. Upload Request
+  //
+  // Design:
+  //
+  //   As-stated.
+  //
+  //   NO NORE since draft-ietf-ppm-dap-02
+  //     nonce::Bundle<nonce::Bits<64>, nonce::Since<std::chrono::microseconds>> noncetime{};
+  //   The nonciness (uniqueness) is supposed to be found in the report_id.
+  //   The time is supposed to be found in the metadata and is supposed to be truncated to unspecified non-unique precision.
+  //
+  //   <strike>Construct with designated initialization, maybe.</strike>
+  //   The use of inheritance precludes the use of designated initialization; see the constructor(s).
+  //
+  // Usage:
+  //
+  //   Hack the Spew (figure it out).
+  //
+  struct Produced;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Shards
+#import tunitas.hale.hpke.Ciphertext
+#import tunitas.rheem.protocol.id // for id::Task
+#import tunitas.rheem.protocol.report.Basis
+namespace tunitas::rheem::protocol::report {
+  namespace whole {
+    using std::move;
+    inline auto swap(Produced &, Produced &) noexcept -> void;
+  }
+  class whole::Produced : public Basis {
+    using Ancestor = Basis;
+    friend auto swap(Produced &, Produced &) noexcept -> void;
+  public:
+    id::Task task_id{};
+    using Encrypted_Input_Shares = keyston::Shards<hale::hpke::Ciphertext>;
+    Encrypted_Input_Shares encrypted_input_shares{};
+    //
+    Produced() = default;
+    using Ancestor::Basis;
+    inline explicit Produced(Metadata, id::Task, Public_Share);
+    inline explicit Produced(Metadata, Public_Share, id::Task);
+    inline explicit Produced(Metadata, id::Task, Public_Share, Encrypted_Input_Shares);
+    inline explicit Produced(Metadata, Public_Share, id::Task, Encrypted_Input_Shares);
+    inline explicit Produced(id::Report, time::Point, extension::Array, id::Task, Public_Share);
+    inline explicit Produced(id::Report, time::Point, extension::Array, id::Task, Public_Share, Encrypted_Input_Shares);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::rheem::protocol::report {
+  auto whole::swap(Produced &a, Produced &b) noexcept -> void {
+    Produced::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+    swap(a.task_id, b.task_id);
+    swap(a.encrypted_input_shares, b.encrypted_input_shares);
+  }
+  namespace whole {
+    Produced::Produced(Metadata m, Public_Share pub, id::Task tid)
+      : Ancestor{move(m), move(pub)}
+      , task_id{move(tid)}
+    { }
+    Produced::Produced(Metadata m, id::Task tid, Public_Share pub)
+      : Ancestor{move(m), move(pub)}
+      , task_id{move(tid)}
+    { }
+    Produced::Produced(Metadata m, Public_Share pub, id::Task tid, Encrypted_Input_Shares eis)
+      : Ancestor{move(m), move(pub)}
+      , task_id{move(tid)}
+      , encrypted_input_shares{move(eis)}
+    { }
+    Produced::Produced(Metadata m, id::Task tid, Public_Share pub, Encrypted_Input_Shares eis)
+      : Ancestor{move(m), move(pub)}
+      , task_id{move(tid)}
+      , encrypted_input_shares{move(eis)}
+    { }
+    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, id::Task tid, Public_Share pub)
+      : Ancestor{move(rid), move(tp), move(ea), move(pub)}
+      , task_id{move(tid)}
+    { }
+    Produced::Produced(id::Report rid, time::Point tp, extension::Array ea, id::Task tid, Public_Share pub, Encrypted_Input_Shares eis)
+      : Ancestor{move(rid), move(tp), move(ea), move(pub)}
+      , task_id{move(tid)}
+      , encrypted_input_shares{move(eis)}
+    { }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::rheem::protocol::report::whole;
+    static_assert(std::is_default_constructible_v<Produced>);
+    static_assert(std::is_copy_constructible_v<Produced>);
+    static_assert(std::is_move_constructible_v<Produced>);
+    static_assert(std::is_copy_assignable_v<Produced>);
+    static_assert(std::is_move_assignable_v<Produced>);
+    static_assert(std::is_swappable_v<Produced>);
+  }
+}
+#endiv

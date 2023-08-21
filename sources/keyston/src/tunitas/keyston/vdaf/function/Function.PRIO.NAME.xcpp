@@ -1,0 +1,289 @@
+g// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.function.Function.template
+namespace tunitas::keyston::vdaf::function {
+  //
+  // The Verifiable Distributed Aggregation Function (Family) - PRIO (tuned for Version 3, a.k.a. "PRIO3")
+  //
+  // Authority:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //
+  // Specification:
+  //
+  //   There's some section in there that covers this.
+  //   Section 5. Stages of VDAFs
+  //   Section 7 Prio3
+  //   And there's papers in the references section; e.g. CGB2017, BBCGGI2019
+  //
+  //   COUNT, SUM, HISTOGRAM
+  //
+  // Design:
+  //
+  //   Right out of the manual.
+  //
+  // Usage:
+  //
+  //   Within Stages<NAME> and Executor<NAME>
+  //
+  template<Name NAME> struct Function<PRIO, NAME>;
+}
+#endiv
+#divert <hpp>
+#import nonstd.units.quantity.cast
+#import tunitas.Tuple
+#import tunitas.Optional
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.nonce.Bits
+#import tunitas.octets.Fixed
+#import tunitas.units.Bits
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.Role
+#import tunitas.keyston.vdaf.constants
+#import tunitas.keyston.vdaf.Definition
+#import tunitas.keyston.vdaf.function.Prototype
+#import tunitas.keyston.vdaf.Parameters
+#import tunitas.keyston.vdaf.Input
+#import tunitas.keyston.vdaf.Public
+#import tunitas.keyston.vdaf.Check
+#import tunitas.keyston.vdaf.State
+#import tunitas.keyston.vdaf.Output
+#import tunitas.keyston.vdaf.Aggregation
+#import tunitas.keyston.vdaf.Disassembled
+namespace tunitas::keyston::vdaf::function {
+  template<Name NAME> class Function<PRIO, NAME> : public Prototype<vdaf::Definition<NAME>> {
+    using Ancestor = function::Prototype<vdaf::Definition<NAME>>;
+  public:
+    using Definition = typename Ancestor::Definition;
+    //
+    using enum prio::role::Name;
+    template<prio::role::Name ROLE> using Role = prio::Role<ROLE, typename Definition::Predefinition>;
+    //
+    using Prover = typename Definition::Prover; // a.k.a. flp::Generic<Validity>
+    using Codec = typename Definition::Codec;
+    using Field = typename Codec::Field;
+    using Amplifier = typename Definition::Amplifier;
+    //
+    // The names as used in The Standard (for expository purposes, they are never used herein)
+    using Flp [[deprecated("Flip, flop?  Sounds undgood; instead prefer the mellifluous Function<PRIO,NAME>::Prover")]] = Prover;
+    using Prg [[deprecated("Purg(e?)  Sounds ungood; instead prefer the mellifluous Function<PRIO,NAME>::Amplifier")]] = Amplifier;
+    //
+    // Otherwise it's too lugubrious to reference these in the ancestry with 'typename Ancestors::Prototype' always and everywhere
+    using Shard = keyston::Shard;
+    template<shards::required::Shardable TYPE> using Shards = keyston::Shards<TYPE>;
+    template<array::required::Arrayable TYPE> using Series = array::Series<TYPE>;
+    template<typename TYPE> using Optional = tunitas::Optional<TYPE>;
+    //
+    using Parameters = vdaf::Parameters;
+    using Processed  = quantity::Records;
+    //
+    struct Verify_Key {
+      inline static constexpr auto const SIZE = Definition::VERIFY_KEY_SIZE.count();
+      using Storage = octets::Fixed<SIZE>;
+      struct View {
+        using Fixed = view::Fixed<Octet, SIZE>;
+      };
+    };
+    struct Seed {
+      inline static constexpr auto const SIZE = Amplifier::Seed::SIZE.count();
+      using Storage = typename Amplifier::Seed::Storage;
+      struct View {
+        using Fixed = typename Amplifier::Seed::View;
+      };
+    };
+    struct Nonce {
+      inline static constexpr auto const SIZE = Definition::NONCE_SIZE.count();
+      using Storage = octets::Fixed<SIZE>;
+      struct View {
+        using Fixed = view::Fixed<Octet, SIZE>;
+        using Variable = view::Variable<Octet>;
+      };
+    };
+    struct Randomness {
+      inline static constexpr auto const SIZE = Definition::randomness_size().count();
+      using Storage = octets::Fixed<SIZE>;
+      struct View {
+        using Fixed    = view::Fixed<Octet, SIZE>;
+        using Variable = view::Variable<Octet>;
+      };
+    };
+    //
+    using Public = vdaf::Public<Definition>;
+    using Specimen = measurement::Specimen;
+    using Disassembled = vdaf::Disassembled<Definition>;
+    template<Slice SLICE> using Input       = vdaf::Input<SLICE, Definition>;
+    template<Slice SLICE> using State       = vdaf::State<SLICE, Definition>;
+    template<Slice SLICE> using Check       = vdaf::Check<SLICE, Definition>;
+    template<Slice SLICE> using Output      = vdaf::Output<SLICE, typename Field::template Vector<Codec::OUTPUT_LENGTH.count()>::Value>;
+    template<Slice SLICE> using Aggregation = vdaf::Aggregation<SLICE, Definition>;
+    //
+    // There is no (draft) section which justifies separating out the encoding step.  But it does simplify the HISTOGRAM case which requires the idiosyncratic application of the Parameters.
+    static auto admission(Parameters const &, measurement::Specimen) -> Input<WHOLE>;
+    //
+    // Section 5.1 Sharding
+    // disassembly ........... Vdaf.measurement_to_input_shares(measurement: Measurement, nonce: Bytes[Vdaf.NONCE_SIZE], rand: Bytes[Vdaf.RAND_SIZE]) -> tuple[Bytes, Vec[Bytes]]
+    static auto disassembly(Parameters const &, Input<WHOLE> const &, typename Nonce::View::Fixed, typename Randomness::View::Fixed) -> Disassembled;
+    //
+    // Section 5.2 Preparation
+    // initialization ........ Vdaf.prep_init(verify_key: Bytes[Vdaf.VERIFY_KEY_SIZE], agg_id: Unsigned, agg_param: AggParam, nonce: Bytes[Vdaf.NONCE_SIZE], public_share: Bytes, input_share: Bytes) -> Prep
+    // continuation .......... Vdaf.prep_next(prep: Prep, inbound: Optional[Bytes]) -> Tuple[Prep, Bytes] and yet in PRIO the Prep is just returned directly
+    // finalization .......... Vdaf.prep_final(prep: Prep, inbound: Bytes) -> OutShare
+    // amalgamation .......... Vdaf.prep_shares_to_prep(agg_param: AggParam, prep_shares: Vec[Bytes]) -> Bytes
+    static auto initialization(Parameters const &, typename Verify_Key::View::Fixed, Shard, typename Nonce::View::Fixed, Public const &, Input<SHARE> const &) -> State<SHARE>;
+    static auto continuation(Parameters const &, State<SHARE> const &, Optional<Check<WHOLE>> const &) -> Check<SHARE>;
+    static auto amalgamation(Parameters const &, Shards<Check<SHARE>> const &) -> Check<WHOLE>;
+    static auto finalization(Parameters const &, State<SHARE> const &, Check<WHOLE> const &) -> Output<SHARE>;
+    //
+    // Section 5.4 Aggregation
+    // disgorgement .......... Vdaf.out_shares_to_agg_share(agg_param: AggParam, out_shares: Vec[OutShare]) -> agg_share: Bytes
+    static auto disgorgement(Parameters const &, view::Variable<Output<SHARE>>) -> Aggregation<SHARE>;
+    //
+    // Section 5.5 Unsharding
+    // reassembly ............ Vdaf.agg_shares_to_result(agg_param: AggParam, agg_shares: Vec[Bytes], num_measurements: Unsigned) -> AggResult
+    static auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Aggregation<WHOLE>;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.accumulate
+#import tunitas.Tuple
+#import tunitas.keyston.Shards
+#import tunitas.keyston.Shard
+#import tunitas.keyston.exception.Unimplemented
+#import tunitas.keyston.nonce.to_octets
+#import tunitas.octets.Variable
+#import tunitas.keyston.prio.disassembly
+#import tunitas.keyston.prio.binder
+#import tunitas.keyston.prio.Usage
+#import tunitas.keyston.exception.Invariant
+#import tunitas.keyston.prio.exception.Verifier
+#import tunitas.units.Items
+#import tunitas.sequence.Sequence
+namespace tunitas::keyston::vdaf::function {
+  template<Name NAME> auto Function<PRIO, NAME>::admission(Parameters const &parameters, measurement::Specimen specimen) -> Input<WHOLE> {
+    constexpr auto VARIANT = Definition::PRIO;
+    if constexpr (prio::Name::HISTOGRAM == VARIANT) {
+      return Codec::encode(specimen, parameters.boundaries.value());
+    } else {
+      return Codec::encode(specimen);
+    }
+  }
+  template<Name NAME> auto Function<PRIO, NAME>::disassembly(Parameters const &parameters, Input<WHOLE> const &input, typename Nonce::View::Fixed nonce, typename Randomness::View::Fixed randomness) -> Disassembled { 
+    return prio::disassembly<typename Definition::Predefinition>(input, nonce, randomness);
+  }
+  template<Name _> auto Function<PRIO, _>::initialization(Parameters const &, typename Verify_Key::View::Fixed verify_key, Shard shard, typename Nonce::View::Fixed nonce, Public const &publick, Input<SHARE> const &input) -> State<SHARE> {
+    // Section 7.2.2 Preparation (prep_init, as modified)
+    static_assert(Verify_Key::View::Fixed::extent == Amplifier::Seed::View::extent);
+    auto [input_share, proof_share, k_blind] = [input, shard]{
+      if (Shard{0u} == shard) {
+        return Role<LEADER>::decode(input);
+      } else {
+        return Role<HELPER>::decode(shard, input);
+      }
+    }();
+    auto output_share = Codec::truncate(input_share);
+    auto finish = [verify_key, nonce, input_share, proof_share, output_share](auto &&corrected, auto &&rederived, auto &&joint_randomness) -> State<SHARE> {
+      using Query_Randomness = typename Field::template Vector<Prover::Randomness::Query::VALUE.count()>::Value;
+      auto query_randomness = Amplifier::template expand_as<Query_Randomness>(verify_key, Definition::Customizer::template domain_separation_tag<prio::Usage::QUERY_RANDOMNESS>(), prio::binder(nonce));
+      auto verifier_share = Prover::query(input_share, proof_share, query_randomness, joint_randomness, shards::SHARD_COUNT);
+      auto check_whole = Check<WHOLE>(move(corrected));
+      auto check_share = Check<SHARE>::encode(verifier_share, rederived); 
+      return {move(output_share), move(check_whole), move(check_share)};
+    };
+    //
+    // Compute joint randomness(es) and finish building the state
+    // n.b. Joint_Randomness may be zero length.
+    //
+    auto well_known = Role<PUBLIC>::decode(publick); // this checks publick for size & consistency (always run it even if !use_joint_randomness()
+    if constexpr (!Definition::use_joint_randomness()) {
+      constexpr auto const SIZE = Prover::Randomness::Joint::VALUE.count();
+      static_assert(0 == SIZE);
+      octets::Fixed<SIZE> rederived{};
+      typename Field::template Vector<SIZE>::Value joint_randomness{};
+      typename Seed::Storage corrected{};
+      return finish(move(corrected), move(rederived), move(joint_randomness));
+    } else {
+      //
+      // lol wut?
+      auto encoded = Field::template Vector<Prover::Message::Input::VALUE.count()>::encode(input_share);
+      auto rederived = Amplifier::derive_seed(k_blind, Definition::Customizer::template domain_separation_tag<prio::Usage::JOINT_RANDOMNESS_PART>(), prio::binder(shard, nonce, encoded));
+      well_known.at(shard) = rederived;
+      auto corrected = Definition::joint_randomness(well_known);
+      using Joint_Randomness = typename Field::template Vector<Prover::Randomness::Joint::VALUE.count()>::Value;
+      auto joint_randomness = Amplifier::template expand_as<Joint_Randomness>(corrected, Definition::Customizer::template domain_separation_tag<prio::Usage::JOINT_RANDOMNESS>(), prio::binder(nonce));
+      return finish(move(corrected), move(rederived), move(joint_randomness));
+    }
+  }
+  template<Name _> auto Function<PRIO, _>::continuation(Parameters const &, State<SHARE> const &state, Optional<Check<WHOLE>> const &inbound) -> Check<SHARE> {
+    // Section 7.2.2 Preparation (prep_next, as modified)
+    if (inbound) {
+      auto const k_joint_randomness_check = Check<WHOLE>::decode(*inbound);
+      auto const &k_joint_randomness_corrected = state.randomness;
+      if (k_joint_randomness_check != k_joint_randomness_corrected) {
+        throw prio::exception::Verifier{"joint randomness"}; // the joint randomness check has failed [[FIXTHIS]] better name?  clearer semantic sense of the failure?
+      }
+    }
+    return state.message;
+  }
+  template<Name _> auto Function<PRIO, _>::amalgamation(Parameters const &, Shards<Check<SHARE>> const &prep_shares) -> Check<WHOLE> {
+    // Section 7.2.2 Preparation (prep_shares_to_prep, as modified)
+    auto verifier = typename Field::template Vector<Prover::Message::Verifier::VALUE.count()>::Value{};
+    auto k_joint_randomness_parts = Shards<typename Seed::Storage>{};
+    auto kjrps = k_joint_randomness_parts.begin();
+    for (auto const &encoded : prep_shares) {
+      auto [verifier_share, part] = Check<SHARE>::decode(encoded);
+      verifier += verifier_share;
+      if constexpr (Definition::use_joint_randomness()) {
+        *kjrps++ = part;
+      }
+    }
+    if (not Prover::decide(verifier)) {
+      throw prio::exception::Verifier{};
+    }
+    auto check = [&]{
+      if constexpr (!Definition::use_joint_randomness()) {
+        return typename Seed::Storage{};
+      } else {
+        return Definition::joint_randomness(k_joint_randomness_parts);
+      }
+    }();
+    return Check<WHOLE>::encode(check);
+  }
+  template<Name _> auto Function<PRIO, _>::finalization(Parameters const &, State<SHARE> const &state, Check<WHOLE> const &inbound) -> Output<SHARE> {
+    // Section 7.2.2 Preparation (prep_next, as modified)
+    auto const k_joint_randomness_whole = Check<WHOLE>::decode(inbound);
+    auto const &k_joint_randomness_corrected = state.randomness;
+    if (k_joint_randomness_whole != k_joint_randomness_corrected) {
+      throw prio::exception::Verifier{"joint randomness"}; // the joint randomness check has failed [[FIXTHIS]] better name?  clearer semantic sense of the failure?
+    }
+    return state.output;
+  }
+  template<Name _> auto Function<PRIO, _>::disgorgement(Parameters const &, view::Variable<Output<SHARE>> outputs) -> Aggregation<SHARE> {
+    // Section 7.2.4 Aggregation (for PRIO)
+    using Vecdef = typename Field::template Vector<cast<units::Items>(Prover::Validity::OUTPUT_LENGTH).count()>;
+    auto coalesced = typename Vecdef::Value{};
+    for (auto const &output : outputs) {
+      coalesced += output;
+    }
+    return Vecdef::encode(coalesced);
+  }
+  template<Name _> auto Function<PRIO, _>::reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &aggregations, Processed processed) -> Aggregation<WHOLE> {
+    // Section 7.2.5 Unsharding (for PRIO)
+    using Vecdef = typename Field::template Vector<Codec::OUTPUT_LENGTH.count()>;
+    auto coalesced = typename Vecdef::Value{};
+    for (auto const &aggregation : aggregations) {
+      coalesced += Vecdef::decode(aggregation);
+    }
+    return Codec::decode(coalesced, processed);
+  }
+}
+#endiv

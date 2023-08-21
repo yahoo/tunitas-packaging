@@ -1,0 +1,121 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::vdaf { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Slice
+#import tunitas.keyston.vdaf.Definition
+#import tunitas.keyston.vdaf.Name
+struct tests::unit::vdaf::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using enum ::tunitas::keyston::Slice;
+  using Definition = library::Definition<library::Name::PRIO3_COUNT>; // pick one, any one will do
+  //
+  auto test_usage_Name() -> void;
+  //
+  auto test_usage_Input() -> void;
+  auto test_usage_Public() -> void;
+  auto test_usage_State() -> void;
+  auto test_usage_Check() -> void;
+  auto test_usage_Output() -> void;
+  auto test_usage_Aggregation() -> void;
+  //
+};
+#endiv
+#divert <cpp>
+#import tests.unit.vdaf.Name
+#import tests.unit.vdaf.Function
+auto tests::unit::vdaf::Fixture::suite() -> Suite {
+  auto series = Stream{"vdaf"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Name", &Fixture::test_usage_Name)
+                  << add("Input", &Fixture::test_usage_Input)
+                  << add("Public", &Fixture::test_usage_Public)
+                  << add("State", &Fixture::test_usage_State)
+                  << add("Check", &Fixture::test_usage_Check)
+                  << add("Output", &Fixture::test_usage_Output)
+                  << add("Aggregation", &Fixture::test_usage_Aggregation)
+                  << END;
+              return use;
+            }()
+         << add<Name>()
+         << []{
+           using enum ::tunitas::keyston::Scheme;
+           using enum ::tunitas::keyston::vdaf::Name;
+           auto fun = Stream{"function"sv};
+           fun << add<Function<library::Function<PRIO, PRIO3_COUNT>>>()
+               << add<Function<library::Function<PRIO, PRIO3_SUM>>>()
+               << add<Function<library::Function<PRIO, PRIO3_HISTOGRAM>>>()
+             // POPLAR1
+             // DOPLAR
+               << END;
+           return fun;
+         }()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.Input
+#import tunitas.keyston.vdaf.Public
+#import tunitas.keyston.vdaf.State
+#import tunitas.keyston.vdaf.Check
+#import tunitas.keyston.vdaf.Output
+#import tunitas.keyston.vdaf.Aggregation
+#import tunitas.keyston.vdaf.Definition
+#import std.ostringstream
+namespace tests::unit::vdaf {
+  auto Fixture::test_usage_Name() -> void {
+    using Subject = library::Name;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto subject0 = Subject{0};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    // The other testers wil examine the output value; here we just call the core function to prove it exists & is callable
+    render(subject);
+  }
+  auto Fixture::test_usage_Input() -> void {
+    auto whole = library::Input<WHOLE, Definition>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Input<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Public() -> void {
+    auto whole = library::Public<Definition>{};
+    require(ASSERTION, sizeof(whole));
+  }
+  auto Fixture::test_usage_State() -> void {
+    auto share = library::State<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Check() -> void {
+    auto whole = library::Check<WHOLE, Definition>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Check<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Output() -> void {
+    using Vector = typename Definition::Field::Vector<99>::Type; // pick one
+    auto share = library::Output<SHARE, Vector>{};
+    require(ASSERTION, sizeof(share));
+  }
+  auto Fixture::test_usage_Aggregation() -> void {
+    auto whole = library::Aggregation<WHOLE, Definition>{};
+    require(ASSERTION, sizeof(whole));
+    auto share = library::Aggregation<SHARE, Definition>{};
+    require(ASSERTION, sizeof(share));
+    {
+      auto buf = std::ostringstream{};
+      buf << format(whole); // <------------------------------ test this
+      auto str = buf.str();
+      require(ASSERTION, !str.empty());
+    }
+  }
+}
+#endiv

@@ -1,0 +1,187 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prg.generator.Core.template
+namespace tunitas::keyston::prg::generator {
+  //
+  // The Pseudo-Random Cores
+  //
+  //   irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-pseudorandom-generators
+  //
+  // Specification:
+  //
+  //   irtf-cfrg-vdaf   Section 6.2.2 PrgFixedKeyAes128
+  //
+  // Design:
+  //
+  //   Core<NAME>-wrapped only; into Generator<...> which completes the API specification.
+  //
+  //   Someone figured out that you can use AES more cheaply than cSHAKE (KECCAK[c]), And it "looks as random as"
+  //   It's unclear from whence this insight derives.
+  //
+  //   Somehow, in the canonical name used in The Specification, the acronyms all got transmorgrified into CamelCase
+  //   We do not so stooped.
+  //
+  //   <quote ref=https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-prgfixedkeyaes128>
+  //      Use SHA-3 to derive a key from the binder and customization strings.
+  //      Note that the AES key does not need to be kept secret from any party.
+  //      However, when used with IdpfPoplar, we require[the (draft) standard requires] the binder to be a random nonce.
+  //   </quote>
+  //
+  // On the generation of fixed_key.
+  //
+  //   <quote>
+  //      Implementation note: This step can be cached across PRG evaluations with many different seeds.
+  //   </quote>
+  //
+  // On the provenance of hash_block(...)
+  //
+  //   <quote>
+  //     The multi-instance tweakable circular correlation-robust hash function of [GKWWY20] (Section 4.2).
+  //     [The] Function `AES128(key, block)` is the AES-128 blockcipher.
+  //   </quote>
+  //
+  //   Section 4.2 Designing a Hash Function with Better Concrete Security
+  //
+  //   [GKWWY20] Better Concrete Security for Half-Gates Garbling (in the Multi-instance Setting)
+  //   Chun Guo, Jonathan Katz, Xiao Wang, Chenkai Weng, Yu Yu,
+  //   In Proceedingss of CRYPTO 2020: Advances in Cryptology – CRYPTO 2020
+  //   pp 793–822
+  //   Paywalled at https://link.springer.com/chapter/10.1007/978-3-030-56880-1_28
+  //   Slides: https://csrc.nist.gov/CSRC/media/Events/mpts2020/slides/mpts2020-2c1-brief-xiao.pdf
+  //   Preprint: https://eprint.iacr.org/2019/1168.pdf
+  
+  // Usage:
+  //
+  //   auto custom = octets::View{...somehow...};
+  //   auto binder = octets::View{...somehow...};
+  //   auto generator = Generate<FIXED_KEY_AES128>{seed, custom, binder};
+  //   do {
+  //      auto generated = generate.next(1234_bytes);
+  //      ...use generated octets...
+  //   } while (...not bored...);
+  //
+  template<> struct Core<FIXED_KEY_AES128>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prg.generator.Prototype
+#import tunitas.array.Variable
+#import tunitas.keyston.crypto.Block
+#import tunitas.keyston.crypto.Blocks
+#forward tunitas.keyston.crypto.Algorithm
+#import tunitas.keyston.crypto.algorithm.Algorithm.AES
+#import tunitas.Tuple
+#import std.uint64_t
+namespace tunitas::keyston::prg::generator {
+  template<> class Core<FIXED_KEY_AES128> : public Prototype {
+    using Ancestor = Prototype;
+    ~Core() = default;
+    friend class generator::Generator<FIXED_KEY_AES128>;
+  protected:
+    using Block = crypto::Block<SEED_SIZE.count()>;
+    using Blocks = crypto::Blocks<SEED_SIZE.count()>;
+    using Half = crypto::Half;
+    Bytes length_consumed{};
+    inline auto hash_block(Block const &) const -> Block;
+    Block seed{};
+    inline static auto generate_seed(Seed::View) -> Block;
+#if 1
+    inline static auto generate_fixed_key(Custom::View, Binder::View) -> Block;
+    Block fixed_key{};
+    using AES128 = crypto::Algorithm<crypto::algorithm::Name::AES_128>;
+    AES128 aes128{};
+#else
+    using AES128 = crypto::Algorithm<crypto::algorithm::Name::AES_128>:::Function;
+    AES128 aes128;
+#endif
+    inline auto generate_next(Bytes length) -> Tuple<Index, Output::Variable>;
+  public:
+    inline explicit Core(Seed::View, Custom::View, Binder::View);
+    inline auto next(Bytes length) -> Output::Variable;
+    template<Size LENGTH> inline auto next() -> Output::Fixed<LENGTH>;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.crypto.cast
+#import std.copy
+#import std.declval
+namespace tunitas::keyston::prg::generator {
+  auto Core<FIXED_KEY_AES128>::generate_seed(Seed::View seed) -> Block {
+    auto ret = Block{};
+    static_assert(Block{}.capacity() == Seed::View::extent);
+    std::copy(seed.begin(), seed.end(), ret.begin());
+    return ret;
+  }
+  auto Core<FIXED_KEY_AES128>::generate_fixed_key(Custom::View custom, Binder::View binder) -> Block {
+    static_assert(SEED_SIZE.count() == Block{}.size());
+    auto shaken = cSHAKE{}(binder, SEED_SIZE, custom); // WATCHOUT - draft-irtf-cfrg-vdaf-05 (Section 6.3.1 PrgSha3) has the S and N arguments reversed from NIST SP 800-185 (page 8, line 327)
+    auto ret = Block{};
+    std::copy(shaken.begin(), shaken.end(), ret.begin()); // have to copy from the variable shaken result to the fixed block result
+    return ret;
+  }
+  Core<FIXED_KEY_AES128>::Core(Seed::View seed, Custom::View custom, Binder::View binder)
+    : seed{generate_seed(seed)}
+#if 1
+    , fixed_key{generate_fixed_key(custom, binder)}
+#else
+      // prefer this
+    , aes128{cSHAKE{}(binder, SEED_SIZE, {}, custom)}
+#endif
+  { }
+}
+#import std.views.iota
+#import tunitas.integer.into_octets
+#import tunitas.integer.integers
+namespace tunitas::keyston::prg::generator {
+  auto Core<FIXED_KEY_AES128>::next(Bytes length) -> Output::Variable {
+    auto [offset, generated] = generate_next(length);
+    return generated.subrange(offset, offset+length.count());
+  }
+  template<Size LENGTH> auto Core<FIXED_KEY_AES128>::next() -> Output::Fixed<LENGTH> {
+    auto [offset, generated] = generate_next(Bytes{LENGTH});
+    return generated.template subrange<LENGTH>(offset);
+  }
+  auto Core<FIXED_KEY_AES128>::generate_next(Bytes length) -> Tuple<Index, Output::Variable> {
+    constexpr auto BLOCK_SIZE = SEED_SIZE.count();
+    static_assert(16uz == BLOCK_SIZE);
+    using integer::integers::uint128_t;
+    static_assert(16uz == sizeof(uint128_t));
+    auto offset = length_consumed.count() % BLOCK_SIZE;
+    auto old_position = length_consumed;
+    auto new_position = old_position + length;
+    auto const block_range = [old=old_position.count(), noob=new_position.count()]{
+      uint128_t const start = old / BLOCK_SIZE;
+      uint128_t const finish = noob / BLOCK_SIZE + 1;
+      return std::views::iota(start, finish);
+    }();
+    length_consumed = Bytes{new_position};
+    auto hashed_blocks = [this, block_range]{
+      auto blocks = Blocks{};
+      for (auto ith_block : block_range) {
+        auto each = Block{};
+        integer::into_octets<std::endian::little>(ith_block, each); // WATCHOUT irtf-cfrg-vdaf Section 6.2.2 codes this differently in the loosey-typey Python
+        blocks.push_back(hash_block(seed ^ each));
+      }
+      return blocks;
+    }();
+    return {offset, concatenate(hashed_blocks)};
+  }
+  auto Core<FIXED_KEY_AES128>::hash_block(Block const &block) const -> Block {
+    auto lo = block.half<Half::LO>();
+    auto hi = block.half<Half::HI>();
+    auto sigma = hi + (hi ^ lo);
+#if 1
+    return AES128{}(fixed_key, sigma);
+#else
+    // prefer this
+    return aes128(sigma) ^ sigma;
+#endif
+  }
+}
+#endiv

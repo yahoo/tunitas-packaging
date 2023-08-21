@@ -1,0 +1,120 @@
+g// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.daf.function.Function.template
+namespace tunitas::keyston::daf::function {
+  //
+  // The Distributed Aggregation Function (Family) - PRIO
+  //
+  // Specification:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   There's some section in there that covers this.
+  //   And there's papers in the references section; e.g. CGB2017
+  //
+  //   COUNT, SUM, HISTOGRAM
+  //
+  // Design:
+  //
+  //   Right out of the manual.
+  //
+  // Usage:
+  //
+  //   Within Definition<NAME> and Executor<NAME>
+  //
+  template<Name NAME> struct Function<PRIO, NAME>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Tuple
+#import tunitas.keyston.daf.function.Prototype
+namespace tunitas::keyston::daf::function {
+  template<Name NAME> class Function<PRIO, NAME> : public Prototype {
+    using Ancestor = Prototype;
+  protected:
+    using Codec = prio::Codec<Definition<NAME>::PRIO>;
+    using Encoded = typename Codec::Encoded;
+    using Field = typename Codec::Field;
+  public:
+    template<array::required::Arrayable TYPE> using Series = Ancestor::template Series<TYPE>;
+    //
+    // Section 4.1 Sharding
+    // a.k.a. measurement_to_input_shares(...)
+    static auto disassembly(Parameters const &, Measurement<WHOLE> const &, Randomness const &) -> Disassembled;
+    // Section 4.2 Preparation
+    // a.k.a. prep(...)
+    static auto computation(Parameters const &, Shard, Public<SHARE> const &, Input<SHARE> const &) -> Computed;
+    // Section 4.4 Aggregation
+    // a.k.a. out_shares_to_agg_share(...)
+    static auto amalgamation(Parameters const &, Series<Output<SHARE>> const &) -> Amalgamated;
+    // Section 4.5 Unsharding
+    // a.k.a. agg_shares_to_result(...)
+    static auto reassembly(Parameters const &, Shards<Aggregation<SHARE>> const &, Processed) -> Reassembled;
+  private:
+    static auto split(Parameters const &, Randomness const &, Encoded const &) -> Tuple<Encoded, Encoded>;
+    static auto expand(typename Field::Underlying) -> Encoded;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.accumulate
+#import tunitas.Tuple
+#import tunitas.keyston.daf.exception.Invariant
+#import tunitas.keyston.nonce.ennumerate // and ennumerate2(...)
+#import tunitas.keyston.numeric.Treatment
+namespace tunitas::keyston::daf::function {
+  template<Name NAME> auto Function<PRIO, NAME>::expand(typename Field::Underlying init) -> Encoded {
+    auto ret = Encoded{};
+    std::fill(ret.begin(), ret.end(), typename Field::Element{init});
+    return ret;
+  }
+  template<Name NAME> auto Function<PRIO, NAME>::split(Parameters const &parameters, Randomness const &randomness, Encoded const &original) -> Tuple<Encoded, Encoded> {
+    auto [left_scalar, right_scalar] = nonce::ennumerate2(randomness);
+    auto left = expand(left_scalar);
+    auto right = expand(right_scalar);
+    return {original + left - right, Encoded{} - left + right};
+  }
+  template<Name NAME> auto Function<PRIO, NAME>::disassembly(Parameters const &parameters, Measurement<WHOLE> const &wrapped, Randomness const &randomness) -> Disassembled {
+    auto encode = [&parameters](measurement::Specimen specimen) -> Encoded {
+      if constexpr (Name::HISTOGRAM == NAME) {
+        return Codec::encode(specimen, parameters.boundaries.value());
+      } else {
+        return Codec::encode(specimen);
+      }
+    };
+    auto [left, right] = split(parameters, randomness, encode(wrapped.value));
+    auto publick = Public<SHARE>{};
+    return {move(publick), Shards<Input<SHARE>>(move(left), move(right))};
+  }
+  template<Name _> auto Function<PRIO, _>::computation(Parameters const &parameters, Shard, Public<SHARE> const &, Input<SHARE> const &input) -> Computed {
+    auto treatment = numeric::Treatment{[&parameters](Encoded const &encoded) -> typename Codec::Truncated {
+      return Codec::truncate(encoded);
+    }};
+    return Output<SHARE>{visit(treatment, input)};
+  }
+  template<Name _> auto Function<PRIO, _>::amalgamation(Parameters const &, Series<Output<SHARE>> const &outputs) -> Amalgamated {
+    if (outputs.empty()) { throw exception::Invariant{"empty amalgamation"}; }
+    auto accumulate = [](typename Codec::Truncated &&accumulator, Output<SHARE> const &each) -> typename Codec::Truncated {
+      auto treatment = numeric::Treatment{[](typename Codec::Truncated const &truncated) -> typename Codec::Truncated { return truncated; }};
+      accumulator += visit(treatment, each);
+      return move(accumulator);
+    };
+    auto accumulated = std::accumulate(outputs.begin(), outputs.end(), typename Codec::Truncated{}, accumulate);
+    return Aggregation<SHARE>{move(accumulated)};
+  }
+  template<Name _> auto Function<PRIO, _>::reassembly(Parameters const &parameters, Shards<Aggregation<SHARE>> const &aggregations, Processed count) -> Reassembled {
+    if (aggregations.empty()) { throw exception::Invariant{"empty reassembly"}; }
+    using Decoded = typename Codec::Decoded;
+    auto accumulate = [count](Decoded &&accumulator, Aggregation<SHARE> const &each) -> Decoded {
+      auto treatment = numeric::Treatment{[count](typename Codec::Truncated const &truncated) -> Decoded { return Codec::decode(truncated, count); }};
+      accumulator += visit(treatment, each);
+      return move(accumulator);
+    };
+    auto accumulated = std::accumulate(aggregations.begin(), aggregations.end(), Decoded{}, accumulate);
+    return Aggregation<WHOLE>{move(accumulated)};
+  }
+}
+#endiv

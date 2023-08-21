@@ -1,0 +1,26 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_exception_SUBSOURCES = \
+  obj/src/tunitas/keyston/exception/namespace.cpp \
+  obj/src/tunitas/keyston/exception/Aspect.cpp \
+  obj/src/tunitas/keyston/exception/Bound.cpp \
+  obj/src/tunitas/keyston/exception/Cast.cpp \
+  obj/src/tunitas/keyston/exception/Domain.cpp \
+  obj/src/tunitas/keyston/exception/Failure.cpp \
+  obj/src/tunitas/keyston/exception/Invalid.cpp \
+  obj/src/tunitas/keyston/exception/Invariant.cpp \
+  obj/src/tunitas/keyston/exception/Length.cpp \
+  obj/src/tunitas/keyston/exception/Logic.cpp \
+  obj/src/tunitas/keyston/exception/Null.cpp \
+  obj/src/tunitas/keyston/exception/Optional.cpp \
+  obj/src/tunitas/keyston/exception/Overflow.cpp \
+  obj/src/tunitas/keyston/exception/Range.cpp \
+  obj/src/tunitas/keyston/exception/Randomness.cpp \
+  obj/src/tunitas/keyston/exception/Runtime.cpp \
+  obj/src/tunitas/keyston/exception/Unimplemented.cpp \
+  obj/src/tunitas/keyston/exception/Variant.cpp \
+  $(end)

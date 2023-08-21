@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::af::exception {
+  //
+  // A cast has failed in Tunitas Keyston Protocol
+  //
+  // Specification:
+  //
+  //   Yes.
+  //   Rhymes with dynamic_cast<...>(...) but casts among types matching core::value::Value (see value::Variant)
+  //   e.g. variant value cast.
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Cast;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Cast
+#import tunitas.exception.Aspect
+#import tunitas.keyston.exception.Aspect
+#import tunitas.keyston.af.exception.Aspect
+class tunitas::keyston::af::exception::Cast final : public complete::Basic<partial::Cast, af::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Cast, af::exception::Aspect, keyston::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  using Ancestor::Basic;
+};
+#endiv

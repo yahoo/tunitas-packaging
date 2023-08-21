@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.variant
+#import tunitas.rheem.protocol.query.partial.Record
+#include <hpp/tunitas.rheem.protocol.query.partial.Record>
+namespace tunitas::rheem::protocol::query::partial {
+  //
+  // A partial assembly of the Query
+  //
+  // Specification:
+  //
+  //   Do not use directly; see Query
+  //
+  // Design:
+  //
+  //   The partial assembly.
+  //   The std::variant requires the complete type of its components.
+  //
+  // Usage:
+  //
+  //   No.
+  //
+  using Variant = std::variant<Record<Type::RESERVED>, Record<Type::TIME_INTERVAL>, Record<Type::FIXED_SIZE>>;
+}
+#import std.integer_sequence
+#import std.make_index_sequence
+#import std.variant_alternative
+#import std.variant_size
+#import tunitas.rheem.protocol.query.partial.required.Queryable
+namespace tunitas::rheem::protocol::query::partial {
+  static_assert([]<Size... INDEX>(std::integer_sequence<Size,  INDEX...>) {
+      return (required::Queryable<std::variant_alternative_t<INDEX, Variant>> && ... );
+    } (std::make_index_sequence<std::variant_size_v<Variant>>{}));
+}
+// Uses of the Variant will all need these
+#import tunitas.rheem.protocol.query.Visitor
+#endiv
+#divert <hpp>
+// Eadem ratione
+#import tunitas.rheem.protocol.query.visit
+#endiv

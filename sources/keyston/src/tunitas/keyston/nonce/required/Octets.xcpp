@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.array.required.Fixed
+namespace tunitas::keyston::nonce::required {
+  //
+  // Is this type an array::Fixed<Octets>?
+  // This MUST be diagnosable without the complete type of ARRAY
+  //
+  // reminder: this ALSO matches for ANY descendants of array::Fixed<Octets, CAPACITY>
+  //
+  template<typename ARRAY> concept Octets = requires {
+    requires array::required::Fixed<ARRAY>; // redundant since we have to check the TYPE
+    { []<typename TYPE, Size CAPACITY>(array::Fixed<TYPE, CAPACITY> *)
+        requires same_as<Octet, TYPE>
+      {} (static_cast<ARRAY *>(nullptr)) };
+  };
+}
+#endiv
+#import tunitas.array.Fixed
+#import tunitas.octets.Octet
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::nonce::required;
+    namespace array = tunitas::array;
+    using tunitas::octets::Octet;
+    //
+    static_assert(required::Octets<array::Fixed<Octet, 0>>);
+    static_assert(required::Octets<array::Fixed<Octet, 1>>);
+    static_assert(required::Octets<array::Fixed<Octet, 2>>);
+  }
+}
+#endiv

@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::octets {
+  namespace package_to_hexidecimal {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_to_hexidecimal::interface;
+}
+#endiv
+#divert <hpp>
+#import tunitas.span.Span
+#import tunitas.string.Storage
+#import tunitas.string.View
+#import tunitas.octets.Octet
+#import std.ostringstream
+namespace tunitas::octets::package_to_hexidecimal::body {
+  namespace exported {
+    //
+    // convert the octets to a hexidecimal string
+    //
+    // Specification:
+    //
+    //   Just what it says on the label.
+    //
+    // Design:
+    //
+    //   Always a dynamic allocation, even for constexpr-fixed-length input.
+    //
+    // Usage:
+    //
+    //   You need a tutorial on how to call a function like this?  o.rly.?
+    //
+    inline auto to_hexidecimal(string::View honorific, span::Span<Octet const>) -> string::Storage;
+    inline auto to_hexidecimal(span::Span<Octet const>) -> string::Storage;
+  }
+  inline auto continuation(std::ostringstream &buf, span::Span<Octet const>) -> string::Storage;
+}
+#endiv
+#divert <ipp>
+#import nonstd.setwidth
+#import nonstd.setfill
+#import std.hex
+namespace tunitas::octets::package_to_hexidecimal {
+  auto interface::to_hexidecimal(string::View honorific, span::Span<Octet const> source) -> string::Storage {
+    auto buf = std::ostringstream{};
+    buf << honorific;
+    return continuation(buf, source);
+  }
+  auto interface::to_hexidecimal(span::Span<Octet const> source) -> string::Storage {
+    auto buf = std::ostringstream{};
+    return continuation(buf, source);
+  }
+  auto body::continuation(std::ostringstream &buf, span::Span<Octet const> source) -> string::Storage {
+    buf << std::hex;
+    for (auto each : source) {
+      buf << nonstd::setwidth(2) << nonstd::setfill('0') << static_cast<unsigned>(each);
+    }
+    return buf.str();
+  }
+}
+#endiv

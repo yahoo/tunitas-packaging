@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston {
+  //
+  // The broad class of algorithms (algorithm families?)
+  //
+  // Specifiation:
+  //
+  //   These are the Affine Aggregatable Encodings (AFEs) of CGB2017
+  //
+  // Usage:
+  //
+  //   Do you not know how to use an enum?
+  //
+  //   namespace tunitas::keyston {
+  //     namespace xyzabc {
+  //       using enum Scheme
+  //       template<Scheme> struct Something;
+  //       template<> struct Something<ADHOC>;
+  //       template<> struct Something<PRIO>;
+  //       template<> struct Something<POPLAR>;
+  //       ...more...
+  //     }
+  //   }
+  //
+  enum class Scheme {
+    ADHOC, // ......... no specific genre ... the metaphorical wild west (of algorithms)
+    PRIO, // .......... Private Robust Scalable I<something> O<something> (Input & Ouptut?)
+    POPLAR, // ........ gotta be a pun on "popularity"
+  };
+}
+#endiv

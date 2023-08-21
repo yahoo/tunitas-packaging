@@ -1,0 +1,168 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::field::element {
+  namespace package_fft {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_fft::interface;
+}
+#import tunitas.keyston.field.element.required
+namespace tunitas::keyston::field::element::package_fft {
+  namespace required { using namespace field::element::required; }
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.element.required.Element
+#import tunitas.keyston.field.element.fft.Inverter
+#import tunitas.array.Fixed
+#import tunitas.span.md.Fixed // because view::md::Fixed has indexing
+#import std.has_single_bit
+namespace tunitas::keyston::field::element::package_fft::body {
+  //
+  // The Discrete Fourier Transform.
+  //
+  // Authority:
+  //
+  //    Many places, but specifically
+  //    Algorithms, Coorman, Leiserson, Rivest, 1992, First? Edition (they are on the 4th Edition now)
+  //    Page 788, Recursive FFT
+  //
+  // Specification:
+  //
+  //    NOT SHOWN (this is the magic step, not in the book)
+  //    Since we're not using continuous functions (real numbers), we cannot use complex roots of unity.
+  //    We need the *discrete* primitive nth root of unity.  Such does not always exist (proof not shown).
+  //    Except in case of a special modulus M and special N do the Nth root of unity always exist.
+  //
+  //    Required:
+  //      M is a prime [it is]
+  //      N is a power of 2 [it is] so the natural recursive algorithm will work.
+  //
+  //    Insight:
+  //      Given ANY generator of a cyclic (sub-)group with the modular field with sufficiently order,
+  //      the generator can be converted from an order-th root of unity into the appropriate length N
+  //      exactly when N divides into the subgroup order [proof not shown, but think about it]
+  //
+  //      Given generator g on a cyclic subgroup of the modular field F_M
+  //      order(g) is the the exponent to which g must be raised to reach unity (by definition).
+  //      Thus g is the "order"-th root of unity.
+  //      thus
+  //
+  //         g^order(g) == 1 (mod M)
+  //
+  //      when N divides order(g) this cycle length is cut down to N
+  //
+  //        (g^(order(g)/N)) ^ N == 1 (mod m)
+  //
+  //      so g^(order(g)/N) is an Nth root of unity.
+  //
+  //   Aside:
+  //
+  //     The magic happens because we are given the generator g and we know order(g) ahead of time.
+  //     These values arrive from Table 3, Section 6.3 Parameters of draft-irtf-cfrg-vdaf-06
+  //
+  // Design:
+  //
+  //   keeping the nomenclature of the variables in the original exposition
+  //
+  //     w_n written {\omega}_{n} is the nth primitive root of unity in the modular field.
+  //     w   written {\omega} with no subscript is an accumulator across the N roots as they build.
+  //     1   written 1 is the zer0th power of w_n.
+  //
+  //   The use of w as an accumulator instead of recomputing every time is an efficiency hack (bignum modular arithmetic is expensive!)
+  //   Thus:
+  //
+  //     w = 1    is {w_n}^0
+  //
+  // Terminology:
+  //
+  //   FFT, DFT, DTFT ...what's it all mean?  Why that's an entry-level interview question.
+  //
+  //   <quote> ref="Summarizer of Brave, an AI thingie drawing from multiple sources"
+  //     The discrete Fourier transform (DFT) is a practical version of the discrete-time Fourier transform (DTFT) that is computed for a finite-length discrete signal.012
+  //     It is used to calculate the frequency spectrum of a discrete-time signal with a computer because computers can only handle a finite number of values.2
+  //     The DFT becomes equal to the DTFT as the length of the sample becomes infinite, and the DTFT converges to the continuous Fourier transform in the limit of the sampling frequency going to infinity.0
+  //     Both transforms are invertible, and the inverse DTFT is the original sampled data sequence, while the inverse DFT is a periodic summation of the original sequence.
+  //     The fast Fourier transform (FFT) is an algorithm for computing one cycle of the DFT, and its inverse produces one cycle of the inverse DFT.
+  //   </quote>
+  //
+  //   evaluate, interpolate? What's all mean?  same.
+  //
+  //   evaluate the polynomial (when represented as coefficents)
+  //   evaluate the polynomial (when represented as point-value pairs)
+  //   interpolate the point-value pairs to recover the coefficients of the polynomial
+  //
+  // Usage:
+  //
+  //   Do you really need a tutorial on how to call a function?
+  //
+  namespace exported {
+    // given coefficients a, return the evaluation y at the N Nth roots of unity
+    template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) inline constexpr auto dft(array::Fixed<ELEMENT, N> const &) -> array::Fixed<ELEMENT, N>;
+    template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) inline constexpr auto dft(span::md::Fixed<ELEMENT const, std::extents<Size, N>>) -> array::Fixed<ELEMENT, N>;
+    // given the points-at-roots-of-unity y, return the coefficients a
+    template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) inline constexpr auto idft(array::Fixed<ELEMENT, N> const &) -> array::Fixed<ELEMENT, N>;
+    template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) inline constexpr auto idft(span::md::Fixed<ELEMENT const, std::extents<Size, N>>) -> array::Fixed<ELEMENT, N>;
+  }
+  template<typename INVERTER, required::Element ELEMENT, Size N> constexpr auto fft(span::md::Fixed<ELEMENT const, std::extents<Size, N>>) -> array::Fixed<ELEMENT, N> requires (std::has_single_bit(N) && required::Inverter<INVERTER, ELEMENT, N>);
+  template<Size OFFSET, required::Element ELEMENT, Size N> inline constexpr auto copy(span::md::Fixed<ELEMENT const, std::extents<Size, N>>) -> array::Fixed<ELEMENT, N/2> requires (std::has_single_bit(N) && OFFSET < 2uz);
+  template<required::Element ELEMENT, Size N> inline constexpr auto to_mdspan(array::Fixed<ELEMENT, N> const &a) -> span::md::Fixed<ELEMENT const, std::extents<Size, N>> { return span::md::Fixed<ELEMENT const, std::extents<Size, N>>{a.data()}; }
+}
+#endiv
+#divert <ipp>
+#import tunitas.span.md.Span
+namespace tunitas::keyston::field::element::package_fft {
+  template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) constexpr auto interface::dft(array::Fixed<ELEMENT, N> const &a) -> array::Fixed<ELEMENT, N> {
+    using Span = span::md::Span<ELEMENT const, std::extents<Size, N>>;
+    return dft(Span{a.data});
+  }
+  template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) constexpr auto interface::idft(array::Fixed<ELEMENT, N> const &y) -> array::Fixed<ELEMENT, N> {
+    using Span = span::md::Span<ELEMENT const, std::extents<Size, N>>;
+    return dft(Span{y.data()});
+  }
+  template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) constexpr auto interface::dft(span::md::Fixed<ELEMENT const, std::extents<Size, N>> a) -> array::Fixed<ELEMENT, N> { return fft<Inverter<ELEMENT, N, FORWARD>>(a); }
+  template<required::Element ELEMENT, Size N> requires (std::has_single_bit(N)) constexpr auto interface::idft(span::md::Fixed<ELEMENT const, std::extents<Size, N>> y) -> array::Fixed<ELEMENT, N> { return fft<Inverter<ELEMENT, N, INVERSE>>(y); }
+  template<Size OFFSET, required::Element ELEMENT, Size N> constexpr auto body::copy(span::md::Fixed<ELEMENT const, std::extents<Size, N>> a) -> array::Fixed<ELEMENT, N/2> requires (std::has_single_bit(N) && OFFSET < 2uz) {
+    using Subspan = span::md::Span<ELEMENT const, std::extents<Size, N/2, 2>>;
+    auto a2 = Subspan{a.data_handle()};
+    auto ret = array::Fixed<ELEMENT, N/2>{};
+    for (auto i{0uz}, e{a2.extent(0)}; e != i; ++i) {
+      ret.at(i) = a2[i, OFFSET];
+    }
+    return ret;
+  }
+}
+#endiv
+#divert <tpp>
+namespace tunitas::keyston::field::element::package_fft {
+  template<typename INVERTER, required::Element ELEMENT, Size N> constexpr auto body::fft(span::md::Fixed<ELEMENT const, std::extents<Size, N>> a) -> array::Fixed<ELEMENT, N> requires (std::has_single_bit(N) && required::Inverter<INVERTER, ELEMENT, N>) {
+    using Inverter = INVERTER;
+    using Element = ELEMENT;
+    if constexpr (1uz == N) {
+      return {a[0]};
+    } else {
+      constexpr auto const w_n = Inverter::W;
+      using Subverter = typename Inverter::Recurrence;
+      //
+      auto a0 = copy<0>(a);
+      auto a1 = copy<1>(a);
+      auto y0 = fft<Subverter>(to_mdspan(a0));
+      auto y1 = fft<Subverter>(to_mdspan(a1));
+      auto w = Element{1};
+      auto y = array::Fixed<Element, N>{};
+      for (auto k{0uz}, e{N/2-1}; e != k; k++) {
+        auto wy1k = w * y1.at(k);
+        y.at(k)     = Inverter::decopy(y0.at(k) + wy1k);
+        y.at(k+N/2) = Inverter::decopy(y0.at(k) - wy1k);
+        w *= w_n;
+      }
+      return y;
+    }
+  }
+}
+#endiv

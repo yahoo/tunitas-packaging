@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.chrono.duration
+namespace tunitas::time::required {
+  //
+  // Is this a duration?
+  //
+  // Specification:
+  //
+  //   https://en.cppreference.com/w/cpp/chrono/duration (ahtem, lower case for classes, and for everything in The Standard Library)
+  //
+  // Design:
+  //
+  //   This is required::InstanceOf in copy-pasta, right here, right now.
+  //
+  // Usage:
+  //
+  //   template<required::Duration DURATION> struct Something;
+  //
+  template<typename DURATION> concept Duration = requires(DURATION) {
+    { []<typename REP, typename PERIOD>(std::chrono::duration<REP, PERIOD> *) {} (static_cast<DURATION *>(nullptr)) };
+  };
+}
+#endiv
+#divert <cpp>
+#import tunitas.time.Clock
+namespace {
+  namespace testate {
+    using namespace tunitas::time;
+    static_assert(required::Duration<Clock::duration>);
+  }
+}
+#endiv

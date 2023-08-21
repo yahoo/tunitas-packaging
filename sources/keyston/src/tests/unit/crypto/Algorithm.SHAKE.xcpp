@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.crypto.Algorithm.template
+namespace tests::unit::crypto {
+  template<> struct Algorithm<library::Algorithm<SHAKE>>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.crypto.algorithm.Algorithm.SHAKE
+#import tests.unit.crypto.Palette
+namespace tests::unit::crypto {
+  template<> struct Algorithm<library::Algorithm<SHAKE>> : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = library::Algorithm<SHAKE>;
+    using Buffer = ::tunitas::octets::Fixed<27>; // some odd size
+    //
+    auto test_constructor() -> void;
+    auto test_operator_call() -> void;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::crypto {
+  auto Algorithm<library::Algorithm<SHAKE>>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    return settle(series);
+  }
+  auto Algorithm<library::Algorithm<SHAKE>>::test_constructor() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Algorithm<library::Algorithm<SHAKE>>::test_operator_call() -> void {
+    auto subject = Subject{};
+    auto got = subject(generate_buffer<Buffer>(), SOME_OUTPUT_LENGTH);
+    dump(std::cerr, got);
+  }
+}
+#endiv

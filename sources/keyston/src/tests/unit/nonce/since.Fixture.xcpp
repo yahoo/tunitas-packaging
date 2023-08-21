@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce::since { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tests.unit.nonce.Palette
+struct tests::unit::nonce::since::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  template<typename PRECISION> auto test_usage_Since() -> void;
+};
+#endiv
+#divert <tpp>
+#import tunitas.keyston.nonce.Since
+namespace tests::unit::nonce::since {
+  template<typename PRECISION> auto Fixture::test_usage_Since() -> void {
+    using Subject = library::Since<PRECISION>;
+    auto subject = Subject{};
+    // We'll test the non-zero values in and aroundx Generator<Subject>
+    require(ASSERTION, Subject{} == subject);
+    require(ASSERTION, !(Subject{} != subject));
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.nonce.since.Since
+auto tests::unit::nonce::since::Fixture::suite() -> Suite {
+  auto series = Stream{"Since<...>"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              [&use]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+                ((use << add(typeid(std::tuple_element_t<INDEX, The_Precision_Series>).name(),
+                             &Fixture::template test_usage_Since<std::tuple_element_t<INDEX, The_Precision_Series>>)), ...);
+              }(std::make_index_sequence<std::tuple_size_v<The_Precision_Series>>{});
+              return use;
+            }()
+         << END;
+  [&series]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+    ((series << add<since::Since<library::Since<std::tuple_element_t<INDEX, The_Precision_Series>>>>()), ...);
+  }(std::make_index_sequence<std::tuple_size_v<The_Precision_Series>>{});
+  return settle(series);
+}
+#endiv

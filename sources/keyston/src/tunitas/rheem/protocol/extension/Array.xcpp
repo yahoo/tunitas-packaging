@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::rheem::protocol::extension {
+  //
+  // A bounded array of extensions
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.3.3. Upload Extensions
+  //
+  // Design:
+  //
+  //   That certain bounded array of blobs (Containers).
+  //   Ensure that Array is a distinct type with ADL registration back here to namespace extenstion.
+  //   And whereas array::Bounded<TYPE,CAPACITY> requires the complete type of TYPE, we cannot use a type alias.
+  //
+  // Usage:
+  //
+  //   Again, careful with these.
+  //
+  struct Array;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Bounded
+#import tunitas.rheem.protocol.extension.Container
+namespace tunitas::rheem::protocol {
+  namespace extension {
+    using std::move;
+    inline auto swap(Array &, Array &) noexcept -> void;
+  }
+  class extension::Array : public array::Bounded<extension::Container, (1uz<<16)> {
+    // WATCHOUT - there is a 'Container' in the ancestry of Bounded<...> so that takes precedence over nearby extension::Container
+    using Ancestor = array::Bounded<extension::Container, (1uz<<16)>;
+    friend auto extension::swap(Array &, Array &) noexcept -> void;
+  public:
+    Array() = default;
+    using Ancestor::Bounded;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::rheem::protocol {
+  auto extension::swap(Array &a, Array &b) noexcept -> void {
+    Array::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::rheem::protocol::extension;
+    //
+    static_assert(std::semiregular<Array>);
+    //
+    static_assert(std::is_default_constructible_v<Array>);
+    static_assert(std::is_copy_constructible_v<Array>);
+    static_assert(std::is_move_constructible_v<Array>);
+    static_assert(std::is_copy_assignable_v<Array>);
+    static_assert(std::is_move_assignable_v<Array>);
+    static_assert(std::is_swappable_v<Array>);
+  }
+}
+#endiv

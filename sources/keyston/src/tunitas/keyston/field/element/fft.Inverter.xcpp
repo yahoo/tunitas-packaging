@@ -1,0 +1,82 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.field.element.fft
+#import tunitas.keyston.field.element.required.Element
+namespace tunitas::keyston::field::element::package_fft {
+  namespace body {
+    //
+    // The particulars for the inversion
+    //
+    // Authority:
+    //
+    //    Many places, but specifically
+    //    Algorithms, Coorman, Leiserson, Rivest, 1992, First? Edition (they are on the 4th Edition now)
+    //    Page 790, Recursive FFT
+    //
+    // Specification:
+    //
+    //   This so obvious they don't even rehearse it in the book.
+    //
+    //                       FORWARD   INVERSE
+    //                       -----------------------
+    //   nth-root-of-unity   \omega    \omega^-1
+    //   summation-scaling   1         2^-1    (at each level gives 1/N over all levels)
+    //
+    //   There being no "division" in a modular field, we use the multiplicative inverse as "the same thing"
+    //   To wit:
+    //
+    //   \omega * \omega^2 == 1 (mod N)
+    //             2 * 2^2 == 1 (mod N)
+    //
+    // Design:
+    //
+    //   Specializations only..
+    //   constexpr.
+    //
+    // Usage:
+    //
+    //   Hack the Sp[Spew.
+    //   nearby in fft<...>(...)
+    //
+    enum Direction { FORWARD, INVERSE };
+    template<required::Element, Size, Direction> struct Inverter;
+    template<required::Element ELEMENT, Size N> struct Inverter<ELEMENT, N, FORWARD>;
+    template<required::Element ELEMENT, Size N> struct Inverter<ELEMENT, N, INVERSE>;
+  }
+  namespace required {
+    template<typename INVERTER, typename MATCH_ELEMENT, Size MATCH_SIZE> concept Inverter = requires(INVERTER, MATCH_ELEMENT) {
+      requires required::Element<MATCH_ELEMENT>;
+      { []<typename ELEMENT, Size SIZE, body::Direction DIRECTION>(body::Inverter<ELEMENT, SIZE, DIRECTION> *)
+        requires (same_as<ELEMENT, MATCH_ELEMENT> && SIZE == MATCH_SIZE)
+        { }(static_cast<INVERTER *>(nullptr)) };
+    };
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.field.element.traits.Element
+#import tunitas.keyston.Field
+namespace tunitas::keyston::field::element::package_fft::body {
+  template<required::Element ELEMENT, Size N> class Inverter<ELEMENT, N, FORWARD> {
+    using Element = ELEMENT;
+    using Generator = typename element::traits::Element<Element>::Field::Generator;
+  public:
+    inline static constexpr auto const W = pow(Generator{}(), Generator::ORDER/N); // This is a magic step. (\omega from a modular field not in the book)
+    inline static auto decopy(Element e) -> Element { return e; }
+    using Recurrence = Inverter<Element, N/2, FORWARD>;
+  };
+  template<required::Element ELEMENT, Size N> class Inverter<ELEMENT, N, INVERSE> {
+    using Element = ELEMENT;
+    using Forward = Inverter<ELEMENT, N, FORWARD>;
+    inline static constexpr auto const HALF = inv(Element{2});
+  public:
+    inline static constexpr auto const W = inv(Forward::W);
+    inline static auto decopy(Element e) -> Element { return e * HALF; }
+    using Recurrence = Inverter<Element, N/2, INVERSE>;
+  };
+}
+#endiv

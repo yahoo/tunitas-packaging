@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tests_unit_nonce_generator_SUBSOURCES = \
+  check/obj/src/tests/unit/nonce/generator/namespace.cpp \
+  check/obj/src/tests/unit/nonce/generator/Fixture.cpp \
+  check/obj/src/tests/unit/nonce/generator/Generator.cpp \
+  check/obj/src/tests/unit/nonce/generator/Check_For_Changes.template.cpp \
+  check/obj/src/tests/unit/nonce/generator/Check_For_Changes.Generator.array.Fixed.TYPE.CAPACITY.cpp \
+  check/obj/src/tests/unit/nonce/generator/Check_For_Changes.Generator.octets.Fixed.CAPACITY.cpp \
+  check/obj/src/tests/unit/nonce/generator/Check_For_Changes.cpp \
+  $(end)

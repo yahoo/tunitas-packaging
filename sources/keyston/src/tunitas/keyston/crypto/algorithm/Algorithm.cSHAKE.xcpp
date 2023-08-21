@@ -1,0 +1,112 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.crypto.algorithm.Algorithm.template
+namespace tunitas::keyston::crypto::algorithm {
+  //
+  // Authorities:
+  //
+  //   SP 800-185 SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash, ParallelHash
+  //   https://csrc.nist.gov/CSRC/media/Publications/sp/800-185/archive/2016-08-04/documents/sp800_185_draft.pdf
+  //
+  // Specification:
+  //
+  //   cSHAKE-128 as we use it here.   cSHAKE-256 is not implemented.
+  //
+  // Implementation:
+  //
+  //   See SP 800-185, page 15, lines 237-333
+  //
+  //   cSHAKE128(X, L, S, N):
+  //   Validity Conditions: len(S)< 2^2040 and len(N)< 2^2040
+  //   Note that the numbers 168 and 136 are rates (in bytes) of the KECCAK[256] and KECCAK[512] sponge functions, respectively;
+  //   and the characters 00 in the Courier New font in these definitions specify two zero bits.
+  //
+  //     1. If S = "" and N = "":
+  //          return SHAKE128(X, L);
+  //     2. Else:
+  //          return KECCAK[256](bytepad(encode_string(S) || encode_string(N), 168) || X || 00, L).
+  //
+  //   See FIPS 292, SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions,page 20 & 21
+  //   Section 6.2 SHA-3 Extendable-Output Functions
+  //   Section 6.3 Alternate Definitions of SHA-3 Extendable-Outoupt Functions
+  //
+  //     RawSHAKE128(J, d) = KECCAK[256] (J || 11, d),
+  //     RawSHAKE256(J, d) = KECCAK[512] (J || 11, d).
+  //     SHAKE128(M, d) = RawSHAKE128 (M || 11, d),
+  //     SHAKE256(M, d) = RawSHAKE256 (M || 11, d).  //
+  //
+  //     SHAKE128(M, d) = KECCAK[256] (M || 1111, d),
+  //     SHAKE256(M, d) = KECCAK[512] (M || 1111, d).
+  //
+  // This padding shows up in Keccak<256,0b00>:::final() - Digest
+  // two zero bits (NIST SP 800 185, page 16, line 343-345) ----------------\\ (here)
+  //                                                                        ||
+  //                                                                        vv
+  // keccak[256](bytepad(encode_string(S) || encode_string(N), 168) || X || 00, L).
+  //
+  // WATCHOUT - the KECCAK[c] bitstrings are in little-endian format, so pad10*1 at the byte level becomes 0x01, 0x80
+  //
+  // Design:
+  //
+  //   Just what it says
+  //
+  //   No attempt is made to precompute or reuse the name-+function header.
+  //
+  //   Algorithm::Custom is owned by us and we use it to customize the function
+  //   Algorithm::Function is owned by NIST and MUST always be empty.
+  //   NIST SP{ 800-185, page 8, line 246, Section 3.4 Using the Customization Sring
+  //
+  // Usage:
+  //
+  //   auto cshake = Algorithm<cSHAKE>{};
+  //   auto const output_length = ...some length...;
+  //   auto const message = View{...somehow...};
+  //   auto const custom = View{...somehow...};
+  //   auto const function = View{};
+  //   auto stuff = cshake(message, output_length, custom, function);
+  //
+  template<> struct Algorithm<cSHAKE>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.crypto.Keccak
+#import tunitas.keyston.crypto.algorithm.Algorithm.SHAKE
+#import tunitas.keyston.crypto.algorithm.Extensible
+namespace tunitas::keyston::crypto::algorithm {
+  template<> struct Algorithm<cSHAKE> : public Extensible {
+    using Custom = octets::View; // ..... a.k.a. S; we own this (not the memory, the semantic)
+    using Function = octets::View; // ... a.k.a. N; NIST owns this (the semantic), it MUST be empty in all our use cases
+    inline auto operator()(Message, Bytes output_length) -> Output;
+    inline auto operator()(Message, Bytes output_length, Custom) -> Output;
+    inline auto operator()(Message, Bytes output_length, Custom, Function) -> Output;
+  private:
+    Algorithm<SHAKE> shake{}; // a.k.a. Keccak<256,0b1111>
+    Keccak<256,0b00,2> keccak{};
+    inline static constexpr auto const RATE = Bytes{168u}; // the KECCAK[256] rate is from NIST SP 800-185, line 333
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.octets.string // pad(...), encode(...)
+#import tunitas.keyston.exception.Null
+namespace tunitas::keyston::crypto::algorithm {
+  auto Algorithm<cSHAKE>::operator()(Message m, Bytes output_length, Custom s) -> Output { return operator()(m, output_length, s, {}); }
+  auto Algorithm<cSHAKE>::operator()(Message x, Bytes output_length) -> Output { return shake(x, output_length); }
+  auto Algorithm<cSHAKE>::operator()(Message x, Bytes output_length, Custom s, Function n) -> Output {
+    if (s.empty() && n.empty()) {
+      return shake(x, output_length);
+    } else {
+      auto prepared = octets::pad(RATE, octets::encode(s), octets::encode(n));
+      keccak.update(prepared);
+      keccak.update(x);
+      auto ret = Output(output_length.count());
+      keccak.final(ret);
+      return ret;
+    }
+  }
+}
+#endiv

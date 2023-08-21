@@ -1,0 +1,257 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::prio {
+  namespace package_disassembly {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_disassembly::interface;
+}
+#import tunitas.keyston.prio.required
+namespace tunitas::keyston::prio::package_disassembly {
+  namespace required { using namespace prio::required; }
+  namespace body { }
+  namespace usage { }
+}
+
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.measurement.Boundaries
+#import tunitas.keyston.prio.Role // role::Name and later role::Role
+#import tunitas.keyston.vdaf.required.Definition
+#import tunitas.view.Fixed
+#import nonstd.required.InstanceOf
+namespace tunitas::keyston::prio::package_disassembly {
+  using measurement::Specimen;
+  using measurement::Boundaries;
+  template<Size SIZE> using Nonce = view::Fixed<Octet, SIZE>;
+  template<Size SIZE> using Randomness = view::Fixed<Octet, SIZE>;
+  namespace body {
+    using enum role::Name;
+   template<required::Definition> struct Outline;
+  }
+  namespace required {
+    template<typename OUTLINE> concept OutlineOf = InstanceOf<OUTLINE, body::Outline>;
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Fixed
+#import tunitas.view.Fixed
+#import tunitas.view.Variable
+#import tunitas.octets.Fixed
+#import tunitas.keyston.prio.required.Definition
+#import tunitas.keyston.prio.disassembly.Disassembled
+#import tunitas.keyston.prio.randomness_size
+#import tunitas.keyston.Shard
+#import tunitas.keyston.Shards // for SHARDS_COUNT, being a global definitional constant
+#import tunitas.keyston.quantity.Shards
+namespace tunitas::keyston::prio::package_disassembly {
+  namespace body {
+    namespace exported {
+      //
+      // Specification:
+      //
+      //   def measurement_to_input_shares(Prio3, measurement, nonce, rand):
+      //   Vdaf.measurement_to_input_shares(measurement: Measurement, nonce: Bytes[Vdaf.NONCE_SIZE], rand: Bytes[Vdaf.RAND_SIZE]) -> tuple[Bytes, Vec[Bytes]]
+      //
+      // Upon completion of the disassembly
+      //
+      //   <quote>
+      //     Each Aggregator's input share contains its measurement share, proof share, and blind.
+      //     The public share contains the Aggregators' joint randomness parts.
+      //   </quote>
+      //
+      // Design:
+      //
+      //   Just what you see.
+      //
+      //   <quote ref=draft-irtf-cfrg-vdaf-06 ref="Section 7.2.1 Sharding">
+      //     The algorithm is specified below.
+      //     Notice that only one set of input and proof shares (called the "leader" shares below) are vectors of field elements.
+      //     The other shares (called the "helper" shares) are represented instead by PRG seeds, which are expanded into vectors of field elements.
+      //   </quote>
+      //
+      //   Actually this is tricky to get the template sense AND also the ability to infer the NONCE and RANDOMNESS sizes
+      //   when the call site typically yses array::Fixed<...> but the formals here use span::Fixed<...>
+      //   Can't easily get both template intference argumentimplicit AND conversion.
+      //
+      //   There really is no way around the ugliness of having to special-case HISTOGRAM is there?
+      //
+      // Usage:
+      //
+      //   You need a tutorial on calling a function?
+      //   See Function<PRIO,NAME>::disassembly(...)
+      //
+      template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> inline auto disassembly(typename DEFINITION::Codec::Encoded const &, Nonce<OF_NONCE> const &, Randomness<OF_RANDOMNESS> const &) -> Disassembled<DEFINITION>;
+    }
+    template<required::OutlineOf OUTLINE, Size OF_NONCE, Size OF_RANDOMNESS> auto continued(typename OUTLINE::Codec::Encoded const &, Nonce<OF_NONCE> const &, Randomness<OF_RANDOMNESS> const &) -> typename OUTLINE::Disassembled;
+  }
+  template<required::Definition DEFINITION> struct body::Outline {
+    using Disassembled = package_disassembly::Disassembled<DEFINITION>;
+    //
+    using Codec = DEFINITION::Codec;
+    using Amplifier = DEFINITION::Amplifier;
+    using Customizer = DEFINITION::Customizer;
+    using Prover = DEFINITION::Prover;
+    //
+    template<role::Name ROLE> using Role = typename DEFINITION::template Role<ROLE>;
+    //
+    static constexpr auto use_joint_randomness() -> bool { return DEFINITION::use_joint_randomness(); }
+    static inline auto joint_randomness(view::Variable<typename Amplifier::Seed::Storage> const &parts) -> octets::Fixed<Amplifier::Seed::SIZE.count()> { return DEFINITION::joint_randomness(parts); }
+    //
+    struct Encoded {
+      struct Input {
+        inline static constexpr auto const SIZE = DEFINITION::Prover::Message::Input::VALUE.count();
+        // Vector
+        using Definition = typename DEFINITION::Field::template Vector<SIZE>;
+        using Vector = typename Definition::Type;
+      };
+      struct Proof {
+        inline static constexpr auto const SIZE = DEFINITION::Prover::Message::Proof::VALUE.count();
+        // Vector
+        using Definition = typename DEFINITION::Field::template Vector<SIZE>;
+        using Vector = typename Definition::Type;
+      };
+      struct Randomness {
+        struct Prove {
+          inline static constexpr auto const SIZE = DEFINITION::Prover::Randomness::Prove::VALUE.count();
+          // Vector
+          using Definition = typename DEFINITION::Field::template Vector<SIZE>;
+          using Vector = typename Definition::Type;
+        };
+        struct Joint {
+          inline static constexpr auto const SIZE = DEFINITION::Prover::Randomness::Joint::VALUE.count();
+          // Vector
+          using Definition = typename DEFINITION::Field::template Vector<SIZE>;
+          using Vector = typename Definition::Type;
+        };
+      };
+    };
+  };
+  namespace usage {
+    template<typename DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> concept Arguments = requires(DEFINITION) {
+      requires quantity::Shards{1u} < shards::SHARD_COUNT;
+      requires OF_NONCE == DEFINITION::NONCE_SIZE.count();
+      requires OF_RANDOMNESS == randomness_size(DEFINITION::Validity::JOINT_RANDOMNESS_LENGTH).count();
+    };
+  }
+}
+#endiv
+#divert <ipp>
+#import tunitas.octets.concatenate
+#import tunitas.keyston.prio.Definition
+namespace tunitas::keyston::prio::package_disassembly {
+  template<required::Definition DEFINITION, Size OF_NONCE, Size OF_RANDOMNESS> auto interface::disassembly(typename DEFINITION::Codec::Encoded const &encoded, Nonce<OF_NONCE> const &nonce, Randomness<OF_RANDOMNESS> const &randomness) -> Disassembled<DEFINITION> {
+    static_assert(usage::Arguments<DEFINITION, OF_NONCE, OF_RANDOMNESS>);
+    return continued<Outline<DEFINITION>>(encoded, nonce, randomness);
+  }
+}
+#endiv
+#divert <tpp>
+#import std.views.iota
+#import tunitas.array.Variable
+#import tunitas.keyston.exception.Unimplemented
+#import tunitas.octets.Fixed
+#import tunitas.keyston.prio.exception.Invariant
+#import tunitas.keyston.prio.flp.dimension.cast // ... find this by ADL for flp dimensions -> Items or Bytes
+#import tunitas.keyston.prio.binder
+#import tunitas.keyston.prio.disassembly.Allocator
+#import tunitas.keyston.prio.disassembly.Slicer
+#import tunitas.keyston.prio.Usage
+#import tunitas.keyston.quantity.convert // .......... NOT finding this by ADL for Bytes -> Items
+namespace tunitas::keyston::prio::package_disassembly {
+  template<required::OutlineOf OUTLINE, Size OF_NONCE, Size OF_RANDOMNESS> auto body::continued(typename OUTLINE::Codec::Encoded const &input, Nonce<OF_NONCE> const &nonce, Randomness<OF_RANDOMNESS> const &randomness) -> typename OUTLINE::Disassembled {
+    using Outline = OUTLINE;
+    //
+    // Split the random input into the various seeds.
+    // SHARDS-1 for the helpers because the "leader" is a shard too
+    constexpr auto const SHARDSM1 = shards::SHARD_COUNT.count() - 1u;
+    using Allocated = array::Fixed<Octet, prg::SEED_SIZE.count()>;
+    array::Fixed<Allocated, SHARDSM1> k_helper_input_shards{}, k_helper_proof_shards{}, k_helper_blind{};
+    Allocated k_leader_blind{};
+    Allocated k_prove{};
+    {
+      auto allocator = Allocator{randomness};
+      if constexpr (Outline::use_joint_randomness()) {
+        auto slicer = allocator.template slice<SHARDSM1, 3uz>();
+        k_helper_input_shards = slicer.template stride<0uz>();
+        k_helper_proof_shards = slicer.template stride<1uz>();
+        k_helper_blind        = slicer.template stride<2uz>();
+        k_leader_blind        = *allocator++;
+      } else {
+        auto slicer = allocator.template slice<SHARDSM1, 2uz>();
+        k_helper_input_shards = slicer.template stride<0uz>();
+        k_helper_proof_shards = slicer.template stride<1uz>();
+        // k_helper_blind remains full of nulls
+        // k_leader_blind remains full of null
+      }
+      k_prove = *allocator++;
+      if (allocator) { throw exception::Invariant{"the randomness allocator was not exhausted"}; }
+    }
+    //
+    // Finish measurement shares and joint randomness parts.
+    auto leader_input_shard = static_cast<typename Outline::Encoded::Input::Vector>(input);
+    // [[FIXTHIS]] this does not need to be array::Variable.  We know the comlete allocation size.  It needs a cursor within a fixed allocation
+    auto k_joint_randomness_parts = Shards<typename Outline::Amplifier::Seed::Storage>{};
+    auto kjrp0 = k_joint_randomness_parts.begin();
+    {
+      for (auto kjrp=1+kjrp0; auto helper : std::views::iota(0u, SHARDSM1)) {
+        auto shard = Shard{1u+helper};
+        auto helper_input_shard = Outline::Amplifier::template expand_as<typename Outline::Encoded::Input::Vector>(/*seed*/ k_helper_input_shards.at(helper), Outline::Customizer::template domain_separation_tag<Usage::INPUT_SHARE>(), binder(shard));
+        leader_input_shard -= helper_input_shard;
+        if constexpr (Outline::use_joint_randomness()) {
+          auto encoded = Outline::Encoded::Input::Definition::encode(helper_input_shard);
+          *kjrp++ = Outline::Amplifier::derive_seed(k_helper_blind.at(helper), Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_PART>(), binder(shard, nonce, encoded));
+        }
+      }
+    }
+    //
+    // Finish joint randomness (maybe writing into the 0th position of k_joint_randomness_parts)
+    auto joint_randomness = [&]() -> typename Outline::Encoded::Randomness::Joint::Vector {
+      if constexpr (!Outline::use_joint_randomness()) {
+        return {};
+      } else {
+        auto encoded = Outline::Encoded::Input::Definition::encode(leader_input_shard);
+        *kjrp0 = Outline::Amplifier::derive_seed(k_leader_blind, Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_PART>(), binder(Shard{0u}, nonce, encoded));
+        auto ret = typename Outline::Encoded::Randomness::Joint::Vector{};
+        Outline::Amplifier::expand_into(ret, Outline::joint_randomness(k_joint_randomness_parts), Outline::Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS>(), binder());
+        return ret;
+      }
+    }();
+    //
+    // Finish the proof shares.
+    auto leader_proof_shard = [&]() -> typename Outline::Encoded::Proof::Vector {
+      auto prove_randomness = typename Outline::Encoded::Randomness::Prove::Vector{};
+      Outline::Amplifier::expand_into(prove_randomness, /*seed*/ k_prove, Outline::Customizer::template domain_separation_tag<Usage::PROVE_RANDOMNESS>(), binder());
+      auto leader_proof_shard = static_cast<typename Outline::Encoded::Proof::Vector>(Outline::Prover::prove(input, prove_randomness, joint_randomness));
+      for (auto helper : std::views::iota(0u, SHARDSM1)) {
+        auto shard = Shard{1u+helper};
+        auto helper_proof_shard = Outline::Amplifier::template expand_as<typename Outline::Encoded::Proof::Vector>(k_helper_proof_shards.at(helper), Outline::Customizer::template domain_separation_tag<Usage::PROOF_SHARE>(), binder(shard));
+        leader_proof_shard -= helper_proof_shard;
+      }
+      return leader_proof_shard;
+    }();
+    //
+    // Each Aggregator's input share contains its measurement share, proof share, and blind.
+    //   the leader is made of biggish numbers (as octet strings)
+    //   the helpers are made of (short, fixed-length) seeds.
+    // The public share contains the welll-known joint randomness parts for all Aggregators..
+    //
+    auto input_shards = [&]{
+      auto inputs = Shards<octets::Variable>{};
+      auto in = inputs.begin();
+      *in++ = Outline::template Role<LEADER>::encode(leader_input_shard, leader_proof_shard, k_leader_blind);
+      for (auto helper : std::views::iota(0u, SHARDSM1)) {
+        *in++ = Outline::template Role<HELPER>::encode(k_helper_input_shards.at(helper), k_helper_proof_shards.at(helper), k_helper_blind.at(helper));
+      }
+      return inputs;
+    }();
+    auto public_shard = Outline::template Role<PUBLIC>::encode(k_joint_randomness_parts);
+    return {move(public_shard), move(input_shards)};
+  }
+}
+#endiv

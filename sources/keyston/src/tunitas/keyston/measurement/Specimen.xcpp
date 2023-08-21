@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::measurement {
+  //
+  // What even is a measurement specimen?
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-03.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   A number in Z (mod m)
+  //
+  // Design:
+  //
+  //   They have a data type for that in C++23.
+  // 
+  // Usage:
+  //
+  //   auto measured = Specimen{99u};
+  //
+  enum class Specimen : std::uint64_t;
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import std.strong_ordering
+#forward tunitas.keyston.formatter.Formatter
+namespace tunitas::keyston::measurement {
+  inline constexpr auto underlying(Specimen c) { return std::underlying_type_t<Specimen>(c); }
+  inline auto swap(Specimen &a, Specimen &b) noexcept -> void { std::swap(a, b); }
+  inline auto operator<=>(Specimen const &a, Specimen const &b) -> std::strong_ordering { return underlying(a) <=> underlying(b); }
+  inline auto format(Specimen) -> formatter::Formatter<Specimen>;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.formatter.Formatter
+namespace tunitas::keyston {
+  auto measurement::format(Specimen item) -> formatter::Formatter<Specimen> { return {item}; }
+}
+#import tunitas.keyston.formatter.io // to activate format(...)
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::measurement;
+    static_assert(std::is_swappable_v<Specimen>);
+  }
+}  
+#endiv

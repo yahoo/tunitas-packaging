@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::octets {
+  //
+  // A palette of types, values and value generators.
+  // Descendants only.
+  //
+  struct Palette;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Variable
+#import tunitas.array.Fixed
+#import tunitas.octets.required.Octets
+#import tunitas.octets.required.Variable
+#import tunitas.octets.Fixed
+#import tunitas.octets.Variable
+#import tunitas.units.Bytes
+class tests::unit::octets::Palette {
+protected:
+  ~Palette() = default;
+public:
+  using Bytes = ::tunitas::units::Bytes;
+  using Octet = ::tunitas::octets::Octet;
+  template<Size CAPACITY> using Fixed = library::Fixed<CAPACITY>;
+  using Variable = library::Variable;
+  //
+  // for the one-dimensional case: concatenation
+  // when BUFFER=library::Variable, the length is always 0
+  // when BUFFER=library::Fixed<N>, the length is (obviously) N and the buffer is initialized with sequential bytes
+  template<required::Octets BUFFER> static auto generate() -> BUFFER;
+  template<required::Variable BUFFER> static auto generate(Size) -> BUFFER;
+  //
+  // For the two-dimensional case: join
+  template<Size SIZE1, Size SIZE2> static auto generate2() -> ::tunitas::array::Fixed<library::Fixed<SIZE2>, SIZE1>;
+  template<Size SIZE> static auto generate2(Size) -> ::tunitas::array::Variable<library::Fixed<SIZE>>;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::octets {
+  template<required::Octets BUFFER> auto Palette::generate() -> BUFFER {
+    auto ret = BUFFER{};
+    // for the variable case this won't fill anything at all (an empty variable array is returned)
+    for (unsigned ith{0}; auto &each : ret) {
+      each = Octet(ith++); // narrowing here is ok ... we're just filling in some interesting values
+    }
+    return ret;
+  }
+  template<required::Variable BUFFER> auto Palette::generate(Size desired_size) -> BUFFER {
+    auto ret = BUFFER(desired_size);
+    for (unsigned ith{0}; auto &each : ret) {
+      each = Octet(ith++); // narrowing here is ok ... we're just filling in some interesting values
+    }
+    return ret;
+  }
+  template<Size SIZE1, Size SIZE2> auto Palette::generate2() -> ::tunitas::array::Fixed<library::Fixed<SIZE2>, SIZE1> {
+    auto ret = ::tunitas::array::Fixed<library::Fixed<SIZE2>, SIZE1>{};
+    for (auto &each : ret) {
+      each = generate<library::Fixed<SIZE2>>();
+    }
+    return ret;
+  }
+  template<Size SIZE> auto Palette::generate2(Size desired_size) -> ::tunitas::array::Variable<library::Fixed<SIZE>> {
+    auto ret = ::tunitas::array::Variable<library::Fixed<SIZE>>(desired_size);
+    for (auto &each : ret) {
+      each = generate<library::Fixed<SIZE>>();
+    }
+    return ret;
+  }
+}
+#endiv

@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.field.required.Element
+#import tunitas.keyston.prio.flp.gadget // for Arity
+namespace tunitas::keyston::prio::flp::validity::required {
+  //
+  // Is this type a gadget evaluator on ELEMENT with ARITY arguments?
+  //
+  // Etymology:
+  //
+  //   1. A neologism of "gadget" and "evaluator"
+  //   2. A neologism of "gadget" and the sloppy vernacular "tater" referring to "potato"
+  //
+  //   Choose your adventure!
+  //
+  namespace [[eponymous]] gadgetator {
+    template<typename GADGET, typename ELEMENT> concept Arity0 = requires(GADGET const gadget, ELEMENT) {
+      requires field::required::Element<ELEMENT>;
+      { gadget() } -> convertible_to<ELEMENT>;
+    };
+    template<typename GADGET, typename ELEMENT> concept Arity1 = requires(GADGET const gadget, ELEMENT a) {
+      requires field::required::Element<ELEMENT>;
+      { gadget(a) } -> convertible_to<ELEMENT>;
+    };
+    template<typename GADGET, typename ELEMENT> concept Arity2 = requires(GADGET const gadget, ELEMENT a, ELEMENT b) {
+      requires field::required::Element<ELEMENT>;
+      { gadget(a, b) } -> convertible_to<ELEMENT>;
+    };
+    template<typename GADGET, typename ELEMENT> concept Arity3 = requires(GADGET const gadget, ELEMENT a, ELEMENT b, ELEMENT c) {
+      requires field::required::Element<ELEMENT>;
+      { gadget(a, b, c) } -> convertible_to<ELEMENT>;
+    };
+    template<typename GADGET, typename ELEMENT, gadget::Arity ARITY> concept Gadgetator = requires(GADGET const gadget, ELEMENT) {
+      requires field::required::Element<ELEMENT>;
+      requires gadget::Arity{0} != ARITY || Arity0<GADGET, ELEMENT>;
+      requires gadget::Arity{1} != ARITY || Arity1<GADGET, ELEMENT>;
+      requires gadget::Arity{2} != ARITY || Arity2<GADGET, ELEMENT>;
+      requires gadget::Arity{3} != ARITY || Arity3<GADGET, ELEMENT>;
+      // we're not supporting any more than three here
+    };
+  }
+  using gadgetator::Gadgetator;
+}
+#endiv

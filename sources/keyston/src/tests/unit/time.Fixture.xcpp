@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.time
+namespace tests::unit::time {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::time;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::time::fixture::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_Clock() -> void;
+  auto test_Duration() -> void;
+  auto test_Point() -> void;
+  auto test_Interval() -> void;
+  auto test_literals() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::time::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"time"sv};
+  series << add("Clock", &Fixture::test_Clock)
+         << add("Duration", &Fixture::test_Duration)
+         << add("Point", &Fixture::test_Point)
+         << add("Interval", &Fixture::test_Interval)
+         << add("literals", &Fixture::test_literals)
+         << END;
+  return settle(series);
+}
+#import tunitas.time.Clock
+#import tunitas.time.Duration
+#import tunitas.time.Point
+#import tunitas.time.Interval
+#import tunitas.time.literals
+namespace tests::unit::time::fixture { 
+  auto Fixture::test_Clock() -> void {
+    using Subject = library::Clock;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_Duration() -> void {
+    using Subject = library::Duration;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_Point() -> void {
+    using Subject = library::Point;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_Interval() -> void {
+    using Subject = library::Interval;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_literals() -> void {
+    using namespace library::literals;
+    auto accumulated = 1_hour + 2_hours + 1_day + 1_days + 2_weeks + 1_month + 2_months + 1_year + 2_years;
+    require(ASSERTION, 0 != accumulated.count());
+  }
+}
+#endiv

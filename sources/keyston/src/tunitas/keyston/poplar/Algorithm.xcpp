@@ -1,0 +1,79 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::poplar {
+  //
+  // The poplar system.
+  //
+  // Authority:
+  //
+  //   From: https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Section 8 Poplar1
+  //
+  //   The "poplar" algorithm computes the population for a pre-announced specific and fixed set of prefixes within the overall population.
+  //   The "poplar" algorithm does NOT dynamically compute "top k" elements as one might with a sortification procedure.
+  //
+  //   The length of the prefix {list, set, bag, population} is ambiguously and vaguely known as the "VALUE_LEN" (a.k.a. "VALUE COUNT")
+  //   Gotta be a better name than "VALUE".
+  //
+  //   <quote ref="Section 8. Poplar1">
+  //      This section specifies Poplar1, a VDAF for the following task.
+  //      Each Client holds a string of length BITS and the Aggregators hold a set of l-bit strings, where l <= BITS.
+  //      We will refer to the latter as the set of "candidate prefixes".
+  //      The Aggregators' goal is to count how many inputs are prefixed by each candidate prefix.
+  //   </quote>
+  //
+  //   The top-k to discover the candidate set is derived from an iterative application of poplar [cite something].
+  //
+  // Specification:
+  //
+  //   There's a simpler interface in there somewhere (Section 8)
+  //
+  // Design:
+  //
+  //   Work in the type system.
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<Name, Size VALUE_COUNT = 0> struct Algorithm;
+  template<Size VALUE_COUNT> struct Algorithm<ONE, VALUE_COUNT>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Field
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.aggregation.Popularity
+#import tunitas.keyston.quantity.Records
+#import tunitas.keyston.popularity.Prefixes
+#import tunitas.keyston.idpf
+namespace tunitas::keyston::poplar {
+  struct PLACEHOLDER_Initialization {};
+  struct PLACEHOLDER_Continuation {};
+  template<Size THE_VALUE_COUNT> struct Algorithm<ONE, THE_VALUE_COUNT> {
+    inline static constexpr auto VALUE_COUNT = Items{THE_VALUE_COUNT};
+    struct Core {
+      // these MUST be in a sub-structure to avoid collisions (ambiguities) in the descendants [[what descendants?]]
+      using Measurement = measurement::Specimen;
+#undef POPLAR1_IS_READY
+#if 0
+      using Encoded = int;
+      using Truncated = int;
+      using Preparation = int;
+#endif
+      using Decoded = aggregation::Popularity;
+      using Processed = quantity::Records;
+      using Prefixes = popularity::Prefixes;
+    };
+    using Initialization = PLACEHOLDER_Initialization;
+    using Continuation = PLACEHOLDER_Continuation;
+  };
+}
+#endiv
+#divert <cpp>
+#warning WRITETHIS whereas tunitas::keyston::poplar::Algorithm<ONE> has int for all the types
+#endiv

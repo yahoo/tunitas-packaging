@@ -1,0 +1,153 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::octets { struct Fixture; }
+#endiv
+#divert <hpp>
+#import tests.unit.octets.Palette
+struct tests::unit::octets::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_View() -> void;
+  auto test_usage_Span() -> void;
+  auto test_usage_Variable() -> void;
+  template<Size> auto test_usage_Fixed() -> void;
+  auto test_usage_to_hexidecimal() -> void;
+  auto test_usage_Unique() -> void;
+  auto test_usage_Opaque() -> void;
+};
+#endiv
+#divert <tpp>
+#import tunitas.octets.Fixed
+namespace tests::unit::octets {
+  template<Size SIZE> auto Fixture::test_usage_Fixed() -> void {
+    using Subject = library::Fixed<SIZE>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.octets.Concatenate
+#import tests.unit.octets.Join
+#import tests.unit.octets.string.Encode
+#import tests.unit.octets.string.Pad
+#import tests.unit.octets.string.Substring
+#import tests.unit.octets.Fixed
+#import tests.unit.octets.Variable
+auto tests::unit::octets::Fixture::suite() -> Suite {
+  auto series = Stream{"octets"sv};
+  series << []{
+             auto use = Stream{"usage"sv};
+             use << add("View", &Fixture::test_usage_View)
+                 << add("Span", &Fixture::test_usage_Span)
+                 << add("Variable", &Fixture::test_usage_Variable)
+                 << []{
+                      auto fix = Stream{"Fixed"sv};
+                      fix << add("2", &Fixture::test_usage_Fixed<2>)
+                          << add("4", &Fixture::test_usage_Fixed<4>)
+                          << add("8", &Fixture::test_usage_Fixed<8>)
+                          << add("16", &Fixture::test_usage_Fixed<16>)
+                          << add("32", &Fixture::test_usage_Fixed<32>)
+                          << add("64", &Fixture::test_usage_Fixed<64>)
+                          << add("128", &Fixture::test_usage_Fixed<128>)
+                          << add("256", &Fixture::test_usage_Fixed<256>)
+                          << END;
+                      return fix;
+                    }()
+                 << add("Unique", &Fixture::test_usage_Unique)
+                 << add("Opaque", &Fixture::test_usage_Opaque)
+                 << add("to_hexidecimal", &Fixture::test_usage_to_hexidecimal)
+                 << END;
+             return use;
+          }()
+         << []{
+              auto str = Stream{"string"sv};
+              str << add<string::Encode>()
+                  << add<string::Pad>()
+                  << add<string::Substring>()
+                  << END;
+              return str;
+            }()
+         << add<octets::Variable>()
+         << []{
+              auto fix = Stream{"Fixed"sv};
+              fix << add<octets::Fixed<library::Fixed<2uz>>>()
+                  << add<octets::Fixed<library::Fixed<4uz>>>()
+                  << add<octets::Fixed<library::Fixed<8uz>>>() // stay small to test bound breaching
+                  << END;
+              return fix;
+            }()
+         << add<Concatenate>()
+         << add<Join>()
+         << END;
+  return settle(series);
+}
+#import tunitas.octets.View
+#import tunitas.octets.Span
+#import tunitas.octets.Variable
+#import tunitas.octets.to_hexidecimal
+namespace tests::unit::octets {
+  auto Fixture::test_usage_View() -> void {
+    using Subject = library::View;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Span() -> void {
+    { using Subject = library::Span<Octet>; // <-------------------- test this (Octet)
+      auto subject = Subject{};
+      require(ASSERTION, sizeof(subject)); }
+    { using Subject = library::Span<Octet const>; // <-------------------- test this (Octet const)
+      auto subject = Subject{};
+      require(ASSERTION, sizeof(subject)); }
+  }
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = library::Variable;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_to_hexidecimal() -> void {
+    using Specimen = library::Variable;
+    auto specimen = []{
+      auto ret = Specimen(256, Specimen::Value{});
+      auto ith{0u};
+      for (auto &each : ret) {
+        each = Specimen::Value(ith++);
+      }
+      return ret;
+    }();
+    require(ASSERTION, 256 == specimen.size());
+    auto hex = library::to_hexidecimal(specimen);
+    require(ASSERTION, 512 == hex.size());
+    require(ASSERTION, '0' == hex.at(0));
+    require(ASSERTION, '0' == hex.at(1));
+    require(ASSERTION, '0' == hex.at(2));
+    require(ASSERTION, '1' == hex.at(3));
+    require(ASSERTION, '0' == hex.at(4));
+    require(ASSERTION, '2' == hex.at(5));
+    // and we're willing to believe the rest are correct
+  }
+}
+#import tunitas.Opaque
+#import tunitas.Unique
+namespace tests::unit::octets {
+  auto Fixture::test_usage_Unique() -> void {
+    using Subject = library::Unique<4, Fixture>;
+    auto subject = Subject{};
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Opaque() -> void {
+    using Subject = library::Opaque<4>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+  }
+}
+#endiv

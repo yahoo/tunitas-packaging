@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.vdaf.disassembled.Disassembled
+#import tunitas.keyston.vdaf.required.Definition
+namespace tunitas::keyston::vdaf::disassembled {
+  //
+  // get elements of the tuple.
+  //
+  // Specification:
+  //
+  //   Rhymes with std::get<...>(...)
+  //   Findable by ADL.
+  //
+  // Design:
+  //
+  //
+  // Usage:
+  //
+  //   You need a tutorial on this?
+  //
+  template<Size N, required::Definition DEFINITION> inline auto get(Disassembled<DEFINITION> const &) -> typename std::tuple_element<N, Disassembled<DEFINITION>>::type const &;
+  template<Size N, required::Definition DEFINITION> inline auto get(Disassembled<DEFINITION> &) -> typename std::tuple_element<N, Disassembled<DEFINITION>>::type &;
+  template<Size N, required::Definition DEFINITION> inline auto get(Disassembled<DEFINITION> &&) -> typename std::tuple_element<N, Disassembled<DEFINITION>>::type &&;
+}
+#endiv
+#divert <ipp>
+#import std.get
+namespace tunitas::keyston::vdaf {
+  template<Size N, required::Definition DEFINITION> auto disassembled::get(Disassembled<DEFINITION> const &d) -> typename std::tuple_element<N, Disassembled<DEFINITION>>::type const & { return std::get<N>(d); } // the "tuple sense" will carry through
+  template<Size N, required::Definition DEFINITION> auto disassembled::get(Disassembled<DEFINITION> &d) -> typename std::tuple_element<N, Disassembled<DEFINITION>>::type &             { return std::get<N>(d); }
+  template<Size N, required::Definition DEFINITION> auto disassembled::get(Disassembled<DEFINITION> &&d) -> typename std::tuple_element<N, Disassembled<DEFINITION>>::type &&           { return std::get<N>(forward<Disassembled<DEFINITION>>(d)); }
+}
+#endiv

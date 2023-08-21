@@ -1,0 +1,33 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.vdaf.Definition
+namespace tunitas::keyston::vdaf::required {
+  //
+  // Is this type a Definition?
+  // This is the moral equivalent of InstanceOf which accounts for the two NTTP (Non-Type Template Parameters)
+  //
+  template<typename DEFINITION> concept Definition = requires {
+    []<Name NAME>(vdaf::Definition<NAME> *){}(static_cast<DEFINITION *>(nullptr));
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::vdaf::required;
+    using tunitas::keyston::vdaf::Definition;
+    using enum tunitas::keyston::vdaf::Name;
+    //
+    static_assert(required::Definition<Definition<ZERO>>);
+    static_assert(required::Definition<Definition<CONSTANT>>);
+    static_assert(required::Definition<Definition<PRIO3_COUNT>>);
+    static_assert(required::Definition<Definition<PRIO3_SUM>>);
+    static_assert(required::Definition<Definition<PRIO3_HISTOGRAM>>);
+    static_assert(required::Definition<Definition<POPLAR1>>);
+  }
+}
+#endiv

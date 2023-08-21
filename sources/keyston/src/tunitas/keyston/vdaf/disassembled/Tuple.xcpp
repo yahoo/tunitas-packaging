@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.Tuple
+#import tunitas.keyston.Shards
+#import tunitas.keyston.vdaf.Public
+#import tunitas.keyston.vdaf.Input
+#include <hpp/tunitas.keyston.vdaf.Public> // [[FIXTHIS]]
+#include <hpp/tunitas.keyston.vdaf.Input>
+#import tunitas.keyston.vdaf.required.Definition
+namespace tunitas::keyston::vdaf::disassembled {
+  //
+  // The ancestor of the tuple of the disassembly.
+  //
+  // Specification:
+  // 
+  //   See Disassembly
+  //
+  //// Design:
+  //
+  //   Pesky.  tunitas::Tuple (std::tuple) requires the complete type of its template arguments.
+  //
+  //   AVOID.  This is an implementation detail.
+  //   Instead use Disassembly.
+  //
+  //   This type alias is a convenient implementation detail for the specializations of std::tuple_size and std::tuple_alternative.
+  //
+  // Usage:
+  //
+  //   No.
+  //
+  template<required::Definition DEFINITION> using Tuple = tunitas::Tuple<Public<DEFINITION>, Shards<Input<SHARE, DEFINITION>>>;
+}
+#endiv

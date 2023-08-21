@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.time.Clock
+#import std.chrono.time_point
+namespace tunitas::time {
+  //
+  // The standard time point
+  //
+  // Specification:
+  //
+  //   https://en.cppreference.com/w/cpp/chrono/time_point
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Usage:
+  //
+  //   Just wnat you see.
+  //
+  using Point = std::chrono::time_point<Clock>;
+}
+#endiv

@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.ranges.package_enumerate.Iterator.template
+namespace tunitas::ranges::package_enumerate::body {
+  //
+  // This variant finishes the structure.
+  //
+  template<required::Iterator SUBITERATOR> struct Iterator<SUBITERATOR, Mutability::MUTABLE>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::ranges::package_enumerate::body {
+  template<required::Iterator SUBITERATOR> class Iterator<SUBITERATOR, Mutability::MUTABLE> : public Iterotype<SUBITERATOR> {
+    using Ancestor = Iterotype<SUBITERATOR>;
+  public:
+    Iterator() = default;
+    using Ancestor::Iterotype;
+    //
+#if !(202312 < __cplusplus)
+    inline auto operator++() -> Iterator & { return Ancestor::increment(*this); }
+    inline auto operator++(int) -> Iterator {
+      auto old{*this};
+      Ancestor::increment(*this);
+      return old;
+    }
+#endif
+  };
+}
+#endiv
+#divert <cpp>
+#import std.convertible_to
+namespace {
+  namespace testate {
+    using namespace tunitas::ranges::package_enumerate::body;
+    static_assert(std::convertible_to<Iterator<int *, Mutability::MUTABLE>, Iterator<int *, Mutability::MUTABLE>>);
+  }
+}
+#endiv

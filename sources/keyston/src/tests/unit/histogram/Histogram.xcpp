@@ -1,0 +1,109 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::histogram { class Histogram; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.histogram.Histogram
+struct tests::unit::histogram::Histogram : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Histogram<>;
+  using Ct = Subject::Value;
+  //
+  auto test_constructor_default() -> void;
+  auto test_constructor_initializing() -> void;
+  //
+  auto test_operator_eq() -> void;
+  auto test_operator_ne() -> void;
+  //
+  auto test_operator_add_move_move() -> void;
+  auto test_operator_add_move_copy() -> void;
+  auto test_operator_add_copy_move() -> void;
+  auto test_operator_add_copy_copy() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::histogram::Histogram::suite() -> Suite {
+  auto series = Stream{"Histogram"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Histogram::test_constructor_default)
+                  << add("initializing", &Histogram::test_constructor_initializing)
+                  << END;
+              return con;
+            }()
+         << add("operator==", &Histogram::test_operator_eq)
+         << add("operator!=", &Histogram::test_operator_ne)
+         << []{
+             auto plus = Stream{"add"sv};
+             plus << add("move,move", &Histogram::test_operator_add_move_move)
+                  << add("move,copy", &Histogram::test_operator_add_copy_move)
+                  << add("copy,move", &Histogram::test_operator_add_move_copy)
+                  << add("copy,copy", &Histogram::test_operator_add_copy_copy)
+                  << END;
+             return plus;
+         }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::histogram {
+  auto Histogram::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+    // these things come already filled-to-size
+    require(ASSERTION, 0 < subject.size());
+  }
+  auto Histogram::test_constructor_initializing() -> void {
+    auto subject = Subject{Subject::Inplace{}, Ct{1},Ct{2},Ct{3},Ct{4}};
+    require(ASSERTION, sizeof(subject));
+    // these things come already filled-to-size
+    require(ASSERTION, 0 < subject.size());
+  }
+  auto Histogram::test_operator_eq() -> void {
+    auto left = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto right = Subject{};
+    require(ASSERTION, left == left);
+    require(ASSERTION, right == right);
+    require(ASSERTION, !(left == right));
+  }
+  auto Histogram::test_operator_ne() -> void {
+    auto left = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto right = Subject{};
+    require(ASSERTION, !(left != left));
+    require(ASSERTION, !(right != right));
+    require(ASSERTION, left != right);
+  }
+  auto Histogram::test_operator_add_move_move() -> void {
+    auto a = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto b = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8}};
+    auto const observed = move(a) + move(b);
+    require(ASSERTION, expected == observed);
+  }
+  auto Histogram::test_operator_add_move_copy() -> void {
+    auto a = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto const b = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8}};
+    auto const observed = move(a) + b;
+    require(ASSERTION, expected == observed);
+  }
+  auto Histogram::test_operator_add_copy_move() -> void {
+    auto const a = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto b = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8}};
+    auto const observed = a + move(b);
+    require(ASSERTION, expected == observed);
+  }
+  auto Histogram::test_operator_add_copy_copy() -> void {
+    auto const a = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto const b = Subject{Ct{1},Ct{2},Ct{3},Ct{4}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8}};
+    auto const observed = a + b;
+    require(ASSERTION, expected == observed);
+  }
+}
+#endiv

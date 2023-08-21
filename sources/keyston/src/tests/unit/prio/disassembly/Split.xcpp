@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.prio.required.Definition
+namespace tests::unit::prio::disassembly {
+  template<required::Definition> struct Split;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.prio.disassembly.Prototype
+#import tunitas.octets.required.Fixed
+#import tunitas.keyston.prio.Codec
+namespace tests::unit::prio {
+  template<required::Definition DEFINITION> class disassembly::Split : public rigging::suite::Fixture, protected Prototype {
+    using Ancestor = Prototype;
+  public:
+    static auto suite() -> Suite;
+    //
+    using Definition = DEFINITION;
+    using Encoded = typename ::tunitas::keyston::prio::Codec<Definition::PRIO>::Encoded;
+    //
+    auto test_call() -> void;
+  protected:
+    // fill with something obvious (but deterministic)
+    template<::tunitas::octets::required::Fixed BUFFER> static auto generate() -> BUFFER;
+  };
+}
+#endiv
+#divert <tpp>
+#import tests.unit.prio.disassembly
+namespace tests::unit::prio::disassembly {
+  template<required::Definition _> auto Split<_>::suite() -> Suite {
+    auto series = Stream{typeid(Definition)};
+    series << add("call", &Split::test_call)
+           << END;
+    return settle(series);
+  }
+  template<required::Definition _> template<::tunitas::octets::required::Fixed BUFFER> auto Split<_>::generate() -> BUFFER {
+    auto ret = BUFFER{};
+    unsigned ith{};
+    for (auto &each : ret) {
+      each = Octet(ith++); // the narrowing is desired
+    }
+    return ret;
+  }
+  template<required::Definition _> auto Split<_>::test_call() -> void {
+    auto encoded = []{
+      // MUST generate the encoded form which has some internal properties; else disssembly will fail in proof verification throwing exception::Prove
+      auto specimen = ::tunitas::keyston::measurement::Specimen{};
+      if constexpr (Definition::PRIO != ::tunitas::keyston::prio::Name::HISTOGRAM) {
+        return Definition::Codec::encode(specimen);
+      } else {
+        auto boundaries = ::tunitas::keyston::measurement::Boundaries{}; // all zeros, but only necessary when HISTOGRAM
+        return Definition::Codec::encode(specimen, boundaries);
+      }
+    }();
+    auto nonce = generate<::tunitas::octets::Fixed<Definition::NONCE_SIZE.count()>>();
+    auto randomness = generate<::tunitas::octets::Fixed<Definition::randomness_size().count()>>();
+    auto viewof = []<Size SIZE>(::tunitas::array::Fixed<typename Ancestor::Octet, SIZE> const &a) -> ::tunitas::view::View<typename Ancestor::Octet, SIZE> { return /*explicit constructor*/ ::tunitas::view::View<typename Ancestor::Octet, SIZE>{a.data(), a.size()}; };
+    auto disassembled = ::tunitas::keyston::prio::disassembly<Definition>(encoded, viewof(nonce), viewof(randomness)); // <-------------------- test this
+    dump(disassembled);
+  }
+}
+#endiv

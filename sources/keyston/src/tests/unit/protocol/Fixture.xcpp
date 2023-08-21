@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::protocol { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.protocol.aggregation.Fixture
+#import tests.unit.protocol.batch.Fixture
+#import tests.unit.protocol.collection.Fixture
+#import tests.unit.protocol.continuation.Fixture
+#import tests.unit.protocol.extension.Fixture
+#import tests.unit.protocol.id.Fixture
+#import tests.unit.protocol.initialization.Fixture
+#import tests.unit.protocol.job.Fixture
+#import tests.unit.protocol.preparation.Fixture
+#import tests.unit.protocol.query.Fixture
+#import tests.unit.protocol.report.Fixture
+#import tests.unit.protocol.task.Fixture
+auto tests::unit::protocol::Fixture::suite() -> Suite {
+  auto series = Stream{"protocol"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use // anything?
+                  << END;
+              return use;
+            }()
+         << add<batch::Fixture>()
+         << add<extension::Fixture>()
+         << add<id::Fixture>()
+         << add<job::Fixture>()
+         << add<query::Fixture>()
+         << add<report::Fixture>()
+         << add<task::Fixture>()
+         << add<aggregation::Fixture>()
+         << add<collection::Fixture>()
+         << add<continuation::Fixture>()
+         << add<initialization::Fixture>()
+         << add<preparation::Fixture>()
+         << END;
+  return settle(series);
+}
+#endiv

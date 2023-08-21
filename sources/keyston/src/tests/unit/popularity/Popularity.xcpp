@@ -1,0 +1,109 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::popularity { class Popularity; }
+#endiv
+#divert <hpp>
+#import tunitas.keyston.popularity.Popularity
+struct tests::unit::popularity::Popularity : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Popularity;
+  using Ct = Subject::Value;
+  //
+  auto test_constructor_default() -> void;
+  auto test_constructor_initializing() -> void;
+  //
+  auto test_operator_eq() -> void;
+  auto test_operator_ne() -> void;
+  //
+  auto test_operator_add_move_move() -> void;
+  auto test_operator_add_move_copy() -> void;
+  auto test_operator_add_copy_move() -> void;
+  auto test_operator_add_copy_copy() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::popularity::Popularity::suite() -> Suite {
+  auto series = Stream{"Popularity"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Popularity::test_constructor_default)
+                  << add("initializing", &Popularity::test_constructor_initializing)
+                  << END;
+              return con;
+            }()
+         << add("operator==", &Popularity::test_operator_eq)
+         << add("operator!=", &Popularity::test_operator_ne)
+         << []{
+             auto plus = Stream{"add"sv};
+             plus << add("move,move", &Popularity::test_operator_add_move_move)
+                  << add("move,copy", &Popularity::test_operator_add_copy_move)
+                  << add("copy,move", &Popularity::test_operator_add_move_copy)
+                  << add("copy,copy", &Popularity::test_operator_add_copy_copy)
+                  << END;
+             return plus;
+         }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::popularity {
+  auto Popularity::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+    // these things come empty; you have to push_back to fill them.
+    require(ASSERTION, 0 == subject.size());
+  }
+  auto Popularity::test_constructor_initializing() -> void {
+    auto subject = Subject{std::in_place, Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    require(ASSERTION, sizeof(subject));
+    // these things come already filled-to-size
+    require(ASSERTION, 0 < subject.size());
+  }
+  auto Popularity::test_operator_eq() -> void {
+    auto left = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto right = Subject{};
+    require(ASSERTION, left == left);
+    require(ASSERTION, right == right);
+    require(ASSERTION, !(left == right));
+  }
+  auto Popularity::test_operator_ne() -> void {
+    auto left = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto right = Subject{};
+    require(ASSERTION, !(left != left));
+    require(ASSERTION, !(right != right));
+    require(ASSERTION, left != right);
+  }
+  auto Popularity::test_operator_add_move_move() -> void {
+    auto a = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto b = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8},Ct{10},Ct{12},Ct{14},Ct{16},Ct{18}};
+    auto const observed = move(a) + move(b);
+    require(ASSERTION, expected == observed);
+  }
+  auto Popularity::test_operator_add_move_copy() -> void {
+    auto a = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto const b = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8},Ct{10},Ct{12},Ct{14},Ct{16},Ct{18}};
+    auto const observed = move(a) + b;
+    require(ASSERTION, expected == observed);
+  }
+  auto Popularity::test_operator_add_copy_move() -> void {
+    auto const a = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto b = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8},Ct{10},Ct{12},Ct{14},Ct{16},Ct{18}};
+    auto const observed = a + move(b);
+    require(ASSERTION, expected == observed);
+  }
+  auto Popularity::test_operator_add_copy_copy() -> void {
+    auto const a = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto const b = Subject{Ct{1},Ct{2},Ct{3},Ct{4},Ct{5},Ct{6},Ct{7},Ct{8},Ct{9}};
+    auto const expected = Subject{Ct{2},Ct{4},Ct{6},Ct{8},Ct{10},Ct{12},Ct{14},Ct{16},Ct{18}};
+    auto const observed = a + b;
+    require(ASSERTION, expected == observed);
+  }
+}
+#endiv

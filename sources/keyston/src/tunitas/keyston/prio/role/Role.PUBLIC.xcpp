@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.role.Role.template
+namespace tunitas::keyston::prio::role {
+  //
+  // <FIXTHIS>
+  //   <quote ref="https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html#name-upload-request">
+  //     Note that the public share might be empty, depending on the VDAF. 
+  //     For example, Prio3 has an empty public share, but Poplar1 does not.
+  //   </quote>
+  //   And as you an see, Prio3 DOS NOT have an empty public share; the public share carries the joint randommess.
+  // </FIXTHIS>
+  //
+  // Specification:
+  //  
+  //   Section 7.2.6.1. Message Serialization
+  //
+  // Design:
+  //
+  //   Only the PRIO3 algo(s) are implemented herein.
+  //
+  template<required::Definition DEFINITION> struct Role<PUBLIC, DEFINITION>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.view.View
+#import tunitas.keyston.Shards
+#import tunitas.octets.Fixed
+#import tunitas.keyston.prio.role.Outline
+#import tunitas.keyston.prio.role.Uncoded
+namespace tunitas::keyston::prio::role {
+  template<required::Definition DEFINITION> struct Role<PUBLIC, DEFINITION> : public Outline<PUBLIC, DEFINITION> {
+    Role() = delete;
+    Role(Role const &) = delete;
+    ;;
+    using Definition = DEFINITION;
+    using Uncoded = role::Uncoded<PUBLIC, DEFINITION>;
+    using Decoded = typename Outline<PUBLIC, DEFINITION>::Decoded;
+    using Encoded = typename Outline<PUBLIC, DEFINITION>::Encoded;
+    //
+    // def encode_public_share(Prio3, k_joint_rand_parts): -> Bytes;
+    inline static constexpr auto encode(typename Uncoded::View::Fixed) -> typename Encoded::Storage;
+    //
+    // def decode_public_share(Prio3, encoded: Bytes) -> Array[Bytes] (of seeds)
+    inline static constexpr auto decode(typename Encoded::View::Variable) -> typename Decoded::Storage; // throws on undecodable
+  protected:
+    inline static constexpr auto decode_fixed(typename Encoded::View::Fixed) -> typename Decoded::Storage; // obviously decodable (by size)
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::role {
+  template<required::Definition _> constexpr auto Role<PUBLIC, _>::encode(typename Uncoded::View::Fixed pieces) -> typename Encoded::Storage {
+    if constexpr (Definition::use_joint_randomness()) {
+      return octets::join(pieces);
+    } else {
+      return {};
+    }
+  }
+  template<required::Definition _> constexpr auto Role<PUBLIC, _>::decode(typename Encoded::View::Variable encoded) -> typename Decoded::Storage {
+    // [[FIXTHIS]] this is obviously prio-specific and thus won't work with with the poplar genre
+    auto [fixed, remaining] = octets::slice_off<typename Encoded::View::Fixed, prio::exception::Decode>(encoded);
+    if (!remaining.empty()) {
+      throw prio::exception::Decode{};
+    } else {
+      return decode_fixed(fixed);
+    }
+  }
+  template<required::Definition _> constexpr auto Role<PUBLIC, _>::decode_fixed(typename Encoded::View::Fixed blob) -> typename Decoded::Storage {
+    if constexpr (!Definition::use_joint_randomness()) {
+      return {};
+    } else {
+      auto ret = typename Decoded::Storage{};
+      auto here = blob.begin();
+      using Stride = typename Encoded::Each;
+      for (auto &each : ret) {
+        each = typename Stride::View::Fixed{here, here+Stride::SIZE};
+        here += Stride::SIZE;
+      }
+      return ret;
+    }
+  }
+}
+#endiv

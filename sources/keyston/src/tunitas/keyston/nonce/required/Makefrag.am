@@ -1,0 +1,20 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_nonce_required_SUBSOURCES = \
+  obj/src/tunitas/keyston/nonce/required/namespace.cpp \
+  obj/src/tunitas/keyston/nonce/required/Bits.cpp \
+  obj/src/tunitas/keyston/nonce/required/Bundle.cpp \
+  obj/src/tunitas/keyston/nonce/required/Bundleable.cpp \
+  obj/src/tunitas/keyston/nonce/required/Element.cpp \
+  obj/src/tunitas/keyston/nonce/required/Entropy.cpp \
+  obj/src/tunitas/keyston/nonce/required/Generator.cpp \
+  obj/src/tunitas/keyston/nonce/required/Nonce.cpp \
+  obj/src/tunitas/keyston/nonce/required/Octets.cpp \
+  obj/src/tunitas/keyston/nonce/required/Precision.cpp \
+  obj/src/tunitas/keyston/nonce/required/Since.cpp \
+  obj/src/tunitas/keyston/nonce/required/Unsigned.cpp \
+  $(end)

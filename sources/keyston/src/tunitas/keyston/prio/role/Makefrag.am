@@ -1,0 +1,35 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_prio_role_SUBSOURCES = \
+  obj/src/tunitas/keyston/prio/Role.cpp \
+  obj/src/tunitas/keyston/prio/role/namespace.cpp \
+  $(tunitas_keyston_prio_role_required_SUBSOURCES) \
+  obj/src/tunitas/keyston/prio/role/Name.cpp \
+  \
+  obj/src/tunitas/keyston/prio/role/Role.template.cpp \
+  obj/src/tunitas/keyston/prio/role/Role.LEADER.cpp \
+  obj/src/tunitas/keyston/prio/role/Role.HELPER.cpp \
+  obj/src/tunitas/keyston/prio/role/Role.PUBLIC.cpp \
+  obj/src/tunitas/keyston/prio/role/Role.cpp \
+  \
+  obj/src/tunitas/keyston/prio/role/Outline.template.cpp \
+  obj/src/tunitas/keyston/prio/role/Outline.PUBLIC.DEFINITION.cpp \
+  obj/src/tunitas/keyston/prio/role/Outline.cpp \
+  \
+  obj/src/tunitas/keyston/prio/role/Uncoded.template.cpp \
+  obj/src/tunitas/keyston/prio/role/Uncoded.PUBLIC.DEFINITION.cpp \
+  obj/src/tunitas/keyston/prio/role/Uncoded.LEADER.DEFINITION.cpp \
+  obj/src/tunitas/keyston/prio/role/Uncoded.HELPER.DEFINITION.cpp \
+  obj/src/tunitas/keyston/prio/role/Uncoded.cpp \
+  \
+  obj/src/tunitas/keyston/prio/role/Count.cpp \
+  obj/src/tunitas/keyston/prio/role/Literal.cpp \
+  obj/src/tunitas/keyston/prio/role/Seed.cpp \
+  obj/src/tunitas/keyston/prio/role/Blind.cpp \
+  $(end)
+#
+include src/tunitas/keyston/prio/role/required/Makefrag.am

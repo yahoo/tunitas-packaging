@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.exhibition.recital.Recital.template
+namespace tests::exhibition::recital {
+  template<> struct Recital<PRIO, PRIO3_COUNT>;
+}
+#endiv
+#divert <hpp>
+#import tests.exhibition.recital.Of.PRIO.FUNCTION
+#import tunitas.keyston.vdaf.Function
+namespace tests::exhibition::recital {
+  template<> struct Recital<PRIO, PRIO3_COUNT> : private Of<PRIO, recital::Function<PRIO, PRIO3_COUNT>> {
+    static auto standard(std::ostream &) -> void;
+    template<required::iterator::Specimen ITERATOR = measurement::Specimen const *> static auto specimens(std::ostream &, ITERATOR start, ITERATOR finish) -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::exhibition::recital {
+  template<required::iterator::Specimen ITERATOR> auto Recital<PRIO, PRIO3_COUNT>::specimens(std::ostream &outbound, ITERATOR start, ITERATOR finish) -> void {
+    trace(outbound, Parameters{}, start, finish);
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.Tuple
+#import tunitas.keyston.prio.exception.Verifier
+namespace tests::exhibition::recital {
+  auto Recital<PRIO, PRIO3_COUNT>::standard(std::ostream &outbound) -> void {
+    trace(outbound, Parameters{}, 1_specimen);
+  }
+}
+#endiv

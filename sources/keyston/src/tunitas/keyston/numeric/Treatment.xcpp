@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.numeric.required.Treatment
+namespace tunitas::keyston::numeric {
+  //
+  // Provide a treatment for the variant value; in a unary operation scenario.
+  //
+  // Specification:
+  //
+  //   The moral equivalent of
+  //
+  //   auto visitor = variant::Visitor{[](auto &)           { throw exception::Variant{}; }, .................. otherwise
+  //                                   [&m](uint256_t &lhs) { lhs += enbiggen(m.value); }}; ... caller-provided
+  //
+  // Design:
+  //
+  //   A lambda is an implicit class with operator()(...)
+  //   A Visitor with lambdas is just a class that inherits from the types given in its initializer.
+  //   You know how that works.  It's documented in std::visit and in tunitas::variant::Visitor
+  //
+  // Usage:
+  //
+  //   auto integer = Integer{};
+  //   auto treatment = Treatment{[&m](Integer &lhs) { lhs += enbiggen(m.value); }};
+  //   visit(treatment, integer);
+  //   return move(integer);
+  //
+  template<required::Treatment TREATMENT> struct Treatment;
+  template<required::Treatment TREATMENT> Treatment(TREATMENT &&) -> Treatment<TREATMENT>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.exception.Variant
+#import tunitas.keyston.numeric.returned.Result
+namespace tunitas::keyston {
+  template<numeric::required::Treatment TREATMENT> struct tunitas::keyston::numeric::Treatment : public TREATMENT {
+    using TREATMENT::operator();
+    template<typename TYPE> auto operator()(TYPE const &) const -> typename returned::Result<decltype(&TREATMENT::operator())>::Type { throw exception::Variant{}; }
+  };
+}
+#endiv

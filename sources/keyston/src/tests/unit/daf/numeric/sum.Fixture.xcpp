@@ -1,0 +1,163 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::daf::numeric::sum {
+  class Fixture;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.feature.Invariant
+#import tunitas.keyston.daf.Function
+#import tests.unit.daf.numeric.Palette
+struct tests::unit::daf::numeric::sum::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  struct Function : public library::Function<PRIO, library::Name::SUM> {
+    template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+    using Parameters = library::Parameters;
+    template<Slice SLICE> using Measurement = library::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = library::Input<SLICE>;
+    template<Slice SLICE> using Public      = library::Public<SLICE>;
+    template<Slice SLICE> using Output      = library::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = library::Aggregation<SLICE>;
+  };
+  //
+  auto test_disassembly_good() -> void;
+  auto test_computation_good() -> void;
+  auto test_amalgamation_empty() -> void;
+  auto test_amalgamation_good() -> void;
+  auto test_amalgamation_fail() -> void;
+  auto test_reassembly_good() -> void;
+protected:
+  struct Expected;
+  struct Provided;
+  struct Exception {
+    using Invariant = ::tunitas::exception::feature::Invariant;
+  };
+};
+#endiv
+#divert <cpp>
+auto tests::unit::daf::numeric::sum::Fixture::suite() -> Suite {
+  auto series = Stream{"sum"sv};
+  series << []{
+            auto dis = Stream{"disassembly"sv};
+            dis << add("good", &Fixture::test_disassembly_good)
+                << END;
+            return dis;
+          }()
+         << []{
+           auto com = Stream{"computation"sv};
+           com << add("good", &Fixture::test_computation_good)
+               << END;
+           return com;
+         }()
+         << []{
+           auto ama = Stream{"amalgamation"sv};
+           ama << add("empty", &Fixture::test_amalgamation_empty)
+               << add("good", &Fixture::test_amalgamation_good)
+               << add("fail", &Fixture::test_amalgamation_fail)
+               << END;
+           return ama;
+         }()
+         << []{
+           auto rea = Stream{"reassembly"sv};
+           rea << add("good", &Fixture::test_reassembly_good)
+               << END;
+           return rea;
+         }()
+         << END;
+  return settle(series);
+}
+#import tests.unit.daf.numeric.sum.Fixture.Expected
+#import tests.unit.daf.numeric.sum.Fixture.Provided
+namespace tests::unit::daf::numeric::sum {
+  auto Fixture::test_disassembly_good() -> void {
+    using Provided = Fixture::Provided::Disassembly;
+    using Expected = Fixture::Expected::Disassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto measurement = Function::Measurement<WHOLE>{Provided::THREE};
+    auto randomness = Function::Randomness{Provided::RANDOMNESS};
+    std::cerr << "randomness = " << std::hex << randomness.value << '\n';
+    auto [publick, inputs] = Function::disassembly(parameters, measurement, randomness);
+    //
+    require(ASSERTION, sizeof(publick)); // don't care what it is
+    //
+    // Because the sharding algorithm isn't implemented (yet) ... something banal happens here.
+    auto const left = visit(expected.treatment, inputs.at(0_shard));
+    auto const right = visit(expected.treatment, inputs.at(1_shard));
+    std::cerr << "HERE! " << underlying(left.at(0)) << ' ' << underlying(right.at(0)) << '\n';
+    //
+#if 1
+    require(ASSERTION, Expected::THREE == left + right);
+#else
+    // This is no longer true now that we incorporate randomnmess into the split algo
+    require(ASSERTION, Expected::THREE == left);
+    require(ASSERTION, Expected::ZERO == right);
+#endif
+  }
+  auto Fixture::test_computation_good() -> void {
+    using Provided = Fixture::Provided::Computation;
+    using Expected = Fixture::Expected::Computation;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto publick = Function::Public<SHARE>{};
+    auto input = Function::Input<SHARE>{Provided::CANARY};
+    auto output = Function::computation(parameters, 0_shard, publick, input);
+    //
+    require(ASSERTION, Provided::CANARY == visit(expected.itreatment, input));
+    require(ASSERTION, Expected::CANARY == visit(expected.otreatment, output));
+  }
+  auto Fixture::test_amalgamation_empty() -> void try {
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto outputs = Function::Series<Function::Output<SHARE>>{};// <------------------------------ empty, see?
+    auto amalgamated = Function::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, amalgamated));
+  } catch (Exception::Invariant const &) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_amalgamation_good() -> void {
+    using Provided = Fixture::Provided::Amalgamation;
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto outputs = []{
+      auto one = Function::Output<SHARE>{Provided::ONE};
+      auto two = Function::Output<SHARE>{Provided::TWO};
+      auto three = Function::Output<SHARE>{Provided::THREE};
+      return Function::Series<Function::Output<SHARE>>{one, two, three};
+    }();
+    auto amalgamated = Function::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::AMALGAMATED == visit(expected.treatment, amalgamated));
+  }
+  auto Fixture::test_amalgamation_fail() -> void {
+    // can amalgamation fail?
+    require(ASSERTION);
+  }
+  auto Fixture::test_reassembly_good() -> void {
+    using Provided = Fixture::Provided::Reassembly;
+    using Expected = Fixture::Expected::Reassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto aggregations = []{
+      auto two = Function::Aggregation<SHARE>{Provided::TWO};
+      auto three = Function::Aggregation<SHARE>{Provided::THREE};
+      return Function::Shards<Function::Aggregation<SHARE>>{two, three};
+    }();
+    auto processed = Processed{41};
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
+    //
+    require(ASSERTION, Expected::FIVE == visit(expected.treatment, reassembled));
+  }
+}
+#endiv

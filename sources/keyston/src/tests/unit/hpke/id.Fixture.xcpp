@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.hale.hpke.id
+namespace tests::unit::hpke::id {
+  class Fixture;
+  namespace library = ::tunitas::hale::hpke::id;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::hpke::id::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  template<typename SUBJECT> auto test_simple() -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::hpke::id {
+  template<typename SUBJECT> auto Fixture::test_simple() -> void {
+    auto subject = SUBJECT{};
+    require(ASSERTION, sizeof (subject));
+    require(ASSERTION, 0 == underlying(subject));
+    auto a = SUBJECT{};
+    auto b = SUBJECT{};
+    swap(a, b);
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.hale.hpke.id
+auto tests::unit::hpke::id::Fixture::suite() -> Suite {
+  auto series = Stream{"id"sv};
+  series << add("AEAD", &Fixture::test_simple<library::AEAD>)
+         << add("Configuration", &Fixture::test_simple<library::Configuration>)
+         << add("KEM", &Fixture::test_simple<library::KEM>)
+         << add("KDF", &Fixture::test_simple<library::KDF>)
+         << END;
+  return settle(series);
+}
+#endiv

@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::rheem::protocol::batch {
+  //
+  // The batch
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.1. Queries
+  //
+  // Design:
+  //
+  //   As-stated.
+  //
+  // Usage:
+  //
+  //   Construct with designated initialization.
+  //
+  struct Batch;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.keyston.quantity.Records
+#import tunitas.rheem.protocol.id
+#import tunitas.time.Duration
+#import tunitas.time.cast
+namespace tunitas::rheem::protocol {
+  namespace batch {
+    using std::move;
+    inline auto swap(Batch &, Batch &) noexcept -> void;
+  }
+  struct batch::Batch {
+    id::Batch id{};
+    Optional<keyston::quantity::Records> minimum_size{keyston::quantity::Records{1u}};
+    Optional<time::Duration> precision{time::cast<time::Duration>(std::chrono::microseconds{10})};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::rheem::protocol {
+  auto batch::swap(Batch &a, Batch &b) noexcept -> void {
+    swap(a.id, b.id);
+    swap(a.minimum_size, b.minimum_size);
+    swap(a.precision, b.precision);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::rheem::protocol::batch;
+    static_assert(std::is_default_constructible_v<Batch>);
+    static_assert(std::is_copy_constructible_v<Batch>);
+    static_assert(std::is_move_constructible_v<Batch>);
+    static_assert(std::is_copy_assignable_v<Batch>);
+    static_assert(std::is_move_assignable_v<Batch>);
+    static_assert(std::is_swappable_v<Batch>);
+  }
+}
+#endiv

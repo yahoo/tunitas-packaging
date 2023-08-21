@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+# The namespace.xcpp is missing here because it is supplied from tunitas (tunitas-basics) tunitas >= 2.3
+tunitas_integer_SUBSOURCES = \
+  $(tunitas_integer_distribution_traits_Randomness_SUBSOURCES) \
+  $(tunitas_integer_required_SUBSOURCES) \
+  obj/src/tunitas/integer/encode.cpp \
+  obj/src/tunitas/integer/to_octets.cpp \
+  obj/src/tunitas/integer/into_octets.cpp \
+  obj/src/tunitas/integer/from_octets.cpp \
+  $(end)
+#
+include src/tunitas/integer/distribution/traits/Randomness/Makefrag.am
+include src/tunitas/integer/required/Makefrag.am

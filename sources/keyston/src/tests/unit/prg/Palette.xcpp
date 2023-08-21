@@ -1,0 +1,112 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::prg {
+  //
+  // Palette of helpers.
+  // Descendants only.
+  //
+  struct Palette;
+}
+#endiv
+#divert <hpp>
+#import nonstd.uint128_t
+#import tunitas.array.Variable
+#import tunitas.array.Fixed
+#import tunitas.view.View
+#import tunitas.octets.Fixed
+#import tunitas.octets.Variable
+#import tunitas.keyston.prg.generator.Prototype
+#import tunitas.keyston.prg.generator.required.Element
+#import tests.unit.prg.Palette
+#import tunitas.Optional
+struct tests::unit::prg::Palette {
+protected:
+  ~Palette() = default;
+public:
+  using Seed = ::tunitas::octets::Fixed<library::generator::Prototype::Seed::SIZE.count()>;
+  using Custom = ::tunitas::octets::Variable;
+  using Binder = ::tunitas::octets::Variable;
+  //
+  // reminder: cannot use both an implicit coercion (from array) and also infer the ELEMENT
+  template<required::Element ELEMENT>             static auto dump(::tunitas::view::View<ELEMENT>) -> void;
+  template<required::Element ELEMENT>             static auto dump(::tunitas::array::Variable<ELEMENT> const &a) -> void     { dump(static_cast<::tunitas::view::View<ELEMENT>>(a)); }
+  template<required::Element ELEMENT, Size COUNT> static auto dump(::tunitas::array::Fixed<ELEMENT, COUNT> const &a) -> void { dump(static_cast<::tunitas::view::View<ELEMENT>>(a)); }
+  static auto dump(::tunitas::view::View<::tunitas::octets::Octet>) -> void;
+  //
+  static auto generate_seed(::tunitas::Optional<nonstd::uint128_t> = {}) -> Seed;
+  static auto generate_custom(::tunitas::Optional<nonstd::uint128_t> = {}) -> Custom;
+  static auto generate_binder(::tunitas::Optional<nonstd::uint128_t> = {}) -> Binder;
+protected:
+  template<typename SOMETHING> static auto generate_by_number(::tunitas::Optional<nonstd::uint128_t>) -> SOMETHING;
+  template<typename SOMETHING> static auto generate_by_string(::tunitas::Optional<nonstd::uint128_t>) -> SOMETHING;
+};
+#endiv
+#divert <tpp>
+#import tunitas.integer.SizeOf
+#import tunitas.keyston.field.element.traits.Element
+#import tunitas.integer.into_octets
+#import tunitas.octets.cast
+#import tunitas.octets.View
+#import nonstd.to_string
+#import std.hex
+#import std.dec
+#import nonstd.setfill
+#import nonstd.setwidth
+#import nonstd.int128.ostream // for operator<< [[FIXTHIS]]
+namespace tests::unit::prg {
+  template<typename SOMETHING> auto Palette::generate_by_number(::tunitas::Optional<nonstd::uint128_t> init) -> SOMETHING {
+    auto thing = SOMETHING{};
+    if (init) {
+      ::tunitas::integer::into_octets<std::endian::little>(*init, thing);
+    }
+    return thing;
+  }
+  template<typename SOMETHING> auto Palette::generate_by_string(::tunitas::Optional<nonstd::uint128_t> init) -> SOMETHING {
+    if (!init) {
+      return SOMETHING{};
+    } else {
+#if 1 // [[FIXTHIS]] get a nonstd::to_string(...) that can accept nonstd::uint128_t ... which the nonstd <= 2.3.0 does not
+      auto str = nonstd::to_string(static_cast<std::uint64_t>(*init));
+#else
+      auto str = nonstd::to_string(*init);
+#endif
+      auto redo = ::tunitas::octets::cast<::tunitas::octets::View>( std::span{str.data(), str.size()} );
+      return SOMETHING{redo.begin(), redo.end()};
+    }
+  }
+  template<required::Element ELEMENT> auto Palette::dump(::tunitas::view::View<ELEMENT> generated) -> void {
+    auto &out{std::cerr};
+    auto const bitcount = 8u * ::tunitas::integer::SizeOf<typename ::tunitas::keyston::field::element::traits::Element<ELEMENT>::Underlying>.count();
+    out << "array of " << generated.size() << " " << bitcount << "-bit " << (1 == generated.size() ? "number" : "numbers")<< '\n';
+    unsigned ith{};
+    for (auto const &item : generated ) {
+      using nonstd::int128::operator<<; // [[FIXTHIS]] get an operator<< that works for all the integers in tunitas::integer::integers
+      out << ith++ << ' ' << underlying(item) << '\n';
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::prg {
+  auto Palette::generate_seed(::tunitas::Optional<nonstd::uint128_t> init) -> Seed     { return generate_by_number<Seed>(init); }
+  auto Palette::generate_custom(::tunitas::Optional<nonstd::uint128_t> init) -> Custom { return generate_by_string<Custom>(init); }
+  auto Palette::generate_binder(::tunitas::Optional<nonstd::uint128_t> init) -> Binder { return generate_by_string<Binder>(init); }
+  auto Palette::dump(::tunitas::view::View<::tunitas::octets::Octet> generated) -> void {
+    auto &out{std::cerr};
+    if (generated.empty()) {
+      out << "(empty)";
+    } else {
+      out << std::hex;
+      for (auto each : generated) {
+        out << nonstd::setfill('0') << nonstd::setwidth(2) << static_cast<unsigned>(each);
+      }
+      out << std::dec;
+    }
+    out << '\n';
+  }
+}
+#endiv

@@ -1,0 +1,184 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::integer {
+  namespace package_from_octets {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_from_octets::interface;
+}
+// namespaces & types
+#import tunitas.integer.required.Unsigned
+#import tunitas.error.Code
+#import tunitas.octets.Octet
+namespace tunitas::integer::package_from_octets {
+  using octets::Octet;
+  namespace body {
+#if 12 < __GNUC__
+    using E = error::Code;
+#else
+    // avoid src/tunitas/keyston/integer/from_octets.xcpp:138:310: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+    using E = error::Code::Enumeration;
+#endif
+  }
+}
+#endiv
+#divert <hpp>
+#import std.endian
+#import std.has_single_bit
+#import std.invocable
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#import tunitas.integer.SizeOf
+#import tunitas.integer.from.Bytes
+#import tunitas.integer.required.iterator.Source
+#import tunitas.view.Variable
+#import tunitas.view.Fixed
+#import tunitas.Tuple
+namespace tunitas::integer::package_from_octets {
+  namespace body {
+    namespace exported {
+      //
+      // Authorities
+      //
+      //    draft-irtf-cfrg-vdaf - Verifiable Distributed Aggregation Functions
+      //    https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#name-conventions-and-definitions-15
+      //    Setion 2 Conventions and Definitions
+      //
+      // Specification:
+      //
+      //   [[recall "Bytes" in the specification's Python != units::Bytes, use Octets instead]]
+      //   <conjugation>
+      //     from_be_bytes(encoded: Bytes) -> Unsigned
+      //         computes the obvious inverse
+      //     from_le_bytes(encoded: Bytes) -> Unsigned
+      //          computes the obvious inverse.
+      //   </conjugation>
+      //
+      // Design:
+      //
+      //   Tricky to read (the declaration)
+      //   Easy to use the definition.
+      //   Can return an appropriately-sized (unsigned) integer.
+      //
+      //   The fixed-span variants cannot fail
+      //   The variable-span variants can overflow the RESULT, so there are are (the three) choices for how to receive the failure notifications.
+      //
+      //   With a fixed span the length corresponds to the result size so there is no chance of a mismatch.
+      //   With a variable span (view) there is no guarantee of the length; so there must also be an error-axis capability.
+      //
+      // Usage:
+      //
+      //   Implements "from_bytes(...)" from the draft spec
+      //
+      //   auto got = from_octets<Bigint, std::endian::little>(specimen);
+      //   auto got = from_octets<Bigint, std::endian::big>(specimen);
+      //
+      template<required::Unsigned RESULT, std::endian> inline constexpr auto from_octets(view::Fixed<Octet, SizeOf<RESULT>.count()>) -> RESULT;
+      template<required::Unsigned RESULT, std::endian, required::iterator::Source ITERATOR> inline constexpr auto from_octets(ITERATOR) -> Tuple<RESULT, ITERATOR>; // the caller MUST ensures that iterator is good for SizeOf<RESULT> more octets.
+      //
+      template<required::Unsigned RESULT, std::endian> inline constexpr auto from_octets(error::by::Exception, view::Variable<Octet>) -> RESULT;
+      template<required::Unsigned RESULT, std::endian> inline constexpr auto from_octets(error::by::Optional, view::Variable<Octet>) -> error::Optional<RESULT>;
+      template<required::Unsigned RESULT, std::endian> inline constexpr auto from_octets(error::by::Outcome, view::Variable<Octet>) -> error::Outcome<RESULT>;
+      //
+      // BLICK.  removethese ... they are just flourishes to poetically link back to the standard's presentation.  We prefer the cogency (above)
+      //
+      // The reasonable conjugation of the interface names of the standard (draft-irtf-cfgr-vdaf) are elaborated here
+      template<required::Unsigned RESULT> inline constexpr auto from_le_octets(error::by::Exception by, view::Variable<Octet> from) -> RESULT                 { return from_octets<std::endian::little, RESULT>(by, from); }
+      template<required::Unsigned RESULT> inline constexpr auto from_le_octets(error::by::Optional by, view::Variable<Octet> from) -> error::Optional<RESULT> { return from_octets<std::endian::little, RESULT>(by, from); }
+      template<required::Unsigned RESULT> inline constexpr auto from_le_octets(error::by::Outcome by, view::Variable<Octet> from) -> error::Outcome<RESULT>   { return from_octets<std::endian::little, RESULT>(by, from); }
+      //
+      template<required::Unsigned RESULT> inline constexpr auto from_be_octets(error::by::Exception by, view::Variable<Octet> from) -> RESULT                 { return from_octets<std::endian::big, RESULT>(by, from); }
+      template<required::Unsigned RESULT> inline constexpr auto from_be_octets(error::by::Optional by, view::Variable<Octet> from) -> error::Optional<RESULT> { return from_octets<std::endian::big, RESULT>(by, from); }
+      template<required::Unsigned RESULT> inline constexpr auto from_be_octets(error::by::Outcome by, view::Variable<Octet> from) -> error::Outcome<RESULT>   { return from_octets<std::endian::big, RESULT>(by, from); }
+      //
+      // The exact interface names in the standard (draft-irtf-cfgr-vdaf) are elaborated here
+      template<required::Unsigned RESULT> [[deprecated("instead prefer from_octets<std::endian::little>(...) or else from_le_octets(...)")]] inline constexpr auto from_le_bytes(error::by::Exception by, view::Variable<Octet> from) -> RESULT                 { return from_octets<std::endian::little, RESULT>(by, from); }
+      template<required::Unsigned RESULT> [[deprecated("instead prefer from_octets<std::endian::little>(...) or else from_le_octets(...)")]] inline constexpr auto from_le_bytes(error::by::Optional by, view::Variable<Octet> from) -> error::Optional<RESULT> { return from_octets<std::endian::little, RESULT>(by, from); }
+      template<required::Unsigned RESULT> [[deprecated("instead prefer from_octets<std::endian::little>(...) or else from_le_octets(...)")]] inline constexpr auto from_le_bytes(error::by::Outcome by, view::Variable<Octet> from) -> error::Outcome<RESULT>   { return from_octets<std::endian::little, RESULT>(by, from); }
+      //
+      template<required::Unsigned RESULT> [[deprecated("instead prefer from_octets<std::endian::big>(...) or else from_be_octets(...)")]]    inline constexpr auto from_be_bytes(error::by::Exception by, view::Variable<Octet> from) -> RESULT                 { return from_octets<std::endian::big, RESULT>(by, from); }
+      template<required::Unsigned RESULT> [[deprecated("instead prefer from_octets<std::endian::big>(...) or else from_be_octets(...)")]]    inline constexpr auto from_be_bytes(error::by::Optional by, view::Variable<Octet> from) -> error::Optional<RESULT> { return from_octets<std::endian::big, RESULT>(by, from); }
+      template<required::Unsigned RESULT> [[deprecated("instead prefer from_octets<std::endian::big>(...) or else from_be_octets(...)")]]    inline constexpr auto from_be_bytes(error::by::Outcome by, view::Variable<Octet> from) -> error::Outcome<RESULT>   { return from_octets<std::endian::big, RESULT>(by, from); }
+    }
+    // [[FIXTHIS]] look to find tunitas::error::required::Indicated<...> which proves that RESULT is either UNSIGNED or one of the error return-by wrappers error::Optional<UNSIGNED> or error::Outcome<UNSIGNED>
+    template<typename RESULT, required::Unsigned UNSIGNED, std::endian, std::invocable<> ON_OVERFLOW> requires std::constructible_from<RESULT, UNSIGNED> constexpr auto with_overflow(view::Variable<Octet> from, ON_OVERFLOW on_overflow) -> RESULT;
+    // Here the caller is responsible for ensuring that UNSIGNED is "big enough" to hold an integer of BYTE_COUNT size.
+    template<required::Unsigned UNSIGNED, std::endian, required::iterator::Source ITERATOR> constexpr auto without_overflow(ITERATOR start, ITERATOR finish) -> Tuple<UNSIGNED, ITERATOR>;
+  }
+}
+#endiv
+#divert <ipp>
+#import std.ranges.subrange
+#import std.rbegin
+#import std.rend
+#import std.reverse_iterator
+#import std.is_nothrow_invocable
+#import std.underlying_type
+#import tunitas.exception.Overflow
+#import tunitas.integer.Limits
+#import nonstd.exception.Unreachable
+#import nonstd.required.iterator.Undirected
+#import std.counted_iterator
+namespace tunitas::integer::package_from_octets {
+  template<typename RESULT, required::Unsigned UNSIGNED, std::endian ENDIAN, std::invocable<> ON_OVERFLOW> requires std::constructible_from<RESULT, UNSIGNED> constexpr auto body::with_overflow(view::Variable<Octet> from, ON_OVERFLOW on_overflow) -> RESULT {
+    static_assert(not std::is_nothrow_invocable_r_v<UNSIGNED, ON_OVERFLOW>, "need to throw exceptions out of on_overflow");
+    constexpr auto const SUBMAX = integer::Limits<UNSIGNED>::max()/0xffu;
+    auto ret = UNSIGNED{};
+    if constexpr (ENDIAN == std::endian::little) {
+      for (auto each : std::ranges::subrange{std::rbegin(from), std::rend(from)}) {
+        if (SUBMAX < ret) { return std::invoke_r<RESULT>(on_overflow); }
+        ret <<= 8;
+        ret |= std::underlying_type_t<Octet>(each);
+      }
+    } else if constexpr (ENDIAN == std::endian::big) {
+      for (auto each : from) {
+        if (SUBMAX < ret) { return std::invoke_r<RESULT>(on_overflow); }
+        ret <<= 8;
+        ret |= std::underlying_type_t<Octet>(each);
+      }
+    } else {
+      throw exception::Unreachable{};
+    }
+    return ret;
+  }
+  template<required::Unsigned UNSIGNED, std::endian ENDIAN> constexpr auto interface::from_octets(error::by::Exception, view::Variable<Octet> from) -> UNSIGNED                 { return with_overflow<UNSIGNED, UNSIGNED, ENDIAN>(from, []() -> UNSIGNED                                   { throw exception::Overflow{"(unsigned) integer overflow"}; }); }
+  template<required::Unsigned UNSIGNED, std::endian ENDIAN> constexpr auto interface::from_octets(error::by::Optional, view::Variable<Octet> from) -> error::Optional<UNSIGNED> { return with_overflow<error::Optional<UNSIGNED>, UNSIGNED, ENDIAN>(from, []() -> error::Optional<UNSIGNED> { return {}; }); }
+  template<required::Unsigned UNSIGNED, std::endian ENDIAN> constexpr auto interface::from_octets(error::by::Outcome, view::Variable<Octet> from) -> error::Outcome<UNSIGNED>   { return with_overflow<error::Outcome<UNSIGNED>,  UNSIGNED, ENDIAN>(from, []() -> error::Outcome<UNSIGNED>  { return std::error_code{E::OVERFLOW}; }); }
+  //
+  template<required::Unsigned UNSIGNED, std::endian ENDIAN, required::iterator::Source ITERATOR> constexpr auto body::without_overflow(ITERATOR start, ITERATOR finish) -> Tuple<UNSIGNED, ITERATOR> {
+    auto ret = UNSIGNED{};
+    if constexpr (ENDIAN == std::endian::little) {
+      using Reverse = std::reverse_iterator<ITERATOR>;
+      for (auto each : std::ranges::subrange{Reverse{finish}, Reverse{start}}) {
+        ret <<= 8;
+        ret |= std::underlying_type_t<Octet>(each);
+      }
+    } else if constexpr (ENDIAN == std::endian::big) {
+      for (auto each : std::ranges::subrange{start, finish}) {
+        ret <<= 8;
+        ret |= std::underlying_type_t<Octet>(each);
+      }
+    } else {
+      throw exception::Unreachable{};
+    }
+    return {ret, finish};
+  }
+  template<required::Unsigned UNSIGNED, std::endian ENDIAN> constexpr auto interface::from_octets(view::Fixed<Octet, SizeOf<UNSIGNED>.count()> from) -> UNSIGNED { return get<0>(without_overflow<UNSIGNED, ENDIAN>(from.begin(), from.end())); }
+  template<required::Unsigned UNSIGNED, std::endian ENDIAN, required::iterator::Source ITERATOR> constexpr auto interface::from_octets(ITERATOR source) -> Tuple<UNSIGNED, ITERATOR> {
+    // the caller has guaranteed that there are at least SizeOf<UNSIGNED> more bytes in the source iterator.
+    if constexpr (required::iterator::Undirected<ITERATOR>) {
+      return without_overflow<UNSIGNED, ENDIAN>(source, source+SizeOf<UNSIGNED>.count());
+    } else {
+      return without_overflow<UNSIGNED, ENDIAN>(std::counted_iterator<ITERATOR>{source, SizeOf<UNSIGNED>.count()}, {});
+    }
+  }
+}
+#endiv

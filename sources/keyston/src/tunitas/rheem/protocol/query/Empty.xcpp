@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::rheem::protocol::query {
+  //
+  // An empty query
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4. Protocol Definition
+  //
+  // Design:
+  //
+  //   Suitable for Variant (std::variant) and cast<...>(...)
+  //   Use designated initialization.
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  struct Empty;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::rheem::protocol {
+  namespace query {
+    using std::move;
+    inline auto swap(Empty &, Empty &) noexcept -> void { }
+  }
+  struct query::Empty { };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::rheem::protocol::query;
+    static_assert(std::is_default_constructible_v<Empty>);
+    static_assert(std::is_copy_constructible_v<Empty>);
+    static_assert(std::is_move_constructible_v<Empty>);
+    static_assert(std::is_copy_assignable_v<Empty>);
+    static_assert(std::is_move_assignable_v<Empty>);
+    static_assert(std::is_swappable_v<Empty>);
+  }
+}
+#endiv

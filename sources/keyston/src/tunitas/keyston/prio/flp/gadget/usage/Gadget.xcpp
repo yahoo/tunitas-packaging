@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.prio.flp.gadget.required.Gadget
+#import tunitas.keyston.prio.flp.gadget.Recorder // whereas every Gadget<NAME>::Evaluator requires the complete type of Recorder<...>
+#import tunitas.keyston.prio.flp.dimension // for Arity & Degree
+#import tunitas.keyston.Field
+namespace tunitas::keyston::prio::flp::gadget::usage {
+  //
+  // The rest of the conditions.
+  //  
+  namespace [[eponymous]] gadget {
+    namespace arities {
+      using Something = Field<64>::Element; // any one will do
+      //
+      namespace arity0 {
+        template<typename EVALUATOR, typename ELEMENT, typename RECORDER> concept Evaluator = requires(EVALUATOR const &evaluator, RECORDER &recorder, ELEMENT) {
+          { EVALUATOR{recorder} };
+          { evaluator() } -> convertible_to<ELEMENT>;
+        };
+        template<typename GADGET> concept Arity0 = requires(GADGET) {
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, void>>,           Something, Recorder<Something, GADGET::ARITY, void, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, Something>>,      Something, Recorder<Something, GADGET::ARITY, void, Something>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, void>>,      Something, Recorder<Something, GADGET::ARITY, Something, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, Something>>, Something, Recorder<Something, GADGET::ARITY, Something, Something>>;
+        };
+      }
+      using arity0::Arity0;
+      namespace arity1 {
+        template<typename EVALUATOR, typename ELEMENT, typename RECORDER> concept Evaluator = requires(EVALUATOR const &evaluator, RECORDER &recorder, ELEMENT element) {
+          { EVALUATOR{recorder} };
+          { evaluator(element) } -> convertible_to<ELEMENT>;
+        };
+        template<typename GADGET> concept Arity1 = requires(GADGET) {
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, void>>,           Something, Recorder<Something, GADGET::ARITY, void, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, Something>>,      Something, Recorder<Something, GADGET::ARITY, void, Something>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, void>>,      Something, Recorder<Something, GADGET::ARITY, Something, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, Something>>, Something, Recorder<Something, GADGET::ARITY, Something, Something>>;
+        };
+      }
+      using arity1::Arity1;
+      namespace arity2 {
+        template<typename EVALUATOR, typename ELEMENT, typename RECORDER> concept Evaluator = requires(EVALUATOR const &evaluator, RECORDER &recorder, ELEMENT element1, ELEMENT element2) {
+          { EVALUATOR{recorder} };
+          { evaluator(element1, element2) } -> convertible_to<ELEMENT>;
+        };
+        template<typename GADGET> concept Arity2 = requires(GADGET) {
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, void>>,           Something, Recorder<Something, GADGET::ARITY, void, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, Something>>,      Something, Recorder<Something, GADGET::ARITY, void, Something>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, void>>,      Something, Recorder<Something, GADGET::ARITY, Something, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, Something>>, Something, Recorder<Something, GADGET::ARITY, Something, Something>>;
+        };
+      }
+      using arity2::Arity2;
+      namespace arity3 {
+        template<typename EVALUATOR, typename ELEMENT, typename RECORDER> concept Evaluator = requires(EVALUATOR const &evaluator, RECORDER &recorder, ELEMENT element1, ELEMENT element2, ELEMENT element3) {
+          { EVALUATOR{recorder} };
+          { evaluator(element1, element2, element3) } -> convertible_to<ELEMENT>;
+        };
+        template<typename GADGET> concept Arity3 = requires(GADGET) {
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, void>>,           Something, Recorder<Something, GADGET::ARITY, void, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, void, Something>>,      Something, Recorder<Something, GADGET::ARITY, void, Something>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, void>>,      Something, Recorder<Something, GADGET::ARITY, Something, void>>;
+          requires Evaluator<typename GADGET::template Evaluator<Recorder<Something, GADGET::ARITY, Something, Something>>, Something, Recorder<Something, GADGET::ARITY, Something, Something>>;
+        };
+      }
+      using arity3::Arity3;
+    }
+    using arities::Arity0;
+    using arities::Arity1;
+    using arities::Arity2;
+    using arities::Arity3;
+    template<typename GADGET> concept Gadget = required::Gadget<GADGET> && requires(GADGET) {
+      { GADGET::ARITY } -> convertible_to<Arity>;
+      { GADGET::DEGREE } -> convertible_to<Degree>;
+      requires (Arity{0} != GADGET::ARITY) || Arity0<GADGET>;
+      requires (Arity{1} != GADGET::ARITY) || Arity1<GADGET>;
+      requires (Arity{2} != GADGET::ARITY) || Arity2<GADGET>;
+      requires (Arity{3} != GADGET::ARITY) || Arity3<GADGET>;
+      requires (static_cast<unsigned>(GADGET::ARITY) < 4u); // because we're lazy and don't expect any larger arities
+    };
+  }
+  using gadget::Gadget;
+}
+#endiv

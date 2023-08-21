@@ -1,0 +1,35 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms and provenance see the LICENSE file at the top of this repository.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+noinst_lib_libtunitas_keyston_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+noinst_lib_libtunitas_keyston_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+noinst_lib_libtunitas_keyston_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+# [[FIXTHIS]] - -ltunitas-app is required here because tunitas::keyston::Version uses it
+# [[FIXTHIS]] - need a way to provide tunitas-keyston that doesn't need the TXUI of -ltuintas-app
+noinst_lib_libtunitas_keyston_la_LIBADD = \
+  noinst/lib/libautotools-autoconf+tunitas-keyston.la \
+  noinst/lib/libfmt+tunitas-keyston.la \
+  noinst/lib/libstd+tunitas-keyston.la \
+  noinst/lib/libnonstd+tunitas-keyston.la \
+  noinst/lib/libtunitas+tunitas-keyston.la \
+  noinst/lib/libtunitas-hale+tunitas-keyston.la \
+  noinst/lib/libtunitas-rheem+tunitas-keyston.la \
+  noinst/lib/libwant.la \
+  -ltunitas-application -lnonstd++ -lcryptopp -lfmt \
+  $(end)
+noinst_lib_libtunitas_keyston_la_MODULES = $(call TF_SOURCEStoMODULES, $(noinst_lib_libtunitas_keyston_la_SOURCES))
+noinst_lib_libtunitas_keyston_la_SOURCES = $(tunitas_keyston_SUBSOURCES)
+include src/tunitas/keyston/Makefrag.am
+$(noinst_lib_libtunitas_keyston_la_SOURCES) : obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $<)
+	$(TF_V_DONE) test -e $@
+$(tf_noinst_mkdir)/libtunitas-keyston.mk: $(noinst_lib_libtunitas_keyston_la_SOURCES)
+$(tf_noinst_mkdir)/libtunitas-keyston.mk:
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
+include $(tf_noinst_mkdir)/libtunitas-keyston.mk
+clean-dependencies:: ; rm -f $(tf_noinst_mkdir)/libtunitas-keyston.mk

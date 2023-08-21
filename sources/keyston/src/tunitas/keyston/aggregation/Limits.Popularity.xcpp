@@ -1,0 +1,46 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.aggregation.Limits.template
+#forward tunitas.keyston.aggregation.Popularity
+namespace tunitas::keyston::aggregation {
+  template<> struct Limits<Popularity>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Limits.Count
+#import tunitas.keyston.measurement.Limits.Prefixes
+#import std.size_t
+namespace tunitas::keyston::aggregation {
+  template<> struct Limits<Popularity> {
+    using Value = aggregation::Popularity;
+    struct Element : public Limits<Count> { };
+    struct Index {
+      using Value = std::size_t;
+      inline static constexpr auto min() -> Value;
+      // There is no stated maximum (the reasonable maximum is 2^PREFIX-LENGTH
+      inline static constexpr auto max() -> Value = delete;
+    };
+    using Prefixes = measurement::Limits<measurement::Prefixes>;
+    struct Prefix {
+      struct Length {
+        using Value = std::size_t;
+        inline static constexpr auto min() -> Value;
+        inline static constexpr auto max() -> Value;
+      };
+    };
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.popularity.Popularity
+namespace tunitas::keyston::aggregation {
+  constexpr auto Limits<Popularity>::Index::min() -> Value { return 0uz; }
+  //
+  constexpr auto Limits<Popularity>::Prefix::Length::min() -> Value { return 0uz; }
+  constexpr auto Limits<Popularity>::Prefix::Length::max() -> Value { return 8*sizeof(Limits::Element::Numeric); }
+}
+#endiv

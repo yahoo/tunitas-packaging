@@ -1,0 +1,83 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.prio.required.Codec
+namespace tests::unit::prio {
+  template<typename SUBJECT> requires required::Codec<SUBJECT> struct Codec;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.prio.Codec
+namespace tests::unit {
+  template<typename SUBJECT> requires prio::required::Codec<SUBJECT> struct prio::Codec : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_call_encode() -> void;
+    auto test_call_truncate() -> void;
+    auto test_call_decode() -> void;
+    //
+    auto test_known_encode() -> void;
+    auto test_known_truncate() -> void;
+    auto test_known_decode() -> void;
+  protected:
+    static auto generate(unsigned) -> typename Subject::Field::Element;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::prio {
+  template<typename _> auto Codec<_>::suite() -> Suite { 
+    auto series = Stream{typeid(Subject)};
+    series << []{
+               auto call = Stream{"call"sv};
+               call << add("encode", &Codec::test_call_encode)
+                    << add("truncate", &Codec::test_call_truncate)
+                    << add("decode", &Codec::test_call_decode)
+                    << END;
+               return call;
+             }()
+           << []{
+               auto kno = Stream{"known"sv};
+               kno << add("encode", &Codec::test_known_encode)
+                   << add("truncate", &Codec::test_known_truncate)
+                   << add("decode", &Codec::test_known_decode)
+                   << END;
+               return kno;
+             }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Codec<_>::test_call_encode() -> void {
+    auto measurement = typename Subject::Measurement{};
+    auto encoded = [measurement]{
+      if constexpr (std::same_as<Subject, library::Codec<library::Name::HISTOGRAM>>) {
+        auto boundaries = typename Subject::Boundaries{};
+        return Subject::encode(measurement, boundaries);
+      } else {
+        return Subject::encode(measurement);
+      }
+    }();
+    require(ASSERTION, sizeof (encoded));
+  }
+  template<typename _> auto Codec<_>::test_call_truncate() -> void { 
+    auto encoded = typename Subject::Encoded{};
+    auto truncated = Subject::truncate(encoded);
+    require(ASSERTION, sizeof (truncated));
+  }
+  template<typename _> auto Codec<_>::test_call_decode() -> void { 
+    auto truncated = typename Subject::Truncated{};
+    auto processed = typename Subject::Processed{};
+    auto decoded = Subject::decode(truncated, processed);
+    require(ASSERTION, sizeof (decoded));
+  }
+  template<typename _> auto Codec<_>::generate(unsigned specimen) -> typename Subject::Field::Element {
+    // this is trivial nowadays (it wasn't once upon a time)
+    return typename Subject::Field::Element{specimen};
+  }
+}
+#endiv

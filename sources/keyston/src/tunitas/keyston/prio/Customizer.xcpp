@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import std.uint8_t
+#import std.uint16_t
+#import std.uint32_t
+#import std.same_as
+#forward tunitas.keyston.prio.Name
+namespace tunitas::keyston::prio {
+  namespace [[eponymous]] customizer {
+    //
+    // The Customier, a.k.a. Domain Separation Tag(ger)
+    //
+    // Authority:
+    //
+    //   irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions
+    //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-pseudorandom-generators
+    //
+    // Specification:
+    //
+    //   Section 6.2.3. The Domain Separation Tag and Binder String
+    //   Section 5. Definition of VDAFs
+    //
+    // Design:
+    //
+    //   Using the Best Available Means and Methods (UBAMM)
+    //
+    //   Version is the standard draft documentversion ...  draft document version; e.g. Version{6} for draft-irtf-cfrtg-vdaf-06
+    //   Class is always Class::VDAF with value 0 ........  see Section 6.3.2 and think about what they are saying there
+    //
+    // Usage:
+    //
+    //   Yes, by all means use it!
+    //
+    //
+    enum class Version   : std::uint8_t { };
+    enum class Class     : std::uint8_t { VDAF = 0 };
+    template<auto ALGORITHM> requires (not std::same_as<decltype(ALGORITHM), prio::Name>) struct Customizer;
+  }
+  using customizer::Customizer;
+}
+#endiv
+#divert <hpp>
+#import nonstd.required.Enumeration
+#import std.underlying_type
+#import std.is_unsigned
+#import tunitas.array.Variable
+#import tunitas.keyston.prio.Usage
+namespace tunitas::keyston::prio {
+  template<auto THE_ALGORITHM> requires (not std::same_as<decltype(THE_ALGORITHM), prio::Name>) class customizer::Customizer {
+    using Algorithm = decltype(THE_ALGORITHM);
+    static_assert(std::is_unsigned_v<std::underlying_type_t<Version>>);
+    static_assert(std::is_unsigned_v<std::underlying_type_t<Class>>);
+    static_assert(std::is_unsigned_v<std::underlying_type_t<Algorithm>>);
+    static_assert(std::is_unsigned_v<std::underlying_type_t<Usage>>);
+    static_assert(sizeof(std::uint8_t) == sizeof(Version));
+    static_assert(sizeof(std::uint8_t) == sizeof(Class));
+    static_assert(sizeof(std::uint32_t) == sizeof(Algorithm));
+    static_assert(sizeof(std::uint16_t) == sizeof(Usage));
+    inline static constexpr auto const ALGORITHM = THE_ALGORITHM;
+  protected:
+    inline static constexpr auto const DOMAIN_SEPARATION_TAG_SIZE = sizeof(Version) + sizeof(Class) + sizeof(ALGORITHM) + sizeof(Usage);
+    inline static constexpr auto format(Version, Class, Algorithm, Usage) -> array::Fixed<Octet, DOMAIN_SEPARATION_TAG_SIZE>;
+    template<required::Enumeration E> inline static constexpr auto underlying(E e) { return std::underlying_type_t<E>(e); } // not all enums have this in ADL
+  public:
+    template<Usage> inline static constexpr auto domain_separation_tag() -> array::Fixed<Octet, DOMAIN_SEPARATION_TAG_SIZE>;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.copy
+#import tunitas.octets.concatenate
+#import tunitas.integer.to_octets
+namespace tunitas::keyston::prio::customizer {
+  template<auto _> template<Usage USAGE> constexpr auto Customizer<_>::domain_separation_tag() -> array::Fixed<Octet, DOMAIN_SEPARATION_TAG_SIZE> {
+    return format(Version{0}, Class::VDAF, ALGORITHM, USAGE);
+  }
+  template<auto _> constexpr auto Customizer<_>::format(Version v, Class c, Algorithm a, Usage u) -> array::Fixed<Octet, DOMAIN_SEPARATION_TAG_SIZE> {
+    return octets::concatenate(integer::to_octets<std::endian::big>(underlying(v)),
+                               integer::to_octets<std::endian::big>(underlying(c)),
+                               integer::to_octets<std::endian::big>(underlying(a)),
+                               integer::to_octets<std::endian::big>(underlying(u)));
+  }
+}
+#endiv

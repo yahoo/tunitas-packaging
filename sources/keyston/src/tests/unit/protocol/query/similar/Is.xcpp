@@ -1,0 +1,180 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.rheem.protocol.query.Type
+namespace tests::unit::protocol::query::similar {
+  //
+  // Reminder:
+  //
+  //   There is no library::is<...>(...) because the whole point of this test is to use multiple "libraries"
+  //   Thus the utterance is<...>(...) must be found by ADL from the declarations available at the call site.
+  //
+  template<typename SUBJECT, template<library::Type> class RECORD> class Is;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::protocol::query {
+  template<typename SUBJECT, template<library::Type> class RECORD> struct similar::Is : public rigging::suite::Fixture {
+  public: static auto suite() -> Suite;
+  protected:
+    static auto stanza(string::View name) -> Stream;
+    static auto stanza(std::type_info const &info) -> Stream { return stanza(info.name()); }
+  public:
+    //
+    using Subject = SUBJECT;
+    using Type = library::Type;
+    template<Type TYPE> using Record = RECORD<TYPE>;
+    //
+    template<Type> auto test_is_good() -> void;
+    template<Type> auto test_is_fail() -> void;
+    auto test_is_reserved_good() -> void;
+    auto test_is_reserved_fail() -> void;
+    auto test_is_time_interval_good() -> void;
+    auto test_is_time_interval_fail() -> void;
+    auto test_is_fixed_size_good() -> void;
+    auto test_is_fixed_size_fail() -> void;
+    template<Type> auto test_is_valid_good() -> void;
+    auto test_is_valid_fail() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::protocol::query::similar {
+  template<typename S, template<library::Type> class R> auto Is<S,R>::suite() -> Suite {
+    auto series = stanza(typeid(Subject));
+    return settle(series);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::stanza(string::View name) -> Stream {
+    auto series = Stream{"is"sv}; // else it won't have a unique name in the tree
+    series << [name]{
+                auto sub = Stream{name};
+                sub << []{
+                         auto ref = Stream{"is"};
+                         ref << []{
+                                  auto ast = Stream{"RESERVED"sv};
+                                  ast << add("good", &Is::test_is_good<Type::RESERVED>)
+                                      << add("fail", &Is::test_is_fail<Type::RESERVED>)
+                                      << END;
+                                  return ast;
+                                }()
+                             << []{
+                                  auto ast = Stream{"TIME_INTERVAL"sv};
+                                  ast << add("good", &Is::test_is_good<Type::TIME_INTERVAL>)
+                                      << add("fail", &Is::test_is_fail<Type::TIME_INTERVAL>)
+                                      << END;
+                                  return ast;
+                                }()
+                             << []{
+                                  auto ast = Stream{"FIXED_SIZE"sv};
+                                  ast << add("good", &Is::test_is_good<Type::FIXED_SIZE>)
+                                      << add("fail", &Is::test_is_fail<Type::FIXED_SIZE>)
+                                      << END;
+                                  return ast;
+                                }()
+                             << END;
+                         return ref;
+                       }()
+                    << []{
+                         auto ast = Stream{"is_reserved"sv};
+                         ast << add("good", &Is::test_is_reserved_good)
+                             << add("fail", &Is::test_is_reserved_fail)
+                             << END;
+                         return ast;
+                       }()
+                    << []{
+                         auto ast = Stream{"is_time_interval"sv};
+                         ast << add("good", &Is::test_is_time_interval_good)
+                             << add("fail", &Is::test_is_time_interval_fail)
+                             << END;
+                         return ast;
+                       }()
+                    << []{
+                         auto ast = Stream{"is_fixed_size"sv};
+                         ast << add("good", &Is::test_is_fixed_size_good)
+                             << add("fail", &Is::test_is_fixed_size_fail)
+                             << END;
+                         return ast;
+                       }()
+                    << []{
+                         auto ast = Stream{"is_valid"sv};
+                         ast << []{
+                                  auto goo = Stream{"good"sv};
+                                  goo << add("RESERVED", &Is::test_is_valid_good<Type::RESERVED>)
+                                      << add("TIME_INTERVAL", &Is::test_is_valid_good<Type::TIME_INTERVAL>)
+                                      << add("FIXED_SIZE", &Is::test_is_valid_good<Type::FIXED_SIZE>)
+                                      << END;
+                                  return goo;
+                                }()
+                             << add("fail", &Is::test_is_valid_fail)
+                             << END;
+                         return ast;
+                       }()
+                    << END;
+                return sub;
+              }()
+           << END;
+    return series;
+  }
+  template<typename S, template<library::Type> class R> template<library::Type TYPE> auto Is<S,R>::test_is_good() -> void {
+    auto subject = Subject{Record<TYPE>{}};
+    auto got = is<Record<TYPE>>(subject);
+    require(ASSERTION, got);
+  }
+  template<typename S, template<library::Type> class R> template<library::Type TYPE> auto Is<S,R>::test_is_fail() -> void {
+    constexpr auto const OTHER = library::Type{(1+underlying(TYPE)) % 3};
+    auto subject = Subject{Record<OTHER>{}};
+    auto got = is<Record<TYPE>>(subject);
+    require(ASSERTION, !got);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::test_is_reserved_good() -> void {
+    auto subject = Subject{Record<Type::RESERVED>{}};
+    auto got = is_reserved(subject);
+    require(ASSERTION, got);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::test_is_reserved_fail() -> void {
+    constexpr auto const OTHER = library::Type{(1+underlying(Type::RESERVED)) % 3};
+    auto subject = Subject{Record<OTHER>{}};
+    auto got = is_reserved(subject);
+    require(ASSERTION, !got);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::test_is_time_interval_good() -> void {
+    auto subject = Subject{Record<Type::TIME_INTERVAL>{}};
+    auto got = is_time_interval(subject);
+    require(ASSERTION, got);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::test_is_time_interval_fail() -> void {
+    constexpr auto const OTHER = library::Type{(1+underlying(Type::TIME_INTERVAL)) % 3};
+    auto subject = Subject{Record<OTHER>{}};
+    auto got = is_time_interval(subject);
+    require(ASSERTION, !got);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::test_is_fixed_size_good() -> void {
+    auto subject = Subject{Record<Type::FIXED_SIZE>{}};
+    auto got = is_fixed_size(subject);
+    require(ASSERTION, got);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::test_is_fixed_size_fail() -> void {
+    constexpr auto const OTHER = library::Type{(1+underlying(Type::FIXED_SIZE)) % 3};
+    auto subject = Subject{Record<OTHER>{}};
+    auto got = is_fixed_size(subject);
+    require(ASSERTION, !got);
+  }
+  template<typename S, template<library::Type> class R> template<library::Type TYPE> auto Is<S,R>::test_is_valid_good() -> void {
+    auto subject = Subject{Record<TYPE>{}};
+    auto got = is_valid(subject);
+    require(ASSERTION, got);
+  }
+  template<typename S, template<library::Type> class R> auto Is<S,R>::test_is_valid_fail() -> void {
+    // Unclear how to make one of these ...one of these can't be made!
+#if 0
+    constexpr auto const OTHER = library::Type{99};
+    auto subject = Subject{Record<OTHER>{}}; // <---------------------------------------- this won't compile
+    auto got = is_valid(subject);
+    require(ASSERTION !got);
+#endif
+  }
+}
+#endiv

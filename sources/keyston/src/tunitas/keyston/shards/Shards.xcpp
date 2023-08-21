@@ -1,0 +1,95 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.shards.required.Shardable
+namespace tunitas::keyston::shards {
+  //
+  // An array, indexed by Shard
+
+  //
+  // Specification:
+  //
+  //   It's a fixed array at constants::SHARD_COUNT
+  //   The index operations accept a Shard (an enum (class))
+  //
+  // Design:
+  //
+  //   Sure. it was heavily designed, why do you ask?
+  //
+  //   operator[](...) ... does not throw exceptions just as the Ancestor::operator[] does not throw exceptions
+  //   at(...) ........... DOES throw exceptions just as the Ancestor::at does not throw exceptions.
+  //
+  //   We guard against Murphy, not against Machiavelli
+  //
+  //   [[FIXTHIS]] such exceptions are NOT recovered and re-wrapped as shard::exception::Aspect descendants.
+  //
+  // Usage:
+  //
+  //   Use it like you would any array, like a std::array
+  //
+  template<required::Shardable> struct Shards;
+}
+#endiv
+#divert <hpp>
+// SOON ---> #import nonstd.like
+#import tunitas.keyston.constants
+#import tunitas.keyston.shards.Shard
+#import tunitas.array.Fixed
+#import std.ranges.iota_view
+#import std.common_type
+namespace tunitas::keyston {
+  namespace shards {
+    using std::move;
+    template<required::Shardable TYPE> inline auto swap(Shards<TYPE> &, Shards<TYPE> &) noexcept -> void;
+    template<required::Shardable TYPE> inline auto iota(Shards<TYPE> const &) -> std::ranges::iota_view<Shard, Size>;
+  }
+  template<shards::required::Shardable TYPE> struct shards::Shards : public array::Fixed<TYPE, constants::SHARD_COUNT> {
+    using Ancestor = array::Fixed<TYPE, constants::SHARD_COUNT>;
+    friend auto shards::swap<>(Shards &, Shards &) noexcept -> void;
+  public:
+#if 1
+    [[implicit]] Shards() = default;
+#else // [[REMOVETHIS]] because array::Fixed<...> does this now
+    // because  we require the explicit initialization
+    constexpr [[implicit]] Shards() : Ancestor{typename Ancestor::Inplace{}, typename Ancestor::Value{}, typename Ancestor::Value{}} { }
+#endif
+    using Ancestor::Fixed;
+#if 202312 < __cplusplus
+    // NO SUCH ---> template<typename SELF> inline auto operatpr[](this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>; <---- NO SUCH
+    template<typename SELF> inline auto at(this SELF *, Shard) -> nonstd::like_t<SELF, typename Ancestor::Value &>;
+#else
+    // NO SUCH ---> inline auto operator[](Shard) -> typename Ancestor::Value &; <--------------  NO SUCH (the Ancestor doesn't have it)
+    // NO SUCH ---> inline auto operator[](Shard) const -> typename Ancestor::Value const &; <--- NO SUCH (eadem ratione)
+    inline auto at(Shard) -> typename Ancestor::Value &;
+    inline auto at(Shard) const -> typename Ancestor::Value const &;
+#endif
+  };
+  namespace shards {
+    template<typename... TYPES> requires (required::Shardable<std::common_type_t<TYPES...>> && constants::SHARD_COUNT == sizeof...(TYPES)) Shards(TYPES &&...) -> Shards<std::common_type_t<TYPES...>>;
+  }
+}
+#endiv
+#divert <ipp>
+#import std.views.iota
+namespace tunitas::keyston {
+  template<shards::required::Shardable TYPE> auto shards::swap(Shards<TYPE> &a, Shards<TYPE> &b) noexcept -> void {
+    typename Shards<TYPE>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  template<shards::required::Shardable TYPE> auto shards::iota(Shards<TYPE> const &that) -> std::ranges::iota_view<Shard, Size> { return std::views::iota(Shard{}, that.size()); }
+  namespace shards {
+#if 202312 < __cplusplus
+    // NO SUCH ---> template<required::Shardable _> template<typename SELF> auto Shards<_>:: operatpr[](this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::operator[](index); }
+    template<required::Shardable _> template<typename SELF> auto Shards<_>:: at(this SELF *self, Shard index) -> nonstd::like_t<SELF, typename Ancestor::Value &> { return self->Ancestor::at(underlying(index)); }
+#else
+    // NO SUCH ---> template<required::Shardable _> auto Shards<_>:: operator[](Shard index)       -> typename Ancestor::Value &       { return Ancestor::operator[](underlying(index)); }
+    // NO SUCH ---> template<required::Shardable _> auto Shards<_>:: operator[](Shard index) const -> typename Ancestor::Value const & { return Ancestor::operator[](underlying(index)); }
+    template<required::Shardable _> auto Shards<_>:: at(Shard index)               -> typename Ancestor::Value &       { return Ancestor::at(underlying(index)); }
+    template<required::Shardable _> auto Shards<_>:: at(Shard index) const         -> typename Ancestor::Value const & { return Ancestor::at(underlying(index)); }
+#endif
+  }
+}
+#endiv

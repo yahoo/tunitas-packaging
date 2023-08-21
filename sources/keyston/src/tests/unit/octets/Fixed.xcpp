@@ -1,0 +1,109 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::octets {
+  template<typename SUBJECT> struct Fixed;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.octets.Palette
+#import tunitas.octets.Fixed
+#import tunitas.exception.Aspect
+namespace tests::unit {
+  template<typename SUBJECT> struct octets::Fixed : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_default() -> void;
+    auto test_subrange_function_good() -> void;
+    auto test_subrange_function_fail() -> void;
+    template<Index LO, Index HI> auto test_subrange_template_good() -> void requires (LO <= HI);
+    template<Index LO, Index HI> auto test_subrange_template_fail() -> void requires (LO <= HI);
+  protected:
+    using Failure = ::tunitas::exception::Aspect;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::octets {
+  template<typename _> auto Fixed<_>::suite() -> Suite {
+    auto series = Stream{"Fixed"sv};
+    series << []{
+               auto con = Stream{"constructor"sv};
+               con << add("default", &Fixed::test_constructor_default)
+                   << END;
+               return con;
+            }()
+           << []{
+             auto sub = Stream{"subrange"sv};
+             sub << []{
+                     auto fun = Stream{"function"sv};
+                     fun << add("good", &Fixed::test_subrange_function_good)
+                         << add("fail", &Fixed::test_subrange_function_fail)
+                         << END;
+                     return fun;
+                   }()
+                 << []{
+                     auto tem = Stream{"template"sv};
+                     tem << []{
+                             auto goo = Stream{"good"sv};
+                             // the smallest one is 2uz big (so this works for all of them
+                             goo << add("2,2", &Fixed::test_subrange_template_good<0, 2>)
+                                 << add("2,4", &Fixed::test_subrange_template_good<1, 2>)
+                                 << add("2,4", &Fixed::test_subrange_template_good<0, 0>)
+                                 << add("2,4", &Fixed::test_subrange_template_good<0, 0>)
+                                 << add("2,4", &Fixed::test_subrange_template_good<1, 1>)
+                                 << add("2,4", &Fixed::test_subrange_template_good<2, 2>)
+                                 << END;
+                             return goo;
+                           }()
+                         << []{
+                             auto fai = Stream{"fail"sv};
+                             fai << add("8,10", &Fixed::test_subrange_template_fail<8, 10>)
+                                 << add("2,16", &Fixed::test_subrange_template_fail<2, 16>)
+                                 << END;
+                             return fai;
+                           }()
+                         << END;
+                     return tem;
+                 }()
+                 << END;
+             return sub;
+            }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Fixed<_>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<typename _> auto Fixed<_>::test_subrange_function_good() -> void {
+    auto subject = Palette::template generate<Subject>();
+    auto got = subject.subrange(0u, 1u); // this MUST work for sizes down to 2uz
+    require(ASSERTION, 1uz == got.size());
+  }
+  template<typename _> auto Fixed<_>::test_subrange_function_fail() -> void try {
+    auto subject = Palette::template generate<Subject>();
+    subject.subrange(2, 400);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  template<typename _> template<Index LO, Index HI> auto Fixed<_>::test_subrange_template_good() -> void requires (LO <= HI) {
+    auto subject = Palette::template generate<Subject>();
+    auto got = subject.template subrange<HI - LO>(LO);
+    require(ASSERTION, HI - LO == got.size());
+  }
+  template<typename _>  template<Index LO, Index HI> auto Fixed<_>::test_subrange_template_fail() -> void requires (LO <= HI) try {
+    auto subject = Palette::template generate<Subject>();
+    subject.template subrange<HI - LO>(LO);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+}
+#endiv

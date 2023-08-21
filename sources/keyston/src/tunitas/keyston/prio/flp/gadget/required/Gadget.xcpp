@@ -1,0 +1,20 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.gadget.Name
+#forward tunitas.keyston.prio.flp.gadget.Gadget
+namespace tunitas::keyston::prio::flp::gadget::required {
+  //
+  // Is this type a Gadget (template instance?)
+  // This MUST be diagnostable with only the type name; i.e. without the complete type definition.
+  // This is the moral equivalent of InstanceOf which accounts for the NTTP (Non-Template Type ParameteR)
+  //  
+  template<typename GADGET> concept Gadget = requires(GADGET) {
+    { []<auto NAME>(gadget::Gadget<NAME> *) requires same_as<decltype(NAME), gadget::Name>
+      {}(static_cast<GADGET *>(nullptr)) };
+  };
+}
+#endiv

@@ -1,0 +1,127 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::array { class Fixture; }
+#endiv
+#divert <hpp>
+#import std.unique_ptr
+struct tests::unit::array::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Fixed() -> void;
+  auto test_usage_Variable() -> void;
+  auto test_usage_Bounded() -> void;
+  auto test_usage_Series() -> void;
+protected:
+  struct Specimen {
+    using Regular = int;
+    struct Semiregular { };
+    // Uncopyable but moveable
+    using Irregular = std::unique_ptr<Semiregular>;
+  };
+};
+#endiv
+#divert <cpp>
+#import tests.unit.array.Bounded
+#import tests.unit.array.Fixed
+#import tests.unit.array.Series
+#import tests.unit.array.Variable
+#import tunitas.array.Bounded
+#import tunitas.array.Variable
+auto tests::unit::array::Fixture::suite() -> Suite {
+  auto series = Stream{"array"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Fixed", &Fixture::test_usage_Fixed)
+                  << add("Variable", &Fixture::test_usage_Variable)
+                  << add("Bounded", &Fixture::test_usage_Bounded)
+                  << add("Series", &Fixture::test_usage_Series)
+                  << END;
+              return use;
+            }()
+         << []{
+              auto ser = Stream{"Series"sv};
+              ser << add<Series<library::Series<Specimen::Regular>>>()
+                  << add<Series<library::Series<Specimen::Semiregular>>>()
+                  << add<Series<library::Series<Specimen::Irregular>>>()
+                  << END;
+              return ser;
+            }()
+         << []{
+              auto var = Stream{"Variable"sv};
+              var << add<Variable<library::Variable<Specimen::Regular>>>()
+                  << add<Variable<library::Variable<Specimen::Semiregular>>>()
+                  << add<Variable<library::Variable<Specimen::Irregular>>>()
+                  << END;
+              return var;
+            }()
+         << []{
+              auto bou = Stream{"Bounded"sv};
+              bou << add<Bounded<library::Bounded<Specimen::Regular, 4uz>>>()
+                  << add<Bounded<library::Bounded<Specimen::Semiregular, 4uz>>>()
+                  << add<Bounded<library::Bounded<Specimen::Irregular, 4uz>>>()
+                  << END;
+              return bou;
+            }()
+         << []{
+              auto bou = Stream{"Fixed"sv};
+              bou << add<Fixed<library::Fixed<Specimen::Regular, 4uz>>>()
+                  << add<Fixed<library::Fixed<Specimen::Semiregular, 4uz>>>()
+                  << add<Fixed<library::Fixed<Specimen::Irregular, 4uz>>>()
+                  << END;
+              return bou;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.array.Bounded
+#import tunitas.array.Fixed
+#import tunitas.array.Series
+#import tunitas.array.Variable
+namespace tests::unit::array {
+  auto Fixture::test_usage_Fixed() -> void {
+    using Subject = library::Fixed<int, 4>;
+    auto subject = Subject{};
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Bounded() -> void {
+    using Subject = library::Bounded<int, 4>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+    try {
+      subject.push_back({});
+      impossible(ASSERTION);
+    } catch (::tunitas::exception::feature::Bound const &) {
+      require(ASSERTION);
+    }
+  }
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = library::Variable<int>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+  }
+  auto Fixture::test_usage_Series() -> void {
+    using Subject = library::Series<int>;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == subject.size());
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    subject.push_back({});
+    require(ASSERTION, 4 == subject.size());
+  }
+}
+#endiv

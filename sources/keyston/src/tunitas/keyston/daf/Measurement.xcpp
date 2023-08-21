@@ -1,0 +1,20 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf {
+  template<Slice> struct Measurement;
+  template<> struct Measurement<WHOLE>;
+  template<> struct Measurement<SHARE>; // never materialized, see Input<SHARE>
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+namespace tunitas::keyston::daf {
+  template<> struct Measurement<WHOLE> {
+    measurement::Specimen value{}; // these are always called 'value'
+  };
+}
+#endiv

@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::vdaf {
+  //
+  // A serialized of a message.
+  //
+  // Specification:
+  //
+  //   Most of these are fixed-length (much is known about their size)
+  //   But length is necessary to; e.g. Input<SHARE>
+  //
+  //   The VDAF (Section &) specifies various message formats.
+  //   No encryption on the message, just the encoding specified by the algorithm athat produced it.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   These things are just octet buffers (strings)
+  //
+  // Usage:
+  //
+  //   See Public<...>, Input<...>, Aggregation<...> and so on.
+  //
+  template<Size...> struct Serialization;
+  template<> struct Serialization<>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.octets.Variable
+namespace tunitas::keyston {
+  template<Size... SIZE> class vdaf::Serialization : public octets::Fixed<(SIZE * ... )> {
+    using Ancestor = octets::Fixed<(SIZE * ... )>;
+  protected:
+    ~Serialization() = default;
+  public:
+    Serialization() = default;
+    using Ancestor::Fixed;
+  };
+  namespace vdaf {
+    template<> class Serialization<> : public octets::Variable {
+      using Ancestor = octets::Variable;
+    protected:
+      ~Serialization() = default;
+    public:
+      Serialization() = default;
+      using Ancestor::Variable;
+    };
+  }
+}
+#endiv

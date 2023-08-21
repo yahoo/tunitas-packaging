@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.exhibition.recital.Recital.template
+namespace tests::exhibition::recital {
+  template<> struct Recital<POPLAR, POPLAR1>;
+}
+#endiv
+#divert <hpp>
+namespace tests::exhibition::recital {
+  template<> struct Recital<POPLAR, POPLAR1> {
+    static auto standard(std::ostream &) -> void;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::exhibition::recital {
+  auto Recital<POPLAR, POPLAR1>::standard(std::ostream &outbound) -> void {
+    outbound << "not implemented\n";
+  }
+}
+#endiv

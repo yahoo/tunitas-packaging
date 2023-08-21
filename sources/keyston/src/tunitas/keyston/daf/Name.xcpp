@@ -1,0 +1,114 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::daf {
+  //
+  // The Name of a DAF is a (non-normative) code point (codepoint)
+  //
+  // Specification:
+  //
+  //   Rhymes with the code points of Table 16, which elaborates the VDAF code points.
+  //   Yet these are the DAF code points which we use to prove the D(istribution) of the underlying AF
+  //   These are (unverified) distributed aggregation functions; they are non-normative.
+  //
+  //   Distributed Aggregation Functions
+  //   Rhymes with Section 10. IANA Considerations
+  //   Rhymes with Table 16
+  //
+  //   <recitation>
+  //     <paraphrase>
+  //
+  //       Note that 0xFFFF0000 through 0xFFFFFFFF are reserved for private use.
+  //
+  //       Value                         Transport                  Type        Reference
+  //       --------------------------------------------------------------------------------
+  //       0x00000000                    Prio3Count              VDAF        Section 7.4.1
+  //       0x00000001                    Prio3Sum                VDAF        Section 7.4.2
+  //       0x00000002                    Prio3Histogram          VDAF        Section 7.4.3
+  //       0x00000003 to 0x00000FFF      Prio3 reserved          VDAF        n/a
+  //       0x00001000                    Poplar1                 VDAF        Section 8.4
+  //       0xFFFF0000 to 0xFFFFFFFF      private use             n/a         n/a
+  //
+  //       Table 16: Unique identifiers for (V)DAFs.
+  //
+  //     </paraphrase>
+  //   </recitation>
+  //
+  // Design:
+  //
+  //   It's an enum (class).
+  //
+  // Usage:
+  //
+  //  You need a tutorial on how to use an enum (class)? o.rly?
+  //
+  enum class Name : std::uint32_t {
+    COUNT      = 0x0000'0000,
+    SUM        = 0x0000'0001,
+    HISTOGRAM  = 0x0000'0002,
+    POPULARITY = 0x0000'1000,
+    //
+    // As known herein.
+    ZERO = 0xffff0000u, // ... the zero function
+    CONSTANT, // ............. a constant function
+  };
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.by.Exception
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#import tunitas.string.View
+#import tunitas.string.Storage
+namespace tunitas::keyston::daf {
+  inline constexpr auto underlying(Name n) { return std::underlying_type_t<Name>(n); }
+  //
+  inline auto swap(Name &a, Name &b) noexcept -> void { return std::swap(a, b); }
+  //
+  inline auto to_string(error::by::Optional, Name) -> error::Optional<string::Storage>;
+  inline auto to_string(error::by::Outcome, Name) -> error::Outcome<string::Storage>;
+  inline auto to_string(error::by::Exception, Name) -> string::Storage;
+  //
+  inline auto to_string_view(error::by::Optional, Name) -> error::Optional<string::View>;
+  inline auto to_string_view(error::by::Outcome, Name) -> error::Outcome<string::View>;
+  inline auto to_string_view(error::by::Exception, Name) -> string::View;
+  //
+  auto render(Name) -> error::Optional<string::View>;
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.name.To_String
+#import tunitas.keyston.name.To_String_View
+namespace tunitas::keyston {
+  auto daf::to_string(error::by::Optional by, Name name) -> error::Optional<string::Storage> { return name::To_String<Name>::invoke(by, name); }
+  auto daf::to_string(error::by::Outcome by, Name name) -> error::Outcome<string::Storage>   { return name::To_String<Name>::invoke(by, name); }
+  auto daf::to_string(error::by::Exception by, Name name) -> string::Storage                 { return name::To_String<Name>::invoke(by, name); }
+  //
+  auto daf::to_string_view(error::by::Optional by, Name name) -> error::Optional<string::View> { return name::To_String_View<Name>::invoke(by, name); }
+  auto daf::to_string_view(error::by::Outcome by, Name name) -> error::Outcome<string::View>   { return name::To_String_View<Name>::invoke(by, name); }
+  auto daf::to_string_view(error::by::Exception by, Name name) -> string::View                 { return name::To_String_View<Name>::invoke(by, name); }
+}
+#endiv
+#divert <cpp>
+#import tunitas.string.literals
+namespace tunitas::keyston {
+  auto daf::render(Name name) -> error::Optional<string::View> {
+    switch (name) {
+      using namespace string::literals;
+    case Name::COUNT:      return "COUNT"sv;
+    case Name::SUM:        return "SUM"sv;
+    case Name::HISTOGRAM:  return "HISTOGRAM"sv;
+    case Name::POPULARITY: return "POPULARITY"sv;
+    case Name::ZERO:       return "ZERO"sv;
+    case Name::CONSTANT:   return "CONSTANT"sv;
+    default: return {};
+    }
+  }
+}
+#endiv

@@ -1,0 +1,25 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tests_unit_prio_SUBSOURCES = \
+  check/obj/src/tests/unit/prio/namespace.cpp \
+  $(tests_unit_prio_required_SUBSOURCES) \
+  $(tests_unit_prio_split_SUBSOURCES) \
+  check/obj/src/tests/unit/prio/Fixture.cpp \
+  \
+  check/obj/src/tests/unit/prio/Codec.template.cpp \
+  check/obj/src/tests/unit/prio/Codec.COUNT.cpp \
+  check/obj/src/tests/unit/prio/Codec.SUM.cpp \
+  check/obj/src/tests/unit/prio/Codec.HISTOGRAM.cpp \
+  check/obj/src/tests/unit/prio/Codec.cpp \
+  \
+  check/obj/src/tests/unit/prio/Customizer.cpp \
+  check/obj/src/tests/unit/prio/Definition.cpp \
+  check/obj/src/tests/unit/prio/format.cpp \
+  $(end)
+#
+include src/tests/unit/prio/required/Makefrag.am
+include src/tests/unit/prio/disassembly/Makefrag.am

@@ -1,0 +1,20 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_rheem_SUBSOURCES = \
+  obj/src/tunitas/rheem/namespace.cpp \
+  $(tunitas_rheem_exception_SUBSOURCES) \
+  $(tunitas_rheem_protocol_SUBSOURCES) \
+  $(tunitas_rheem_required_SUBSOURCES) \
+  $(tunitas_rheem_transport_SUBSOURCES) \
+  $(tunitas_rheem_wire_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/rheem/exception/Makefrag.am
+include src/tunitas/rheem/protocol/Makefrag.am
+include src/tunitas/rheem/required/Makefrag.am
+include src/tunitas/rheem/transport/Makefrag.am
+include src/tunitas/rheem/wire/Makefrag.am

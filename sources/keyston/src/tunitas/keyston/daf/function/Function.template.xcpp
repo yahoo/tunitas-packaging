@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.Scheme
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.daf.is.Algorithm
+#include <hpp/tunitas.keyston.daf.is.Algorithm>
+namespace tunitas::keyston::daf::function {
+  //
+  // The Distributed Aggregation Function Function
+  //
+  // Specification:
+  //
+  //   What they all do.
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //
+  // Design:
+  //
+  //   Right out of the manual.
+  //
+  // Usage:
+  //
+  //   Within Definition<NAME> and Executor<NAME>
+  //
+  template<Scheme SCHEME, Name NAME> requires (is::Algorithm<SCHEME, NAME>::value) struct Function;
+}
+#endiv
+#divert <hpp>
+// because every specialization will need these
+#import tunitas.keyston.daf.Parameters
+#import tunitas.keyston.daf.Measurement
+#import tunitas.keyston.daf.Input
+#import tunitas.keyston.daf.Public
+#import tunitas.keyston.daf.Output
+#import tunitas.keyston.daf.Aggregation
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.daf.Definition
+#endiv

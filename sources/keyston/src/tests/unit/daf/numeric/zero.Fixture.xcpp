@@ -1,0 +1,159 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::daf::numeric::zero {
+  class Fixture;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.feature.Invariant
+#import tunitas.exception.feature.Variant
+#import tunitas.keyston.daf.Function
+#import tests.unit.daf.numeric.Palette
+struct tests::unit::daf::numeric::zero::Fixture : public rigging::suite::Fixture, protected Palette {
+  static auto suite() -> Suite;
+  //
+  struct Function : public library::Function<ADHOC, library::Name::ZERO> {
+    template<typename TYPE> using Shards = ::tunitas::keyston::Shards<TYPE>;
+    using Parameters = library::Parameters;
+    template<Slice SLICE> using Measurement = library::Measurement<SLICE>;
+    template<Slice SLICE> using Input       = library::Input<SLICE>;
+    template<Slice SLICE> using Public      = library::Public<SLICE>;
+    template<Slice SLICE> using Output      = library::Output<SLICE>;
+    template<Slice SLICE> using Aggregation = library::Aggregation<SLICE>;
+  };
+  //
+  auto test_disassembly() -> void;
+  auto test_computation() -> void;
+  auto test_amalgamation_empty() -> void;
+  auto test_amalgamation_some() -> void;
+  auto test_amalgamation_fail() -> void;
+  auto test_reassembly_empty() -> void;
+  auto test_reassembly_some() -> void;
+protected:
+  struct Provided;
+  struct Expected;
+  struct Exception {
+    using Invariant = ::tunitas::exception::feature::Invariant;
+    using Variant = ::tunitas::exception::feature::Variant;
+  };
+};
+#endiv
+#divert <cpp>
+#import tests.unit.daf.numeric.zero.Fixture.Provided
+#import tests.unit.daf.numeric.zero.Fixture.Expected
+auto tests::unit::daf::numeric::zero::Fixture::suite() -> Suite {
+  auto series = Stream{"zero"sv};
+  series << add("disassembly", &Fixture::test_disassembly)
+         << add("computation", &Fixture::test_computation)
+         << []{
+              auto ama = Stream{"amalgamation"sv};
+              ama << add("empty", &Fixture::test_amalgamation_empty)
+                  << add("some", &Fixture::test_amalgamation_some)
+                  << add("fail", &Fixture::test_amalgamation_fail)
+                  << END;
+              return ama;
+            }()
+         << []{
+              auto rea = Stream{"reassembly"sv};
+              rea << add("empty", &Fixture::test_reassembly_empty)
+                  << add("some", &Fixture::test_reassembly_some)
+                  << END;
+              return rea;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::daf::numeric::zero {
+  auto Fixture::test_disassembly() -> void {
+    using Provided = Fixture::Provided::Disassembly;
+    using Expected = Fixture::Expected::Disassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto measurement = Function::Measurement<WHOLE>{Provided::ZERO};
+    auto randomness = Function::Randomness{};
+    auto [publick, inputs] = Function::disassembly(parameters, measurement, randomness);
+    require(ASSERTION, sizeof(publick)); // don't care what it is
+    // Because this is what the constants algo does on disassembly
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(0_shard)));
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, inputs.at(1_shard)));
+  }
+  auto Fixture::test_computation() -> void {
+    using Provided = Fixture::Provided::Computation;
+    using Expected = Fixture::Expected::Computation;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto publick = Function::Public<SHARE>{};
+    auto input = Function::Input<SHARE>{Provided::ZERO};
+    auto output = Function::computation(parameters, 0_shard, publick, input);
+    require(ASSERTION, visit(expected.otreatment, output) == visit(expected.itreatment, input));
+  }
+  auto Fixture::test_amalgamation_empty() -> void try {
+    auto parameters = Function::Parameters{};
+    auto outputs = Function::Series<Function::Output<SHARE>>{}; // <------------------------------ empty
+    Function::amalgamation(parameters, outputs);
+    impossible(ASSERTION);
+  } catch (Exception::Invariant const &) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_amalgamation_some() -> void {
+    using Provided = Fixture::Provided::Amalgamation;
+    using Expected = Fixture::Expected::Amalgamation;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto zero = Function::Output<SHARE>{Provided::ZERO};
+    auto outputs = Function::Series<Function::Output<SHARE>>{zero, zero, zero};
+    auto amalgamated = Function::amalgamation(parameters, outputs);
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, amalgamated));
+  }
+  auto Fixture::test_amalgamation_fail() -> void try {
+    using Provided = Fixture::Provided::Amalgamation;
+    //
+    auto parameters = Function::Parameters{};
+    auto nonzero = Function::Output<SHARE>{Provided::CANARY};
+    auto outputs = Function::Series<Function::Output<SHARE>>{nonzero, nonzero, nonzero};
+    Function::amalgamation(parameters, outputs);
+    impossible(ASSERTION);
+  } catch (Exception::Invariant const &) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_reassembly_empty() -> void try {
+    using Expected = Fixture::Expected::Reassembly;
+    auto expected = Expected{};
+    //
+    // Actually the aggregations cannot be "empty" because Function::Shards<...> is already fixed size.
+    // What WILL fail here is that the aggregations within each shard are not the correct variant type
+    // So the exception that will be thrown will signal that eventuality (catch exception::Variant)
+    //
+    auto parameters = Function::Parameters{};
+    auto aggregations = Function::Shards<Function::Aggregation<SHARE>>{}; // <------------------------------ empty
+    auto processed = Processed{3456}; // recall: this count is the number of samples that this aggregation contains
+    //
+    // yup, it turns out that reassembly on "empty" cannot fail (not for Invariant and not for Variant)
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, reassembled));
+  } catch (Exception::Exception::Variant const &) {
+    impossible(ASSERTION);
+  } catch (Exception::Exception::Invariant const &) {
+    impossible(ASSERTION);
+  }
+  auto Fixture::test_reassembly_some() -> void {
+    using Provided = Fixture::Provided::Reassembly;
+    using Expected = Fixture::Expected::Reassembly;
+    auto expected = Expected{};
+    //
+    auto parameters = Function::Parameters{};
+    auto zero = Function::Aggregation<SHARE>{Provided::ZERO};
+    auto aggregations = Function::Shards<Function::Aggregation<SHARE>>{zero, zero};
+    auto processed = Processed{3456}; // recall: this count is the number of samples that this aggregation contains
+    auto reassembled = Function::reassembly(parameters, aggregations, processed);
+    require(ASSERTION, Expected::ZERO == visit(expected.treatment, reassembled));
+  }
+}
+#endiv

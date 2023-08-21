@@ -1,0 +1,71 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import nonstd.integers
+namespace tests::unit::identifier::generator {
+  template<unsigned WIDTH> struct Serializer;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.rheem.protocol.task.Task
+#import tunitas.Unique
+#import tunitas.hale.identifier.generator.Serializer
+#import tests.unit.identifier.generator.Formatter
+namespace tests::unit::identifier {
+  template<unsigned THE_WIDTH> struct generator::Serializer : public rigging::suite::Fixture, protected Formatter {
+    static auto suite() -> Suite;
+    //
+    inline static constexpr auto const WIDTH = THE_WIDTH;
+    using Stamped = ::tunitas::rheem::protocol::task::Task; // pick one, any one will do
+    template<unsigned W> using Unique = ::tunitas::Unique<W, Stamped>;
+    class Subject : public library::Serializer<Unique<WIDTH>> {
+      using Ancestor = library::Serializer<Unique<WIDTH>>;
+    public:
+      Subject() = default;
+      using Ancestor::Serializer;
+    };
+    //
+    auto test_constructor_default() -> void;
+    auto test_operator_call() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::identifier::generator {
+  template<unsigned _> auto Serializer<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Serializer::test_constructor_default)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto call = Stream{"operator()"sv};
+                call << add("operator()", &Serializer::test_operator_call)
+                     << END;
+                return call;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<unsigned _> auto Serializer<_>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<unsigned _> auto Serializer<_>::test_operator_call() -> void {
+    auto subject = Subject{};
+    { auto got = subject();
+      std::cerr << "serializer: " << format(got) << '\n'; }
+    { auto got = subject();
+      std::cerr << "serializer: " << format(got) << '\n'; }
+    { auto got = subject();
+      std::cerr << "serializer: " << format(got) << '\n'; }
+    { auto got = subject();
+      std::cerr << "serializer: " << format(got) << '\n'; }
+  }
+}
+#endiv

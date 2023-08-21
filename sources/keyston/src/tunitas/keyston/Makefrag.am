@@ -1,0 +1,69 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_SUBSOURCES = \
+  obj/src/tunitas/keyston/namespace.cpp \
+  obj/src/tunitas/keyston/literals.cpp \
+  obj/src/tunitas/keyston/constants.cpp \
+  obj/src/tunitas/keyston/Function.cpp \
+  obj/src/tunitas/keyston/Scheme.cpp \
+  obj/src/tunitas/keyston/Slice.cpp \
+  obj/src/tunitas/keyston/Version.cpp \
+  \
+  $(tunitas_keyston_aggregation_SUBSOURCES) \
+  $(tunitas_keyston_crypto_SUBSOURCES) \
+  $(tunitas_keyston_error_SUBSOURCES) \
+  $(tunitas_keyston_exception_SUBSOURCES) \
+  $(tunitas_keyston_field_SUBSOURCES) \
+  $(tunitas_keyston_formatter_SUBSOURCES) \
+  $(tunitas_keyston_histogram_SUBSOURCES) \
+  $(tunitas_keyston_measurement_SUBSOURCES) \
+  $(tunitas_keyston_name_SUBSOURCES) \
+  $(tunitas_keyston_nonce_SUBSOURCES) \
+  $(tunitas_keyston_numeric_SUBSOURCES) \
+  $(tunitas_keyston_prio_SUBSOURCES) \
+  $(tunitas_keyston_poplar_SUBSOURCES) \
+  $(tunitas_keyston_popularity_SUBSOURCES) \
+  $(tunitas_keyston_prg_SUBSOURCES) \
+  $(tunitas_keyston_parameters_SUBSOURCES) \
+  $(tunitas_keyston_quantity_SUBSOURCES) \
+  $(tunitas_keyston_required_SUBSOURCES) \
+  $(tunitas_keyston_shards_SUBSOURCES) \
+  $(tunitas_keyston_af_SUBSOURCES) \
+  $(tunitas_keyston_daf_SUBSOURCES) \
+  $(tunitas_keyston_vdaf_SUBSOURCES) \
+  $(tunitas_keyston_vidaf_SUBSOURCES) \
+  $(tunitas_keyston_pf_SUBSOURCES) \
+  $(tunitas_keyston_dpf_SUBSOURCES) \
+  $(tunitas_keyston_idpf_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/aggregation/Makefrag.am
+include src/tunitas/keyston/crypto/Makefrag.am
+include src/tunitas/keyston/error/Makefrag.am
+include src/tunitas/keyston/exception/Makefrag.am
+include src/tunitas/keyston/field/Makefrag.am
+include src/tunitas/keyston/formatter/Makefrag.am
+include src/tunitas/keyston/histogram/Makefrag.am
+include src/tunitas/keyston/measurement/Makefrag.am
+include src/tunitas/keyston/name/Makefrag.am
+include src/tunitas/keyston/nonce/Makefrag.am
+include src/tunitas/keyston/numeric/Makefrag.am
+include src/tunitas/keyston/parameters/Makefrag.am
+include src/tunitas/keyston/poplar/Makefrag.am
+include src/tunitas/keyston/popularity/Makefrag.am
+include src/tunitas/keyston/prg/Makefrag.am
+include src/tunitas/keyston/prio/Makefrag.am
+include src/tunitas/keyston/quantity/Makefrag.am
+include src/tunitas/keyston/required/Makefrag.am
+include src/tunitas/keyston/shards/Makefrag.am
+include src/tunitas/keyston/af/Makefrag.am
+include src/tunitas/keyston/daf/Makefrag.am
+include src/tunitas/keyston/vdaf/Makefrag.am
+include src/tunitas/keyston/vidaf/Makefrag.am
+include src/tunitas/keyston/pf/Makefrag.am
+include src/tunitas/keyston/dpf/Makefrag.am
+include src/tunitas/keyston/idpf/Makefrag.am

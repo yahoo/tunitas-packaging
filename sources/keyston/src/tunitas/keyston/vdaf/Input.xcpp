@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.required.Definition
+namespace tunitas::keyston::vdaf {
+  //
+  // Specification:
+  //
+  //   Input<WHOLE> contains the ENCODED measurement before sharding
+  //   Input<SHARE> contains one of the two types of shards
+  //                  (a) (exactly-one) leader shard which is biggish and laden with field elements
+  //                  (b) (one-or-more) helper(s) which are a single seed.
+  //
+  // Design:
+  //
+  //   By algorithm design,
+  //   There are only two roles, the LEADER and the HELPER.
+  //   The leader and the helper are (very) different sizes.
+  //
+  //   See also Role<...>
+  //
+  // Design:
+  //
+  //   Whatever it takes.
+  //
+  template<Slice, required::Definition> struct Input;
+  template<required::Definition DEFINITION> struct Input<SHARE, DEFINITION>;
+  template<required::Definition DEFINITION> struct Input<WHOLE, DEFINITION>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.Serialization
+#import std.same_as
+namespace tunitas::keyston {
+  namespace vdaf {
+    using std::move;
+    // swap(...) from the ancestor
+    // everything else is inherited from the ancestor
+  }
+  namespace vdaf {
+    template<required::Definition DEFINITION> class Input<WHOLE, DEFINITION> : public /*prio-specific*/ DEFINITION::Predefinition::Codec::Encoded {
+      using Ancestor = DEFINITION::Predefinition::Codec::Encoded;
+    public:
+      [[implicit]] Input() = default;
+      using Ancestor::Fixed; // and you "just have to know" that this is a vector:Fixed<Element, SIZE> for some definition-specific SIZE
+      constexpr Input(std::same_as<Ancestor> auto &&a) : Ancestor{std::forward<Ancestor>(a)} { } 
+    };
+    template<required::Definition DEFINITION> struct Input<SHARE, DEFINITION> : public Serialization<> {
+      // either LEADER-sized or HELPER-sized.
+      [[implicit]] Input() = default;
+      using Serialization<>::Serialization;
+    };
+  }
+}
+#endiv

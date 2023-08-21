@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::nonce {
+  namespace package_to_octets {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_to_octets::interface;
+}
+#endiv
+#divert <hpp>
+#import std.endian
+#import std.has_single_bit
+#import tunitas.keyston.nonce.Bits
+#import tunitas.array.Fixed
+namespace tunitas::keyston::nonce::package_to_octets::body {
+  namespace exported {
+    //
+    // Convert a Bits<N>, interpreted as an unsigned integer, to the equivalent string of octets
+    //
+    // Specification:
+    //
+    //   Just what the label says.
+    //   There is an endian sense which must be established.
+    //
+    // Design:
+    //
+    //   Requires 8 <= N
+    //
+    // Usage:
+    //
+    //   auto specimen = nonce::Bits<16>{...somehow...};
+    //   auto buf = nonce::to_octets<std::endian::big>(specimen);
+    //
+    template<std::endian, Size N> requires (4u < N && std::has_single_bit(N)) inline auto to_octets(Bits<N> const &) -> array::Fixed<Octet, N/8>;
+  }
+}
+#endiv
+#divert <ipp>
+#import tunitas.integer.to_octets
+#import tunitas.integer.into_octets
+namespace tunitas::keyston::nonce::package_to_octets {
+  template<std::endian ENDIAN, Size N> requires (4u < N && std::has_single_bit(N)) auto interface::to_octets(Bits<N> const &bits) -> array::Fixed<Octet, N/8> {
+    if constexpr (N <= bits::MAXIMUM_SPECIALIZED_WIDTH) {
+      return integer::to_octets<ENDIAN>(bits.value);
+    } else {
+      auto ret = array::Fixed<Octet, N/8>{};
+      auto next = ret.begin();
+      for (auto const &each : bits.values) {
+        next = integer::into_octets<ENDIAN>(each, next);
+      }
+      return ret;
+    }
+  }
+}
+#endiv

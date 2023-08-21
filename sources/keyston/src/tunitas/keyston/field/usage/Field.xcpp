@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.keyston.field.required.Field
+namespace tunitas::keyston::field::usage {
+  //
+  // Is this type a fully-formed field description?
+  // This is diagnosed with the complete type of FIELD.
+  //
+  namespace [[eponymous]] eponymous_field {
+    template<typename FIELD> concept Has_Generator = requires(FIELD) {
+      { FIELD::generator() } -> convertible_to<typename FIELD::Element>;
+    };
+    template<typename FIELD> concept Field = required::Field<FIELD> && requires(FIELD) {
+      typename FIELD::Element;
+      typename FIELD::Value;
+      typename FIELD::Underlying;
+      typename FIELD::Temporary;
+      typename FIELD::template Vector<1>;
+      typename FIELD::View;
+      typename FIELD::template Span<typename FIELD::Value>;
+      typename FIELD::template Span<typename FIELD::Value const>;
+      typename FIELD::template Span<typename FIELD::Value, 2uz>;
+      typename FIELD::template Span<typename FIELD::Value const, 2uz>;
+      requires 0 != FIELD::MODULUS;
+      requires Bytes{0u} != FIELD::ENCODED_LENGTH;
+      //
+      // [[FIXTHIS]] Field<255> is not (yet?) endowed with a generator() per draft-irtf-cfrg-vdaf-05
+      requires Has_Generator<FIELD> || !Has_Generator<FIELD>;
+      //
+      // Are all the entailed types completely defined?
+      requires 0 != sizeof(typename FIELD::Element);
+      requires 0 != sizeof(typename FIELD::Underlying);
+      requires 0 != sizeof(typename FIELD::template Vector<1>); // .......... the vector (sub-)definition
+      requires 0 != sizeof(typename FIELD::template Vector<1>::Value); // ... the vector type itself
+    };
+  }
+  using eponymous_field::Field;
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.Field
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::field::usage;
+    using tunitas::keyston::Field;
+    //
+    static_assert(usage::Field<Field<64>>);
+    static_assert(usage::Field<Field<128>>);
+    static_assert(usage::Field<Field<255>>);
+  }
+}
+#endiv

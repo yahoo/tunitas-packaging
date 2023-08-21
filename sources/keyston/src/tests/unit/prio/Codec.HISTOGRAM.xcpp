@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tests.unit.prio.Codec.template
+namespace tests::unit::prio {
+  template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_encode() -> void;
+  template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_truncate() -> void;
+  template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_decode() -> void;
+}
+#endiv
+#divert <cpp>
+#import nonstd.int128.ostream // for operator<< on int128 (obviously)
+namespace tests::unit::prio {
+  template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_encode() -> void {
+    auto make_boundaries = [](auto... values) { return Subject::Boundaries{Subject::Boundaries::Value{values}...}; };
+    auto boundaries = make_boundaries(1u, 3u, 5u, 7u);
+    auto specimen = Subject::Measurement{5u};
+    auto expected = Subject::Encoded{/*1*/generate(0u), /*3*/generate(0u), /*s<5*/generate(0u), generate(1u)};
+    auto observed = Subject::encode(specimen, boundaries);
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_truncate() -> void {
+    auto specimen = Subject::Encoded{generate(0u), generate(1u), generate(0u), generate(1u)};
+    auto expected = Subject::Truncated{generate(0u), generate(1u), generate(0u), generate(1u)};
+    auto observed = Subject::truncate(specimen);
+    if (expected != observed) {
+      auto &err{std::cerr};
+      auto dump = [&err](auto const &truncated, string::View tag) {
+        err << tag;
+        for (auto const &each : truncated) {
+          using nonstd::int128::operator<<; // [[FIXTHIS]] get an operator<< that works for all the integer types
+          err << ' ' << underlying(each);
+        }
+        err << '\n';
+      };
+      dump(expected, "expected");
+      dump(observed, "observed");
+    }
+    require(ASSERTION, expected == observed);
+  }
+  template<> auto Codec<library::Codec<HISTOGRAM>>::test_known_decode() -> void {
+    auto specimen = Subject::Truncated{generate(0u), generate(1u), generate(0u), generate(1u)};
+    auto make_histogram = [](auto... values) { return Subject::Decoded{Subject::Decoded::Value{values}...}; };
+    auto expected = make_histogram(0u, 1u, 0u, 1u);
+    auto observed = Subject::decode(specimen, Subject::Processed{});
+    require(ASSERTION, std::equal(expected.begin(), expected.end(), observed.begin(), observed.end()));
+  }
+}
+#endiv

@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::af { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::af::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Name() -> void;
+  auto test_usage_Measurement() -> void;
+  auto test_usage_Intermediate() -> void;
+  auto test_usage_Aggregation() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.af.Name
+#import tests.unit.af.numeric.Fixture
+auto tests::unit::af::Fixture::suite() -> Suite {
+  auto series = Stream{"af"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Name", &Fixture::test_usage_Name)
+                  << add("Measurement", &Fixture::test_usage_Measurement)
+                  << add("Intermediate", &Fixture::test_usage_Intermediate)
+                  << add("Aggregation", &Fixture::test_usage_Aggregation)
+                  << END;
+              return use;
+            }()
+         << add<Name>()
+         << add<numeric::Fixture>()
+         << END;
+  return settle(series);
+}
+#import tunitas.keyston.af.Name
+namespace tests::unit::af {
+  auto Fixture::test_usage_Name() -> void {
+    using Subject = library::Name;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto subject0 = Subject{0};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    // The other testers wil examine the output value; here we just call the core function to prove it exists & is callable
+    render(subject);
+  }
+}
+#import tunitas.keyston.af.Measurement
+#import tunitas.keyston.af.Intermediate
+#import tunitas.keyston.af.Aggregation
+#import std.ostringstream
+namespace tests::unit::af {
+  auto Fixture::test_usage_Measurement() -> void {
+    auto subject = library::Measurement{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Intermediate() -> void {
+    auto subject = library::Intermediate{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Aggregation() -> void {
+    auto subject = library::Aggregation{};
+    require(ASSERTION, sizeof(subject));
+    {
+      auto buf = std::ostringstream{};
+      buf << format(subject); // <------------------------------ test this
+      auto str = buf.str();
+      require(ASSERTION, !str.empty());
+    }
+  }
+}
+#endiv

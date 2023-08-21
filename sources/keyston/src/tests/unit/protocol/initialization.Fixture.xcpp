@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.rheem.protocol.initialization
+namespace tests::unit::protocol::initialization {
+  class Fixture;
+  namespace library = ::tunitas::rheem::protocol::initialization;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::initialization::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Request() -> void;
+  auto test_usage_Response() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::protocol::initialization::Fixture::suite() -> Suite {
+  auto series = Stream{"initialization"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Request", &Fixture::test_usage_Request)
+                  << add("Response", &Fixture::test_usage_Response)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.rheem.protocol.initialization.Request
+#import tunitas.rheem.protocol.initialization.Response
+namespace tests::unit::protocol::initialization {
+  auto Fixture::test_usage_Request() -> void {
+    auto subject0 = library::Request{};
+    auto subject1 = library::Request{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+  auto Fixture::test_usage_Response() -> void {
+    auto subject0 = library::Response{};
+    auto subject1 = library::Response{};
+    swap(subject0, subject1);
+    require(ASSERTION, sizeof (subject0));
+    require(ASSERTION, sizeof (subject1));
+  }
+}
+#endiv

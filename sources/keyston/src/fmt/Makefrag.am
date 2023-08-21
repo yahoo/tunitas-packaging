@@ -1,0 +1,7 @@
+# This is a -*- Makefile -*- fragment
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+fmt_SUBSOURCES = \
+  obj/src/fmt/formatter/tunitas.hale.hpke.Side.cpp \
+  obj/src/fmt/formatter/tunitas.Unique.SIZE.STAMP.cpp \
+  $(end)

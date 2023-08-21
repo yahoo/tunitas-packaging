@@ -1,0 +1,86 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::nonce {
+  //
+  // A palette of values
+  // Descendants only.
+  //
+  // Specification:
+  //
+  //   Both for Bits and for Since.
+  //
+  // Usage:
+  //
+  //   By (protected) inheritance.
+  //   You'll see, you'll get the hang of it.
+  //
+  struct Palette;
+}
+#endiv
+#divert <hpp>
+#import std.chrono.nanoseconds
+#import std.chrono.microseconds
+#import std.chrono.milliseconds
+#import std.chrono.seconds
+#import std.chrono.minutes
+#import std.chrono.hours
+#import std.chrono.days
+#import std.size_t
+#import std.tuple
+#import std.integer_sequence
+#import tunitas.keyston.nonce.required.Precision
+class tests::unit::nonce::Palette {
+protected:
+  virtual ~Palette() = default;
+public:
+  using The_Precision_Series = std::tuple<std::chrono::nanoseconds, std::chrono::microseconds, std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, std::chrono::hours, std::chrono::days>;
+  using The_Power_Series = std::integer_sequence<Size, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048>;
+  //
+  using Microseconds = std::chrono::microseconds;
+  using Milliseconds = std::chrono::milliseconds;
+  using Seconds = std::chrono::seconds;
+  //
+  // Delay a bit, given the reigning precision, or give up and say it can't be done.
+  template<required::Precision REIGNING> static auto delay() -> bool;
+};
+#endiv
+#divert <ipp>
+// All descendants will need these
+#import std.integer_sequence
+#import std.make_index_sequence
+#import std.tuple_size
+#import std.tuple_element
+#endiv
+#divert <tpp>
+#import std.chrono_literals
+#import sys.posix.usleep
+#import std.same_as
+namespace tests::unit::nonce {
+  template<required::Precision REIGNING> auto Palette::delay() -> bool {
+    // delay, but no longer than necessary to get a tick of the clock to pass.
+    //
+    // If we are measuring clocks in Seconds then we have to delay but that amount.
+    // and if we are doing sixty of these tests then the test takes a minute to run (avoid)
+    //
+    using namespace std::chrono_literals;
+    if constexpr (std::same_as<REIGNING, Seconds>) {
+      sys::posix::usleep(1s);
+      return true;
+    } else if constexpr (std::same_as<REIGNING, Milliseconds>) {
+      sys::posix::usleep(1ms);
+      return true;
+    } else if constexpr (std::same_as<REIGNING, Microseconds>) {
+      sys::posix::usleep(1us);
+      return true;
+    } else {
+      // But when precision is Minutes, Hours or Days, this isn't going to help.
+      sys::posix::usleep(1ms);
+      return false;
+    }
+  }
+}
+#endiv

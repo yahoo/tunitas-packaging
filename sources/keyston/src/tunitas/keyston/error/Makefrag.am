@@ -1,0 +1,15 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/keyston/tree/LICENSE
+#
+tunitas_keyston_error_SUBSOURCES = \
+  obj/src/tunitas/keyston/error/namespace.cpp \
+  obj/src/tunitas/keyston/error/category.cpp \
+  obj/src/tunitas/keyston/error/Category.cpp \
+  obj/src/tunitas/keyston/error/Code.cpp \
+  obj/src/tunitas/keyston/error/code.Unpackaged.cpp \
+  obj/src/tunitas/keyston/error/Condition.cpp \
+  obj/src/tunitas/keyston/error/condition.Unpackaged.cpp \
+  $(end)

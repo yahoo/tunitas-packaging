@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <hpp>
+#import tunitas.hale.hpke.key.bundle.Bundle
+namespace tunitas::hale::hpke::key::bundle {
+  //
+  // Filter the bundle down.
+  //
+  // Specification:
+  //
+  //   SECRET -> SECRET
+  //   SECRET -> PUBLIC
+  //   PUBLIC -> PUBLIC
+  //   PUBLIC -> SECRET = delete
+  //
+  //   SECRET,PUBLIC -> SECRET
+  //   SECRET,PUBLIC -> PUBLIC
+  //   PUBLIC,SECRET -> SECRET
+  //   PUBLIC,SECRET -> PUBLIC
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  // usage:
+  //
+  //   Yes.
+  //
+  template<Side DESTINATION, typename SOURCE> requires (required::Bundleable<SOURCE> && std::same_as<Key<DESTINATION>, SOURCE>) inline auto filter(Bundle<SOURCE>) -> Bundle<Key<DESTINATION>>;
+  template<Side DESTINATION, typename SOURCE> requires (required::Bundleable<SOURCE> && !std::same_as<Key<DESTINATION>, SOURCE>) auto filter(Bundle<SOURCE>) -> Bundle<Key<DESTINATION>> = delete;
+  //
+  template<Side DESTINATION, typename... SOURCES> requires (1 < sizeof...(SOURCES) && required::Bundleable<SOURCES...>) inline auto filter(Bundle<SOURCES...>) -> Bundle<Key<DESTINATION>>;
+}
+#endiv
+#divert <ipp>
+namespace tunitas::hale::hpke::key {
+  template<Side DESTINATION, typename SOURCE> requires (bundle::required::Bundleable<SOURCE> && std::same_as<Key<DESTINATION>, SOURCE>) auto bundle::filter(Bundle<SOURCE> in) -> Bundle<Key<DESTINATION>> { return in; }
+  //
+  template<Side DESTINATION, typename... SOURCES> requires (1 < sizeof...(SOURCES) && bundle::required::Bundleable<SOURCES...>) auto bundle::filter(Bundle<SOURCES...> in) -> Bundle<Key<DESTINATION>> { return (Key<DESTINATION> const &) in; }
+}
+#endiv

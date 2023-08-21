@@ -1,0 +1,90 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.nonce.required.Bundleable
+namespace tunitas::keyston::nonce {
+  //
+  // A bundle of noncies.
+  //
+  // Specification:
+  //
+  //   What's unclear about "bundle"?
+  //   The magic happens in Generator<Bundle<...>
+  //
+  // Design:
+  //
+  //   Whatever man.
+  //
+  // Usage:
+  //
+  //   auto generate = Generator<Bundle<Bits<8>, Since<std::microseconds>>{};
+  //   auto bundle = generate();
+  //
+  template<typename... NONCES> requires required::Bundleable<NONCES...> struct Bundle;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Tuple
+namespace tunitas::keyston {
+  template<typename... NONCES> requires nonce::required::Bundleable<NONCES...> struct nonce::Bundle : public Tuple<NONCES...> {
+    using Ancestor = Tuple<NONCES...>;
+  public:
+    Bundle() = default;
+    using Ancestor::tuple;
+    constexpr Bundle(Ancestor const &a) : Ancestor{a} { }
+    constexpr Bundle(Ancestor &&a) : Ancestor{forward<Ancestor>(a)} { }
+  };
+  namespace nonce {
+    template<typename... NONCES> requires required::Bundleable<NONCES...> inline auto operator==(Bundle<NONCES...> const &, Bundle<NONCES...> const &) -> bool;
+    template<typename... NONCES> requires required::Bundleable<NONCES...> inline auto operator!=(Bundle<NONCES...> const &, Bundle<NONCES...> const &) -> bool;
+    template<typename... NONCES> requires required::Bundleable<NONCES...> inline auto operator<=>(Bundle<NONCES...> const &, Bundle<NONCES...> const &) -> std::partial_ordering;
+  }
+}
+#endiv
+#divert <ipp>
+#import std.size_t
+#import std.integer_sequence
+#import std.make_index_sequence
+#import std.get
+namespace tunitas::keyston {
+  template<typename... NONCES> requires nonce::required::Bundleable<NONCES...> auto nonce::operator==(Bundle<NONCES...> const &a, Bundle<NONCES...> const &b) -> bool {
+    return [&]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+      return ((std::get<INDEX>(a) == std::get<INDEX>(b)) && ... );
+    }(std::make_index_sequence<sizeof...(NONCES)>{});
+  }
+  template<typename... NONCES> requires nonce::required::Bundleable<NONCES...> auto nonce::operator!=(Bundle<NONCES...> const &a, Bundle<NONCES...> const &b) -> bool {
+    return [&]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+      return ((std::get<INDEX>(a) != std::get<INDEX>(b)) || ... );
+    }(std::make_index_sequence<sizeof...(NONCES)>{});
+  }
+  template<typename... NONCES> requires nonce::required::Bundleable<NONCES...> auto nonce::operator<=>(Bundle<NONCES...> const &a, Bundle<NONCES...> const &b) -> std::partial_ordering {
+    auto compared = std::partial_ordering::unordered;
+    [&]<std::size_t... INDEX>(std::integer_sequence<std::size_t, INDEX...>) {
+      // the short-circuit evaluation quits on the first one that gives a signal (the first one that is not 'equal')
+      // compared is side-effected and we return that.
+      ((std::partial_ordering::equivalent != (compared = std::get<INDEX>(a) <=> std::get<INDEX>(b))) || ... );
+    }(std::make_index_sequence<sizeof...(NONCES)>{});
+    return compared;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.nonce.Bits
+#import tunitas.keyston.nonce.Since
+#import std.chrono.seconds
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::nonce;
+    using Specimen = Bundle<Bits<1>, Since<std::chrono::seconds>>;
+    static_assert(std::is_default_constructible_v<Specimen>);
+    static_assert(std::is_copy_constructible_v<Specimen>);
+    static_assert(std::is_move_constructible_v<Specimen>);
+    static_assert(std::is_copy_assignable_v<Specimen>);
+    static_assert(std::is_move_assignable_v<Specimen>);
+    static_assert(std::is_swappable_v<Specimen>);
+  }
+}
+#endiv

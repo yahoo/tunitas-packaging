@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.vdaf.Function
+namespace tunitas::keyston::vdaf::required {
+  //
+  // Is this type a Function?
+  // This is the moral equivalent of InstanceOf which accounts for the two NTTP (Non-Type Template Parameters)
+  //
+  template<typename FUNCTION> concept Function = requires {
+    []<Scheme SCHEME, Name NAME>(vdaf::Function<SCHEME, NAME> *){}(static_cast<FUNCTION *>(nullptr));
+  };
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    namespace required = tunitas::keyston::vdaf::required;
+    using tunitas::keyston::vdaf::Function;
+    using enum tunitas::keyston::Scheme;
+    using enum tunitas::keyston::vdaf::Name;
+    //
+    static_assert(required::Function<Function<ADHOC, ZERO>>);
+    static_assert(required::Function<Function<ADHOC, CONSTANT>>);
+    static_assert(required::Function<Function<PRIO, PRIO3_COUNT>>);
+    static_assert(required::Function<Function<PRIO, PRIO3_SUM>>);
+    static_assert(required::Function<Function<PRIO, PRIO3_HISTOGRAM>>);
+    static_assert(required::Function<Function<POPLAR, POPLAR1>>);
+  }
+}
+#endiv

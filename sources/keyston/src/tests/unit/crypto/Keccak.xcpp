@@ -1,0 +1,86 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.crypto.keccak.required.Keccak
+namespace tests::unit::crypto {
+  template<library::keccak::required::Keccak> struct Keccak;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.crypto.Keccak
+#import tests.unit.crypto.Palette
+namespace tests::unit {
+  template<crypto::library::keccak::required::Keccak SUBJECT> struct crypto::Keccak : public rigging::suite::Fixture, protected Palette {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_default() -> void;
+    auto test_update_single() -> void;
+    auto test_update_multiple() -> void;
+    auto test_final() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::crypto {
+  template<library::keccak::required::Keccak _> auto Keccak<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("constructor", &Keccak::test_constructor_default)
+           << []{
+                auto up = Stream{"update"sv};
+                up << add("single", &Keccak::test_update_single)
+                   << add("multiple", &Keccak::test_update_multiple)
+                   << END;
+                return up;
+              }()
+           << add("final", &Keccak::test_final)
+           << END;
+    return settle(series);
+  };
+  template<library::keccak::required::Keccak _> auto Keccak<_>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  template<library::keccak::required::Keccak _> auto Keccak<_>::test_update_single() -> void {
+    auto subject = Subject{};
+    auto in = Palette::generate_buffer<typename Palette::Buffer<101>>(); // this can be any size
+    auto out = typename Palette::Buffer<49>{}; // this too can be any size when (KECCAK[c] is used as an XOF)
+    subject.update(in);
+    subject.final(out);
+    Palette::dump(std::cerr, out);
+    require(ASSERTION, sizeof(subject));
+  }
+  template<library::keccak::required::Keccak _> auto Keccak<_>::test_update_multiple() -> void {
+    auto subject = Subject{};
+    auto in = Palette::generate_buffer<typename Palette::Buffer<101>>(); // this can be any size
+    auto out = typename Palette::Buffer<49>{}; // this too can be any size when (KECCAK[c] is used as an XOF)
+    subject.update(in);
+    subject.update(in);
+    subject.update(in);
+    subject.update(in);
+    subject.update(in);
+    subject.update(in);
+    subject.update(in);
+    subject.final(out);
+    Palette::dump(std::cerr, out);
+    require(ASSERTION, sizeof(subject));
+  }
+  template<library::keccak::required::Keccak _> auto Keccak<_>::test_final() -> void {
+    auto subject = Subject{};
+    auto in = Palette::generate_buffer<typename Palette::Buffer<100>>(); // this can be any size
+    auto out = typename Palette::Buffer<100>{};
+    for (auto ith : std::views::iota(0uz, out.size())) {
+      subject.update(in);
+      auto subout = std::span{out.data(), ith};
+      subject.final(subout); // after this the function is reset, we have to update(...) start again
+      auto &out{std::cerr};
+      out << "ith " << ith << ' ';
+      Palette::dump(out, subout);
+    }
+  }
+}
+#endiv

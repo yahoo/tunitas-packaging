@@ -1,0 +1,80 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.validity.Validity.template
+namespace tunitas::keyston::prio::flp::validity {
+  //
+  // The validity bundle for PRIO COUNT
+  //
+  // Authorities:
+  //
+  //   draft-irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions (VDAFs)
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html#name-a-general-purpose-flp
+  //
+  // Specification:
+  //
+  //   Section 7.4.1. Prio3Count
+  //   Sure, right there in the Section.
+  //
+  // Design:
+  //
+  //   Transliterated from the standard (draft)
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<> struct Predefinition<COUNT>;
+  template<> struct Validity<COUNT>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.aggregation.Count
+namespace tunitas::keyston::prio::flp::validity {
+  template<> struct Predefinition<COUNT> : public Prototype {
+    using Field = keyston::Field<64>;
+    using Measurement = measurement::Specimen; // yet reduced down to uint1_t (sic)
+    using Aggregation = aggregation::Count;
+    inline static constexpr auto const INPUT_LENGTH            = Input{1u};
+    inline static constexpr auto const OUTPUT_LENGTH           = Output{1u};
+    inline static constexpr auto const JOINT_RANDOMNESS_LENGTH = Joint{0u};
+    using Gadgets = flp::Gadgets<flp::Gadget<RANGE1>>;
+    inline static constexpr auto const CALLS = gadget::calls(1u);
+  };
+  template<> class Validity<COUNT> : public Predefinition<COUNT>, public Lengths<Predefinition<COUNT>>, public Codeckie<COUNT, Predefinition<COUNT>> {
+    using Face = Interface<Predefinition<COUNT>>;
+    using Mul = typename tuple::Element<0uz, Gadgets>::type;
+  public:
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER, Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Shards) -> Field::Element;
+    template<required::Recorder<Validity> RECORDER> inline static constexpr auto evaluate([[inout]] RECORDER recorder, Face::Input input) -> Field::Element { return evaluate(recorder, input, {}, {}); }
+  protected:
+    template<required::Gadgetator<Field::Element, gadget::Arity{2}> GADGET> inline static constexpr auto recipe([[inout]] GADGET &, Face::Input, [[unused]] Face::Randomness, [[unused]] Face::Shards) -> Field::Element;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston::prio::flp::validity {
+  template<required::Recorder<Validity<COUNT>> RECORDER> constexpr auto Validity<COUNT>::evaluate(RECORDER recorder, Face::Input input, Face::Randomness joint, Face::Shards shards) -> Field::Element {
+    auto mul = typename Mul::template Evaluator<typename RECORDER::Inputs>{recorder.inputs};
+    return recipe(mul, input, joint, shards);
+  }
+  template<required::Gadgetator<Validity<COUNT>::Field::Element, gadget::Arity{2}> GADGET> constexpr auto Validity<COUNT>::recipe(GADGET &mul, Face::Input input, Face::Randomness, Face::Shards) -> Field::Element {
+    auto item = input.at(0u);
+    return mul(item, item) - item;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.keyston.prio.flp.validity.usage.Validity
+namespace {
+  namespace testate {
+    namespace usage = tunitas::keyston::prio::flp::validity::usage;
+    using namespace tunitas::keyston::prio::flp::validity;
+    static_assert(usage::Validity<Validity<COUNT>>);
+  }
+}
+#endiv

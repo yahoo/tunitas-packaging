@@ -1,0 +1,218 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.ranges.required.Container
+#import tunitas.ranges.package_enumerate.Iterator
+#import tests.unit.ranges.enumerate.required.IteratorOf
+namespace tests::unit::ranges::enumerate {
+  template<typename SUBJECT, typename CONTAINER>
+  requires (required::IteratorOf<SUBJECT> && required::Container<CONTAINER>)
+  struct Iterator;
+}
+#endiv
+#divert <hpp>
+#import std.same_as
+#import std.remove_const
+#import nonstd.container.Traits
+#import std.distance
+namespace tests::unit::ranges {
+  template<typename SUBJECT, typename CONTAINER>
+  requires (enumerate::required::IteratorOf<SUBJECT> && required::Container<CONTAINER>)
+  struct enumerate::Iterator : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Container = CONTAINER;
+    struct Subject : public SUBJECT {
+      Subject() = default;
+      using SUBJECT::Iterator; // do we can get access to the from-subiterator conversion constructor
+      //
+      // WATCHOUT - the use of inheritance here is convenient
+      // it makes the constructors available for testing
+      // but destroys the utility of the specializations of std::iterator_traits<...> and nonstd::iterator::Traits<...>
+      // thus std::distance(...) won't work directly, we have to force it.
+      //
+      friend auto distance(Subject const &start, Subject const &finish) -> std::ptrdiff_t { return std::distance(static_cast<SUBJECT const &>(start), static_cast<SUBJECT const &>(finish)); }
+    };
+    //
+    // WATCHOUT - the Container may already be constie
+    template<typename CONTNR> requires std::same_as<std::remove_const_t<Container>, std::remove_const_t<CONTNR>> struct Conjugate {
+      //
+      // This is the constie library::iterator for Container? ---------------\\\\\\\\\\\\ (here)
+      //                                                                     ||||||||||||
+      //                                                                     vvvvvvvvvvvv
+      using Type = library_body::Iterator<typename nonstd::container::Traits<CONTNR const>::Iterator>;
+    };
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_conversion_from_subiterator() -> void;
+    auto test_constructor_conversion_from_thisone_to_constie() -> void;
+    auto test_operator_indirect_constie() -> void;
+    auto test_operator_indirect_mutable() -> void;
+    auto test_operator_inc_pre() -> void;
+    auto test_operator_inc_post() -> void;
+    auto test_operator_eq() -> void;
+    auto test_operator_ne() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.distance
+#import std.remove_reference
+#import std.remove_const
+namespace tests::unit::ranges::enumerate {
+  template<typename S, typename C> auto Iterator<S,C>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+               auto con = Stream{"constructor"sv};
+               con << add("default", &Iterator::test_constructor_default)
+                   << []{
+                     auto conv = Stream{"conversion-from"sv};
+                     conv << add("subiterator", &Iterator::test_constructor_conversion_from_subiterator)
+                          << add("thisone-to-constie", &Iterator::test_constructor_conversion_from_thisone_to_constie)
+                          << END;
+                     return conv;
+                   }()
+                   << END;
+               return con;
+             }()
+           << []{
+               auto inc = Stream{"operator++"sv};
+               inc << add("pre", &Iterator::test_operator_inc_pre)
+                   << add("post", &Iterator::test_operator_inc_post)
+                   << END;
+               return inc;
+             }()
+           << []{
+               auto ind = Stream{"operator*"sv};
+               ind << add("constie", &Iterator::test_operator_indirect_constie)
+                   << add("mutable", &Iterator::test_operator_indirect_mutable)
+                   << END;
+               return ind;
+             }()
+           << add("operator==", &Iterator::test_operator_eq)
+           << add("operator!=", &Iterator::test_operator_ne)
+           << END;
+    return settle(series);
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_constructor_default() -> void {
+    auto subject0 = Subject{}; // <---------------------------------------- test this
+    auto subject1 = Subject{};
+    require(ASSERTION, subject0 == subject1);
+    require(ASSERTION, !(subject0 != subject1));
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_constructor_conversion_from_subiterator() -> void {
+    auto container = Container{1,2,3};
+    auto b = Subject{container.begin()};// <---------------------------------------- test this
+    auto e = Subject{container.end()};
+    require(ASSERTION, 3 == std::distance(container.begin(), container.end()));
+    require(ASSERTION, 3 == distance(b, e));
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_constructor_conversion_from_thisone_to_constie() -> void {
+    auto container = Container{1,2,3};
+    auto specimen_begin = Subject{container.begin()};
+    auto specimen_end   = Subject{container.end()};
+    require(ASSERTION, 3 == distance(specimen_begin, specimen_end));
+#if 0
+    static_assert(std::is_const_v<Container> == std::is_const_v<std::remove_reference_t<decltype((*specimen_begin).second)>>);
+#endif
+    //
+    using Constie = typename Conjugate<Container>::Type;
+#if 0
+    static_assert(std::same_as<Constie, ::tunitas::ranges::package_enumerate::body::Iterator<std::vector<int>::const_iterator, ::tunitas::ranges::package_enumerate::body::Mutability::CONSTIE>>);
+    ::tunitas::ranges::package_enumerate::body::Iterator<std::vector<int>::const_iterator, ::tunitas::ranges::package_enumerate::body::Mutability::CONSTIE> subject_begin(specimen_begin); // <---------------------------------------- test this
+#endif
+    auto subject_begin = Constie{specimen_begin}; // <---------------------------------------- test this
+    auto subject_end = Constie{specimen_end};
+    require(ASSERTION, 3 == distance(subject_begin, subject_end));
+    static_assert(std::is_reference_v<decltype((*specimen_begin).second)>);
+#if 0
+    static_assert(std::is_const_v<std::remove_reference_t<decltype((*specimen_begin).second)>>);
+#endif
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_operator_indirect_constie() -> void {
+    if constexpr (std::is_const_v<Container>) {
+      auto const container = Container{1,2,3};
+      auto here = Subject{container.begin()};
+      {
+        auto [index, value] = *here++;
+        require(ASSERTION, 0 == index);
+        require(ASSERTION, 1 == value);
+        static_assert(std::is_reference_v<decltype(value)>);
+      } {
+        auto [index, value] = *here++;
+        require(ASSERTION, 1 == index);
+        require(ASSERTION, 2 == value);
+      }
+    }
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_operator_indirect_mutable() -> void {
+    if constexpr (!std::is_const_v<Container>) {
+      auto container = Container{1,2,3};
+      *container.begin() = 1;
+      auto here = Subject{container.begin()};
+      {
+        (*here).second = 1;
+        auto [index, value] = *here++;
+        require(ASSERTION, 0 == index);
+        require(ASSERTION, 1 == value);
+        static_assert(std::is_reference_v<decltype(value)>);
+        value *= 10;
+      } {
+        auto [index, value] = *here++;
+        require(ASSERTION, 1 == index);
+        require(ASSERTION, 2 == value);
+        value *= 10;
+      } {
+        auto [index, value] = *here++;
+        require(ASSERTION, 2 == index);
+        require(ASSERTION, 3 == value);
+        value *= 10;
+      }
+      auto again = Subject{container.begin()};
+      require(ASSERTION, 10 == (*again++).second);
+      require(ASSERTION, 20 == (*again++).second);
+      require(ASSERTION, 30 == (*again++).second);
+    }
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_operator_inc_pre() -> void {
+    auto container = Container{1,2,3};
+    auto here = Subject{container.begin()};
+    auto place2 = *++here;
+    auto place3 = *++here;
+    require(ASSERTION, 1 == place2.first);
+    require(ASSERTION, 2 == place2.second);
+    require(ASSERTION, 2 == place3.first);
+    require(ASSERTION, 3 == place3.second);
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_operator_inc_post() -> void {
+    auto container = Container{1,2,3};
+    auto here = Subject{container.begin()};
+    auto place1 = *here++;
+    auto place2 = *here++;
+    auto place3 = *here++;
+    require(ASSERTION, 0 == place1.first);
+    require(ASSERTION, 1 == place1.second);
+    require(ASSERTION, 1 == place2.first);
+    require(ASSERTION, 2 == place2.second);
+    require(ASSERTION, 2 == place3.first);
+    require(ASSERTION, 3 == place3.second);
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_operator_eq() -> void {
+    auto container = Container{1,2,3};
+    auto begin = Subject{container.begin()};
+    auto end   = Subject{container.end()};
+    require(ASSERTION, begin == begin);
+    require(ASSERTION, !(begin == end));
+  }
+  template<typename S, typename C> auto Iterator<S,C>::test_operator_ne() -> void {
+    auto container = Container{1,2,3};
+    auto begin = Subject{container.begin()};
+    auto end   = Subject{container.end()};
+    require(ASSERTION, begin != end);
+    require(ASSERTION, !(end != end));
+  }
+}
+#endiv

@@ -1,0 +1,8 @@
+Tunitas Keyston (Creek)
+- Privacy-Preserving Measurement (PPM)
+- Verifiable Distributed Aggregation Function (VDAF)
+- Hypbrid Public Key Encryption (HPKE)
+
+These are the core data structures, algorithms & protocol machinery of the Tunitas rendering of PPM, VDAF & HPKE.
+
+See the README.md for more elaborate documentation in the markdown style.

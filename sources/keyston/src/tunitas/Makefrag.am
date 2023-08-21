@@ -1,0 +1,33 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/tree/LICENSE
+#
+tunitas_SUBSOURCES = \
+  $(tunitas_array_SUBSOURCES) \
+  $(tunitas_entropy_SUBSOURCES) \
+  $(tunitas_integer_SUBSOURCES) \
+  $(tunitas_number_SUBSOURCES) \
+  $(tunitas_octets_SUBSOURCES) \
+  $(tunitas_ranges_SUBSOURCES) \
+  $(tunitas_required_SUBSOURCES) \
+  $(tunitas_sequence_SUBSOURCES) \
+  $(tunitas_span_SUBSOURCES) \
+  $(tunitas_time_SUBSOURCES) \
+  $(tunitas_units_SUBSOURCES) \
+  $(tunitas_view_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/array/Makefrag.am
+include src/tunitas/entropy/Makefrag.am
+include src/tunitas/integer/Makefrag.am
+include src/tunitas/number/Makefrag.am
+include src/tunitas/octets/Makefrag.am
+include src/tunitas/ranges/Makefrag.am
+include src/tunitas/required/Makefrag.am
+include src/tunitas/sequence/Makefrag.am
+include src/tunitas/span/Makefrag.am
+include src/tunitas/time/Makefrag.am
+include src/tunitas/units/Makefrag.am
+include src/tunitas/view/Makefrag.am

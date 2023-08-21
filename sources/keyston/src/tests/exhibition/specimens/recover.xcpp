@@ -1,0 +1,105 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::exhibition::specimens {
+  namespace package_recover {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_recover::interface;
+}
+#import tunitas.application.exits.constants
+#import tunitas.string.literals
+#import langu.age
+// new namespaces?
+namespace tests::exhibition::specimens::package_recover {
+  namespace body {
+    using namespace tunitas::application::exits::constants;
+    using namespace tunitas::string::literals;
+    using namespace langu::age;
+  }
+}
+#import tunitas.application.options.Arguments
+#import tunitas.application.options.Argument
+#import tunitas.application.exits.Code
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.view.View
+#import cli.exits.Outcome // because tunitas doesn't (yet) have such a thing
+#import std.underlying_type
+#import std.ranges.subrange
+// new types?
+namespace tests::exhibition::specimens::package_recover {
+  using Subrange = std::ranges::subrange<tunitas::application::options::Arguments::const_iterator>;
+  using Exit = tunitas::application::exits::Code;
+  using cli::exits::Outcome; // [[FIXTHIS]] get one of these into namespace tunitas::application::exits
+  namespace body {
+    using tunitas::application::options::Argument;
+    using Underlying = std::underlying_type_t<Specimen>;
+  }
+}
+#endiv
+#divert <hpp>
+#import tests.exhibition.Experience
+#import tests.exhibition.Configuration
+#import tests.exhibition.Specimens
+#import nonstd.to_integer
+namespace tests::exhibition::specimens::package_recover::body {
+  namespace exported {
+    //
+    // Recover the specimens from the arguments
+    // Complain about problems.
+    // Return either an exit code or else the specimens
+    //
+    // Design:
+    //
+    //   base is unspecified so the usual rules apply
+    //     default decimal
+    //     0 prefix is octal
+    //     0x prefix hexidecimal
+    //
+    // Usage:
+    //
+    //   auto &exp = Experience{...somehow...};
+    //   auto const &cfg = Configuration{...somehow...};
+    //   auto words = Arguments{...somehow...};
+    //
+    //   if (auto recovered=specimens::recover(exp, cfg, words); fail(recovered)) {
+    //     error(exp) << "the specification series is unusable\n";
+    //     return exit_code(recovered);
+    //   } else {
+    //     ...celebrate and use the value(recovered)...
+    //   }
+    //
+    auto recover([[inout]] Experience &, Configuration const &, Subrange) -> Outcome<Specimens>;
+  }
+  using nonstd::to_integer;
+}
+#endiv
+#divert <cpp>
+#import langu.age.q
+#import std.ranges.subrange
+namespace tests::exhibition::specimens::package_recover {
+  auto interface::recover(Experience &exp, Configuration const &cfg, Subrange sub) -> Outcome<Specimens> {
+    auto some = Specimens{};
+    auto exit = OK;
+    auto ith{0u};
+    for (auto const &syntax : sub) {
+      ++ith;
+      if (auto got=to_integer<Underlying>(syntax); good(got)) {
+        some.push_back(Specimen{value(got)});;
+      } else {
+        error(exp) << "specimen " << ith << " " << q(syntax) << " is not a specimen because " << error_code(got).message() << " (oignoring it)\n";
+        exit &= DATA;
+      }
+    }
+    if (fail(exit)) {
+      return exit;
+    } else {
+      return move(some);
+    }
+  }
+}
+#endiv

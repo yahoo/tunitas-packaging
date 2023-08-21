@@ -1,0 +1,300 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.array.required.Containable
+namespace tunitas::array {
+  //
+  // An "array-like" container
+  //
+  // Specification:
+  //
+  //   Obvious.
+  //
+  // Design:
+  //
+  //   Because most of them share the same basic behaviors..
+  //   Among at least:
+  //     qualified ...... undirected variable .... std::deque
+  //     qualified  ..... contiguous variable .... std::vector
+  //     disqualified ... contiguous fixed ....... std::array
+  //
+  //   Unlimited length, thus variable length
+  //   a.k.a. Variable Entity-Containing-Type [which] Owns Resources (VECTOR)
+  //   https://en.cppreference.com/w/cpp/container/vector
+  //
+  // rpm -q -f /usr/include/c++/12/bits/stl_vector.h
+  // libstdc++-devel-12.2.1-4.fc37.x86_64
+  //
+  //       _GLIBCXX20_CONSTEXPR
+  //       vector(initializer_list<value_type> __l,
+  //               const allocator_type& __a = allocator_type())
+  //       : _Base(__a)
+  //       {
+  //          _M_range_initialize(__l.begin(), __l.end(),
+  //                              random_access_iterator_tag()); ........................................ always copies, never moves
+  //       }
+  //
+  // Exceptions:
+  //
+  //   Where known, exceptions are recovered and re-wrapped as tunitas::exception::Aspect descendants.
+  //   e.g. at(...) throws exception::Bounds
+  //
+  // Usage:
+  //
+  //   See Variable<TYPE>
+  //   See Series<TYPE>
+  //
+  template<required::Containable> struct Container;
+}
+#endiv
+#divert <hpp>
+#import nonstd.required.InstanceOf
+#import std.vector
+#import nonstd.required.Copy_Constructible
+#import nonstd.required.iterator.Forward
+#import nonstd.required.Convertible_To
+#forward tunitas.array.Fixed
+#import tunitas.array.required.Initializers
+#import tunitas.array.required.has // [[unused]] for has::Capacity, Max_Size, Resize, Reserve
+#import std.conditional
+#import std.derived_from
+#import std.enable_if
+#import std.is_const
+#import std.nothrow
+#import std.ranges.subrange
+#import std.same_as
+#import tunitas.span.Span
+#import tunitas.view.View
+namespace tunitas {
+  namespace array {
+    using std::move;
+    template<required::Containable CONTAINER> inline auto swap(Container<CONTAINER> &, Container<CONTAINER> &) noexcept -> void;
+  }
+  template<array::required::Containable CONTAINER> class array::Container : protected CONTAINER {
+    using Ancestor = CONTAINER;
+    friend auto array::swap<>(Container &, Container &) noexcept -> void;
+  public:
+    using Value [[school("New")]] = typename Ancestor::value_type; // [[[FIXTHIS]] potentially safer to use nonstd::container::Traits<Ancestor>::Value
+    using value_type [[school("Old")]] = Value;
+    using Inplace = array::Inplace;
+    inline static constexpr auto INPLACE = Inplace{};
+  protected:
+    ~Container() = default;
+  public:
+    [[implicit]] Container() = default;
+    Container &operator=(Container const &) = default;
+    Container &operator=(Container &&) = default;
+    // public so they are usable by descendants
+#if 0
+    // DO NOT inherit these constructors.  They work mostly.
+    // They always work when Copy_Constructible<Value>.
+    // They sometimes work when only Move_Constructible<Value>.
+    // When Move_Constructible<Value>, they work for InstanceOf<CONTAINER, deque> but not for InstanceOf<CONTAINER, vector>.
+    using Ancestor::CONTAINER;
+#else
+    inline explicit Container(Size);
+    template<typename VALUE> inline explicit Container(Size, VALUE const &) requires(required::Copy_Constructible<VALUE> && required::Convertible_To<VALUE, Value>);
+#endif
+    Container(Ancestor const &a) : Ancestor{a} { }
+    Container(Ancestor &&a) : Ancestor{move(a)} { }
+    Container &operator=(Ancestor const &a) { Ancestor::operator=(a);       return *this; }
+    Container &operator=(Ancestor &&a)      { Ancestor::operator=(move(a)); return *this; }
+    //
+    template<Size CAPACITY> [[implicit]] Container(Fixed<Value, CAPACITY> const &);
+    template<Size CAPACITY> [[implicit]] Container(Fixed<Value, CAPACITY> &&);
+    template<required::Containable OTHER> [[implicit]] Container(Container<OTHER> const &);
+    template<required::Containable OTHER> [[implicit]] Container(Container<OTHER> &&);
+    Container(Container const &) = default;
+    Container(Container &&); // [[FIXTHIS]] = default does not work for InstanceOf<CONTAINER,, std::vector> so we have to hack itl see the required::Initializer<...> requirement
+    template<typename... VALUES> constexpr Container(VALUES &&...) requires required::Initializers<Value, VALUES...>;
+    template<typename... VALUES> constexpr Container(Inplace, VALUES &&...) requires required::Initializers<Value, VALUES...>;
+    template<required::iterator::Forward ITERATOR> Container(ITERATOR, ITERATOR);
+    //
+    template<typename VALUE, Size EXTENT = std::dynamic_extent> requires (std::same_as<std::remove_const_t<VALUE>, Value>) using Span = span::Span<VALUE, EXTENT>;
+    template<Size EXTENT = std::dynamic_extent> using View = view::View<Value, EXTENT>;
+    //
+    // these operator casts are explicit because std::span already has a constructor for these cases
+    // to wit: candidate: ‘constexpr std::span<_Type, _Extent>::span(_Range&&) [with _Type = const std::byte; long unsigned int _Extent = 18446744073709551615]’
+    // these throw exception::Invalid if SUBCAPACITY != std::dynamic_extent and the fixed capacity cannot be obtained form the dynamic-sized container
+    template<Size SUBCAPACITY = std::dynamic_extent> inline constexpr explicit operator View<SUBCAPACITY>() const;
+    template<typename SUBVALUE, Size SUBCAPACITY> inline constexpr explicit operator Span<SUBVALUE const, SUBCAPACITY>() const;
+    template<typename SUBVALUE, Size SUBCAPACITY> inline constexpr explicit operator Span<SUBVALUE, SUBCAPACITY>();
+    //
+    using Ancestor::empty;
+    using Ancestor::size;
+    // NOT HERE ---> using Ancestor::data; <--- NOT HERE (rather see the descendant Variable<TYPE>)
+    //
+    template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Container> using Basic_Iterator = std::conditional_t<std::is_const_v<SELF>, typename Ancestor::const_iterator, typename Ancestor::iterator>;
+    using Iterator = Basic_Iterator<Container>;
+    using Const_Iterator = Basic_Iterator<Container const>;
+    //
+    using Ancestor::begin;
+    using Ancestor::end;
+    //
+    using Index = Size;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto at(this SELF *, Index) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline auto at(this SELF *, std::nothrow_t, Index) -> nonstd::like_t<SELF, Value &>;
+#else
+    inline auto at(Index) const -> Value const &;
+    inline auto at(Index) -> Value &;
+    inline auto at(std::nothrow_t, Index) const -> Value const &;
+    inline auto at(std::nothrow_t, Index) -> Value &;
+#endif
+    using Ancestor::push_back;
+    using Ancestor::emplace_back;
+#if __GNUC__ < 13
+  protected:
+    // As documented in the Design: section above:
+    // for move-only types; e.g. std::unique_ptr<SOMETHING>
+    // std::vector always does a copy, never does a move in std::vector of libstdc++-devel-12.2.1-4.fc37.x86_64
+    // std::deque does a move as is intended.
+    template<typename OTHER> auto manually_move_because_sometimes_copy_is_selected(OTHER &&) -> void;
+#endif
+  };
+  namespace array {
+    template<required::Containable CONTAINER> inline auto subrange(Container<CONTAINER> &) -> std::ranges::subrange<typename Container<CONTAINER>::template Basic_Iterator<Container<CONTAINER>>>;
+    template<required::Containable CONTAINER> inline auto subrange(Container<CONTAINER> const &) -> std::ranges::subrange<typename Container<CONTAINER>::template Basic_Iterator<Container<CONTAINER> const>>;
+  }
+}
+#endiv
+#divert <ipp>
+#import tunitas.array.required.Reservable
+#import tunitas.array.Bounded
+#import tunitas.array.Fixed
+#import tunitas.array.Series
+#import tunitas.exception.Bound
+#import tunitas.exception.Invalid
+#import nonstd.required.iterator.Undirected
+#import nonstd.move
+#import std.make_move_iterator
+#import std.same_as
+#import std.back_inserter
+#import std.out_of_range
+#import substd.exception.Bound
+static_assert(std::same_as<std::out_of_range, substd::exception::Bound>);
+namespace tunitas {
+  template<array::required::Containable CONTAINER> auto array::swap(Container<CONTAINER> &a, Container<CONTAINER> &b) noexcept -> void {
+    typename Container<CONTAINER>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  template<array::required::Containable CONTAINER> auto array::subrange(Container<CONTAINER> &var)       -> std::ranges::subrange<typename Container<CONTAINER>::template Basic_Iterator<Container<CONTAINER>>>       { return {var.begin(), var.end()}; }
+  template<array::required::Containable CONTAINER> auto array::subrange(Container<CONTAINER> const &var) -> std::ranges::subrange<typename Container<CONTAINER>::template Basic_Iterator<Container<CONTAINER> const>> { return {var.begin(), var.end()}; }
+  namespace array {
+    template<required::Containable _> template<Size CAPACITY> Container<_>::Container(Fixed<Value, CAPACITY> const &other) : Ancestor{other.begin(), other.end()} { }
+    template<required::Containable _> template<required::Containable OTHER> Container<_>::Container(Container<OTHER> const &other)  : Ancestor{other.begin(), other.end()} { }
+    template<required::Containable _> template<required::iterator::Forward ITERATOR> Container<_>::Container(ITERATOR first, ITERATOR last) {
+      if constexpr (required::Reservable<Ancestor> && required::iterator::Undirected<ITERATOR>) {
+        Ancestor::reserve(std::distance(first, last));
+      }
+      nonstd::move(std::make_move_iterator(first), std::make_move_iterator(last), std::back_inserter(*this));
+    }
+    template<required::Containable _> Container<_>::Container(Size count) : Ancestor(count) { }
+    template<required::Containable _> template<typename VALUE> Container<_>::Container(Size count, VALUE const &noob) requires(required::Copy_Constructible<VALUE> && required::Convertible_To<VALUE, Value>) : Ancestor(count, noob) { }
+    template<required::Containable _> template<typename... VALUES> constexpr Container<_>::Container(VALUES &&...values) requires required::Initializers<Value, VALUES...> : Container{Inplace{}, forward<VALUES>(values)...} { }
+    template<required::Containable _> template<typename... VALUES> constexpr Container<_>::Container(Inplace, VALUES &&...values) requires required::Initializers<Value, VALUES...> {
+      if constexpr (required::Reservable<Ancestor>) {
+        Ancestor::reserve(sizeof...(VALUES));
+      }
+      (Ancestor::push_back(forward<VALUES>(values)), ... );
+    }
+#if 12 < __GNUC__
+    // [[bad]] This still does a copy for InstanceOf<CONTAINER, std::vector> from libstdc++-devel-12.2.1-4.fc37.x86_64
+    // [[good]] it appears to do the (correct) move operation for InstanceOf<CONTAINER, std::deque>
+    template<required::Containable _> template<Size CAPACITY> Container<_>::Container(Fixed<Value, CAPACITY> &&other)         : Ancestor{std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())} { }
+    template<required::Containable _> template<required::Containable OTHER> Container<_>::Container(Container<OTHER> &&other) : Ancestor{std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())} { }
+    template<required::Containable _> Container<_>::Container(Container &&) = default;
+#else
+    template<required::Containable _> template<typename OTHER> auto Container<_>::manually_move_because_sometimes_copy_is_selected(OTHER &&other) -> void {
+      if constexpr (required::Reservable<Ancestor>) {
+        Ancestor::reserve(other.size());
+      }
+      nonstd::move(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()), std::back_inserter(*this));
+    }
+    template<required::Containable _> template<Size CAPACITY> Container<_>::Container(Fixed<Value, CAPACITY> &&other)         { manually_move_because_sometimes_copy_is_selected(std::forward<Fixed<Value, CAPACITY>>(other)); }
+    template<required::Containable _> template<required::Containable OTHER> Container<_>::Container(Container<OTHER> &&other) { manually_move_because_sometimes_copy_is_selected(std::forward<Container<OTHER>>(other)); }
+    template<required::Containable _> Container<_>::Container(Container &&other)                                              { manually_move_because_sometimes_copy_is_selected(std::forward<Container>(other)); }
+#endif
+#if 202312 < __cplusplus
+#if 0 // this won't work
+    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT, typename SELF> constexpr Container<_>::operator Span<SUBVALUE, SUBEXTENT>(this SELF *self) {
+      using Result = Span<std::conditional_t<std::is_const_v<SELF>, SUBVALUE const, SUBVALUE>, SUBEXTENT>;
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      //
+      // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent
+      //
+      //     //////-------------------------------------------------- (here)
+      //     ||||||
+      //     vvvvvv
+      return Result{Ancestor::data(), Ancestor::size()};
+    }
+#endif
+#endif
+    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT> constexpr Container<_>::operator Span<SUBVALUE const, SUBEXTENT>() const {
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      //
+      // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent
+      //
+      //     ///////////////////////||||||//-------------------------------------------------- (here)
+      //     |||||||||||||||||||||||||||||||
+      //     vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      return Span<SUBVALUE const, SUBEXTENT>{Ancestor::data(), Ancestor::size()};
+    }
+    template<required::Containable _> template<typename SUBVALUE, Size SUBEXTENT> constexpr Container<_>::operator Span<SUBVALUE, SUBEXTENT>() {
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      //
+      // The explicit constructor is required when SUBCAPACITY != std::dynamic_extent
+      //
+      //     /////////////////////////-------------------------------------------------- (here)
+      //     |||||||||||||||||||||||||
+      //     vvvvvvvvvvvvvvvvvvvvvvvvv
+      return Span<SUBVALUE, SUBEXTENT>{Ancestor::data(), Ancestor::size()};
+    }
+    template<required::Containable _> template<Size SUBEXTENT> constexpr Container<_>::operator View<SUBEXTENT>() const {
+      if constexpr (SUBEXTENT != std::dynamic_extent) {
+        if (SUBEXTENT > Ancestor::size()) {
+          throw exception::Invalid{"too short"};
+        }
+      }
+      // eadem ratione
+      return View<SUBEXTENT>{Ancestor::data(), Ancestor::size()};
+    }
+#if 202312 < __cplusplus
+    template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, std::nothrow_t, Index index) -> nonstd::like_t<SELF, Value &> { return self->operator[](index); }
+    template<required::Containable _> template<typename SELF> auto Container<_>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Value &> try {
+      return self->at(index);
+    } catch (substd::exception::Bound const &e) {
+      throw exception::Bound{e};
+    }
+#else
+    template<required::Containable _> auto Container<_>::at(std::nothrow_t, Index index) const -> Value const & { return Ancestor::operator[](index); }
+    template<required::Containable _> auto Container<_>::at(std::nothrow_t, Index index)       -> Value &       { return Ancestor::operator[](index); }
+    template<required::Containable _> auto Container<_>::at(Index index) const -> Value const & try {
+      return Ancestor::at(index);
+    } catch (substd::exception::Bound const &e) {
+      throw exception::Bound{e.what()};
+    }
+    template<required::Containable _> auto Container<_>::at(Index index) -> Value & try {
+      return Ancestor::at(index);
+    } catch (substd::exception::Bound const &e) {
+      throw exception::Bound{e.what()};
+    }
+#endif
+  }
+}
+#endiv

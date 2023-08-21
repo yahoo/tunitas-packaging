@@ -1,0 +1,17 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/texhibitionas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.texhibitionas.technology/all/components/keyston/tree/LICENSE
+#
+tests_exhibition_inventory_SUBSOURCES = \
+  check/obj/src/tests/exhibition/inventory/namespace.cpp \
+  check/obj/src/tests/exhibition/inventory/Function.cpp \
+  check/obj/src/tests/exhibition/inventory/Usage.cpp \
+  check/obj/src/tests/exhibition/inventory/Standard.cpp \
+  check/obj/src/tests/exhibition/inventory/Specimens.cpp \
+  check/obj/src/tests/exhibition/inventory/io.cpp \
+  $(tests_exhibition_inventory_required_SUBSOURCES) \
+  $(end)
+#
+include src/tests/exhibition/inventory/required/Makefrag.am

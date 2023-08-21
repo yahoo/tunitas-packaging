@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.flp.dimension.required.Quantity
+#import tunitas.keyston.prio.flp.dimension.required.Dimension
+namespace tunitas::keyston::prio::flp::dimension::is {
+  //
+  // Is the type castable source-to-target?
+  // The argument order is OPPOSITE as that of the template function cast<...>(...)
+  // The argument order is THE SAME as that of convertible_to
+  // Specializations mostly.
+  //
+  template<required::Dimension SOURCE, required::Quantity TARGET> struct Castable_To;
+  template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Bits>;
+  template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Items>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::keyston::prio::flp::dimension {
+  template<required::Dimension, required::Quantity> struct is::Castable_To : public std::false_type { };
+  namespace is {
+    template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Bits>  : public std::true_type { };
+    template<required::Dimension DIMENSION> struct Castable_To<DIMENSION, Items> : public std::true_type { };
+  }
+}
+#endiv

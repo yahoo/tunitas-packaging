@@ -1,0 +1,153 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prio.Name
+namespace tunitas::keyston::prio {
+  //
+  // The definition of "a PRIO"
+  // as indexed by Name
+  //
+  // Authorities:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Functions
+  //
+  // Specification:
+  //
+  //   Section 7. Prio3
+  //   Table 5: VDAF parameters for Prio3.
+  //
+  //   Also
+  //     Section 5. Definition of VDAFs
+  //     Table 2. Constants and types defined for each VDAF
+  //
+  //   Section 7.2.6. Auxiliary Functions
+  //   def joint_rand(Prio3, k_joint_rand_parts): -> Bytes
+  //
+  //   def encode_leader_share(Prio3, meas_share, proof_share, k_blind):
+  //   def decode_leader_share(Prio3, encoded):
+  //
+  //   def encode_helper_share(Prio3, k_meas_share, k_proof_share, k_blind):
+  //   def decode_helper_share(Prio3, agg_id, encoded):
+  //
+  //   def encode_public_share(Prio3, k_joint_rand_parts):
+  //   def decode_public_share(Prio3, encoded):
+  //
+  //   def encode_prep_share(Prio3, verifier, k_joint_rand):
+  //   def decode_prep_share(Prio3, encoded):
+  //
+  //   def encode_prep_msg(Prio3, k_joint_rand_check):
+  //   def decode_prep_msg(Prio3, encoded):
+  //
+  // Design:
+  //
+  //   No.  Actually Yes.
+  //   Many values need to vary by the algorithm.
+  //
+  //   See also vdaf::indexed::Name<NAME>
+  //
+  // Usage:
+  //
+  //   using Definition = prio::Definition<Name:SOMETHING>;
+  //
+  namespace [[eponymous]] definition {
+    template<typename PERSONALITY> struct Convenience;
+    template<prio::Name> struct Personality;
+    template<> struct Personality<prio::Name::COUNT>;
+    template<> struct Personality<prio::Name::SUM>;
+    template<> struct Personality<prio::Name::HISTOGRAM>;
+    template<prio::Name> struct Definition;
+  }
+  using definition::Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Fixed
+#import tunitas.octets.Variable
+#import tunitas.keyston.prg.Generator
+#import tunitas.keyston.prio.Name
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.prio.Codec
+#import tunitas.keyston.prio.Customizer
+#import tunitas.keyston.prio.Role
+#import tunitas.keyston.prio.flp.Generic
+#import tunitas.keyston.prio.flp.Validity
+#import tunitas.octets.Fixed
+#import tunitas.octets.View
+#import tunitas.keyston.Shards
+#import tunitas.view.Variable
+#import tunitas.keyston.quantity.convert
+#include <ipp/tunitas.keyston.quantity.convert>
+#import tunitas.keyston.prio.usage.Consistency_Codec_Validity
+namespace tunitas::keyston::prio {
+  template<typename PERSONALITY> struct definition::Convenience {
+    using Codec = prio::Codec<PERSONALITY::PRIO>;
+    using Validity = prio::flp::Validity<PERSONALITY::PRIO>;
+    using Customizer = prio::Customizer<PERSONALITY::VDAF>;
+    using Prover = prio::flp::Generic<Validity>;
+    using Amplifier = prg::Generator<prg::Name::SHA3>; // they all use the same pseudo-random generator
+    //
+    static_assert(usage::Consistency_Codec_Validity<Codec, Validity>);
+    static_assert(std::same_as<typename Prover::Field, typename Codec::Field>);
+    static_assert(std::same_as<typename Prover::Field, typename Validity::Field>);
+    //
+    static constexpr auto use_joint_randomness() -> bool { return Validity::use_joint_randomness(); }
+    static inline auto joint_randomness(view::Variable<typename Amplifier::Seed::Storage> const &joint_randomness_parts) -> octets::Fixed<Amplifier::Seed::SIZE.count()>;
+    //
+    static inline constexpr auto randomness_size() -> Bytes; // RAND_SIZE (varies with the personality) of Section 7.2 Construction
+    //
+    inline static constexpr auto const NONCE_SIZE = Bytes{16u}; // Section 7.2 Construction
+    inline static constexpr auto const ROUND_COUNT = Items{1u};
+    //
+    using Field = typename Prover::Field; // any one will suffice
+#if 0 // this is moved into disassembly body::Overview
+    struct Encoded {
+      struct Randomness {
+        using Joint = array::Fixed<typename Field::Element, Prover::Randomness::Joint::VALUE.count()>;
+        using Prove = array::Fixed<typename Field::Element, Prover::Randomness::Prove::VALUE.count()>;
+        Randomness() = delete;
+        Randomness(Randomness const &) = delete;
+      };
+      Encoded() = delete;
+      Encoded(Encoded const &) = delete;
+    };
+#endif
+  };
+  namespace definition {
+    template<> struct Personality<prio::Name::COUNT> {
+      // See Table 9, Section 7.4.1, Prio3Count
+      inline static constexpr auto const PRIO = prio::Name::COUNT;
+      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_COUNT;
+    };
+    template<> struct Personality<prio::Name::SUM> {
+      // See Table 10, Section 7.4.2, Prio3Sum
+      inline static constexpr auto const PRIO = prio::Name::SUM;
+      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_SUM;
+    };
+    template<> struct Personality<prio::Name::HISTOGRAM> {
+      inline static constexpr auto const PRIO = prio::Name::HISTOGRAM;
+      inline static constexpr auto const VDAF = vdaf::Name::PRIO3_HISTOGRAM;
+    };
+  }
+  template<prio::Name NAME> struct definition::Definition : public Personality<NAME>, public Convenience<Personality<NAME>> {
+    template<role::Name ROLE> using Role = prio::Role<ROLE, Definition>;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.octets.join
+#import tunitas.keyston.prio.randomness_size
+#import tunitas.keyston.prio.Usage
+namespace tunitas::keyston::prio::definition {
+  template<typename PERSONALITY> constexpr auto Convenience<PERSONALITY>::randomness_size() -> Bytes { return prio::randomness_size(Validity::JOINT_RANDOMNESS_LENGTH); }
+  template<typename PERSONALITY> auto Convenience<PERSONALITY>::joint_randomness(view::Variable<typename Amplifier::Seed::Storage> const &joint_randomness_parts) -> octets::Fixed<Amplifier::Seed::SIZE.count()> {
+    // This can't be constexpr because derive_seed(...) is not constexpr [[can that be changed?]]
+    return Amplifier::derive_seed(/*seed(zeros)*/ Amplifier::Seed::Storage{},
+                                  /*custom*/ Customizer::template domain_separation_tag<Usage::JOINT_RANDOMNESS_SEED>(),
+                                  /*binder*/ octets::join(joint_randomness_parts));
+  }
+}
+#endiv

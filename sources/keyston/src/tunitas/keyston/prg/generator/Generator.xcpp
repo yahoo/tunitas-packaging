@@ -1,0 +1,124 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.prg.Name
+namespace tunitas::keyston::prg::generator {
+  //
+  // The operations of a Pseudorandom Generator
+  //
+  // Authority:
+  //
+  //   irtf-cfrg-vdaf Verifiable Distributed Aggregation Functions
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //
+  // Specification:
+  //
+  //   Section 6.2. Pseudorandom Generators
+  //   Figure 10. Derived class methods for PRGs.
+  //
+  //   [[recall "Bytes" in the specification's Python != units::Bytes, use Octets instead]]
+  //   def next(length: Unsigned) -> Bytes
+  //   def derive_seed(Prg, seed: Bytes[Prg.SEED_SIZE], custom: Bytes, binder: Bytes) -> Vec[Bytes]
+  //   def next_vec(self, Field, length: Unsigned) -> Vec[Field.Element]
+  //   def expand_into_vec(Prg, Field, seed: Bytes[Prg.SEED_SIZE], custom: Bytes, binder: Bytes, length: Unsigned) -> Vec[Field.Element]
+  //
+  // Design:
+  //
+  //   The standard (draft) is vague on the accepted and returned types.
+  //   We are not.
+  //
+  // Usage:
+  //
+  //   See the ancestors (each of them).
+  //
+  template<Name> struct Generator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Fixed
+#import tunitas.array.Variable
+#import tunitas.keyston.prg.generator.required.Element
+#import tunitas.keyston.prg.generator.required.Vector
+#import tunitas.keyston.prg.generator.Prototype
+#import tunitas.keyston.prg.generator.Core
+namespace tunitas::keyston::prg {
+  template<Name NAME> class generator::Generator : public Prototype {
+    using Ancestor = Prototype;
+  public:
+    inline explicit Generator(Seed::View s, Custom::View c, Binder::View b) : core{s, c, b} { }
+    inline static auto derive_seed(typename Ancestor::Seed::View, typename Ancestor::Custom::View, typename Ancestor::Binder::View) -> Output::Fixed<Ancestor::Seed::SIZE.count()>;
+    //
+    // Expand the bundled items into field elements (and as a vector)
+    template<required::Vector VECTOR> inline static auto expand_as(typename Ancestor::Seed::View, typename Ancestor::Custom::View, typename Ancestor::Binder::View) -> VECTOR;
+    template<required::Element ELEMENT, Size COUNT> inline static auto expand_into([[out]] array::Fixed<ELEMENT, COUNT> &, typename Ancestor::Seed::View, typename Ancestor::Custom::View, typename Ancestor::Binder::View) -> void;
+    //
+    // Output the next `length` pseudorandom elements of `Field` (and as a vector)
+    template<required::Vector VECTOR> inline auto next_as() -> VECTOR;
+    template<required::Element ELEMENT, Size COUNT> inline auto next_into([[out]] array::Fixed<ELEMENT, COUNT> &) -> void;
+    //
+    template<Size LENGTH> inline auto next() -> Output::Fixed<LENGTH> { return core.template next<LENGTH>(); }
+    inline auto next(Bytes length) -> Output::Variable                { return core.next(length); }
+  protected:
+    Core<NAME> core;
+    inline static constexpr auto const INFINITE_GUARD_LIMIT = 1'000'000'000uz;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.integer.Limits
+#import tunitas.integer.bit // bit_ceil(...)
+#import tunitas.integer.traits.Double
+#import tunitas.keyston.exception.Randomness
+#import tunitas.integer.from_octets
+#import tunitas.keyston.field.element.traits.Element
+#import nonstd.runtime_assert
+namespace tunitas::keyston::prg::generator {
+  template<Name _> auto Generator<_>::derive_seed(typename Ancestor::Seed::View seed, typename Ancestor::Custom::View custom, typename Ancestor::Binder::View binder) -> Output::Fixed<Ancestor::Seed::SIZE.count()> {
+    auto self = Generator{seed, custom, binder};
+    return self.template next<Ancestor::Seed::SIZE.count()>();
+  }
+  template<Name _> template<required::Vector VECTOR> auto Generator<_>::expand_as(typename Ancestor::Seed::View seed, typename Ancestor::Custom::View custom, typename Ancestor::Binder::View binder) -> VECTOR {
+    auto self = Generator{seed, custom, binder};
+    auto ret = VECTOR{};
+    self.next_into(ret);
+    return ret;
+  }
+  template<Name _> template<required::Element ELEMENT, Size COUNT> auto Generator<_>::expand_into(array::Fixed<ELEMENT, COUNT> &into, typename Ancestor::Seed::View seed, typename Ancestor::Custom::View custom, typename Ancestor::Binder::View binder) -> void {
+    auto self = Generator{seed, custom, binder};
+    self.next_into(into);
+  }
+  template<Name _> template<required::Vector VECTOR> auto Generator<_>::next_as() -> VECTOR {
+    auto ret = VECTOR{};
+    next_into(ret);
+    return ret;
+  }
+  template<Name _> template<required::Element ELEMENT, Size COUNT> auto Generator<_>::next_into(array::Fixed<ELEMENT, COUNT> &into) -> void {
+    using Field = typename field::element::traits::Element<ELEMENT>::Field;
+    [[maybe_unused]] auto guard = 0uz;
+    for (auto index{0uz}; index != COUNT; ++index) {
+      auto candidate = integer::from_octets<typename Field::Underlying, std::endian::little>(core.template next<Field::ENCODED_LENGTH.count()>()); // little-endian "because the standard says so"
+      //
+      // if the candidate is too big then slice off some bits; DO NOT take ``candidate % MODULUS'' because that will induce bias in the bits
+      constexpr auto MAXIMUM = integer::bit_ceil<typename integer::traits::Double<typename Field::Underlying>::Type>(Field::MODULUS) - 1u;
+      if constexpr (MAXIMUM < integer::Limits<typename Field::Underlying>::max()) {
+        candidate &= MAXIMUM;
+      }
+      //
+      // if the candidate is *still* too big for the field then throw it away and try again (surely this won't \infinite loop if the randomness is random!)
+      if (candidate < Field::MODULUS) {
+        into.at(index) = typename Field::Element{candidate};
+        guard = 0;
+      } else {
+        if (++guard == INFINITE_GUARD_LIMIT) {
+          throw exception::Randomness{"(infinite loop detected) because of insufficient randomness to complete the vector"};
+        } else {
+          --index;
+        }
+      }
+    }
+  }
+}
+#endiv

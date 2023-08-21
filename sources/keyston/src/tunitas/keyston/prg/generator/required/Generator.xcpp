@@ -1,0 +1,18 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.keyston.prg.generator.Generator
+#import tunitas.keyston.prg.Name
+namespace tunitas::keyston::prg::generator::required {
+  //
+  // The moral equivalent of InstanceOF, but matches the Name tag of the Generator<NAME>
+  //
+  template<typename GENERATOR> concept Generator = requires(GENERATOR) {
+    { []<auto TAG>(generator::Generator<TAG> *) requires same_as<Name, decltype(TAG)>
+      {}(static_cast<GENERATOR *>(nullptr)) };
+  };
+}
+#endiv

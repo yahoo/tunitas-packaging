@@ -1,0 +1,47 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.prio.disassembly.required.Allocator
+namespace tests::unit::prio::disassembly {
+  //
+  // Commonalities among them
+  // Descendants only.
+  //
+  template<required::Allocator, Size SHARDS, Size STRIDE, Size SEED> struct Embodied;
+}
+#endiv
+#divert <hpp>
+#import tunitas.array.Fixed
+#import tunitas.octets // for Octet
+namespace tests::unit::prio {
+  template<disassembly::required::Allocator ALLOCATOR, Size THE_SHARDS, Size THE_STRIDE, Size THE_SEED> class disassembly::Embodied {
+  protected:
+    ~Embodied() = default;
+  public:
+    inline static constexpr auto const SHARD_COUNT = ::tunitas::units::Items{THE_SHARDS};
+    inline static constexpr auto const STRIDE_COUNT = ::tunitas::units::Items{THE_STRIDE};
+    inline static constexpr auto const SEED_COUNT = ::tunitas::units::Bytes{THE_SEED};
+    inline static constexpr auto const MANAGED_SIZE = ::tunitas::units::Bytes{SHARD_COUNT.count() * STRIDE_COUNT.count() * SEED_COUNT.count()}; // [[FIXTHIS]] operator* should andle the unit algebra
+    //
+    using Allocator = ALLOCATOR;
+    using Octet = ::tunitas::octets::Octet;
+    using Buffer = ::tunitas::array::Fixed<Octet, MANAGED_SIZE.count()>;
+    static auto generate() -> Buffer;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::prio::disassembly {
+  template<required::Allocator A, Size H, Size T, Size E> auto Embodied<A,H,T,E>::generate() -> Buffer {
+    auto buf = Buffer{};
+    unsigned ith{0x1}; // don't start at zero to make it pretty
+    for (auto &each : buf) {
+      each = Octet(ith++); // may (will) wrap on narrowing
+    }
+    return buf;
+  }
+}
+#endiv

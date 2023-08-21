@@ -1,0 +1,129 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.required.Has_Single_Bit
+#import tunitas.keyston.nonce.required // ctcnr (cascade that certain 'namespace required')
+namespace tunitas::keyston::nonce {
+  //
+  // A nonce holding N bits.
+  //
+  // Specification:
+  //
+  //   Just what it says on the label.
+  //
+  // Design:
+  //
+  //   Specializations only.
+  //   Only smallish powers of 2.
+  //   Not suitable for a data-definition language or on-the-wire data layout. because of the padding)
+  //   May or may not be trivial_layout.
+  //   The size of the structure holding the nonce maybe larger (have padding)
+  //
+  // Usage:
+  //
+  //   auto zero = Bits<2>{};
+  //   auto some = Generator<Bits<2>>{}();
+  //   assert non != some
+  //
+  namespace [[eponymous]] bits {
+    template<Size N> requires required::Has_Single_Bit<N> struct Bits;
+    template<> struct Bits<1>;
+    template<> struct Bits<2>;
+    template<> struct Bits<4>;
+    template<> struct Bits<8>;
+    template<> struct Bits<16>;
+    template<> struct Bits<32>;
+    template<> struct Bits<64>;
+    template<> struct Bits<128>;
+    namespace [[eponymous]] traits {
+      template<Size N> struct Array; 
+      template<Size N> struct Integral;
+      template<typename BITS> struct Traits;
+      template<Size N> struct Traits<Bits<N>>;
+    }
+    using traits::Traits;
+  }
+  using bits::Bits;
+}
+#endiv
+#divert <hpp>
+#import std.conditional
+namespace tunitas::keyston::nonce {
+  namespace bits {
+    template<Size N> requires required::Has_Single_Bit<N> inline auto operator==(Bits<N> const &, Bits<N> const &) -> bool;
+    template<Size N> requires required::Has_Single_Bit<N> inline auto operator!=(Bits<N> const &, Bits<N> const &) -> bool;
+    //
+    template<> struct Bits<1>   { uint8_t value:1{}; };
+    template<> struct Bits<2>   { uint8_t value:2{}; };
+    template<> struct Bits<4>   { uint8_t value:4{}; };
+    template<> struct Bits<8>   { uint8_t value{}; };
+    template<> struct Bits<16>  { uint16_t value{}; };
+    template<> struct Bits<32>  { uint32_t value{}; };
+    template<> struct Bits<64>  { uint64_t value{}; };
+    template<> struct Bits<128> { uint128_t value{}; };
+    inline constexpr auto const MAXIMUM_SPECIALIZED_WIDTH = 128uz; // everything beyond here is an array
+    //
+    template<Size N> struct traits::Integral {
+      inline static constexpr size_t const WIDTH = N;
+      inline static constexpr auto const is_specialized = true;
+    };
+    template<Size N> struct traits::Array {
+      inline static constexpr size_t const WIDTH = N;
+      inline static constexpr auto const is_specialized = false;
+    };
+    namespace traits {
+      template<Size N> class Traits<nonce::Bits<N>> : public std::conditional_t<(N <= 128), Integral<N>, Array<N>> { };
+    }
+  }
+  template<Size N> requires required::Has_Single_Bit<N> class bits::Bits {
+    static_assert(N <= (1uz<<25), "reasonableness in all things");
+    inline static constexpr auto const CAPACITY = N/64;
+  public:
+    uint64_t values[CAPACITY]{};
+  };
+}
+#endiv
+#divert <ipp>
+#import std.begin
+#import std.end
+namespace tunitas::keyston::nonce {
+  template<Size N> requires required::Has_Single_Bit<N> auto bits::operator==(Bits<N> const &a, Bits<N> const &b) -> bool {
+    using Traits = Traits<Bits<N>>;
+    if constexpr (Traits::is_specialized) {
+      return a.value == b.value;
+    } else {
+      return std::equal(std::begin(a.values), std::end(a.values), std::begin(b.values), std::end(b.values));
+    }
+  }
+  template<Size N> requires required::Has_Single_Bit<N> auto bits::operator!=(Bits<N> const &a, Bits<N> const &b) -> bool {
+    using Traits = Traits<Bits<N>>;
+    if constexpr (Traits::is_specialized) {
+      return a.value != b.value;
+    } else {
+      auto const ea = std::end(a.values);
+      auto const eb = std::end(b.values);
+      auto [fa, fb] =  std::mismatch(std::begin(a.values), ea, std::begin(b.values), eb);
+      return ea != fa || eb != fb;
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::keyston::nonce;
+    static_assert(sizeof (Bits<4>));
+    static_assert(sizeof (Bits<8>));
+    using Specimen = Bits<8>;
+    static_assert(std::is_default_constructible_v<Specimen>);
+    static_assert(std::is_copy_constructible_v<Specimen>);
+    static_assert(std::is_move_constructible_v<Specimen>);
+    static_assert(std::is_copy_assignable_v<Specimen>);
+    static_assert(std::is_move_assignable_v<Specimen>);
+    static_assert(std::is_swappable_v<Specimen>);
+  }
+}
+#endiv

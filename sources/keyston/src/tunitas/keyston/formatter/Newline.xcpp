@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::keyston::formatter {
+  //
+  // An insertable newline
+  //
+  // Design:
+  //
+  //   Obvious
+  //
+  // Usage:
+  //
+  //   auto nl = Newline{};
+  //   cout << nl;
+  //   nl = '\n';
+  //   cout << nl;
+  //
+  class Newline;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import std.ostream
+namespace tunitas::keyston {
+  namespace formatter {
+    inline auto operator<<(std::ostream &, [[inout]] Newline &) -> std::ostream &;
+  }
+  class formatter::Newline : public Optional<char> {
+    using Ancestor = Optional<char>;
+  public:
+    Newline() = default;
+    using Ancestor::optional;
+    using Ancestor::operator=;
+    auto operator=(char c) -> Newline & { Ancestor::operator=(c); return *this; } // remove the ambiguity
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::keyston {
+  auto formatter::operator<<(std::ostream &outbound, Newline &newline) -> std::ostream & {
+    if (newline) {
+      outbound << *newline;
+    }
+    newline = '\n';
+    return outbound;
+  }
+}
+#endiv

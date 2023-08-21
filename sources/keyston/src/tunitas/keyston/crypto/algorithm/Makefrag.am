@@ -1,0 +1,23 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_crypto_algorithm_SUBSOURCES = \
+  obj/src/tunitas/keyston/crypto/Algorithm.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/namespace.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Name.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Prototype.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Extensible.cpp \
+  \
+  obj/src/tunitas/keyston/crypto/algorithm/Algorithm.template.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Algorithm.cSHAKE.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Algorithm.SHAKE.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Algorithm.AES.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Algorithm.AES.Function.cpp \
+  obj/src/tunitas/keyston/crypto/algorithm/Algorithm.cpp \
+  $(tunitas_keyston_crypto_algorithm_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/crypto/algorithm/required/Makefrag.am

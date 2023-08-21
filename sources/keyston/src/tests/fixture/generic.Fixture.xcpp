@@ -1,0 +1,93 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tests::fixture::generic {
+  //
+  // A generic object tester.
+  // The runtime analogue of generic::Definition<SUBJECT>
+  //
+  template<typename SUBJECT> struct Fixture;
+}
+#endiv
+#divert <hpp>
+#import rigging.suite.Fixture
+namespace tests::fixture {
+  template<typename SUBJECT> struct generic::Fixture : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    struct Generator {
+      auto operator()() const -> Subject; // specialize as necessary
+    };
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_copy() -> void;
+    auto test_constructor_move() -> void;
+    auto test_assignment_copy() -> void;
+    auto test_assignment_move() -> void;
+    auto test_swap() -> void;
+  protected:
+    Generator generate{};
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::fixture::generic {
+  template<typename _> auto Fixture<_>::Generator::operator()() const -> Subject { return Subject{}; }
+  template<typename _> auto Fixture<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"assigmment"sv};
+                con << add("default", &Fixture::test_constructor_default)
+                    << add("copy", &Fixture::test_constructor_copy)
+                    << add("move", &Fixture::test_constructor_move)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ass = Stream{"assigmment"sv};
+                ass << add("copy", &Fixture::test_constructor_copy)
+                    << add("move", &Fixture::test_constructor_move)
+                    << END;
+                return ass;
+              }()
+           << add("swap", &Fixture::test_swap)
+           << END;
+    return settle(series);
+  };
+  template<typename _> auto Fixture<_>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Fixture<_>::test_constructor_copy() -> void {
+    auto specimen = generate();
+    auto subject = Subject{specimen}; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Fixture<_>::test_constructor_move() -> void {
+    auto specimen = generate();
+    auto subject = Subject{move(specimen)}; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Fixture<_>::test_assignment_copy() -> void {
+    auto specimen = generate();
+    auto subject = Subject{};
+    subject = specimen; // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Fixture<_>::test_assignment_move() -> void {
+    auto specimen = generate();
+    auto subject = Subject{};
+    subject = move(specimen); // <-------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Fixture<_>::test_swap() -> void {
+    auto left = generate();
+    auto right = generate();
+    swap(left, right); // <-------------------- test this
+  }
+}
+#endiv

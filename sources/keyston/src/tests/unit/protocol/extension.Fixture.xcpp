@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+#import tunitas.rheem.protocol.extension
+namespace tests::unit::protocol::extension {
+  class Fixture;
+  namespace library = ::tunitas::rheem::protocol::extension;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::protocol::extension::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Type() -> void;
+  auto test_usage_Container() -> void;
+  auto test_usage_Array() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::protocol::extension::Fixture::suite() -> Suite {
+  auto series = Stream{"extension"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Type", &Fixture::test_usage_Type)
+                  << add("Container", &Fixture::test_usage_Container)
+                  << add("Array", &Fixture::test_usage_Array)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.rheem.protocol.extension.Type
+#import tunitas.rheem.protocol.extension.Container
+#import tunitas.rheem.protocol.extension.Array
+namespace tests::unit::protocol::extension {
+  auto Fixture::test_usage_Type() -> void {
+    using Subject = library::Type;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    require(ASSERTION, 1 == underlying(subject0));
+    require(ASSERTION, 0 == underlying(subject1));
+  }
+  auto Fixture::test_usage_Container() -> void {
+    using Subject = library::Container;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, 0 == subject0.size());
+  }
+  auto Fixture::test_usage_Array() -> void {
+    using Subject = library::Array;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+    require(ASSERTION, 0 == subject0.size());
+  }
+}
+#endiv

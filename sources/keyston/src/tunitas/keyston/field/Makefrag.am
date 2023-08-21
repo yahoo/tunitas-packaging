@@ -1,0 +1,31 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#
+tunitas_keyston_field_SUBSOURCES = \
+  obj/src/tunitas/keyston/Field.cpp \
+  obj/src/tunitas/keyston/field/namespace.cpp \
+  obj/src/tunitas/keyston/field/Predefinition.cpp \
+  obj/src/tunitas/keyston/field/Definition.template.cpp \
+  obj/src/tunitas/keyston/field/Definition.64.cpp \
+  obj/src/tunitas/keyston/field/Definition.128.cpp \
+  obj/src/tunitas/keyston/field/Definition.255.cpp \
+  obj/src/tunitas/keyston/field/Definition.cpp \
+  obj/src/tunitas/keyston/field/is.Field.cpp \
+  obj/src/tunitas/keyston/field/traits.Field.cpp \
+  $(tunitas_keyston_field_element_SUBSOURCES) \
+  $(tunitas_keyston_field_generator_SUBSOURCES) \
+  $(tunitas_keyston_field_polynomial_SUBSOURCES) \
+  $(tunitas_keyston_field_required_SUBSOURCES) \
+  $(tunitas_keyston_field_usage_SUBSOURCES) \
+  $(tunitas_keyston_field_vector_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/keyston/field/element/Makefrag.am
+include src/tunitas/keyston/field/generator/Makefrag.am
+include src/tunitas/keyston/field/polynomial/Makefrag.am
+include src/tunitas/keyston/field/required/Makefrag.am
+include src/tunitas/keyston/field/usage/Makefrag.am
+include src/tunitas/keyston/field/vector/Makefrag.am

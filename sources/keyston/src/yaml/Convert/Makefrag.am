@@ -1,0 +1,9 @@
+# This is a -*- Makefile -*- fragment
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+yaml_Convert_SUBSOURCES = \
+  obj/src/yaml/Convert/tunitas.array.Fixed.TYPE.CAPACITY.cpp \
+  obj/src/yaml/Convert/tunitas.keyston.octets.Fixed.CAPACITY.cpp \
+  $(end)
+#
+$(yaml_Convert_SUBSOURCES) : DISCOFLAGS+=--no-insert-namespace

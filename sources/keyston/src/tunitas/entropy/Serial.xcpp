@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::entropy {
+  //
+  // Not much entropy at all.
+  //
+  // Specification:
+  //
+  //   A process-global source of "serial" entropy.
+  //   Rhymes with Source but has no entropy
+  //
+  // Design:
+  //
+  //   Starts at 1; DOES NOT start at 0.
+  //
+  // Usage:
+  //
+  //   Some.   Er ... maybe for testing.
+  // 
+  struct Serial;
+}
+#endiv
+#divert <hpp>
+#import tunitas.entropy.basis.Unsigned
+#import tunitas.entropy.basis.Timefull
+struct tunitas::entropy::Serial : public basis::Unsigned, public basis::Timefull {
+  inline auto draw() -> Draw { return ++serial; } // never returns 0
+  explicit Serial() = default;
+protected:
+  static Draw serial;
+};
+#endiv
+#divert <cpp>
+namespace tunitas::entropy {
+  Serial::Draw Serial::serial{};
+}
+#import tunitas.entropy.usage.Entropy
+namespace {
+  namespace testate {
+    namespace usage = tunitas::entropy::usage;
+    using tunitas::entropy::Serial;
+    static_assert(usage::Entropy<Serial>);
+  }
+}
+#endiv
