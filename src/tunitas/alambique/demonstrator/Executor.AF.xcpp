@@ -1,0 +1,192 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.demonstrator.Executor.template
+namespace tunitas::alambique::demonstrator {
+  template<> struct Executor<AF, Polymorphic>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.af.Parameters
+#import tunitas.keyston.af.Intermediate
+#import tunitas.keyston.af.Aggregation
+#import tunitas.keyston.measurement.Specimen
+namespace tunitas::alambique::demonstrator {
+  //
+  // Whereas there is really no "aggregation function" mentioned in the standard drafts (because, ahem, it is so obvious for the non-distributed case),
+  // we provide a definition here which follows the standard draft definition for DAF but simplifies as necessary.  It is indeed trivial and obvious.
+  //
+  // Specification:
+  //
+  //   Amplify the core decision of the pattern
+  //
+  //   I-D.irtf-cfrg-daf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-03.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-04.html
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-daf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //   Section 4. Distributed Aggregation Functions
+  //
+  //   The interface, as stated, and as simplified by us, this is our fiction, it is nowhere in the standard drafts:
+  //
+  //   (a noun form)
+  //   computation ........... Af.aggregate(agg_param: AggParam, previous: AggResult, input: Bytes) -> AggResult;
+  //   finalization........... Af.finalize(agg_param: AggParam, previous: AggResult) -> AggResult;
+  //
+  // Design:
+  //
+  //   All this template machinery has the effect of making af::Executor<NUMERIC> look and feel rhyming-similar to daf, vdaf and vidaf executors.
+  //   It's done for cosmetic purposes; to keep the intellectual burden of remembering four (4 algorithms \times 2 encodings) different schemes.
+  //
+  //   Obvious.  Read it out of Figure 5 and reduce for the centralized (non-distributed) case.
+  //
+  // Usage:
+  //
+  //   Yes.
+  //
+  template<> struct Executor<AF, Polymorphic> {
+    using Name = keyston::af::Name;
+    //
+    // CANNOT ---> using enum Name; <--- CANNOT (because it is an opqaue enumerator, without an enuerator list)
+    // CANNOT ---> using enum Name; <--- CANNOT (e.g. reference these as such: Constant<DAF::POPULARITY>)
+    //
+    explicit Executor() = default;
+    explicit Executor(Name);
+
+    using Parameters = keyston::af::Parameters;
+    using Measurement = keyston::measurement::Specimen;
+    using Intermediate = keyston::af::Intermediate;
+    using Aggregation = keyston::af::Aggregation;
+    //
+    using Initialized = Intermediate;
+    using Initialization = Initialized (*)(Parameters const &);
+    //
+    using Computed = Intermediate;
+    using Computation = Computed (*)(Parameters const &, Intermediate previous, Measurement const &);
+    //
+    using Finalized = Aggregation;
+    using Finalization = Finalized (*)(Parameters const &, Intermediate const &);
+    //
+    inline auto initialization(Parameters const &) const -> Initialized;
+    inline auto computation(Parameters const &, Intermediate, Measurement const &) const -> Computed;
+    inline auto finalization(Parameters const &, Intermediate const &) const -> Finalized;
+  protected:
+    Initialization initialization_function{};
+    Computation computation_function{};
+    Finalization finalization_function{};
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.exception.Null
+namespace tunitas::alambique::demonstrator {
+  auto Executor<AF, Polymorphic>::initialization(Parameters const &p) const -> Initialized {
+    if (nullptr == initialization_function) {
+      throw exception::Null{};
+    } else {
+      return initialization_function(p);
+    }
+  }
+  auto Executor<AF, Polymorphic>::computation(Parameters const &p, Intermediate i, Measurement const &m) const -> Computed {
+    if (nullptr == computation_function) {
+      throw exception::Null{};
+    } else {
+      return computation_function(p, move(i), m);
+    }
+  }
+  auto Executor<AF, Polymorphic>::finalization(Parameters const &p, Intermediate const &i) const -> Finalized {
+    if (nullptr == finalization_function) {
+      throw exception::Null{};
+    } else {
+      return finalization_function(p, i);
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.alambique.exception.Invalid
+#import tunitas.keyston.af.Function
+#import tunitas.keyston.af.zero
+#import tunitas.keyston.af.constant
+#import tunitas.keyston.af.count
+#import tunitas.keyston.af.sum
+#import tunitas.keyston.af.histogram
+#import tunitas.keyston.af.popularity
+namespace tunitas::alambique::demonstrator {
+  Executor<AF, Polymorphic>::Executor(Name name) {
+    switch (name) {
+      using namespace keyston::af;
+#if 1
+      using enum keyston::Scheme;
+    case Constant<DAF::ZERO>:
+      initialization_function = Function<ADHOC, Constant<DAF::ZERO>>::initialization;
+      computation_function = Function<ADHOC, Constant<DAF::ZERO>>::computation;
+      finalization_function = Function<ADHOC, Constant<DAF::ZERO>>::finalization;
+      break;
+    case Constant<DAF::CONSTANT>:
+      initialization_function = Function<ADHOC, Constant<DAF::CONSTANT>>::initialization;
+      computation_function = Function<ADHOC, Constant<DAF::CONSTANT>>::computation;
+      finalization_function = Function<ADHOC, Constant<DAF::CONSTANT>>::finalization;
+      break;
+    case Constant<DAF::COUNT>:
+      initialization_function = Function<PRIO, Constant<DAF::COUNT>>::initialization;
+      computation_function = Function<PRIO, Constant<DAF::COUNT>>::computation;
+      finalization_function = Function<PRIO, Constant<DAF::COUNT>>::finalization;
+      break;
+    case Constant<DAF::SUM>:
+      initialization_function = Function<PRIO, Constant<DAF::SUM>>::initialization;
+      computation_function = Function<PRIO, Constant<DAF::SUM>>::computation;
+      finalization_function = Function<PRIO, Constant<DAF::SUM>>::finalization;
+      break;
+    case Constant<DAF::HISTOGRAM>:
+      initialization_function = Function<PRIO, Constant<DAF::HISTOGRAM>>::initialization;
+      computation_function = Function<PRIO, Constant<DAF::HISTOGRAM>>::computation;
+      finalization_function = Function<PRIO, Constant<DAF::HISTOGRAM>>::finalization;
+      break;
+    case Constant<DAF::POPULARITY>:
+      initialization_function = Function<POPLAR, Constant<DAF::POPULARITY>>::initialization;
+      computation_function = Function<POPLAR, Constant<DAF::POPULARITY>>::computation;
+      finalization_function = Function<POPLAR, Constant<DAF::POPULARITY>>::finalization;
+      break;
+#else
+    case Constant<DAF::ZERO>:
+      initialization_function = zero::initialization;
+      computation_function = zero::computation;
+      finalization_function = zero::finalization;
+      break;
+    case Constant<DAF::CONSTANT>:
+      initialization_function = constant::initialization;
+      computation_function = constant::computation;
+      finalization_function = constant::finalization;
+      break;
+    case Constant<DAF::COUNT>:
+      initialization_function = count::initialization;
+      computation_function = count::computation;
+      finalization_function = count::finalization;
+      break;
+    case Constant<DAF::SUM>:
+      initialization_function = sum::initialization;
+      computation_function = sum::computation;
+      finalization_function = sum::finalization;
+      break;
+    case Constant<DAF::HISTOGRAM>:
+      initialization_function = histogram::initialization;
+      computation_function = histogram::computation;
+      finalization_function = histogram::finalization;
+      break;
+    case Constant<DAF::POPULARITY>:
+      initialization_function = popularity::initialization;
+      computation_function = popularity::computation;
+      finalization_function = popularity::finalization;
+      break;
+#endif
+    default:
+      throw exception::Invalid{"af name"};
+    }
+  }
+}
+#endiv

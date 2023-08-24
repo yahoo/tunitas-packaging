@@ -69,6 +69,8 @@ include @temerarious_flagship_datadir@/am/build.am
 
 # These match with HGTW_WITH_MODULE in configure.ac
 DEVELOPMENT_AREAS = \
+  $(module_boost_prefix) \
+  $(module_crypto_prefix) \
   $(module_cli_core_prefix) \
   $(module_fmt_prefix) \
   $(module_langu_prefix) \
@@ -84,8 +86,10 @@ TESTING_AREAS = \
   $(deprecated_TESTING_AREAS) \
   $(end)
 INSTALLATION_AREAS = \
+  $(nonstd_cryptopp_prefix) \
   $(nonstd_fmt_prefix) \
   $(nonstd_gcc_prefix) \
+  $(nonstd_mdspan_prefix) \
   $(opt_scold_prefix) \
   $(opt_tunitas_prefix) \
   $(deprecated_INSTALLATION_AREAS) \
@@ -127,15 +131,15 @@ Makefile_COMPILER_CFLAGS_SET   = -Wall   @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
 Makefile_COMPILER_LDFLAGS_SET  = -Wall  @LDFLAGS_gcc@  @LDFLAGS_gdb@
 
-Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_fmt_CPPFLAGS@
-Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_fmt_CFLAGS@
-Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_fmt_CXXFLAGS@
-Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_fmt_LDFLAGS@
+Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @nonstd_boost_CPPFLAGS@ @nonstd_cryptopp_CPPFLAGS@ @nonstd_fmt_CPPFLAGS@ @nonstd_mdspan_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CFLAGS_SET   = @nonstd_boost_CFLAGS@   @nonstd_cryptopp_CFLAGS@   @nonstd_fmt_CFLAGS@   @nonstd_mdspan_CPPFLAGS@
+Makefile_nonstd_PACKAGE_CXXFLAGS_SET = @nonstd_boost_CXXFLAGS@ @nonstd_cryptopp_CXXFLAGS@ @nonstd_fmt_CXXFLAGS@ @nonstd_mdspan_CPPFLAGS@
+Makefile_nonstd_PACKAGE_LDFLAGS_SET  = @nonstd_boost_LDFLAGS@  @nonstd_cryptopp_LDFLAGS@  @nonstd_fmt_LDFLAGS@  @nonstd_mdspan_CPPFLAGS@
 
-Makefile_PACKAGE_CPPFLAGS_SET = 
-Makefile_PACKAGE_CFLAGS_SET   = 
-Makefile_PACKAGE_CXXFLAGS_SET = 
-Makefile_PACKAGE_LDFLAGS_SET  = 
+Makefile_PACKAGE_CPPFLAGS_SET = @CPPFLAGS_boost@ $(CPPFLAGS_fmt) @CPPFLAGS_mdspan@
+Makefile_PACKAGE_CFLAGS_SET   = @CFLAGS_boost@   $(CFLAGS_fmt)   @CFLAGS_mdspan@
+Makefile_PACKAGE_CXXFLAGS_SET = @CXXFLAGS_boost@ $(CXXFLAGS_fmt) @CXXFLAGS_mdspan@
+Makefile_PACKAGE_LDFLAGS_SET  = @LDFLAGS_boost@  $(LDFLAGS_fmt)  @LDFLAGS_mdspan@
 
 Makefile_nonstd_CHECK_CPPFLAGS_SET = 
 Makefile_nonstd_CHECK_CFLAGS_SET   = 

@@ -6,5 +6,7 @@
 #divert <fpp>
 #import tunitas.alambique
 #import tunitas.required
-namespace tunitas::alambique::required { using namespace tunitas::required; }
+namespace tunitas::alambique::required {
+  using namespace tunitas::required;
+}
 #endiv

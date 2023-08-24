@@ -25,15 +25,15 @@ namespace app::flow::usage {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.measurement.Limits
+#import tunitas.keyston.aggregation.Limits
 class app::flow::usage::Message {
   using String = string::Storage;
 public:
   auto operator()() const -> String;
 protected:
   struct Limits {
-    using Histogram = tunitas::keyston::measurement::Limits<tunitas::keyston::measurement::Histogram>;
-    using Population = tunitas::keyston::measurement::Limits<tunitas::keyston::measurement::Population>;
+    using Histogram = tunitas::keyston::aggregation::Limits<tunitas::keyston::aggregation::Histogram>;
+    using Popularity = tunitas::keyston::aggregation::Limits<tunitas::keyston::aggregation::Popularity>;
   };
 };
 #endiv
@@ -42,7 +42,7 @@ protected:
 #import app.flow.defaults
 namespace app::flow::usage {
   auto Message::operator()() const -> String {
-    constexpr auto MAXIMUM_PREFIX_LENGTH = Limits::Population::Prefix::Length::max();
+    constexpr auto MAXIMUM_PREFIX_LENGTH = Limits::Popularity::Prefix::Length::max();
     constexpr auto MAXIMUM_BOUNDARY_COUNT = Limits::Histogram::Boundaries::Index::max();
     auto buf = std::ostringstream{};
     buf << ("usage: ${NAME} [...options...]\n"
@@ -68,7 +68,7 @@ namespace app::flow::usage {
             "\n           or with the underlying algorithm name prefixed:"
             "\n           among: PRIO3, PRIO3-COUNT, PRIO3-SUM, PRIO3-HISTOGRAM, POPLAR1, POPLAR1-POPULARITY"
             "\n"
-            "\n   generally the mode is intuited from the other options, but in cases where it is not otherwise-obvious"
+            "\n   generally the mode is intuited from the other options, but in cases where it is not obvious"
             "\n--af                                         Force AF Mode (Aggregation Funtion), i.e. no distribution"
             "\n--daf                                        Force DAF Mode (Distributed Aggregation Funtion), i.e. distributivity but no verifiability"
             "\n--vdaf                                       Force VDAF Mode (Verifiable Distributed Aggregation Function)"

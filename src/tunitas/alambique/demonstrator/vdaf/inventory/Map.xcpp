@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.demonstrator.vdaf.inventory.required.Callable
+namespace tunitas::alambique::demonstrator::vdaf::inventory {
+  //
+  // The inventory of VDAF functions
+  //
+  // Specification:
+  //
+  //   It's a map, lookup by name.
+  //   Call the 'run' function to emit on an ostream
+  //
+  // Design:
+  //
+  //   Obvious, when you think bout it.
+  //   std::less<> is std::less<void> which allows for deduced comparisons (since C++14)
+  //
+  // Usage:
+  //
+  //   Hack The Spew.
+  //
+  //   To wit:
+  //
+  //        auto inventory = Inventory{};
+  //        auto found = inventory.find(word);
+  //        if (inventory.end() == found) {
+  //          ...complain...
+  //        } else {
+  //          found->second(...somehow...);
+  //        }
+  //      }
+  //
+  //
+  template<required::Callable> struct Map;
+}
+#endiv
+#divert <hpp>
+#import std.function
+#import std.less
+#import std.map
+#import std.remove_const
+#import std.derived_from
+#import nonstd.Like
+#import nonstd.iterator.Qualified
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.formatter.Formatter
+namespace tunitas::alambique::demonstrator::vdaf {
+  namespace inventory {
+    template<required::Callable CALLABLE> inline constexpr auto format(Map<CALLABLE> const &i) -> tunitas::keyston::formatter::Formatter<Map<CALLABLE>, Map<CALLABLE> const &> { return {i}; }
+  }
+  template<inventory::required::Callable CALLABLE> struct inventory::Map : private std::map<keyston::vdaf::Name, std::function<CALLABLE>, std::less<>> {
+    using Ancestor = std::map<keyston::vdaf::Name, std::function<CALLABLE>, std::less<>>;
+  protected:
+    ~Map() = default;
+  public:
+    using Key = Ancestor::key_type;
+    using Mapped = Ancestor::mapped_type;
+    using Value = Ancestor::value_type;
+    using Ancestor::map;
+    Map(Map const &) = delete; // why would you need to copy-assign one of these?
+    //
+    template<typename SELF> requires std::derived_from<std::remove_const_t<SELF>, Map> using Basic_Iterator = typename nonstd::iterator::Qualified<typename nonstd::Like<SELF, Ancestor>::Type>::Type;
+    using Const_Iterator = Basic_Iterator<Map const>;
+    using Iterator = Basic_Iterator<Map>;
+    using Ancestor::find;
+    using Ancestor::begin;
+    using Ancestor::end;
+  };
+}
+#import tunitas.alambique.demonstrator.vdaf.inventory.io
+#endiv

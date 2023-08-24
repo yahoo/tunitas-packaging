@@ -1,0 +1,18 @@
+#!/bin/bash -p
+__top=${0%/*}/../..
+export PATH="${__top}/bin:$PATH"
+__dirname=${0%/*}
+exe=flow-alambique
+name=${0##*/} ; name=${name%.test}
+#
+readonly DATA=(1 2 3 4)
+readonly EXPECTED=10
+#
+af=$(echo ${DATA[@]} | tr ' ' '\n' | ${exe?} --af --function=${name?} --measurements=/dev/stdin)
+daf=$(echo ${DATA[@]} | tr ' ' '\n' | ${exe?} --daf --function=${name?} --measurements=/dev/stdin)
+vdaf=$(echo ${DATA[@]} | tr ' ' '\n' | ${exe?} --vdaf --function=${name?} --measurements=/dev/stdin)
+#
+set -e
+test ${EXPECTED?} == ${af?}
+test ${EXPECTED?} == ${daf?}
+test ${EXPECTED?} == ${vdaf?}

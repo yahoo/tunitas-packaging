@@ -31,7 +31,8 @@ namespace app::flow {
 #import tunitas.file.Path
 #import tunitas.alambique.function.Mode
 #import tunitas.alambique.function.Estimates
-#import tunitas.keyston.histogram.Boundaries
+#import tunitas.keyston.aggregation.Summation
+#import tunitas.keyston.aggregation.Histogram
 #import tunitas.keyston.popularity.Prefixes
 #import nonstd.units.memory.scale // Bits
 struct app::flow::Configuration : public cli::configuration::Core, public cli::configuration::Controllability {
@@ -46,6 +47,7 @@ public:
   Optional<tunitas::alambique::function::Estimates> aggregation_function_names{};
   Optional<nonstd::units::memory::Bits> popularity_prefix_length{};
   Optional<tunitas::keyston::popularity::Prefixes> popularity_prefixes{};
-  Optional<tunitas::keyston::histogram::Boundaries> histogram_boundaries{};
+  Optional<tunitas::keyston::aggregation::Histogram::Boundaries> histogram_boundaries{};
+  Optional<tunitas::keyston::aggregation::Summation> constant{tunitas::keyston::aggregation::Summation{99u}}; // either remove this or find a way to make it show something and command line it
 };
 #endiv

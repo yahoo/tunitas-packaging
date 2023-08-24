@@ -119,7 +119,7 @@ auto tests::unit::options::get::Fixture::suite() -> Suite {
 #import app.flow.options.get.bit_length
 #import app.flow.options.get.specimen_single
 #import app.flow.options.get.specimen_series
-#import tunitas.keyston.array.enumerate
+#import tunitas.array.enumerate
 namespace tests::unit::options::get {
   auto Fixture::test_aggregation_function_mode_good() -> void {
     auto call = [](Console &exp, Step const &step) { return library::aggregation_function_mode<Quitting>(exp, step); };

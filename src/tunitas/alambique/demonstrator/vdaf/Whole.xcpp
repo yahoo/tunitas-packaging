@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::demonstrator::vdaf {
+  //
+  // That certain bundle of types for whole-measuremnet and whole-aggregation
+  //
+  // Specification:
+  //
+  //   Convenience.
+  //
+  // Design:
+  //
+  //   It's a struct; a bundle of types!
+  //   It's convenient.
+  //
+  //   Actually, recall that vdaf::Aggregation<WHOLE, DEFINITON> requires a DEFINITION which is unknown at this point.
+  //   So we recover the polymorphic capability with its ancestor the keyston::aggregation::Container
+  //
+  //   <ahem>Whole::Aggregation</ahem>
+  //
+  // Usage:
+  //
+  //   Oh come on!
+  //
+  struct Whole;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Container
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.keyston.vdaf.required.Definition
+#import tunitas.keyston.vdaf.Aggregation
+struct tunitas::alambique::demonstrator::vdaf::Whole {
+  using Measurement = keyston::measurement::Specimen;
+  struct Aggregation : keyston::aggregation::Container {
+    // this is effectively keyston::vdaf::Aggregation<WHOLE, DEFINITION> but that is a template over unknown DEFINITION
+    Aggregation() = default;
+    using keyston::aggregation::Container::Container;
+    //
+    // This is required to capture the polymorphic result of Function<...>::reassembly(...)
+    template<keyston::vdaf::required::Definition DEFINITION> constexpr [[implicit]] Aggregation(keyston::vdaf::Aggregation<keyston::Slice::WHOLE, DEFINITION> &&tmp) : keyston::aggregation::Container::Container{move(tmp)} { }
+  };
+};
+#endiv

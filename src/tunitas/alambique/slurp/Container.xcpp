@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
 #import tunitas.keyston.measurement.Specimen
-#import tunitas.keyston.array.Series
+#import tunitas.array.Series
 namespace tunitas::alambique::slurp {
   //
   // A series of numbers, which are the sample at hand.
@@ -22,6 +22,6 @@ namespace tunitas::alambique::slurp {
   //
   //   As one does.
   //
-  using Container = keyston::array::Series<keyston::measurement::Specimen>;
+  using Container = array::Series<keyston::measurement::Specimen>;
 }
 #endiv

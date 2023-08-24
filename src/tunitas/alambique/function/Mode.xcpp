@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.Function
+#import tunitas.keyston.Complexity
 namespace tunitas::alambique::function {
-  using Mode = tunitas::keyston::Function;
+  using Mode = tunitas::keyston::Complexity;
 }
 #endiv

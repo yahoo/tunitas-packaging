@@ -101,13 +101,14 @@ namespace app::flow::options::parser {
 #import app.flow.options.get.specimen_single
 #import app.flow.options.get.specimen_series
 #import app.flow.options.inference
+#import tunitas.keyston.measurement.Boundaries
 #import tunitas.alambique.function.resolve
 #import tunitas.alambique.function.assess
 #import cli.options.dualie.Getter
 #import langu.age.q
 namespace app::flow::options::parser {
   auto Parser::parse(Configuration &cfg, Args &args) -> Result {
-    constexpr auto const boundaries_limit = tunitas::keyston::histogram::Boundaries{}.size();
+    constexpr auto const boundaries_limit = tunitas::keyston::measurement::Boundaries{}.size();
     auto boundaries_end{0uz};
     auto error_when_too_many_boundary_specimens = [this](tunitas::Optional<std::size_t> offending_count) {
       if (offending_count) {
@@ -233,7 +234,7 @@ namespace app::flow::options::parser {
           if (auto boundaries_count=boundaries.size(); boundaries_count > boundaries_limit) {
             error_when_too_many_boundary_specimens(boundaries_count);
           } else {
-            cfg.histogram_boundaries = tunitas::keyston::histogram::Boundaries::extend(error::by::Exception{}, boundaries);
+            cfg.histogram_boundaries = tunitas::keyston::measurement::Boundaries::extend(error::by::Exception{}, boundaries);
             infer_aggregation_function_names(cfg, inference::HISTOGRAM);
           }
         }

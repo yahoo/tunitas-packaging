@@ -15,170 +15,73 @@ namespace tunitas::alambique::demonstrator {
   //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
   //   Verifiable Distributed Aggregation Function
   //
-  //   Especially Figure 7 (the Python pseudo code.
-  //   <quote ref="https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#execution-of-a-vdaf-5-6">
+  // Design:
   //
-  //     def run_vdaf(Vdaf,
-  //                  verify_key: Bytes[Vdaf.VERIFY_KEY_SIZE],
-  //                  agg_param: Vdaf.AggParam,
-  //                  nonces: Vec[Bytes[Vdaf.NONCE_SIZE]],
-  //                  measurements: Vec[Vdaf.Measurement]):
-  //         out_shares = []
-  //         for (nonce, measurement) in zip(nonces, measurements):
-  //             # Each Client shards its measurement into input shares.
-  //             rand = gen_rand(Vdaf.RAND_SIZE)
-  //             (public_share, input_shares) = Vdaf.measurement_to_input_shares(measurement, nonce, rand)
-  //     
-  //             # Each Aggregator initializes its preparation state.
-  //             prep_states = []
-  //             for j in range(Vdaf.SHARES):
-  //                 state = Vdaf.prep_init(verify_key, j, agg_param, nonce, public_share, input_shares[j])
-  //                 prep_states.append(state)
-  //     
-  //             # Aggregators recover their output shares.
-  //             inbound = None
-  //             for i in range(Vdaf.ROUNDS+1):
-  //                 outbound = []
-  //                 for j in range(Vdaf.SHARES):
-  //                     out = Vdaf.prep_next(prep_states[j], inbound)
-  //                     if i < Vdaf.ROUNDS:
-  //                         (prep_states[j], out) = out
-  //                     outbound.append(out)
-  //                 # This is where we would send messages over the
-  //                 # network in a distributed VDAF computation.
-  //                 if i < Vdaf.ROUNDS:
-  //                     inbound = Vdaf.prep_shares_to_prep(agg_param, outbound)
-  //     
-  //             # The final outputs of prepare phase are the output shares.
-  //             out_shares.append(outbound)
-  //     
-  //         # Each Aggregator aggregates its output shares into an
-  //         # aggregate share. In a distributed VDAF computation, the
-  //         # aggregate shares are sent over the network.
-  //         agg_shares = []
-  //         for j in range(Vdaf.SHARES):
-  //             out_shares_j = [out[j] for out in out_shares]
-  //             agg_share_j = Vdaf.out_shares_to_agg_share(agg_param, out_shares_j)
-  //             agg_shares.append(agg_share_j)
-  //     
-  //         # Collector unshards the aggregate.
-  //         num_measurements = len(measurements)
-  //         agg_result = Vdaf.agg_shares_to_result(agg_param, agg_shares, num_measurements)
-  //         return agg_result
+  //   The secret is filled in after construction.
   //
-  //   </quote>
+  // Usage
+  //
+  //   The usual.
   //
   template<> struct Demonstrator<VDAF>;
 }
 #endiv
 #divert <hpp>
 #import std.span
-#import nonstd.units.memory.scale // Bits and Bytes
-#import nonstd.required.iterator.Forward
-#import nonstd.required.iterator.Producing
-#import tunitas.keyston.Transport
+#import tunitas.units.Bits
+#import tunitas.entropy.Source
 #import tunitas.keyston.Slice
-#import tunitas.keyston.nonce.Generator
-#import tunitas.keyston.entropy.Source
-#import tunitas.keyston.vdaf.Configuration
-#import tunitas.keyston.vdaf.Executor
+#import tunitas.keyston.vdaf.Secret
+#import tunitas.keyston.vdaf.Parameters
+#import tunitas.keyston.vdaf.Input
+#import tunitas.keyston.vdaf.Public
+#import tunitas.keyston.vdaf.Output
+#import tunitas.keyston.vdaf.constants
+#import tunitas.alambique.demonstrator.required.iterator.Specimen
+#import tunitas.alambique.demonstrator.vdaf.Whole
 namespace tunitas::alambique::demonstrator {
-  template<> class Demonstrator<VDAF> {
-  protected:
-    struct Constants {
-      inline static constexpr auto RANDOM_SIZE = nonstd::units::memory::Bits{128uz}; // ... [[FIXTHIS]] use tunitas::units when it exists
-      inline static constexpr auto NONCE_SIZE = nonstd::units::memory::Bits{32uz}; // ..... eadem ratione
-    };
-    using Entropy = keyston::entropy::Source;
-    using enum keyston::Slice;
-    inline static constexpr auto TRANSPORT = keyston::Transport::NUMERIC;
-    using Configuration = keyston::vdaf::Configuration<TRANSPORT>;
-    //
-    keyston::vdaf::Executor<TRANSPORT> executor{};
-    keyston::nonce::Generator<keyston::nonce::Bits<Constants::NONCE_SIZE.count()>, Entropy> randomizer;
-  public:
+  template<> struct Demonstrator<VDAF> {
+    using Entropy = entropy::Source;
     using Name = keyston::vdaf::Name;
-    using Parameters = Configuration::Parameters;
-    struct Whole {
-      using Measurement = Configuration::Measurement<WHOLE>;
-      using Aggregation = Configuration::Aggregation<WHOLE>;
-    };
-    //
     inline explicit Demonstrator(Entropy &, Name);
     Demonstrator(Demonstrator const &) = delete;
     auto operator=(Demonstrator const &) -> Demonstrator & = delete;
+  protected:
+    struct Constants {
+      inline static constexpr auto RANDOM_SIZE = units::Bits{128uz};
+      inline static constexpr auto NONCE_SIZE = units::Bits{32uz};
+    };
+    using enum keyston::Slice;
+    //
+    tunitas::entropy::Source &source;
+    Name name{};
+  public:
+    using Secret = keyston::vdaf::Secret;
+    Secret::Storage secret{};
+    using Parameters = keyston::vdaf::Parameters;
+    using Whole = vdaf::Whole;
+    //
     inline auto run(Parameters const &, std::span<Whole::Measurement>) -> Whole::Aggregation;
-    template<typename ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Whole::Aggregation
-      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
-    template<typename ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Whole::Aggregation
-      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
+    template<required::iterator::Specimen ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Whole::Aggregation;
+    template<required::iterator::Specimen ITERATOR> inline auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Whole::Aggregation;
   };
 }
 #endiv
 #divert <ipp>
+#import tunitas.alambique.demonstrator.Executor.VDAF
 namespace tunitas::alambique::demonstrator {
   Demonstrator<VDAF>::Demonstrator(Entropy &source, Name name)
-    : executor{name}
-    , randomizer{source}
+    : source{source}
+    , name{name}
   { }
   auto Demonstrator<VDAF>::run(Parameters const &p, std::span<Whole::Measurement> s) -> Whole::Aggregation {
     return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
   }
-  template<typename ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Whole::Aggregation
-    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Whole::Aggregation {
     return run(p, std::ranges::subrange{s, f});
   }
-}
-#endiv
-#divert <tpp>
-#import tunitas.keyston.vdaf.numeric.components
-#import nonstd.exception.Unreachable
-namespace tunitas::alambique::demonstrator {
-  template<typename ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation
-    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
-    using namespace keyston::vdaf::numeric::components;
-#if 0
-    Shards<Series<Output<SHARE>>> outputs{};
-    for (auto [nonce, measurement] : zip(nonces, measurements)) {
-      auto [publick, inputs] = executor.dissassembly(parameters, nonce, measurement, randomizer());
-      Series<Internal<SHARE>> prepared{};
-      for (auto shard : iota(inputs)) {
-        auto prepared = executor.initialize(parameters, verify_key, shard, nonce, publick, inputs.at(shard));
-        prepared.push_back(move(prepared));
-      }
-      Optional<State> inbound{};
-      for (auto round : std::ranges::iota(0, ROUNDS+1)) {
-        Series<> outbound{};
-        for (auto shard : iota(prepared)) {
-          auto either = executor.continuation(aggregation, prepared.at(shared), inbound);
-          if (round < ROUNDS) {
-            auto visitor = Visitor{[](auto const &) { throw exception::Invalid{}; },
-                                   [&prepared, &outbound](Pair<Preparation<WHOLE>, Preparation<SHARE>> &pair) {
-                                     prepared.at(shard) = move(pair.first);
-                                     outbound.push_back(move(pair.second));
-                                   }};
-            visit(visitor, either);
-          } else {
-            auto visitor = Visitor{[](auto const &) { throw exception::Invalid{}; },
-                                   [&outbound](Output<SHARE>> &final) {
-                                     outbound.push_back(move(final));
-                                   }};
-            visit(visitor, either);
-          }
-        }
-      }
-    }
-#error finish
-    Shards<Aggregation<SHARE>> aggregations{};
-    for (auto shard : iota(outputs)) {
-      auto aggregated = executor.aggregation(parameters, outputs.at(shard));
-      aggregations.at(shard) = move(aggregated);
-    }
-    auto result = executor.reassembly(parameters, aggregations, measurements.size());
-    return result;
-#else
-    throw exception::Unreachable{};
-#endif
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation {
+    return Executor<VDAF, ITERATOR>{name}.run(parameters, secret, source, measurements);
   }
 }
 #endiv

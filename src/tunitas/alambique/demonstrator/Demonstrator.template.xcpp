@@ -27,6 +27,6 @@ namespace tunitas::alambique::demonstrator {
   //   auto vdaf = Demonstrator<VDAF>{};
   //   auto got = vdaf.run(...arguments...);
   //
-  template<Function> struct Demonstrator;
+  template<Complexity> struct Demonstrator;
 }
 #endiv

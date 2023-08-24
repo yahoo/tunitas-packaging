@@ -71,8 +71,8 @@ namespace tests::flow {
     auto test_variant_aggregation_function() -> void;
     auto test_variant_aggregation_function_name() -> void;
     //
-    auto test_already_af_poplar1() -> void;
-    auto test_already_daf_poplar1() -> void;
+    auto test_already_af_popularity() -> void;
+    auto test_already_daf_popularity() -> void;
     //
     auto test_prefix_length_good() -> void;
     auto test_prefix_length_zero() -> void;
@@ -173,11 +173,11 @@ namespace tests::flow::options {
   auto Options::test_vdaf() -> void  { exercise(OK, "--vdaf"s); }
   auto Options::test_vidaf() -> void { exercise(OK, "--vidaf"s); }
   //
-  auto Options::test_aggregation_function_name_zero() -> void { exercise(OK, "--aggregation-function-name=zero"s); }
-  auto Options::test_aggregation_function_name_constant() -> void { exercise(OK, "--aggregation-function-name=constant"s); }
-  auto Options::test_aggregation_function_name_count() -> void { exercise(OK, "--aggregation-function-name=count"s); }
-  auto Options::test_aggregation_function_name_sum() -> void { exercise(OK, "--aggregation-function-name=sum"s); }
-  auto Options::test_aggregation_function_name_histogram() -> void { exercise(OK, "--aggregation-function-name=histogram"s); }
+  auto Options::test_aggregation_function_name_zero() -> void       { exercise(OK, "--aggregation-function-name=zero"s); }
+  auto Options::test_aggregation_function_name_constant() -> void   { exercise(OK, "--aggregation-function-name=constant"s); }
+  auto Options::test_aggregation_function_name_count() -> void      { exercise(OK, "--aggregation-function-name=count"s); }
+  auto Options::test_aggregation_function_name_sum() -> void        { exercise(OK, "--aggregation-function-name=sum"s); }
+  auto Options::test_aggregation_function_name_histogram() -> void  { exercise(OK, "--aggregation-function-name=histogram"s); }
   auto Options::test_aggregation_function_name_popularity() -> void { exercise(OK, "--aggregation-function-name=popularity"s); }
     //
   auto Options::test_ambiguous_prio() -> void    { exercise(OK, "--vdaf"s, "--aggregation-function-name=prio"s); }
@@ -194,8 +194,8 @@ namespace tests::flow::options {
   auto Options::test_variant_aggregation_function() -> void      { exercise(OK, "--aggregation-function=ZERO"s); }
   auto Options::test_variant_aggregation_function_name() -> void { exercise(OK, "--aggregation-function-name=ZERO"s); }
   //
-  auto Options::test_already_af_poplar1() -> void  { exercise(CONFIGURATION, "--af"s, "--aggregation-function-name=POPLAR1"s); }
-  auto Options::test_already_daf_poplar1() -> void { exercise(CONFIGURATION, "--daf"s, "--aggregation-function-name=POPLAR1"s); }
+  auto Options::test_already_af_popularity() -> void  { exercise(CONFIGURATION, "--af"s, "--aggregation-function-name=POPULARITY"s); }
+  auto Options::test_already_daf_popularity() -> void { exercise(CONFIGURATION, "--daf"s, "--aggregation-function-name=POPULARITY"s); }
   //
   auto Options::test_prefix_length_good() -> void     { exercise(OK, "--prefix-length=3"s); }
   auto Options::test_prefix_length_zero() -> void     { exercise(CONFIGURATION, "--prefix-length=0"s); }
@@ -313,8 +313,8 @@ auto tests::flow::options::Options::suite() -> Suite {
                     }()
                 << []{
                     auto amb = Stream{"already"sv};
-                    amb << add("af,poplar1", &Options::test_already_af_poplar1)
-                        << add("daf,poplar1", &Options::test_already_daf_poplar1)
+                    amb << add("af,poplar1", &Options::test_already_af_popularity)
+                        << add("daf,poplar1", &Options::test_already_daf_popularity)
                         << END;
                     return amb;
                     }()

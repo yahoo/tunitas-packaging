@@ -8,7 +8,6 @@
 #import tunitas.keyston.af
 #import tunitas.keyston.daf
 #import tunitas.keyston.vdaf
-#import tunitas.keyston.Function
 #import tunitas
 namespace tunitas::alambique::function {
   namespace af = tunitas::keyston::af;

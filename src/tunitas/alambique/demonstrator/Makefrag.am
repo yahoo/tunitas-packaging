@@ -7,11 +7,25 @@
 tunitas_alambique_demonstrator_SUBSOURCES = \
   obj/src/tunitas/alambique/Demonstrator.cpp \
   obj/src/tunitas/alambique/demonstrator/namespace.cpp \
+  $(tunitas_alambique_demonstrator_required_SUBSOURCES) \
+  $(tunitas_alambique_demonstrator_vdaf_SUBSOURCES) \
+  \
   obj/src/tunitas/alambique/demonstrator/Demonstrator.template.cpp \
   obj/src/tunitas/alambique/demonstrator/Demonstrator.VIDAF.cpp \
   obj/src/tunitas/alambique/demonstrator/Demonstrator.VDAF.cpp \
   obj/src/tunitas/alambique/demonstrator/Demonstrator.DAF.cpp \
   obj/src/tunitas/alambique/demonstrator/Demonstrator.AF.cpp \
   obj/src/tunitas/alambique/demonstrator/Demonstrator.cpp \
+  \
   obj/src/tunitas/alambique/demonstrator/Traits.cpp \
+  \
+  obj/src/tunitas/alambique/demonstrator/Executor.template.cpp \
+  obj/src/tunitas/alambique/demonstrator/Executor.AF.cpp \
+  obj/src/tunitas/alambique/demonstrator/Executor.DAF.cpp \
+  obj/src/tunitas/alambique/demonstrator/Executor.VDAF.cpp \
+  obj/src/tunitas/alambique/demonstrator/Executor.VIDAF.cpp \
+  obj/src/tunitas/alambique/demonstrator/Executor.cpp \
   $(end)
+#
+include src/tunitas/alambique/demonstrator/required/Makefrag.am
+include src/tunitas/alambique/demonstrator/vdaf/Makefrag.am

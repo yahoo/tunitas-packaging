@@ -11,7 +11,7 @@
 #import tunitas.keyston.vdaf.Name
 // SOON #import tunitas.keyston.vidaf.Name
 namespace tunitas::alambique::function::traits {
-  template<Function> struct Name;
+  template<Complexity> struct Name;
   template<> struct Name<AF>;
   template<> struct Name<DAF>;
   template<> struct Name<VDAF>;
@@ -36,10 +36,10 @@ namespace tunitas::alambique::function::traits {
   template<> struct Name<VIDAF> { using Type = vidaf::Name; };
 #endif
   //
-  // old_school (everything else does it this way) -----------------------------------------------------------------------------------------\\\\\ (here)
-  // New School (constants are capitalized) -------------------------------\\\\\                                                            |||||
-  //                                                                       |||||                                                            |||||
-  //                                                                       vvvvv                                                            vvvvv
+  // old_school (everything else does it this way) ------------------------------------------------------------------------------------------\\\\\ (here)
+  // New School (constants are capitalized) -------------------------------\\\\\                                                             |||||
+  //                                                                       |||||                                                             |||||
+  //                                                                       vvvvv                                                             vvvvv
   template<> struct Mode<af::Name>    { inline static constexpr auto const VALUE = function::Mode::AF;    inline static constexpr auto const value = VALUE; };
   template<> struct Mode<daf::Name>   { inline static constexpr auto const VALUE = function::Mode::DAF;   inline static constexpr auto const value = VALUE; };
   template<> struct Mode<vdaf::Name>  { inline static constexpr auto const VALUE = function::Mode::VDAF;  inline static constexpr auto const value = VALUE; };

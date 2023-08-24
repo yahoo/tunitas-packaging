@@ -8,7 +8,7 @@
 #import std.byte
 #import std.size_t
 #import tunitas.keyston.literals
-#import tunitas.keyston.Function
+#import tunitas.keyston.Complexity
 namespace tunitas::alambique {
   using Octet = std::byte;
   using Size = std::size_t;
@@ -16,8 +16,8 @@ namespace tunitas::alambique {
   //
   using namespace keyston::literals;
   //
-  using keyston::Function;
-  using enum keyston::Function;
+  using keyston::Complexity;
+  using enum keyston::Complexity;
 }
 #import std.uint8_t
 #import std.uint16_t

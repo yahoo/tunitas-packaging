@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.keyston.vdaf.Secret
+#import tunitas.keyston.vdaf.constants
+#include <hpp/tunitas.keyston.vdaf.constants>
+#import tunitas.entropy.Source
+#import tunitas.alambique.demonstrator.vdaf.Whole
+#import tunitas.alambique.demonstrator.vdaf.inventory.Map
+namespace tunitas::alambique::demonstrator::vdaf::inventory {
+  //
+  // The inventory of standard alambiques (i.e. those mentioned in The Standard (draft) document itself)
+  //
+  // Specification:
+  //
+  //   It's a map, lookup by name.
+  //   Call the alambique function to emit on an ostream
+  //
+  // Design:
+  //
+  //   Supply the constructor to initialize the map, binding the name to the function pointer
+  //
+  // Usage:
+  //
+  //   Hack The Spew (this is a test, rig after all)
+  //
+  //   Also, see tunitas::alambique::main(...)
+  //   To wit:
+  //        auto inventory = Standard{};
+  //        auto found = inventory.find(word);
+  //        if (INVENTORY.end() == found) {
+  //          ...complain...
+  //        } else {
+  //          found->second();
+  //        }
+  //      }
+  //
+  //
+  namespace [[eponymous]] runner {
+    using keyston::vdaf::Secret;
+    template<required::iterator::Specimen ITERATOR> using Ancestor = Map<Whole::Aggregation (keyston::vdaf::Parameters const &, Secret::View::Fixed, entropy::Source &, std::ranges::subrange<ITERATOR, ITERATOR>)>;
+    template<required::iterator::Specimen> struct Runner;
+  }
+  using runner::Runner;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.Scheme
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.Parameters
+namespace tunitas::alambique::demonstrator::vdaf::inventory {
+  template<required::iterator::Specimen ITERATOR> class runner::Runner : public runner::Ancestor<ITERATOR> {
+    using Ancestor = runner::Ancestor<ITERATOR>;
+    using Iterator = ITERATOR;
+    using enum keyston::Scheme;
+    using enum keyston::vdaf::Name;
+  public:
+    Runner();
+    using Ancestor::Map;
+  };
+}
+#endiv
+#divert <tpp>
+#import tunitas.keyston.vdaf.Function
+#import tunitas.alambique.demonstrator.vdaf.Recital
+namespace tunitas::alambique::demonstrator::vdaf::inventory::runner {
+  template<required::iterator::Specimen _> Runner<_>::Runner()
+#if 1
+    : Ancestor{{PRIO3_COUNT,     Recital<PRIO, keyston::vdaf::Function<PRIO, PRIO3_COUNT>,     Iterator>::run},
+               {PRIO3_SUM,       Recital<PRIO, keyston::vdaf::Function<PRIO, PRIO3_SUM>,       Iterator>::run},
+               {PRIO3_HISTOGRAM, Recital<PRIO, keyston::vdaf::Function<PRIO, PRIO3_HISTOGRAM>, Iterator>::run}}
+      // NOT YET ---> poplar, doplar, etc. <--- NOT YET
+  { }
+#else
+  {
+    auto m = typename Ancestor::Mapped(&Recital<PRIO, keyston::vdaf::Function<PRIO, PRIO3_COUNT>,     Iterator>::run);
+    auto p = typename Ancestor::Value{PRIO3_COUNT, m};
+    this->insert(p);
+    this->insert({PRIO3_COUNT,     Recital<PRIO, keyston::vdaf::Function<PRIO, PRIO3_COUNT>,     Iterator>::run});
+    this->insert({PRIO3_SUM,       Recital<PRIO, keyston::vdaf::Function<PRIO, PRIO3_SUM>,       Iterator>::run});
+    this->insert({PRIO3_HISTOGRAM, Recital<PRIO, keyston::vdaf::Function<PRIO, PRIO3_HISTOGRAM>, Iterator>::run});
+  }
+#endif
+}
+#endiv

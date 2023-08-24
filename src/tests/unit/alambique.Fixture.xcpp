@@ -18,19 +18,19 @@ namespace tests::unit::alambique {
 struct tests::unit::alambique::fixture::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  template<library::Function> auto test_usage_Demonstrator() -> void;
+  template<library::Complexity> auto test_usage_Demonstrator() -> void;
 };
 #endiv
 #divert <tpp>
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 namespace tests::unit::alambique::fixture {
-  template<library::Function FUNCTION> auto Fixture::test_usage_Demonstrator() -> void {
+  template<library::Complexity FUNCTION> auto Fixture::test_usage_Demonstrator() -> void {
     using Subject = library::Demonstrator<FUNCTION>;
-    if constexpr (library::Function::AF == FUNCTION) {
+    if constexpr (library::Complexity::AF == FUNCTION) {
       auto subject = Subject{{}}; // no entropy needed for the AF case
       require(ASSERTION, sizeof(subject));
     } else {
-      auto source = ::tunitas::keyston::entropy::Source{};
+      auto source = ::tunitas::entropy::Source{};
       auto subject = Subject{source, {}};
       require(ASSERTION, sizeof(subject));
     }
@@ -44,11 +44,11 @@ auto tests::unit::alambique::fixture::Fixture::suite() -> Suite {
             auto use = Stream{"usage"sv};
             use << []{
                     auto dem = Stream{"Demonstrator"sv};
-                    dem << add("AF", &Fixture::test_usage_Demonstrator<library::Function::AF>)
-                        << add("DAF", &Fixture::test_usage_Demonstrator<library::Function::DAF>)
-                        << add("VDAF", &Fixture::test_usage_Demonstrator<library::Function::VDAF>)
+                    dem << add("AF", &Fixture::test_usage_Demonstrator<library::Complexity::AF>)
+                        << add("DAF", &Fixture::test_usage_Demonstrator<library::Complexity::DAF>)
+                        << add("VDAF", &Fixture::test_usage_Demonstrator<library::Complexity::VDAF>)
 #if 0
-                        << add("VIDAF", &Fixture::test_usage_Demonstrator<library::Function::VIDAF>)
+                        << add("VIDAF", &Fixture::test_usage_Demonstrator<library::Complexity::VIDAF>)
 #endif
                         << END;
                     return dem;

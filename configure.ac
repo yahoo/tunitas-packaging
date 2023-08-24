@@ -47,6 +47,8 @@ TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
 TF_WITH_SUBSYSTEM([tunitas-keyston], [], [The Tunitas Keyston])
 
 # and mention in $(DEVELOPMENT_AREAS) in Makefile.am
+TF_WITH_MODULE([boost])
+TF_WITH_MODULE([crypto])
 TF_WITH_MODULE([cli-core])
 TF_WITH_MODULE([fmt])
 TF_WITH_MODULE([langu])
@@ -64,8 +66,10 @@ TF_WITH_MODULE([cppunit])
 
 TF_MSG_VERBOSE([compiler-specific (alphabetical)])
 TF_WITH_NONSTD([cppunit])
+TF_WITH_NONSTD([cryptopp])
 TF_WITH_NONSTD([fmt])
 TF_WITH_NONSTD([gcc]) dnl but modern gcc-12 & beyond is fine
+TF_WITH_NONSTD([mdspan])
 
 AC_PREREQ([2.71])
 LT_PREREQ([2.4.2])
@@ -76,6 +80,10 @@ AC_PROG_CXX
 AM_PROG_CC_C_O
 TF_PROG_DC
 
+TF_CHECK_BOOST
 TF_CHECK_CPPUNIT
+TF_CHECK_CRYPTOPP
+TF_CHECK_FMT
+TF_CHECK_MDSPAN
 
 TF_FINALIZE

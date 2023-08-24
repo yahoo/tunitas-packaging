@@ -4,6 +4,6 @@ export PATH="${__top}/check/bin:${__top}/bin:$PATH"
 __dirname=${0%/*}
 exe=${__dirname##*/}
 name=${0##*/} ; name=${name%.test}
-path=/unit/$name # unused
+path=/flow/$name # unused
 #
 ${exe?} /

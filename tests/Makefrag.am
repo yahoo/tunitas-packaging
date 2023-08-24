@@ -8,18 +8,22 @@ TESTS = \
   $(tests_unit_TESTS) \
   $(tests_scriptie_flow_alambique_TESTS) \
   $(tests_flow_alambique_TESTS) \
+  $(tests_idioms_TESTS) \
   $(end)
 XFAIL_TESTS = \
   $(tests_unit_XFAIL_TESTS) \
   $(tests_scriptie_flow_alambique_XFAIL_TESTS) \
   $(tests_flow_alambique_XFAIL_TESTS) \
+  $(tests_idioms_XFAIL_TESTS) \
   $(end)
 XGOD_TESTS = \
   $(tests_unit_XGOD_TESTS) \
   $(tests_scriptie_flow_alambique_XGOD_TESTS) \
   $(tests_flow_alambique_XGOD_TESTS) \
+  $(tests_idioms_XGOD_TESTS) \
   $(end)
 #
 include tests/unit/Makefrag.am
 include tests/flow-alambique/Makefrag.am
 include tests/scriptie/flow-alambique/Makefrag.am
+include tests/idioms/Makefrag.am

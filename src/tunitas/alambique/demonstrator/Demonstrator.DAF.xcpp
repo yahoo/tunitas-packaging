@@ -49,45 +49,40 @@ namespace tunitas::alambique::demonstrator {
 #endiv
 #divert <hpp>
 #import std.span
-#import nonstd.units.memory.scale // Bits
-#import nonstd.required.iterator.Forward
-#import nonstd.required.iterator.Producing
-#import tunitas.keyston.Transport
+#import tunitas.units.Bits
+#import tunitas.entropy.Source
 #import tunitas.keyston.Slice
 #import tunitas.keyston.nonce.Generator
-#import tunitas.keyston.entropy.Source
 #import tunitas.keyston.daf.Name
-#import tunitas.keyston.daf.Configuration
-#import tunitas.keyston.daf.Executor
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.alambique.demonstrator.Executor.DAF
+#import tunitas.alambique.demonstrator.required.iterator.Specimen
 namespace tunitas::alambique::demonstrator {
   template<> class Demonstrator<DAF> {
   protected:
     struct Constants {
-      inline static constexpr auto RANDOM_SIZE = nonstd::units::memory::Bits{128uz}; // ... [[FIXTHIS]] use tunitas::units when it exists
+      inline static constexpr auto RANDOM_SIZE = tunitas::units::Bits{128uz}; // ... [[FIXTHIS]] use tunitas::units when it exists
     };
-    using Entropy = keyston::entropy::Source;
+    using Entropy = entropy::Source;
     using enum keyston::Slice;
-    inline static constexpr auto TRANSPORT = keyston::Transport::NUMERIC;
-    using Configuration = keyston::daf::Configuration<TRANSPORT>;
+    using Executor = demonstrator::Executor<DAF, Polymorphic>;
     //
-    keyston::daf::Executor<TRANSPORT> executor{}; // unless initialized otherwise, this contains nulls and is not useful
-    keyston::nonce::Generator<keyston::nonce::Bits<Constants::RANDOM_SIZE.count()>, Entropy> randomizer;
+    Executor executor{}; // unless initialized with a name, this contains nulls and is not useful
+    keyston::nonce::Generator<keyston::nonce::Bits</*FIXTHIS-use the enums*/Constants::RANDOM_SIZE.count()>, Entropy> randomizer;
   public:
     using Name = keyston::daf::Name;
-    using Parameters = Configuration::Parameters;
+    using Parameters = keyston::daf::Parameters;
     struct Whole {
-      using Measurement = Configuration::Measurement<WHOLE>;
-      using Aggregation = Configuration::Aggregation<WHOLE>;
+      using Measurement = keyston::measurement::Specimen;
+      using Aggregation = keyston::daf::Aggregation<WHOLE>;
     };
     //
     inline explicit Demonstrator(Entropy &, Name);
     Demonstrator(Demonstrator const &) = delete;
     auto operator=(Demonstrator const &) -> Demonstrator & = delete;
     inline auto run(Parameters const &, std::span<Whole::Measurement>) -> Whole::Aggregation;
-    template<typename ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Whole::Aggregation
-      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
-    template<typename ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Whole::Aggregation
-      requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>);
+    template<required::iterator::Specimen ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Whole::Aggregation;
+    template<required::iterator::Specimen ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Whole::Aggregation;
   };
 }
 #endiv
@@ -101,19 +96,16 @@ namespace tunitas::alambique::demonstrator {
   auto Demonstrator<DAF>::run(Parameters const &p, std::span<Whole::Measurement> s) -> Whole::Aggregation {
     return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
   }
-  template<typename ITERATOR> auto Demonstrator<DAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Whole::Aggregation
-    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<DAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Whole::Aggregation {
     return run(p, std::ranges::subrange{s, f});
   }
 }
 #endiv
 #divert <tpp>
-#import tunitas.keyston.daf.numeric.components
 namespace tunitas::alambique::demonstrator {
-  template<typename ITERATOR> auto Demonstrator<DAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation
-    requires (required::iterator::Forward<ITERATOR> && required::iterator::Producing<ITERATOR, Whole::Measurement>) {
-    using namespace keyston::daf::numeric::components;
-    Shards<Series<Output<SHARE>>> outputs{};
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<DAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation {
+    //
+    auto outputs = typename Executor::template Shards<typename Executor::template Series<typename Executor::template Output<SHARE>>>{};
     for (auto const &measurement : measurements) {
       auto [publick, inputs] = executor.disassembly(parameters, measurement, randomizer());
       for (auto shard : iota(inputs)) {
@@ -121,15 +113,14 @@ namespace tunitas::alambique::demonstrator {
         outputs.at(shard).push_back(move(computed));
       }
     }
-    Shards<Aggregation<SHARE>> aggregations{};
+    auto aggregations = typename Executor::template Shards<typename Executor::template Aggregation<SHARE>>{};
     for (auto shard : iota(outputs)) {
       auto amalgamated = executor.amalgamation(parameters, outputs.at(shard));
       aggregations.at(shard) = move(amalgamated);
     }
-    // reminder: some algorithms cannot tolerate zero records (they throw)
-    auto processed = Processed{measurements.size()};
-    auto result = executor.reassembly(parameters, aggregations, processed);
-    return result;
+    // reminder: some algorithms cannot tolerate zero processed records (they throw)
+    auto processed = typename Executor::Processed{measurements.size()};
+    return executor.reassembly(parameters, aggregations, processed);
   }
 }
 #endiv

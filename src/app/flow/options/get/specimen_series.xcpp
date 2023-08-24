@@ -18,7 +18,7 @@ namespace app::flow::options::get::package_specimen_series {
   }
 }
 #import cli.experience.Console
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.measurement.Specimen
 #import langu.ish.perl.split
 namespace app::flow::options::get::package_specimen_series {
@@ -27,7 +27,7 @@ namespace app::flow::options::get::package_specimen_series {
   static_assert(sizeof (Field), "already visible");
   static_assert(!required::exception::Quitting<int>, "already visible");
   using tunitas::keyston::measurement::Specimen;
-  using tunitas::keyston::array::Variable;
+  using tunitas::array::Variable;
   using cli::experience::Console;
   namespace body {
     using langu::ish::perl::Elide;

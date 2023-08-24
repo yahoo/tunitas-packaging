@@ -12,13 +12,13 @@ namespace app::flow {
   using namespace package_run::interface;
 }
 #import app.exits.constants
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 #import tunitas.alambique.slurp
 #import langu.age
 namespace app::flow::package_run {
   namespace body {
     using namespace app::exits::constants;
-    using namespace tunitas::keyston::time::literals;
+    using namespace tunitas::time::literals;
     using namespace langu::age;
     namespace slurp = tunitas::alambique::slurp;
   }
@@ -30,8 +30,8 @@ namespace app::flow::package_run {
 #import tunitas.alambique.demonstrator.Traits
 #import tunitas.alambique.function.required.Name
 #import tunitas.alambique.function.traits
-#import tunitas.keyston.array.Series
-#import tunitas.keyston.entropy.Source
+#import tunitas.array.Series
+#import tunitas.entropy.Source
 #import tunitas.alambique.function.Resolved
 #import tunitas.file.Path
 #import tunitas.variant.Visitor
@@ -44,9 +44,9 @@ namespace app::flow::package_run {
   using Filepath = tunitas::file::Path;
   namespace body {
     using cli::controllability::Through;
-    using Entropy = tunitas::keyston::entropy::Source;
+    using Entropy = tunitas::entropy::Source;
     using tunitas::alambique::demonstrator::Demonstrator;
-    using tunitas::keyston::array::Series;
+    using tunitas::array::Series;
     using tunitas::variant::Visitor;
     template<tunitas::alambique::function::required::Name NAME> using Named = tunitas::alambique::demonstrator::Traits<tunitas::alambique::function::traits::Mode<NAME>::VALUE>;
   }
@@ -91,10 +91,6 @@ namespace app::flow::package_run {
 #import langu.age.q
 #import app.exception.Testing
 #import nonstd.exception.Unimplemented
-#import tunitas.keyston.af.numeric.format
-#import tunitas.keyston.daf.numeric.format
-#import tunitas.keyston.vdaf.numeric.format
-// NOT YET ---> #import tunitas.keyston.vidaf.numeric.format
 namespace app::flow::package_run {
   template<typename DEMONSTRATOR, typename NAME, typename RECORD> auto body::call(Console &exp, Order const &order, NAME name, Series<RECORD> const &measurements) -> Exit {
     if constexpr (std::same_as<decltype(name), tunitas::keyston::af::Name>) {
@@ -119,6 +115,7 @@ namespace app::flow::package_run {
     // [[TODO]] particularize this so that only the parameters that are appliable to the executable algorithm are copied over
     // [[TODO]] histogram requires only boundaries
     // [[TODO]] popularity requires prefixes)
+    parameters.constant = order.constant;
     parameters.boundaries = order.histogram_boundaries;
     parameters.prefix_length = order.popularity_prefix_length;;
     parameters.prefixes = order.popularity_prefixes;

@@ -7,7 +7,7 @@
 namespace tests::unit::options::get::specimen { class Series; }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.array.Variable
+#import tunitas.array.Variable
 #import tunitas.keyston.measurement.Specimen
 #import tunitas.exception.Aspect
 #import std.numeric_limits
@@ -27,7 +27,7 @@ struct tests::unit::options::get::specimen::Series : public rigging::suite::Fixt
   auto test_fail_too_big() -> void;
 protected:
   using Failure = ::tunitas::exception::Aspect;
-  using Got = ::tunitas::keyston::array::Variable<::tunitas::keyston::measurement::Specimen>;
+  using Got = ::tunitas::array::Variable<::tunitas::keyston::measurement::Specimen>;
   using Limits = std::numeric_limits<std::underlying_type_t<Got::Value>>;
   static auto call(string::View specimen) -> Got;
 };
