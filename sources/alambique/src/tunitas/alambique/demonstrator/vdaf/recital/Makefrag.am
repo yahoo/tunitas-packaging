@@ -1,0 +1,14 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tunitas_alambique_demonstrator_vdaf_recital_SUBSOURCES = \
+  obj/src/tunitas/alambique/demonstrator/vdaf/Recital.cpp \
+  obj/src/tunitas/alambique/demonstrator/vdaf/recital/namespace.cpp \
+  obj/src/tunitas/alambique/demonstrator/vdaf/recital/Recital.template.cpp \
+  obj/src/tunitas/alambique/demonstrator/vdaf/recital/Recital.PRIO.cpp \
+  obj/src/tunitas/alambique/demonstrator/vdaf/recital/Recital.POPLAR.cpp \
+  obj/src/tunitas/alambique/demonstrator/vdaf/recital/Recital.cpp \
+  $(end)

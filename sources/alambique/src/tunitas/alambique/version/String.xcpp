@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import cli.version.String
+namespace tunitas::alambique::version {
+  //
+  // The package version string.
+  //
+  // Specification:
+  //
+  //   The type, which follows Semantic Versioning.
+  //
+  // Design:
+  //
+  //   A type alias.
+  //
+  // Usage:
+  //
+  //   auto generate = version::Generator{};
+  //   auto generated = generate();
+  //
+  using String = cli::version::String;
+}
+#endiv

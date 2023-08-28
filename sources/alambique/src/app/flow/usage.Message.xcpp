@@ -1,0 +1,106 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::flow::usage {
+  //
+  // The usage message generator
+  //
+  // Specification:
+  //
+  //   Generate the usage message (The usage message generator "generates the ussage message" get it?  Even a LLM can figure that out).
+  //
+  // Design:
+  //
+  //   Isolated from other functionality; e.g. exception::Usage.
+  //
+  // Usage:
+  //
+  //   In exception::Usage.
+  //   Or standalone.
+  //
+  struct Message;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.aggregation.Limits
+class app::flow::usage::Message {
+  using String = string::Storage;
+public:
+  auto operator()() const -> String;
+protected:
+  struct Limits {
+    using Histogram = tunitas::keyston::aggregation::Limits<tunitas::keyston::aggregation::Histogram>;
+    using Popularity = tunitas::keyston::aggregation::Limits<tunitas::keyston::aggregation::Popularity>;
+  };
+};
+#endiv
+#divert <cpp>
+#import std.ostringstream
+#import app.flow.defaults
+namespace app::flow::usage {
+  auto Message::operator()() const -> String {
+    constexpr auto MAXIMUM_PREFIX_LENGTH = Limits::Popularity::Prefix::Length::max();
+    constexpr auto MAXIMUM_BOUNDARY_COUNT = Limits::Histogram::Boundaries::Index::max();
+    auto buf = std::ostringstream{};
+    buf << ("usage: ${NAME} [...options...]\n"
+            "\n"
+            "\nExhibition Options:"
+            "\n"
+            "\n--measurement-data-filepath=FILEPATH         read the measurement data from FILEPATH"
+            "\n      alternatives: --measurement-data=FILEPATH, --measurements=FILEPATH, -f FILEPATH"
+            "\n"
+            "\nMode-Setting Options:"
+            "\n"
+            "\n--aggregation-function-name=NAME            compute the named aggregation function on the measurement data"
+            "\n      alternatives: (nothing, if not convenient for sloppy use)"
+            "\n      alternatives: --aggregation-function=NAME, --aggregation=NAME, --aggregate=NAME"
+            "\n                    --function-name=NAME, --function=NAME, --func=NAME"
+            "\n                    --aggfunc=NAME, ==agg=name"
+            "\n      NAME for AF Mode (Aggregation Function Mode, [Centralized] Aggregation Mode)"
+            "\n           among: ZERO, CONSTANT, COUNT, SUM, HISTOGRAM, POPULARITY"
+            "\n      NAME for DAF Mode (Distributed Aggregation Function Mode)"
+            "\n           among: ZERO, CONSTANT, COUNT, SUM, HISTOGRAM, POPULARITY"
+            "\n      NAME for VDAF Mode (Verifiable Distributed Aggregation Function) Mode)"
+            "\n           among: ZERO, CONSTANT, COUNT, SUM, HISTOGRAM, POPULARITY"
+            "\n           or with the underlying algorithm name prefixed:"
+            "\n           among: PRIO3, PRIO3-COUNT, PRIO3-SUM, PRIO3-HISTOGRAM, POPLAR1, POPLAR1-POPULARITY"
+            "\n"
+            "\n   generally the mode is intuited from the other options, but in cases where it is not obvious"
+            "\n--af                                         Force AF Mode (Aggregation Funtion), i.e. no distribution"
+            "\n--daf                                        Force DAF Mode (Distributed Aggregation Funtion), i.e. distributivity but no verifiability"
+            "\n--vdaf                                       Force VDAF Mode (Verifiable Distributed Aggregation Function)"
+            "\n--vidaf                                      Force VIDAF Mode (Verifiable Incremental Distributed Aggregation Function)"
+            "\n"
+            "\nUnimplemented:"
+            "\n--interactive-mode                           not implemented (ambiguous)"
+            "\n--programmatic-mode                          not implemented (ambiguous)"
+            "\n"
+            "\nMode-Specific Options:"
+            "\n"
+            "\nHistogram-Specific Options: (e.g. HISTOGRAM, PRIO3-HISTOGRAM)"
+            "\n--boundary-series=BOUNDARY-LIST              the boundary values; if used multiply, the last definition is used"
+            "\n    alternatives: --boundaries=BOUNDARY-LIST there can be no more than ") << MAXIMUM_BOUNDARY_COUNT << " boundary values"
+        << ("\n--boundary=BOUNDARY                          add a single boundary to the current boundary set; expected to be mused multiply"
+            "\n"
+            "\nPopularity-Specific Options: (e.g. POPULARITY, POPLAR1, etc.)"
+            "--prefix-length=LENGTH                        a bit length"
+            "\n    alternatives: --prefix=LENGTH           the value MUST be in the range 1 < PREFIX-LENGTH <= ") << MAXIMUM_PREFIX_LENGTH << " prefix values"
+        << ("\n--prefix-series=PREFIX-LIST                 a list of prefixes; if used multiply, the last definition is used"
+            "\n    alternatives: --prefix=PREFIX-LIST      there can meaningfully be ony be as many as 2^PREFIX-LENGTH samples"
+            "\n--prefix=PREFIX                             add a single prefis to the current prefix set; expected to be used multiply"
+            "\n"
+            "\nGeneral Options:"
+            "\n--usage, --help, -h                         emit this message, and exit"
+            "\n--version, -V                               emit the package version, and exit"
+            "\n--dry-run, --dryrun, -y                     dry run, do not start the server"
+            "\n--warnings, --warning, -w                   emit warnings"
+            "\n--quiet, -q                                 be quiet, emit no notices or warnings"
+            "\n--verbose, -v                               be verbose (independent of --quiet)"
+            "\n--DEBUG, -D                                 debug output (you should not need this)"); // no '\n'
+  return buf.str();
+  }
+}
+#endiv

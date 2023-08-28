@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.vdaf.Name
+#import tunitas.alambique.function.Mode
+#import tunitas.tuple.Tuple
+#import tunitas.tuple.Element
+namespace tunitas::alambique::function {
+  //
+  // Name<...> indexed by the Mode (a.k.a. keyston::Function)
+  //
+  // Reminder: this produces a type.
+  // But it is of dubious utility with Name<AF> to nominate names within that enumeration; where one must use Constant<daf::Name>
+  //
+  // Usage:
+  //
+  //   using NameAF    = Name<Mode::AF>;
+  //   using NameDAF   = Name<Mode::DAF>;
+  //   using NameVDAF  = Name<Mode::VDAF>;
+  //   using NameVIDAF = Name<Mode::VIDAF>;
+  //
+  //   auto af    = Name<Mode::AF>{};
+  //   auto daf   = Name<Mode::DAF>{};
+  //   auto vdaf  = Name<Mode::VDAF>{};
+  //   auto vidaf = Name<Mode::VIDAF>{};
+  //
+  //   auto af    = Name<Mode::AF>::ZERO;   ... won't work
+  //   auto daf   = Name<Mode::DAF>::ZERO;
+  //   auto vdaf  = Name<Mode::VDAF>::ZERO;
+  //   auto vidaf = Name<Mode::VIDAF>::ZERO;
+  //
+  namespace [[eponymous]] name {
+    using Universe = tuple::Tuple<af::Name, daf::Name, vdaf::Name>;
+    template<Mode MODE> using Name = typename tuple::Element<underlying(MODE), Universe>::type;
+  };
+  using name::Name;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::alambique::function;
+    static_assert(sizeof(Name<Mode::AF>));
+    static_assert(sizeof(Name<Mode::DAF>));
+    static_assert(sizeof(Name<Mode::VDAF>));
+    //
+    static_assert(sizeof(Name<Mode::AF>{}));
+    static_assert(sizeof(Name<Mode::DAF>{}));
+    static_assert(sizeof(Name<Mode::VDAF>{}));
+    //
+#if 0
+    static_assert(sizeof(Name<Mode::AF>::ZERO)); // this is computed as Constant<DAF::ZERO>
+#endif
+    static_assert(sizeof(Name<Mode::DAF>::ZERO));
+    static_assert(sizeof(Name<Mode::VDAF>::ZERO));
+#if 0
+    static_assert(sizeof(Name<Mode::VIDAF>));
+    static_assert(sizeof(Name<Mode::VIDAF>{}));
+    static_assert(sizeof(Name<Mode::VIDAF>::ZERO));
+#endif
+  }
+}
+#endiv

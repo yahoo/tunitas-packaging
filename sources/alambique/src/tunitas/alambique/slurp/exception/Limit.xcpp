@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::slurp::exception {
+  //
+  // The error limit during slurpage has been reached.
+  //
+  // Specification:
+  //
+  //   Yes (like a runtime_error, but also carries the limit as-breached)
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.  Nope, none at all.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Limit;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Runtime
+#import tunitas.exception.Aspect
+#import tunitas.alambique.exception.Aspect
+#import tunitas.alambique.slurp.exception.Aspect
+#import tunitas.string.View
+#import std.uint64_t
+class tunitas::alambique::slurp::exception::Limit final : public complete::Basic<partial::Runtime, slurp::exception::Aspect, alambique::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Runtime, slurp::exception::Aspect, alambique::exception::Aspect, tunitas::exception::Aspect>;
+protected:
+  std::uint64_t limit_as_breached{};
+  struct Arguments {
+    using Limit = std::uint64_t;
+    using Reason = string::View;
+  };
+public:
+  inline explicit Limit(Arguments::Limit);
+  inline explicit Limit(Arguments::Limit, Arguments::Reason);
+  inline constexpr auto limit() const noexcept -> std::uint64_t;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::alambique::slurp::exception {
+  Limit::Limit(Arguments::Limit l)
+    : Limit{l, "the error limit has been reached"}
+  { }
+  Limit::Limit(Arguments::Limit l, Arguments::Reason r)
+    : Ancestor{r}
+    , limit_as_breached{l}
+  { }
+  constexpr auto Limit::limit() const noexcept -> std::uint64_t { return limit_as_breached; }
+}
+#endiv

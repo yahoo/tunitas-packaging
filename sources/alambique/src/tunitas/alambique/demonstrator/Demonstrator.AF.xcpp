@@ -1,0 +1,80 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.demonstrator.Demonstrator.template
+namespace tunitas::alambique::demonstrator {
+  //
+  // The (single-threaded) (Centralized) Aggregation Function (AF) Demonstrator
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  //   There is no reference to the non-distributed variants of the aggregation functions.
+  //   So we "make them up" herein.
+  //
+  //   Should be obvious-by-construction (wherein aggrregation is "counting")
+  //  To wit:
+  //      
+  //    foreach specimen
+  //        count it
+  //    return the result
+  //
+  template<> struct Demonstrator<Complexity::AF>;
+}
+#endiv
+#divert <hpp>
+#import std.span
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.alambique.demonstrator.Executor.AF
+#import tunitas.alambique.demonstrator.required.iterator.Specimen
+namespace tunitas::alambique::demonstrator {
+  template<> class Demonstrator<AF> {
+  protected:
+    using Intermediate = keyston::af::Intermediate;
+    //
+    Executor<AF, Polymorphic> executor{}; // unless initialized with a name, this contains nulls and is not useful
+  public:
+    using Name = keyston::af::Name;
+    using Parameters = keyston::af::Parameters;
+    using Measurement = keyston::measurement::Specimen;
+    using Aggregation = keyston::af::Aggregation;
+    //
+    inline explicit Demonstrator(Name);
+    Demonstrator(Demonstrator const &) = delete;
+    auto operator=(Demonstrator const &) -> Demonstrator & = delete;
+    inline auto run(Parameters const &, std::span<Measurement>) -> Aggregation;
+    template<required::iterator::Specimen ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Aggregation;
+    template<required::iterator::Specimen ITERATOR> auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Aggregation;
+  };
+}
+#endiv
+#divert <ipp>
+#import std.ranges.subrange
+namespace tunitas::alambique::demonstrator {
+  Demonstrator<AF>::Demonstrator(Name name) : executor{name} { }
+  auto Demonstrator<AF>::run(Parameters const &p, std::span<Measurement> s) -> Aggregation {
+    return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
+  }
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<AF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Aggregation {
+    return run(p, std::ranges::subrange{s, f});
+  }
+}
+#endiv
+#divert <tpp>
+namespace tunitas::alambique::demonstrator {
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<AF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Aggregation {
+    auto intermediate = executor.initialization(parameters);
+    for (auto const &measurement : measurements) {
+      intermediate = executor.computation(parameters, move(intermediate), measurement);
+    }
+    return executor.finalization(parameters, intermediate);
+  }
+}
+#endiv

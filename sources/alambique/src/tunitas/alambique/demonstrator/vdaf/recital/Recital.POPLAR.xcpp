@@ -1,0 +1,20 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.demonstrator.vdaf.recital.Recital.template
+namespace tunitas::alambique::demonstrator::vdaf::recital {
+  template<typename FUNCTION, required::iterator::Specimen ITERATOR> struct Recital<POPLAR, FUNCTION, ITERATOR>;
+}
+#endiv
+#divert <hpp>
+namespace tunitas::alambique::demonstrator::vdaf::recital {
+  template<typename FUNCTION, required::iterator::Specimen ITERATOR> struct Recital<POPLAR, FUNCTION, ITERATOR> {
+    //
+    // unimplemented (obviously)
+    //
+  };
+}
+#endiv

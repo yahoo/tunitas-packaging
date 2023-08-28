@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/alambique/tree/LICENSE
+#divert <hpp>
+#import std.ostream
+#import tunitas.keyston.formatter.Formatter
+#forward tunitas.alambique.demonstrator.vdaf.inventory.Map
+#import tunitas.alambique.demonstrator.vdaf.inventory.required.Callable
+namespace tunitas::alambique::demonstrator::vdaf::inventory {
+  //
+  // The formatter
+  //
+  // Specification:
+  //
+  //   'count', 'sum', 'hitogram', 'poplar', 'doplar'
+  //
+  // Design:
+  //
+  //   All the magic happens in operator<<
+  //   ADL will find this based upon the template arguments, specifically inventory::Map<...>
+  //
+  // Usage:
+  //
+  //   cout << format(Inventory{}) << '\n';
+  //
+  template<required::Callable CALLABLE> inline auto operator<<(std::ostream &, keyston::formatter::Formatter<Map<CALLABLE>, Map<CALLABLE> const &> const &) -> std::ostream &;
+}
+#endiv
+#divert <ipp>
+#import langu.age.q
+#import tunitas.Optional
+#import tunitas.string.View
+#import tunitas.alambique.demonstrator.vdaf.inventory.Map
+namespace tunitas::alambique::demonstrator::vdaf {
+  template<inventory::required::Callable CALLABLE> auto inventory::operator<<(std::ostream &o, keyston::formatter::Formatter<Map<CALLABLE>, Map<CALLABLE> const &> const &f) -> std::ostream & {
+    for (auto comma=tunitas::Optional<tunitas::string::View>{}; auto const &item : f.captured) {
+      if (comma) {
+        o << *comma;
+      } else {
+        comma = ", "sv;
+      }
+      o << langu::age::q(item.first);
+    }
+    return o;
+  }
+}
+#endiv

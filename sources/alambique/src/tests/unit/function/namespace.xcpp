@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tests.unit
+#import tunitas.alambique.function // and namespace required
+#import tunitas.alambique.function.required.Name
+#import tunitas.required
+#import tunitas.error.by.required.Indicator
+#import tunitas.error.by
+namespace tests::unit::function {
+  namespace library = ::tunitas::alambique::function;
+  namespace required {
+    using namespace ::tunitas::required;
+    using ::tunitas::alambique::function::required::Name;
+    using ::tunitas::error::by::required::Indicator;
+  }
+  namespace [[nodirectory]] traits { }
+  namespace by = ::tunitas::error::by;
+  namespace in = ::tunitas::error;
+}
+// many fixtures will need these
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#endiv
+#divert <hpp>
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.by.Exception
+namespace tests::unit::function {
+  inline constexpr auto OPTIONAL = by::Optional{};
+  inline constexpr auto OUTCOME = by::Outcome{};
+  inline constexpr auto EXCEPTION = by::Exception{};
+}
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.vdaf.Name
+#import tunitas.alambique.function.Mode
+#import nonstd.required.Enumeration
+namespace tests::unit::function::traits {
+  template<required::Enumeration> inline constexpr auto const MODE = library::Mode{};
+  template<> inline constexpr auto const MODE<::tunitas::keyston::af::Name> = library::Mode::AF;
+  template<> inline constexpr auto const MODE<::tunitas::keyston::daf::Name> = library::Mode::DAF;
+  template<> inline constexpr auto const MODE<::tunitas::keyston::vdaf::Name> = library::Mode::VDAF;
+}
+#endiv

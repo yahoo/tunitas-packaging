@@ -1,0 +1,149 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::flow {
+  namespace package_run {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_run::interface;
+}
+#import app.exits.constants
+#import tunitas.time.literals
+#import tunitas.alambique.slurp
+#import langu.age
+namespace app::flow::package_run {
+  namespace body {
+    using namespace app::exits::constants;
+    using namespace tunitas::time::literals;
+    using namespace langu::age;
+    namespace slurp = tunitas::alambique::slurp;
+  }
+}
+#import cli.controllability.Through
+#import cli.exits.Code
+#import cli.experience.Console
+#import tunitas.alambique.demonstrator.Demonstrator
+#import tunitas.alambique.demonstrator.Traits
+#import tunitas.alambique.function.required.Name
+#import tunitas.alambique.function.traits
+#import tunitas.array.Series
+#import tunitas.entropy.Source
+#import tunitas.alambique.function.Resolved
+#import tunitas.file.Path
+#import tunitas.variant.Visitor
+#import app.flow.Configuration
+namespace app::flow::package_run {
+  using Exit = cli::exits::Code;
+  using cli::experience::Console;
+  using Order = Configuration;
+  using tunitas::alambique::function::Resolved;
+  using Filepath = tunitas::file::Path;
+  namespace body {
+    using cli::controllability::Through;
+    using Entropy = tunitas::entropy::Source;
+    using tunitas::alambique::demonstrator::Demonstrator;
+    using tunitas::array::Series;
+    using tunitas::variant::Visitor;
+    template<tunitas::alambique::function::required::Name NAME> using Named = tunitas::alambique::demonstrator::Traits<tunitas::alambique::function::traits::Mode<NAME>::VALUE>;
+  }
+}
+#endiv
+#divert <hpp>
+namespace app::flow::package_run {
+  namespace body {
+    namespace exported {
+      //
+      // Run the aggregation function on the indicated data.
+      //
+      // Design:
+      //
+      //   The Configuration is used for the specimen filepath
+      //   The Configuration is used Con
+      //
+      auto run([[inout]] Console &, Order const &, Filepath const &, Resolved) -> Exit;
+    }
+    template<typename RECORD> inline auto intake(Filepath const &) -> Series<RECORD>;
+    template<typename NAME, typename RECORD> inline auto call([[inout]] Console &, Order const &, NAME, Series<RECORD> const&) -> Exit;
+    template<typename DEMONSTRATOR, typename RECORD> inline auto subcall([[inout]] Console &, Order const &order, [[inout]] DEMONSTRATOR &, Series<RECORD> const &) -> Exit;
+  }
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.slurp.from_file
+#import std.transform
+#import std.back_inserter
+namespace app::flow::package_run {
+  template<typename RECORD> auto body::intake(Filepath const &datafile) -> Series<RECORD> {
+    auto slurped = slurp::from_file(datafile);
+    auto measured = Series<RECORD>{};
+    auto prepare_one_specimen = [](auto const &specimen) { return RECORD{specimen}; };
+    std::transform(slurped.begin(), slurped.end(), std::back_inserter(measured), prepare_one_specimen);
+    return measured;
+  }
+}
+#import std.same_as
+#import std.cout
+#import langu.age.p
+#import langu.age.q
+#import app.exception.Testing
+#import nonstd.exception.Unimplemented
+namespace app::flow::package_run {
+  template<typename DEMONSTRATOR, typename NAME, typename RECORD> auto body::call(Console &exp, Order const &order, NAME name, Series<RECORD> const &measurements) -> Exit {
+    if constexpr (std::same_as<decltype(name), tunitas::keyston::af::Name>) {
+      auto demonstrator = DEMONSTRATOR{name};
+      return subcall(exp, order, demonstrator, measurements);
+    } else {
+      auto source = Entropy{};
+      auto demonstrator = DEMONSTRATOR{source, name};
+      return subcall(exp, order, demonstrator, measurements);
+    }
+  }
+  template<typename DEMONSTRATOR, typename RECORD> auto body::subcall(Console &exp, Order const &order, DEMONSTRATOR &demonstrator, Series<RECORD> const &measurements) -> Exit try {
+    auto parameters = typename DEMONSTRATOR::Parameters{}; // there are "none" so we can reasonably choose them this way (i.e. no parameters, "yes we have no parameters")
+#if 0
+    if (DEMONSTRATOR::Name::HISTOGRAM == demonstrator.name) {
+      parameters.boundaries = order.histogram_boundaries;
+    } else if (DEMONSTRATOR::Name::POPULARITY == demonstrator.name) {
+      parameters.prefix_length = order.popularity_prefix_length;;
+      parameters.prefixes = order.popularity_prefixes;
+    }
+#else
+    // [[TODO]] particularize this so that only the parameters that are appliable to the executable algorithm are copied over
+    // [[TODO]] histogram requires only boundaries
+    // [[TODO]] popularity requires prefixes)
+    parameters.constant = order.constant;
+    parameters.boundaries = order.histogram_boundaries;
+    parameters.prefix_length = order.popularity_prefix_length;;
+    parameters.prefixes = order.popularity_prefixes;
+#endif
+    //
+    if (testing(order) <= Through::SETUP) { throw exception::Testing{exp}; }
+    auto ran = demonstrator.run(parameters, measurements.begin(), measurements.end());
+    std::cout << format(ran) << '\n'; // ADL must find format(...) in the namespaces for af, daf, vdaf, vidaf
+    return OK;
+  } catch (tunitas::exception::feature::Invariant const &e) {
+    error(exp) << "the algorithm has failed because " << q(e.what()) << '\n';
+    return ALGORITHM;
+  } catch (nonstd::exception::Unimplemented const &e) {
+    error(exp) << "the algorithm is not implemented " << p(e.what()) << '\n';
+    return UNIMPLEMENTED;
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.variant.visit
+namespace app::flow::package_run {
+  auto interface::run(Console &exp, Order const &order, Filepath const &measurement_data_filepath, Resolved resolved) -> Exit {
+    auto visitor = Visitor{[&](auto name) {
+      using Named = body::Named<decltype(name)>;
+      auto const specimens = intake<typename Named::Measurement>(measurement_data_filepath);
+      return call<typename Named::Demonstrator>(exp, order, name, specimens);
+    }};
+    return visit(visitor, resolved);
+  }
+}
+#endiv

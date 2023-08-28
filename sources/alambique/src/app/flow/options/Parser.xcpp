@@ -1,0 +1,291 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import cli.exits.constants
+#import cli.experience.Console
+#import cli.options.dualie
+#import langu.age
+#import tunitas.error
+namespace app::flow::options {
+  //
+  // The options parser.
+  //
+  // Specification:
+  //
+  //   Whatever the usage says.
+  //   Accepts a c::Argv
+  //   Reorders the Argv according to the machinations within getopt(3).
+  //
+  // Design:
+  //
+  //   Yes.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Parser) < lifetime(cfg)
+  //   lifetime(Parser) < lifetime(spec)
+  //
+  //   The lifetime of the Configuration (cfg) must be longer than the Parser.
+  //   The lifetime of the Specification (spec) must be longer than the Parser.
+  //
+  // Usage:
+  //
+  //   auto spec = Specification{};
+  //   auto parser = Parser{cfg, spec};
+  //   auto parsed = parser.parse(args);
+  //   if (ok(parsed)) {
+  //     ...etc...
+  //   }
+  //
+  namespace [[eponymous]] parser {
+    class Parser;
+    using namespace cli::exits::constants;
+    using namespace langu::age;
+    using cli::experience::Console;
+    namespace dualie = cli::options::dualie;
+    namespace error = tunitas::error;
+  }
+  using parser::Parser;
+}
+#endiv
+#divert <hpp>
+#import app.flow.Configuration
+#import app.flow.options.Specification
+#import cli.experience.Console
+#import tunitas.alambique.function.Estimates
+#import tunitas.application.options.Args
+#import tunitas.application.options.get.filepath
+#import tunitas.error.by.Optional
+namespace app::flow::options {
+  namespace parser {
+    // any?
+  }
+  struct parser::Parser {
+    inline explicit Parser([[inout]] Console &, Specification const &);
+    // disallow temporaries in places where the lifetimes matter
+    inline Parser(Specification &&) = delete;
+    struct Result;
+    auto parse([[inout]] Configuration &, [[inout]] Args &) -> Result;
+  protected:
+    Console &exp;
+    Specification const &specification;
+    inline static constexpr auto OPTIONAL = tunitas::error::by::Optional{};
+    using Estimates = tunitas::alambique::function::Estimates;
+    auto infer_aggregation_function_mode([[inout]] Configuration &, Estimates const &) -> void;
+    auto infer_aggregation_function_names([[inout]] Configuration &, Estimates const &) -> void;
+  };
+}
+#import app.flow.options.Parser.Result
+#endiv
+#divert <ipp>
+#import app.flow.options.Specification
+namespace app::flow::options::parser {
+  Parser::Parser(Console &exp, Specification const &specification)
+    : exp{exp}
+    , specification{specification}
+  { }
+}
+#endiv
+#divert <cpp>
+#import app.exception.Quitting
+#import app.exception.quitting.Programmatic
+#import app.exception.Version
+#import app.flow.exception.Usage
+#import app.flow.options.indicator.constants
+#import app.flow.options.get.aggregation_function_mode
+#import app.flow.options.get.aggregation_function_name
+#import app.flow.options.get.bit_length
+#import app.flow.options.get.specimen_single
+#import app.flow.options.get.specimen_series
+#import app.flow.options.inference
+#import tunitas.keyston.measurement.Boundaries
+#import tunitas.alambique.function.resolve
+#import tunitas.alambique.function.assess
+#import cli.options.dualie.Getter
+#import langu.age.q
+namespace app::flow::options::parser {
+  auto Parser::parse(Configuration &cfg, Args &args) -> Result {
+    constexpr auto const boundaries_limit = tunitas::keyston::measurement::Boundaries{}.size();
+    auto boundaries_end{0uz};
+    auto error_when_too_many_boundary_specimens = [this](tunitas::Optional<std::size_t> offending_count) {
+      if (offending_count) {
+        notice(exp) << *offending_count << " boundary values have been provided\n";
+      }
+      erratum(exp) << "no more than " << boundaries_limit << " boundary values may be provided\n";
+      throw exception::Quitting{exp, CONFIGURATION};
+    };
+    auto getter = dualie::Getter{specification.shortish(), specification.longish(), args};
+    for (auto step=getter(); more(step); step=getter()) {
+      namespace oi = indicator;
+      switch (code(step)) {
+      case oi::CHR_D:
+      case oi::DEBUG_MODE:
+        cfg.debug_mode = true;
+        break;
+      case oi::OLD_DEBUG_MODE:
+        warning(exp) << "instead prefer " << q("--DEBUG"sv) << " (upper case)\n";
+        cfg.debug_mode = true;
+        break;
+      case oi::CHR_h:
+      case oi::USAGE_SUBCOMMAND:
+        throw exception::Usage{exp, OK};
+      case oi::CHR_i:
+      case oi::INTERACTIVE_MODE:
+        cfg.interactive_mode = true;
+        break;
+      case oi::CHR_p:
+      case oi::PROGRAMMATIC_MODE:
+        cfg.programmatic_mode = true;
+        break;
+      case oi::CHR_q:
+      case oi::QUIET_MODE:
+        cfg.quiet_mode = true;
+        break;
+      case oi::CHR_v:
+      case oi::VERBOSE_MODE:
+        cfg.verbose_mode = true;
+        break;
+      case oi::CHR_w:
+      case oi::WARNINGS_MODE:
+        cfg.warning_mode = true;
+        break;
+      case oi::CHR_V:
+      case oi::VERSION_SUBCOMMAND:
+        throw exception::Version{exp};
+      case oi::CHR_y:
+      case oi::DRYRUN_MODE:
+        cfg.dry_run_mode = true;
+        break;
+      {
+        using tunitas::alambique::function::Mode;
+        case oi::USE_AF_MODE:
+          cfg.aggregation_function_mode = Mode::AF;
+          break;
+        case oi::USE_DAF_MODE:
+          cfg.aggregation_function_mode = Mode::DAF;
+          break;
+        case oi::USE_VDAF_MODE:
+          cfg.aggregation_function_mode = Mode::VDAF;
+          break;
+        case oi::USE_VIDAF_MODE:
+          warning(exp) << "the " << q(word(step)) << " option is unimplemented\n";
+          cfg.aggregation_function_mode = Mode::VIDAF;
+          break;
+        case oi::CHR_f:
+        case oi::MEASUREMENT_DATA_FILEPATH:
+          cfg.measurement_data_filepath = get::filepath<exception::quitting::Programmatic>(exp, step, "measurement-data-filepath"s);
+          break;
+        case oi::CHR_m:
+        case oi::AGGREGATION_FUNCTION_MODE:
+          cfg.aggregation_function_mode = get::aggregation_function_mode<exception::quitting::Programmatic>(exp, step, "aggregation-function-mode"s);
+          break;
+        case oi::CHR_n:
+        case oi::AGGREGATION_FUNCTION_NAME:
+          {
+            auto names = get::aggregation_function_name<exception::quitting::Programmatic>(exp, step, "aggregation-function-name"s);
+            cfg.aggregation_function_names = names;
+            infer_aggregation_function_mode(cfg, names);
+          }
+          break;
+      }
+      case oi::PREFIX_LENGTH:
+        cfg.popularity_prefix_length = get::bit_length<exception::quitting::Programmatic>(exp, step, "prefix-length"s);
+        infer_aggregation_function_names(cfg, inference::POPULARITY);
+        break;
+      case oi::PREFIXES_SINGLE:
+        {
+          auto prefix = get::specimen_single<exception::quitting::Programmatic>(exp, step, "prefix-value"s);
+          if (!cfg.popularity_prefixes) {
+            cfg.popularity_prefixes.emplace();
+          }
+          // prefixes can never overflow
+          cfg.popularity_prefixes->push_back(prefix);
+          infer_aggregation_function_names(cfg, inference::POPULARITY);
+        }
+        break;
+      case oi::PREFIXES_SERIES:
+        {
+          auto prefixes = get::specimen_series<exception::quitting::Programmatic>(exp, step, "prefix-series"s);
+          // prefixes can never overflow
+          cfg.popularity_prefixes = move(prefixes);
+          infer_aggregation_function_names(cfg, inference::POPULARITY);
+        }
+        break;
+      case oi::BOUNDARIES_SINGLE:
+        {
+          auto boundary = get::specimen_single<exception::quitting::Programmatic>(exp, step, "boundary-value"s);
+          if (!cfg.histogram_boundaries) {
+            cfg.histogram_boundaries.emplace();
+          }
+          if (boundaries_end == boundaries_limit) {
+            error_when_too_many_boundary_specimens({}); // we can't say how many have or will be provided (there may be more)
+          } else {
+            cfg.histogram_boundaries->at(boundaries_end++) = boundary;
+            infer_aggregation_function_names(cfg, inference::HISTOGRAM);
+          }
+        }
+        break;
+      case oi::BOUNDARIES_SERIES:
+        {
+          auto boundaries = get::specimen_series<exception::quitting::Programmatic>(exp, step, "boundary-series"s);
+          if (auto boundaries_count=boundaries.size(); boundaries_count > boundaries_limit) {
+            error_when_too_many_boundary_specimens(boundaries_count);
+          } else {
+            cfg.histogram_boundaries = tunitas::keyston::measurement::Boundaries::extend(error::by::Exception{}, boundaries);
+            infer_aggregation_function_names(cfg, inference::HISTOGRAM);
+          }
+        }
+        break;
+      case oi::MISSING:
+        erratum(exp) << "missing value for " << word_in_error(step) << '\n';
+        throw exception::Quitting{exp, USAGE};
+        // (otherwise) return USAGE;
+      case oi::UNKNOWN:
+        erratum(exp) << "unknown option " << word_in_error(step) << '\n';
+        throw exception::Quitting{exp, USAGE};
+        // (otherwise) return USAGE;
+      default:
+        // This is a programmer error (reasonably it is a logic_error) because some option from the argv line wasn't configured.
+        // It is also substantially untestable in a correctly configured system.
+        erratum(exp) << "unconfigured option '" << char(code(step)) << "'\n";
+        throw exception::Quitting{exp, SOFTWARE};
+      }
+    }
+    if (getter.size()) {
+      erratum(exp) << "there may not be any words after the options\n";
+      throw exception::Quitting{exp, USAGE};
+    } else {
+      return {getter.begin(), getter.end()};
+    }
+  }
+  auto Parser::infer_aggregation_function_mode(Configuration &cfg, Estimates const &names) -> void {
+    // Because we're inferring something here, we warn and error if the inference contradicts previous work.
+    if (auto resolved=resolve(OPTIONAL, names); resolved) {
+      auto proposed = *resolved;
+      auto assessed = assess(OPTIONAL, names).value();
+      if (!cfg.aggregation_function_mode) {
+        cfg.aggregation_function_mode = assessed;
+      } else if (auto previously=*cfg.aggregation_function_mode; previously != assessed) {
+        auto qx = [](auto const &item) { return q(to_string(tunitas::error::by::Exception{}, item)); };
+        notice(exp) << "the aggregation-function-mode was already established as " << qx(previously) << '\n';
+        erratum(exp) << "the function-aggregation-modes are conflicting: " << qx(previously) << " and " << qx(proposed) << '\n';
+        throw exception::Quitting{exp, CONFIGURATION};
+      }
+    }
+  }
+  auto Parser::infer_aggregation_function_names(Configuration &cfg, Estimates const &proposed) -> void {
+    // Because we're inferring something here, we warn and error if the inference contradicts previous work.
+    if (!cfg.aggregation_function_names) {
+      cfg.aggregation_function_names = proposed;
+    } else if (auto previously=*cfg.aggregation_function_names; previously != proposed) {
+      auto qx = [](auto const &item) { return q(to_string(tunitas::error::by::Exception{}, item)); };
+      notice(exp) << "the aggregation-function-name was already established as " << qx(previously) << '\n';
+      erratum(exp) << "the function-aggregation-names are conflicting: " << qx(previously) << " and " << qx(proposed) << '\n';
+      throw exception::Quitting{exp, CONFIGURATION};
+    }
+  }
+}
+#endiv

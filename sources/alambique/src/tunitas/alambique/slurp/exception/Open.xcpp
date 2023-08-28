@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::exception {
+  //
+  // A failure to open a file has occured
+  //
+  // Specification:
+  //
+  //   Yes (yes there's a specification; it rhymes with nonstd::exception::Files, and within that std::filesystem::filesystem_error)
+  //
+  // Design:
+  //
+  //   More than a type alias.
+  //   There is just the one file.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Open;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.Files
+#import tunitas.exception.Aspect
+#import tunitas.alambique.exception.Aspect
+#import tunitas.alambique.slurp.exception.Aspect
+class tunitas::alambique::exception::Open final : public complete::Basic<partial::Files, slurp::exception::Aspect, alambique::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::Files, slurp::exception::Aspect, alambique::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  using Ancestor::Basic; // sloppy.  We just care about that one file.  Hardcode for that.
+};
+#endiv

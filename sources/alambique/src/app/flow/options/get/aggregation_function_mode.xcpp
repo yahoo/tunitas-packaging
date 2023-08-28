@@ -1,0 +1,96 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-basics/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/basics/tree/LICENSE
+#divert <fpp>
+namespace app::flow::options::get {
+  namespace package_aggregation_function_mode {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_aggregation_function_mode::interface;
+}
+#import cli.experience.Console
+#import tunitas.alambique.function.Mode
+namespace app::flow::options::get::package_aggregation_function_mode {
+  using namespace package_get;
+  static_assert(sizeof (Whence), "already visible");
+  static_assert(sizeof (Step), "already visible");
+  static_assert(sizeof (Field), "already visible");
+  static_assert(!required::exception::Quitting<int>, "already visible");
+  using tunitas::alambique::function::Mode;
+  using cli::experience::Console;
+  namespace body {
+    using namespace package_get::body;
+  }
+}
+#endiv
+#divert <hpp>
+namespace app::flow::options::get::package_aggregation_function_mode::body {
+  namespace exported {
+    //
+    // Acquire an aggregation_function_mode from the longish Step
+    //
+    // The aggregation_function_mode is returned, not an outcome.
+    // The word is recovered, the word is checked against the dictionary.
+    // On success, the value is returned.
+    // On failure to resolve the  mode, then the exception is thrown.
+    //
+    // Scheme:
+    //
+    //   --aggregation-function-mode=MODE for MODE in { AF, DAF, VDAF, VIDAF }
+    //   --af
+    //   --daf
+    //   --vdaf
+    //   --vidaf
+    //
+    // Example:
+    //
+    //   figure it out (from the Scheme section, above)
+    //
+    // Usage:
+    //
+    //   auto exp = Console{...somehow...}
+    //   auto step = cli::options::longish::Step{...somehow...};
+    //   using Quitting = exception::Quitting;
+    //
+    //   Mode aggregation_function_mode = get::aggregation_function_mode<Quitting>(cfg, step);
+    //
+    // ease of export (see the parent scope)
+    template<required::exception::Quitting QUITTING> inline auto get_aggregation_function_mode(Console &, Step const &) -> Mode;
+    template<required::exception::Quitting QUITTING> inline auto get_aggregation_function_mode(Console &, Step const &, Field) -> Mode;
+    // by naming convention
+    template<required::exception::Quitting QUITTING> inline auto aggregation_function_mode(Console &, Step const &) -> Mode;
+    template<required::exception::Quitting QUITTING> auto aggregation_function_mode(Console &, Step const &, Field) -> Mode;
+  }
+}
+#endiv
+#divert <ipp>
+namespace app::flow::options::get::package_aggregation_function_mode {
+  template<required::exception::Quitting QUITTING> auto interface::get_aggregation_function_mode(Console &exp, Step const &step) -> Mode              { return aggregation_function_mode<QUITTING>(exp, step); }
+  template<required::exception::Quitting QUITTING> auto interface::get_aggregation_function_mode(Console &exp, Step const &step, Field field) -> Mode { return aggregation_function_mode<QUITTING>(exp, step, field); }
+  template<required::exception::Quitting QUITTING> auto interface::aggregation_function_mode(Console &exp, Step const &step) -> Mode                  { return aggregation_function_mode<QUITTING>(exp, step, "aggregation-function-mode"); }
+}
+#endiv
+#divert <tpp>
+#import tunitas.application.options.get.word
+#import std.quoted
+namespace app::flow::options::get::package_aggregation_function_mode {
+  template<required::exception::Quitting QUITTING> auto interface::aggregation_function_mode(Console &exp, Step const &step, Field field) -> Mode {
+    string::Storage candidate = word<QUITTING>(exp, step, field);
+    if (among(candidate, "af"sv)) {
+      return Mode::AF;
+    } else if (among(candidate, "daf"sv)) {
+      return Mode::DAF;
+    } else if (among(candidate, "vdaf"sv)) {
+      return Mode::VDAF;
+    } else if (among(candidate, "vidaf"sv)) {
+      return Mode::VIDAF;
+    } else {
+      error(exp) << "the value " << std::quoted(candidate, '\'') << " is is not a valid " << field << "\n";
+      throw QUITTING{Whence{exp}.name(), CONFIG};
+    }
+  }
+}
+#endiv

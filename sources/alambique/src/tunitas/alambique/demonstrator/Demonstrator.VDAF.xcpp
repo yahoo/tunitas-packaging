@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.demonstrator.Demonstrator.template
+namespace tunitas::alambique::demonstrator {
+  //
+  // The (single-threaded) Verified Distributed Aggregation Function (DAF) Demonstrator
+  //
+  // Specification:
+  //
+  //   I-D.irtf-cfrg-vdaf
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  // Design:
+  //
+  //   The secret is filled in after construction.
+  //
+  // Usage
+  //
+  //   The usual.
+  //
+  template<> struct Demonstrator<VDAF>;
+}
+#endiv
+#divert <hpp>
+#import std.span
+#import tunitas.units.Bits
+#import tunitas.entropy.Source
+#import tunitas.keyston.Slice
+#import tunitas.keyston.vdaf.Secret
+#import tunitas.keyston.vdaf.Parameters
+#import tunitas.keyston.vdaf.Input
+#import tunitas.keyston.vdaf.Public
+#import tunitas.keyston.vdaf.Output
+#import tunitas.keyston.vdaf.constants
+#import tunitas.alambique.demonstrator.required.iterator.Specimen
+#import tunitas.alambique.demonstrator.vdaf.Whole
+namespace tunitas::alambique::demonstrator {
+  template<> struct Demonstrator<VDAF> {
+    using Entropy = entropy::Source;
+    using Name = keyston::vdaf::Name;
+    inline explicit Demonstrator(Entropy &, Name);
+    Demonstrator(Demonstrator const &) = delete;
+    auto operator=(Demonstrator const &) -> Demonstrator & = delete;
+  protected:
+    struct Constants {
+      inline static constexpr auto RANDOM_SIZE = units::Bits{128uz};
+      inline static constexpr auto NONCE_SIZE = units::Bits{32uz};
+    };
+    using enum keyston::Slice;
+    //
+    tunitas::entropy::Source &source;
+    Name name{};
+  public:
+    using Secret = keyston::vdaf::Secret;
+    Secret::Storage secret{};
+    using Parameters = keyston::vdaf::Parameters;
+    using Whole = vdaf::Whole;
+    //
+    inline auto run(Parameters const &, std::span<Whole::Measurement>) -> Whole::Aggregation;
+    template<required::iterator::Specimen ITERATOR> inline auto run(Parameters const &, ITERATOR start, ITERATOR finish) -> Whole::Aggregation;
+    template<required::iterator::Specimen ITERATOR> inline auto run(Parameters const &, std::ranges::subrange<ITERATOR, ITERATOR>) -> Whole::Aggregation;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.demonstrator.Executor.VDAF
+namespace tunitas::alambique::demonstrator {
+  Demonstrator<VDAF>::Demonstrator(Entropy &source, Name name)
+    : source{source}
+    , name{name}
+  { }
+  auto Demonstrator<VDAF>::run(Parameters const &p, std::span<Whole::Measurement> s) -> Whole::Aggregation {
+    return run(p, std::ranges::subrange{s.data(), s.data()+s.size()});
+  }
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &p, ITERATOR s, ITERATOR f) -> Whole::Aggregation {
+    return run(p, std::ranges::subrange{s, f});
+  }
+  template<required::iterator::Specimen ITERATOR> auto Demonstrator<VDAF>::run(Parameters const &parameters, std::ranges::subrange<ITERATOR, ITERATOR> measurements) -> Whole::Aggregation {
+    return Executor<VDAF, ITERATOR>{name}.run(parameters, secret, source, measurements);
+  }
+}
+#endiv

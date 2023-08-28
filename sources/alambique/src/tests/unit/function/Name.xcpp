@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.function.required.Name
+namespace tests::unit::function {
+  template<required::Name SUBJECT> class Name;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.function.To_String
+namespace tests::unit {
+  template<function::required::Name SUBJECT> struct function::Name : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::function {
+  template<required::Name _> auto Name<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << add("constructor", &Name::test_constructor)
+           << add<To_String<by::Optional, Subject>>()
+           << add<To_String<by::Outcome, Subject>>()
+           << add<To_String<by::Exception, Subject>>()
+           << END;
+    return settle(series);
+  }
+  template<required::Name _> auto Name<_>::test_constructor() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+}
+#endiv

@@ -1,0 +1,103 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-basics/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/basics/tree/LICENSE
+#divert <fpp>
+namespace app::flow::options::get {
+  namespace package_specimen_series {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_specimen_series::interface;
+}
+namespace app::flow::options::get::package_specimen_series {
+  using namespace package_get;
+  namespace body {
+    using namespace package_get::body;
+  }
+}
+#import cli.experience.Console
+#import tunitas.array.Variable
+#import tunitas.keyston.measurement.Specimen
+#import langu.ish.perl.split
+namespace app::flow::options::get::package_specimen_series {
+  static_assert(sizeof (Whence), "already visible");
+  static_assert(sizeof (Step), "already visible");
+  static_assert(sizeof (Field), "already visible");
+  static_assert(!required::exception::Quitting<int>, "already visible");
+  using tunitas::keyston::measurement::Specimen;
+  using tunitas::array::Variable;
+  using cli::experience::Console;
+  namespace body {
+    using langu::ish::perl::Elide;
+  }
+}
+#endiv
+#divert <hpp>
+#import nonstd.to_integer
+namespace app::flow::options::get::package_specimen_series::body {
+  namespace exported {
+    //
+    // Acquire a sreies of specimens (something something unsigned integer) from the longish Step
+    //
+    // Scheme:
+    //
+    //   --prefix-series=VALUE,VALUE,VALUE,VALUE,VALUE,VALUE,VALUE...etc...
+    //
+    // Constraints:
+    //
+    //   This is luser input so it must be checked thoroughly
+    //   Each value cannot be negative or too big.
+    //   The length limits on the series are handled by the caller; an arbitrary number of samples are recovered here.
+    //
+    // Design (implementation details)
+    //
+    //   The use of Whence{exp}.name() occurs because some quitting exceptions obey the older interface; and some obey the newer interface.
+    //   See Whence for details on the differences between the two interfaces.
+    //
+    //   Throws with the first error in the series (there may be many more errors to report)
+    //
+    // Usage:
+    //
+    //   auto exp = Console{...somehow...}
+    //   auto step = cli::options::longish::Step{...somehow...};
+    //
+    //   Variable<Specimen> specimen = get::specimen_series<Quitting>(exp, step);
+    //
+    template<required::exception::Quitting QUITTING> inline auto get_specimen_series(Console &, Step const &) -> Variable<Specimen>;
+    template<required::exception::Quitting QUITTING> inline auto get_specimen_series(Console &, Step const &, Field) -> Variable<Specimen>;
+    //
+    template<required::exception::Quitting QUITTING> inline auto specimen_series(Console &, Step const &) -> Variable<Specimen>;
+    template<required::exception::Quitting QUITTING> auto specimen_series(Console &, Step const &, Field) -> Variable<Specimen>;
+  }
+  using nonstd::to_integer;
+}
+#endiv
+#divert <ipp>
+namespace app::flow::options::get::package_specimen_series {
+  template<required::exception::Quitting QUITTING> auto interface::get_specimen_series(Console &exp, Step const &step) -> Specimen              { return specimen_series<QUITTING>(exp, step); }
+  template<required::exception::Quitting QUITTING> auto interface::get_specimen_series(Console &exp, Step const &step, Field field) -> Specimen { return specimen_series<QUITTING>(exp, step, field); }
+  template<required::exception::Quitting QUITTING> auto interface::specimen_series(Console &exp, Step const &step) -> Variable<Specimen>        { return specimen_series<QUITTING>(exp, step, "specimen-length"); }
+}
+#endiv
+#divert <tpp>
+#import tunitas.application.options.get.word
+#import std.quoted
+namespace app::flow::options::get::package_specimen_series {
+  template<required::exception::Quitting QUITTING> auto interface::specimen_series(Console &exp, Step const &step, Field field) -> Variable<Specimen> {
+    string::Storage candidate = word<QUITTING>(exp, step, field);
+    auto splat = split<Variable<string::Storage>>(',', candidate, Elide{});
+    auto ret = Variable<Specimen>{};
+    for (auto each : splat) {
+      if (auto got=to_integer<std::underlying_type_t<Specimen>>(each); fail(got)) {
+        error(exp) << "the value " << std::quoted(candidate, '\'') << " is is not a valid " << field << " because " << error_code(got).message() << "\n";
+        throw QUITTING{Whence{exp}.name(), CONFIGURATION};
+      } else {
+        ret.push_back(Specimen{value(got)});
+      }
+    }
+    return ret;
+  }
+}
+#endiv

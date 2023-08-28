@@ -1,0 +1,13 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+app_exception_quitting_SUBSOURCES = \
+  noinst/obj/src/app/exception/Quitting.cpp \
+  noinst/obj/src/app/exception/quitting/namespace.cpp \
+  noinst/obj/src/app/exception/quitting/Programmatic.cpp \
+  noinst/obj/src/app/exception/quitting/Quitting.cpp \
+  noinst/obj/src/app/exception/quitting/Generic.cpp \
+  $(end)

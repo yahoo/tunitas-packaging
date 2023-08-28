@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique
+namespace tests::unit::alambique {
+  namespace [[eponymous]] fixture {
+    class Fixture;
+    namespace library = ::tunitas::alambique;
+  }
+  using fixture::Fixture;
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.Demonstrator // and library::Function
+struct tests::unit::alambique::fixture::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  template<library::Complexity> auto test_usage_Demonstrator() -> void;
+};
+#endiv
+#divert <tpp>
+#import tunitas.entropy.Source
+namespace tests::unit::alambique::fixture {
+  template<library::Complexity FUNCTION> auto Fixture::test_usage_Demonstrator() -> void {
+    using Subject = library::Demonstrator<FUNCTION>;
+    if constexpr (library::Complexity::AF == FUNCTION) {
+      auto subject = Subject{{}}; // no entropy needed for the AF case
+      require(ASSERTION, sizeof(subject));
+    } else {
+      auto source = ::tunitas::entropy::Source{};
+      auto subject = Subject{source, {}};
+      require(ASSERTION, sizeof(subject));
+    }
+  }
+}
+#endiv
+#divert <cpp>
+auto tests::unit::alambique::fixture::Fixture::suite() -> Suite {
+  auto series = Stream{"alambique"sv};
+  series << []{
+            auto use = Stream{"usage"sv};
+            use << []{
+                    auto dem = Stream{"Demonstrator"sv};
+                    dem << add("AF", &Fixture::test_usage_Demonstrator<library::Complexity::AF>)
+                        << add("DAF", &Fixture::test_usage_Demonstrator<library::Complexity::DAF>)
+                        << add("VDAF", &Fixture::test_usage_Demonstrator<library::Complexity::VDAF>)
+#if 0
+                        << add("VIDAF", &Fixture::test_usage_Demonstrator<library::Complexity::VIDAF>)
+#endif
+                        << END;
+                    return dem;
+                  }()
+                << END;
+            return use;
+          }()
+         << END;
+  return settle(series);
+}
+#endiv

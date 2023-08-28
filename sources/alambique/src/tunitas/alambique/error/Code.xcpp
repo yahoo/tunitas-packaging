@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.error.code.Package
+#import tunitas.alambique.error.code.Unpackaged
+namespace tunitas::alambique::error {
+  //
+  // Like std::error_code, but bundles in the companion enumeration
+  //
+  // Usage:
+  //
+  //   ...just like std::error_code...
+  //
+  using Code = tunitas::error::code::Package<code::Unpackaged>;
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::alambique::error;
+    static_assert(sizeof (Code::SUCCESS));
+    static_assert(sizeof (Code::FAILURE));
+  }
+}
+#endiv

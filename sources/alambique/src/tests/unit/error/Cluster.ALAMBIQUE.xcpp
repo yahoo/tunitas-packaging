@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tests.unit.error.Cluster.template
+namespace tests::unit::error::cluster {
+  template<> struct Cluster<ALAMBIQUE>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.error.Code
+#import tunitas.alambique.error.Condition
+#import tunitas.alambique.error.Category
+#import tunitas.alambique.error.category
+namespace tests::unit::error::cluster {
+  template<> struct Cluster<ALAMBIQUE> {
+    using Code = ::tunitas::alambique::error::Code;
+    using Condition = ::tunitas::alambique::error::Condition;
+    using Category = ::tunitas::alambique::error::Category;
+    inline static auto category() -> Category const & { return ::tunitas::alambique::error::category(); }
+  };
+}
+#endiv

@@ -1,0 +1,68 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.function.Mode
+namespace tests::unit::function {
+  //
+  // The palette of values for testing Name<...>
+  // Specializations only
+  //
+  // Usage:
+  //
+  //   By inheritance in (one of the) the usual style(s) of the Palette idiom (uh, "pattern").
+  //
+  namespace [[epoonymous]] palette {
+    using enum library::Mode;
+    template<library::Mode> struct Palette;
+    template<> struct Palette<AF>;
+    template<> struct Palette<DAF>;
+    template<> struct Palette<VDAF>;
+#if 0 // not yet, but soon
+    template<> struct Palette<VIDAF>;
+#endif
+  }
+  using palette::Palette;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.vdaf.Name
+namespace tests::unit::function::palette {
+#if 0 // soon, but not yet
+  template<> struct Palette<VIDAF> {
+    using Name = ::tunitas::keyston::vidaf::Name;
+    using Optional = in::Optional<Name>;
+    inline static constexpr auto GOOD = Name::ZERO; // any "good" one will do
+    inline static constexpr auto FAIL = Name{999'999'999u};
+    inline constexpr auto literal() -> string::View { return "ZERO"sv; }
+  };
+#endif
+  template<> struct Palette<VDAF> {
+    using Name = ::tunitas::keyston::vdaf::Name;
+    using Optional = in::Optional<Name>;
+    inline static constexpr auto GOOD = Name::ZERO; // eadem ratione
+    inline static constexpr auto FAIL = Name{999'999'999u};
+    inline constexpr auto literal() -> string::View { return "ZERO"sv; }
+  };
+  template<> struct Palette<DAF> {
+    using Name = ::tunitas::keyston::daf::Name;
+    using Optional = in::Optional<Name>;
+    inline static constexpr auto GOOD = Name::ZERO; // eadem ratione
+    inline static constexpr auto FAIL = Name{999'999'999u};
+    inline constexpr auto literal() -> string::View { return "ZERO"sv; }
+  };
+  template<> class Palette<AF> {
+    using DAFFY = Palette<DAF>;
+  public:
+    using Name = ::tunitas::keyston::af::Name;
+    using Optional = in::Optional<Name>;
+    inline static constexpr auto GOOD = ::tunitas::keyston::af::Constant<DAFFY::GOOD>; // eadem ratione
+    inline static constexpr auto FAIL = ::tunitas::keyston::af::Constant<DAFFY::FAIL>;
+    inline constexpr auto literal() -> string::View { return "ZERO"sv; }
+  };
+}
+#endiv

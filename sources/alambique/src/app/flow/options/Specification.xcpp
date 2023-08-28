@@ -1,0 +1,101 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import cli.options.argument.constants
+#import app.flow.options.indicator.constants
+namespace app::flow::options {
+  //
+  // The options specification
+  //
+  // Usage:
+  //x
+  //   Specification const spec{};
+  //   Parser parser{spec};
+  //   ...etc...
+  //
+  namespace [[eponymous]] specification {
+    namespace oa = cli::options::argument;
+    namespace oi = app::flow::options::indicator;
+    class Specification;
+  }
+  using specification::Specification;
+}
+#endiv
+#divert <hpp>
+#import tunitas.application.options.Specification
+class app::flow::options::Specification : public tunitas::application::options::Specification {
+  using Ancestor = tunitas::application::options::Specification;
+public:
+  Specification();
+};
+#endiv
+#divert <cpp>
+app::flow::options::Specification::Specification()
+  //
+  // To enable oi::MISSING processing, from getopt(3):
+  // <quote>
+  //   If the first character following any optional '+' or '-' described above (sic) of optstring is a colon (':'), 
+  //       then getopt() likewise does not print an error message.
+  //   In addition, it returns ':' instead of '?' to indicate a missing option argument.
+  //   This allows the caller to distinguish the two different types of errors.
+  // </quote>
+  //
+  //          /--------------- that one
+  //          |
+  //          v
+  : Ancestor{":hVDqvwyipf:m:n:",
+             {{"interactive", oa::NO, oi::INTERACTIVE_MODE},
+              {"program", oa::NO, oi::PROGRAMMATIC_MODE},
+              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE},
+              //
+              {"af", oa::NO, oi::USE_AF_MODE},
+              {"daf", oa::NO, oi::USE_DAF_MODE},
+              {"vdaf", oa::NO, oi::USE_VDAF_MODE},
+              {"vidaf", oa::NO, oi::USE_VIDAF_MODE},
+              // -f FILEPATH (f:)
+              {"measurements", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              {"measurement-data", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              {"measurement-data-filepath", oa::REQUIRED, oi::MEASUREMENT_DATA_FILEPATH},
+              // -m MODE (m:)
+              {"mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              {"function-mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              {"aggregation-mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              {"aggregation-function-mode", oa::REQUIRED, oi::AGGREGATION_FUNCTION_MODE},
+              // -n NAME (n:)
+              {"name", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"func", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"function", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"function-name", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregate", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregation", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregation-function", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              {"aggregation-function-name", oa::REQUIRED, oi::AGGREGATION_FUNCTION_NAME},
+              //
+              {"prefix-length", oa::REQUIRED, oi::PREFIX_LENGTH},
+              {"prefix",        oa::REQUIRED, oi::PREFIXES_SINGLE},
+              {"prefix-value",  oa::REQUIRED, oi::PREFIXES_SINGLE},
+              {"prefixes",      oa::REQUIRED, oi::PREFIXES_SERIES},
+              {"prefix-series", oa::REQUIRED, oi::PREFIXES_SERIES},
+              //
+              {"boundary",        oa::REQUIRED, oi::BOUNDARIES_SINGLE},
+              {"boundary-value",  oa::REQUIRED, oi::BOUNDARIES_SINGLE},
+              {"boundaries",      oa::REQUIRED, oi::BOUNDARIES_SERIES},
+              {"boundary-series", oa::REQUIRED, oi::BOUNDARIES_SERIES},
+              //
+              // boilerplate standard options
+              {"help", oa::NO, oi::USAGE_SUBCOMMAND},
+              {"usage", oa::NO, oi::USAGE_SUBCOMMAND},
+              {"version", oa::NO, oi::VERSION_SUBCOMMAND},
+              {"debug", oa::NO, oi::OLD_DEBUG_MODE},
+              {"DEBUG", oa::NO, oi::DEBUG_MODE},
+              {"quiet", oa::NO, oi::QUIET_MODE},
+              {"verbose", oa::NO, oi::VERBOSE_MODE},
+              {"warning", oa::NO, oi::WARNING_MODE},
+              {"warnings", oa::NO, oi::WARNING_MODE},
+              {"dryrun", oa::NO, oi::DRYRUN_MODE},
+              {"dry-run", oa::NO, oi::DRYRUN_MODE}}}
+{ }
+#endiv

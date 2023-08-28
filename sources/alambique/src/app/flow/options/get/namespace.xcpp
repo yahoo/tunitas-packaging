@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.application.options.get
+#import app.flow.options
+namespace app::flow::options::get {
+  using namespace tunitas::application::options::get; // cascade the namespaces
+  namespace package_get {
+    namespace body { }
+  }
+}
+#import tunitas.application.options.get.Whence
+#import cli.options.longish.Step
+#import tunitas.application.required.exception.Quitting
+namespace app::flow::options::get::package_get {
+  // All denizens of this namespace will need visibility to these types
+  static_assert(sizeof(Whence), "already visible");
+  static_assert(sizeof(Step), "already visible");
+  static_assert(sizeof(Field), "already visible");
+  static_assert(!required::exception::Quitting<int>, "already visible");
+  namespace body {
+    static_assert(sizeof(string::Storage), "already visible");
+  }
+}
+#endiv
+#divert <hpp>
+#import std.convertible_to
+namespace app::flow::options::get::package_get::body {
+  inline auto among(string::View) -> bool { return false; }
+  template<typename... VIEW> inline auto among(string::View candidate, string::View, VIEW &&...) -> bool requires (std::convertible_to<VIEW, string::View> && ... );
+  inline auto lowercase(string::View) -> string::Storage;
+  inline auto uppercase(string::View) -> string::Storage;
+  inline auto recase(string::View, auto transformation) -> string::Storage;
+}
+#endiv
+#divert <ipp>
+#import std.toupper
+#import std.tolower
+#import std.transform
+#import std.back_inserter
+namespace app::flow::options::get::package_get {
+  template<typename... VIEW> auto body::among(string::View candidate, string::View first, VIEW &&...rest) -> bool requires (std::convertible_to<VIEW, string::View> && ... ) {
+    return candidate == first || candidate == lowercase(first) || candidate == uppercase(first) || among(candidate, rest...);
+  }
+  auto body::lowercase(string::View specimen) -> string::Storage { return recase(specimen, [](auto c) { return std::tolower(c); }); }
+  auto body::uppercase(string::View specimen) -> string::Storage { return recase(specimen, [](auto c) { return std::toupper(c); }); }
+  auto body::recase(string::View specimen, auto transformation) -> string::Storage {
+    auto ret = string::Storage{};
+    std::transform(specimen.begin(), specimen.end(), std::back_inserter(ret), transformation);
+    return ret;
+  }
+}
+#endiv

@@ -1,0 +1,19 @@
+#
+# Some numbers for the summation
+#
+# (recall) the format is newline-separated records of natural (non-negative) numbers.
+# no unnatural or imaginary numbers; or (less flippantly) no really big numbers either.
+#
+# comments (obviously) start with a '#' and run to the end of the line
+# blank lines are ignored
+# leading and trailing spaces are ignored
+#
+1
+2
+3
+4
+5
+6
+7
+8
+9

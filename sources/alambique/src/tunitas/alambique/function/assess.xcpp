@@ -1,0 +1,77 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <hpp>
+#import tunitas.alambique.function.Estimates
+#import tunitas.alambique.function.Mode
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+namespace tunitas::alambique::function {
+  namespace estimates {
+    //
+    // If the name is one-hot then return that; else return emptiness
+    //
+    // Specification:
+    //
+    // Design:
+    //
+    //   In this namespace so that ADL will find them.
+    //
+    // Usage:
+    //
+    //
+    //   auto estimates = Estimates{...somehow...};
+    //   auto forced    = Mode{...somehow...};
+    //   auto maybe     = Optional<Mode>{...somehow...};
+    //  
+    //   auto assessed = assess(estimates);
+    //   auto assessed = assess(forced, estimates);
+    //   auto assessed = assess(maybe, estimates);
+    //
+    inline auto assess(error::by::Optional, Estimates const &) -> error::Optional<Mode>;
+    inline auto assess(error::by::Optional, Mode constraint, Estimates const &source) -> error::Optional<Mode> { return source.project<Mode>(constraint); }
+    inline auto assess(error::by::Optional, Optional<Mode>, Estimates const &) -> error::Optional<Mode>;
+    //
+    inline auto assess(error::by::Outcome, Estimates const &) -> error::Outcome<Mode>;
+    inline auto assess(error::by::Outcome, Mode, Estimates const &) -> error::Outcome<Mode>;
+    inline auto assess(error::by::Outcome, Optional<Mode>, Estimates const &) -> error::Outcome<Mode>;
+  }
+  //
+  // Where they re expected to be.
+  using estimates::assess;
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.error.Code
+#import std.error_code
+#import tunitas.alambique.function.explain
+namespace tunitas::alambique::function {
+  auto estimates::assess(error::by::Optional, Estimates const &source) -> error::Optional<Mode> {
+    auto const &[af, daf, vdaf] = source;
+    if (af && !daf && !vdaf) {
+      return Mode::AF;
+    } else if (!af && daf && !vdaf) {
+      return Mode::DAF;
+    } else if (!af && !daf && vdaf) {
+      return Mode::VDAF;
+    } else {
+      return {};
+    };
+  }
+  auto estimates::assess(error::by::Optional by, Optional<Mode> constraint, Estimates const &source ) -> error::Optional<Mode> {
+    if (constraint) {
+      return assess(by, *constraint, source);
+    } else {
+      return assess(by, source);
+    }
+  }
+  //
+  auto estimates::assess(error::by::Outcome by, Estimates const &source) -> error::Outcome<Mode>                               { return explain(assess(error::by::Optional{}, source), source); }
+  auto estimates::assess(error::by::Outcome by, Mode constraint, Estimates const &source) -> error::Outcome<Mode>              { return explain(assess(error::by::Optional{}, constraint, source), constraint, source); }
+  auto estimates::assess(error::by::Outcome by, Optional<Mode> constraint, Estimates const &source) -> error::Outcome<Mode>    { return explain(assess(error::by::Optional{}, constraint, source), constraint, source); }
+}
+#endiv

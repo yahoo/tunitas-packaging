@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.slurp.from_file
+namespace tests::unit::slurp::from_file {
+  class Fixture;
+  namespace body = ::tunitas::alambique::slurp::package_from_file::body;
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.slurp.exception.Aspect
+#import tunitas.file.Path
+struct tests::unit::slurp::from_file::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_good_empty() -> void;
+  auto test_good_full() -> void;
+  auto test_fail() -> void;
+  auto test_trim() -> void;
+protected:
+  using Failure = ::tunitas::alambique::exception::Aspect;
+  inline static auto FILEPATH_OF_EMPTINESS = ::tunitas::file::Path{"/dev/null"};
+  inline static auto FILEPATH_OF_SOMETHING = ::tunitas::file::Path{"tests/unit/tests.unit.slurp.Fixture.list"};
+  inline static auto FILEPATH_OF_FAILURE = ::tunitas::file::Path{"tests/unit/tests.unit.slurp.Fixture.NO-SUCH"};
+};
+#endiv
+#divert <cpp>
+#import tests.unit.slurp.error.Fixture
+#import tests.unit.slurp.file.Fixture
+auto tests::unit::slurp::from_file::Fixture::suite() -> Suite {
+  auto series = Stream{"from_file"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << []{
+                    auto good = Stream{"good"sv};
+                    good << add("empty", &Fixture::test_good_empty)
+                         << add("full", &Fixture::test_good_full)
+                         << END;
+                    return good;
+                  }()
+                << add("fail", &Fixture::test_fail)
+                << END;
+           return use;
+         }()
+         << add("trim", &Fixture::test_trim)
+         << END;
+  return settle(series);
+}
+#import tunitas.alambique.slurp.from_file
+#import tunitas.alambique.slurp.Container
+namespace tests::unit::slurp::from_file {
+  auto Fixture::test_good_empty() -> void {
+    auto slurped0 = library::from_file(FILEPATH_OF_EMPTINESS);
+    require(ASSERTION, 0 == slurped0.size());
+  }
+  auto Fixture::test_good_full() -> void {
+    auto slurped1 = library::from_file(FILEPATH_OF_SOMETHING);
+    require(ASSERTION, 0 < slurped1.size());
+  }
+  auto Fixture::test_fail() -> void try {
+    library::from_file(FILEPATH_OF_FAILURE);
+    impossible(ASSERTION);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Fixture::test_trim() -> void {
+    require(ASSERTION, ""sv == body::trim(""sv));
+    require(ASSERTION, "1"sv == body::trim("1"sv));
+    require(ASSERTION, "12"sv == body::trim("12"sv));
+    require(ASSERTION, "1-2"sv == body::trim(" 1-2 "sv));
+  }
+}
+#endiv

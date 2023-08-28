@@ -1,0 +1,67 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.slurp.file
+namespace tests::unit::slurp::file {
+  class Fixture;
+  namespace library = ::tunitas::alambique::slurp::file;
+}
+#endiv
+#divert <hpp>
+struct tests::unit::slurp::file::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Context() -> void;
+  auto test_usage_Line() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::slurp::file::Fixture::suite() -> Suite {
+  auto series = Stream{"file"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Context", &Fixture::test_usage_Context)
+                  << add("Line", &Fixture::test_usage_Line)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.alambique.slurp.file.Context
+#import tunitas.alambique.slurp.file.Line
+#import tunitas.file.Path
+namespace tests::unit::slurp::file {
+  auto Fixture::test_usage_Context() -> void {
+    auto const filepath = ::tunitas::file::Path{"./some/file/path.txt"};
+    using Subject = library::Context;
+    auto subject = Subject{filepath};
+    require(ASSERTION, sizeof(subject));
+    require(ASSERTION, 0 == underlying(subject.line()));
+    ++subject;
+    require(ASSERTION, 1 == underlying(subject.line()));
+    subject++;
+    require(ASSERTION, 2 == underlying(subject.line()));
+    require(ASSERTION, 2 == underlying((subject++).line()));
+    require(ASSERTION, 3 == underlying(subject.line()));
+    require(ASSERTION, 4 == underlying((++subject).line()));
+    std::cerr << subject << '\n';
+  }
+  auto Fixture::test_usage_Line() -> void {
+    using Subject = library::Line;
+    auto subject = Subject{};
+    require(ASSERTION, 0 == underlying(subject));
+    ++subject;
+    require(ASSERTION, 1 == underlying(subject));
+    subject++;
+    require(ASSERTION, 2 == underlying(subject));
+    require(ASSERTION, 2 == underlying(subject++));
+    require(ASSERTION, 3 == underlying(subject));
+    require(ASSERTION, 4 == underlying(++subject));
+    std::cerr << subject << '\n';
+  }
+}
+#endiv

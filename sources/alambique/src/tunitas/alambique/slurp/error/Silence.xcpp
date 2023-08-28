@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::slurp::error {
+  //
+  // Silence in the reportage of errors during file slurping
+  //
+  // Specification:
+  //
+  //   As per the ancestor.
+  //   No words.
+  //
+  // Design:
+  //
+  //   No.
+  //
+  // Exceptions:
+  //
+  //   Yes.
+  //
+  // Usage:
+  //
+  //   try {
+  //     auto slurped = slurp::file(some_filepath, Silence{});
+  //     return slurped;
+  //   } catch (exception::Failure const &) {
+  //     ...complain and move on...
+  //   }
+  //
+  struct Silence;
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.slurp.error.Reporter
+class tunitas::alambique::slurp::error::Silence : public Reporter {
+  using Ancestor = Reporter;
+public:
+  auto cannot_open(file::Path const &, std::error_code) -> void override { error_accumulator = true; }
+  auto not_a_number(file::Context const &, string::View) -> void override { error_accumulator = true; }
+};
+#endiv

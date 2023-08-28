@@ -1,0 +1,90 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::flow::exception {
+  //
+  // The usage message, as an application exception
+  //
+  // Usage: (sic)
+  //
+  //   throw Usage{"program"};
+  //
+  // Usage: (sic)
+  //
+  //   try {
+  //     ...
+  //     throw Usage{exp}
+  //     ...
+  //   } catch (tunitas::application::exception::Generic const &g) {
+  //     g.stream() << g << '\n';
+  //     return g.code();          ... equivalently ::exit(g.code());
+  //   }
+  //
+  class [[nodiscard]] Usage;
+}
+#endiv
+#divert <hpp>
+#import app.exception.Aspect
+#import app.flow.usage.Message
+#import cli.exits.Code
+#import cli.exception.Aspect
+#import cli.experience.Console
+#import cli.exception.formatting.Usage
+#import tunitas.exception.Aspect
+#import tunitas.application.exception.Aspect
+class app::flow::exception::Usage : public virtual app::exception::Aspect,
+                                    public virtual cli::exception::Aspect,
+                                    public virtual tunitas::exception::Aspect,
+                                    public virtual tunitas::application::exception::Aspect,
+                                    public cli::exception::formatting::Usage {
+  struct Ancestors {
+    struct Aspects {
+      using Tunitas = tunitas::exception::Aspect;
+      using Application = tunitas::application::exception::Aspect;
+      using App = app::exception::Aspect;
+    };
+    using Exception = cli::exception::formatting::Usage;
+  };
+public:
+  using Results [[either]] = Ancestors::Aspects::Application::Results;
+  inline explicit Usage(cli::experience::Console const &);
+  inline Usage(cli::experience::Console const &, cli::exits::Code);
+  auto what() const noexcept -> Results::What override;
+  auto stream() const noexcept -> Results::Stream override;
+  auto code() const noexcept -> Results::Exit override;
+  auto exit() const noexcept -> Results::Exit override;
+private:
+  auto unformatted() const -> std::string override;
+  usage::Message generator{};
+};
+#endiv
+#divert <ipp>
+#import cli.exits.constants
+namespace app::flow::exception {
+  Usage::Usage(cli::experience::Console const &exp)
+    : Usage{exp, cli::exits::OK}
+  { }
+  Usage::Usage(cli::experience::Console const &exp, cli::exits::Code code)
+    : Ancestors::Exception{exp.NAME, code}
+  { }
+}
+#endiv
+#divert <cpp>
+namespace app::flow::exception {
+  auto Usage::what() const noexcept -> Results::What     { return Ancestors::Exception::what(); }
+  auto Usage::stream() const noexcept -> Results::Stream { return Ancestors::Exception::stream(); }
+  auto Usage::code() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
+  auto Usage::exit() const noexcept -> Results::Exit     { return Ancestors::Exception::exit(); }
+}
+auto app::flow::exception::Usage::unformatted() const -> std::string { return generator(); }
+#import std.is_abstract
+namespace {
+  namespace testate {
+    using namespace app::flow::exception;
+    static_assert(not std::is_abstract_v<Usage>);
+  }
+}
+#endiv

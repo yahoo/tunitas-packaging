@@ -1,0 +1,111 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::function {
+  namespace package_explain {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_explain::interface;
+}
+// new namespaces
+#import tunitas.alambique.function.required.project.Result
+#import tunitas.alambique.function.Mode
+#import tunitas.alambique.function.Resolved
+#import nonstd.required.Same_As
+namespace tunitas::alambique::function::package_explain {
+  namespace required {
+    using namespace tunitas::alambique::function::required;
+    template<typename PROPOSED> concept Proposed = project::Result<PROPOSED>;
+  }
+  namespace body { }
+}
+// new types
+#import tunitas.alambique.error.Code
+namespace tunitas::alambique::function::package_explain {
+  namespace body {
+#if 0
+#if 12 < __GNUC__
+    using C = error::Code;
+#else
+    // src/tunitas/alambique/function/explain.xcpp:117:21: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+    using C = error::Code::Enumeration;
+#endif
+#endif
+    using enum error::Code::Enumeration;
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Estimates
+#import tunitas.alambique.function.Mode
+#import tunitas.Optional
+#import tunitas.error.Outcome
+#import std.error_code
+namespace tunitas::alambique::function::package_explain::body {
+  namespace exported {
+    //
+    // Specification:
+    //
+    //   Reduce, Replace, Reuse (the copy-pasta).
+    //
+    // Design:
+    //
+    //   Using the Best Available Means and Methods (UBAMM!)
+    //
+    // Usage:
+    //
+    //   see assess(...)
+    //   see resolved(...)
+    //
+    template<required::Proposed PROPOSED> inline auto explain(Optional<PROPOSED>, Estimates const &) -> error::Outcome<PROPOSED>;
+    template<required::Proposed PROPOSED> inline auto explain(Optional<PROPOSED>, Mode, Estimates const &) -> error::Outcome<PROPOSED>;
+    template<required::Proposed PROPOSED> inline auto explain(Optional<PROPOSED>, Optional<Mode>, Estimates const &) -> error::Outcome<PROPOSED>;
+  }
+  template<auto CODE> requires std::same_as<error::Code::Enumeration, decltype(CODE)> inline auto const E = std::error_code{CODE};
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.function.assess
+#import nonstd.exception.Unreachable
+namespace tunitas::alambique::function::package_explain {
+  template<required::Proposed PROPOSED> auto interface::explain(Optional<PROPOSED> proposed, Estimates const &context) -> error::Outcome<PROPOSED> {
+    if (proposed) {
+      return *proposed;
+    } else {
+      // now we want to know why?
+      auto const &[af, daf, vdaf] = context;
+      if (!af && !daf && !vdaf) {
+        return E<VACUOUS>;
+      } else {
+        return E<AMBIGUOUS>;
+      }
+    }
+  }
+  template<required::Proposed PROPOSED> auto interface::explain(Optional<PROPOSED> proposed, Mode constraint, Estimates const &context) -> error::Outcome<PROPOSED> {
+    // Here we have to replay the logic that was used to produce proposed in in the caller.
+    // It may have reduced to emptiness for a variety of reasons.  We want that chain of reasoning
+    if (proposed) {
+      // goodness is always returned without explanation
+      return *proposed;
+    } else {
+      auto unconstrained = explain(proposed, context);
+      if (good(unconstrained)) {
+        return E<CONFLICT>; // MUST be that the constraint conflicts with the available estimates (no estimate for this modality axis)
+      } else {
+        return error_code(unconstrained);
+      }
+    }
+  }
+  template<required::Proposed PROPOSED> auto interface::explain(Optional<PROPOSED> proposed, Optional<Mode> constraint, Estimates const &context) -> error::Outcome<PROPOSED> {
+    if (!constraint) {
+      return explain(proposed, context);
+    } else {
+      return explain(proposed, *constraint, context);
+    }
+  }
+}
+#endiv

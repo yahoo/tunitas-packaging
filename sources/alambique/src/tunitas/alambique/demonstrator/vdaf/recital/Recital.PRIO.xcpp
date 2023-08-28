@@ -1,0 +1,139 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.demonstrator.vdaf.recital.Recital.template
+#import tunitas.keyston.vdaf.required.Function
+namespace tunitas::alambique::demonstrator::vdaf::recital {
+  //
+  // Specification:
+  //
+  //   Especially see Figure 7 (the Python pseudo code.
+  //   <quote ref="https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-05.html#execution-of-a-vdaf-5-6">
+  //
+  //     def run_vdaf(Vdaf,
+  //                  verify_key: Bytes[Vdaf.VERIFY_KEY_SIZE],
+  //                  agg_param: Vdaf.AggParam,
+  //                  nonces: Vec[Bytes[Vdaf.NONCE_SIZE]],
+  //                  measurements: Vec[Vdaf.Measurement]):
+  //         out_shares = []
+  //         for (nonce, measurement) in zip(nonces, measurements):
+  //             # Each Client shards its measurement into input shares.
+  //             rand = gen_rand(Vdaf.RAND_SIZE)
+  //             (public_share, input_shares) = Vdaf.measurement_to_input_shares(measurement, nonce, rand)
+  //     
+  //             # Each Aggregator initializes its preparation state.
+  //             prep_states = []
+  //             for j in range(Vdaf.SHARES):
+  //                 state = Vdaf.prep_init(verify_key, j, agg_param, nonce, public_share, input_shares[j])
+  //                 prep_states.append(state)
+  //     
+  //             # Aggregators recover their output shares.
+  //             inbound = None
+  //             for i in range(Vdaf.ROUNDS+1):
+  //                 outbound = []
+  //                 for j in range(Vdaf.SHARES):
+  //                     out = Vdaf.prep_next(prep_states[j], inbound)
+  //                     if i < Vdaf.ROUNDS:
+  //                         (prep_states[j], out) = out
+  //                     outbound.append(out)
+  //                 # This is where we would send messages over the
+  //                 # network in a distributed VDAF computation.
+  //                 if i < Vdaf.ROUNDS:
+  //                     inbound = Vdaf.prep_shares_to_prep(agg_param, outbound)
+  //     
+  //             # The final outputs of prepare phase are the output shares.
+  //             out_shares.append(outbound)
+  //     
+  //         # Each Aggregator aggregates its output shares into an
+  //         # aggregate share. In a distributed VDAF computation, the
+  //         # aggregate shares are sent over the network.
+  //         agg_shares = []
+  //         for j in range(Vdaf.SHARES):
+  //             out_shares_j = [out[j] for out in out_shares]
+  //             agg_share_j = Vdaf.out_shares_to_agg_share(agg_param, out_shares_j)
+  //             agg_shares.append(agg_share_j)
+  //     
+  //         # Collector unshards the aggregate.
+  //         num_measurements = len(measurements)
+  //         agg_result = Vdaf.agg_shares_to_result(agg_param, agg_shares, num_measurements)
+  //         return agg_result
+  //
+  //   </quote>
+  //
+  // Design:
+  //
+  //   The entropy source is used to populate both the nonce and the (joint) randomness.
+  //   These are computed on-the-fly as the specimens are examined.
+  //
+  // Usage:
+  //
+  //    Whut, you need a tutorial on how to call a (static member) function?
+  //
+  template<keyston::vdaf::required::Function FUNCTION, required::iterator::Specimen ITERATOR> struct Recital<PRIO, FUNCTION, ITERATOR>;
+}
+#endiv
+#divert <hpp>
+#import std.in_place_t
+#import tunitas.Tuple
+#import tunitas.keyston.Slice
+#import tunitas.alambique.demonstrator.vdaf.Whole
+namespace tunitas::alambique::demonstrator::vdaf::recital {
+  template<keyston::vdaf::required::Function FUNCTION, required::iterator::Specimen ITERATOR> struct Recital<PRIO, FUNCTION, ITERATOR> {
+    using Function = FUNCTION;
+    using Iterator = ITERATOR;
+    using enum keyston::Slice;
+    using Aggregation = Whole::Aggregation; // NOT ---> typename Function::Aggregation<WHOLE>; <--- NOT (this result type MUSt match that which is mentioned in inventory::Runner)
+    static auto run(typename Function::Parameters const &, typename Function::Secret::View::Fixed, entropy::Source &, std::ranges::subrange<Iterator>) -> Aggregation;
+  protected:
+    using Inplace = std::in_place_t;
+    using Preparation0 = Tuple<typename Function::template State<SHARE>, typename Function::template Check<SHARE>>;
+    using Preparation1 = typename Function::template Check<WHOLE>;
+  };
+}
+#endiv
+#divert <tpp>
+#import std.tie
+#import tunitas.keyston.shards.Iota
+#import tunitas.keyston.nonce.once
+namespace tunitas::alambique::demonstrator::vdaf::recital {
+  template<keyston::vdaf::required::Function F, required::iterator::Specimen I> auto Recital<PRIO,F,I>::run(typename Function::Parameters const &parameters, typename Function::Secret::View::Fixed secret, entropy::Source &source, std::ranges::subrange<Iterator> subrange) -> Aggregation {
+    typename Function::template Shards<typename Function::template Contiguous<typename Function::template Output<SHARE>>> outputs_shares{};
+    auto processed = typename Function::Processed{0u};
+    //
+    for (auto specimen : subrange) {
+      // executed in the gateway (the leader)
+      ++processed;
+      auto input = Function::admission(parameters, specimen);
+      auto nonce = keyston::nonce::once<typename Function::Nonce::Storage>(source);
+      auto randomness = keyston::nonce::once<typename Function::Randomness::Storage>(source);
+      auto [publick, inputs] = Function::disassembly(parameters, input, nonce, randomness);
+      //
+      // executed in each helper(leader) and back in the gateway (the leader)
+      auto preparation0 = [parameters, secret, nonce, publick](typename Function::Shard shard, typename Function::template Input<SHARE> const &input) -> Preparation0 {
+        auto state_share = Function::initialization(parameters, secret, shard, nonce, publick, input);
+        auto check_share = Function::continuation(parameters, state_share, {});
+        return {move(state_share), move(check_share)};
+      };
+      auto state_shares = typename Function::template Shards<typename Function::template State<SHARE>>{};
+      auto check_shares = typename Function::template Shards<typename Function::template Check<SHARE>>{};
+      for (auto shard : keyston::shards::Iota{}) {
+        //       returning to the gateway (leader)                 executed in each helper
+        std::tie(state_shares.at(shard), check_shares.at(shard)) = preparation0(shard, inputs.at(shard));
+      }
+      // executed in the gateway (leader) and broadcast out to each helper
+      auto check_whole = Function::amalgamation(parameters, check_shares);
+      for (auto shard : keyston::shards::Iota{}) {
+        // executed in each helper
+        outputs_shares.at(shard).push_back(Function::finalization(parameters, state_shares.at(shard), check_whole));
+      }
+    }
+    // executed in the gateway (leader)
+    Function::disgorgement(parameters, outputs_shares.at(0_shard));
+    auto aggregation_shares = typename Function::template Shards<typename Function::template Aggregation<SHARE>>(Inplace{}, Function::disgorgement(parameters, outputs_shares.at(0_shard)), Function::disgorgement(parameters, outputs_shares.at(1_shard)));
+    return Function::reassembly(parameters, aggregation_shares, processed);
+  }
+}
+#endiv

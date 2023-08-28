@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/alambique/tree/LICENSE
+#divert <fpp>
+#import std.invocable
+#import std.is_invocable_r
+#import std.ranges.subrange
+#import tunitas.keyston.vdaf.Parameters
+#import tunitas.alambique.demonstrator.vdaf.Whole
+#include <hpp/tunitas.alambique.demonstrator.vdaf.Whole>
+#import tunitas.alambique.demonstrator.required.iterator.Specimen
+namespace tunitas::alambique::demonstrator::vdaf::inventory::required {
+  //
+  // IS this FUNCTION argument suitable for Function<FUNCTION>?
+  //
+  template<typename FUNCTION> concept Callable = requires {
+    // Is it a function?
+    // does it return an aggregation?
+    // does it accept a range over specimens?
+    { []<typename TYPE1, typename TYPE2, typename SUBITERATOR>(Whole::Aggregation (*)(keyston::vdaf::Parameters const &, TYPE1 secret, TYPE2 source, std::ranges::subrange<SUBITERATOR, SUBITERATOR>))
+      requires required::iterator::Specimen<SUBITERATOR>
+      {}(static_cast<FUNCTION *>(nullptr)) };
+  };
+  template<typename FUNCTION, typename ITERATOR> concept Callable_With = requires {
+    // Is it a function?
+    // does it return an aggregation?
+    // does it accept a range over specimens?
+    requires required::iterator::Specimen<ITERATOR>;
+    { []<typename TYPE1, typename TYPE2, typename SUBITERATOR>(Whole::Aggregation (*)(keyston::vdaf::Parameters const &, TYPE1 secret, TYPE2 source, std::ranges::subrange<SUBITERATOR, SUBITERATOR>))
+      requires same_as<ITERATOR, SUBITERATOR>
+        {}(static_cast<FUNCTION *>(nullptr)) };
+  };
+}
+#endiv

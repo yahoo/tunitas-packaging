@@ -1,0 +1,82 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.alambique.demonstrator.Executor.template
+#import tunitas.alambique.demonstrator.required.iterator.Specimen
+namespace tunitas::alambique::demonstrator {
+  //
+  // The executor for a generic (Verifiable Distributed Aggregation) Function
+  //
+  // Authority:
+  //
+  //   https://www.ietf.org/archive/id/draft-irtf-cfrg-vdaf-06.html
+  //   Verifiable Distributed Aggregation Function
+  //
+  // Specification:
+  //
+  //   Executors MUST not to maintain internal state call-to-call
+  //
+  // Design:
+  //
+  //   Executors don't carry state so the member calls are constie.
+  //   Be able to copy around the whole interface cluster of vdafs.
+  //
+  // Usage:
+  //
+  //   Sure.
+  //
+  template<required::iterator::Specimen ITERATOR> struct Executor<VDAF, ITERATOR>;
+}
+#endiv
+#divert <hpp>
+#import std.span
+#import std.ranges.subrange
+#import tunitas.octets.Octet
+#import tunitas.span.Fixed
+#import tunitas.entropy.Source
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.Parameters
+#import tunitas.keyston.vdaf.Secret
+#import tunitas.alambique.demonstrator.required.iterator.Specimen
+#import tunitas.alambique.demonstrator.vdaf.Inventory
+#import tunitas.alambique.demonstrator.vdaf.Whole
+namespace tunitas::alambique::demonstrator {
+  template<required::iterator::Specimen ITERATOR> struct Executor<VDAF, ITERATOR> {
+    using Iterator = ITERATOR;
+    //
+    using Name = keyston::vdaf::Name;
+    using enum Name;
+    inline explicit Executor();
+    inline explicit Executor(Name);
+    //
+    using Parameters = keyston::vdaf::Parameters;
+    using Secret = keyston::vdaf::Secret;
+    using Whole = vdaf::Whole;
+    //
+    inline auto run(Parameters const &, typename Secret::View::Fixed, entropy::Source &, std::ranges::subrange<Iterator, Iterator>) -> Whole::Aggregation;
+  protected:
+    using Inventory = vdaf::Inventory<Iterator>;
+    using Which = typename vdaf::Inventory<Iterator>::Const_Iterator;
+    Inventory inventory{};
+    Which which{};
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.exception.Invalid
+#import tunitas.keyston.nonce.once
+namespace tunitas::alambique::demonstrator {
+  template<required::iterator::Specimen _> Executor<VDAF, _>::Executor() : which{inventory.end()} { }
+  template<required::iterator::Specimen _> Executor<VDAF, _>::Executor(Name name) : which{inventory.find(name)} { }
+  template<required::iterator::Specimen _> auto Executor<VDAF, _>::run(Parameters const &parameters, typename Secret::View::Fixed secret, entropy::Source &source, std::ranges::subrange<Iterator, Iterator> subrange) -> Whole::Aggregation {
+    if (inventory.end() == which) {
+      throw exception::Invalid{"invalid executor"};
+    } else {
+      return which->second(parameters, secret, source, subrange);
+    }
+  }
+}
+#endiv

@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+std_SUBSOURCES = \
+  obj/src/std/is_error_code_enum/tunitas.alambique.error.code.Unpackaged.Enumeration.cpp \
+  obj/src/std/is_error_code_enum/tunitas.alambique.slurp.error.code.Unpackaged.Enumeration.cpp \
+  \
+  obj/src/std/is_error_condition_enum/tunitas.alambique.error.condition.Unpackaged.Enumeration.cpp \
+  obj/src/std/is_error_condition_enum/tunitas.alambique.slurp.error.condition.Unpackaged.Enumeration.cpp \
+  \
+  obj/src/std/tuple_size/tunitas.alambique.function.Estimates.cpp \
+  obj/src/std/tuple_element/N.tunitas.alambique.function.Estimates.cpp \
+  \
+  obj/src/std/variant_size/tunitas.alambique.function.Resolved.cpp \
+  obj/src/std/variant_alternative/N.tunitas.alambique.function.Resolved.cpp \
+  $(end)

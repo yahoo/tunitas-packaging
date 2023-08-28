@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::flow {
+  //
+  // The configuration
+  //
+  // Specification:
+  //
+  //   Separated experience & configruation.
+  //
+  // Design:
+  //
+  //   The ancestry into Controllability is needed for the test controllability system.
+  //   use of Optional allows for delegation to a pre-declared default value (see namespace defaults)
+  //
+  // Usage:
+  //
+  //   Sure.
+  //
+  struct Configuration;
+}
+#endiv
+#divert <hpp>
+#import cli.configuration.Core
+#import cli.configuration.Controllability
+#import tunitas.Optional
+#import tunitas.file.Path
+#import tunitas.alambique.function.Mode
+#import tunitas.alambique.function.Estimates
+#import tunitas.keyston.aggregation.Summation
+#import tunitas.keyston.aggregation.Histogram
+#import tunitas.keyston.popularity.Prefixes
+#import nonstd.units.memory.scale // Bits
+struct app::flow::Configuration : public cli::configuration::Core, public cli::configuration::Controllability {
+  using Ancestor = cli::configuration::Core;
+  template<typename TYPE> using Optional = tunitas::Optional<TYPE>;
+public:
+  Configuration() = default;
+  Optional<bool> interactive_mode{};
+  Optional<bool> programmatic_mode{};
+  Optional<tunitas::file::Path> measurement_data_filepath{};
+  Optional<tunitas::alambique::function::Mode> aggregation_function_mode{};
+  Optional<tunitas::alambique::function::Estimates> aggregation_function_names{};
+  Optional<nonstd::units::memory::Bits> popularity_prefix_length{};
+  Optional<tunitas::keyston::popularity::Prefixes> popularity_prefixes{};
+  Optional<tunitas::keyston::aggregation::Histogram::Boundaries> histogram_boundaries{};
+  Optional<tunitas::keyston::aggregation::Summation> constant{tunitas::keyston::aggregation::Summation{99u}}; // either remove this or find a way to make it show something and command line it
+};
+#endiv

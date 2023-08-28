@@ -1,0 +1,185 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::options::get { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Mode
+#import tunitas.alambique.function.Estimates
+#import tunitas.exception.Aspect
+struct tests::unit::options::get::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Mode = ::tunitas::alambique::function::Mode;
+  using Estimates = ::tunitas::alambique::function::Estimates;
+  //
+  auto test_aggregation_function_mode_good() -> void;
+  auto test_aggregation_function_mode_fail() -> void;
+  auto test_aggregation_function_names_good() -> void;
+  auto test_aggregation_function_names_fail() -> void;
+  auto test_bit_length_good() -> void;
+  auto test_bit_length_fail() -> void;
+  auto test_specimen_single_good() -> void;
+  auto test_specimen_single_fail() -> void;
+  auto test_specimen_series_good() -> void;
+  auto test_specimen_series_fail() -> void;
+protected:
+  using Failure = ::tunitas::exception::Aspect;
+  template<typename CALL> static auto exercise_failure(string::View syntax, CALL call) -> void;
+  template<typename CALL, typename PROOF> static auto exercise_success(string::View syntax, CALL, PROOF) -> void;
+};
+#endiv
+#divert <tpp>
+#import tests.unit.options.get.Configuration
+#import tests.unit.options.get.Step
+#import tests.unit.options.get.Quitting
+namespace tests::unit::options::get{
+  template<typename CALL> auto Fixture::exercise_failure(string::View syntax, CALL call) -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_f, syntax}; // <------------- there are many bad identifiers
+    call(exp, step); // <------------------------------------------- test this
+    impossible(ASSERTION);
+  } catch (Failure const &e) {
+    require(ASSERTION);
+  }
+  template<typename CALL, typename PROOF> auto Fixture::exercise_success(string::View syntax, CALL call, PROOF proof) -> void try {
+    Configuration cfg;
+    Console exp{cfg.NAME, cfg};
+    Step step{Step::Code::CHR_m, syntax};
+    auto got = call(exp, step); // <-------------------- test this
+    proof(got); // <------------------------------ prove t his
+  } catch (Failure const &e) {
+    impossible(ASSERTION);
+  }
+}
+#endiv
+#divert <cpp>
+#import tests.unit.options.get.aggregation_function.Mode
+#import tests.unit.options.get.aggregation_function.Name
+#import tests.unit.options.get.Bit_Length
+#import tests.unit.options.get.specimen.Single
+#import tests.unit.options.get.specimen.Series
+auto tests::unit::options::get::Fixture::suite() -> Suite {
+  auto series = Stream{"get"sv};
+  series << []{
+             auto use = Stream{"usage"sv};
+             use << []{
+                     auto get = Stream{"aggregation_function_mode"};
+                     get << add("good", &Fixture::test_aggregation_function_mode_good)
+                         << add("bad", &Fixture::test_aggregation_function_mode_fail)
+                         << END;
+                     return get;
+                   }()
+                 << []{
+                     auto get = Stream{"aggregation_function_names"};
+                     get << add("good", &Fixture::test_aggregation_function_names_good)
+                         << add("bad", &Fixture::test_aggregation_function_names_fail)
+                         << END;
+                     return get;
+                   }()
+                 << []{
+                     auto get = Stream{"bit_length"};
+                     get << add("good", &Fixture::test_bit_length_good)
+                         << add("bad", &Fixture::test_bit_length_fail)
+                         << END;
+                     return get;
+                   }()
+                 << []{
+                     auto get = Stream{"specimen_single"};
+                     get << add("good", &Fixture::test_specimen_single_good)
+                         << add("bad", &Fixture::test_specimen_single_fail)
+                         << END;
+                     return get;
+                   }()
+                 << []{
+                     auto get = Stream{"specimen_series"};
+                     get << add("good", &Fixture::test_specimen_series_good)
+                         << add("bad", &Fixture::test_specimen_series_fail)
+                         << END;
+                     return get;
+                   }()
+                 << END;
+             return use;
+          }()
+         << add<aggregation_function::Mode>()
+         << add<aggregation_function::Name>()
+         << add<Bit_Length>()
+         << add<specimen::Single>()
+         << add<specimen::Series>()
+         << END;
+  return settle(series);
+}
+#import tests.unit.function.Palette
+#import app.flow.options.get.aggregation_function_mode // <---------------------------------------- test this
+#import app.flow.options.get.aggregation_function_name // and so on
+#import app.flow.options.get.bit_length
+#import app.flow.options.get.specimen_single
+#import app.flow.options.get.specimen_series
+#import tunitas.array.enumerate
+namespace tests::unit::options::get {
+  auto Fixture::test_aggregation_function_mode_good() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::aggregation_function_mode<Quitting>(exp, step); };
+    auto proof = [](auto const &got)               { require(ASSERTION, Mode::AF == got); };
+    exercise_success("AF"sv, call, proof);
+  }
+  auto Fixture::test_aggregation_function_mode_fail() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::aggregation_function_mode<Quitting>(exp, step); };
+    exercise_failure("!@#$%"sv, call);
+  }
+  auto Fixture::test_aggregation_function_names_good() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::aggregation_function_name<Quitting>(exp, step); };
+    auto proof = [](auto const &got) {
+      auto [af, daf, vdaf] = got;
+      using tests::unit::function::Palette;
+      using enum ::tunitas::alambique::function::Mode;
+      require(ASSERTION, Palette<AF>::GOOD == af);
+      require(ASSERTION, Palette<DAF>::GOOD == daf);
+      require(ASSERTION, Palette<VDAF>::GOOD == vdaf);
+#if 0  // not yet, but soon
+      require(ASSERTION, Palette<VIDAF>::GOOD == vdaf);
+#endif
+    };
+    exercise_success("ZERO"sv, call, proof);
+  }
+  auto Fixture::test_aggregation_function_names_fail() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::aggregation_function_name<Quitting>(exp, step); };
+    exercise_failure("!@#$%"sv, call);
+  }
+  auto Fixture::test_bit_length_good() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::bit_length<Quitting>(exp, step); };
+    auto proof = [](auto const &got)               { require(ASSERTION, 64u == got.count()); };
+    exercise_success("64"sv, call, proof);
+  }
+  auto Fixture::test_bit_length_fail() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::bit_length<Quitting>(exp, step); };
+    exercise_failure("!@#$%"sv, call);
+  }
+  auto Fixture::test_specimen_single_good() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::specimen_single<Quitting>(exp, step); };
+    auto proof = [](auto const &got)               { require(ASSERTION, 129u == underlying(got)); };
+    exercise_success("129"sv, call, proof);
+  }
+  auto Fixture::test_specimen_single_fail() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::specimen_single<Quitting>(exp, step); };
+    exercise_failure("!@#$%"sv, call);
+  }
+  auto Fixture::test_specimen_series_good() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::specimen_series<Quitting>(exp, step); };
+    auto proof = [](auto const &got) {
+      require(ASSERTION, 10u == got.size());
+      for (auto [i, v] : enumerate(got)) {
+        require(ASSERTION, i == underlying(v));
+      }
+    };
+    exercise_success("0,1,2,3,4,5,6,7,8,9"sv, call, proof);
+  }
+  auto Fixture::test_specimen_series_fail() -> void {
+    auto call = [](Console &exp, Step const &step) { return library::specimen_series<Quitting>(exp, step); };
+    exercise_failure("!@#$%"sv, call);
+  }
+}
+#endiv

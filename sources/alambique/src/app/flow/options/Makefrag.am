@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+app_flow_options_SUBSOURCES = \
+  noinst/obj/src/app/flow/options/namespace.cpp \
+  $(app_flow_options_get_SUBSOURCES) \
+  $(app_flow_options_indicator_SUBSOURCES) \
+  noinst/obj/src/app/flow/options/inference.cpp \
+  noinst/obj/src/app/flow/options/Parser.cpp \
+  noinst/obj/src/app/flow/options/Parser.Result.cpp \
+  noinst/obj/src/app/flow/options/Specification.cpp \
+  $(end)
+#
+include src/app/flow/options/get/Makefrag.am
+include src/app/flow/options/indicator/Makefrag.am

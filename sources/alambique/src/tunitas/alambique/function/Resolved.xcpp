@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.Variant
+#import tunitas.keyston.af.Name
+#import tunitas.keyston.daf.Name
+#import tunitas.keyston.vdaf.Name
+namespace tunitas::alambique::function {
+  //
+  // The estimate resolved down to one.
+  //
+  // Design:
+  //
+  //   We want ADL to be able to find to_string(...) and to_string_view(...) so Resolved must be a new type
+  //
+  // Usage:
+  //
+  //   Obvious.
+  //   But, if necessary, see #import tunitas.alambique.function.resolved
+  //
+  namespace [[eponymous]] resolved {
+    using Ancestor = Variant<af::Name, daf::Name, vdaf::Name>;
+    struct Resolved;
+  }
+  using resolved::Resolved;
+}
+#endiv
+#divert <hpp>
+#import tunitas.error.by.required.Indicator
+#import tunitas.error.by.Indicated
+#import tunitas.string.Storage
+#import tunitas.string.View
+namespace tunitas::alambique::function {
+  namespace resolved {
+    template<error::by::required::Indicator INDICATOR> inline auto to_string_view(INDICATOR, Resolved const &) -> typename error::by::Indicated<INDICATOR, string::View>::Type;
+    template<error::by::required::Indicator INDICATOR> inline auto to_string(INDICATOR, Resolved const &) -> typename error::by::Indicated<INDICATOR, string::Storage>::Type;
+  }
+  struct resolved::Resolved : public Ancestor {
+    Resolved() = default;
+    using Ancestor::variant;
+  };
+}
+#import std.variant_size.tunitas.alambique.function.Resolved
+#import std.variant_alternative.N.tunitas.alambique.function.Resolved
+#endiv
+#divert <ipp>
+#import tunitas.Visitor
+#import tunitas.visit
+namespace tunitas::alambique::function {
+  template<error::by::required::Indicator INDICATOR> auto resolved::to_string_view(INDICATOR indicator, Resolved const &source) -> typename error::by::Indicated<INDICATOR, string::View>::Type {
+    auto visitor = Visitor{[indicator](af::Name redo)   { return to_string_view(indicator, redo); },
+                           [indicator](daf::Name redo)  { return to_string_view(indicator, redo); },
+                           [indicator](vdaf::Name redo) { return to_string_view(indicator, redo); }};
+    return visit(visitor, source);
+  }
+  template<error::by::required::Indicator INDICATOR> auto resolved::to_string(INDICATOR indicator, Resolved const &source) -> typename error::by::Indicated<INDICATOR, string::Storage>::Type {
+    auto visitor = Visitor{[indicator](af::Name redo)   { return to_string(indicator, redo); },
+                           [indicator](daf::Name redo)  { return to_string(indicator, redo); },
+                           [indicator](vdaf::Name redo) { return to_string(indicator, redo); }};
+    return visit(visitor, source);
+  }
+}
+#endiv

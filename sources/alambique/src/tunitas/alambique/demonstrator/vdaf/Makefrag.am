@@ -1,0 +1,17 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tunitas_alambique_demonstrator_vdaf_SUBSOURCES = \
+  obj/src/tunitas/alambique/demonstrator/vdaf/namespace.cpp \
+  obj/src/tunitas/alambique/demonstrator/vdaf/Whole.cpp \
+  $(tunitas_alambique_demonstrator_vdaf_inventory_SUBSOURCES) \
+  $(tunitas_alambique_demonstrator_vdaf_recital_SUBSOURCES) \
+  $(tunitas_alambique_demonstrator_vdaf_required_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/alambique/demonstrator/vdaf/inventory/Makefrag.am
+include src/tunitas/alambique/demonstrator/vdaf/recital/Makefrag.am
+include src/tunitas/alambique/demonstrator/vdaf/required/Makefrag.am

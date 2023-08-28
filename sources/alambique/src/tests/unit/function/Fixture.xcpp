@@ -1,0 +1,139 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::function { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.error.by.Optional
+#import tests.unit.function.Palette
+#import tests.unit.function.Mode
+struct tests::unit::function::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Mode() -> void;
+  auto test_usage_Estimates_constructor() -> void;
+  auto test_usage_Estimates_resolve() -> void;
+  auto test_usage_Estimates_assess() -> void;
+  auto test_usage_Name() -> void;
+protected:
+  inline static constexpr auto OPTIONAL = ::tunitas::error::by::Optional{};
+  using AF = Palette<library::Mode::AF>;
+  using DAF = Palette<library::Mode::DAF>;
+  using VDAF = Palette<library::Mode::VDAF>;
+};
+#endiv
+#divert <cpp>
+#import tunitas.alambique.function.Mode
+#import tests.unit.function.Name
+#import tests.unit.function.Estimates
+#import tests.unit.function.Resolved
+auto tests::unit::function::Fixture::suite() -> Suite {
+  auto series = Stream{"function"sv};
+  series << []{
+             auto use = Stream{"usage"sv};
+             use << add("Mode", &Fixture::test_usage_Mode)
+                 << add("Name", &Fixture::test_usage_Name)
+                 << []{
+                   auto est = Stream{"Estimates"sv};
+                   est << add("constructor", &Fixture::test_usage_Estimates_constructor)
+                       << add("resolve", &Fixture::test_usage_Estimates_resolve)
+                       << add("assess", &Fixture::test_usage_Estimates_assess)
+                       << END;
+                   return est;
+                 }()
+                 << END;
+             return use;
+           }()
+         << add<Mode>()
+         << []{
+           auto name = Stream{"Name"sv};
+           using Mode = library::Mode;
+           name << add<Name<library::Name<Mode::AF>>>()
+                << add<Name<library::Name<Mode::DAF>>>()
+                << add<Name<library::Name<Mode::VDAF>>>()
+#if 0 // not yet, but soon
+                << add<Name<library::Name<Mode::VIDAF>>>()
+#endif
+                << END;
+           return name;
+         }()
+         << add<Estimates>()
+         << add<Resolved>()
+         << END;
+  return settle(series);
+}
+#import tunitas.alambique.function.Mode
+#import tunitas.alambique.function.Name
+#import tunitas.alambique.function.Estimates
+#import tunitas.alambique.function.resolve
+#import tunitas.alambique.function.assess
+namespace tests::unit::function {
+  auto Fixture::test_usage_Mode() -> void {
+    using Subject = library::Mode;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Name() -> void {
+    using Subject = library::Name<library::Mode::AF>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+    // Just call them, the other tester will check the values
+    // ADL will have to find them
+    to_string(OPTIONAL, subject);
+    to_string(OUTCOME, subject);
+    to_string(EXCEPTION, subject);
+    // eadem ratione
+    to_string_view(OPTIONAL, subject);
+    to_string_view(OUTCOME, subject);
+    to_string_view(EXCEPTION, subject);
+  }
+  auto Fixture::test_usage_Estimates_constructor() -> void {
+    using Subject = library::Estimates;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+  auto Fixture::test_usage_Estimates_resolve() -> void {
+    using Subject = library::Estimates;
+    {
+      auto specimen = Subject{};
+      auto resolved = library::resolve(OPTIONAL, specimen);
+      require(ASSERTION, false == (bool)resolved);
+    } {
+      auto specimen = Subject{AF::GOOD, {}, {}};
+      auto resolved = library::resolve(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)resolved);
+    } {
+      auto specimen = Subject{AF::Optional{}, DAF::GOOD, VDAF::Optional{}};
+      auto resolved = library::resolve(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)resolved);
+    } {
+      auto specimen = Subject{AF::Optional{}, DAF::Optional{}, VDAF::GOOD};
+      auto resolved = library::resolve(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)resolved);
+    }
+  }
+  auto Fixture::test_usage_Estimates_assess() -> void {
+    using Subject = library::Estimates;
+    {
+      auto specimen = Subject{};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, false == (bool)assessd);
+    } {
+      auto specimen = Subject{AF::GOOD, {}, {}};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)assessd);
+    } {
+      auto specimen = Subject{AF::Optional{}, DAF::GOOD, VDAF::Optional{}};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)assessd);
+    } {
+      auto specimen = Subject{AF::Optional{}, DAF::Optional{}, VDAF::GOOD};
+      auto assessd = library::assess(OPTIONAL, specimen);
+      require(ASSERTION, true == (bool)assessd);
+    }
+  }
+}
+#endiv

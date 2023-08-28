@@ -1,0 +1,17 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+app_SUBSOURCES = \
+  noinst/obj/src/app/namespace.cpp \
+  noinst/obj/src/app/required/namespace.cpp \
+  $(app_exits_SUBSOURCES) \
+  $(app_exception_SUBSOURCES) \
+  $(app_usage_SUBSOURCES) \
+  $(end)
+#
+include src/app/exits/Makefrag.am
+include src/app/exception/Makefrag.am
+include src/app/usage/Makefrag.am

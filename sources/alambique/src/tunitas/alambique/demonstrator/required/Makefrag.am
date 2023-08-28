@@ -1,0 +1,11 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tunitas_alambique_demonstrator_required_SUBSOURCES = \
+  obj/src/tunitas/alambique/demonstrator/required/namespace.cpp \
+  obj/src/tunitas/alambique/demonstrator/required/iterator.Specimen.cpp \
+  obj/src/tunitas/alambique/demonstrator/required/Accessor.cpp \
+  $(end)

@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::unit { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.alambique.Fixture
+#import tests.unit.error.Fixture
+#import tests.unit.exception.Fixture
+#import tests.unit.function.Fixture
+#import tests.unit.options.Fixture
+#import tests.unit.slurp.Fixture
+#import tests.unit.version.Fixture
+auto tests::unit::Fixture::suite() -> Suite {
+  auto series = Stream{"unit"sv};
+  series << add<alambique::Fixture>()
+         << add<error::Fixture>()
+         << add<exception::Fixture>()
+         << add<function::Fixture>()
+         << add<options::Fixture>()
+         << add<slurp::Fixture>()
+         << add<version::Fixture>()
+         << END;
+  return settle(series);
+}
+#endiv

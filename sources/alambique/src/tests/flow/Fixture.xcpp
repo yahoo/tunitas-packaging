@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tflowas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tflowas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tests::flow { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::flow::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  auto test_something() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.flow.Options
+#import tests.flow.Invocations
+auto tests::flow::Fixture::suite() -> Suite {
+  auto series = Stream{"flow"sv};
+  series << add("something", &Fixture::test_something)
+         << add<Options>()
+         << add<Invocations>()
+         << END;
+  return settle(series);
+}
+namespace tests::flow {
+  auto Fixture::test_something() -> void {
+    require(ASSERTION, true);
+  }
+}
+#endiv

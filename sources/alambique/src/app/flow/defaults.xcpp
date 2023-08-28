@@ -1,0 +1,29 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace app::flow::defaults {
+  namespace [[detail]] construction { }
+}
+#endiv
+#divert <hpp>
+#import tunitas.file.Path
+#import tunitas.alambique.function.Estimates
+#import tunitas.alambique.function.Name
+#import tunitas.keyston.af.Name
+namespace app::flow::defaults {
+  //
+  // Default values for use in the std::optional<TYPE>
+  // The literals MUST be of type string::Storage with ""s initializer to match the type of the field in service::Configuration
+  //
+  namespace construction {
+    using tunitas::keyston::af::Constant; // hack hack hack
+    using namespace tunitas::alambique::function;
+    using enum Mode;
+    inline constexpr auto AGGREGATION_FUNCTION = Estimates{Constant<Name<DAF>::ZERO>, Name<DAF>::ZERO, Name<VDAF>::ZERO};
+  }
+  using construction::AGGREGATION_FUNCTION;
+}
+#endiv

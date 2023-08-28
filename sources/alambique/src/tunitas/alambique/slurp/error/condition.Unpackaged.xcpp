@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+namespace tunitas::alambique::slurp::error::condition {
+  //
+  // The Unpackaged Error Conditions of Tunitas Alambique.
+  //
+  // Usage:
+  //
+  //   std::error_condition ec(BAD, error::category());
+  //   std::cout << ec.message();
+  //
+  struct Unpackaged {
+    enum class Enumeration {
+      SUCCESS, // ........ improper success (which is a failure)
+      FAILURE, // ........ sic, generic failure
+    };
+    using enum Enumeration;
+  };
+}
+#import std.is_error_condition_enum.tunitas.alambique.slurp.error.condition.Unpackaged.Enumeration // enable that certain magic template constructor
+#endiv
+#divert <hpp>
+#import std.error_condition
+#import std.underlying_type
+namespace tunitas::alambique::slurp::error::condition {
+  inline auto make_error_condition(Unpackaged::Enumeration) noexcept -> std::error_condition;
+  inline constexpr auto underlying(Unpackaged::Enumeration e) noexcept { return std::underlying_type_t<Unpackaged::Enumeration>(e); }
+}
+#endiv
+#divert <ipp>
+#import tunitas.alambique.slurp.error.category
+namespace tunitas::alambique::slurp::error {
+  auto condition::make_error_condition(Unpackaged::Enumeration e) noexcept -> std::error_condition { return {underlying(e), category()}; }
+}
+#endiv

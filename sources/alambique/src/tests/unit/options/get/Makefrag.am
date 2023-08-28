@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+tests_unit_options_get_SUBSOURCES = \
+  check/obj/src/tests/unit/options/get/namespace.cpp \
+  check/obj/src/tests/unit/options/get/Configuration.cpp \
+  check/obj/src/tests/unit/options/get/Step.cpp \
+  check/obj/src/tests/unit/options/get/Quitting.cpp \
+  \
+  check/obj/src/tests/unit/options/get/Fixture.cpp \
+  check/obj/src/tests/unit/options/get/aggregation_function.Mode.cpp \
+  check/obj/src/tests/unit/options/get/aggregation_function.Name.cpp \
+  check/obj/src/tests/unit/options/get/Bit_Length.cpp \
+  check/obj/src/tests/unit/options/get/specimen.Single.cpp \
+  check/obj/src/tests/unit/options/get/specimen.Series.cpp \
+  $(end)

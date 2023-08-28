@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tests.fixture.required.configuration.Application
+#import tests.fixture.Combine
+#include <hpp/tests.fixture.Combine>
+#import cli.options.Program
+#import rigging.app.required.Configuration
+namespace tests::fixture::required::configuration {
+  //
+  // The rigging configuration
+  // a) expects a Program
+  // b) provides UX support
+  //
+  // Also, the complete type of APPLICATION_CONFIGURATION must be available.
+  //
+  // Show that the RIGGING_CONFIGURATION is an instance of fixture::Combined<CONFIGURATION>
+  //
+  namespace [[eponymous]] eponymous_rigging {
+    using ::cli::options::Program;
+    // using our application nomenclature
+    template<typename EXPERIENCE, typename CONFIGURATION> concept Constructible = requires(EXPERIENCE, Program program) {
+      requires Application<CONFIGURATION>;
+      requires derived_from<EXPERIENCE, CONFIGURATION>;
+      { EXPERIENCE{static_cast<Program &&>(program)} };
+    };
+    // using the mixed nomenclature of rigging and (our) application
+    template<typename RIGGING_CONFIGURATION> concept Rigging = rigging::app::required::Configuration<RIGGING_CONFIGURATION> && requires(RIGGING_CONFIGURATION &rcfg) {
+      // but belaboring the point
+      requires !Application<RIGGING_CONFIGURATION>;
+      { // \exists an application configuration where the RIGGING_CONFIGURATION is constructible
+        []<typename APPLICATION_CONFIGURATION>(fixture::Combine<APPLICATION_CONFIGURATION> *)
+        requires Constructible<RIGGING_CONFIGURATION, APPLICATION_CONFIGURATION> {} (static_cast<RIGGING_CONFIGURATION *>(nullptr)) };
+    };
+  }
+  using eponymous_rigging::Rigging;
+}
+#endiv

@@ -1,0 +1,24 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.Optional
+#import nonstd.required.InstanceOf
+#import nonstd.required.Enumeration
+// [[TODO]] #import tunitas.optional.Traits
+namespace tunitas::alambique::function::required::project {
+  //
+  // Are these types suitable for the arguments for Estimates::at_${something}_recurrence<...>(...)
+  //
+  template<typename FIRST, typename... REST> concept Arguments = requires(FIRST, REST...) {
+    requires (required::InstanceOf<FIRST, Optional> && ... && required::InstanceOf<REST, Optional>);
+#if 0 // [[TODO]] when ready & available ...
+    requires (Enumeration<typename optional::Traits< FIRST>::Value> && ... && Enumeration<typename optional::Traits<REST>::Value>>);
+#else
+    requires (Enumeration<typename FIRST::value_type> && ... && Enumeration<typename REST::value_type>);
+#endif
+  };
+}
+#endiv

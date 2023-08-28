@@ -1,0 +1,213 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#divert <fpp>
+#import tunitas.Tuple
+#import tunitas.Optional
+#import tunitas.alambique.function.Name
+#import std.integral_constant
+namespace tunitas::alambique::function {
+  //
+  // An estimate of the names in all the modes.
+  //
+  // Design:
+  //
+  //   We want ADL to find resolve(...) and assess(...) so Estimtes must be a new type.
+  //   Also, some new member fu nctions.
+  //   Thus all the declarative machinery that such entails for a Tuple-like object.
+  //
+  //   On the excessive generality of the Estimates disassembly;
+  //   we need this (these) to continue to work when Estimates grows unannounced; e.g. with the 4th axis of VIDAF
+  //
+  //   On the excessive use of concept constraints in the protected function templates;
+  //   because this a protected context, we already know that FIRST and REST will always be Optional<...>
+  //
+  //   Around the design of assess(...) and project(...)
+  //   Always return the Optional<...>; to get the error-by variants use the nearby free functions (via separate #import)
+  //
+  // Usage:
+  //
+  //   Obvious.
+  //
+  //   Is it obvious at this point, is it really?
+  //   lookit all this code.  How can you say that its usage is obvious at this point?
+  //
+  //   auto estimates = Estimates{...somehow...};
+  //
+  //   auto probed = estimates.probe(mode);
+  //   auto mode = estimates.project<Mode>(mode);
+  //   auto resolved = estimates.project<Resolved>(mode);
+  //   auto same = estimates1 == estimatess2;
+  //
+  namespace [[eponymous]] estimates {
+    using Ancestor = Tuple<Optional<Name<Mode::AF>>, Optional<Name<Mode::DAF>>, Optional<Name<Mode::VDAF>>>;
+    struct Estimates;
+    template<std::size_t INDEX> using Index = std::integral_constant<std::size_t, INDEX>;
+  }
+  using estimates::Estimates;
+}
+#endiv
+#divert <hpp>
+#import tunitas.alambique.function.Resolved
+#import tunitas.alambique.function.required.project.Result
+#import tunitas.alambique.function.required.project.Arguments
+#import tunitas.string.Storage
+#import tunitas.error.by.Exception
+#import tunitas.error.by.Optional
+#import tunitas.error.by.Outcome
+#import tunitas.error.Optional
+#import tunitas.error.Outcome
+#import nonstd.required.InstanceOf
+namespace tunitas::alambique::function {
+  namespace estimates {
+    using std::move;
+    inline auto swap(Estimates &, Estimates &) noexcept -> void;
+    //
+    // ADL will find these here based on Estimates
+    auto to_string(error::by::Exception, Estimates const &) -> string::Storage;
+    inline auto to_string(error::by::Optional, Estimates const &) -> error::Optional<string::Storage>;
+    inline auto to_string(error::by::Outcome, Estimates const &) -> error::Outcome<string::Storage>;
+  }
+  using estimates::to_string; // where these are expected to be
+  class estimates::Estimates : public Ancestor {
+    using Ancestor = estimates::Ancestor;
+  public:
+    Estimates() = default;
+#if 1
+    // This doesn't do what you <strike>think</strike> hope it will do ... it won't coerce the arguments.
+    // And std::tuple is allocator-aware so passing {} is ambiguous between the allocator and the optional senses.
+    using Ancestor::tuple;
+#elif 1
+    template<typename... TYPE> requires (sizeof...(TYPE) == std::tuple_size_v<Ancestor>) constexpr Estimates(TYPE &&...rest) : Ancestor{rest...} { }
+#else
+    template<typename... TYPE> static constexpr auto construct(TYPE &&...rest) -> Estimates;
+    template<typename... TYPE> constexpr Estimates(TYPE &&...rest) : Ancestor{rest...} {
+      static_assert(sizeof...(TYPE) == std::tuple_size_v<Ancestor>);
+    }
+#endif
+    inline auto probe(Mode) const -> bool;
+    template<required::project::Result RESULT> inline auto project(Mode) const -> Optional<RESULT>;
+    constexpr auto operator==(Estimates const &) const -> bool = default;
+  protected:
+    inline auto probe_recurrence(unsigned index) const -> bool { return false; }
+    template<typename FIRST, typename... REST> inline auto probe_recurrence(unsigned index, FIRST, REST...) const -> bool requires required::project::Arguments<FIRST, REST...>;
+    //
+    inline auto project_resolved_recurrence(unsigned index) const -> Optional<Resolved> { return {}; }
+    template<typename FIRST, typename... REST> inline auto project_resolved_recurrence(unsigned index, FIRST, REST...) const -> Optional<Resolved> requires required::project::Arguments<FIRST, REST...>;
+  };
+  template<> inline auto Estimates::project<Mode>(Mode) const -> Optional<Mode>;
+  template<> inline auto Estimates::project<Resolved>(Mode) const -> Optional<Resolved>;
+}
+#import std.tuple_size.tunitas.alambique.function.Estimates
+#import std.tuple_element.N.tunitas.alambique.function.Estimates
+#endiv
+#divert <ipp>
+namespace tunitas::alambique::function {
+  auto estimates::swap(Estimates &a, Estimates &b) noexcept -> void {
+    estimates::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+}
+#import std.index_sequence
+#import std.make_index_sequence
+#import std.integral_constant
+#import std.size_t
+#import tunitas.tuple.Size
+#import tunitas.keyston.exception.Aspect
+#import tunitas.alambique.exception.Aspect
+namespace tunitas::alambique::function {
+  template<typename FIRST, typename... REST> auto Estimates::probe_recurrence(unsigned index, FIRST first, REST ...rest) const -> bool requires required::project::Arguments<FIRST, REST...> {
+    if (0 == index) {
+      return true == (bool)first; //  yup, there was something there in that optional
+    } else {
+      return probe_recurrence(index - 1, rest...);
+    }
+  }
+  auto Estimates::probe(Mode index) const -> bool {
+    using namespace std;
+    return [&, this]<std::size_t... INDEX>(index_sequence<INDEX...>) {
+      return probe_recurrence(underlying(index), get<INDEX>(*this)...);
+    }(make_index_sequence<tunitas::tuple::Size<Estimates>::value>{});
+  }
+  template<> auto Estimates::project<Mode>(Mode index) const -> Optional<Mode> {
+    if (probe(index)) {
+      return index;
+    } else {
+      return {};
+    }
+  }
+}
+namespace tunitas::alambique::function {
+  template<typename FIRST, typename... REST> auto Estimates::project_resolved_recurrence(unsigned index, FIRST first, REST ...rest) const -> Optional<Resolved> requires required::project::Arguments<FIRST, REST...> {
+    if (0 == index) {
+      if (first) {
+        return *first;
+      } else {
+        return {};
+      }
+    } else {
+      return project_resolved_recurrence(index - 1, rest...);
+    }
+  }
+  template<> auto Estimates::project<Resolved>(Mode index) const -> Optional<Resolved> {
+    using namespace std;
+    return [&, this]<std::size_t... INDEX>(index_sequence<INDEX...>) {
+      return project_resolved_recurrence(underlying(index), get<INDEX>(*this)...);
+    }(make_index_sequence<tunitas::tuple::Size<Estimates>::value>{});
+  }
+}
+namespace tunitas::alambique::function {
+  auto estimates::to_string(error::by::Optional, Estimates const &estimates) -> error::Optional<string::Storage> try {
+    return to_string(error::by::Exception{}, estimates);
+  } catch (tunitas::alambique::exception::Aspect const &) {
+    return {};
+  } catch (tunitas::keyston::exception::Aspect const &) {
+    return {};
+  }
+  auto estimates::to_string(error::by::Outcome, Estimates const &estimates) -> error::Outcome<string::Storage> try {
+    return to_string(error::by::Exception{}, estimates);
+  } catch (tunitas::alambique::exception::Aspect const &) {
+    return {};
+  } catch (tunitas::keyston::exception::Aspect const &) {
+    return {};
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.tuple.Element
+#import std.same_as
+namespace {
+  namespace testate {
+    using tunitas::Optional;
+    using tunitas::tuple::Element;
+    using namespace tunitas::alambique::function;
+    // the code herein relies upon this invariant
+    static_assert(std::same_as<Optional<keyston::af::Name>, Element<underlying(Mode::AF), Estimates>::type>);
+    static_assert(std::same_as<Optional<keyston::daf::Name>, Element<underlying(Mode::DAF), Estimates>::type>);
+    static_assert(std::same_as<Optional<keyston::vdaf::Name>, Element<underlying(Mode::VDAF), Estimates>::type>);
+#if 0 // not yet, but soon
+    static_assert(std::same_as<Optional<keyston::vidaf::Name>, Element<underlying(Mode::VIDAF), Estimates>::type>);
+#endif
+  }
+}
+#import std.get
+namespace tunitas::alambique::function {
+  auto estimates::to_string(error::by::Exception by, Estimates const &candidate) -> string::Storage {
+    using namespace std;
+    using namespace string::literals;
+    //
+    // Um, wha...?  ok... wow.  Yeah, ok wow.
+    //
+    auto slashify = [](auto first, auto ...rest) -> string::Storage { return (first + ... + ("/"s + rest)); };
+    auto each = [by]<std::size_t INDEX>(Estimates const &candidate, Index<INDEX>) {
+      auto const &got{get<INDEX>(candidate)};
+      return false == (bool) got ? ""s : to_string(by, *got);
+    };
+    return [&slashify, &each, &candidate]<std::size_t... INDEX>(index_sequence<INDEX...>) {
+      return slashify(each(candidate, Index<INDEX>{})...);
+    }(make_index_sequence<tunitas::tuple::Size<Estimates>::value>{});
+  }
+}
+#endiv

@@ -1,0 +1,25 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-alambique/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/alambique/tree/LICENSE
+#
+# merely a convenience library
+#
+noinst_lib_libapp_flow_alambique_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+noinst_lib_libapp_flow_alambique_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+noinst_lib_libapp_flow_alambique_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+noinst_lib_libapp_flow_alambique_la_LIBADD = noinst/lib/libapp.la
+noinst_lib_libapp_flow_alambique_la_SOURCES = $(app_flow_SUBSOURCES)
+include src/app/flow/Makefrag.am
+$(noinst_lib_libapp_flow_alambique_la_SOURCES) : disco_objdir=noinst/obj
+$(noinst_lib_libapp_flow_alambique_la_SOURCES) : scold_objdir=$(disco_objdir)
+$(noinst_lib_libapp_flow_alambique_la_SOURCES) : noinst/obj/src/%.cpp : src/%.xcpp
+	$(TF_V_DIS) $(call TF_XCPP2CPP, $^)
+	$(TF_V_DONE) test -e $@
+$(tf_noinst_mkdir)/libapp-flow-alambique.mk: $(noinst_lib_libapp_flow_alambique_la_SOURCES)
+$(tf_noinst_mkdir)/libapp-flow-alambique.mk:
+	$(TF_V_DEP) $(call TF_DEPENDENCIES, $^)
+	$(TF_V_DONE) test -e $@
+include $(tf_noinst_mkdir)/libapp-flow-alambique.mk
+clean-dependencies:: ; rm -f $(tf_noinst_mkdir)/libapp-flow-alambique.mk
