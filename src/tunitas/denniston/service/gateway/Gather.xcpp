@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.preparation.Mark
-#import tunitas.keyston.protocol.preparation.Step
+#import tunitas.rheem.protocol.preparation.Mark
+#import tunitas.rheem.protocol.preparation.Step
 #import tunitas.denniston.report.Status
 #import tunitas.denniston.service.gateway.required
 #import nonstd.required.iterator
@@ -40,8 +40,8 @@ namespace tunitas::denniston::service::gateway {
         template<typename ITERATOR> concept Status = requires(ITERATOR) {
           requires iterator::Forward<ITERATOR>;
           // NOT THIS ---> requires iterator::Producing<ITERATOR, report::Status>;
-          requires iterator::Producing<ITERATOR, keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>>;
-          requires Constructible_From<report::Status, keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>>;
+          requires iterator::Producing<ITERATOR, rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>>;
+          requires Constructible_From<report::Status, rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>>;
           // though this previous statement requires the complete type of Report::Status, when evaluated
         };
       }
@@ -60,7 +60,7 @@ namespace tunitas::denniston::service::gateway {
 #import std.mutex
 #import std.lock_guard
 namespace tunitas::denniston::service::gateway {
-  static_assert(nonstd::required::Constructible_From<report::Status, keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>>);
+  static_assert(nonstd::required::Constructible_From<report::Status, rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>>);
   struct gather::Gather {
     Gather() = default;
     Gather(Gather const &) = delete;

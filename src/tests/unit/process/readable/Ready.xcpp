@@ -24,7 +24,7 @@ struct tests::unit::process::Dictionary : public rigging::suite::Fixture {
   auto test_begin_end_mutable() -> void;
   auto test_begin_end_constie() -> void;
 protected:
-  using Generator = ::tunitas::keyston::id::Generator<::tunitas::keyston::protocol::id::Task, ::tunitas::keyston::id::generator::Policy::SUPPLIED>;
+  using Generator = ::tunitas::keyston::id::Generator<::tunitas::rheem::protocol::id::Task, ::tunitas::keyston::id::generator::Policy::SUPPLIED>;
   Generator generate{};
 };
 #endiv

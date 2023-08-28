@@ -26,14 +26,14 @@ namespace tunitas::denniston::protocol::packet::_::hpke {
 #divert <hpp>
 #import tunitas.Optional
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.id // for id::Service, id::Task
+#import tunitas.rheem.protocol.id // for id::Service, id::Task
 class tunitas::denniston::protocol::packet::_::hpke::Basis : public Prototype {
   using Ancestor = Prototype;
 protected:
   ~Basis() = default;
 public:
-  using Service = keyston::protocol::id::Service;
-  using Task = keyston::protocol::id::Task;
+  using Service = rheem::protocol::id::Service;
+  using Task = rheem::protocol::id::Task;
   Service service_id{};
   Optional<Task> task_id{};
   //

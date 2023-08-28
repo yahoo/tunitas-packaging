@@ -33,12 +33,12 @@ namespace tunitas::denniston::task {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.task.Definition
-#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.measurement.Specimen
 #import tunitas.Optional
 namespace tunitas::denniston::task {
   inline auto swap(Corpus<Genus::COLLECTOR> &, Corpus<Genus::COLLECTOR> &) noexcept -> void;
   template<> class Corpus<Genus::COLLECTOR> {
-    using Protocol = keyston::protocol::task::Task;
+    using Protocol = rheem::protocol::task::Task;
     static_assert(std::derived_from<Definition, Protocol>);
   public:
     Corpus() = default;
@@ -46,7 +46,7 @@ namespace tunitas::denniston::task {
     inline [[implicit]] Corpus(Protocol);
     //
     Definition definition{};
-    Optional<keyston::measurement::Result> result{};
+    Optional<keyston::measurement::Specimen> result{};
   };
 }
 #endiv

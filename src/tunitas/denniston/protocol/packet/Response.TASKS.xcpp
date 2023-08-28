@@ -33,15 +33,15 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.array.Bounded
-#import tunitas.keyston.protocol.task.Task
+#import tunitas.array.Bounded
+#import tunitas.rheem.protocol.task.Task
 #import tunitas.denniston.protocol.packet.required.tasks.Iterator
 namespace tunitas::denniston::protocol::packet {
   template<> class Response<Get::TASKS> : public Prototype {
     inline static constexpr auto const CAPACITY = 1uz<<8;
   public:
-    using Task = keyston::protocol::task::Task;
-    using Tasks = keyston::array::Bounded<Task, CAPACITY>;
+    using Task = rheem::protocol::task::Task;
+    using Tasks = array::Bounded<Task, CAPACITY>;
     static constexpr auto capacity() -> Size { return CAPACITY; }
     Tasks tasks{};
     explicit Response() = default;

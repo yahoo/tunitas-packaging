@@ -15,8 +15,8 @@ namespace tunitas::denniston::protocol::packet::required::tasks {
   // MUST  NOT by lvalue reference (task:Definition &&) for move
   // Check the iterator for specific return of task:Definition or task:Definition const &; never task:Definition &
   //
-  // This DOES NOT handle the ancestry of keyston::protocol::task::task:Definition into denniston::task::task:Definition
-  // or the implicit prmotion (conversion) of keyston::protocol::task::task:Definition into denniston::task::task:Definition.
+  // This DOES NOT handle the ancestry of rheem::protocol::task::task:Definition into denniston::task::task:Definition
+  // or the implicit prmotion (conversion) of rheem::protocol::task::task:Definition into denniston::task::task:Definition.
   // See the hardcoding of the denniston task:Definition.
   // We're trading denniston tasks around, sot his is appropriate.
   //

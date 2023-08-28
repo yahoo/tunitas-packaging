@@ -5,10 +5,10 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 #import tunitas.string.literals
 namespace tunitas::denniston::configuration {
-  using namespace keyston::time::literals;
+  using namespace time::literals;
   using namespace string::literals;
 }
 #endiv

@@ -37,10 +37,10 @@ namespace tunitas::denniston::world {
 #import tunitas.denniston.service.System
 #import tunitas.denniston.service.Instance
 #import tunitas.denniston.process.Prototype
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 #import tunitas.denniston.Configuration
 struct tunitas::denniston::world::Layout : public process::Prototype {
-  using Entropy = keyston::entropy::Source;
+  using Entropy = entropy::Source;
   using Logs = denniston::log::Concentrator;
   using Sockets = network::Sockets;
   using System = service::System;

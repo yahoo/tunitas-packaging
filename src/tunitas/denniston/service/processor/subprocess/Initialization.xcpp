@@ -35,9 +35,9 @@ namespace tunitas::denniston::service::processor::subprocess {
 #import tunitas.denniston.protocol.initialization.Computer
 #import tunitas.denniston.service.processor.subprocess.Prototype
 #import tunitas.denniston.report.ranges.Subrange
-#import tunitas.keyston.hpke.Key
-#import tunitas.keyston.protocol.initialization.Request
-#import tunitas.keyston.protocol.initialization.Response
+#import tunitas.keyston.vdaf.Secret
+#import tunitas.rheem.protocol.initialization.Request
+#import tunitas.rheem.protocol.initialization.Response
 namespace tunitas::denniston::service::processor {
   namespace subprocess {
     inline auto swap(Initialization *&a, Initialization *&b) noexcept -> void { std::swap(a, b); }
@@ -50,14 +50,14 @@ namespace tunitas::denniston::service::processor {
     auto run_managed_lifecycle() -> void;
   protected:
     using E = error::Code;
-    using Report_Shares = keyston::protocol::initialization::Request::Report_Shares;
+    using Report_Shares = rheem::protocol::initialization::Request::Report_Shares;
     using Project_to_Identifier [[lol("wut?")]] = report::ranges::Subrange<report::ranges::Projection::REPORT_ID, Report_Shares::Basic_Iterator<Report_Shares const>>;
     using Interface = network::Socket::Interface;
     struct Protocol {
-      using Request = keyston::protocol::initialization::Request;
-      using Response = keyston::protocol::initialization::Response;
+      using Request = rheem::protocol::initialization::Request;
+      using Response = rheem::protocol::initialization::Response;
     };
-    using Verify_Key = keyston::hpke::Key<keyston::hpke::Side::SECRET>;
+    using Verify_Key = keyston::vdaf::Secret; // hale::hpke::Key<hale::hpke::Side::SECRET>;
     auto respond(Interface &back, Protocol::Request const &) -> void;
     using Computer = protocol::initialization::Computer;
   };
@@ -134,7 +134,7 @@ namespace tunitas::denniston::service::processor::subprocess {
                            auto const sh = recover_processor_shard(owner.role);
                            auto const &ex = owner.executor;
                            auto const &vk = (Verify_Key const &) found.value().verify;
-                           auto &no = owner.generators.noncer;
+                           auto const  no = owner.generators.noncer();
                            auto const &tid = request.task_id; // else reference the one we just found
                            auto const &ap = request.aggregation_parameters;
                            auto const &qu = request.query;

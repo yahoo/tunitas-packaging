@@ -26,12 +26,12 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.report.Produced
+#import tunitas.rheem.protocol.report.Produced
 namespace tunitas::denniston::protocol::packet {
   template<> class Report<WHOLE> : public Prototype {
     using Ancestor = Prototype;
   public:
-    using Produced = keyston::protocol::report::Produced<WHOLE>;
+    using Produced = rheem::protocol::report::Produced<WHOLE>;
     Produced produced{};
     explicit Report() = default;
     inline explicit Report(Produced);

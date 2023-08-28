@@ -47,10 +47,10 @@ auto tests::unit::service::Fixture::suite() -> Suite {
 #import tunitas.denniston.service.instance.Collector
 #import tunitas.denniston.service.System
 #import tunitas.denniston.Configuration
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 namespace tests::unit::service {
   auto Fixture::test_usage_Dictionary() -> void {
-    using Subject = library::Dictionary<::tunitas::keyston::hpke::Side::SECRET>; // pick a side
+    using Subject = library::Dictionary<::tunitas::hale::hpke::Side::SECRET>; // pick a side
     auto subject = Subject{};
     auto inserted1 = subject.insert(Subject::Key{}, Subject::Value{});
     require(ASSERTION, inserted1.second);
@@ -65,7 +65,7 @@ namespace tests::unit::service {
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_System() -> void {
-    auto source = ::tunitas::keyston::entropy::Source{};
+    auto source = ::tunitas::entropy::Source{};
     auto world = ::tunitas::denniston::Configuration{source};
     {
       using Subject = library::System;

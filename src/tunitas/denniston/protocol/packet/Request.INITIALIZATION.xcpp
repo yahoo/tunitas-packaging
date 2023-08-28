@@ -18,7 +18,7 @@ namespace tunitas::denniston::protocol::packet {
   //
   // Usage:
   //
-  //   auto req = keyston::protocol::initialization::Request{...somehow...};
+  //   auto req = rheem::protocol::initialization::Request{...somehow...};
   //
   //   auto made = make<Request<INITIALIZATION>>(move(req));
   //
@@ -27,10 +27,10 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.initialization.Request
+#import tunitas.rheem.protocol.initialization.Request
 namespace tunitas::denniston::protocol::packet {
   template<> struct Request<Post::INITIALIZATION> : public Prototype {
-    using Payload = keyston::protocol::initialization::Request;
+    using Payload = rheem::protocol::initialization::Request;
     Payload payload{};
     inline explicit Request(Payload p) : payload{move(p)} { }
   };

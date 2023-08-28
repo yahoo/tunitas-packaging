@@ -35,7 +35,7 @@ namespace tunitas::denniston::protocol::packet {
   template<> struct Query<Get::PUBLIC> : public _::hpke::Query {
     using Ancestor = _::hpke::Query;
   public:
-    inline static constexpr auto const SIDE = keyston::hpke::Side::PUBLIC;
+    inline static constexpr auto const SIDE = hale::hpke::Side::PUBLIC;
     Query() = default;
     using Ancestor::Query;
   };

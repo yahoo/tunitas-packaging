@@ -6,11 +6,11 @@
 #divert <fpp>
 #import tunitas.denniston.service
 #import tunitas.denniston.protocol.packet
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 #import tunitas.string.literals
 namespace tunitas::denniston::service::client {
   using namespace protocol::packet; // and yet there is ambiguity between instane::make(...) and packet::make(...)
   using namespace string::literals;
-  using namespace keyston::time::literals;
+  using namespace time::literals;
 }
 #endiv

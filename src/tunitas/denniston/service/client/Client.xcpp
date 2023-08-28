@@ -39,7 +39,7 @@ class tunitas::denniston::service::client::Client : public process::Reactor {
 protected:
   auto react() -> void override;
 public:
-  using Entropy = keyston::entropy::Source;
+  using Entropy = entropy::Source;
   inline explicit Client([[inout]] Entropy &, [[inout]] denniston::Configuration &, Species);
   ~Client();
   auto launch(scheduler::Threads &) -> void override;
@@ -49,7 +49,7 @@ public:
   Subprocesses subprocesses{}; // accessed from the boot subprocess
   //
   task::Dictionary<task::Definition> tasks{};
-  service::Dictionary<keyston::hpke::Side::PUBLIC> services{};
+  service::Dictionary<hale::hpke::Side::PUBLIC> services{};
   std::atomic<unsigned> howmany_were_recovered{0};
   concurrent::entropy::Source::Wrapper entropy;
 };

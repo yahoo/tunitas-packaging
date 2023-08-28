@@ -27,10 +27,10 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.measurement.Result
+#import tunitas.keyston.measurement.Specimen
 namespace tunitas::denniston::protocol::packet {
   template<> struct Response<Get::MEASUREMENT> : public Prototype {
-    keyston::measurement::Result result{};
+    keyston::measurement::Specimen result{};
   };
 }
 #endiv

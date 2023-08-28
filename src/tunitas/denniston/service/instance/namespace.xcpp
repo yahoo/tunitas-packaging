@@ -6,12 +6,12 @@
 #divert <fpp>
 #import tunitas.denniston.service
 #import tunitas.denniston.protocol.packet
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 #import tunitas.string.literals
 namespace tunitas::denniston::service::instance {
   using namespace protocol::packet; // and yet this will leave ambiguity among instance::make(...) and packet::make(...)
   using namespace string::literals;
-  using namespace keyston::time::literals;
+  using namespace time::literals;
   namespace [[nodirectory]] traits { }
 }
 #endiv

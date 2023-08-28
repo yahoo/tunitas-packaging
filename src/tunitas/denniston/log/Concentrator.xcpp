@@ -26,7 +26,7 @@ namespace tunitas::denniston::log {
 #divert <hpp>
 #import std.mutex
 #import std.lock_guard
-#import tunitas.keyston.time.Clock
+#import tunitas.time.Clock
 #import tunitas.denniston.Species
 #forward tunitas.denniston.world.World
 #import tunitas.string.View
@@ -36,7 +36,7 @@ protected:
   friend class world::World; // assigns into outbound to establish the actual outflow of the messages
   std::ostream *outbound{};
   std::mutex mutex{};
-  using Clock = keyston::time::Clock;
+  using Clock = time::Clock;
   class Guardian : public std::lock_guard<std::mutex> {
     using Ancestor = std::lock_guard<std::mutex>;
   public:

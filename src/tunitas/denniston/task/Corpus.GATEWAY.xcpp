@@ -34,7 +34,7 @@ namespace tunitas::denniston::task {
 #import tunitas.Optional
 #import tunitas.denniston.task.Definition
 #forward tunitas.denniston.service.gateway.subprocess.Task
-#import tunitas.keyston.vdaf.protocol.Parameters
+#import tunitas.keyston.vdaf.Parameters
 namespace tunitas::denniston::task {
   inline auto swap(Corpus<Genus::GATEWAY> &, Corpus<Genus::GATEWAY> &) noexcept -> void;
   template<> struct Corpus<Genus::GATEWAY> {
@@ -43,7 +43,7 @@ namespace tunitas::denniston::task {
     //
     Definition definition{};
     service::gateway::subprocess::Task *subprocess{};
-    Optional<keyston::vdaf::protocol::Parameters> aggregation_parameters{};
+    Optional<keyston::vdaf::Parameters> aggregation_parameters{};
   };
 }
 #endiv

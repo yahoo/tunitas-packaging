@@ -8,12 +8,12 @@ namespace tests::unit::log { class Fixture; }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.Species
-#import tunitas.keyston.time.Clock
+#import tunitas.time.Clock
 struct tests::unit::log::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
   using Species = ::tunitas::denniston::Species;
-  using Clock = ::tunitas::keyston::time::Clock;
+  using Clock = ::tunitas::time::Clock;
   //
   auto test_usage_Client() -> void;
   auto test_usage_Concentrator() -> void;

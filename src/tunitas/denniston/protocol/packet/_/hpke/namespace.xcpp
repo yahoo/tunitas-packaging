@@ -5,10 +5,10 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.protocol.packet
-#import tunitas.keyston.hpke.Side
+#import tunitas.hale.hpke.Side
 namespace tunitas::denniston::protocol::packet::_::hpke {
-  using keyston::hpke::Side;
+  using hale::hpke::Side;
   using enum Side;
-  // DO NOT ---> using namespace tunitas::keyston::hpke; <--- DO NOT (cascade the namespaces)
+  // DO NOT ---> using namespace tunitas::hale::hpke; <--- DO NOT (cascade the namespaces)
 }
 #endiv

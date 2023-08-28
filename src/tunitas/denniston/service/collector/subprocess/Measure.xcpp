@@ -33,7 +33,7 @@ namespace tunitas::denniston::service::collector::subprocess {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.id
+#import tunitas.rheem.protocol.id
 #import tunitas.denniston.service.collector.subprocess.Prototype
 namespace tunitas::denniston::service::collector {
   namespace subprocess {
@@ -43,7 +43,7 @@ namespace tunitas::denniston::service::collector {
     using Ancestor = Prototype;
   protected:
     inline static constexpr auto DELAY = 200ms;
-    using Identifier = keyston::protocol::id::Task;
+    using Identifier = rheem::protocol::id::Task;
   public:
     inline explicit Measure(Collector &, Identifier);
     //

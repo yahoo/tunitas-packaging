@@ -34,7 +34,7 @@ auto tests::unit::service::collector::Fixture::suite() -> Suite {
 #import tunitas.denniston.service.collector.subprocess.Boot
 #import tunitas.denniston.service.collector.subprocess.Measure
 #import tunitas.denniston.service.collector.subprocess.make
-#import tunitas.keyston.protocol.id
+#import tunitas.rheem.protocol.id
 #import tests.unit.service.Supervisor
 namespace tests::unit::service::collector {
   auto Fixture::test_usage_Collector() -> void {
@@ -74,7 +74,7 @@ namespace tests::unit::service::collector {
     // Eadem ratione.
     auto exercise = [](auto &world) {
       auto &ref{world.ref()};
-      auto identifier = ::tunitas::keyston::protocol::id::Task{};
+      auto identifier = ::tunitas::rheem::protocol::id::Task{};
       ref.subprocesses.spawn(sublibrary::make<sublibrary::Measure>(ref, identifier));
       require(ASSERTION);
     };
@@ -82,7 +82,7 @@ namespace tests::unit::service::collector {
 #else
     auto super = supervise<library::Collector>();
     auto &ref{super.ref()};
-    auto identifier = ::tunitas::keyston::protocol::id::Task{};
+    auto identifier = ::tunitas::rheem::protocol::id::Task{};
     ref.subprocesses.spawn(sublibrary::make<sublibrary::Measure>(ref, identifier));
     super.stop();
     require(ASSERTION);

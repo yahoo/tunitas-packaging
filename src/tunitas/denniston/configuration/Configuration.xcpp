@@ -42,9 +42,9 @@ namespace tunitas::denniston::configuration {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Configuration
-#import tunitas.keyston.protocol.id // for id::Service
-#import tunitas.keyston.entropy.Source
+#import tunitas.hale.hpke.Configuration
+#import tunitas.rheem.protocol.id // for id::Service
+#import tunitas.entropy.Source
 #import tunitas.denniston.index // for index::Service, index::Task
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Definition
@@ -53,11 +53,11 @@ namespace tunitas::denniston::configuration {
 struct tunitas::denniston::configuration::Configuration {
   struct Definitions { // plural because the contained type aliases are plural
     using Tasks = task::Dictionary<task::Definition>;
-    using Services = service::Dictionary<keyston::hpke::Side::SECRET>;
+    using Services = service::Dictionary<hale::hpke::Side::SECRET>;
   };
-  using Entropy = keyston::entropy::Source;
+  using Entropy = entropy::Source;
   //
-  std::vector<keyston::protocol::id::Service> endpoints{}; // stored according to the order
+  std::vector<rheem::protocol::id::Service> endpoints{}; // stored according to the order
   Optional<Definitions::Tasks> tasks{};
   Optional<Definitions::Services> services{};
   //

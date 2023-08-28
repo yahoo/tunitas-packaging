@@ -5,7 +5,5 @@
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #
 tunitas_keyston_SUBSOURCES = \
-  obj/src/tunitas/keyston/hpke/key_from.cpp \
-  obj/src/tunitas/keyston/protocol/report/key_from.cpp \
   obj/src/tunitas/keyston/shards/tunitas.denniston.role.Species.cpp \
   $(end)

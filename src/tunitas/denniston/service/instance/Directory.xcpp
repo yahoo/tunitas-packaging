@@ -64,7 +64,7 @@ public:
   ~Directory();
   Interfaces clients{};
   Shards processors{};
-  service::Dictionary<keyston::hpke::Side::SECRET> services{};
+  service::Dictionary<hale::hpke::Side::SECRET> services{};
 #if 12 < __GNUC__
   // src/tunitas/denniston/service/instance/Directory.xcpp:92:34: internal compiler error: in tsubst_copy, at cp/pt.cc:16950
   using E = error::Code;
@@ -84,10 +84,10 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <tpp>
-#import tunitas.keyston.hpke.io // supports {} in format(...)
+#import tunitas.hale.hpke.io // supports {} in format(...)
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Status
-#import tunitas.keyston.hpke.filter
+#import tunitas.hale.hpke.filter
 namespace tunitas::denniston::service::instance {
   template<protocol::packet::Get GET> auto Directory::respond(Interface &back, Query<GET> &query, string::View from_whom) -> void {
     constexpr auto const SIDE = Query<GET>::SIDE;

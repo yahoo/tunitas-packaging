@@ -10,8 +10,8 @@ namespace tunitas::denniston::concurrent::entropy {
   //
   // Specification:
   //
-  //   Shaped like keyston::entropy::Source
-  //   Models keyston::entropy::required::Entropy
+  //   Shaped lik::entropy::Source
+  //   Model::entropy::required::Entropy
   //   Mediates the concurrent access.
   //
   // Design:
@@ -20,7 +20,7 @@ namespace tunitas::denniston::concurrent::entropy {
   //
   // Usage:
   //
-  //   As one uses keyston::entropy::Source
+  //   As one use::entropy::Source
   //   e.g. in keyston::nonce::Generator<...>
   //
   //   auto source = Source{};
@@ -33,12 +33,12 @@ namespace tunitas::denniston::concurrent::entropy {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 #import std.mutex
 #import std.lock_guard
 #import std.is_reference
 class tunitas::denniston::concurrent::entropy::Source {
-  using Original = keyston::entropy::Source;
+  using Original = tunitas::entropy::Source;
   template<typename MANAGED> class Manager {
     using Managed = MANAGED;
     Managed managed;
@@ -48,7 +48,10 @@ class tunitas::denniston::concurrent::entropy::Source {
   public:
     template<bool = not std::is_reference_v<Managed>> Manager() : managed{} { }
     template<bool =     std::is_reference_v<Managed>> Manager(Original &o) : managed{o} { }
-    using Bits = Original::Bits;
+    inline static constexpr auto const BYTES = Original::BYTES;
+    inline static constexpr auto const BITS = Original::BITS;
+    using Draw = Original::Draw;
+    using Bits [[deprecated("maybe")]] = Draw;
     using Since = Original::Since;
     auto entropy() const noexcept -> double { return managed.entropy(); }
     inline auto draw() -> Bits;
@@ -61,12 +64,16 @@ public:
   public:
     using Ancestor::Manager;
   };
-  using Bits = Original::Bits;
+  inline static constexpr auto const BYTES = Original::BYTES;
+  inline static constexpr auto const BITS = Original::BITS;
+  using Draw = Original::Draw;
+  using Bits [[deprecated("maybe")]] = Draw;
   using Since = Original::Since;
   auto entropy() const noexcept -> double { return source.entropy(); }
   auto draw() -> Bits                     { return source.draw(); }
   static auto now() -> Since              { return Manager<Original>::now(); }
 };
+#import tunitas.entropy.is.Entropy.tunitas.denniston.concurrent.entropy.Source
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::concurrent::entropy {
@@ -77,17 +84,17 @@ namespace tunitas::denniston::concurrent::entropy {
 }
 #endiv
 #divert <cpp>
-#import tunitas.keyston.entropy.required.Entropy
+#import tunitas.entropy.usage.Entropy
 #import std.default_initializable
 #import std.constructible_from
 namespace {
   namespace testate {
     using tunitas::denniston::concurrent::entropy::Source;
-    using Original = tunitas::keyston::entropy::Source;
-    namespace required = tunitas::keyston::entropy::required;
+    using Original = tunitas::entropy::Source;
+    namespace usage = tunitas::entropy::usage;
     //
-    static_assert(required::Entropy<Source>);
-    static_assert(required::Entropy<Source::Wrapper>);
+    static_assert(usage::Entropy<Source>);
+    static_assert(usage::Entropy<Source::Wrapper>);
     //
     static_assert(std::default_initializable<Source>);
     static_assert(std::constructible_from<Source>);

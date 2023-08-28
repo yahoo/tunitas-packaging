@@ -22,11 +22,11 @@ namespace tunitas::denniston::protocol::packet::_::task {
 #divert <hpp>
 #import tunitas.Optional
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.id // for id::Task
+#import tunitas.rheem.protocol.id // for id::Task
 namespace tunitas::denniston::protocol::packet::_ {
   class task::Query : public Prototype {
   protected:
-    using Identifier = Optional<keyston::protocol::id::Task>;
+    using Identifier = Optional<rheem::protocol::id::Task>;
     ~Query() = default;
   public:
     Query() = default;

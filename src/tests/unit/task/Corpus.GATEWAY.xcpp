@@ -53,7 +53,7 @@ namespace tests::unit::task {
   }
 #if 0
   auto Corpus<library::Corpus<Genus::GATEWAY!>>::test_constructor_Protocol() -> void {
-    auto prot = ::tunitas::keyston::protocol::task::Task{};
+    auto prot = ::tunitas::rheem::protocol::task::Task{};
     auto subject = Subject{move(prot)};
     require(ASSERTION, sizeof (Subject));
   }

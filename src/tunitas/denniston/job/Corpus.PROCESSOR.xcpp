@@ -33,19 +33,19 @@ namespace tunitas::denniston::job {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.job.Definition
-#import tunitas.keyston.protocol.preparation.Steps
+#import tunitas.rheem.protocol.preparation.Steps
 #forward tunitas.denniston.task.Corpus
 namespace tunitas::denniston::job {
   inline auto swap(Corpus<Genus::PROCESSOR> &, Corpus<Genus::PROCESSOR> &) noexcept -> void;
   template<> struct Corpus<Genus::PROCESSOR> {
     Definition definition{};
     denniston::task::Corpus<Genus::PROCESSOR> *task{};
-    using Preparation_States = keyston::protocol::preparation::Steps<keyston::protocol::preparation::Mark::POSITIONED>;
+    using Preparation_States = rheem::protocol::preparation::Steps<rheem::protocol::preparation::Mark::POSITIONED>;
     Preparation_States states{};
     //
     [[implicit]] Corpus() = default;
-    [[implicit]] inline Corpus(keyston::protocol::id::Job, task::Corpus<Genus::PROCESSOR> &);
-    template<required::iterator::Member ITERATOR> inline [[implicit]] Corpus(keyston::protocol::id::Job, task::Corpus<Genus::PROCESSOR> &, ITERATOR start, ITERATOR finish);
+    [[implicit]] inline Corpus(rheem::protocol::id::Job, task::Corpus<Genus::PROCESSOR> &);
+    template<required::iterator::Member ITERATOR> inline [[implicit]] Corpus(rheem::protocol::id::Job, task::Corpus<Genus::PROCESSOR> &, ITERATOR start, ITERATOR finish);
   };
 }
 #endiv
@@ -58,11 +58,11 @@ namespace tunitas::denniston {
     swap(a.states, b.states);
   }
   namespace job {
-    Corpus<Genus::PROCESSOR>::Corpus(keyston::protocol::id::Job job_id, task::Corpus<Genus::PROCESSOR> &task_of)
+    Corpus<Genus::PROCESSOR>::Corpus(rheem::protocol::id::Job job_id, task::Corpus<Genus::PROCESSOR> &task_of)
       : definition{job_id}
       , task{&task_of}
     { }
-    template<required::iterator::Member ITERATOR> Corpus<Genus::PROCESSOR>::Corpus(keyston::protocol::id::Job job_id, task::Corpus<Genus::PROCESSOR> &task_of, ITERATOR start, ITERATOR finish)
+    template<required::iterator::Member ITERATOR> Corpus<Genus::PROCESSOR>::Corpus(rheem::protocol::id::Job job_id, task::Corpus<Genus::PROCESSOR> &task_of, ITERATOR start, ITERATOR finish)
       : definition{move(job_id), start, finish}
       , task{&task_of}
     { }

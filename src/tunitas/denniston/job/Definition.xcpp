@@ -20,38 +20,38 @@ namespace tunitas::denniston::job {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.id // id::Job, id::Report and so on
-#import tunitas.keyston.protocol.job.Job
+#import tunitas.rheem.protocol.id // id::Job, id::Report and so on
+#import tunitas.rheem.protocol.job.Job
 #import tunitas.denniston.report.Series
 #import tunitas.denniston.job.required.iterator.Member
 namespace tunitas::denniston {
   namespace job {
     using std::move;
     inline auto swap(Definition &, Definition &) noexcept -> void;
-    inline auto key_from(Definition const &) -> keyston::protocol::id::Job const &;
+    inline auto key_from(Definition const &) -> rheem::protocol::id::Job const &;
   }
-  class job::Definition : public keyston::protocol::job::Job {
-    using Ancestor = keyston::protocol::job::Job;
+  class job::Definition : public rheem::protocol::job::Job {
+    using Ancestor = rheem::protocol::job::Job;
     friend auto job::swap(Definition &, Definition &) noexcept -> void;
   public:
     Definition() = default;
     using Ancestor::Job;
-    template<required::iterator::Member ITERATOR> inline [[implicit]] Definition(keyston::protocol::id::Job, ITERATOR start, ITERATOR finish);
+    template<required::iterator::Member ITERATOR> inline [[implicit]] Definition(rheem::protocol::id::Job, ITERATOR start, ITERATOR finish);
     //
-    report::Series<keyston::protocol::id::Report> members{};
+    report::Series<rheem::protocol::id::Report> members{};
  };
 }
 #endiv
 #divert <ipp>
 namespace tunitas::denniston {
-  auto job::key_from(Definition const &m) -> keyston::protocol::id::Job const & { return m.id; }
+  auto job::key_from(Definition const &m) -> rheem::protocol::id::Job const & { return m.id; }
   auto job::swap(Definition &a, Definition &b) noexcept -> void {
     Definition::Ancestor &aa{a}, &bb{b};
     swap(aa, bb);
     swap(a.members, b.members);
   }
   namespace job {
-    template<required::iterator::Member ITERATOR> Definition::Definition(keyston::protocol::id::Job id, ITERATOR start, ITERATOR finish)
+    template<required::iterator::Member ITERATOR> Definition::Definition(rheem::protocol::id::Job id, ITERATOR start, ITERATOR finish)
       : Ancestor{move(id)}
       , members{start, finish}
     { }

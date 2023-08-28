@@ -40,10 +40,10 @@ namespace tests::unit::service::partial {
 #import tunitas.denniston.network.Socket
 #import tunitas.denniston.network.Socket.Interface
 #import tunitas.denniston.process.Prototype
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 #import tunitas.denniston.scheduler.exception.Aspect
 struct tests::unit::service::partial::background::Background : public ::tunitas::denniston::process::Prototype {
-  using Entropy = ::tunitas::keyston::entropy::Source;
+  using Entropy = ::tunitas::entropy::Source;
   using Configuration = ::tunitas::denniston::Configuration;
   using Socket = ::tunitas::denniston::network::Socket;
   using Threads = ::tunitas::denniston::scheduler::Threads;

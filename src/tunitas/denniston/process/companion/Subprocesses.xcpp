@@ -46,9 +46,9 @@ namespace tunitas::denniston::process::companion {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.process.companion.Pointer
-#import tunitas.keyston.array.Series
+#import tunitas.array.Series
 #import tunitas.denniston.process.companion.Synchro
-#import nonstd.container.Traits.tunitas.keyston.array.Series.TYPE
+#import nonstd.container.Traits.tunitas.array.Series.TYPE
 #import tunitas.denniston.process.companion.usage.Subprocess
 namespace tunitas::denniston::process::companion {
   namespace subprocesses {
@@ -57,7 +57,7 @@ namespace tunitas::denniston::process::companion {
   }
   template<companion::required::Subprocess SUBPROCESS> class subprocesses::Subprocesses {
     static_assert(usage::Subprocess<SUBPROCESS>);
-    using Series = keyston::array::Series<Pointer<SUBPROCESS>>;
+    using Series = array::Series<Pointer<SUBPROCESS>>;
     using Subprocess = SUBPROCESS;
     using Synchro = companion::Synchro<typename nonstd::container::Traits<Series const>::Type>;
     Series series{};

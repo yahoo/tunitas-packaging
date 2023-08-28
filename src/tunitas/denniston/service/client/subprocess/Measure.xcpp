@@ -35,8 +35,8 @@ namespace tunitas::denniston::service::client::subprocess {
 #import tunitas.denniston.report.Generator
 #import tunitas.denniston.task.Definition
 #import tunitas.denniston.service.client.subprocess.Prototype
-#import tunitas.keyston.protocol.report.Produced
-#import tunitas.keyston.entropy.Jitter
+#import tunitas.rheem.protocol.report.Produced
+#import tunitas.entropy.Jitter
 namespace tunitas::denniston::service::client {
   namespace subprocess {
     inline auto swap(Measure *&a, Measure *&b) noexcept -> void { std::swap(a, b); }
@@ -50,7 +50,8 @@ namespace tunitas::denniston::service::client {
     //
     denniston::task::Definition const &task;
     report::Generator<concurrent::entropy::Source::Wrapper> measure;
-    keyston::entropy::Jitter<concurrent::entropy::Source::Wrapper> delay;
+
+    entropy::Jitter<concurrent::entropy::Source::Wrapper> delay;
   };
 }
 #endiv

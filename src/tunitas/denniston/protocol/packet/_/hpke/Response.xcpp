@@ -24,20 +24,20 @@ namespace tunitas::denniston::protocol::packet::_::hpke {
   //
   //   By inheritance.
   //
-  template<keyston::hpke::Side> struct Response;
+  template<hale::hpke::Side> struct Response;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet._.hpke.Basis
-#import tunitas.keyston.hpke.Configuration
+#import tunitas.hale.hpke.Configuration
 namespace tunitas::denniston::protocol::packet::_ {
-  template<keyston::hpke::Side THE_SIDE> struct hpke::Response : public Basis {
+  template<hale::hpke::Side THE_SIDE> struct hpke::Response : public Basis {
     using Ancestor = Basis;
   protected:
     ~Response() = default;
   public:
     inline static constexpr auto const SIDE = THE_SIDE;
-    using Configuration = keyston::hpke::Configuration<SIDE>;
+    using Configuration = hale::hpke::Configuration<SIDE>;
     Configuration configuration{};
     explicit Response() = default;
     using Ancestor::Basis;
@@ -48,11 +48,11 @@ namespace tunitas::denniston::protocol::packet::_ {
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::protocol::packet::_::hpke {
-  template<keyston::hpke::Side _> Response<_>::Response(Service s, Configuration c)
+  template<hale::hpke::Side _> Response<_>::Response(Service s, Configuration c)
     : Ancestor{move(s)}
     , configuration{move(c)}
   { }
-  template<keyston::hpke::Side _> Response<_>::Response(Service s, typename Ancestor::Task t, Configuration c)
+  template<hale::hpke::Side _> Response<_>::Response(Service s, typename Ancestor::Task t, Configuration c)
     : Ancestor{move(s), move(t)}
     , configuration{move(c)}
   { }

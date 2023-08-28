@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.service.instance
-#import tunitas.keyston.protocol.constants
+#import tunitas.rheem.protocol.constants
 namespace tunitas::denniston::service {
   //
   // The manifestation of the service system (all of them comprise the system)
@@ -49,13 +49,13 @@ namespace tunitas::denniston::service {
   namespace [[eponymous]] system {
     struct System;
     using namespace instance;
-    using tunitas::keyston::protocol::constants::PROCESSOR_COUNT;
+    using tunitas::rheem::protocol::constants::PROCESSOR_COUNT;
   }
   using system::System;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 #import tunitas.denniston.Configuration
 #import tunitas.denniston.service.instance.Pointer
 #import tunitas.denniston.service.instance.Client
@@ -76,7 +76,7 @@ public:
   Pointer<Gateway> gateway{};
   keyston::Shards<Pointer<Processor>> processors{};
   //
-  using Entropy = keyston::entropy::Source;
+  using Entropy = entropy::Source;
   explicit System(Entropy &, [[inout]] denniston::Configuration &, Size initial_client_count = 0);
   System(System const &) = delete;
   System &operator=(System const &) = delete;

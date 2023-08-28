@@ -21,19 +21,19 @@ namespace tunitas::denniston::report {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.count // for job::Count
-#import tunitas.keyston.protocol.id // id::Report and id::Job and so on
-#import tunitas.keyston.protocol.report.Produced
+#import tunitas.rheem.protocol.id // id::Report and id::Job and so on
+#import tunitas.rheem.protocol.report.Produced
 #import tunitas.Optional
 namespace tunitas::denniston {
   namespace report {
     using std::move;
     inline auto swap(Definition &, Definition &) noexcept -> void;
-    inline auto key_from(Definition const &) -> keyston::protocol::id::Report const &;
+    inline auto key_from(Definition const &) -> rheem::protocol::id::Report const &;
   }
   struct report::Definition {
-    using Report = keyston::protocol::report::Produced<keyston::protocol::Slice::WHOLE>;
+    using Report = rheem::protocol::report::Produced<rheem::protocol::Slice::WHOLE>;
     Report report{};
-    Optional<keyston::protocol::id::Job> job_id{}; // best: this should be a pointer to the reigning job
+    Optional<rheem::protocol::id::Job> job_id{}; // best: this should be a pointer to the reigning job
     count::Job process_repetitions{}; // how many times has this report been sent out to the processors for work?
     //
     Definition() = default;
@@ -43,7 +43,7 @@ namespace tunitas::denniston {
 #endiv
 #divert <ipp>
 namespace tunitas::denniston {
-  auto report::key_from(Definition const &m) -> keyston::protocol::id::Report const & { return m.report.report_id; }
+  auto report::key_from(Definition const &m) -> rheem::protocol::id::Report const & { return m.report.report_id; }
   auto report::swap(Definition &a, Definition &b) noexcept -> void {
     swap(a.report, b.report);
     swap(a.job_id, b.job_id);

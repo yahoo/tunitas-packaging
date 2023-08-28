@@ -8,32 +8,32 @@
 #endiv
 #divert <hpp>
 #import std.size_t
-#import tunitas.keyston.identifier.Generator
-#import tunitas.keyston.protocol.id // Batch, Task, etc.
-#import tunitas.keyston.protocol.query.Type
-#import tunitas.keyston.protocol.query.Query
-#import tunitas.keyston.protocol.query.Batch
-#import tunitas.keyston.vdaf.protocol.Executor
-#import tunitas.keyston.time.Clock
+#import tunitas.rheem.identifier.Generator
+#import tunitas.rheem.protocol.id // Batch, Task, etc.
+#import tunitas.rheem.protocol.query.Type
+#import tunitas.rheem.protocol.query.Query
+#import tunitas.rheem.protocol.query.Batch
+#import tunitas.keyston.vdaf.Name
+#import tunitas.time.Clock
 namespace tunitas::denniston::configuration {
   struct Configuration::Tasks {
     template<Configuration::Index::Task> static auto fill([[inout]] task::Definition &, Configuration const &) -> void;
     static std::size_t const COUNT;
   private:
     struct Generator {
-      using Task = keyston::identifier::Generator<keyston::protocol::id::Task, keyston::identifier::generator::Policy::SUPPLIED>;
-      using Batch = keyston::identifier::Generator<keyston::protocol::id::Batch, keyston::identifier::generator::Policy::SUPPLIED>;
+      using Task = rheem::identifier::Generator<rheem::protocol::id::Task, rheem::identifier::generator::Policy::SUPPLIED>;
+      using Batch = rheem::identifier::Generator<rheem::protocol::id::Batch, rheem::identifier::generator::Policy::SUPPLIED>;
     };
-    using Clock = keyston::time::Clock;
+    using Clock = time::Clock;
     struct Query {
-      using enum keyston::protocol::query::Type;
-      static_assert(std::same_as<keyston::protocol::query::Query, keyston::protocol::query::Batch>, "still true");
-      using Batch = keyston::protocol::query::Batch;
-      using Time_Interval = keyston::protocol::query::Time_Interval;
-      using Fixed_Size = keyston::protocol::query::Fixed_Size;
-      template<keyston::protocol::query::Type TYPE> using Record = keyston::protocol::query::batch::Record<TYPE>;
+      using enum rheem::protocol::query::Type;
+      static_assert(std::same_as<rheem::protocol::query::Query, rheem::protocol::query::Batch>, "still true");
+      using Batch = rheem::protocol::query::Batch;
+      using Time_Interval = rheem::protocol::query::Time_Interval;
+      using Fixed_Size = rheem::protocol::query::Fixed_Size;
+      template<rheem::protocol::query::Type TYPE> using Record = rheem::protocol::query::batch::Record<TYPE>;
     };
-    using Function = keyston::vdaf::protocol::Executor;
+    using Function = keyston::vdaf::Name;
   };
   template<> auto Configuration::Tasks::fill<Configuration::Index::Task{0}>(task::Definition &, Configuration const &) -> void;
   template<> auto Configuration::Tasks::fill<Configuration::Index::Task{1}>(task::Definition &, Configuration const &) -> void;

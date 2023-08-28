@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.keyston.protocol.id // for id::Report
+#import tunitas.rheem.protocol.id // for id::Report
 #forward tunitas.denniston.report.Definition
 #forward tunitas.denniston.report.Status
 namespace tunitas::denniston::report::required {
@@ -13,7 +13,7 @@ namespace tunitas::denniston::report::required {
   // This MUST be diagnosable without the complete type of VALUE
   // So, crudely, we enumeration the allowed types by name.
   //
-  template<typename VALUE> concept Valuable = (same_as<VALUE, keyston::protocol::id::Report> ||
+  template<typename VALUE> concept Valuable = (same_as<VALUE, rheem::protocol::id::Report> ||
                                                same_as<VALUE, report::Definition> ||
                                                same_as<VALUE, report::Status>);
 }

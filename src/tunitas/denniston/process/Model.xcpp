@@ -43,7 +43,7 @@ namespace tunitas::denniston::process {
 #forward tunitas.denniston.configuration.Configuration
 #forward tunitas.denniston.process.companion.Barrier
 #import tunitas.denniston.process.Prototype
-#import tunitas.keyston.vdaf.Executor
+#import tunitas.keyston.vdaf.Name
 #import std.atomic
 #import std.binary_semaphore
 #import std.vector
@@ -57,7 +57,7 @@ public:
   using Interfaces = std::vector<network::Socket::Interface>;
   Interface control{};
   //
-  using Executor = keyston::vdaf::Executor<keyston::Transport::PROTOCOL>;
+  using Executor = keyston::vdaf::Name;
   Executor executor{configuration::VERIFIABLE_AGGREGATION_FUNCTION_NAME};
   //
   Model(Model const &) = delete;

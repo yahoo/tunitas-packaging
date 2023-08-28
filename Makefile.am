@@ -38,7 +38,10 @@ noinst_LTLIBRARIES = \
   noinst/lib/libtunitas-denniston.la \
   noinst/lib/libfmt+tunitas-denniston.la \
   noinst/lib/libstd+tunitas-denniston.la \
+  noinst/lib/libtunitas-hale+tunitas-denniston.la \
   noinst/lib/libtunitas-keyston+tunitas-denniston.la \
+  noinst/lib/libtunitas-rheem+tunitas-denniston.la \
+  noinst/lib/libtunitas+tunitas-denniston.la \
   noinst/lib/libnonstd+tunitas-denniston.la \
   noinst/lib/libautotools-autoconf+tunitas-denniston.la \
   $(end)
@@ -82,6 +85,8 @@ DEVELOPMENT_AREAS = \
   $(module_sys_prefix) \
   $(tunitas_basics_prefix) \
   $(tunitas_keyston_prefix) \
+  $(tunitas_hale_prefix) \
+  $(tunitas_rheem_prefix) \
   $(deprecated_DEVELOPMENT_AREAS) \
   $(end)
 TESTING_AREAS = \
@@ -116,14 +121,14 @@ include noinst/lib/libtunitas-denniston.am
 include noinst/lib/libautotools-autoconf+tunitas-denniston.am
 include noinst/lib/libfmt+tunitas-denniston.am
 include noinst/lib/libstd+tunitas-denniston.am
+include noinst/lib/libtunitas-hale+tunitas-denniston.am
 include noinst/lib/libtunitas-keyston+tunitas-denniston.am
+include noinst/lib/libtunitas-rheem+tunitas-denniston.am
+include noinst/lib/libtunitas+tunitas-denniston.am
 include noinst/lib/libnonstd+tunitas-denniston.am
 include lib/libtunitas-denniston.am
 
-INSTALL_MODULES = $(error FIXTHIS) \
-  $(noinst_lib_libtunitas_denniston_la_MODULES) \
-  $(noinst_lib_libwant_la_MODULES) \
-  $(end)
+include modules/Makefrag.am # this MUST be after the relevant nonstd_lib_lib${something}_la_MODULES_ variables are defined
 
 # --- Mostly boilerplate beyond here
 #

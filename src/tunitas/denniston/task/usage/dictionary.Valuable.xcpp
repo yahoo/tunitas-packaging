@@ -7,7 +7,7 @@
 #import tunitas.denniston.task.Definition
 #import tunitas.denniston.task.Corpus
 #import tunitas.denniston.task.required.dictionary.Valuable
-#import tunitas.keyston.protocol.id // for id::Task
+#import tunitas.rheem.protocol.id // for id::Task
 namespace tunitas::denniston::task::usage::dictionary {
   //
   // Is this type suitable for the VALUE of a Dictionary<VALUE>
@@ -19,7 +19,7 @@ namespace tunitas::denniston::task::usage::dictionary {
     requires std::is_copy_assignable_v<VALUE> || std::is_move_assignable_v<VALUE>;
     requires std::is_swappable_v<VALUE>;
     //
-    { key_from(value) } -> convertible_to<keyston::protocol::id::Task const &>;
+    { key_from(value) } -> convertible_to<rheem::protocol::id::Task const &>;
   };
 }
 #endiv

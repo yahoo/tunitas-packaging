@@ -25,11 +25,11 @@ auto tests::unit::configuration::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 #import tunitas.denniston.configuration.Configuration
 namespace tests::unit::configuration {
   auto Fixture::test_usage_Configuration() -> void {
-    auto source = ::tunitas::keyston::entropy::Source{};
+    auto source = ::tunitas::entropy::Source{};
     using Subject = library::Configuration;
     auto subject = Subject{source};
     require(ASSERTION, sizeof (subject));

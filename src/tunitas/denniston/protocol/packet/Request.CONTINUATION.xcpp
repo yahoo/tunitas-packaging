@@ -18,7 +18,7 @@ namespace tunitas::denniston::protocol::packet {
   //
   // Usage:
   //
-  //   auto req = keyston::protocol::continuation::Request{...somehow...};
+  //   auto req = rheem::protocol::continuation::Request{...somehow...};
   //
   //   auto made = make<Request<CONTINUATION>>(move(req));
   //
@@ -27,10 +27,10 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.continuation.Request
+#import tunitas.rheem.protocol.continuation.Request
 namespace tunitas::denniston::protocol::packet {
   template<> struct Request<Post::CONTINUATION> : public Prototype {
-    using Payload = keyston::protocol::continuation::Request;
+    using Payload = rheem::protocol::continuation::Request;
     Payload payload{};
     inline explicit Request(Payload p) : payload{move(p)} { }
   };

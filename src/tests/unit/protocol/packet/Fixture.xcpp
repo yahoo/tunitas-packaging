@@ -6,13 +6,13 @@
 #divert <fpp>
 #import tunitas.denniston.protocol.packet
 #import tunitas.denniston.protocol.Packet
-#import tunitas.keyston.transport.error.Code
+#import tunitas.rheem.transport.error.Code
 namespace tests::unit::protocol::packet {
   class Fixture;
   namespace library = ::tunitas::denniston::protocol::packet;
   namespace protocol = ::tunitas::denniston::protocol;
   using ::tunitas::denniston::protocol::Packet;
-  using E = ::tunitas::keyston::transport::error::Code;
+  using E = ::tunitas::rheem::transport::error::Code;
 }
 #endiv
 #divert <hpp>

@@ -6,13 +6,13 @@
 #divert <fpp>
 #import tunitas.denniston.protocol.packet
 #import tunitas.denniston.protocol.Packet
-#import tunitas.keyston.transport.error.Code
+#import tunitas.rheem.transport.error.Code
 namespace tests::unit::protocol::packet::make {
   class Fixture;
   namespace library = ::tunitas::denniston::protocol::packet;
   namespace protocol = ::tunitas::denniston::protocol;
   using ::tunitas::denniston::protocol::Packet;
-  using E = ::tunitas::keyston::transport::error::Code;
+  using E = ::tunitas::rheem::transport::error::Code;
 }
 #endiv
 #divert <hpp>
@@ -106,29 +106,30 @@ auto tests::unit::protocol::packet::make::Fixture::suite() -> Suite {
          << END;
   return settle(series);
 }
-#import tunitas.keyston.protocol.id // for id::Job
-#import tunitas.keyston.protocol.initialization.Request
-#import tunitas.keyston.protocol.continuation.Request
+#import tunitas.rheem.protocol.id // for id::Job
+#import tunitas.rheem.protocol.initialization.Request
+#import tunitas.rheem.protocol.continuation.Request
+#import tunitas.rheem.transport.error.Code
 namespace tests::unit::protocol::packet::make {
   template<> auto Fixture::test_make<library::Request<library::Post::INITIALIZATION>>() -> void {
-    auto payload = ::tunitas::keyston::protocol::initialization::Request{};
+    auto payload = ::tunitas::rheem::protocol::initialization::Request{};
     auto made = library::make<library::Request<library::Post::INITIALIZATION>>(payload);
     require(ASSERTION, sizeof (made));
   }
   template<> auto Fixture::test_make<library::Request<library::Post::CONTINUATION>>() -> void {
-    auto payload = ::tunitas::keyston::protocol::continuation::Request{};
+    auto payload = ::tunitas::rheem::protocol::continuation::Request{};
     auto made = library::make<library::Request<library::Post::CONTINUATION>>(payload);
     require(ASSERTION, sizeof (made));
   }
   template<> auto Fixture::test_make<library::Response<library::Get::INITIALIZATION>>() -> void {
-    auto destination = ::tunitas::keyston::protocol::id::Job{};
-    auto payload = ::tunitas::keyston::protocol::initialization::Response{};
+    auto destination = ::tunitas::rheem::protocol::id::Job{};
+    auto payload = ::tunitas::rheem::protocol::initialization::Response{};
     auto made = library::make<library::Response<library::Get::INITIALIZATION>>(destination, payload);
     require(ASSERTION, sizeof (made));
   }
   template<> auto Fixture::test_make<library::Response<library::Get::CONTINUATION>>() -> void {
-    auto destination = ::tunitas::keyston::protocol::id::Job{};
-    auto payload = ::tunitas::keyston::protocol::continuation::Response{};
+    auto destination = ::tunitas::rheem::protocol::id::Job{};
+    auto payload = ::tunitas::rheem::protocol::continuation::Response{};
     auto made = library::make<library::Response<library::Get::CONTINUATION>>(destination, payload);
     require(ASSERTION, sizeof (made));
   }
@@ -138,7 +139,7 @@ namespace tests::unit::protocol::packet::make {
       require(ASSERTION, nullptr != made.get());
       require(ASSERTION, sizeof (made));
     } {
-      using E = ::tunitas::keyston::transport::error::Code::Enumeration;
+      using E = ::tunitas::rheem::transport::error::Code::Enumeration;
       auto made = library::make<library::Status>(E::FAILURE); // <---------------------------------------- test this
       require(ASSERTION, nullptr != made.get());
       require(ASSERTION, sizeof (made));

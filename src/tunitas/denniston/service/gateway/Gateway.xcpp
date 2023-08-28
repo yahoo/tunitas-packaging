@@ -36,10 +36,10 @@ namespace tunitas::denniston::service::gateway {
 #import tunitas.denniston.service.gateway.Subprocesses
 #import tunitas.denniston.preparation.ranges.Subrange
 #import tunitas.denniston.preparation.ranges.Projection
-#import tunitas.keyston.entropy.Source
-#import tunitas.keyston.identifier.Generator
-#import tunitas.keyston.protocol.id // for id::Job
-#import tunitas.keyston.protocol.preparation.Steps
+#import tunitas.entropy.Source
+#import tunitas.rheem.identifier.Generator
+#import tunitas.rheem.protocol.id // for id::Job
+#import tunitas.rheem.protocol.preparation.Steps
 #import tunitas.keyston.Shards
 class tunitas::denniston::service::gateway::Gateway : public process::Reactor {
   using Ancestor = process::Reactor;
@@ -48,14 +48,14 @@ protected:
   auto respond([[inout]] Interface &, [[inout]] Report<protocol::WHOLE> &, string::View from_whom) -> void;
   using Shards = keyston::Shards<Interface>;
   class Project_To {
-    using Steps = keyston::protocol::preparation::Steps<keyston::protocol::preparation::Mark::TAGGED>;
+    using Steps = rheem::protocol::preparation::Steps<rheem::protocol::preparation::Mark::TAGGED>;
     using Projection = preparation::ranges::Projection;
     template<Projection PROJECTION, typename SUBITERATOR> using Subrange = preparation::ranges::Subrange<PROJECTION, SUBITERATOR>;
   public:
     using Positioned = Subrange<Projection::POSITIONED, Steps::Basic_Iterator<Steps const>>;
   };
 public:
-  using Entropy = keyston::entropy::Source;
+  using Entropy = entropy::Source;
   inline explicit Gateway([[inout]] Entropy &, [[inout]] denniston::Configuration &);
   ~Gateway();
   auto launch(scheduler::Threads &) -> void override;
@@ -68,7 +68,7 @@ public:
   task::Dictionary<task::Corpus<Genus::GATEWAY>> tasks{};
   job::Dictionary<job::Corpus<Genus::GATEWAY>> jobs{};
   class Generators {
-    using Job = keyston::identifier::Generator<keyston::protocol::id::Job, keyston::identifier::generator::Policy::RANDOM, keyston::entropy::Source>;
+    using Job = rheem::identifier::Generator<rheem::protocol::id::Job, rheem::identifier::generator::Policy::RANDOM, entropy::Source>;
   public:
     Job job_id;
     Generators(Entropy &e) : job_id{e} { }

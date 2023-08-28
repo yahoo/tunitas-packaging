@@ -4,8 +4,8 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <hpp>
-#import tunitas.keyston.protocol.report.Metadata
-namespace tunitas::keyston::protocol::report {
+#import tunitas.rheem.protocol.report.Metadata
+namespace tunitas::rheem::protocol::report {
   //
   // Get the key from the Metadata of the Report
   //
@@ -28,19 +28,19 @@ namespace tunitas::keyston::protocol::report {
 }
 #endiv
 #divert <ipp>
-namespace tunitas::keyston::protocol {
+namespace tunitas::rheem::protocol {
   auto report::key_from(Metadata const &p) -> id::Report const & { return p.report_id; }
 }
 #endiv
 #divert <cpp>
 #import tunitas.denniston.concurrent.dictionary.usage.Valuable
 #import tunitas.denniston.concurrent.dictionary.usage.Key_From
-#import tunitas.keyston.protocol.report.Produced
+#import tunitas.rheem.protocol.report.Produced
 namespace {
   namespace testate {
     namespace usage = tunitas::denniston::concurrent::dictionary::usage;
-    using namespace tunitas::keyston::protocol::report;
-    using enum tunitas::keyston::protocol::Slice;
+    using namespace tunitas::rheem::protocol::report;
+    using enum tunitas::rheem::protocol::Slice;
     static_assert(usage::Key_From<Produced<WHOLE>>);
     static_assert(usage::Valuable<Produced<WHOLE>>);
     static_assert(usage::Key_From<Produced<SHARE>>);

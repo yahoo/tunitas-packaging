@@ -26,8 +26,8 @@ namespace tunitas::denniston::log::package_stamp {
 #import nonstd.required.Character_Traits
 #import tunitas.Optional
 #import tunitas.Tuple
-#import tunitas.keyston.time.Point
-#import tunitas.keyston.time.Clock
+#import tunitas.time.Point
+#import tunitas.time.Clock
 #import tunitas.keyston.required // at least
 namespace tunitas::denniston::log::package_stamp {
   namespace body {
@@ -56,7 +56,7 @@ namespace tunitas::denniston::log::package_stamp {
       //   auto proc  = Species::COLLECTOR;
       //   cout << stamp(proc);
       //
-      inline auto stamp(keyston::time::Point const & = keyston::time::Clock::now()) -> Formatter<keyston::time::Point>;
+      inline auto stamp(time::Point const & = time::Clock::now()) -> Formatter<time::Point>;
       inline auto stamp(Species const &) -> Formatter<Species>;
     }
     inline constexpr auto NaC = Optional<char>{};
@@ -71,7 +71,7 @@ namespace tunitas::denniston::log::package_stamp {
     template<required::Character CHAR, required::Character_Traits TRAITS> inline auto insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
   };
   namespace body {
-    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<keyston::time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
     template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<Species>::insert(std::basic_ostream<CHAR, TRAITS> &) const -> std::basic_ostream<CHAR, TRAITS> &;
   }
 }
@@ -85,12 +85,12 @@ namespace tunitas::denniston::log::package_stamp {
 #import sys.time.put
 #import tunitas.string.View
 namespace tunitas::denniston::log::package_stamp {
-  auto interface::stamp(keyston::time::Point const &p) -> Formatter<keyston::time::Point> { return {p}; }
+  auto interface::stamp(time::Point const &p) -> Formatter<time::Point> { return {p}; }
   auto interface::stamp(Species const &n) -> Formatter<Species> { return {n}; }
 
   template<required::Character CHAR, required::Character_Traits TRAITS, typename TYPE> auto body::operator<<(std::basic_ostream<CHAR, TRAITS> &o, Formatter<TYPE> const &f) -> std::basic_ostream<CHAR, TRAITS> & { return f.insert(o); }
   namespace body {
-    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<keyston::time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
+    template<> template<required::Character CHAR, required::Character_Traits TRAITS> auto Formatter<time::Point>::insert(std::basic_ostream<CHAR, TRAITS> &o) const -> std::basic_ostream<CHAR, TRAITS> & {
       using namespace sys::time;
       using namespace nonstd;
       auto nanosecond_count = duration_cast<durations::nanoseconds>(this->value.time_since_epoch()).count() % 1'000'000'000;
