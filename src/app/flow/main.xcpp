@@ -71,7 +71,7 @@ namespace app::flow::package_main {
     auto const spec = options::Specification{};
     auto parser = options::Parser{exp, spec};
     auto parsed = parser.parse(cfg, argv);
-    // parsed is unused becuase there are no words allowed after the options
+    // parsed is unused because there are no words allowed after the options
     if (cfg.interactive_mode) {
       error(exp) << "interactive mode is not implemented\n";
       throw exception::Quitting{exp, UNIMPLEMENTED};
