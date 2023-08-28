@@ -11,7 +11,7 @@ namespace tunitas::denniston::task {
   //
   // Specification:
   //
-  //   Outgoing communicates from run to delegate (subprocess)
+  //   Outgoing work communicates from run(...) to a delegate (a subprocess)
   //
   //   The aggregation parameters are not known until runtime when the Collector supplies them.
   //   PRIO3 has empty aggregation parameters (i.e. none).
@@ -19,7 +19,9 @@ namespace tunitas::denniston::task {
   //
   // Design:
   //
-  //   Whereas the Outgonig is a Channel, it cannot be copied.
+  //   Whereas the Outgoing is a Channel, it cannot be copied.
+  //
+  //   The constructors MUST be implicit to convert from the Definition upon insertion into a Dictionary.
   //
   // Usage:
   //
@@ -32,7 +34,7 @@ namespace tunitas::denniston::task {
 #import tunitas.Optional
 #import tunitas.denniston.task.Definition
 #forward tunitas.denniston.service.gateway.subprocess.Task
-#import tunitas.keyston.protocol.function.Parameters
+#import tunitas.keyston.vdaf.Parameters
 namespace tunitas::denniston::task {
   inline auto swap(Corpus<Genus::GATEWAY> &, Corpus<Genus::GATEWAY> &) noexcept -> void;
   template<> struct Corpus<Genus::GATEWAY> {
@@ -41,7 +43,7 @@ namespace tunitas::denniston::task {
     //
     Definition definition{};
     service::gateway::subprocess::Task *subprocess{};
-    Optional<keyston::protocol::function::Parameters> aggregation_parameters{};
+    Optional<keyston::vdaf::Parameters> aggregation_parameters{};
   };
 }
 #endiv

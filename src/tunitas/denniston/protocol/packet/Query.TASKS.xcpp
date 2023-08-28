@@ -12,6 +12,12 @@ namespace tunitas::denniston::protocol::packet {
   //  The Client is asking the Configuration (service) for the TASKS which are available for it.
   //  The Client is asking the Configuration (service) if a specific TASK is available for it.
   //
+  // Design:
+  //
+  //   No.  Yeah No.  No Yeah.
+  //   In point of fact, there is a design decision here.
+  //   To wit: the use of inheritance prevents the use of designated initialization.
+  //
   // Response:
   //
   //   Success returns a Response<TASKS>
@@ -21,12 +27,13 @@ namespace tunitas::denniston::protocol::packet {
 }
 #endiv
 #divert <hpp>
-#import tunitas.Optional
-#import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.id // for id::Task
+#import tunitas.denniston.protocol.packet._.task.Query
 namespace tunitas::denniston::protocol::packet {
-  template<> struct Query<Get::TASKS> : public Prototype {
-    Optional<keyston::protocol::id::Task> task_id;
+  template<> class Query<Get::TASKS> : public _::task::Query {
+    using Ancestor = _::task::Query;
+  public:
+    explicit Query() = default;
+    using Ancestor::Query;
   };
 }
 #endiv

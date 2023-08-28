@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.collector.subprocess.required.Subprocess
+#import tunitas.denniston.service.collector.subprocess.Prototype
+#include <hpp/tunitas.denniston.service.collector.subprocess.Prototype> // companion::Pointer<...> requires at least this
+#import tunitas.denniston.process.companion.Pointer
+namespace tunitas::denniston::service::collector::subprocess {
+  //
+  // A pointer to a collector subprocess.
+  //
+  // Specification:
+  //
+  //   unique_ptr, you know.
+  //
+  // Design:
+  //
+  //   std::unique_ptr
+  //
+  // Usage:
+  //
+  //   Said it before ... unique_ptr.
+  //   See std::make_unique(...)
+  //
+  template<required::Subprocess INSTANCE> using Pointer = process::companion::Pointer<INSTANCE>;
+}
+#endiv

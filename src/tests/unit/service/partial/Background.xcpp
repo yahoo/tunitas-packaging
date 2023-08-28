@@ -1,0 +1,134 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.time.literals
+namespace tests::unit::service::partial {
+  //
+  // The minimal background needed to support the Supervised. 
+  // Everything but the Supervisable subject.
+  // The descendant is the Supervised<SUBJECT>
+  //
+  // Specification:
+  //
+  //   The Subject is in the descendant.
+  //   The World supplies its own entropy source.
+  //   If the (descendant's) subject (field) needs an entropy source, then it constructs with the world's entropy.
+  //
+  // Descendants
+  //
+  //   (general) subject constructs with an entropy source
+  //   (Collector) constructs without an entropy source.
+  //
+  // Design:
+  //
+  //   yes.
+  //
+  namespace [[eponymous]] background {
+    struct Background;
+    using namespace ::tunitas::time::literals;
+  }
+  using background::Background;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.required.Supervisable
+#import tunitas.denniston.scheduler.Threads
+#import tunitas.denniston.Configuration
+#import tunitas.denniston.network.Socket
+#import tunitas.denniston.network.Socket.Interface
+#import tunitas.denniston.process.Prototype
+#import tunitas.entropy.Source
+#import tunitas.denniston.scheduler.exception.Aspect
+struct tests::unit::service::partial::background::Background : public ::tunitas::denniston::process::Prototype {
+  using Entropy = ::tunitas::entropy::Source;
+  using Configuration = ::tunitas::denniston::Configuration;
+  using Socket = ::tunitas::denniston::network::Socket;
+  using Threads = ::tunitas::denniston::scheduler::Threads;
+  Entropy source{};
+  Configuration configuration;
+  Socket socket{};
+  Socket::Interface control{};
+  Threads threads{};
+  virtual auto start() -> void = 0;
+  virtual auto stop() -> void = 0;
+  struct Guard {
+    struct Stop;
+  };
+  inline explicit Background();
+  Background(Background &&) = delete;
+  Background(Background const &) = delete;
+protected:
+  virtual ~Background();
+  template<required::Supervisable SUBJECT> inline auto linkup(SUBJECT &) -> void;
+  struct Exception {
+    using Scheduler = ::tunitas::denniston::scheduler::exception::Aspect;
+  };
+  friend class Guard::Stop;
+  bool running{false};
+  template<required::Supervisable SUBJECT> inline auto start_background(SUBJECT &) -> void;
+  inline auto stop_background() -> void;
+  template<required::Supervisable SUBJECT> auto block_until_the_quit_packet_is_processed(SUBJECT &) -> void;
+  inline static constexpr auto LINEAR_BACKOFF_COUNT = 256uz;
+};
+#endiv
+#divert <ipp>
+#import nonstd.runtime_assert
+#import tests.unit.service.partial.Binder
+#import tunitas.denniston.protocol.packet.Quit
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.scheduler.backoff.Stepper
+#import tunitas.denniston.scheduler.exception.Deadlock
+namespace tests::unit::service::partial::background {
+  Background::Background() : configuration{source} { }
+  template<required::Supervisable SUBJECT> auto Background::start_background(SUBJECT &subject) -> void {
+    runtime_assert(!running);
+    subject.launch(threads);
+    running = true;
+  }
+  auto Background::stop_background() -> void {
+    // MUST be called from the descendant when the Subject is still living
+    // WATCHOUT - this quit packet WILL NOT be received with late-added subprocesses as is done in the unit tests.
+    // [[FIXTHIS]] simpler to just reach into subject (in the descendant) and set graceful_shutdown, yes?)
+    runtime_assert(running);
+    using namespace ::tunitas::denniston::protocol::packet; 
+    control.write(make<Quit>());
+    running = false;
+    // WATCHOUT - this may NOT be sufficient to nudge the (descendant) subject awake to read this packet.
+    // See the commentariat in Subprocesses for the vagaries of thread condition schedulng.
+    //
+    // The descendant MUST call block_until_the_quit_packet_is_processed(...)
+  }
+  template<required::Supervisable SUBJECT> auto Background::block_until_the_quit_packet_is_processed(SUBJECT &subject) -> void {
+    using namespace ::tunitas::denniston::scheduler;
+    for (auto step=backoff::Stepper{}; step; ++step) {
+      if (subject.has_shut_down()) {
+        return;
+      } else {
+        subject.ready.notify();
+        step.needs_another_iteration();
+      };
+    }
+    // If we reach here the exponential backoff didn't work and we are likely to hang.
+    // We will have to await less subtle means of recovering control (the watchdog timer)
+    // [[FIXTHIS]] How can this happen?  How can this be prevented?
+    throw exception::Deadlock{};
+  }
+  template<required::Supervisable SUBJECT> auto Background::linkup(SUBJECT &subject) -> void {
+    auto blue = Binder::Triple{this->readable, this->ready, this->control};
+    auto green = Binder::Triple{subject.readable, subject.ready, subject.control};
+    Binder{}.link(socket, blue, green);
+  }
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::service::partial::background {
+  Background::~Background() {
+    // the stop() action MUST be done from the destructor of the descendant while the subject is living & linked.
+    // (obviously) throwing this exception will casue immediate termination
+    runtime_assert(!running);
+  }
+}
+#endiv

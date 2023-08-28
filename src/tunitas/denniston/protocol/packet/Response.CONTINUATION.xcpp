@@ -18,7 +18,7 @@ namespace tunitas::denniston::protocol::packet {
   //
   // Usage:
   //
-  //   auto res = keyston::protocol::continuation::Response{...somehow...};
+  //   auto res = rheem::protocol::continuation::Response{...somehow...};
   //
   //   auto made = make<Response<continuation>>(move(res));
   //
@@ -27,12 +27,12 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.protocol.id // for id::Job
-#import tunitas.keyston.protocol.continuation.Response
+#import tunitas.rheem.protocol.id // for id::Job
+#import tunitas.rheem.protocol.continuation.Response
 namespace tunitas::denniston::protocol::packet {
   template<> struct Response<Get::CONTINUATION> : public Prototype {
-    using Destination = keyston::protocol::id::Job;
-    using Payload = keyston::protocol::continuation::Response;
+    using Destination = rheem::protocol::id::Job;
+    using Payload = rheem::protocol::continuation::Response;
     Destination destination{};
     Payload payload{};
     inline explicit Response(Destination, Payload);

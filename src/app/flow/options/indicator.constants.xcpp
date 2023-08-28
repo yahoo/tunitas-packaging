@@ -14,5 +14,6 @@ namespace app::flow::options::indicator {
 namespace app::flow::options::indicator::constants {
   inline auto const INTERACTIVE_MODE = Code::CODE_254;
   inline auto const PROGRAMMATIC_MODE = Code::CODE_253;
+  inline auto const SIMULATION_LIFETIME = Code::CODE_252;
 }
 #endiv

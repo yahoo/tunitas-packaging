@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.task.Corpus.template
+#import tunitas.denniston.task.Corpus.COLLECTOR
+namespace tests::unit::task {
+  template<> struct Corpus<library::Corpus<Genus::COLLECTOR>>;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit::task {
+  template<> struct Corpus<library::Corpus<Genus::COLLECTOR>> : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = library::Corpus<Genus::COLLECTOR>;
+    //
+    auto test_constructor_default() -> void;
+    auto test_constructor_Definition() -> void;
+    auto test_constructor_Protocol() -> void;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::task {
+  auto Corpus<library::Corpus<Genus::COLLECTOR>>::suite() -> Suite {
+    auto series = Stream{"Corpus<COLLECTOR>"sv};
+    series << []{
+               auto con = Stream{"constructor"sv};
+               con << add("default", &Corpus::test_constructor_default)
+                   << add("Definition", &Corpus::test_constructor_Definition)
+                   << add("Protocol", &Corpus::test_constructor_Protocol)
+                   << END;
+               return con;
+             }()
+           << END;
+    return settle(series);
+  }
+  auto Corpus<library::Corpus<Genus::COLLECTOR>>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (Subject));
+  }
+  auto Corpus<library::Corpus<Genus::COLLECTOR>>::test_constructor_Definition() -> void {
+    auto def = library::Definition{};
+    auto subject = Subject{move(def)};
+    require(ASSERTION, sizeof (Subject));
+  }
+  auto Corpus<library::Corpus<Genus::COLLECTOR>>::test_constructor_Protocol() -> void {
+    auto prot = ::tunitas::rheem::protocol::task::Task{};
+    auto subject = Subject{move(prot)};
+    require(ASSERTION, sizeof (Subject));
+  }
+}
+#endiv

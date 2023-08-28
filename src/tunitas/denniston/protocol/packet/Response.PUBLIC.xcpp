@@ -19,17 +19,17 @@ namespace tunitas::denniston::protocol::packet {
   //
   //   See make<...>(...) for the convenient interface.
   //
-  //   auto cfg = keyston::hpke::Configuration<PUBLIC>{...somehow...};
+  //   auto cfg = hale::hpke::Configuration<PUBLIC>{...somehow...};
   //   auto made = make<Response<Get::PUBLIC>(cfg);
   //
   template<> struct Response<Get::PUBLIC>;
 }
 #endiv
 #divert <hpp>
-#import tunitas.denniston.protocol.packet.hpke.Response
+#import tunitas.denniston.protocol.packet._.hpke.Response
 namespace tunitas::denniston::protocol::packet {
-  template<> struct Response<Get::PUBLIC> : public hpke::Response<keyston::hpke::Side::PUBLIC> {
-    using Ancestor = hpke::Response<keyston::hpke::Side::PUBLIC>;
+  template<> struct Response<Get::PUBLIC> : public _::hpke::Response<hale::hpke::Side::PUBLIC> {
+    using Ancestor = _::hpke::Response<hale::hpke::Side::PUBLIC>;
   public:
     Response() = default;
     using Ancestor::Response;

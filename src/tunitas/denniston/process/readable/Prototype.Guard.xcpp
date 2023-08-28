@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.process.readable.Prototype>
+#endiv
+#divert <hpp>
+namespace tunitas::denniston::process::readable {
+  //
+  // Is a RAII guard on the Readable (many locks)
+  //
+  // Also satisfies BasicLockable for use in std::condition_variable_any
+  // https://en.cppreference.com/w/cpp/named_req/BasicLockable
+  //
+  class Prototype::Guard {
+    Prototype &supervised;
+  public:
+    explicit Guard(Prototype &p) : supervised{p} { lock(); }
+    ~Guard() { unlock(); }
+    auto lock() -> void   { supervised.lock(); }
+    auto unlock() -> void { supervised.unlock(); }
+  };
+}
+#endiv

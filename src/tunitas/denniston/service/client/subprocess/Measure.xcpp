@@ -7,8 +7,9 @@
 namespace tunitas::denniston::service::client::subprocess {
   //
   // Spontaneously generate some measurements
+  // This is a measurement generation subprocess, not a measurement recovery process (c.f. Collector)
   //
-  // Specificiation:
+  // Specification:
   //
   //   Measure something.
   //   Send it to the server (Gateway) for processing.
@@ -34,8 +35,8 @@ namespace tunitas::denniston::service::client::subprocess {
 #import tunitas.denniston.report.Generator
 #import tunitas.denniston.task.Definition
 #import tunitas.denniston.service.client.subprocess.Prototype
-#import tunitas.keyston.protocol.report.Produced
-#import tunitas.keyston.entropy.Jitter
+#import tunitas.rheem.protocol.report.Produced
+#import tunitas.entropy.Jitter
 namespace tunitas::denniston::service::client {
   namespace subprocess {
     inline auto swap(Measure *&a, Measure *&b) noexcept -> void { std::swap(a, b); }
@@ -45,25 +46,26 @@ namespace tunitas::denniston::service::client {
   public:
     inline explicit Measure(Client &, task::Definition const &);
     //
-    auto run() noexcept -> void;
+    auto run_managed_lifecycle() -> void;
     //
     denniston::task::Definition const &task;
     report::Generator<concurrent::entropy::Source::Wrapper> measure;
-    keyston::entropy::Jitter<concurrent::entropy::Source::Wrapper> delay;
+
+    entropy::Jitter<concurrent::entropy::Source::Wrapper> delay;
   };
 }
 #endiv
 #divert <ipp>
-#import std.this_thread.sleep_for
 namespace tunitas::denniston::service::client::subprocess {
   Measure::Measure(Client &owner, task::Definition const &definition)
     : Ancestor{owner}
     , task{definition}
     , measure{owner.entropy}
-    , delay{owner.entropy, 250ms, 10ms} {
-    // expects this->barrier to already be started (locked)
-    subbie = std::jthread{&Measure::run, this};
-  }
+    , delay{owner.entropy, 250ms, 10ms}
+  { }
+#if 0
+    subbie = {&Measure::run_managed_lifecycle, this};
+#endif
 }
 #divert <cpp>
 namespace {
@@ -82,10 +84,11 @@ namespace {
     static_assert(    std::is_swappable_v<Measure *>);
   }
 }
+#import std.this_thread.sleep_for
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Report
 namespace tunitas::denniston::service::client::subprocess {
-  auto Measure::run() noexcept -> void try {
+  auto Measure::run_managed_lifecycle() -> void {
     // Slow Down! [[provisionally]]
     while (!owner.is_shutting_down()) {
       auto measured = measure(task.id);
@@ -94,10 +97,6 @@ namespace tunitas::denniston::service::client::subprocess {
       std::this_thread::sleep_for(delay());
     }
     owner.log.format("measure is ending");
-  } catch (process::companion::Shutdown) {
-    // yay!
-  } catch(...) {
-    owner.log.format("measure has an escaped exception which is suppressed");
   }
 }
 #endiv

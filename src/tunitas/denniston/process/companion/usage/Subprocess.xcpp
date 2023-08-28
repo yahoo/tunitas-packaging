@@ -1,0 +1,23 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import nonstd.required.Derived_From
+#import nonstd.required.InstanceOf
+#import tunitas.denniston.process.companion.Prototype
+#forward tunitas.denniston.process.companion.Submodel
+#import tunitas.denniston.process.companion.required.Subprocess
+namespace tunitas::denniston::process::companion::usage {
+  //
+  // Is this TYPE a companion subprocess (a Prototype<...> descendant)?
+  // <strike> Must be answerable without the complete type of TYPE (i.e. no use of derived_from<...>)</strike>
+  // In order to answer this question, the complete type of SUBPROCESS must be known and suitable for InstanceOf
+  //
+  template<typename SUBPROCESS> concept Subprocess = required::Subprocess<SUBPROCESS> && requires(SUBPROCESS) {
+    requires required::InstanceOf<SUBPROCESS, Submodel>;
+    requires required::Derived_From<SUBPROCESS, Prototype>;
+  };
+}
+#endiv

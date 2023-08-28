@@ -42,7 +42,7 @@ namespace tunitas::denniston::role {
   namespace package_io {
     template<Size N, typename INDEX> inline constexpr auto get(INDEX &&) -> nonstd::like_t<INDEX, typename std::tuple_element<N, INDEX>::type>;
   }
-  struct package_io::Indexed : public body::Tuple {
+  class package_io::Indexed : public body::Tuple {
     using Ancestor = body::Tuple;
   public:
     Indexed() = default;

@@ -1,0 +1,98 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.service.partial.required.Supervisable
+namespace tests::unit::service::partial {
+  //
+  // A (sub)driver with the Subject in the foreground, the environment in the background.
+  //
+  // Specification:
+  //
+  //   Just enough like the big world (tunitas::denniston::world::World> to show testability.
+  //   Need the control channel (one socket)
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //   This is within namespace tests::unit so the global qualifier ::tunitas is mandatory.
+  //
+  //   The trickiness
+  //      of deferring the construction of Subject to the descendant.
+  //      of requiring stop() to be called prior to the invocation of the destructor
+  //
+  // Exceptions:
+  //
+  //   stop() can throw a scheduler exception if the subject (or its) subprocesses cannot be stopped.
+  //   The caller must account for this; see usage.
+  //
+  // Usage:
+  //
+  //   auto Fixture::test_something() -> void {
+  //     try {
+  //        auto supervised = Supervise<Gateway>{}; ..................... e.g. for Gateway
+  //        ...something with supervised...
+  //        ...at close-of-scope, Foreground::<Gateway>::stop()  can be called
+  //     } catch (scheduler::exception::Aspect const &) {
+  //       ... now outside of a destructor...
+  //       ...  we can recognize the test failure in rigging (with its own exception) ...
+  //       impossible(ASSERTION);
+  //     }
+  //   }
+  //
+  template<required::Supervisable> struct Foreground;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.Background
+namespace tests::unit::service {
+  template<partial::required::Supervisable SUBJECT> struct partial::Foreground : public Background {
+    using Ancestor = Background;
+  public:
+    using Subject = SUBJECT;
+    Subject subject;
+    auto start() -> void override { start_background(subject); }
+    auto stop() -> void override;
+  protected:
+    template<typename... ARGUMENT> inline explicit Foreground(ARGUMENT &&...);
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::service::partial {
+  template<required::Supervisable _> template<typename... ARGUMENT> Foreground<_>::Foreground(ARGUMENT &&...arguments)
+    : subject{forward<ARGUMENT>(arguments)...} {
+    Ancestor::linkup(subject);
+  }
+#if 0 // [[REMOVETHIS]] this won't work
+  template<required::Supervisable _> Foreground<_>::~Foreground() try {
+    // We must stop-idempotent in case an exception is thrown (a test fails an assertion) and left it running.
+    //
+    // This MUST be done in Foreground::~Foreground() and not in Foreground::Ancestor, i.e. Background::~Background()
+    // It is only here that the subject is still living and linked into the simulation communication network.
+    //
+    if (running) {
+      stop();
+    }
+  } catch (Exception::Scheduler const &) {
+    if (running) {
+      // Means there is still a thread running and the scheduler failed to stop it.
+      // Try to clean up as much as we can (retry the destruction of the Foreground)
+      running = false;
+      this->~Foreground();
+    }
+    throw;
+  }
+#endif
+  template<required::Supervisable _> auto Foreground<_>::stop() -> void {
+#if 0 // redundant in the subprocesses destructor
+    subject.subprocesses.request_for_all_to_finish();
+    subject.subprocesses.wait_for_all_to_finish();
+#endif
+    stop_background();
+    block_until_the_quit_packet_is_processed(subject);
+  }
+}
+#endiv

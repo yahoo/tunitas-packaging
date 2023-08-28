@@ -11,7 +11,7 @@ namespace tests::unit::service { struct Dictionary; }
 struct tests::unit::service::Dictionary : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
-  using Subject = library::Dictionary<::tunitas::keyston::hpke::Side::SECRET>; // pick a side
+  using Subject = library::Dictionary<::tunitas::hale::hpke::Side::SECRET>; // pick a side
   //
   auto test_constructor_default() -> void;
   auto test_insert_good() -> void;

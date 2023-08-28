@@ -12,53 +12,60 @@ namespace app::flow {
   using namespace package_run::interface;
 }
 #import cli.exits.constants
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 namespace app::flow::package_run {
   namespace body {
     using namespace cli::exits::constants;
-    using namespace tunitas::keyston::time::literals;
+    using namespace tunitas::time::literals;
   }
 }
 #import cli.controllability.Through
 #import cli.exits.Code
 #import cli.experience.Console
-#import tunitas.denniston.Driver
+#import tunitas.denniston.World
+#import tunitas.denniston.scheduler.Watchdog
 namespace app::flow::package_run {
   using Exit = cli::exits::Code;
   using cli::experience::Console;
   namespace body {
     using cli::controllability::Through;
-    using tunitas::denniston::Driver;
+    using tunitas::denniston::World;
+    using tunitas::denniston::scheduler::Watchdog;
   }
 }
 #endiv
 #divert <hpp>
 #import app.flow.Configuration
+#import tunitas.denniston.scheduler.operate
 namespace app::flow::package_run {
   namespace body {
     namespace exported {
       auto run([[inout]] Console &, [[inout]] Configuration const &) -> Exit;
     }
+    using tunitas::denniston::scheduler::operate;
   }
 }
 #endiv
 #divert <ipp>
 namespace app::flow::package_run {
-  // any/.
+  // any?
 }
 #endiv
 #divert <cpp>
 #import std.cerr
 #import app.exception.Testing
 #import std.this_thread.sleep_for
+#import app.flow.defaults
+#import tunitas.denniston.world.Stopper // needed by operate<...>(...) but not acquired in full by traits::Stopper<...>
 namespace app::flow::package_run {
   auto interface::run(Console &exp, Configuration const &cfg) -> Exit {
-    auto driver = Driver{};
-    if (testing(cfg) <= Through::SETUP) {
-      throw exception::Testing{exp};
-    }
-    std::this_thread::sleep_for(2000ms);
-    driver.shutdown();
+    operate<World>([&exp, &cfg](auto &world){
+      auto lifetime = cfg.simulation_lifetime.value_or(defaults::SIMULATION_LIFETIME);
+      auto dog = Watchdog{lifetime, [&world]{ world.shutdown(); }};
+      if (testing(cfg) <= Through::SETUP) {
+        throw exception::Testing{exp};
+      }
+    });
     return OK;
   }
 }

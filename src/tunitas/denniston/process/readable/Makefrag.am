@@ -6,8 +6,10 @@
 #
 tunitas_denniston_process_readable_SUBSOURCES = \
   obj/src/tunitas/denniston/process/Readable.cpp \
+  obj/src/tunitas/denniston/process/Readable.Guard.cpp \
   obj/src/tunitas/denniston/process/readable/namespace.cpp \
   obj/src/tunitas/denniston/process/readable/Prototype.cpp \
+  obj/src/tunitas/denniston/process/readable/Prototype.Guard.cpp \
   obj/src/tunitas/denniston/process/readable/Container.cpp \
   obj/src/tunitas/denniston/process/readable/Fixed.cpp \
   obj/src/tunitas/denniston/process/readable/Variable.cpp \

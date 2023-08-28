@@ -18,8 +18,8 @@ namespace tunitas::denniston::preparation::ranges::projection {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.id // for id::Report
-#import tunitas.keyston.protocol.preparation.Step
+#import tunitas.rheem.protocol.id // for id::Report
+#import tunitas.rheem.protocol.preparation.Step
 #import std.conditional
 namespace tunitas::denniston::preparation::ranges::projection {
   template<typename RECORD> struct Traits<Projection::RECORD, RECORD> {
@@ -29,7 +29,7 @@ namespace tunitas::denniston::preparation::ranges::projection {
     using Pointer = Record *;
   };
   template<typename RECORD> struct Traits<Projection::POSITIONED, RECORD> {
-    using Replacement = keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>;
+    using Replacement = rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>;
   public:
     using Record = std::conditional<std::is_const_v<RECORD>, Replacement const, Replacement>;
     using Value = Replacement;
@@ -37,7 +37,7 @@ namespace tunitas::denniston::preparation::ranges::projection {
     using Pointer = std::conditional_t<std::is_const_v<RECORD>, Value const *, Value *>;
   };
   template<typename RECORD> class Traits<Projection::REPORT_ID, RECORD> {
-    using Replacement = keyston::protocol::id::Report;
+    using Replacement = rheem::protocol::id::Report;
   public:
     using Record = std::conditional<std::is_const_v<RECORD>, Replacement const, Replacement>;
     using Value = Replacement;

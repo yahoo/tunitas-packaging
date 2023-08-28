@@ -30,17 +30,17 @@ namespace tunitas::denniston::task {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.id // for id::Task
+#import tunitas.rheem.protocol.id // for id::Task
 #import tunitas.denniston.task.required.corpus.Pointed
 namespace tunitas::denniston::task {
   using std::move;
-  template<auto CORPORAL> requires required::Corporal<CORPORAL> inline auto key_from(Corpus<CORPORAL> const &) -> keyston::protocol::id::Task const &;
+  template<auto CORPORAL> requires required::Corporal<CORPORAL> inline auto key_from(Corpus<CORPORAL> const &) -> rheem::protocol::id::Task const &;
   template<required::corpus::Pointed POINTED> inline auto swap(POINTED *&, POINTED *&) noexcept -> void;
 }
 #endiv
 #divert <ipp>
 namespace tunitas::denniston {
-  template<auto CORPORAL> requires task::required::Corporal<CORPORAL> auto task::key_from(Corpus<CORPORAL> const &corpus) -> keyston::protocol::id::Task const & { return corpus.definition.id; }
+  template<auto CORPORAL> requires task::required::Corporal<CORPORAL> auto task::key_from(Corpus<CORPORAL> const &corpus) -> rheem::protocol::id::Task const & { return corpus.definition.id; }
   template<task::required::corpus::Pointed POINTED> auto task::swap(POINTED *&a, POINTED *&b) noexcept -> void { std::swap(a, b); }
 }
 #endiv

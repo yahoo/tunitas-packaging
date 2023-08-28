@@ -8,12 +8,18 @@ namespace tests::unit::service::processor { class Fixture; }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.Species
-struct tests::unit::service::processor::Fixture : public rigging::suite::Fixture {
+#import tests.unit.service.partial.Operability
+struct tests::unit::service::processor::Fixture : public rigging::suite::Fixture, protected partial::Operability {
   static auto suite() -> Suite;
   //
   using Species = ::tunitas::denniston::Species;
   //
   auto test_usage_Processor() -> void;
+  auto test_usage_Boot() -> void;
+  auto test_usage_Initialization() -> void;
+  auto test_usage_Continuation() -> void;
+protected:
+  inline static constexpr auto const SPECIES = ::tunitas::denniston::Species::PROCESSOR2; // either will do
 };
 #endiv
 #divert <cpp>
@@ -22,6 +28,9 @@ auto tests::unit::service::processor::Fixture::suite() -> Suite {
   series << []{
               auto use = Stream{"usage"sv};
               use << add("Processor", &Fixture::test_usage_Processor)
+                  << add("Boot", &Fixture::test_usage_Boot)
+                  << add("Initialization", &Fixture::test_usage_Initialization)
+                  << add("Continuation", &Fixture::test_usage_Continuation)
                   << END;
               return use;
             }()
@@ -29,15 +38,78 @@ auto tests::unit::service::processor::Fixture::suite() -> Suite {
   return settle(series);
 }
 #import tunitas.denniston.service.processor.Processor
-#import tunitas.denniston.World
-#import tunitas.keyston.entropy.Source
+#import tunitas.denniston.service.processor.subprocess.Boot
+#import tunitas.denniston.service.processor.subprocess.Initialization
+#import tunitas.denniston.service.processor.subprocess.Continuation
+#import tunitas.denniston.service.processor.subprocess.make
+#import tests.unit.service.Supervisor
 namespace tests::unit::service::processor {
   auto Fixture::test_usage_Processor() -> void {
-    auto source = ::tunitas::keyston::entropy::Source{};
-    auto world = ::tunitas::denniston::World{source};
-    using Subject = library::Processor;
-    auto subject = Subject{source, world, Species::PROCESSOR1};
-    require(ASSERTION, sizeof (subject));
+#if 1
+    auto exercise = [](auto &world) {
+      // nothing to do but watch it shut down
+      require(ASSERTION);
+    };
+    operate<Supervisor<library::Processor>>(exercise, SPECIES);
+#else
+    auto super = supervise<library::Processor>(SPECIES);
+    super.stop();
+    require(ASSERTION);
+#endif
+  }
+  auto Fixture::test_usage_Boot() -> void {
+#if 1
+    // This is somewhat pedantic and specious because Processor already runs Boot, Initialization & Continuation
+    // The new subprocess MUST be pushed into the subprocesses list; it CANNOT be left floating.
+    // The subprocess MUST get notified on shutdown as the top-level process terminates from graceful_shutdown.
+    auto exercise = [](auto &world) {
+      auto &ref{world.ref()};
+      ref.subprocesses.spawn(sublibrary::make<sublibrary::Boot>(ref));
+      require(ASSERTION);
+    };
+    operate<Supervisor<library::Processor>>(exercise, SPECIES);
+#else
+    auto super = supervise<library::Processor>(SPECIES);
+    auto &ref{super.ref()};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Boot>(ref));
+    super.stop();
+    require(ASSERTION);
+#endif
+  }
+  auto Fixture::test_usage_Initialization() -> void {
+#if 1
+    // Eadem ratione
+    auto exercise = [](auto &world) { 
+      auto &ref{world.ref()};
+      ref.subprocesses.spawn(sublibrary::make<sublibrary::Initialization>(ref));
+      require(ASSERTION);
+    };
+    operate<Supervisor<library::Processor>>(exercise, SPECIES);
+#else
+    auto super = supervise<library::Processor>(SPECIES);
+    auto &ref{super.ref()};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Initialization>(ref));
+    super.stop();
+    require(ASSERTION);
+#endif
+  }
+  auto Fixture::test_usage_Continuation() -> void {
+#if 1
+    // Eadem ratione
+    auto exercise = [](auto &world) {
+      auto &ref{world.ref()};
+      ref.subprocesses.spawn(sublibrary::make<sublibrary::Continuation>(ref));
+      require(ASSERTION);
+    };
+    operate<Supervisor<library::Processor>>(exercise, SPECIES);
+#else
+    auto super = supervise<library::Processor>(SPECIES);
+    // Eadem ratione
+    auto &ref{super.ref()};
+    ref.subprocesses.spawn(sublibrary::make<sublibrary::Continuation>(ref));
+    super.stop();
+    require(ASSERTION);
+#endif
   }
 }
 #endiv

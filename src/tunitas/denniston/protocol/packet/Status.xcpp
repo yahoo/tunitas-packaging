@@ -32,12 +32,12 @@ namespace tunitas::denniston::protocol::packet {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.protocol.packet.Prototype
-#import tunitas.keyston.transport.error.Code
+#import tunitas.rheem.transport.error.Code
 #import std.error_code
 class tunitas::denniston::protocol::packet::Status : public Prototype {
   using Ancestor = Prototype;
 public:
-  using Code = keyston::transport::error::Code;
+  using Code = rheem::transport::error::Code;
   using Error = std::error_code;
   explicit Status(Error e = Code{Code::SUCCESS}) : status{e} { }
   Error status{};

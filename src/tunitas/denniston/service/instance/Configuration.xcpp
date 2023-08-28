@@ -28,7 +28,9 @@ namespace tunitas::denniston::service::instance {
   //
   // Design:
   //
-  //   Something something: a thread.
+  //   Something something, something something: a thread.
+  //
+  //   The Configuration constructor accepts the initial task list from the Configuration.
   //
   // Usage:
   //
@@ -38,37 +40,38 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <hpp>
-#forward tunitas.denniston.World
+#forward tunitas.denniston.Configuration
 #import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.process.Reactor
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Definition
 #import tunitas.denniston.error.Code
 #import tunitas.denniston.protocol.packet.Query
-#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.Shards
 class tunitas::denniston::service::instance::Configuration : public process::Reactor {
   using Ancestor = process::Reactor;
   auto react() -> void;
   auto respond([[inout]] Interface &, [[inout]] Query<Get::TASKS> &, string::View from_whom) -> void;
 public:
   inline explicit Configuration();
-  inline explicit Configuration([[inout]] World &);
+  inline explicit Configuration([[inout]] denniston::Configuration &);
+  ~Configuration();
   Interfaces clients{};
   Interface collector{};
   Interface gateway{};
-  keyston::vdaf::Shards<Interface> processors{};
+  keyston::Shards<Interface> processors{};
   task::Dictionary<task::Definition> tasks{};
   using E = error::Code;
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 namespace tunitas::denniston::service::instance {
   Configuration::Configuration()
     : Ancestor{Species::CONFIGURATION}
   { }
-  Configuration::Configuration(World &world) : Configuration{} {
-    tasks = move(*world.tasks);
+  Configuration::Configuration(denniston::Configuration &cfg) : Configuration{} {
+    tasks = move(*cfg.tasks);
   }
 }
 #endiv
@@ -81,22 +84,33 @@ namespace tunitas::denniston::service::instance {
 #import std.min
 #import std.cbegin
 namespace tunitas::denniston::service::instance {
+  Configuration::~Configuration() {
+    ready.notify();
+    // There are no subprocesses
+    disposable.acquire();
+  }
   auto Configuration::react() -> void try {
     if (auto red=collector.read_if(); red) {
       if (is_ping(*red)) {
-        log.format("configuration is sent a ping");
+        log.format("collector sent a ping");
         collector.write(protocol::packet::make<protocol::packet::Status>());
+      } else {
+        log.format("[the] collector sent something else (which is ignored)");
       }
     }
     if (auto red=gateway.read_if(); red) {
       if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
         respond(gateway, *got, "gateway");
+      } else {
+        log.format("[the] gateway sent something else (which is ignored)");
       }
     }
     for (auto &face : clients) {
       if (auto red=face.read_if(); red) {
         if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
           respond(face, *got, "some client");
+        } else {
+          log.format("[that] client sent something else (which is ignored)");
         }
       }
     }
@@ -104,6 +118,8 @@ namespace tunitas::denniston::service::instance {
       if (auto red=face.read_if(); red) {
         if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
           respond(face, *got, "some processor");
+        } else {
+          log.format("[that] processor sent something else (which is ignored)");
         }
       }
     }

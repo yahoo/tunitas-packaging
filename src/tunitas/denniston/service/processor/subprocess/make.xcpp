@@ -7,7 +7,7 @@
 #import tunitas.denniston.service.processor.subprocess.Pointer
 namespace tunitas::denniston::service::processor::subprocess {
   //
-  // make an processor subprocess
+  // make a processor subprocess
   //
   template<required::Subprocess SUBPROCESS, typename... ARGUMENTS> inline auto make(ARGUMENTS &&...) -> Pointer<SUBPROCESS>;
 }

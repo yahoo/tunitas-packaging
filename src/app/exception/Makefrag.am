@@ -7,7 +7,9 @@
 app_exception_SUBSOURCES = \
   noinst/obj/src/app/exception/namespace.cpp \
   noinst/obj/src/app/exception/Aspect.cpp \
-  noinst/obj/src/app/exception/Quitting.cpp \
   noinst/obj/src/app/exception/Testing.cpp \
   noinst/obj/src/app/exception/Version.cpp \
+  $(app_exception_quitting_SUBSOURCES) \
   $(end)
+#
+include src/app/exception/quitting/Makefrag.am

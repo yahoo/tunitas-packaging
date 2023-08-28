@@ -36,14 +36,14 @@ namespace tunitas::denniston::report {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.report.usage.Valuable
-#import tunitas.keyston.array.Series
+#import tunitas.array.Series
 namespace tunitas::denniston {
   namespace report {
     using std::move;
     template<required::Valuable VALUE> inline auto swap(Series<VALUE> &, Series<VALUE> &) noexcept -> void;
   }
-  template<report::required::Valuable VALUE> struct report::Series : public keyston::array::Series<VALUE> {
-    using Ancestor = keyston::array::Series<VALUE>;
+  template<report::required::Valuable VALUE> struct report::Series : public array::Series<VALUE> {
+    using Ancestor = array::Series<VALUE>;
     static_assert(usage::Valuable<VALUE>);
     friend auto report::swap<>(Series &, Series &) noexcept -> void;
   public:

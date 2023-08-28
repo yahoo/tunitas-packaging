@@ -1,0 +1,228 @@
+// This -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.process.companion.required.Subprocess
+#import tunitas.time.literals
+namespace tunitas::denniston::process::companion {
+  //
+  // A collection of companion subprocesses
+  //
+  // Specification:
+  //
+  //   Manage the subprocesses.
+  //   Specifically, manage
+  //   (a) spawning subprocesses and getting their managed function running in a thread.
+  //   (b) the orderly shutdown of the subprocess bundle (this is more arduous than it sounds)
+  //
+  //   Provides destruction at end-of-life.
+  //   Provides a notify-all (notify-all-but-self)
+  //   Provides wait-for-all-to-die semantic.
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //   Um, wow.
+  //
+  // Exceptions:
+  //
+  //   wait_for... throws Deadlock.
+  //   request_for... returns a Dispensation which allows the caller to decide.
+  //
+  // Usage:
+  //
+  //   Use as directed.
+  //   Use as one does. (as one does any sequential container)
+  //
+  namespace [[eponymous]] subprocesses {
+    template<required::Subprocess> struct Subprocesses;
+    enum class Dispensation { DONE, AGAIN, TIMEOUT };
+    using namespace tunitas::time::literals;
+  }
+  using subprocesses::Subprocesses;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.companion.Pointer
+#import tunitas.array.Series
+#import tunitas.denniston.process.companion.Synchro
+#import nonstd.container.Traits.tunitas.array.Series.TYPE
+#import tunitas.denniston.process.companion.usage.Subprocess
+namespace tunitas::denniston::process::companion {
+  namespace subprocesses {
+    inline auto operator+=(Dispensation &, Dispensation) -> Dispensation &;
+    inline constexpr auto done(Dispensation) -> bool;
+  }
+  template<companion::required::Subprocess SUBPROCESS> class subprocesses::Subprocesses {
+    static_assert(usage::Subprocess<SUBPROCESS>);
+    using Series = array::Series<Pointer<SUBPROCESS>>;
+    using Subprocess = SUBPROCESS;
+    using Synchro = companion::Synchro<typename nonstd::container::Traits<Series const>::Type>;
+    Series series{};
+    Synchro synchro{};
+    inline auto request_for_them_all_to_finish_then_wait_for_them_all_to_settle() -> void;
+    auto request_for_one_to_finish(Subprocess &) -> Dispensation; // MUST be operated under a Synchro::Guard
+    auto request_for_all_to_finish(typename Synchro::Guard &) -> Dispensation;
+    inline auto wait_for_all_to_finish(typename Synchro::Guard &) -> void;
+  public:
+    Subprocesses() = default;
+    ~Subprocesses();
+    template<typename MADE> inline auto spawn(Pointer<MADE>) -> void requires std::derived_from<MADE, Subprocess>;
+    inline auto notify() -> void;
+    inline auto notify_all_except(Subprocess *) -> void;
+    inline auto request_for_all_to_finish() -> Dispensation;
+    inline auto wait_for_all_to_finish() -> void;
+    inline auto one_more_has_finished() -> void { synchro.notify(); }
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.process.companion.Synchro.Guard
+namespace tunitas::denniston::process::companion {
+  auto subprocesses::operator+=(Dispensation &lhs, Dispensation more) -> Dispensation & {
+    if (Dispensation::AGAIN == lhs || Dispensation::AGAIN == more) {
+      lhs = Dispensation::AGAIN;
+    }
+    return lhs;
+  }
+  constexpr auto subprocesses::done(Dispensation d) -> bool { return Dispensation::DONE == d; } 
+  namespace subprocesses {
+    static_assert(done(Dispensation{}));
+    static_assert(done(Dispensation::DONE));
+    template<required::Subprocess _> Subprocesses<_>::~Subprocesses() {
+      // Else we'll run the destructor while they are still living!
+      // [[FIXTHIS]] if the caller already did this then there's no point in doing it again.  Can we not do that?
+      request_for_them_all_to_finish_then_wait_for_them_all_to_settle();
+    }
+    template<required::Subprocess _> template<typename MADE> auto Subprocesses<_>::spawn(Pointer<MADE> made) -> void requires std::derived_from<MADE, Subprocess> {
+      // 1. ensure a critical section
+      // 2. position the subprocess in the array
+      // 3. start the subprocess (which may run emmediately and call back to subprocesses::one_more_has_finished()
+      auto *raw{made.get()};
+      {
+        auto guard = typename Synchro::Guard{synchro};
+        series.push_back(move(made));
+      }
+      // WATCHOUT - this calls Synchro::notify()
+      Subprocess::commence_running(raw, &MADE::run_managed_lifecycle);
+    }
+    template<required::Subprocess _> auto Subprocesses<_>::notify() -> void {
+      // Guarded to ensure that this->series does not change while we traverse over it
+      auto guard = typename Synchro::Guard{synchro};
+      for (auto &item : series) {
+        item->barrier.notify();
+      }
+    }
+    template<required::Subprocess _> auto Subprocesses<_>::notify_all_except(Subprocess *that) -> void {
+      // Guarded to ensure that this->series does not change while we traverse over it
+      auto guard = typename Synchro::Guard{synchro};
+      for (auto &item : series) {
+        if (item.get() != that) {
+          item->barrier.notify();
+        }
+      }
+    }
+    template<required::Subprocess _> auto Subprocesses<_>::request_for_them_all_to_finish_then_wait_for_them_all_to_settle() -> void {
+      auto guard = typename Synchro::Guard{synchro};
+      (void) request_for_all_to_finish(guard);
+      // [[FIXTHIS]] if request_for_all...() returned TIMEOUT then this will hang waiting for events that will never happen.  Feels like a place for an exception
+      synchro.wait(guard, series.begin(), series.end());
+    }
+    template<required::Subprocess _> auto Subprocesses<_>::request_for_all_to_finish() -> Dispensation {
+      auto guard = typename Synchro::Guard{synchro};
+      return request_for_all_to_finish(guard);
+    }
+    template<required::Subprocess _> auto Subprocesses<_>::wait_for_all_to_finish() -> void {
+      auto guard = typename Synchro::Guard{synchro};
+      wait_for_all_to_finish(guard);
+    }
+  }
+}
+#endiv
+#divert <tpp>
+#import nonstd.runtime_assert
+#import nonstd.exception.Unreachable
+#import tunitas.denniston.scheduler.backoff.Stepper
+#import tunitas.denniston.scheduler.exception.Deadlock
+namespace tunitas::denniston::process::companion {
+  namespace subprocesses {
+    //
+    // Again ... don't get stuck waiting for events that can't occur
+    //
+    template<required::Subprocess _> auto Subprocesses<_>::wait_for_all_to_finish(typename Synchro::Guard &guard) -> void {
+      for (auto step=scheduler::backoff::Stepper{}; step; ++step) {
+        if (auto waited=synchro.wait(guard, 0ns, series.begin(), series.end()); done(waited)) {
+          return;
+        } else if (auto accumulated=request_for_all_to_finish(guard); done(accumulated)) {
+          return;
+        } else {
+          step.need_another_iteration();
+        }
+      }
+      // At this point we know this will hang.  It hasn't worked so far.
+#if 1
+      throw scheduler::exception::Deadlock{};
+#else
+      // [[FIXTHIS]] perhaps this should throw an exception; after all we couldn't get the job done.
+      synchro.wait(guard, series.begin(), series.end());
+#endif
+    }
+    template<required::Subprocess _> auto Subprocesses<_>::request_for_all_to_finish(typename Synchro::Guard &guarded) -> Dispensation {
+      // Guarded to ensure that this->series does not change while we traverse over it
+      // Arguably we don't want to hold the lock on subprocesses (via synchro) for all the exponential delays.
+      // [[FIXTHIS? Or Not]] but, sure why not?
+      //
+      // We make multiple asses over the subprocesses until there is nothing left fot to do or the timeout is reached.
+      // What we experience is that sometimes Barrier::notify() "doesn't take".  It's unclear why this is.
+      // This has the effect of when a thread of the subprocess "was just run" then notifying that Barrier to evaluate the lock condition agin "doesn't work."
+      // We know the thread is wait in a lock, because at livelock stability (the process hangs), that is where we find that thread: in the lock, waiting.
+      // Yet the stop condition which would terminate the lock is true, it just needs to be reevaluated.
+      // Our solution therefore is to delay a bit and rerun the notify-one scheme again trying again and a again until it's clear nothing will happen.
+      //
+      for (auto step=scheduler::backoff::Stepper{}; step; ++step) {
+        auto accumulator = Dispensation{};
+        for (auto &item : series) {
+          accumulator += request_for_one_to_finish(*item);
+        }
+        if (done(accumulator)) {
+          return Dispensation::DONE;
+        } else {
+          step.need_another_iteration();
+        }
+      }
+      return Dispensation::TIMEOUT;
+    }
+    template<required::Subprocess _> auto Subprocesses<_>::request_for_one_to_finish(Subprocess &one) -> Dispensation {
+      // Known to be operated under a Synchro::Guard.
+      auto ref = one.lifestage.guarded();
+      switch (ref) {
+#if 12 < __GNUC__
+        // Witness
+        // gcc-c++-12.2.1-4.fc37.x86_64
+        // src/tunitas/denniston/process/companion/Subprocesses.xcpp:112:21: internal compiler error: in tsubst_copy, at cp/pt.cc:17004
+      case Lifestage::UNBORN:
+#else
+      case Lifestage::Stage::UNBORN:
+#endif
+        ref = Lifestage::Stage::UNDEAD;
+        return Dispensation::DONE;
+      case Lifestage::Stage::RUNNING:
+        ref = Lifestage::Stage::DOOMED;
+        runtime_assert(Lifestage::DOOMED == ref);
+        one.barrier.notify();
+        return Dispensation::AGAIN;
+      case Lifestage::Stage::DOOMED:
+        // can't force the lifestyle change  (need to let the thread recognize this and exit)
+        one.barrier.notify();
+        return Dispensation::AGAIN;
+      case Lifestage::Stage::UNDEAD:
+        return Dispensation::DONE;
+      default:
+        throw nonstd::exception::Unreachable{};
+      }
+    }
+  }
+}
+#endiv

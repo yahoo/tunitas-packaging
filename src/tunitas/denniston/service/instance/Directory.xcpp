@@ -44,26 +44,27 @@ namespace tunitas::denniston::service::instance {
 }
 #endiv
 #divert <hpp>
-#forward tunitas.denniston.World
+#forward tunitas.denniston.Configuration
 #import tunitas.denniston.error.Code
 #import tunitas.denniston.process.Reactor
 #import tunitas.denniston.protocol.Packet
 #import tunitas.denniston.service.Dictionary
-#import tunitas.keyston.vdaf.Shards
+#import tunitas.keyston.Shards
 #import tunitas.string.View
 class tunitas::denniston::service::instance::Directory : public process::Reactor {
   using Ancestor = process::Reactor;
 protected:
   auto react() -> void override;
-  using Shards = keyston::vdaf::Shards<Interface>;
+  using Shards = keyston::Shards<Interface>;
   auto handle(Interface &, protocol::Packet, string::View from_whom) -> void;
   template<protocol::packet::Get GET> auto respond([[inout]] Interface &, [[inout]] Query<GET> &, string::View from_whom) -> void;
 public:
   inline explicit Directory();
-  inline explicit Directory([[inout]] World &);
+  inline explicit Directory([[inout]] denniston::Configuration &);
+  ~Directory();
   Interfaces clients{};
   Shards processors{};
-  service::Dictionary<keyston::hpke::Side::SECRET> services{};
+  service::Dictionary<hale::hpke::Side::SECRET> services{};
 #if 12 < __GNUC__
   // src/tunitas/denniston/service/instance/Directory.xcpp:92:34: internal compiler error: in tsubst_copy, at cp/pt.cc:16950
   using E = error::Code;
@@ -74,19 +75,19 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 namespace tunitas::denniston::service::instance {
   Directory::Directory() : Ancestor{Species::DIRECTORY} { }
-  Directory::Directory(World &world) : Directory{} {
-    services = move(*world.services);
+  Directory::Directory(denniston::Configuration &cfg) : Directory{} {
+    services = move(*cfg.services);
   }
 }
 #endiv
 #divert <tpp>
-#import tunitas.keyston.hpke.io // supports {} in format(...)
+#import tunitas.hale.hpke.io // supports {} in format(...)
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Status
-#import tunitas.keyston.hpke.filter
+#import tunitas.hale.hpke.filter
 namespace tunitas::denniston::service::instance {
   template<protocol::packet::Get GET> auto Directory::respond(Interface &back, Query<GET> &query, string::View from_whom) -> void {
     constexpr auto const SIDE = Query<GET>::SIDE;
@@ -110,6 +111,11 @@ namespace tunitas::denniston::service::instance {
 #import tunitas.denniston.protocol.packet.Query
 #import tunitas.denniston.protocol.packet.Response
 namespace tunitas::denniston::service::instance {
+  Directory::~Directory() {
+    ready.notify();
+    // There are no subprocesses
+    disposable.acquire();
+  }
   auto Directory::react() -> void {
     for (auto &face : clients) {
       if (auto red=face.read_if(); red) {

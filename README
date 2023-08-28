@@ -1,25 +1,7 @@
 Tunitas Denniston (Creek)
-- Privacy-Preserving Measuremnet (PPM) with POSIX Threads
+- Privacy-Preserving Measurement (PPM) with POSIX Threads
 - a test rig
 
-Using the core data structures, algorithms & protocol machinery of the Tunitas Keyston to implement
-the protcol, functions and distributed operations of PPM, VDAF, HPKE.
+This implementation uses the core data structures, algorithms & protocol machinery of the Tunitas Keyston to implement the protcol, functions and distributed operations of PPM, VDAF, HPKE.
 
-# Authorities (at least)
-
-Distributed Aggregation Protocol for Privacy Preserving Measurement
-https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
-
-RFC 9180 Hybrid Public Key Encryption
-https://www.ietf.org/rfc/rfc9180.html
-
-# Related projects:
-
-Tunitas Honsinger (Creek)
-Privacy-Preserving Measurement (PPM) with D-Bus
-
-Tunitas Nuff (Creek)
-Privacy-Preserving Measurement (PPM) with microhttpd++
-
-Tunitas Woodruff (Creek)
-Privacy-Preserving Measurement (PPM) with Apache HTTPd
+See the README.md for more elaborate documentation in the markdown style.

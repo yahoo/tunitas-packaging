@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::service::partial {
+  //
+  // Provide a convenient way to operate processes
+  //
+  // Specification:
+  //
+  //   Start a world, with the subject under test
+  //   Call back out to userland with the running world
+  //   Manage the graceful shutdown.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   Descendants call the visible (static) member
+  //
+  // Usage:
+  //
+  //   class my::Fixture : public rigging::suite::Fixture, protected: partial::Operability {
+  //     auto test_something() {
+  //       auto exercise = [](auto &world) {
+  //         auto &subject = world.ref()};
+  //         ...do something to the subject to exhibit a test success...
+  //         require(ASSERTION);
+  //       };
+  //       operate<Process>{exercise, ...somehow...}; .................... where Process{...somehow...} is the relevant constructor
+  //     }
+  //   };
+  //
+  struct Operability;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.required.Operable
+#import tests.unit.service.partial.required.Operate
+class tests::unit::service::partial::Operability {
+protected:
+  virtual ~Operability() = default;
+public:
+  template<required::Operable WORLD, required::Operate<WORLD> OPERATE, typename... ARGUMENT> static auto operate(OPERATE, ARGUMENT &&...) -> void;
+};
+#endiv
+#divert <tpp>
+#import tests.unit.service.partial.Supervisor
+#import tunitas.denniston.scheduler.operate
+#import tunitas.denniston.scheduler.traits.Stopper.tests.unit.service.partial.Supervisor.SUPERVISED
+namespace tests::unit::service::partial {
+  template<required::Operable WORLD, required::Operate<WORLD> OPERATE, typename... ARGUMENT> auto Operability::operate(OPERATE operate, ARGUMENT &&...argument) -> void {
+    auto world = WORLD{move(argument)...};
+    world.start();
+    ::tunitas::denniston::scheduler::operate(move(world), operate);
+  }
+}
+#endiv

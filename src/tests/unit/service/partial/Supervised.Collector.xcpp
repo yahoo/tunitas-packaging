@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.service.partial.Supervised.template
+#import tunitas.denniston.service.collector.Collector
+namespace tests::unit::service::partial {
+  //
+  // Specialization for the Collector
+  // The Collector does not construct with an entropy source.
+  //
+  // Only the constructor is different.
+  //
+  // See the commentariat in the template (tests.unit.service.partial.Supervised.template
+  //
+  template<> struct Supervised<library::collector::Collector>;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.service.partial.Foreground
+namespace tests::unit::service {
+  template<> class partial::Supervised<library::collector::Collector> : public Foreground<library::collector::Collector> {
+    using Ancestor = Foreground<library::collector::Collector>;
+  protected:
+    friend class partial::Supervisor<Subject>;
+    template<typename... ARGUMENT> explicit Supervised(ARGUMENT &&...);
+  public:
+    ~Supervised() = default;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::service::partial {
+  template<typename... ARGUMENT> Supervised<library::collector::Collector>::Supervised(ARGUMENT &&...argument)
+    : Ancestor{configuration, forward<ARGUMENT>(argument)...}
+  { }
+}
+#endiv

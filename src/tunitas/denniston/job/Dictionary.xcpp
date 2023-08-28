@@ -36,12 +36,12 @@ namespace tunitas::denniston::job {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.id // for id::Job
+#import tunitas.rheem.protocol.id // for id::Job
 #import tunitas.denniston.concurrent.dictionary.Dictionary
 #import tunitas.denniston.job.usage.dictionary.Valuable
 namespace tunitas::denniston::job {
-  template<required::dictionary::Valuable VALUE> struct dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Job, VALUE>> {
-    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Job, VALUE>>;
+  template<required::dictionary::Valuable VALUE> struct dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Job, VALUE>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Job, VALUE>>;
     static_assert(usage::dictionary::Valuable<VALUE>);
   public:
     Dictionary() = default;

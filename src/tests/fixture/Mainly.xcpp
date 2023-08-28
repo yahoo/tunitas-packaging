@@ -23,7 +23,7 @@ namespace tests::fixture {
   //
   //   Hack the Spew (this is, after all, a test rig)
   //
-  template<required::configuration::Rigging CONFIGURATION> class Mainly;
+  template<required::configuration::Rigging> class Mainly;
 }
 #endiv
 #divert <hpp>

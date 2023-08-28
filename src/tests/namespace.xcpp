@@ -4,17 +4,28 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.string.literals
+#import tunitas.literals
 namespace tests {
   namespace string = tunitas::string;
-  using namespace tunitas::string::literals;
+  namespace time = tunitas::time;
+  using namespace tunitas::literals;
 }
 #import tunitas.string.View
 #import tunitas.string.Storage
+#import tunitas.time.Duration
 #endiv
 #divert <hpp>
 #import rigging.ASSERTION
 namespace tests {
   using rigging::ASSERTION; // anchor for ADL on require(ASSERTION, ...) and impossible(ASSERTION, ...)
+}
+#import std.forward
+#import std.move
+#import std.swap
+namespace tests {
+  // Because these are "part fo the language now"
+  using std::forward;
+  using std::move;
+  using std::swap;
 }
 #endiv

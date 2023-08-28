@@ -1,0 +1,73 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::process::companion { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::process::companion::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Barrier() -> void;
+  auto test_usage_Shutdown() -> void;
+  auto test_usage_Subbie() -> void;
+  auto test_usage_Subprocesses() -> void;
+protected:
+  struct Specimen {
+    struct Process;
+    struct Subprocess;
+  };
+};
+#endiv
+#divert <cpp>
+auto tests::unit::process::companion::Fixture::suite() -> Suite {
+  auto series = Stream{"companion"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Barrier", &Fixture::test_usage_Barrier)
+                  << add("Shutdown", &Fixture::test_usage_Shutdown)
+                  << add("Subbie", &Fixture::test_usage_Subbie)
+                  << add("Subprocesses", &Fixture::test_usage_Subprocesses)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tests.unit.process.companion.Fixture.Specimen.Process
+#import tests.unit.process.companion.Fixture.Specimen.Subprocess
+#import tunitas.denniston.process.companion.Barrier
+#import tunitas.denniston.process.companion.Shutdown
+#import tunitas.denniston.process.companion.Subbie
+#import tunitas.denniston.process.companion.Subprocesses
+namespace tests::unit::process::companion {
+  auto Fixture::test_usage_Barrier() -> void {
+    auto model = Specimen::Process{};
+    auto submodel = Specimen::Subprocess{model};
+    using Subject = library::Barrier;
+    auto subject = Subject{model, submodel}; // <------------------------------ test this
+    subject.notify();
+    subject.wait([]{ return true; }); // sure this is trivial so it doesn't wait forever
+    subject.notify();
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Shutdown() -> void {
+    using Subject = library::Shutdown;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Subbie() -> void {
+    using Subject = library::Subbie;
+    auto subject = Subject{};
+    // here, we are not exercising any other constructor (the ones that actually *do* something)
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Subprocesses() -> void {
+    using Subject = library::Subprocesses<Specimen::Subprocess>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv

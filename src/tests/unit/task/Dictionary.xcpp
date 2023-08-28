@@ -16,7 +16,7 @@ namespace tests::unit::task {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.identifier.Generator
+#import tunitas.rheem.identifier.Generator
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Definition
 #import tunitas.denniston.task.Corpus
@@ -36,7 +36,7 @@ namespace tests::unit {
     auto test_begin_end_mutable() -> void;
     auto test_begin_end_constie() -> void;
   protected:
-    using Generator = ::tunitas::keyston::identifier::Generator<::tunitas::keyston::protocol::id::Task, ::tunitas::keyston::identifier::generator::Policy::SUPPLIED>;
+    using Generator = ::tunitas::rheem::identifier::Generator<::tunitas::rheem::protocol::id::Task, ::tunitas::rheem::identifier::generator::Policy::SUPPLIED>;
     Generator generate{};
     inline static auto definition_location([[inout]] typename Subject::Value &) -> library::Definition &;
   };

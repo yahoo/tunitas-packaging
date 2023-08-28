@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tests.unit.service.partial.Background>
+#endiv
+#divert <hpp>
+#forward tests.unit.service.partial.Supervisor
+namespace tests::unit::service::partial {
+  class Background::Guard::Stop {
+    using Supervised = Background;
+    Supervised *supervised{};
+  public:
+    inline explicit Stop(Supervised &);
+    template<required::Supervisable SUPERVISED> inline explicit Stop(Supervisor<SUPERVISED> &);
+    inline ~Stop() noexcept(false); // throws if stop() dones't stop
+    inline auto disarm() -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import tests.unit.service.partial.Supervisor
+namespace tests::unit::service::partial {
+  Background::Guard::Stop::Stop(Supervised &s) : supervised{&s} { }
+  template<required::Supervisable SUPERVISED> Background::Guard::Stop::Stop(Supervisor<SUPERVISED> &s) : supervised{s.indirect.get()} { }
+  Background::Guard::Stop::~Stop() noexcept(false) {
+    if (nullptr != supervised) {
+      if (supervised->running) {
+        supervised->stop(); // throws if it cannot stop the subprocesses
+      }
+    }
+  }
+  auto Background::Guard::Stop::disarm() -> void { supervised = nullptr; }
+}
+#endiv

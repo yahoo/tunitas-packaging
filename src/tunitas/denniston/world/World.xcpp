@@ -6,127 +6,164 @@
 #divert <fpp>
 namespace tunitas::denniston::world {
   //
-  // The definition of world state
-  //
-  // Semantic:
-  //
-  //   Configured from outside.
-  //   Configured  the programmatic configuration system.
-  //   Configured  interactively
-  //   Configured  the command line.
-  //   Configured  hardcoded herin
-  //
-  //   It's a palette of constructed values.
+  // The manifestation of a world (a computing resource).
   //
   // Specification:
   //
-  //   Some well known tasks, hpke and so on.
-  //   The tasks and services are prepared here (hardcoded for the simulation).
-  //   The tasks and services are moved out to their destination during Driver initialization.
+  //   A World manages Asome computing.
+  //   Publishes an interface by which it can be contacted.
+  //
+  //   Starts immediately upon construction
+  //   Shutdown (stopping) must be managed to recover from schduler exceptions.
   //
   // Design:
   //
-  //   No, hack it.
-  //   Optional<...> in tasks and services means they can be moved out later; leaving "empties"
+  //   Something something: a thread.
+  //
+  //   Whereas we acknowledge that userland can cause scheduling problems such as deadlock-on-graceful_hutdown
+  //   we work within the scheduler operations infrastructure to map those detected prolems to exceptions.
+  //
+  //   World::shutdown() is idempotent
+  //   world::one_shot_shut_down() is NOT idempotent and MUST be run precisely once.
+  //        WATCHOUT - if you run it multiply then it sends control messages to defunct processes (and thus hangs)
+  //
+  //   World::shutdown() can throw
+  //   World::~World() can throw if shutdown throws; this will be immediately fatal
+  //     to operate safely, guard with a Stopper (which itself throws in the destructor)
+  //     or for complete safety use scheduler::operate<World>(...thunk...)
   //
   // Usage:
   //
-  //   [[construction]]
-  //   auto world = World{};
+  //   try {
+  //     auto configuration = Configuration{};
+  //     auto stopper = Stop{configuration};
+  //     ...operate upon configuration...
+  //     if (optionally) {
+  //       configuration.shutdown(); .................. else Stopper will do it for us
+  //     }
+  //   } catch (scheduler::exception::Aspect const &) {
+  //     ...remind that ther's a bug in userland so shutdown() deadlocked...
+  //   }
   //
-  //   [[elsewhere]]
-  //   auto tasks = move(*world.tasks);
-  //   auto services = move(*world.services);
+  // Usage:
+  //
+  //   try {
+  //     scheduler::operate<Configuration>([](auto &configuration) {
+  //       ...operate upon configuration...
+  //       if (optionally) {
+  //         configuration.shutdown(); .................. else Stopper will do it for us
+  //       }
+  //     });
+  //   } catch (scheduler::exception::Aspect const &) {
+  //     ...remind that ther's a bug in userland so shutdown() deadlocked...
+  //   }
   //
   struct World;
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Configuration
-#import tunitas.keyston.protocol.id // for id::Service
-#import tunitas.keyston.entropy.Source
-#import tunitas.denniston.index // for index::Service, index::Task
-#import tunitas.denniston.task.Dictionary
-#import tunitas.denniston.task.Definition
-#import tunitas.denniston.service.Dictionary
-#import std.underlying_type
-struct tunitas::denniston::world::World {
-  struct Definitions { // plural because the contained type aliases are plural
-    using Tasks = task::Dictionary<task::Definition>;
-    using Services = service::Dictionary<keyston::hpke::Side::SECRET>;
+#import tunitas.denniston.world.Layout
+namespace tunitas::denniston {
+  namespace world {
+    using std::move;
+  }
+  class world::World : public Layout {
+    using Ancestor = Layout;
+  public:
+    [[idempotent]] inline auto shutdown() -> void;
+    //
+    explicit World(Size = DEFAULT_INITIAL_CLIENT_COUNT);
+    ~World();
+    World(World const &) = delete;
+    World &operator=(World const &) = delete;
+  protected:
+    auto startup() -> void;
+    auto enable_logging() -> void;
+    bool has_been_shut_down{false};
+    [[NOT_idempotent]] auto one_shot_shut_down() -> void;
   };
-  using Entropy = keyston::entropy::Source;
-  //
-  std::vector<keyston::protocol::id::Service> endpoints{}; // stored according to the order
-  Optional<Definitions::Tasks> tasks{};
-  Optional<Definitions::Services> services{};
-  //
-  inline explicit World(Entropy &);
-  World(World const &) = delete;
-  World &operator=(World const &) = delete;
-  struct Index {
-    using Service = index::Service;
-    using Task = index::Task;
-  };
-private:
-  struct Tasks;
-  struct Services;
-  auto fill_endpoints() -> void;
-  auto fill_tasks() -> void;
-  auto fill_hpke() -> void;
-};
+}
 #endiv
 #divert <ipp>
-#import tunitas.denniston.exception.Invariant
-#import tunitas.denniston.world.World.Tasks
-#import tunitas.denniston.world.World.Services
-#import std.integer_sequence
-#import std.make_index_sequence
 namespace tunitas::denniston::world {
-  World::World(Entropy &source) {
-    tasks = Definitions::Tasks{};
-    services = Definitions::Services{};
-    fill_endpoints();
-    if (endpoints.size() != Services::COUNT) {
-      throw exception::Invariant{"endpoints != services"};
-    }
-    {
-      // The tasks must be sized before filling them in
-      // NO MORE ---> tasks->resize(Tasks::COUNT); <--- NO MORE (... see the dictionary insert idiom)
-      [this]<std::size_t... INDEX>(std::integer_sequence<std::size_t,  INDEX...>) {
-        // The tasks dictionary allocates the new location in place
-        //                                        vvvvvvvvvvvvvvvvvvvvvvv
-        (Tasks::template fill<Index::Task{INDEX}>(tasks->insert({}).first, *this), ...);
-      }(std::make_index_sequence<Tasks::COUNT>{});
-    } {
-      [this]<std::size_t... INDEX>(std::integer_sequence<std::size_t,  INDEX...>) {
-        // The services dictionary allocates the new location in place
-        //                                              vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-        (Services::template fill<Index::Service{INDEX}>(services->insert(endpoints.at(INDEX), {}).first, *this), ...);
-      }(std::make_index_sequence<Services::COUNT>{});
+  auto World::shutdown() -> void {
+    if (!has_been_shut_down) {
+      one_shot_shut_down();
     }
   }
 }
 #endiv
 #divert <cpp>
+#import tunitas.denniston.service.Instance
+#import tunitas.denniston.world.Linker
+#import std.clog
 namespace tunitas::denniston::world {
-  auto World::fill_endpoints() -> void {
-    endpoints.push_back("ppm://sun");
-    endpoints.push_back("ppm://mercury");
-    endpoints.push_back("ppm://venus");
-    endpoints.push_back("ppm://earth");
-    endpoints.push_back("ppm://mars");
-    endpoints.push_back("ppm://jupiter");
-    endpoints.push_back("ppm://saturn");
-    endpoints.push_back("ppm://uranus");
-    endpoints.push_back("ppm://neptune");
-    endpoints.push_back("ppm://pluto");
+  World::World(Size initial_client_count) : Layout{initial_client_count} {
+    logs.outbound = &std::clog; // else we won't see anything!
+    enable_logging();
+    auto link = Linker{*this};
+    // in arbitrary order
+    link.control();
+    link.gateway();
+    link.configuration();
+    link.directory();
+    // and finally
+    startup();
+  }
+  World::~World() {
+    // WATCHOUT - this can throw, which will be immediately fatal.
+    // For safety, instead guard ~World()  with a World::Stopper
+    shutdown();
+  }
+  auto World::enable_logging() -> void {
+    // ALL processes of the System MUST be listed here (else you'll see no logsnothing)
+    system.collector->log.concentrator = &logs;
+    system.configuration->log.concentrator = &logs;
+    system.directory->log.concentrator = &logs;
+    system.gateway->log.concentrator = &logs;
+    for (auto &processor : system.processors) { processor->log.concentrator = &logs; }
+    for (auto &client : system.clients)       { client->log.concentrator = &logs; }
+  }
+  auto World::startup() -> void {
+    system.configuration->launch(threads);
+    system.directory->launch(threads);
+    system.gateway->launch(threads);
+    system.collector->launch(threads);
+    for (auto &processor : system.processors) {
+      processor->launch(threads);
+    }
+    for (auto &client : system.clients) {
+      client->launch(threads);
+    }
+  }
+}
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Quit
+#import tunitas.denniston.scheduler.backoff.Stepper
+#import nonstd.runtime_assert
+namespace tunitas::denniston::world {
+  auto World::one_shot_shut_down() -> void {
+    runtime_assert(!has_been_shut_down);
+    has_been_shut_down = true;
+    using namespace protocol::packet;
+    for (auto &face : control.everyone) {
+      face.write(make<Quit>());
+    }
+    // ensure that they all have run to process that quit packet.
+    for (auto step=scheduler::backoff::Stepper{}; step; ++step) {
+      for (auto &face : control.everyone) {
+        if (face.is_blocked_then_notify()) {
+          step.needs_another_iteration();
+        }
+      }
+    }
+    // and after the Quit packets are processed, all the run(...) functions will have exited.
   }
 }
 namespace {
   namespace testate {
     using namespace tunitas::denniston::world;
-    static_assert(not std::is_default_constructible_v<World>);
+    static_assert(std::is_default_constructible_v<World>);
     static_assert(not std::is_copy_constructible_v<World>);
     static_assert(not std::is_move_constructible_v<World>);
     static_assert(not std::is_copy_assignable_v<World>);

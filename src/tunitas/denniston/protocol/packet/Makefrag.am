@@ -1,5 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
-# Copyright Yahoo Inc, 2022.
+# Copyright Yahoo Inc.
 # Licensed under the terms of the Apache-2.0 license.
 # For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 # For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
@@ -16,13 +16,15 @@ tunitas_denniston_protocol_packet_SUBSOURCES = \
   obj/src/tunitas/denniston/protocol/packet/Provision.cpp \
   obj/src/tunitas/denniston/protocol/packet/Status.cpp \
   obj/src/tunitas/denniston/protocol/packet/Quit.cpp \
-  $(tunitas_denniston_protocol_packet_hpke_SUBSOURCES) \
   $(tunitas_denniston_protocol_packet_required_SUBSOURCES) \
+  $(tunitas_denniston_protocol_packet___hpke_SUBSOURCES) \
+  $(tunitas_denniston_protocol_packet___task_SUBSOURCES) \
   \
   obj/src/tunitas/denniston/protocol/packet/Query.template.cpp \
   obj/src/tunitas/denniston/protocol/packet/Query.PUBLIC.cpp \
   obj/src/tunitas/denniston/protocol/packet/Query.SECRET.cpp \
   obj/src/tunitas/denniston/protocol/packet/Query.TASKS.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Query.MEASUREMENT.cpp \
   obj/src/tunitas/denniston/protocol/packet/Query.cpp \
   \
   obj/src/tunitas/denniston/protocol/packet/Report.template.cpp \
@@ -41,8 +43,10 @@ tunitas_denniston_protocol_packet_SUBSOURCES = \
   obj/src/tunitas/denniston/protocol/packet/Response.TASKS.cpp \
   obj/src/tunitas/denniston/protocol/packet/Response.CONTINUATION.cpp \
   obj/src/tunitas/denniston/protocol/packet/Response.INITIALIZATION.cpp \
+  obj/src/tunitas/denniston/protocol/packet/Response.MEASUREMENT.cpp \
   obj/src/tunitas/denniston/protocol/packet/Response.cpp \
   $(end)
 #
-include src/tunitas/denniston/protocol/packet/hpke/Makefrag.am
 include src/tunitas/denniston/protocol/packet/required/Makefrag.am
+include src/tunitas/denniston/protocol/packet/_/hpke/Makefrag.am
+include src/tunitas/denniston/protocol/packet/_/task/Makefrag.am

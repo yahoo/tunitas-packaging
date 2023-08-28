@@ -25,22 +25,23 @@ namespace tunitas::denniston::report {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.preparation.Step
+#import tunitas.rheem.protocol.preparation.Step
 #import nonstd.required.Constructible_From
 namespace tunitas::denniston {
   namespace report {
     using std::move;
     inline auto swap(Status &, Status &) noexcept -> void;
   }
-  struct report::Status : public keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED> {
-    using Ancestor = keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>;
+  class report::Status : public rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED> {
+    using Ancestor = rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>;
+    friend auto swap(Status &, Status &) noexcept -> void;
   public:
     Status() = default;
     using Ancestor::Step;
     inline Status(Ancestor);
     inline auto operator=(Ancestor) -> Status &;
   };
-  static_assert(nonstd::required::Constructible_From<report::Status, keyston::protocol::preparation::Step<keyston::protocol::preparation::Mark::POSITIONED>>);
+  static_assert(nonstd::required::Constructible_From<report::Status, rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>>);
 }
 #endiv
 #divert <ipp>

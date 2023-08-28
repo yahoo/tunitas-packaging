@@ -7,4 +7,5 @@
 tests_unit_world_SUBSOURCES = \
   check/obj/src/tests/unit/world/namespace.cpp \
   check/obj/src/tests/unit/world/Fixture.cpp \
+  check/obj/src/tests/unit/world/World.cpp \
   $(end)

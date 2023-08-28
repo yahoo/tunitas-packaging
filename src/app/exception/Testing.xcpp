@@ -18,7 +18,8 @@ namespace app::exception {
   //
   // Design:
   //
-  //   No.
+  //   No. Yeah no. No Yeah.
+  //   The test suites will expect a thrown exception::Testing to exit with exits::TESTING.
   //
   // Usage:
   //
@@ -62,7 +63,7 @@ public:
 #import cli.exits.constants
 namespace app::exception {
   Testing::Testing(cli::experience::Console const &exp)
-    : Testing{exp, cli::exits::OK}
+    : Testing{exp, cli::exits::TESTING}
   { }
   Testing::Testing(cli::experience::Console const &exp, cli::exits::Code code)
     : Ancestors::Exception{exp.NAME, "testing", code}

@@ -43,9 +43,12 @@ TF_WITH_STD([tunitas])
 
 TF_WITH_SUBSYSTEM([temerarious-flagship], [], [The Tunitas Build System])
 TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
-TF_WITH_SUBSYSTEM([tunitas-keyston], [], [The Tunitas Keyston])
+TF_WITH_SUBSYSTEM([tunitas-keyston], [], [The Tunitas Keyston (VDAF)])
+TF_WITH_SUBSYSTEM([tunitas-hale], [], [The Tunitas Hale (HPKE)])
+TF_WITH_SUBSYSTEM([tunitas-rheem], [], [The Tunitas Rheem (DAP Protocol)])
 
 # and mention in $(DEVELOPMENT_AREAS) in Makefile.am
+TF_WITH_MODULE([boost])
 TF_WITH_MODULE([cli-core])
 TF_WITH_MODULE([fmt])
 TF_WITH_MODULE([langu])

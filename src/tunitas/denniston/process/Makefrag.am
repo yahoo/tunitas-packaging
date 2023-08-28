@@ -7,6 +7,7 @@
 tunitas_denniston_process_SUBSOURCES = \
   obj/src/tunitas/denniston/process/namespace.cpp \
   obj/src/tunitas/denniston/process/Ready.cpp \
+  obj/src/tunitas/denniston/process/Ready.Guard.cpp \
   obj/src/tunitas/denniston/process/Prototype.cpp \
   obj/src/tunitas/denniston/process/Model.cpp \
   obj/src/tunitas/denniston/process/Reactor.cpp \

@@ -4,6 +4,11 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
+#import nonstd.required.iterator
 #import tunitas.denniston.process.required
-namespace tunitas::denniston::process::companion::required { using namespace tunitas::denniston::process::required; }
+#import tunitas.denniston.process.companion
+namespace tunitas::denniston::process::companion::required {
+  using namespace tunitas::denniston::process::required;
+  namespace [[nodirectory]] iterator { using namespace nonstd::required::iterator; }
+}
 #endiv

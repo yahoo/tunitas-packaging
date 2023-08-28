@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// It's a RAII lock.
+// For the condition variable idiomatic usage.
+//
+// Usage:
+//
+//   auto lock = Guard{mutex};
+//   when.wait(lock, stop_when);
+//
+#include <hpp/tunitas.denniston.process.companion.Barrier>
+#endiv
+#divert <hpp>
+#import std.unique_lock
+namespace tunitas::denniston::process::companion {
+  struct Barrier::Guard : public std::unique_lock<Mutex> {
+    using Ancestor = std::unique_lock<Mutex>;
+  public:
+    using Ancestor::unique_lock;
+  };
+}
+#endiv

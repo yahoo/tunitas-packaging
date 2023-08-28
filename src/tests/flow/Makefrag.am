@@ -10,4 +10,5 @@ tests_flow_SUBSOURCES = \
   check/obj/src/tests/flow/Fixture.cpp \
   check/obj/src/tests/flow/Options.cpp \
   check/obj/src/tests/flow/Invocations.cpp \
+  check/obj/src/tests/flow/Limits.cpp \
   $(end)

@@ -22,7 +22,7 @@ namespace tunitas::denniston::process {
   //
   //   By inheritance
   //   in the services
-  //   in the Driver
+  //   in the World
   //
   struct Prototype;
 }
@@ -30,9 +30,10 @@ namespace tunitas::denniston::process {
 #divert <hpp>
 #import tunitas.denniston.network.pipe.readable.Variable
 #import tunitas.denniston.process.Ready
+static_assert(!std::is_abstract_v<tunitas::denniston::network::pipe::readable::Variable>);
 class tunitas::denniston::process::Prototype {
 protected:
-  virtual ~Prototype() = default;
+  virtual ~Prototype() noexcept(false) = default;
 public:
   Ready ready{};
   network::pipe::readable::Variable readable{ready};

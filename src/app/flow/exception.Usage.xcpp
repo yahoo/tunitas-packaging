@@ -80,8 +80,16 @@ namespace app::flow::exception {
 #import std.ostringstream
 #import app.flow.defaults
 auto app::flow::exception::Usage::unformatted() const -> std::string {
+  auto const simulation_lifetime_in_milliseconds = tunitas::time::duration_cast<tunitas::time::duration::Millisecond>(defaults::SIMULATION_LIFETIME).count();
   std::ostringstream buf;
   buf << "usage: ${NAME} [...options...]\n"
+      << "\n"
+      << "\nSimulator Options:"
+      << "\n--interactive                      interactive mode (as-yet unimplemented)"
+      << "\n--programmatic, --program          programmatic mode (as-yet unimplemented)"
+      << "\n--simulation-lifetime SECONDS      limit the lifetime of the simulation to SECONDS"
+      << "\n    alternatives: --lifetime, -l"
+      << "\n    default: " << simulation_lifetime_in_milliseconds << " milliseconds"
       << "\n"
       << "\nGeneral Options:"
       << "\n--usage, --help, -h                emit this message, and exit"

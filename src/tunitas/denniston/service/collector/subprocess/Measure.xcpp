@@ -1,0 +1,93 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::collector::subprocess {
+  //
+  // Spontaneously recover some measurements
+  // This is a measurement recovery subprocess, not a measurement producing process (c.f. Client)
+  //
+  // Specification:
+  //
+  //   There are tasks in the inventory (those are stored at the Configuration server)
+  //   Send a task name to the server (Gateway) to recover the result which will either
+  //     (a) initiate new job processing,
+  //     (b) recover the pre-existing result.
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  // Concurrency:
+  //
+  //   Not within.
+  //   Synchronize with (others) in the Collector by the Prototype::barrier.
+  //
+  // Usage:
+  //
+  //   See service::instance::Collector
+  //
+  struct Measure;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.id
+#import tunitas.denniston.service.collector.subprocess.Prototype
+namespace tunitas::denniston::service::collector {
+  namespace subprocess {
+    inline auto swap(Measure *&a, Measure *&b) noexcept -> void { std::swap(a, b); }
+  }
+  class subprocess::Measure : public Prototype {
+    using Ancestor = Prototype;
+  protected:
+    inline static constexpr auto DELAY = 200ms;
+    using Identifier = rheem::protocol::id::Task;
+  public:
+    inline explicit Measure(Collector &, Identifier);
+    //
+    auto run_managed_lifecycle() -> void;
+    //
+    Identifier task_id{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::service::collector::subprocess {
+  Measure::Measure(Collector &owner, Identifier identifier)
+    : Ancestor{owner}
+    , task_id{move(identifier)}
+  { }
+}
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::collector::subprocess::Measure;
+    //
+    static_assert(not std::semiregular<Measure>);
+    //
+    // because that barrier in Measure::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_default_constructible_v<Measure>);
+    static_assert(not std::is_copy_constructible_v<Measure>);
+    static_assert(not std::is_move_constructible_v<Measure>);
+    static_assert(not std::is_copy_assignable_v<Measure>);
+    static_assert(not std::is_move_assignable_v<Measure>);
+    static_assert(not std::is_swappable_v<Measure>);
+    static_assert(    std::is_swappable_v<Measure *>);
+  }
+}
+#import std.this_thread.sleep_for
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Query
+namespace tunitas::denniston::service::collector::subprocess {
+  auto Measure::run_managed_lifecycle() -> void {
+    // Slow Down! [[provisionally]] let the measurements accrete
+    while (!owner.is_shutting_down()) {
+      owner.gateway.write(make<Query<Get::MEASUREMENT>>(task_id));
+      std::this_thread::sleep_for(DELAY);
+    }
+    owner.log.format("measure is ending");
+  }
+}
+#endiv

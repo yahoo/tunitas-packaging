@@ -14,10 +14,12 @@ struct tests::unit::exception::Fixture : public rigging::suite::Fixture {
 #divert <cpp>
 #import tests.unit.exception.denniston.Fixture
 #import tests.unit.exception.network.Fixture
+#import tests.unit.exception.scheduler.Fixture
 auto tests::unit::exception::Fixture::suite() -> Suite {
   auto series = Stream("exception"sv);
   series << add<denniston::Fixture>()
          << add<network::Fixture>()
+         << add<scheduler::Fixture>()
          << END;
   return settle(series);
 }

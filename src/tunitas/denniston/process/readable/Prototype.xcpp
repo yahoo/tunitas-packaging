@@ -17,7 +17,7 @@ namespace tunitas::denniston::process::readable {
   //   Descendants MUST implement the rest.
   //
   //   Prototype::is_ready_to_read() is the value-add here; it
-  //     operates under under all the locks
+  //     operates under th protection of all the locks
   //     surveys the lockable's elements (i.e. input channels) and estimates readability.
   //     returns a boolean "is readable"
   //
@@ -40,6 +40,7 @@ class tunitas::denniston::process::readable::Prototype {
 protected:
   virtual ~Prototype() = default;
 public:
+  struct Guard;
   virtual auto lock() -> void = 0;
   virtual auto unlock() -> void = 0;
   virtual auto unlock_rest() -> void = 0;

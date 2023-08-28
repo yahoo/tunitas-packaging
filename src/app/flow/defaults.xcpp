@@ -4,7 +4,14 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace app::flow::defaults { }
+#import tunitas.time.literals
+#import std.chrono_literals
+namespace app::flow::defaults {
+  namespace construction {
+    using namespace tunitas::time::literals; // prefer this
+    using namespace std::chrono_literals; // one day this will become ambiguous
+  }
+}
 #endiv
 #divert <hpp>
 namespace app::flow::defaults {
@@ -12,5 +19,9 @@ namespace app::flow::defaults {
   // Default values for use in the std::optional<TYPE>
   // The literals MUST be of type string::Storage with ""s initializer to match the type of the field in service::Configuration
   //
+  namespace construction {
+    inline constexpr auto SIMULATION_LIFETIME = 2000ms;
+  }
+  using construction::SIMULATION_LIFETIME;
 }
 #endiv

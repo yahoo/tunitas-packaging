@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// Rhymes with nonstd::Like but is specialized against Lifestage::Reference<LIFESTAGE>
+//
+#include <hpp/tunitas.denniston.process.companion.Lifestage>
+#endiv
+#divert <hpp>
+namespace tunitas::denniston::process::companion {
+  struct Lifestage::Conjugate::Decomposition {
+    template<typename PATTERN, typename REPLACE> struct Left;
+    template<typename PATTERN, typename REPLACE> struct Right;
+  };
+  template<typename PATTERN, typename REPLACE> struct Lifestage::Conjugate::Decomposition::Left {
+    using Type = REPLACE;
+    using type = Type;
+  };
+  template<typename PATTERN, typename REPLACE> struct Lifestage::Conjugate::Decomposition::Right {
+    using Type = typename Left<PATTERN, REPLACE>::Type;
+    using type = Type;
+  };
+  template<typename PATTERN, typename REPLACE> struct Lifestage::Conjugate::Like : public Decomposition::Right<PATTERN, REPLACE> { };
+  template<typename PATTERN, typename REPLACE> struct Lifestage::Conjugate::Decomposition::Left<PATTERN const, REPLACE> {
+    using Type = typename Left<PATTERN, REPLACE>::Type const;
+    using type = Type;
+  };
+  template<typename PATTERN, typename REPLACE> struct Lifestage::Conjugate::Decomposition::Right<PATTERN, REPLACE const> {
+    using Type = typename Right<PATTERN, REPLACE>::Type const;
+    using type = Type;
+  };
+  template<typename PATTERN, typename REPLACE> struct Lifestage::Conjugate::Decomposition::Right<PATTERN, Lifestage::Reference<REPLACE>> {
+    using Type = Reference<typename Right<PATTERN, REPLACE>::Type>;
+    using type = Type;
+  };
+}
+#endiv
+#divert <cpp>
+#import nonstd.required.Same_As
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::process::companion;
+    using nonstd::required::Same_As;
+    //                    <---------- expected type ---------->  <---- apply ---><-----pattern--> <------- replacement ----------->
+    static_assert(Same_As<Lifestage::Reference<Lifestage>,       Lifestage::Like<Lifestage,       Lifestage::Reference<Lifestage>>>);
+    static_assert(Same_As<Lifestage::Reference<Lifestage const>, Lifestage::Like<Lifestage const, Lifestage::Reference<Lifestage>>>);
+    //                                                  ^^^^^^                            ^^^^^^                       ^^^^^^^^^
+    //                                                  ||||||                            ||||||                       |||||||||
+    //                                                  \\\\\\----------------------------++++++-----------------------/////////
+  }
+}
+#endiv

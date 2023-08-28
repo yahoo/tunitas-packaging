@@ -4,7 +4,7 @@
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-#import tunitas.denniston.network
+#import tunitas.denniston
 #import tunitas.string.literals
 namespace tunitas::denniston::error {
   namespace package_error {

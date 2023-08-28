@@ -45,43 +45,47 @@ namespace tunitas::denniston::protocol::continuation {
 }
 #endiv
 #divert <hpp>
+#import tunitas.keyston.vdaf.Name
 #import tunitas.denniston.job.Corpus
-#import tunitas.keyston.protocol.continuation.Request
-#import tunitas.keyston.protocol.continuation.Response
-#import tunitas.keyston.vdaf.Configuration
-#import tunitas.keyston.vdaf.Executor
-#import tunitas.keyston.vdaf.generic.continued.alternatives // Again and Final
+#import tunitas.rheem.protocol.continuation.Request
+#import tunitas.rheem.protocol.continuation.Response
 struct tunitas::denniston::protocol::continuation::Computer {
-  using Function = keyston::vdaf::Executor<keyston::vdaf::Scheme::PROTOCOL>;
+  using Function = keyston::vdaf::Name;
   using States = job::Corpus<Genus::PROCESSOR>::Preparation_States;
-  using Steps = keyston::protocol::continuation::Request::Preparation_Steps;
-  using Response = keyston::protocol::continuation::Response;
+  using Steps = rheem::protocol::continuation::Request::Preparation_Steps;
+  using Response = rheem::protocol::continuation::Response;
   //
   Function exe{};
   States &states; // modified during operator()
   Steps const &steps;
   //
   inline [[implicit]] Computer(Function, [[inout]] States &, Steps const &);
-  inline auto operator()() const -> Response;
+  auto operator()() const -> Response;
 protected:
   using State = Steps::Value;
   using Step = Response::Preparation_Steps::Value;
-  using Configuration = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>;
-  using Again = keyston::vdaf::generic::continued::Again<Configuration>;
-  using Final = keyston::vdaf::generic::continued::Final<Configuration>;
+  // Go again?  is final step?
 };
 #endiv
 #divert <ipp>
-#import std.views.iota
-#import tunitas.keyston.vdaf.generic.continued.cast
-#import nonstd.exception.Unreachable
 namespace tunitas::denniston::protocol::continuation {
   Computer::Computer(Function exe, States &states, Steps const &steps)
     : exe{exe}
     , states{states}
     , steps{steps}
   { }
+}
+#endiv
+#divert <cpp>
+#import nonstd.exception.Unimplemented
+#import std.views.iota
+#import nonstd.exception.Unreachable
+namespace tunitas::denniston::protocol::continuation {
   auto Computer::operator()() const -> Response {
+#if 1
+    throw nonstd::exception::Unimplemented{};
+#else
+    // This should not be here in the protocol; as a separable executor thingie.
     auto ret = Response{};
     for (auto ith : std::views::iota(0u, states.size())) {
       auto &state{states.at(ith)};
@@ -99,6 +103,7 @@ namespace tunitas::denniston::protocol::continuation {
       }
     }
     return ret;
+#endif
   }
 }
 #endiv

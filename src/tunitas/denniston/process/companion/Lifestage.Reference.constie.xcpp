@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.process.companion.Lifestage>
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.companion.Lifestage.Guard
+namespace tunitas::denniston::process::companion {
+  template<> class Lifestage::Reference<Lifestage const> {
+    using Referenced = Lifestage const;
+    friend class Lifestage;
+    inline explicit Reference(Lifestage &); // yes the constructor is mutable, not constie
+  public:
+    inline Reference(Reference<Lifestage> &&);
+    inline Reference(Reference &&);
+    //
+    inline auto operator=(Reference const &) -> Reference & = delete;
+    inline auto operator=(Reference &&) -> Reference & = delete;
+    //
+    inline operator Stage() const;
+    inline auto load(Guard &) const -> Stage;
+    //
+    inline auto is(Stage match) const -> bool;
+    inline auto is(Guard &, Stage match) const -> bool;
+  private:
+    // mutable because the guard peeks into it and writes the mutex therein
+    Referenced const &referenced;
+    Guard guard;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.process.companion.Lifestage.Reference.mutable
+namespace tunitas::denniston::process::companion {
+  Lifestage::Reference<Lifestage const>::Reference(Lifestage &yup_mutable_base)
+    : referenced{yup_mutable_base}
+    , guard{yup_mutable_base}
+  { }
+  Lifestage::Reference<Lifestage const>::Reference(Reference &&other)
+    : referenced{other.referenced}
+    , guard{move(guard)}
+  { }
+  Lifestage::Reference<Lifestage const>::Reference(Reference<Lifestage> &&other)
+    : referenced{other.referenced}
+    , guard{move(other.guard)}
+  { }
+  Lifestage::Reference<Lifestage const>::operator Stage() const             { return referenced.held; }
+  auto Lifestage::Reference<Lifestage const>::is(Stage match) const -> bool { return match == referenced.held; }
+}
+#endiv

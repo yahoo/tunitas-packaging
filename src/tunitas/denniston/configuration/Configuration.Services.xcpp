@@ -1,0 +1,110 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.configuration.Configuration>
+#endiv
+#divert <hpp>
+#import tunitas.hale.hpke.key.Bundle
+#import tunitas.hale.hpke.Key
+#import tunitas.hale.hpke.Configuration
+#import tunitas.string.View
+namespace tunitas::denniston::configuration {
+  struct Configuration::Services {
+    using enum hale::hpke::Side;
+    template<Configuration::Index::Service> static auto fill([[inout]] hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+    static Size const COUNT;
+  private:
+    using Identifier = hale::hpke::id::Configuration;
+    template<hale::hpke::Side SIDE> using Key = hale::hpke::Key<SIDE>;
+    inline static auto masticate(string::View) -> hale::hpke::key::Bundle<Key<PUBLIC>,Key<SECRET>>;
+  };
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{0}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{1}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{2}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{3}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{4}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{5}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{6}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{7}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{8}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{9}>(hale::hpke::Configuration<SECRET> &, Configuration const &) -> void;
+  inline std::size_t const Configuration::Services::COUNT{10uz};
+}
+#endiv
+#divert <ipp>
+#import std.transform
+#import std.back_inserter
+namespace tunitas::denniston::configuration {
+  auto Configuration::Services::masticate(string::View junk) -> hale::hpke::key::Bundle<Key<PUBLIC>,Key<SECRET>> {
+    auto prepare = [](auto &lhs, string::View early, string::View late) {
+                  auto sink = std::back_inserter(lhs);
+                  auto as_octet = [](char c) { return Octet(c); };
+                  std::transform(early.begin(), early.end(), sink, as_octet);
+                  std::transform(late.begin(), late.end(), sink, as_octet);
+                };
+    auto pub = Key<PUBLIC>{};
+    auto sec = Key<SECRET>{};
+    prepare(pub, "public-"sv, junk);
+    prepare(sec, "secret-"sv, junk);
+    return {pub,sec};
+  }
+}
+#endiv
+#divert <cpp>
+#import std.to_string
+namespace tunitas::denniston::configuration {
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{0}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{0};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{1}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{1};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{2}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{2};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{3}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{3};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{4}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{4};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{5}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{5};
+    noob.id = Identifier{INDEX}; 
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+ }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{6}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{6};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{7}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{7};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{8}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{8};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+  template<> auto Configuration::Services::fill<Configuration::Index::Service{9}>(hale::hpke::Configuration<SECRET> &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Service{9};
+    noob.id = Identifier{INDEX};
+    noob.keys = masticate("key-"s + std::to_string(underlying(INDEX)));
+  }
+}
+#endiv

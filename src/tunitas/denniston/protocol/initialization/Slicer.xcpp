@@ -52,23 +52,23 @@ namespace tunitas::denniston::protocol::initialization {
 #import tunitas.denniston.index // for index::Processor
 #import tunitas.denniston.report.Series
 #import tunitas.denniston.report.Definition
-#import tunitas.keyston.protocol.id // id::Task and id::Job
-#import tunitas.keyston.protocol.function.Parameters
-#import tunitas.keyston.protocol.initialization.Request
-#import tunitas.keyston.protocol.query.Partial
-#import tunitas.keyston.protocol.report.Produced
+#import tunitas.rheem.protocol.id // id::Task and id::Job
+#import tunitas.keyston.vdaf.Parameters
+#import tunitas.rheem.protocol.initialization.Request
+#import tunitas.rheem.protocol.query.Partial
+#import tunitas.rheem.protocol.report.Produced
 struct tunitas::denniston::protocol::initialization::Slicer {
   using Slice = protocol::Slice;
   using enum Slice;
   struct Identifier {
-    using Task = keyston::protocol::id::Task;
-    using Job = keyston::protocol::id::Job;
+    using Task = rheem::protocol::id::Task;
+    using Job = rheem::protocol::id::Job;
   };
-  using Parameters = keyston::protocol::function::Parameters;
-  using Query = keyston::protocol::query::Partial;
-  template<Slice SLICE> using Report = keyston::protocol::report::Produced<SLICE>;
+  using Parameters = keyston::vdaf::Parameters;
+  using Query = rheem::protocol::query::Partial;
+  template<Slice SLICE> using Report = rheem::protocol::report::Produced<SLICE>;
   using Reports = report::Series<report::Definition>;
-  using Request = keyston::protocol::initialization::Request;
+  using Request = rheem::protocol::initialization::Request;
   //
   Identifier::Task const &task_id;
   Identifier::Job const &job_id;

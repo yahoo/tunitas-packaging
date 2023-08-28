@@ -16,7 +16,7 @@ namespace tunitas::denniston::concurrent::dictionary::required {
   // Specification:
   //
   //   What it says on the label.
-  //   The 'reqwuired' step must be deducable without the complete type definition.
+  //   The 'required' step must be deducable without the complete type definition.
   //   See usage::Origin for more conditions.
   //
   // Design:

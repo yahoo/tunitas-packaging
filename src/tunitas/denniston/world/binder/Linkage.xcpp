@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::world::binder {
+  //
+  // The linkage, green & blue.
+  //
+  // Specification:
+  //
+  //   Just what it says; left-right linkage
+  //   Is free of references to Layout (see Binder)
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //   An implementation detail of the Binder.
+  //   Also used in various test rigging (where the Binder can't be used).
+  //
+  // WATCHOUT - the ordering of the arguments here is CRITICAL else activation scheduling WILL NOT WORK
+  // The semantic is:
+  //
+  //   When writing to green interface, activate the blue process
+  //   When writing to blue interface, activate the green process
+  //
+  // Usage:
+  //
+  //   See Binder
+  //   See World
+  //
+  struct Linkage;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.world.binder.Triple
+#import tunitas.denniston.world.binder.Untied
+#forward tunitas.denniston.world.binder.Tied
+#import tunitas.denniston.network.pipe.readable.Variable
+#import tunitas.denniston.network.Socket.Interface
+#import tunitas.denniston.network.Sockets
+#import tunitas.denniston.process.Ready
+struct tunitas::denniston::world::binder::Linkage {
+  using Readable = network::pipe::readable::Variable;
+  using Ready = process::Ready;
+  using Socket = network::Socket;
+  using Interface = network::Socket::Interface;
+  using Triple = binder::Triple;
+  using Untied = binder::Untied;
+  using Tied = binder::Tied;
+protected:
+  inline auto left(Socket &, Ready &) -> Untied;
+  inline auto right(Socket &, Ready &) -> Untied;
+  inline auto tie(Readable &, Interface &) -> Tied;
+public:  
+  inline auto link([[inout]] Socket &, [[inout]] Triple green, [[inout]] Triple blue) -> void;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.world.binder.Tied
+namespace tunitas::denniston::world::binder {
+  auto Linkage::tie(Readable &readable, Interface &face) -> Tied { return {readable, face}; }
+  auto Linkage::link(Socket &place, Triple green, Triple blue) -> void {
+    // when we write to blue, green must be notified that it has become ready-to-read
+    // When we write to green, blue becomes ready
+    tie(green.readable, green.face) = left(place, blue.ready);
+    tie(blue.readable, blue.face) = right(place, green.ready);
+  }
+  auto Linkage::left(Socket &place, Ready &ready) -> Untied {
+    auto face = Interface{&place, &Socket::left2right, &Socket::right2left, &ready};
+    auto poll = &place.right2left;
+    return {poll, face};
+  }
+  auto Linkage::right(Socket &place, Ready &ready) -> Untied {
+    auto face = Interface{&place, &Socket::right2left, &Socket::left2right, &ready};
+    auto poll = &place.left2right;
+    return {poll, face};
+  }
+}
+#endiv

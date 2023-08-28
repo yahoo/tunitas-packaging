@@ -1,0 +1,94 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.process.companion.required.Process
+namespace tunitas::denniston::process::companion {
+  //
+  // The prototype of a companion (a subprocess)
+  //
+  // Specification:
+  //
+  //   Rhymes with process::Model.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   The destructor MUST be public so that unique_ptr<Submodel<OWNER>> can see it
+  //   Therefore the constructor is made protected.
+  //
+  //   The type name of OWNER must be available at <hpp> (obviously)
+  //   The complete type of OWNER must be available at (some parts of) <ipp>
+  //
+  // Usage:
+  //
+  //   By inheritance
+  //   See service::{client,gateway,processor}::subprocess::Submodel
+  //   e.g. spawn(&Boot::run);
+  //
+  //   See Subbie
+  //
+  template<required::Process OWNER> struct Submodel;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.Model
+#import tunitas.denniston.process.companion.Prototype
+#import tunitas.denniston.process.companion.usage.Process
+namespace tunitas::denniston::process {
+  template<companion::required::Process OWNER> class companion::Submodel : public Prototype {
+    using Ancestor = Prototype;
+    // not yet ---> static_assert(usage::Process<OWNER>); <--- not yet (MUST still work with the reference)
+  public:
+    using Owner = OWNER;
+    Owner &owner;
+    struct Guard {
+      struct Completion;
+    };
+#if 202303 <= __cplusplus
+    template<typename SELF> inline auto announce_completion(this SELF *) -> void requires usage::Process<Owner>;
+#else
+    auto announce_completion() -> void { announce_completion(static_cast<Owner *>(nullptr)); }
+    template<typename O> inline auto announce_completion(O *) -> void requires usage::Process<O>;
+#endif
+    virtual ~Submodel() = default;
+  protected:
+    inline explicit Submodel(Owner &);
+  private:
+    template<typename SELF> inline static auto _redo_announce_completion(SELF &) -> void requires usage::Process<Owner>;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::companion {
+  template<required::Process _> Submodel<_>::Submodel(Owner &owner)
+    : Ancestor{owner}
+    , owner{owner}
+  { }
+#if 202303 <= __cplusplus
+  template<required::Process _> template<typename SELF> auto Submodel<_>::announce_completion(this SELF *self) -> void requires usage::Process<Owner> { _redo_announce_completion(*self); }
+#else
+  template<required::Process _> template<typename OWNER> auto Submodel<_>::announce_completion(OWNER *) -> void requires usage::Process<OWNER> { _redo_announce_completion(*this); }
+#endif
+  template<required::Process _> template<typename SELF> auto Submodel<_>::_redo_announce_completion(SELF &self) -> void requires usage::Process<Owner> {
+    self.lifestage = Lifestage::UNDEAD;
+    self.owner.subprocesses.one_more_has_finished();
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::process::companion::Submodel;
+    struct Something { };
+    //
+    // because that barrier in Submodel::Ancestor (Submodel) has an immobile mutex within it.
+    static_assert(not std::is_swappable_v<Submodel<Something>>);
+    //
+    static_assert(    std::is_swappable_v<Something *>);
+    static_assert(    std::is_swappable_v<Submodel<Something> *>);
+  }
+}
+#endiv

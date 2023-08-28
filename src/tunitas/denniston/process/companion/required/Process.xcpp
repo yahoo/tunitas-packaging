@@ -1,0 +1,17 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.Class
+namespace tunitas::denniston::process::companion::required {
+  //
+  // Is this TYPE a (full) process (type)?
+  // The remaining conditions are deferred until usage::Process<PROCESS> when the complete types are available.
+  //
+  // see usage::Process for the rest of the conditions
+  //
+  template<typename PROCESS> concept Process = Class<PROCESS>;
+}
+#endiv

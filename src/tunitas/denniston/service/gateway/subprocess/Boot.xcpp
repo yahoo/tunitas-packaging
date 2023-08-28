@@ -8,7 +8,7 @@ namespace tunitas::denniston::service::gateway::subprocess {
   //
   // The initialization subprocess (thread)
   //
-  // Specificiation:
+  // Specification:
   //
   //   Ask for the tasks.
   //
@@ -40,17 +40,18 @@ namespace tunitas::denniston::service::gateway {
   public:
     inline explicit Boot(Gateway &);
     //
-    auto run() noexcept -> void;
+    auto run_managed_lifecycle() -> void;
   };
 }
 #endiv
 #divert <ipp>
 #import tunitas.denniston.job.Corpus
 namespace tunitas::denniston::service::gateway::subprocess {
-  Boot::Boot(Gateway &owner) : Ancestor{owner} {
+  Boot::Boot(Gateway &owner) : Ancestor{owner} { }
+#if 0
     // expects this->barrier to already be started (locked)
-    subbie = std::jthread{&Boot::run, this};
-  }
+    subbie = {&Boot::run_managed_lifecycle, this};
+#endif
 }
 #divert <cpp>
 namespace {
@@ -74,7 +75,7 @@ namespace {
 #import tunitas.denniston.protocol.packet.make
 #import tunitas.denniston.protocol.packet.Query
 namespace tunitas::denniston::service::gateway::subprocess {
-  auto Boot::run() noexcept -> void try {
+  auto Boot::run_managed_lifecycle() -> void {
     //
     // 1. Ask for the tasks
     //
@@ -84,13 +85,9 @@ namespace tunitas::denniston::service::gateway::subprocess {
     // 2. Foreach task, start a subprocess to delegate for it.
     //
     for (auto locked=owner.tasks.range(); auto &task : locked) {
-      owner.subprocesses.push_back(subprocess::make<subprocess::Task>(owner, task));
+      owner.subprocesses.spawn(subprocess::make<subprocess::Task>(owner, task));
     }
     owner.log.format("boot is ending, having recovered the tasks and started subprocesses on them");
-  } catch (process::companion::Shutdown) {
-    // yay!
-  } catch(...) {
-    owner.log.format("boot has an escaped exception which is suppressed");
   }
 }
 #endiv

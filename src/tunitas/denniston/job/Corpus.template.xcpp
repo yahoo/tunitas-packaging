@@ -30,17 +30,17 @@ namespace tunitas::denniston::job {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.protocol.id // for id::Job
+#import tunitas.rheem.protocol.id // for id::Job
 #import tunitas.denniston.job.required.corpus.Pointed
 namespace tunitas::denniston::job {
   using std::move;
-  template<auto CORPORAL> requires required::Corporal<CORPORAL> inline auto key_from(Corpus<CORPORAL> const &) -> keyston::protocol::id::Job const &;
+  template<auto CORPORAL> requires required::Corporal<CORPORAL> inline auto key_from(Corpus<CORPORAL> const &) -> rheem::protocol::id::Job const &;
   template<required::corpus::Pointed POINTED> inline auto swap(POINTED *&, POINTED *&) noexcept -> void;
 }
 #endiv
 #divert <ipp>
 namespace tunitas::denniston {
-  template<auto CORPORAL> requires job::required::Corporal<CORPORAL> auto job::key_from(Corpus<CORPORAL> const &corpus) -> keyston::protocol::id::Job const & { return corpus.definition.id; }
+  template<auto CORPORAL> requires job::required::Corporal<CORPORAL> auto job::key_from(Corpus<CORPORAL> const &corpus) -> rheem::protocol::id::Job const & { return corpus.definition.id; }
   template<job::required::corpus::Pointed POINTED> auto job::swap(POINTED *&a, POINTED *&b) noexcept -> void { std::swap(a, b); }
 }
 #endiv

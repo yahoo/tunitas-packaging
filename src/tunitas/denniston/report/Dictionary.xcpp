@@ -37,12 +37,12 @@ namespace tunitas::denniston::report {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.index // not needed unless LINEAR
-#import tunitas.keyston.protocol.id // for id::Report
+#import tunitas.rheem.protocol.id // for id::Report
 #import tunitas.denniston.report.usage.Valuable
 #import tunitas.denniston.concurrent.dictionary.Dictionary
 namespace tunitas::denniston::report {
-  template<required::Valuable VALUE> struct dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Report, VALUE>> {
-    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Report, VALUE>>;
+  template<required::Valuable VALUE> struct dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Report, VALUE>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Report, VALUE>>;
     static_assert(usage::Valuable<VALUE>);
   public:
     Dictionary() = default;

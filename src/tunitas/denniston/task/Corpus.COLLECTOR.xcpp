@@ -6,15 +6,47 @@
 #divert <fpp>
 #import tunitas.denniston.task.Corpus.template
 namespace tunitas::denniston::task {
+  //
+  // The corpus of the Task Dictionary of the Collector
+  //
+  // Specification:
+  //
+  //   Sure man.  A Specifiation, we can do that.  Can we Jim?  A specification?
+  //
+  // Design:
+  //
+  //   The constructors MUST be implicit to convert from the Definition upon insertion into a Dictionary.
+  //
+  //  On the design of the field 'result'
+  //    Perhaps an Outcome<Result> so we can know the reason why the result failed to be returned.
+  //    There are three states here.
+  //    1. null, unknown, no query has yet been attempted
+  //    2. failure, the query with an explanation
+  //    3. success, the query succeeded and here is the result
+  //
+  // Usage:
+  //
+  //   see service::Collector
+  //
   template<> struct Corpus<Genus::COLLECTOR>;
 }
 #endiv
 #divert <hpp>
 #import tunitas.denniston.task.Definition
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.Optional
 namespace tunitas::denniston::task {
   inline auto swap(Corpus<Genus::COLLECTOR> &, Corpus<Genus::COLLECTOR> &) noexcept -> void;
-  template<> struct Corpus<Genus::COLLECTOR> {
+  template<> class Corpus<Genus::COLLECTOR> {
+    using Protocol = rheem::protocol::task::Task;
+    static_assert(std::derived_from<Definition, Protocol>);
+  public:
+    Corpus() = default;
+    inline [[implicit]] Corpus(Definition);
+    inline [[implicit]] Corpus(Protocol);
+    //
     Definition definition{};
+    Optional<keyston::measurement::Specimen> result{};
   };
 }
 #endiv
@@ -22,6 +54,11 @@ namespace tunitas::denniston::task {
 namespace tunitas::denniston {
   auto task::swap(Corpus<Genus::COLLECTOR> &a, Corpus<Genus::COLLECTOR> &b) noexcept -> void {
     swap(a.definition, b.definition);
+    swap(a.result, b.result);
+  }
+  namespace task {
+    Corpus<Genus::COLLECTOR>::Corpus(Definition def) : definition{move(def)} { }
+    Corpus<Genus::COLLECTOR>::Corpus(Protocol prot) : definition{move(prot)} { }
   }
 }
 #endiv

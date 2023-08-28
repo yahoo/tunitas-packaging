@@ -31,7 +31,7 @@ namespace tunitas::denniston::job {
 #divert <hpp>
 #import nonstd.required.iterator.Forward
 #import nonstd.required.iterator.Producing
-#import tunitas.keyston.protocol.id // for id::Job
+#import tunitas.rheem.protocol.id // for id::Job
 #import tunitas.denniston.job.Definition
 #import tunitas.denniston.job.required.iterator.Member
 #forward tunitas.denniston.service.gateway.subprocess.Job
@@ -39,9 +39,9 @@ namespace tunitas::denniston::job {
   inline auto swap(Corpus<Genus::GATEWAY> &, Corpus<Genus::GATEWAY> &) noexcept -> void;
   template<> struct Corpus<Genus::GATEWAY> {
     [[implicit]] Corpus() = default;
-    inline [[implicit]] Corpus(keyston::protocol::id::Job);
+    inline [[implicit]] Corpus(rheem::protocol::id::Job);
     inline [[implicit]] Corpus(Definition);
-    template<required::iterator::Member ITERATOR> inline [[implicit]] Corpus(keyston::protocol::id::Job, ITERATOR start, ITERATOR finish);
+    template<required::iterator::Member ITERATOR> inline [[implicit]] Corpus(rheem::protocol::id::Job, ITERATOR start, ITERATOR finish);
     //
     Definition definition{};
     service::gateway::subprocess::Job *subprocess{};
@@ -56,13 +56,13 @@ namespace tunitas::denniston {
     swap(a.subprocess, b.subprocess);
   }
   namespace job {
-    Corpus<Genus::GATEWAY>::Corpus(keyston::protocol::id::Job id)
+    Corpus<Genus::GATEWAY>::Corpus(rheem::protocol::id::Job id)
       : definition{move(id)}
     { }
     Corpus<Genus::GATEWAY>::Corpus(Definition d)
       : definition{move(d)}
     { }
-    template<required::iterator::Member ITERATOR> Corpus<Genus::GATEWAY>::Corpus(keyston::protocol::id::Job id, ITERATOR start, ITERATOR finish)
+    template<required::iterator::Member ITERATOR> Corpus<Genus::GATEWAY>::Corpus(rheem::protocol::id::Job id, ITERATOR start, ITERATOR finish)
       : definition{move(id), start, finish}
     { }
   }

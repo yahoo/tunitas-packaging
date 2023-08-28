@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::protocol::packet::_::hpke {
+  //
+  // The commonalities among the Query and Response.
+  //
+  // Specification:
+  //
+  //   Both directions indicate the endpoint and optional task_id
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //
+  // Response:
+  //
+  //   By inheritance into Query and Response
+  //
+  struct Basis;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.protocol.packet.Prototype
+#import tunitas.rheem.protocol.id // for id::Service, id::Task
+class tunitas::denniston::protocol::packet::_::hpke::Basis : public Prototype {
+  using Ancestor = Prototype;
+protected:
+  ~Basis() = default;
+public:
+  using Service = rheem::protocol::id::Service;
+  using Task = rheem::protocol::id::Task;
+  Service service_id{};
+  Optional<Task> task_id{};
+  //
+  explicit Basis() = default;
+  inline explicit Basis(Service);
+  inline explicit Basis(Service, Task);
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol::packet::_::hpke {
+  Basis::Basis(Service s)
+    : service_id{move(s)}
+  { }
+  Basis::Basis(Service s, Task t)
+    : service_id{move(s)}
+    , task_id{move(t)}
+  { }
+}
+#endiv

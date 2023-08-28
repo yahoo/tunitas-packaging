@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.process.companion.Lifestage>
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.companion.Lifestage.Guard
+namespace tunitas::denniston::process::companion {
+  template<> class Lifestage::Reference<Lifestage> {
+    using Referenced = Lifestage;
+    friend class Lifestage;
+    inline explicit Reference(Referenced &);
+  public:
+    inline Reference(Reference &&);
+    //
+    inline auto operator=(Stage) -> Reference &;
+    inline auto operator=(Reference const &) -> Reference &;
+    inline auto store(Guard &, Stage) -> void;
+    //
+    inline operator Stage() const;
+    inline auto load(Guard &) const -> Stage;
+    //
+    inline auto is(Stage match) const -> bool;
+    inline auto is(Guard &, Stage match) const -> bool;
+  private:
+    Referenced &referenced;
+    Guard guard;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::companion {
+  Lifestage::Reference<Lifestage>::Reference(Referenced &base)
+    : referenced{base}
+    , guard{referenced}
+  { }
+  Lifestage::Reference<Lifestage>::Reference(Reference &&other)
+    : referenced{other.referenced}
+    , guard{move(other.guard)}
+  { }
+  auto Lifestage::Reference<Lifestage>::operator=(Stage noob) -> Reference & {
+    referenced.held = noob;
+    return *this;
+  }
+  auto Lifestage::Reference<Lifestage>::operator=(Reference const &other) -> Reference & {
+    referenced.held = other.referenced.held; // even if (this == &other) who cares?
+    return *this;
+  }
+  Lifestage::Reference<Lifestage>::operator Stage() const             { return referenced.held; }
+  auto Lifestage::Reference<Lifestage>::is(Stage match) const -> bool { return match == referenced.held; }
+}
+#endiv

@@ -6,11 +6,11 @@
 #divert <fpp>
 #import tunitas.denniston.service
 #import tunitas.denniston.protocol.packet
-#import tunitas.keyston.time.literals
+#import tunitas.time.literals
 #import tunitas.string.literals
 namespace tunitas::denniston::service::processor {
   using namespace protocol::packet;
   using namespace string::literals;
-  using namespace keyston::time::literals;
+  using namespace time::literals;
 }
 #endiv

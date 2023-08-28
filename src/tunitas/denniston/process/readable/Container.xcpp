@@ -33,6 +33,7 @@ namespace tunitas::denniston::process::readable {
 #import std.next
 #import std.ranges.subrange
 #import std.remove_pointer
+#import nonstd.required.Pointer
 #import tunitas.denniston.process.Ready
 #import tunitas.denniston.process.readable.Prototype
 #import tunitas.denniston.process.readable.required.Array
@@ -46,6 +47,8 @@ namespace tunitas::denniston::process {
     using Array = ARRAY;
     using Mutex = std::remove_pointer_t<typename Array::value_type>;
     Array locks;
+  private:
+    static_assert(required::Pointer<typename Array::value_type>); // first(...) does indeed Do The Right Thing.
     static auto first(Array &a) { return a.front(); }
     static auto rest(Array &a)  { return std::ranges::subrange{std::next(std::begin(a)), std::end(a)}; }
   public:
@@ -60,12 +63,13 @@ namespace tunitas::denniston::process {
 #import std.vector
 namespace tunitas::denniston::process::readable {
   template<readable::required::Array _> template<typename... MUTEXES> Container<_>::Container(Ready &first, MUTEXES &...rest) requires required::Mutexes<MUTEXES...>
-    : locks{&first.lock, &rest...} // the descendant MUST clamp the size
+    : locks{&first.mutex, &rest...} // the descendant MUST clamp the size
   { }
   template<required::Array _> auto Container<_>::unlock() -> void       { for (auto place : locks) { place->unlock(); } }
   template<required::Array _> auto Container<_>::unlock_first() -> void { first(locks)->unlock(); }
   template<required::Array _> auto Container<_>::unlock_rest() -> void  { for (auto place : rest(locks)) { place->unlock(); } }
   template<required::Array _> auto Container<_>::lock() -> void {
+    // same algo as std::lock(...)
     auto first = 0uz;
     auto uniques = [this]{
                      auto ret = std::vector<std::unique_lock<Mutex>>{}; // [[FIXTHIS]] figure out a companion to Array that conjugates into unique_lock<std::mutex>
@@ -87,6 +91,16 @@ namespace tunitas::denniston::process::readable {
       }
     } while (!uniques[first].owns_lock());
     for (auto &place : uniques) { place.release(); }
+  }
+}
+#endiv
+#divert <cpp>
+#import std.vector
+#import std.mutex
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::process::readable;
+    static_assert(std::is_abstract_v<Container<std::vector<std::mutex *>>>);
   }
 }
 #endiv

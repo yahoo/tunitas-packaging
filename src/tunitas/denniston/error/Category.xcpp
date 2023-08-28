@@ -7,7 +7,7 @@
 namespace tunitas::denniston::error::package_error {
   namespace body::exported {
     //
-    // The network error category
+    // The denniston error category
     //
     // Usage:
     //

@@ -38,7 +38,7 @@ namespace tunitas::denniston::role::package_io {
 #divert <hpp>
 #import tunitas.denniston.role.package_io.Variant
 namespace tunitas::denniston::role {
-  struct package_io::Bundled : public body::Variant {
+  class package_io::Bundled : public body::Variant {
     using Ancestor = body::Variant;
   public:
     Bundled() = default;

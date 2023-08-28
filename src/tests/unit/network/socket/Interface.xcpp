@@ -1,5 +1,5 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
@@ -10,8 +10,8 @@ namespace tests::unit::network::socket { class Interface; }
 #import std.vector
 #import tunitas.denniston.network.Socket
 #import tunitas.denniston.process.Ready
-#import tunitas.denniston.driver.Layout
-#import tunitas.denniston.driver.Binder
+#import tunitas.denniston.world.Layout
+#import tunitas.denniston.world.Binder
 #import tunitas.denniston.protocol.Packet
 #import tunitas.denniston.network.pipe.readable.Variable
 struct tests::unit::network::socket::Interface : public rigging::suite::Fixture {
@@ -22,14 +22,14 @@ struct tests::unit::network::socket::Interface : public rigging::suite::Fixture 
   using Readable = ::tunitas::denniston::network::pipe::readable::Variable;
   using Ready = ::tunitas::denniston::process::Ready;
   using Packet = ::tunitas::denniston::protocol::Packet;
-  class Driver : public ::tunitas::denniston::driver::Layout {
-    using Ancestor = ::tunitas::denniston::driver::Layout;
+  class World : public ::tunitas::denniston::world::Layout {
+    using Ancestor = ::tunitas::denniston::world::Layout;
   public:
     // use the inert one so that we have activations in the background
-    Driver() : Ancestor{3} { }
+    World() : Ancestor{3} { }
   };
-  class Binder : public  ::tunitas::denniston::driver::Binder {
-    using Ancestor = ::tunitas::denniston::driver::Binder;
+  class Binder : public  ::tunitas::denniston::world::Binder {
+    using Ancestor = ::tunitas::denniston::world::Binder;
   public:
     using Ancestor::Binder;
     // Making them public so we can test against them
@@ -101,36 +101,36 @@ namespace tests::unit::network::socket {
 }
 namespace tests::unit::network::socket {
   auto Interface::test_left() -> void {
-    auto driver = Driver{};
-    auto binder = Binder{driver};
-    auto socket = driver.sockets.allocate();
-    auto [ability, left] = binder.left(socket, ready);
+    auto world = World{};
+    auto binder = Binder{world};
+    auto socket = world.sockets.allocate();
+    auto [ability, left] = binder.left(*socket, ready);
     require(ASSERTION, sizeof (left));   
   }
 }
 namespace tests::unit::network::socket {
   auto Interface::test_right() -> void {
-    auto driver = Driver{};
-    auto binder = Binder{driver};
-    auto socket = driver.sockets.allocate();
-    auto left = binder.left(socket, ready);
-    require(ASSERTION, sizeof (left));   
+    auto world = World{};
+    auto binder = Binder{world};
+    auto socket = world.sockets.allocate();
+    auto right = binder.right(*socket, ready);
+    require(ASSERTION, sizeof (right));   
   }
   auto Interface::test_right_write_moving() -> void {
-    auto driver = Driver{};
-    auto binder = Binder{driver};
-    auto socket = driver.sockets.allocate();
-    auto [ability, right] = binder.right(socket, ready);
+    auto world = World{};
+    auto binder = Binder{world};
+    auto socket = world.sockets.allocate();
+    auto [ability, right] = binder.right(*socket, ready);
     //
     auto specimen = packet::make<packet::Ping>();
     right.write(move(specimen)); // <---------------------- test this (moving)
     require(ASSERTION);
   }
   auto Interface::test_right_write_copying() -> void {
-    auto driver = Driver{};
-    auto binder = Binder{driver};
-    auto socket = driver.sockets.allocate();
-    auto [ability, right] = binder.right(socket, ready);
+    auto world = World{};
+    auto binder = Binder{world};
+    auto socket = world.sockets.allocate();
+    auto [ability, right] = binder.right(*socket, ready);
     //
     auto delayed = [&, this]<typename VALUE>(VALUE const &specimen) {
       if constexpr (std::is_copy_constructible_v<VALUE>) {
@@ -141,11 +141,11 @@ namespace tests::unit::network::socket {
     delayed(packet::make<packet::Ping>());
   }
   auto Interface::test_right_write_series() -> void {
-    auto driver = Driver{};
-    auto binder = Binder{driver};
-    auto socket = driver.sockets.allocate();
-    auto [rabilit, right] = binder.right(socket, ready);
-    auto [labilit, left] = binder.left(socket, ready);
+    auto world = World{};
+    auto binder = Binder{world};
+    auto socket = world.sockets.allocate();
+    auto [rabilit, right] = binder.right(*socket, ready);
+    auto [labilit, left] = binder.left(*socket, ready);
     //
     auto prepared = generate();
     require(ASSERTION, 0 < prepared.size());
@@ -161,11 +161,11 @@ namespace tests::unit::network::socket {
     require(ASSERTION, SERIES_COUNT == drain(left));
   }
   auto Interface::test_right_read() -> void {
-    auto driver = Driver{};
-    auto binder = Binder{driver};
-    auto socket = driver.sockets.allocate();
-    auto [rability, right] = binder.right(socket, ready);
-    auto [lability, left] = binder.left(socket, ready); // [[FIXTHIS]] shouldn't use the same ready for a different side of the socket
+    auto world = World{};
+    auto binder = Binder{world};
+    auto socket = world.sockets.allocate();
+    auto [rability, right] = binder.right(*socket, ready);
+    auto [lability, left] = binder.left(*socket, ready); // [[FIXTHIS]] shouldn't use the same ready for a different side of the socket
     //
     // Prep: write into the left side.
     // Show: read out of the right side.

@@ -10,7 +10,7 @@ namespace tests::unit::report { class Fixture; }
 #import tunitas.denniston.report.ranges.Projection
 #import tunitas.denniston.report.Definition
 #import tunitas.denniston.report.Series
-#import tunitas.keyston.protocol.id // for id::Report, id::Job, id::Task, etc.
+#import tunitas.rheem.protocol.id // for id::Report, id::Job, id::Task, etc.
 struct tests::unit::report::Fixture : public rigging::suite::Fixture {
   static auto suite() -> Suite;
   //
@@ -22,9 +22,9 @@ struct tests::unit::report::Fixture : public rigging::suite::Fixture {
   using enum ::tunitas::denniston::report::ranges::Projection;
   using Subiterator = library::Series<library::Definition>::Basic_Iterator<library::Series<library::Definition> const>;
   struct Identifier {
-    using Task = ::tunitas::keyston::protocol::id::Task;
-    using Job = ::tunitas::keyston::protocol::id::Job;
-    using Report = ::tunitas::keyston::protocol::id::Report;
+    using Task = ::tunitas::rheem::protocol::id::Task;
+    using Job = ::tunitas::rheem::protocol::id::Job;
+    using Report = ::tunitas::rheem::protocol::id::Report;
   };
   //
   auto test_usage_Subrange_RECORD() -> void;
@@ -65,7 +65,7 @@ auto tests::unit::report::Fixture::suite() -> Suite {
 #import tunitas.denniston.report.Generator
 #import tunitas.denniston.report.ranges.Subrange
 #import tunitas.denniston.report.Series
-#import tunitas.keyston.entropy.Source
+#import tunitas.entropy.Source
 namespace tests::unit::report {
   auto Fixture::test_usage_Definition() -> void {
     using Subject = library::Definition;
@@ -78,11 +78,11 @@ namespace tests::unit::report {
     require(ASSERTION, sizeof (subject));
   }
   auto Fixture::test_usage_Generator() -> void {
-    using Source = ::tunitas::keyston::entropy::Source;
+    using Source = ::tunitas::entropy::Source;
     using Subject = library::Generator<Source>;
     auto entropy = Source{};
     auto subject = Subject{entropy};
-    auto task_id = ::tunitas::keyston::protocol::id::Task{};
+    auto task_id = ::tunitas::rheem::protocol::id::Task{};
     auto generated = subject(task_id);
     require(ASSERTION, sizeof (generated));
   }

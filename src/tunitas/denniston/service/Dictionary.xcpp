@@ -5,7 +5,7 @@
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
 #import tunitas.denniston.concurrent.dictionary.Dictionary.template // for Complexity, Concurrency and Parameters<...>
-#import tunitas.keyston.hpke.Side
+#import tunitas.hale.hpke.Side
 namespace tunitas::denniston::service {
   //
   // A dictionary of all the services
@@ -30,7 +30,7 @@ namespace tunitas::denniston::service {
   //   As one does.
   //
   namespace [[eponymous]] dictionary {
-    template<keyston::hpke::Side> struct Dictionary;
+    template<hale::hpke::Side> struct Dictionary;
     using denniston::concurrent::dictionary::Parameters;
     using enum denniston::concurrent::dictionary::Complexity;
     using enum denniston::concurrent::dictionary::Concurrency;
@@ -39,13 +39,13 @@ namespace tunitas::denniston::service {
 }
 #endiv
 #divert <hpp>
-#import tunitas.keyston.hpke.Configuration
-#import tunitas.keyston.hpke.key_from // this is ours, and it is nearby
-#import tunitas.keyston.protocol.id // for id::Service
+#import tunitas.hale.hpke.Configuration
+#import tunitas.hale.hpke.key_from // this is ours, and it is nearby
+#import tunitas.rheem.protocol.id // for id::Service
 #import tunitas.denniston.concurrent.dictionary.Dictionary
 namespace tunitas::denniston::service {
-  template<keyston::hpke::Side SIDE> class dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration<SIDE>>> {
-    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<keyston::protocol::id::Service, keyston::hpke::Configuration<SIDE>>>;
+  template<hale::hpke::Side SIDE> class dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Service, hale::hpke::Configuration<SIDE>>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Service, hale::hpke::Configuration<SIDE>>>;
   public:
     Dictionary() = default;
     using Ancestor::Dictionary;

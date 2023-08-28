@@ -54,7 +54,7 @@ namespace tests::unit::concurrent::entropy {
     exercise(subject);
   }
   auto Fixture::test_usage_Source_Wrapper() -> void {
-    ::tunitas::keyston::entropy::Source original{};
+    ::tunitas::entropy::Source original{};
     using Subject = library::Source::Wrapper;
     auto subject = Subject{original};
     exercise(subject);

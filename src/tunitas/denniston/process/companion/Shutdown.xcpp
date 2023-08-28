@@ -21,7 +21,7 @@ namespace tunitas::denniston::process::companion {
   //
   //   auto companion() noexcept -> void try {
   //     ...do stuff...
-  //     if (graceful_shutdown.load()) {
+  //     if (is_shutting_down()) {
   //       throw companion::Shutdown{};
   //     }
   //     ..more stuff...

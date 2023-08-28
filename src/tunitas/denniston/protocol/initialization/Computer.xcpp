@@ -46,40 +46,38 @@ namespace tunitas::denniston::protocol::initialization {
 #endiv
 #divert <hpp>
 #import tunitas.denniston.index // for index::Processor
-#import tunitas.keyston.nonce.Generator
-#import tunitas.keyston.protocol.id // for id::Task
-#import tunitas.keyston.protocol.function.Parameters
-#import tunitas.keyston.protocol.initialization.Request
-#import tunitas.keyston.protocol.initialization.Response
-#import tunitas.keyston.vdaf.Configuration
-#import tunitas.keyston.vdaf.Executor
-class tunitas::denniston::protocol::initialization::Computer {
-protected:
-  using Nonce = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>::Nonce;
-public:
+#import tunitas.rheem.protocol.id // for id::Task
+#import tunitas.rheem.protocol.initialization.Request
+#import tunitas.rheem.protocol.initialization.Response
+#import tunitas.keyston.vdaf.Parameters
+#import tunitas.keyston.vdaf.Name
+#import tunitas.keyston.vdaf.Secret
+#import tunitas.keyston.vdaf.Nonce
+#import tunitas.octets.Fixed
+struct tunitas::denniston::protocol::initialization::Computer {
   using Index = index::Processor;
-  using Function = keyston::vdaf::Executor<keyston::vdaf::Scheme::PROTOCOL>;
-  using Verify_Key = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>::Verify_Key;
-  using Noncer = keyston::nonce::Generator<Nonce>;
+  using Function = keyston::vdaf::Name;
+  using Verify_Key = keyston::vdaf::Secret;
+  using Nonce = keyston::vdaf::Nonce;
   struct Identifier {
-    using Task = keyston::protocol::id::Task;
+    using Task = rheem::protocol::id::Task;
   };
-  using Parameters = keyston::protocol::function::Parameters;
-  using Query = keyston::protocol::initialization::Request::Query;
-  using Reports = keyston::protocol::initialization::Request::Report_Shares;
-  using Response = keyston::protocol::initialization::Response;
+  using Parameters = keyston::vdaf::Parameters;
+  using Query = rheem::protocol::initialization::Request::Query;
+  using Reports = rheem::protocol::initialization::Request::Report_Shares;
+  using Response = rheem::protocol::initialization::Response;
   //
   Index index{};
   Function exe{};
   Verify_Key const &verify_key;
-  Noncer &noncer;
+  Nonce nonce;
   Identifier::Task const &task_id;
   Parameters const &parameters;
   Query const &query;
   Reports const &reports;
   //
-  inline [[implicit]] Computer(Index, Function, Verify_Key const &, Noncer &, Identifier::Task const &, Parameters const &, Query const &, Reports const &);
-  inline auto operator()() const -> Response;
+  inline [[implicit]] Computer(Index, Function, Verify_Key const &, Nonce const &, Identifier::Task const &, Parameters const &, Query const &, Reports const &);
+  auto operator()() const -> Response;
 protected:
   using Report = Reports::Value;
   using Step = Response::Preparation_Steps::Value;
@@ -87,24 +85,33 @@ protected:
 #endiv
 #divert <ipp>
 namespace tunitas::denniston::protocol::initialization {
-  Computer::Computer(Index index, Function exe, Verify_Key const &verify_key, Noncer &noncer, Identifier::Task const &tid, Parameters const &par, Query const &que, Reports const &rep)
+  Computer::Computer(Index index, Function exe, Verify_Key const &verify_key, Nonce const &nonce, Identifier::Task const &tid, Parameters const &par, Query const &que, Reports const &rep)
     : index{index}
     , exe{exe}
     , verify_key{verify_key}
-    , noncer{noncer}
+    , nonce{nonce}
     , task_id{tid}
     , parameters{par}
     , query{que}
     , reports{rep}
   { }
+}
+#endiv
+#divert <cpp>
+#import nonstd.exception.Unimplemented
+namespace tunitas::denniston::protocol::initialization {
   auto Computer::operator()() const -> Response {
+#if 1
+    throw nonstd::exception::Unimplemented{};
+#else
     auto ret = Response{};
     for (auto &report : reports) {
-      auto state = exe.initialization(parameters, verify_key, index, noncer(), report.public_share, report.encrypted_input_share);
+      auto state = exe.initialization(parameters, verify_key, index, nonce, report.public_share, report.encrypted_input_share);
       auto step = Step{report.report_id, move(state)};
       ret.preparation_steps.push_back(move(step));
     }
     return ret;
+#endif
   }
 }
 #endiv

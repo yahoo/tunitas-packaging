@@ -6,7 +6,7 @@
 #divert <fpp>
 namespace tunitas::denniston::service::processor {
   //
-  // A manifestation of an processor in the network.
+  // A manifestation of a processor in the network.
   //
   // Specification:
   //
@@ -40,20 +40,21 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.denniston.service.processor.Subprocesses
 #import tunitas.denniston.task.Dictionary
 #import tunitas.denniston.task.Corpus
-#forward tunitas.denniston.World
-#import tunitas.keyston.entropy.Source
+#forward tunitas.denniston.Configuration
+#import tunitas.entropy.Source
 #import tunitas.keyston.nonce.Generator
-#import tunitas.keyston.vdaf.Configuration
+#import tunitas.keyston.vdaf.Nonce
+#import tunitas.octets.Fixed
 #import std.atomic
 class tunitas::denniston::service::processor::Processor : public process::Reactor {
   using Ancestor = process::Reactor;
   auto react() -> void override;
-  auto catchup() -> void override;
 public:
-  using Entropy = keyston::entropy::Source;
+  using Entropy = entropy::Source;
   inline explicit Processor([[inout]] Entropy &, Species);
-  inline explicit Processor([[inout]] Entropy &, [[inout]] World &, Species);
-  auto launch(driver::Threads &) -> void override;
+  inline explicit Processor([[inout]] Entropy &, [[inout]] denniston::Configuration &, Species);
+  ~Processor();
+  auto launch(scheduler::Threads &) -> void override;
   Interface configuration{};
   Interface directory{};
   Interface gateway{};
@@ -64,8 +65,8 @@ public:
   task::Dictionary<task::Corpus<Genus::PROCESSOR>> tasks{};
   job::Dictionary<job::Corpus<Genus::PROCESSOR>> jobs{};
   class Generators {
-    using Nonce = keyston::vdaf::Configuration<keyston::vdaf::Scheme::PROTOCOL>::Nonce;
-    using Noncer = keyston::nonce::Generator<Nonce>;
+    using Nonce = keyston::vdaf::Nonce;
+    using Noncer = keyston::nonce::Generator<Nonce, Entropy>;
   public:
     Noncer noncer;
     Generators(Entropy &e) : noncer{e} { }
@@ -75,10 +76,10 @@ public:
 };
 #endiv
 #divert <ipp>
-#import tunitas.denniston.World
+#import tunitas.denniston.Configuration
 #import tunitas.denniston.exception.Invalid
 namespace tunitas::denniston::service::processor {
-  Processor::Processor(Entropy &entropy, World &, Species role) : Processor{entropy, role} { }
+  Processor::Processor(Entropy &entropy, denniston::Configuration &, Species role) : Processor{entropy, role} { }
   Processor::Processor(Entropy &entropy, Species role)
     : Ancestor{role}
     , generators{entropy} {
@@ -100,17 +101,20 @@ namespace tunitas::denniston::service::processor {
 #import tunitas.denniston.service.processor.subprocess.Boot
 #import tunitas.denniston.service.processor.subprocess.Initialization
 #import tunitas.denniston.service.processor.subprocess.Continuation
+#import tunitas.hale.hpke.extract
+#import tunitas.hale.hpke.configuration.extract.tunitas.keyston // vdaf.Secret specialization
 namespace tunitas::denniston::service::processor {
-  auto Processor::launch(driver::Threads &pool) -> void {
-    pool.launch(&Processor::run, this);
-    subprocesses.push_back(subprocess::make<subprocess::Boot>(*this));
-    subprocesses.push_back(subprocess::make<subprocess::Initialization>(*this));
-    subprocesses.push_back(subprocess::make<subprocess::Continuation>(*this));
+  Processor::~Processor() {
+    ready.notify();
+    subprocesses.wait_for_all_to_finish();
+    disposable.acquire();
   }
-  auto Processor::catchup() -> void {
-    if (graceful_shutdown.load()) {
-      subprocesses.notify();
-    }
+  auto Processor::launch(scheduler::Threads &pool) -> void {
+    disposable.acquire(); // with release() in React::run()
+    pool.launch(&Processor::run, this);
+    subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));
+    subprocesses.spawn(subprocess::make<subprocess::Initialization>(*this));
+    subprocesses.spawn(subprocess::make<subprocess::Continuation>(*this));
   }
   auto Processor::react() -> void {
     if (auto red=configuration.read_if(); red) {
@@ -146,7 +150,7 @@ namespace tunitas::denniston::service::processor {
                               return finish != std::find(container.begin(), finish, match);
                             };
             if (contains(task.definition.services, got->service_id)) {
-              task.verify = got->configuration;
+              task.verify = extract<keyston::vdaf::Secret>(tunitas::error::by::Exception{}, got->configuration);
               notifiable = true;
             }
           }
@@ -159,7 +163,7 @@ namespace tunitas::denniston::service::processor {
           if (auto found=tasks.find(task_id); !found) {
             log.format("failed to find task {} in the inventory (ignoring this secret)", task_id);
           } else {
-            found.value().verify = got->configuration;
+            found.value().verify = extract<keyston::vdaf::Secret>(tunitas::error::by::Exception{}, got->configuration);
             notifiable = true;
           }
         }

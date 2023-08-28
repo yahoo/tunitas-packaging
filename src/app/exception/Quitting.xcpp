@@ -1,71 +1,11 @@
 // This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
-// Copyright Yahoo Inc, 2022.
+// Copyright Yahoo Inc.
 // Licensed under the terms of the Apache-2.0 license.
 // For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
 // For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
 #divert <fpp>
-namespace app::exception { class Quitting; }
-#endiv
-#divert <hpp>
-#import app.exception.Aspect
-#import cli.exception.Aspect
-#import cli.exception.partial.Quitting
-#import cli.exits.Code
-#import cli.experience.Console
-#import tunitas.exception.Aspect
-#import tunitas.application.exception.Aspect
-class app::exception::Quitting : public virtual app::exception::Aspect,
-                                 public virtual cli::exception::Aspect,
-                                 public virtual tunitas::exception::Aspect,
-                                 public virtual tunitas::application::exception::Aspect,
-                                 public cli::exception::partial::Quitting {
-  struct Ancestors {
-    struct Aspects {
-      using Tunitas = tunitas::exception::Aspect;
-      using Application = tunitas::application::exception::Aspect;
-      using App = app::exception::Aspect;
-    };
-    using Exception = cli::exception::partial::Quitting;
-  };
-public:
-  using Results [[either]] = Ancestors::Aspects::Application::Results;
-  inline explicit Quitting(cli::experience::Console const &);
-  inline explicit Quitting(cli::experience::Console const &, cli::exits::Code);
-  auto what() const noexcept -> Results::What override;
-  auto stream() const noexcept -> Results::Stream override;
-  auto code() const noexcept -> Results::Exit override;
-  auto exit() const noexcept -> Results::Exit override;
-};
-#endiv
-#divert <ipp>
-#import cli.exits.constants
+#import app.exception.quitting.Quitting
 namespace app::exception {
-  Quitting::Quitting(cli::experience::Console const &exp)
-    : Quitting{exp, cli::exits::OK}
-  { }
-  Quitting::Quitting(cli::experience::Console const &exp, cli::exits::Code code)
-    : Ancestors::Exception{exp.NAME, "quitting", code}
-  { }
-}
-#endiv
-#divert <cpp>
-namespace app::exception {
-  auto Quitting::what() const noexcept -> Results::What     { return Ancestors::Exception::what(); }
-  auto Quitting::stream() const noexcept -> Results::Stream { return Ancestors::Exception::stream(); }
-  auto Quitting::code() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
-  auto Quitting::exit() const noexcept -> Results::Exit     { return Ancestors::Exception::exit(); }
-}
-// Of course this is test code
-#import tunitas.application.required.exception.Quitting
-#import std.is_abstract
-namespace {
-  namespace testate {
-    using app::exception::Quitting;
-    static_assert(not std::is_abstract_v<Quitting>);
-#if 0
-    // doesn't quite qualify any more because Quitting(Console const &) instead of Quitting(Program const &)
-    static_assert(tunitas::application::required::exception::Quitting<Quitting>);
-#endif
-  }
+  using quitting::Quitting;
 }
 #endiv

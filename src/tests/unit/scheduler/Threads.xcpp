@@ -1,0 +1,75 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::scheduler { class Threads; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.scheduler.Threads
+struct tests::unit::scheduler::Threads : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Threads;
+  //
+  auto test_constructor_default() -> void;
+  auto test_launch_one() -> void;
+  auto test_launch_many() -> void;
+protected:
+  static constexpr auto const HOW_MANY = 10uz;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::scheduler::Threads::suite() -> Suite {
+  auto series = Stream{"Threads"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("default", &Threads::test_constructor_default)
+                  << END;
+              return con;
+            }()
+         << []{
+              auto run = Stream{"launch"sv};
+              run << add("one", &Threads::test_launch_one)
+                  << add("many", &Threads::test_launch_many)
+                  << END;
+              return run;
+            }()
+         << END;
+  return settle(series);
+}
+namespace tests::unit::scheduler {
+  auto Threads::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Threads::test_launch_one() -> void {
+    auto thunk_ran{false};
+    auto thunk = [&thunk_ran] {
+                 std::cerr << "thunk!\n";
+                 thunk_ran = true;
+               };
+    {
+      auto subject = Subject{};
+      subject.launch(thunk);
+    }
+    require(ASSERTION, thunk_ran);
+  }
+  auto Threads::test_launch_many() -> void {
+    std::mutex mutex_thunks_run;
+    auto count_of_thunks_run{0uz};
+    auto thunk = [&](auto index) {
+                 auto guard = std::lock_guard<std::mutex>{mutex_thunks_run};
+                 std::cerr << "thunk " << index << " running at " << count_of_thunks_run++ << "\n";
+               };
+    {
+      auto subject = Subject{};
+      for (auto i{0uz}; HOW_MANY != i; ++i) {
+        subject.launch(thunk, i);
+      }
+    }
+    require(ASSERTION, HOW_MANY == count_of_thunks_run);
+  }
+}
+#endiv

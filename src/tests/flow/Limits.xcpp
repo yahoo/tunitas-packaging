@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tflowas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tflowas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::flow {
+  //
+  // Some limits.
+  //
+  // Specification:
+  //
+  //   A mixin to share code among the fixtures
+  //
+  // Design:
+  //
+  //   Share the code, don't copy-pasta it.
+  //   Convenience.
+  //
+  // Usage:
+  //
+  //   Hack the Spew
+  //
+  struct Limits;
+}
+#endiv
+#divert <hpp>
+#import tunitas.time.Duration
+class tests::flow::Limits {
+protected:
+  virtual ~Limits() = default;
+public:
+  // Keep this duration short becase you'll be waiting this long for the simulation to finish.
+  inline static auto const SOME_SHORT_TIME = 3s;
+  using Duration = ::tunitas::time::Duration;
+  static auto in_seconds(Duration) -> string::Storage;
+};
+#endiv
+#divert <cpp>
+#import tunitas.time.duration_cast
+#import tunitas.time.duration
+#import std.to_string
+namespace tests::flow {
+  auto Limits::in_seconds(Duration specimen) -> string::Storage {
+    using namespace std;
+    using namespace ::tunitas::time;
+    return to_string(duration_cast<duration::Seconds>(specimen).count());
+  }
+}
+#endiv
