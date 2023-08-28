@@ -1,0 +1,100 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::process::readable { struct Variable; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.readable.Variable
+#import tunitas.denniston.process.Ready
+#import std.mutex
+struct tests::unit::process::readable::Variable : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  class Subject : public library::Variable {
+    using Ancestor = library::Variable;
+  public:
+    using Ancestor::Variable;
+    auto is_ready_to_read() -> bool { return false; }
+  };
+  //
+  auto test_constructor_1() -> void;
+  auto test_constructor_2() -> void;
+  auto test_constructor_3() -> void;
+  auto test_lock() -> void;
+  auto test_unlock_all() -> void;
+  auto test_unlock_first() -> void;
+  auto test_unlock_rest() -> void;
+  protected:
+    ::tunitas::denniston::process::Ready ready{};
+    using Lock = std::mutex;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::process::readable::Variable::suite() -> Suite {
+  auto series = Stream{"Variable"sv};
+  series << []{
+              auto con = Stream{"constructor"sv};
+              con << add("1", &Variable::test_constructor_1)
+                  << add("2", &Variable::test_constructor_2)
+                  << add("3", &Variable::test_constructor_3)
+                  << END;
+              return con;
+            }()
+         << add("lock", &Variable::test_lock)
+         << []{
+              auto un = Stream{"unlock"sv};
+              un << add("all", &Variable::test_unlock_all)
+                 << add("first", &Variable::test_unlock_first)
+                 << add("rest", &Variable::test_unlock_rest)
+                 << END;
+              return un;
+            }()
+         << END;
+  return settle(series);
+}
+#import std.mutex
+namespace tests::unit::process::readable {
+  auto Variable::test_constructor_1() -> void {
+    auto subject = Subject{ready};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Variable::test_constructor_2() -> void {
+    Lock set{};
+    auto subject = Subject{ready, set};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Variable::test_constructor_3() -> void {
+    Lock set{}, go{};
+    auto subject = Subject{ready, set, go};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Variable::test_lock() -> void {
+    Lock set{}, go{};
+    auto subject = Subject{ready, set, go};
+    subject.lock(); // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Variable::test_unlock_all() -> void {
+    Lock set{}, go{};
+    auto subject = Subject{ready, set, go};
+    subject.lock();
+    subject.unlock(); // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Variable::test_unlock_first() -> void {
+    Lock set{}, go{};
+    auto subject = Subject{ready, set, go};
+    subject.lock();
+    subject.unlock_first(); // <---------------------------------------- test this
+  }
+  auto Variable::test_unlock_rest() -> void {
+    Lock set{}, go{};
+    auto subject = Subject{ready, set, go};
+    subject.lock();
+    subject.unlock_rest(); // <---------------------------------------- test this
+  }
+}
+#endiv

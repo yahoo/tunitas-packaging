@@ -1,0 +1,107 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::companion {
+  //
+  // The (sub)model of a (sub)process of a companion (a subprocess)
+  //
+  // Specification:
+  //
+  //   Rhymes with process::Prototype.
+  //   All the stuff that's not templated around OWNER.
+  //
+  // Design:
+  //
+  //   An abstraction, but also implementation detail.
+  //   Descendants only.
+  //   The destructor MUST be public so that unique_ptr<Prototype> can see it
+  //   Therefore the constructor is made protected.
+  //
+  // Usage:
+  //
+  //   By inheritance, see Submodel<PROCESS>.
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.process.Model
+#forward tunitas.denniston.process.companion.Prototype
+#import tunitas.denniston.process.companion.Barrier
+#import tunitas.denniston.process.companion.Lifestage
+#import tunitas.denniston.process.companion.Subbie
+#forward tunitas.denniston.process.companion.Subprocesses
+#forward tunitas.denniston.process.companion.Synchro
+#import tunitas.denniston.process.companion.required.Subprocess
+#import tunitas.denniston.process.companion.required.iterator.Subprocess
+#import std.derived_from
+struct tunitas::denniston::process::companion::Prototype {
+  Barrier barrier;
+#if 202303 <= __cplusplus
+  template<typename SELF> auto commence_running(this SELF *, void (SELF::*)()) -> void;
+#else
+  template<typename SELF> static auto commence_running(SELF *, void (SELF::*)()) -> void requires std::derived_from<SELF, Prototype>;
+#endif
+protected:
+  virtual ~Prototype() = default;
+  inline explicit Prototype(Model &);
+private:
+  Subbie subbie{};
+  Lifestage lifestage{};
+  // seems like alot of friends (we're "shielding" fields from the descendants)
+  template<required::Subprocess> friend struct companion::Subprocesses; // accesses lifestage
+  template<required::iterator::Subprocess> friend struct companion::Synchro; // eadem ratione
+  template<required::Process> friend struct companion::Submodel;
+  friend class companion::Barrier;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::companion {
+  Prototype::Prototype(Model &owner) : barrier{owner, *this} { }
+}
+#endiv
+#divert <tpp>
+#import nonstd.runtime_assert
+namespace tunitas::denniston::process::companion {
+#if 202303 <= __cplusplus
+  template<typename SELF> auto Prototype::commence_running(this SELF *self, void (SELF::*method)()) -> void
+#else
+  template<typename SELF> auto Prototype::commence_running(SELF *self, void (SELF::*method)()) -> void requires std::derived_from<SELF, Prototype>
+#endif
+  {
+    // If it's already DOOMED or DEAD then skip it.
+    // How can that happen  If spawn(...) doesn't have a sufficient critical section around (a) subprocess-insertion and (b) cmmence_running(...)
+    // Benigh, but do handle the case where the subprocess is moves from unborn to DOOMED or UNDEAD
+    auto ref = self->lifestage.guarded();
+    switch (ref) {
+    case Lifestage::UNBORN:
+      ref = Lifestage::RUNNING;
+      self->subbie = {self, method}; // WATCHOUT - this will actually start running right here, and may complete immediately or may continue indefinitely
+      break;
+    case Lifestage::RUNNING:
+      runtime_assert(Lifestage::RUNNING != ref);
+      break;
+    case Lifestage::DOOMED:
+      ref = Lifestage::UNDEAD;
+      break;
+    case Lifestage::UNDEAD:
+    default:
+      break;
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::process::companion::Prototype;
+    //
+    // because that barrier in Prototype::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_swappable_v<Prototype>);
+    static_assert(    std::is_swappable_v<Prototype *>);
+  }
+}
+#endiv

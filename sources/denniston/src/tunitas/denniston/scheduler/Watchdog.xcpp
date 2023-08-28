@@ -1,0 +1,134 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::scheduler {
+  //
+  // A watchdog timer.
+  //
+  // Specification:
+  //
+  //   Perform an activity at a time point.
+  //   Unless otherwise disarmed.
+  //
+  //   Unless disarmed, the watchdog will wait the full term of the delay.
+  //   The watchdog is disarmed if there is an active exception
+  //
+  // Design:
+  //
+  //   Use a separate thread.
+  //   The userland Watchdog is only destructible when the background thread has completed.
+  //   Disposability is mediated with a binary semaphore.
+  //
+  // Usage:
+  //
+  //   constexpr auto const DELAY = 1_hour;
+  //   auto acton = []{ ...do something... };
+  //
+  //   auto watchdog = Watchdog{DELAY, action};
+  //   ...other stuff...
+  //   watchdog.disarm();
+  //
+  struct Watchdog;
+}
+#endiv
+#divert <hpp>
+#import std.function
+#import std.jthread
+#import std.lock_guard
+#import std.mutex
+#import std.stop_token
+#import std.binary_semaphore
+#import tunitas.denniston.scheduler.required.Invocable
+#import tunitas.time.Duration
+#import tunitas.time.Point
+class tunitas::denniston::scheduler::Watchdog {
+public:
+  using Point = time::Point;
+  using Duration = time::Duration;
+  struct Default {
+    inline static constexpr auto PRECISION = 10ms; // arbitrarily
+  };
+protected:
+  using Clock = time::Clock;
+  using Action = std::function<void ()>;
+  Point then{};
+  Duration precision{};
+  Action action{};
+  int uncaught{};
+  std::jthread waiter{};
+  using Mutex = std::mutex;
+  using Guard = std::lock_guard<Mutex>;
+  Mutex mutex{};
+  auto delay_and_act(std::stop_token) -> void;
+  std::binary_semaphore disposable{1};
+public:
+  template<required::Invocable<> ACTION> inline explicit Watchdog(Duration delay, Duration precision, ACTION);
+  template<required::Invocable<> ACTION> inline explicit Watchdog(Duration, ACTION);
+  template<required::Invocable<> ACTION> inline explicit Watchdog(Point, ACTION);
+  template<required::Invocable<> ACTION> inline explicit Watchdog(Point, Duration precision, ACTION);
+  inline ~Watchdog();
+  inline auto disarm() -> void;
+  inline auto stop_waiting(bool and_run_now) -> void; // and do the action, if there is one
+};
+#endiv
+#divert <ipp>
+#import std.this_thread.sleep_for
+#import tunitas.time.Clock
+#import std.uncaught_exceptions
+namespace tunitas::denniston::scheduler {
+  template<required::Invocable<> ACTION> Watchdog::Watchdog(Duration delay, ACTION action)
+    : Watchdog(Clock::now() + delay, Default::PRECISION, action)
+  { }
+  template<required::Invocable<> ACTION> Watchdog::Watchdog(Point then, ACTION action)
+    : Watchdog(then, Default::PRECISION, action)
+  { }
+  template<required::Invocable<> ACTION> Watchdog::Watchdog(Duration delay, Duration precision, ACTION action)
+    : Watchdog(Clock::now() + delay, precision, action)
+  { }
+  template<required::Invocable<> ACTION> Watchdog::Watchdog(Point then, Duration precision, ACTION action)
+    : then{then}
+    , precision{precision}
+    , action{action}
+    , uncaught{std::uncaught_exceptions()} {
+    disposable.acquire();
+    waiter = std::jthread{&Watchdog::delay_and_act, this};
+  }
+  Watchdog::~Watchdog() {
+    if (uncaught != std::uncaught_exceptions()) {
+      // An exception was through in our thread; we need to leave now.
+      disarm();
+    } else {
+      // wait for the duration of the timer to close out ... waiting ... waiting ...
+    }
+    disposable.acquire();
+  }
+  auto Watchdog::stop_waiting(bool and_run_now) -> void {
+    // In case the watchdog goes off while we're accessing this->action
+    auto guard = Guard{mutex};
+    waiter.request_stop();
+    if (and_run_now && action) {
+      action();
+    }
+    action = {};
+  }
+  auto Watchdog::disarm() -> void { stop_waiting(false); }
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::scheduler {
+  auto Watchdog::delay_and_act(std::stop_token stop_ctl) -> void {
+    do {
+      std::this_thread::sleep_for(precision);
+    } while (!stop_ctl.stop_requested() && Clock::now() < then);
+    // The other thread may be disarming as we attempt this
+    auto guard = Guard{mutex};
+    if (action) {
+      action();
+    }
+    disposable.release();
+  }
+}
+#endiv

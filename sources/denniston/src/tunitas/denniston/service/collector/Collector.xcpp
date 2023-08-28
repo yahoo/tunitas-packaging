@@ -1,0 +1,104 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::collector {
+  //
+  // A manifestation of the collector in the network.
+  //
+  // Specification:
+  //
+  //   Initiates the measurement computation(s) and receives the measurement result(s).
+  //
+  // Invariants:
+  //
+  //   Death & Taxes.
+  //
+  // Design:
+  //
+  //   Something something, something, something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Collector;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.Configuration
+#import tunitas.denniston.process.Reactor
+#import tunitas.denniston.service.collector.Subprocesses
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Corpus.COLLECTOR
+class tunitas::denniston::service::collector::Collector : public process::Reactor {
+  using Ancestor = process::Reactor;
+protected:
+  auto react() -> void override;
+public:
+  inline explicit Collector();
+  inline explicit Collector([[inout]] denniston::Configuration &);
+  ~Collector();
+  auto launch(scheduler::Threads &) -> void override;
+  Interface configuration{};
+  Interface gateway{};
+  Subprocesses subprocesses{}; // accessed from the boot subprocess
+  //
+  task::Dictionary<task::Corpus<Genus::COLLECTOR>> tasks{};
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.Configuration
+namespace tunitas::denniston::service::collector {
+  Collector::Collector(denniston::Configuration &) : Collector{} { }
+  Collector::Collector()
+    : Ancestor{Species::COLLECTOR}
+  { }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.collector.subprocess.make
+#import tunitas.denniston.service.collector.subprocess.Boot
+#import tunitas.denniston.protocol.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Response
+namespace tunitas::denniston::service::collector {
+  Collector::~Collector() {
+    ready.notify();
+    subprocesses.wait_for_all_to_finish();
+    disposable.acquire();
+  }
+  auto Collector::launch(scheduler::Threads &pool) -> void {
+    disposable.acquire(); // with release() in React::run()
+    pool.launch(&Collector::run, this);
+    subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));
+  }
+  auto Collector::react() -> void {
+    if (auto red=configuration.read_if(); red) {
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        log.format("from configuration failure: {}", got->status.message());
+      } else if (auto got=downcast_get<Response<Get::TASKS>>(*red); nullptr != got) {
+        log.format("from configuration tasks: count {}", got->tasks.size());
+        for (auto &given : got->tasks) {
+          static_assert(std::tuple_size<decltype(tasks.insert(move(given)))>::value);
+          auto [noob, inserted] = tasks.insert(move(given));
+          log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.definition.id);
+        }
+        subprocesses.notify();
+      } else {
+        log.format("from configuration something else (ignored)");
+      }
+    }
+    if (auto red=gateway.read_if(); red) {
+      log.format("red from gateway");
+      if (auto down=downcast_get<Status>(*red); nullptr != down) {
+        log.format("status returned {}", down->status.message());
+      }
+    }
+  }
+}
+#endiv

@@ -1,0 +1,53 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.string.Storage
+#import tunitas.string.View
+#import tunitas.denniston.role.Genus
+namespace tunitas::denniston::role {
+  namespace package_io::body::exported {
+    inline auto to_string(Genus) -> string::Storage;
+    inline constexpr auto to_string_view(Genus) -> Optional<string::View>;
+  }
+  //
+  // So that ADL will find them here.
+  using package_io::body::exported::to_string;
+  using package_io::body::exported::to_string_view;
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::role::package_io {
+  auto interface::to_string(Genus genus) -> string::Storage {
+    // can't be constexpr because of the exception
+    if (auto got=to_string_view(genus); got) {
+      return {got->begin(), got->end()};
+    } else {
+      return "(Invalid)Genus #"s + std::to_string(underlying(genus));
+    }
+  }
+  constexpr auto interface::to_string_view(Genus genus) -> Optional<string::View> {
+    // because Optional is constexpr through and through!
+    if (is_client(genus))        { return "CLIENT"sv; }
+    if (is_collector(genus))     { return "COLLECTOR"sv; }
+    if (is_configuration(genus)) { return "CONFIGURATION"sv; }
+    if (is_directory(genus))     { return "DIRECTORY"sv; }
+    if (is_gateway(genus))       { return "GATEWAY"sv; }
+    if (is_processor(genus))     { return "PROCESSOR"sv; }
+    return {};
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::role::Genus;
+    // prove that ADL can find these against role::Genus
+    static_assert(sizeof (to_string(Genus{})));
+    static_assert(sizeof (to_string_view(Genus{})));
+  }
+}
+#endiv

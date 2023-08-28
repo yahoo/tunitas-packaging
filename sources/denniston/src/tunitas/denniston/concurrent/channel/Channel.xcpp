@@ -1,0 +1,156 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.concurrent.channel.required.Channelable
+#import tunitas.denniston.concurrent.channel.required.Variability
+namespace tunitas::denniston::concurrent::channel {
+  //
+  // A (thread-aware) channel of things
+  //
+  // Specification:
+  //
+  //    It's a queue with a push_back and pop(front).
+  //    Is thread-safe.
+  //
+  // Design:
+  //
+  //   naming: Channel<T,V>::push_back(...) because 'push_back' is the standard name for these things.
+  //   naming: Channel<T,V>::pop(...) is pop_front()
+  //
+  //   There are no iterators over the internals of the channel.
+  //
+  //   yes these are non-const because of the locks; channels are always actively being thrashed upon.
+  //   yes, you can't peek at the the channel without copying what is out there (think about it).
+  //
+  // Exception guarantees
+  //
+  //   If exceptions are thrown, the locks are released
+  //   If an exception is thrown, the channel is in a consistent & operable state.
+  //   If an exception is thrown on iterated push_back, then the channel is in some partially updated state.
+  //
+  // Usage:
+  //
+  //    auto const SIZE = 5lu;
+  //    Channel<Message,Variability> ch(SIZE);
+  //    ch.push(Message{});
+  //    auto message = ch.pop();
+  //    auto message = ch.peek();
+  //    auto e = ch.empty();
+  //    auto e = ch.size();
+  //
+  template<required::Channelable, required::Variability = Variability> class Channel;
+}
+#endiv
+#divert <hpp>
+#import std.deque
+#import std.bind
+#import nonstd.required.iterator.Producing
+#import tunitas.denniston.concurrent.channel.Peek
+#import tunitas.denniston.concurrent.channel.Variables.Predicate
+#import tunitas.denniston.concurrent.channel.required.Peekable
+#import tunitas.denniston.concurrent.channel.usage.Variability
+#import tunitas.denniston.concurrent.channel.Variability
+namespace tunitas::denniston::concurrent {
+  template<channel::required::Channelable VALUE, channel::required::Variability VARIABILITY> class channel::Channel : private std::deque<VALUE>, public VARIABILITY {
+    static_assert(usage::Variability<VARIABILITY>);
+    struct Ancestors {
+      using Queue = std::deque<VALUE>;
+      using Variability = VARIABILITY;
+    };
+    using Ancestor = typename Ancestors::Queue;
+  public:
+    using Value = VALUE;
+    inline static auto const DEFAULT_SIZE = 10uz;
+    inline explicit Channel(Size limit = DEFAULT_SIZE); // push operations block until the queue drains
+    Channel(Channel const &) = delete;
+    auto operator=(Channel const &) -> Channel & = delete;
+    Channel(Channel &&) = delete;
+    auto operator=(Channel &&) -> Channel & = delete;
+    inline auto push_back(Value &&) -> void;
+    inline auto push_back(Value const &) -> void;
+    // [[FIXTHIS]] there is no obvious way to signal "push_back iterators, but use move not copy" is there?
+    template<required::iterator::Producing<Value> ITERATOR> inline auto push_back(ITERATOR first, ITERATOR last) -> void;
+    template<typename... ARGS> inline auto emplace_back(ARGS &&...) -> void;
+    [[deprecated("instead prefer Channel<...>::pop_front() which is clearly clearer")]] inline auto pop() -> Value;
+    [[deprecated("instead prefer Channel<...>::pop_front_if() which is clearly clearer")]] inline auto pop_if() -> Optional<Value>;
+    inline auto pop_front() -> Value; // ................ blocks until there is something to pop
+    inline auto pop_front_if() -> Optional<Value>; // ... does not block
+    inline auto peek() -> Peek<Value>; // retains exclusive access; can't peek twice without peek.reset()
+    inline auto empty() -> bool;
+    inline auto size() -> Size;
+  protected:
+    Size limit;
+    friend class channel::Variables::Predicate;
+    inline auto is_not_full() const -> bool { return Ancestor::size() <= limit; }
+    inline auto is_not_empty() const -> bool { return !Ancestor::empty(); }
+    inline auto nonfull() const -> Variables::Predicate  { return Variables::Predicate{&Variables::nonfull, std::bind(&Channel::is_not_full, this)}; }
+    inline auto nonempty() const -> Variables::Predicate { return Variables::Predicate{&Variables::nonempty, std::bind(&Channel::is_not_empty, this)}; }
+    inline auto unguarded_empty() const -> bool { return Ancestors::Queue::empty(); }
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.concurrent.channel.Variables.Guard.Exclusive
+#import tunitas.denniston.concurrent.channel.Variables.Guard.Condition
+namespace tunitas::denniston::concurrent::channel {
+  template<required::Channelable C, required::Variability V> Channel<C,V>::Channel(Size limit)
+    : limit{limit}
+  { }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::push_back(Value &&value) -> void {
+    Variables::Guard::Condition guard{Ancestors::Variability::variables, nonfull()};
+    Ancestor::push_back(std::move(value));
+  }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::push_back(Value const &value) -> void {
+    Variables::Guard::Condition guard{Ancestors::Variability::variables, nonfull()};
+    Ancestor::push_back(value);
+
+  }
+  template<required::Channelable C, required::Variability V> template<required::iterator::Producing<C> ITERATOR> auto Channel<C,V>::push_back(ITERATOR here, ITERATOR last) -> void {
+    Variables::Guard::Condition guard{Ancestors::Variability::variables, nonfull()};
+    for ( ;  last != here; ++here) {
+      Ancestor::push_back(*here);
+    }
+  }
+  template<required::Channelable C, required::Variability V> template<typename... ARGS> auto Channel<C,V>::emplace_back(ARGS &&...args) -> void {
+    Variables::Guard::Condition guard{Ancestors::Variability::variables, nonfull()};
+    Ancestor::emplace_back(std::forward<ARGS>(args)...);
+  }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::pop() -> Value { return pop_front(); }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::pop_front() -> Value {
+    Variables::Guard::Condition guard{Ancestors::Variability::variables, nonempty()};
+    auto popped{std::move(Ancestor::front())};
+    Ancestor::pop_front();
+    return popped;
+  }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::pop_if() -> Optional<Value> { return pop_front_if(); }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::pop_front_if() -> Optional<Value> {
+    Variables::Guard::Exclusive guard{Ancestors::Variability::variables};
+    if (Ancestor::empty()) {
+      return {};
+    } else {
+      auto popped{std::move(Ancestor::front())};
+      Ancestor::pop_front();
+      return popped;
+    }
+  }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::peek() -> Peek<Value> {
+    Variables::Guard::Exclusive guard{Ancestors::Variability::variables};
+    if (Ancestor::empty()) {
+      return {};
+    } else {
+      return Peek<Value>{move(guard), Ancestor::front()}; // WATCHOUT - this returns a (constie) reference into the queue.
+    }
+  }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::empty() -> bool {
+    Variables::Guard::Exclusive guard{Ancestors::Variability::variables};
+    return Ancestor::empty();
+  }
+  template<required::Channelable C, required::Variability V> auto Channel<C,V>::size() -> Size {
+    Variables::Guard::Exclusive guard{Ancestors::Variability::variables};
+    return Ancestor::size();
+  }
+}
+#endiv

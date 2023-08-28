@@ -1,0 +1,103 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.preparation.ranges.iterator.required.Iteratable
+#import nonstd.iterator.Traits // but you may need a specialization
+#include <hpp/nonstd.iterator.Traits>
+namespace tunitas::denniston::preparation::ranges::iterator {
+  //
+  // The basis of a projectingiterator
+  //
+  // Specification:
+  //
+  //   Partial implementation of the iterator; most of the boilerplatey copy-pasta stuff
+  //   Handle constie contagion.
+  //
+  // Obligations:
+  //
+  //   Descendants are obliged to provide operator* which provides the projection capability
+  //   In C++23 the inncrement operation is provided herein.
+  //   In C++20 the increment operation is an obligation of the descendant; typically by copy-pasta.
+  //
+  // Design:
+  //
+  //   Sure, why do you ask?
+  //
+  // Usage:
+  //
+  //   see Iterator<...>
+  //
+  template<typename SUBITERATOR,
+           typename VALUE = typename nonstd::iterator::Traits<SUBITERATOR>::Value,
+           typename REFERENCE = typename nonstd::iterator::Traits<SUBITERATOR>::Reference,
+           typename POINTER = typename nonstd::iterator::Traits<SUBITERATOR>::Pointer>
+  requires required::Iteratable<SUBITERATOR, VALUE, REFERENCE, POINTER>
+  struct Basis;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.preparation.ranges.Subrange
+#import std.remove_reference
+#import std.remove_pointer
+#import std.is_const
+#import std.conditional
+#import nonstd.like
+#import std.same_as
+namespace tunitas::denniston::preparation::ranges {
+  template<typename SUBITERATOR, typename VALUE, typename REFERENCE, typename POINTER> requires iterator::required::Iteratable<SUBITERATOR, VALUE, REFERENCE, POINTER> struct iterator::Basis {
+  protected:
+    using Subiterator = SUBITERATOR;
+    Subiterator subiterator{};
+    template<Projection, required::iterator::Forward> friend class ranges::Subrange;
+    inline [[implicit]] Basis(Subiterator);
+    ~Basis() = default;
+  public:
+    using Value = VALUE;
+    using Reference = REFERENCE;
+    using Pointer = POINTER;
+    Basis() = default;
+    auto operator==(Basis const &) const -> bool = default;
+#if 202312 < __cplusplus
+    template<typename SELF, typename... INT> inline auto operator++(this SELF *) -> std::conditional_t<0 == sizeof...(INT), SELF &, SELF>;
+#else
+  protected:
+    using Reference_More_Constie = std::remove_reference_t<Reference> const &;
+    using Pointer_More_Constie = std::remove_pointer_t<Pointer> const *;
+    template<typename SELF> inline static auto increment(SELF &) -> SELF &;
+    template<typename SELF> inline static auto increment(SELF &, int) -> SELF;
+#endif
+    inline static constexpr auto const LATENT_IS_CONSTIE = std::is_const_v<std::remove_reference_t<Reference>> || std::is_const_v<std::remove_pointer_t<Pointer>>;
+    using Record = std::conditional_t<LATENT_IS_CONSTIE, Value const, Value>;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::preparation::ranges::iterator {
+  template<typename I, typename V, typename R, typename P> Basis<I,V,R,P>::Basis(Subiterator s) : subiterator{s} { }
+#if 202312 < __cplusplus
+  template<typename I, typename V, typename R, typename P> template<typename SELF, typename... INT> auto Basis<I,V,R,P>::operator++(this SELF *, INT...) -> std::conditional_t<0 == sizeof...(INT), SELF const &, SELF> {
+    if constexpr (0 == sizeof...(INT)) {
+      ++self->subiterator;
+      return *self;
+    } else {
+      auto old = auto{*self};
+      ++self->subiterator;
+      return old;
+    }
+  }
+#else
+  template<typename I, typename V, typename R, typename P> template<typename SELF> auto Basis<I,V,R,P>::increment(SELF &lhs) -> SELF & {
+    ++lhs.subiterator;
+    return lhs;
+  }
+  template<typename I, typename V, typename R, typename P> template<typename SELF> auto Basis<I,V,R,P>::increment(SELF &lhs, int) -> SELF {
+    auto old = auto{lhs};
+    ++lhs.subiterator;
+    return old;
+  }
+#endif
+}
+#endiv

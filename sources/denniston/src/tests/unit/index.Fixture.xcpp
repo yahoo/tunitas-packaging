@@ -1,0 +1,48 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.index
+namespace tests::unit::index {
+  struct Fixture;
+  namespace library = ::tunitas::denniston::index;
+}
+#endiv
+#divert <hpp>
+#import nonstd.required.Enumeration
+#import tests.unit.required // ctcnr (cascade that certain namespace required)
+struct tests::unit::index::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  template<required::Enumeration SUBJECT> auto test_index() -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::index {
+  template<required::Enumeration SUBJECT> auto Fixture::test_index() -> void {
+    using Subject = SUBJECT;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{1};
+    swap(subject0, subject1);
+    require(ASSERTION, 1u == underlying(subject0));
+    require(ASSERTION, 0u == underlying(subject1));
+  }
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::index {
+  auto Fixture::suite() -> Suite {
+    auto series = Stream{"index"sv};
+    series << add("Batch", &Fixture::test_index<library::Batch>)
+           << add("Job", &Fixture::test_index<library::Job>)
+           << add("Report", &Fixture::test_index<library::Report>)
+           << add("Report", &Fixture::test_index<library::Report>)
+           << add("Service", &Fixture::test_index<library::Service>)
+           << add("Task", &Fixture::test_index<library::Task>)
+           << END;
+    return settle(series);
+  }
+}
+#endiv

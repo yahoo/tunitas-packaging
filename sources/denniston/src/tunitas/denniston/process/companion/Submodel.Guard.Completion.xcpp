@@ -1,0 +1,34 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// Ensure that announce_completion() is called at the termination of the guard
+// Used in Subbie to capture the termination of the subthread of the subprocess.
+//
+#include <hpp/tunitas.denniston.process.companion.Submodel>
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.companion.Submodel
+namespace tunitas::denniston::process::companion {
+  template<typename _> class Submodel<_>::Guard::Completion {
+    Submodel &supervised;
+  public:
+    explicit Completion(Submodel &supervised) : supervised{supervised} { }
+    inline ~Completion();
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::companion {
+  template<typename _> Submodel<_>::Guard::Completion::~Completion() try {
+    supervised.announce_completion();
+  } catch (...) {
+    // ignore it (we don't ever expect to see exceptions here)
+    // But if we do then we'll clean up the subprocess termination recordation in post.
+    // That's what all that machinery in companion::Subprocesses is for.
+  }
+}
+#endiv

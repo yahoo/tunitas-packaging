@@ -1,0 +1,86 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::table {
+  //
+  // The sockets table
+  //
+  // Specification:
+  //
+  //   The global table of all sockets in the system
+  //
+  // Design:
+  //
+  //   Whereas sockets cannot be moved or copied, some special treatment is implicated.
+  //   Not copyable, movable or swapable because there are iterators pointing back into here from "all over" (e.g. service::System)
+  //
+  // Usage:
+  //
+  //   auto table = Sockets{};
+  //   auto &socket = table.allocate();
+  //
+  struct Sockets;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.network.Socket
+#forward tunitas.denniston.network.table.Descriptor
+#import tunitas.denniston.network.table.Indirect
+#import std.deque
+class tunitas::denniston::network::table::Sockets : protected std::deque<table::Indirect<Socket>> {
+  using Ancestor = std::deque<table::Indirect<Socket>>;
+  using Iterator = Ancestor::iterator;
+public:
+  explicit Sockets()= default;
+  Sockets(Sockets const &) = delete;
+  Sockets &operator=(Sockets const &) = delete;
+  //
+  using Descriptor = table::Descriptor<Sockets>;
+  inline auto allocate() -> Descriptor;
+  inline auto deallocate(Descriptor const &) -> void;
+  //
+  struct Interfaces;
+};
+#import tunitas.denniston.network.Sockets.Interfaces
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.Socket
+#import tunitas.denniston.network.table.Descriptor.Sockets
+#import tunitas.denniston.network.exception.Deallocated
+#import tunitas.denniston.network.exception.Null
+#import std.prev
+namespace tunitas::denniston::network::table {
+  auto Sockets::allocate() -> Descriptor {
+    push_back(std::make_unique<Socket>());
+    auto back = prev(end());
+    auto &thus = back->get()->descriptor;
+    thus = back;
+    return thus;
+  }
+  auto Sockets::deallocate(Descriptor const &that) -> void {
+    if (auto &it=that.iterator; Iterator{} == it) {
+      throw exception::Null{};
+    } else if (nullptr == it->get()) {
+      throw exception::Deallocated{};
+    } else {
+      it->reset();
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::table;
+    static_assert(std::is_default_constructible_v<Sockets>);
+    static_assert(not std::is_copy_constructible_v<Sockets>);
+    static_assert(not std::is_move_constructible_v<Sockets>);
+    static_assert(not std::is_copy_assignable_v<Sockets>);
+    static_assert(not std::is_move_assignable_v<Sockets>);
+    static_assert(not std::is_swappable_v<Sockets>);
+  }
+}
+#endiv

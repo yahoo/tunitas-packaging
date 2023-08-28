@@ -1,0 +1,106 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::client::subprocess {
+  //
+  // The initialization subprocess (thread)
+  //
+  // Specification:
+  //
+  //   Ask for the tasks.
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //   [[FIXTHIS]] client::subprocess::Boot and process::subprocess::Boot are basially the same.
+  //   [[FIXTHIS]] remove the copy-pasta ... client looks for PUBLIC, whereas process looks for SECRET
+  //
+  // Concurrency:
+  //
+  //   Not within.
+  //   Synchronize with (others) in the Client by the Prototype::barrier.
+  //
+  // Usage:
+  //
+  //   See service::instance::Client
+  //
+  struct Boot;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.count
+#import tunitas.denniston.service.client.subprocess.Prototype
+namespace tunitas::denniston::service::client {
+  namespace subprocess {
+    inline auto swap(Boot *&a, Boot *&b) noexcept -> void { std::swap(a, b); }
+  }
+  class subprocess::Boot : public Prototype {
+    using Ancestor = Prototype;
+  public:
+    inline explicit Boot(Client &);
+    //
+    auto run_managed_lifecycle() -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.job.Corpus
+namespace tunitas::denniston::service::client::subprocess {
+  Boot::Boot(Client &owner) : Ancestor{owner} { }
+#if 0
+    subbie = {&Boot::run_managed_lifecycle, this};
+#endif
+}
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::client::subprocess::Boot;
+    //
+    static_assert(not std::semiregular<Boot>);
+    //
+    // because that barrier in Boot::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_default_constructible_v<Boot>);
+    static_assert(not std::is_copy_constructible_v<Boot>);
+    static_assert(not std::is_move_constructible_v<Boot>);
+    static_assert(not std::is_copy_assignable_v<Boot>);
+    static_assert(not std::is_move_assignable_v<Boot>);
+    static_assert(not std::is_swappable_v<Boot>);
+    static_assert(    std::is_swappable_v<Boot *>);
+  }
+}
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.service.client.subprocess.make
+#import tunitas.denniston.service.client.subprocess.Measure
+namespace tunitas::denniston::service::client::subprocess {
+  auto Boot::run_managed_lifecycle() -> void {
+    //
+    // 1. Ask for the tasks
+    //
+    owner.configuration.write(protocol::packet::make<Query<Get::TASKS>>()); // ask for them all
+    barrier.wait([this]{ return !owner.tasks.empty(); });
+    //
+    // 2. Foreach task, ask for its crypto goo (the SECRET)
+    //
+    auto howmany_were_sent{0uz};
+    for (auto locked=owner.tasks.range(); auto const &task : locked) {
+      for (auto const &endpoint : task.services) {
+        ++howmany_were_sent;
+        owner.directory.write(protocol::packet::make<Query<Get::PUBLIC>>(endpoint, task.id));
+      }
+    }
+    owner.log.format("waiting for {} queries to return", howmany_were_sent);
+    barrier.wait([this, howmany_were_sent]{ return howmany_were_sent == owner.howmany_were_recovered.load(); });
+    //
+    // 3. Start measuring (subprocesses) against each of the tasks
+    //
+    for (auto locked=owner.tasks.range(); auto &task : locked) {
+      owner.subprocesses.spawn(subprocess::make<subprocess::Measure>(owner, task));
+    }    
+    owner.log.format("boot is ending, having recovered some tasks, their publics and launched all measurements");
+  }
+}
+#endiv

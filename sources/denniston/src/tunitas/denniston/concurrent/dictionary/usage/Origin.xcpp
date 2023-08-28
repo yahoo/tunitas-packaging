@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.concurrent.dictionary.required.Origin
+namespace tunitas::denniston::concurrent::dictionary::usage {
+  //
+  // The rest of the story.
+  //
+  // Specification:
+  //
+  //   What it says on the label.
+  //
+  // Design:
+  //
+  //   The return type of start() and finish() are unspecified
+  //   The guard member field can never meaningfully be constie in this usage (think about it).
+  //
+  //   But we know they have to be an Iterator<...> which is constie or not.
+  //   We ould be go find it from nonstd::iterator::Qualified<ORIGIN> to ensure consistency.  Or not.
+  //
+  // Usage:
+  //
+  //   See Range<ORIGIN, ITERATOR>
+  //
+  template<typename ORIGIN> concept Origin = required::Origin<ORIGIN> && requires(ORIGIN &origin) {
+    typename ORIGIN::Guard;
+#if 202312 < __cplusplus
+    { origin.start() };
+    { origin.finish() };
+#else
+    { ORIGIN::start(origin) };
+    { ORIGIN::finish(origin) };
+#endif
+  };
+}
+#endiv

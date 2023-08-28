@@ -1,0 +1,50 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.preparation.ranges.iterator.Traits.template
+#forward tunitas.denniston.preparation.ranges.iterator.Iterator
+namespace tunitas::denniston::preparation::ranges::iterator {
+  template<Projection PROJECTION, required::iterator::Forward SUBITERATOR> struct Traits<Iterator<PROJECTION, SUBITERATOR>>;
+}
+#endiv
+#divert <hpp>
+#import nonstd.iterator.Traits
+#import std.conditional
+#import std.forward_iterator_tag
+#import std.is_const
+#import std.ptrdiff_t
+#import std.remove_cvref
+#import std.remove_pointer
+#import std.remove_reference
+#import std.same_as
+namespace tunitas::denniston::preparation::ranges::iterator {
+  template<Projection PROJECTION, required::iterator::Forward SUBITERATOR> class Traits<Iterator<PROJECTION, SUBITERATOR>> {
+    using Underlying = nonstd::iterator::Traits<SUBITERATOR>;
+    inline static constexpr auto const LATENT_IS_CONSTIE = std::is_const_v<std::remove_reference_t<typename Underlying::Reference>> || std::is_const_v<std::remove_pointer_t<typename Underlying::Pointer>>;
+    using Record = std::conditional_t<LATENT_IS_CONSTIE, typename Underlying::Value const, typename Underlying::Value>;
+  public:
+    // New School
+    using Value = typename projection::Traits<PROJECTION, Record>::Value;
+    using Difference = typename Underlying::Difference;
+    using Reference = typename projection::Traits<PROJECTION, Record>::Reference;
+    using Pointer = typename projection::Traits<PROJECTION, Record>::Pointer;
+    using Category = std::forward_iterator_tag; // necessarily, because of the projection activity
+    using Concept = Category; // since C++20
+    //
+    static_assert(!std::same_as<Value, typename Underlying::Value>,         "Value consistency fails (if you want this condition then use Projection::RECORD)");
+    static_assert(!std::same_as<Reference, typename Underlying::Reference>, "Reference consistency fails (if you want this condition then use Projection::RECORD)");
+    static_assert(!std::same_as<Pointer, typename Underlying::Pointer>,     "Pointer consistency fails (if you want this condition then use Projection::RECORD)");
+    //
+    // Old_Schol
+    using value_type = Value;
+    using difference_type = Difference;
+    using reference = Reference;
+    using pointer = Pointer;
+    using iterator_category = Category;
+    using iterator_concept = Concept;
+  };
+}
+#endiv

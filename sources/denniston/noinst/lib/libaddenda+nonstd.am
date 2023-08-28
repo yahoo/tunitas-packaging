@@ -1,0 +1,21 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+noinst_lib_libaddenda_nonstd_la_CPPFLAGS = $(PACKAGE_CPPFLAGS_SET)
+noinst_lib_libaddenda_nonstd_la_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
+noinst_lib_libaddenda_nonstd_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+noinst_lib_libaddenda_nonstd_la_LIBADD = -lnonstd++
+noinst_lib_libaddenda_nonstd_la_SOURCES = $(addenda_nonstd_SUBSOURCES)
+include addenda/nonstd/Makefrag.am
+#
+$(noinst_lib_libaddenda_nonstd_la_SOURCES) : disco_srcdir=addenda
+$(noinst_lib_libaddenda_nonstd_la_SOURCES) : disco_objdir=noinst/obj
+$(noinst_lib_libaddenda_nonstd_la_SOURCES) : noinst/obj/src/%.cpp : addenda/%.xcpp
+	$(HT_V_COLD) $(call HT_XCPP2CPP, $<)
+	@test -e $@
+$(ht_noinst_mkdir)/libaddenda+nonstd.mk: $(noinst_lib_libaddenda_nonstd_la_SOURCES)
+$(ht_noinst_mkdir)/libaddenda+nonstd.mk:
+	$(HT_V_BOTH) $(call HT_DEPENDENCIES, $^)
+	@test -e $@
+include $(ht_noinst_mkdir)/libaddenda+nonstd.mk
+clean-dependencies:: ; rm -f $(ht_noinst_mkdir)/libaddenda+nonstd.mk

@@ -1,0 +1,10 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+fmt_SUBSOURCES = \
+  obj/src/fmt/formatter/tunitas.denniston.role.Species.cpp \
+  obj/src/fmt/formatter/tunitas.denniston.role.Genus.cpp \
+  $(end)

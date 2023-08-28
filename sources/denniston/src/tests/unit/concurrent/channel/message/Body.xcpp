@@ -1,0 +1,27 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::channel::message {
+  //
+  // The body of a Message.  Not for the public.
+  //
+  // Usage:
+  //
+  //   <not for the public>
+  //
+  class Body;
+}
+#endiv
+#divert <hpp>
+#forward tests.unit.concurrent.channel.Message
+#forward tests.unit.concurrent.channel.message.Format
+struct tests::unit::channel::message::Body {
+  friend class channel::Message;
+  friend class message::Format;
+  inline Body(string::Storage a, string::Storage b, string::Storage c) : a{move(a)}, b{move(b)}, c{move(c)} { }
+  string::Storage a{}, b{}, c{};
+};
+#endiv

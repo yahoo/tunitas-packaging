@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#include <hpp/tunitas.denniston.configuration.Configuration>
+#endiv
+#divert <hpp>
+#import std.size_t
+#import tunitas.rheem.identifier.Generator
+#import tunitas.rheem.protocol.id // Batch, Task, etc.
+#import tunitas.rheem.protocol.query.Type
+#import tunitas.rheem.protocol.query.Query
+#import tunitas.rheem.protocol.query.Batch
+#import tunitas.keyston.vdaf.Name
+#import tunitas.time.Clock
+namespace tunitas::denniston::configuration {
+  struct Configuration::Tasks {
+    template<Configuration::Index::Task> static auto fill([[inout]] task::Definition &, Configuration const &) -> void;
+    static std::size_t const COUNT;
+  private:
+    struct Generator {
+      using Task = rheem::identifier::Generator<rheem::protocol::id::Task, rheem::identifier::generator::Policy::SUPPLIED>;
+      using Batch = rheem::identifier::Generator<rheem::protocol::id::Batch, rheem::identifier::generator::Policy::SUPPLIED>;
+    };
+    using Clock = time::Clock;
+    struct Query {
+      using enum rheem::protocol::query::Type;
+      static_assert(std::same_as<rheem::protocol::query::Query, rheem::protocol::query::Batch>, "still true");
+      using Batch = rheem::protocol::query::Batch;
+      using Time_Interval = rheem::protocol::query::Time_Interval;
+      using Fixed_Size = rheem::protocol::query::Fixed_Size;
+      template<rheem::protocol::query::Type TYPE> using Record = rheem::protocol::query::batch::Record<TYPE>;
+    };
+    using Function = keyston::vdaf::Name;
+  };
+  template<> auto Configuration::Tasks::fill<Configuration::Index::Task{0}>(task::Definition &, Configuration const &) -> void;
+  template<> auto Configuration::Tasks::fill<Configuration::Index::Task{1}>(task::Definition &, Configuration const &) -> void;
+  inline std::size_t const Configuration::Tasks::COUNT{2uz};
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::configuration {
+  template<> auto Configuration::Tasks::fill<Configuration::Index::Task{0}>(task::Definition &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Task{0};
+    noob.id = Generator::Task{}(INDEX);
+    noob.services = {row.endpoints.at(0), row.endpoints.at(1)};
+    noob.query = Query::Batch{Query::Record<Query::FIXED_SIZE>{Query::Fixed_Size{.batch_id{Generator::Batch{}(0u)}}}};
+    noob.function = Function{VERIFIABLE_AGGREGATION_FUNCTION_NAME};
+  }
+  template<> auto Configuration::Tasks::fill<Configuration::Index::Task{1}>(task::Definition &noob, Configuration const &row) -> void {
+    constexpr auto const INDEX = Configuration::Index::Task{1};
+    noob.id = Generator::Task{}(INDEX);
+    noob.services = {row.endpoints.at(2), row.endpoints.at(3)};
+    noob.query = Query::Batch{Query::Record<Query::TIME_INTERVAL>{Query::Time_Interval{Clock::now(), 1_day}}};
+    noob.function = Function{VERIFIABLE_AGGREGATION_FUNCTION_NAME};
+  }
+}
+#endiv

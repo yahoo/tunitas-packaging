@@ -1,0 +1,188 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.concurrent.dictionary.required.Keyable
+#import tunitas.denniston.concurrent.dictionary.required.Indexable
+#import tunitas.denniston.concurrent.dictionary.required.Valuable
+namespace tunitas::denniston::concurrent::dictionary::linear {
+  //
+  // A dictionary for sequential access
+  //
+  // Specification:
+  //
+  //   Given a key (e.g. an id::Job, id::Report, id::Task, etc.)
+  //   Given an index::Task...
+  //   ... find the information belonging to it.
+  //
+  //   Has both the content-addressable and the index-addressable capability.
+  //
+  // Design:
+  //
+  //   A vector maps Index -> Definition
+  //   Not thread-aware (the caller must perform synchronization, if such is necessary)
+  //
+  //   Both Found and Inserted return references into the core data structure.
+  //   The core data structure {vector,deque,etc.}) MUST NOT move its storage over the lifetime of these objects.
+  //
+  //   Keyable<KEY> and Valuable<VALUE> define the requirements for content-addressable lookup.
+  //   e.g. key_from(Value &) -> Key const &
+  //
+  // Lifetimes:
+  //
+  //   Whereas Found and Inserted return references.
+  //   lifetime(Found) is invalidated by insert(...)
+  //   lifetime(Inserted) is invalidated by insert(...)
+  //
+  // Usage:
+  //
+  //   As you would.
+  //
+  template<required::Keyable, required::Indexable, required::Valuable> struct Sequential;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.concurrent.dictionary.required.Either
+#import tunitas.denniston.concurrent.dictionary.required.Foundable
+#import tunitas.denniston.concurrent.dictionary.required.Iterable
+#import tunitas.denniston.concurrent.dictionary.Found
+#import tunitas.denniston.concurrent.dictionary.Inserted
+#forward tunitas.denniston.concurrent.dictionary.Subrange
+#forward tunitas.denniston.concurrent.dictionary.Range
+#import tunitas.denniston.concurrent.dictionary.usage.Comparable_From
+#import tunitas.denniston.concurrent.dictionary.usage.Key_From
+#import tunitas.denniston.concurrent.dictionary.usage.Keyable
+#import tunitas.denniston.concurrent.dictionary.usage.Valuable
+#import tunitas.denniston.concurrent.dictionary.Variables.Guard.Free
+#import nonstd.iterator.Qualified.tunitas.denniston.concurrent.dictionary.linear.Sequential.KEY.INDEX.VALUE
+#import std.vector
+#import std.size_t
+#import std.same_as
+namespace tunitas::denniston::concurrent::dictionary {
+  template<dictionary::required::Keyable KEY, dictionary::required::Indexable INDEX, dictionary::required::Valuable VALUE> class linear::Sequential {
+    static_assert(usage::Keyable<KEY>);
+    static_assert(usage::Valuable<VALUE>);
+    static_assert(usage::Key_From<VALUE>);
+    static_assert(usage::Comparable_From<KEY, VALUE>);
+    using Guard = Variables::Guard::Free;
+  public:
+    Sequential() = default;
+    using Index = INDEX;
+    using Key = KEY;
+    using Value = VALUE;
+    inline auto empty() const -> bool;
+    inline auto size() const -> Size;
+    inline auto contains(Key const &) const -> bool;
+    template<required::Foundable<Value> VAL> using Found = dictionary::Found<VAL, Value, Guard>;
+    template<dictionary::required::Either<Sequential> SELF> using Iterator = typename nonstd::iterator::Qualified<SELF>::Iterator;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto at(this SELF *, Index) -> nonstd::like_t<SELF, Found<Value>>;
+    template<typename SELF> inline auto find(this SELF *, Key const &) -> nonstd::like_t<SELF, Found<Value>>;
+    template<typename SELF> inline auto range(this SELF *) -> nonstd::like_t<SELF, Range<Sequential, Iterator<Sequential>>>; // [[FIXTHIS,TODO]] needs some Like<...> specializations
+  protected:
+    template<typename SELF> inline auto start(this SELF *) -> nonstd::like_t<SELF, Range<Sequential, Iterator<Sequential>>>;
+    template<typename SELF> inline auto finish(this SELF *) -> nonstd::like_t<SELF, Range<Sequential, Iterator<Sequential>>>;
+#else
+    inline auto at(Index) const -> Found<Value const>;
+    inline auto at(Index) -> Found<Value>;
+    inline auto find(Key const &) const -> Found<Value const>;
+    inline auto find(Key const &) -> Found<Value>;
+    inline auto range() const -> Range<Sequential, Iterator<Sequential const>>;
+    inline auto range() -> Range<Sequential, Iterator<Sequential>>;
+  private:
+    template<typename SELF> inline static auto access(SELF &, Index);
+    template<typename SELF> inline static auto search(SELF &, Key const &);
+    template<typename SELF> inline static auto start(SELF &);
+    template<typename SELF> inline static auto finish(SELF &);
+  public:
+#endif
+    using Inserted = dictionary::Inserted<Value, Guard>;
+    inline auto insert(Value) -> Inserted;
+  private:
+    using Corpus = std::vector<Value>;
+    Corpus corpus{};
+    static_assert(std::same_as<Iterator<Sequential>, typename Corpus::iterator>);
+    template<required::Origin, required::Iterable> friend class dictionary::Range;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.concurrent.dictionary.Subrange
+#import tunitas.denniston.concurrent.dictionary.Range
+#import std.find_if
+#import nonstd.like
+#import std.is_const
+#import std.conditional
+namespace tunitas::denniston::concurrent::dictionary::linear {
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::empty() const -> bool       { return corpus.empty(); }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::size() const -> Size { return corpus.size(); }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::insert(Value noob) -> Inserted {
+    auto const &key = key_from(noob);
+    auto const end = corpus.end();
+    auto const found = std::find_if(corpus.begin(), end, [&key](auto const &item) { return key_from(item) == key; });
+    if (end == found) {
+      corpus.push_back(move(noob));
+      return {Guard{}, *prev(corpus.end()), true};
+    } else {
+      return {Guard{}, *found, false};
+    }
+  }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::contains(Key const &key) const -> bool {
+    auto const end = corpus.end();
+    auto const found = std::find_if(corpus.begin(), end, [&key](auto const &item) { return key_from(item) == key; });
+    return end != found;
+  }
+#if 202312 < __cplusplus
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::at(this SELF *self, Index index) -> nonstd::like_t<SELF, Found<Value>> {
+    if (index < self->corpus.size()) {
+      return {Guard{}, self->corpus.at(index)}; // need to duplicate the bounds check(?)
+    } else {
+      return {};
+    }
+  }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::find(this SELF *self, Key const &key) -> nonstd::like_t<SELF, Found<Value>> {
+    auto const end = self->corpus.end();
+    auto const found = std::find_if(self->corpus.begin(), end, [&key](auto const &item) { return key_from(item) == key; });
+    if (end == found) {
+      return {};
+    } else {
+      return {Guard{}, *found};
+    }
+  }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::range(this SELF *self) const -> nonstd::like_t<SELF, Range<Sequential, Iterator<Sequential>>> { return {Guard{}, *this}; }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::start(this SELF *) -> nonstd::like_t<SELF, Range<Sequential, Iterator<Sequential>>> { return self->corpus.begin(; }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::finish(this SELF *) -> nonstd::like_t<SELF, Range<Sequential, Iterator<Sequential>>> { return self->corpus.end(); }
+#else
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::access(SELF &self, Index index) {
+    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
+    auto uindex = underlying(index);
+    if (uindex < self.corpus.size()) {
+      return Result{Guard{}, self.corpus.at(uindex)}; // need to duplicate the bounds check(?)
+    } else {
+      return Result{};
+    }
+  }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::at(Index index) const -> Found<Value const> { return access(*this, index); }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::at(Index index) -> Found<Value>             { return access(*this, index); }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::search(SELF &self, Key const &key) {
+    using Result = std::conditional_t<std::is_const_v<SELF>, Found<Value const>, Found<Value>>;
+    auto const end = self.corpus.end();
+    auto const found = std::find_if(self.corpus.begin(), end, [&key](auto const &item) { return key_from(item) == key; });
+    if (end == found) {
+      return Result{};
+    } else {
+      return Result{Guard{}, *found};
+    }
+  }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::find(Key const &key) const -> Found<Value const> { return search(*this, key); }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::find(Key const &key) -> Found<Value>             { return search(*this, key); }
+  //
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::start(SELF &self)  { return self.corpus.begin(); }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> template<typename SELF> auto Sequential<K,I,V>::finish(SELF &self) { return self.corpus.end(); }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::range() const -> Range<Sequential, Iterator<Sequential const>> { return {Guard{}, *this}; }
+  template<required::Keyable K, required::Indexable I, required::Valuable V> auto Sequential<K,I,V>::range() -> Range<Sequential, Iterator<Sequential>>             { return {Guard{}, *this}; }
+#endif
+}
+#endiv

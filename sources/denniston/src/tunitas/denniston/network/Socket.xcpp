@@ -1,0 +1,69 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network {
+  //
+  // A uni-directional inter-thread communication device
+  //
+  // Specification:
+  //
+  //   You Know.
+  //   Read & Write with Socket::Interface
+  //   Allocate with Sockets::allocate()
+  //   Bind to the process system with world::Binder
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  //   The this->descriptor assigned, if at all, within table::Sockets::allocate(...)
+  //
+  // Usage:
+  //
+  //   auto pipe = Socket{};
+  //
+  struct Socket;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.Packet
+#import tunitas.denniston.network.Pipe
+#import tunitas.denniston.network.table.Descriptor.Sockets
+#forward tunitas.denniston.process.Ready
+#forward tunitas.denniston.world.binder.Linkage
+static_assert(sizeof (tunitas::denniston::network::table::Descriptor<tunitas::denniston::network::table::Sockets>));
+struct tunitas::denniston::network::Socket {
+  Socket() = default;
+  struct Interface;
+  using Value = protocol::Packet;
+protected:
+  using Pipe = network::Pipe<Value>;
+  Pipe left2right{};
+  Pipe right2left{};
+  table::Descriptor<table::Sockets> descriptor{};
+  friend class table::Sockets;
+  friend class world::binder::Linkage;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.Socket.Interface
+namespace tunitas::denniston::network {
+  // any?
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network;
+    static_assert(std::is_default_constructible_v<Socket>);
+    static_assert(not std::is_copy_constructible_v<Socket>);
+    static_assert(not std::is_move_constructible_v<Socket>);
+    static_assert(not std::is_copy_assignable_v<Socket>);
+    static_assert(not std::is_move_assignable_v<Socket>);
+    static_assert(not std::is_swappable_v<Socket>);
+  }
+}
+#endiv

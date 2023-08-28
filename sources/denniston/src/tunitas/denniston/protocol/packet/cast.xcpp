@@ -1,0 +1,108 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::protocol::packet {
+  namespace package_cast {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_cast::interface;
+}
+#endiv
+#divert <hpp>
+#import std.derived_from
+#import tunitas.Tuple
+#import tunitas.denniston.protocol.packet.required.Packet
+#import tunitas.denniston.protocol.packet.Pointer
+#forward tunitas.denniston.protocol.packet.Prototype
+#import nonstd.required.Derived_From
+#import tunitas.otherwise
+namespace tunitas::denniston::protocol::packet {
+  namespace package_cast {
+    namespace body {
+      namespace exported {
+        //
+        // Reminder: the Pointer<PACKET> system is a memory management device;
+        // as such it does not and can not support constie constie contagion.
+        // If you need constie congation then pull the pointer out and use pointer-and-reference in native C++ as was intended.
+        //
+        template<required::Packet PROBE> inline auto downcast_get(Pointer<Prototype> const &) -> PROBE *;
+        template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<SOURCE, DESTINATION> inline auto upcast(Pointer<SOURCE>) -> Pointer<DESTINATION>;
+        template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<DESTINATION, SOURCE> inline auto downcast(otherwise::Tuple, Pointer<SOURCE>) -> Tuple<Pointer<DESTINATION>, Pointer<SOURCE>>;
+        template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<DESTINATION, SOURCE> inline auto downcast(otherwise::Exception, Pointer<SOURCE>) -> Pointer<DESTINATION>;
+        template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<DESTINATION, SOURCE> inline auto downcast(otherwise::Disposal, Pointer<SOURCE>) -> Pointer<DESTINATION>;
+        //
+        template<required::Packet PROBE, required::Packet PACKET> inline auto is(Pointer<PACKET> const &) -> bool;
+        //
+        template<required::Packet PACKET> inline auto is_quit(Pointer<PACKET> const &) -> bool;
+        template<required::Packet PACKET> inline auto is_status(Pointer<PACKET> const &) -> bool;
+        template<required::Packet PACKET> inline auto is_ping(Pointer<PACKET> const &) -> bool;
+      }
+    }
+  }
+  // pesky.  ADL won't find the these unless we import explicitly.
+  using package_cast::interface::is;
+  using package_cast::interface::downcast;
+  //
+  using package_cast::interface::is_ping;
+  using package_cast::interface::is_quit;
+  using package_cast::interface::is_status;
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.protocol.packet.cast
+#import tunitas.denniston.protocol.packet.Prototype
+#import tunitas.denniston.protocol.packet.Ping
+#import tunitas.denniston.protocol.packet.Quit
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.exception.Cast
+#import tunitas.denniston.exception.Null
+namespace tunitas::denniston::protocol::packet::package_cast {
+  template<required::Packet PROBE, required::Packet PACKET> auto interface::is(Pointer<PACKET> const &p) -> bool { return nullptr != dynamic_cast<PROBE const *>(p.get()); }
+  //
+  template<required::Packet PACKET> auto interface::is_ping(Pointer<PACKET> const &p) -> bool   { return nullptr != dynamic_cast<Ping const *>(p.get()); }
+  template<required::Packet PACKET> auto interface::is_quit(Pointer<PACKET> const &p) -> bool   { return nullptr != dynamic_cast<Quit const *>(p.get()); }
+  template<required::Packet PACKET> auto interface::is_status(Pointer<PACKET> const &p) -> bool { return nullptr != dynamic_cast<Status const *>(p.get()); }
+  //
+  template<required::Packet PROBE> auto interface::downcast_get(Pointer<Prototype> const &p) -> PROBE * { return dynamic_cast<PROBE *>(p.get()); }
+  //
+  template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<SOURCE, DESTINATION> auto interface::upcast(Pointer<SOURCE> source) -> Pointer<DESTINATION> { return {move(source)}; }
+  //
+  template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<DESTINATION, SOURCE> auto interface::downcast(otherwise::Tuple, Pointer<SOURCE> source) -> Tuple<Pointer<DESTINATION>, Pointer<SOURCE>> {
+    if (auto source_raw_pointer=source.get(); nullptr == source_raw_pointer) {
+      return {Pointer<DESTINATION>{}, Pointer<SOURCE>{}};
+    } else if (auto destination_raw_pointer=dynamic_cast<DESTINATION *>(source_raw_pointer); nullptr == destination_raw_pointer) {
+      return {Pointer<DESTINATION>{}, move(source)};
+    } else {
+      auto destination = Pointer<DESTINATION>{destination_raw_pointer};  // if this throws then source still owns the memory
+      source.release();
+      return {move(destination), move(source)};
+    }
+  }
+  template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<DESTINATION, SOURCE> auto interface::downcast(otherwise::Exception, Pointer<SOURCE> source) -> Pointer<DESTINATION> {
+    if (auto source_raw_pointer=source.get(); nullptr == source_raw_pointer) {
+      throw exception::Null{};
+    } else if (auto destination_raw_pointer=dynamic_cast<DESTINATION *>(source_raw_pointer); nullptr == destination_raw_pointer) {
+      throw exception::Cast{typeid(DESTINATION)};
+    } else {
+      auto destination = Pointer<DESTINATION>{destination_raw_pointer};  // if this throws then source still owns the memory
+      source.release();
+      return destination;
+    }
+  }
+  template<required::Packet DESTINATION, required::Packet SOURCE> requires required::Derived_From<DESTINATION, SOURCE> auto interface::downcast(otherwise::Disposal, Pointer<SOURCE> source) -> Pointer<DESTINATION> {
+    if (auto source_raw_pointer=source.get(); nullptr == source_raw_pointer) {
+      return {}; // and source is lost (disposed [of])
+    } else if (auto destination_raw_pointer=dynamic_cast<DESTINATION *>(source_raw_pointer); nullptr == destination_raw_pointer) {
+      return {}; // same
+    } else {
+      auto destination = Pointer<DESTINATION>{destination_raw_pointer};  // if this throws then source still owns the memory
+      source.release();
+      return destination;
+    }
+  }
+}
+#endiv

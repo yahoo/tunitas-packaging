@@ -1,0 +1,74 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::world::binder {
+  //
+  // The binder, green & blue.
+  //
+  // Specification:
+  //
+  //   Just what it says.
+  //   Special-case the chotrol channel.
+  //
+  // Design:
+  //
+  //   An interface detail of the World & the Linker
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  // WATCHOUT - the ordering of the arguments here is CRITICAL else activation scheduling WILL NOT WORK
+  // The semantic is:
+  //
+  //   When writing to green interface, activate the blue process
+  //   When writing to blue interface, activate the green process
+  //
+  // Usage:
+  //
+  //   See World
+  //
+  struct Binder;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.world.Layout
+#import tunitas.denniston.world.binder.Linkage
+#import tunitas.denniston.process.Model
+#import tunitas.denniston.network.Sockets
+class tunitas::denniston::world::binder::Binder : public Linkage {
+  using Ancestor = Linkage;
+public:
+  using Instance = process::Model;
+  using Descriptor = network::Sockets::Descriptor;
+private:
+  inline auto do_control_channel(Triple) -> Interface;
+  Layout &layout;
+public:  
+  explicit Binder(Layout &l) : layout{l} { }
+  inline auto control_system([[inout]] Instance &) -> void;
+  inline auto control_userland([[inout]] Instance &) -> void;
+  using Ancestor::link;
+  inline auto link([[inout]] Triple green, [[inout]] Triple blue) -> void;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.world.Layout
+namespace tunitas::denniston::world::binder {
+  auto Binder::control_userland(Instance &instance) -> void { layout.control.clients.push_back(do_control_channel({instance.control, instance})); }
+  auto Binder::control_system(Instance &instance) -> void   { do_control_channel({instance.control, instance}); }
+  //
+  auto Binder::do_control_channel(Triple green) -> network::Socket::Interface {
+    layout.control.everyone.push_back(network::Socket::Interface{});
+    auto blue = Triple{layout.readable, layout.ready, layout.control.everyone.back()};
+    link(green, blue);
+    return blue.face;
+  }
+  auto Binder::link(Triple green, Triple blue) -> void {
+    // when we write to blue, green must be notified that it has become ready-to-read
+    // When we write to green, blue becomes ready
+    auto noob = layout.sockets.allocate();
+    link(*noob, green, blue);
+  }
+}
+#endiv

@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.task.Corpus.template
+namespace tunitas::denniston::task {
+  //
+  // The corpus of the Task Dictionary of the Gateway
+  //
+  // Specification:
+  //
+  //   Outgoing work communicates from run(...) to a delegate (a subprocess)
+  //
+  //   The aggregation parameters are not known until runtime when the Collector supplies them.
+  //   PRIO3 has empty aggregation parameters (i.e. none).
+  //   POPLAR1 has some difficult aggregation parameters.
+  //
+  // Design:
+  //
+  //   Whereas the Outgoing is a Channel, it cannot be copied.
+  //
+  //   The constructors MUST be implicit to convert from the Definition upon insertion into a Dictionary.
+  //
+  // Usage:
+  //
+  //   See service::Gateway
+  //
+  template<> struct Corpus<Genus::GATEWAY>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.task.Definition
+#forward tunitas.denniston.service.gateway.subprocess.Task
+#import tunitas.keyston.vdaf.Parameters
+namespace tunitas::denniston::task {
+  inline auto swap(Corpus<Genus::GATEWAY> &, Corpus<Genus::GATEWAY> &) noexcept -> void;
+  template<> struct Corpus<Genus::GATEWAY> {
+    [[implicit]] Corpus() = default;
+    inline [[implicit]] Corpus(Definition);
+    //
+    Definition definition{};
+    service::gateway::subprocess::Task *subprocess{};
+    Optional<keyston::vdaf::Parameters> aggregation_parameters{};
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.service.gateway.subprocess.Task
+namespace tunitas::denniston {
+  auto task::swap(Corpus<Genus::GATEWAY> &a, Corpus<Genus::GATEWAY> &b) noexcept -> void {
+    swap(a.definition, b.definition);
+    swap(a.subprocess, b.subprocess);
+    swap(a.aggregation_parameters, b.aggregation_parameters);
+  }
+  namespace task {
+    Corpus<Genus::GATEWAY>::Corpus(Definition d)
+      : definition{move(d)}
+    { }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::task::Corpus;
+    using tunitas::denniston::Genus;
+    //
+    static_assert(std::semiregular<Corpus<Genus::GATEWAY>>);
+    //
+    static_assert(std::is_default_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_copy_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_move_constructible_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_copy_assignable_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_move_assignable_v<Corpus<Genus::GATEWAY>>);
+    static_assert(std::is_swappable_v<Corpus<Genus::GATEWAY>>);
+  }
+}
+#endiv

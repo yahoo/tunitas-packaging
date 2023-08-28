@@ -1,0 +1,72 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::report {
+  template<typename SUBJECT> struct Series;
+}
+#endiv
+#divert <hpp>
+namespace tests::unit {
+  template<typename SUBJECT> struct report::Series : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_default() -> void;
+    auto test_swap() -> void;
+    auto test_subrange_constie() -> void;
+    auto test_subrange_mutable() -> void;
+  };
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::report {
+  template<typename _> auto Series<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Series::test_constructor_default)
+                    << END;
+                return con;
+              }()
+           << add("swap", &Series::test_swap)
+           << []{
+                auto face = Stream{"subrange"sv};
+                face << add("constie", &Series::test_subrange_constie)
+                     << add("constie", &Series::test_subrange_mutable)
+                     << END;
+                return face;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<typename _> auto Series<_>::test_constructor_default() -> void {
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<typename _> auto Series<_>::test_swap() -> void {
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    swap(subject0, subject1);
+  }
+  template<typename _> auto Series<_>::test_subrange_constie() -> void {
+    auto const specimen = Subject{}; // <------------------------------------ constie
+    auto count{0uz};
+    for (auto const &item : subrange(specimen)) { // <---------------------- test this (constie)
+      count += 0 != sizeof (item);
+    }
+    require(ASSERTION, 0uz == count); // it was an empty series, was it not?
+  }
+  template<typename _> auto Series<_>::test_subrange_mutable() -> void {
+    auto specimen = Subject{}; // <---------------------------------------- mutable
+    auto count{0uz};
+    for (auto &item : subrange(specimen)) { // <-------------------------  test this (mutable)
+      count += 0 != sizeof (item);
+    }
+    require(ASSERTION, 0uz == count); // it was an empty series, was it not?
+  }
+}
+#endiv

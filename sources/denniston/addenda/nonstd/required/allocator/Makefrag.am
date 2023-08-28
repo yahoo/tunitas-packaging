@@ -1,0 +1,9 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+addenda_nonstd_required_allocator_SUBSOURCES = \
+  noinst/obj/src/nonstd/required/Allocator.cpp \
+  noinst/obj/src/nonstd/required/allocator/namespace.cpp \
+  noinst/obj/src/nonstd/required/allocator/Basic.cpp \
+  noinst/obj/src/nonstd/required/allocator/Producing.cpp \
+  $(end)

@@ -1,0 +1,14 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+app_flow_options_SUBSOURCES = \
+  noinst/obj/src/app/flow/options/namespace.cpp \
+  noinst/obj/src/app/flow/options/indicator.cpp \
+  noinst/obj/src/app/flow/options/indicator.constants.cpp \
+  noinst/obj/src/app/flow/options/Parser.cpp \
+  noinst/obj/src/app/flow/options/Parser.Result.cpp \
+  noinst/obj/src/app/flow/options/Specification.cpp \
+  $(end)

@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.required.Entropy
+namespace tunitas::denniston::report {
+  //
+  // A report generator
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.3.2. Upload Request
+  //
+  //   Measure something.
+  //   Produce a report.
+  //
+  // Design:
+  //
+  //   Whatever man, it's a simulator.
+  //
+  //   The entropy source is a parameter.
+  // ::entropy::Source
+  //   denniston::concurrent::entropy::Source
+  //
+  // Usage:
+  //
+  //   auto &entropy ::entropy::Source{...somehow...};
+  //   auto generator = Generator{entropy};
+  //
+  //   auto const &task_id = rheem::protocol::id::Task{...somehow...};
+  //   auto report = generate(task_id);
+  //
+  template<required::Entropy> struct Generator;
+}
+#endiv
+#divert <hpp>
+#import tunitas.entropy.Source
+#import tunitas.rheem.identifier.Generator
+#import tunitas.rheem.protocol.id // id::Report and id::Task
+#import tunitas.rheem.protocol.report.Produced
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.nonce.Bundle
+#import tunitas.keyston.nonce.Since
+#import tunitas.keyston.nonce.Bits
+#import tunitas.time.Clock
+namespace tunitas::denniston {
+  template<report::required::Entropy SOURCE> struct report::Generator {
+    using Entropy = SOURCE;
+    inline explicit Generator(Entropy &);
+    using Task = rheem::protocol::id::Task;
+    using Report = rheem::protocol::report::Produced<rheem::protocol::Slice::WHOLE>;
+    inline auto operator()(Task const &task_id) -> Report;
+  protected:
+    using Clock = time::Clock;
+    class Subgenerators {
+      using Policy = rheem::identifier::generator::Policy;
+      template<typename UNIQUENESS, Policy POLICY> using Name = rheem::identifier::Generator<UNIQUENESS, POLICY, Entropy>;
+      template<typename UNIQUENESS> using Nonce = keyston::nonce::Generator<UNIQUENESS, Entropy>;
+      template<typename... SUBNONCES> requires (0 < sizeof...(SUBNONCES)) using Bundle = keyston::nonce::Bundle<SUBNONCES...>;
+    public:
+      Name<rheem::protocol::id::Report, Policy::RANDOM> report_id;
+      Nonce<Bundle<keyston::nonce::Bits<64>, keyston::nonce::Since<std::chrono::microseconds>>> nonce; // has fallen to disuse (the report_id is the noce)
+      Subgenerators(Entropy &e) : report_id{e}, nonce{e} { }
+    } subgenerators;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.keyston.Shards // and SHARD_COUNT (which is constie)
+#import tunitas.keyston.literals
+namespace tunitas::denniston::report {
+  template<required::Entropy _> Generator<_>::Generator(Entropy &entropy) : subgenerators{entropy} { }
+  template<required::Entropy _> auto Generator<_>::operator()(Task const &task_id) -> Report {
+    auto ret = Report{subgenerators.report_id(), Clock::now(), Report::Extensions{}, task_id, Report::Public_Share{}};
+    //
+    // There being two processors in the protocol.
+    using namespace keyston::literals;
+    static_assert(2u == keyston::shards::SHARD_COUNT.count());
+    ret.encrypted_input_shares.at(0_shard) = {};
+    ret.encrypted_input_shares.at(1_shard) = {};
+    return ret;
+  }
+}
+#endiv

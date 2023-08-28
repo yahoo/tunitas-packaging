@@ -1,0 +1,111 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace app::flow::exception {
+  //
+  // The usage message, as an application exception
+  //
+  // Usage: (sic)
+  //
+  //   throw Usage{"program"};
+  //
+  // Usage: (sic)
+  //
+  //   try {
+  //     ...
+  //     throw Usage{exp}
+  //     ...
+  //   } catch (tunitas::application::exception::Generic const &g) {
+  //     g.stream() << g << '\n';
+  //     return g.code();          ... equivalently ::exit(g.code());
+  //   }
+  //
+  class [[nodiscard]] Usage;
+}
+#endiv
+#divert <hpp>
+#import app.exception.Aspect
+#import cli.exits.Code
+#import cli.exception.Aspect
+#import cli.experience.Console
+#import cli.exception.formatting.Usage
+#import tunitas.exception.Aspect
+#import tunitas.application.exception.Aspect
+class app::flow::exception::Usage : public virtual app::exception::Aspect,
+                                    public virtual cli::exception::Aspect,
+                                    public virtual tunitas::exception::Aspect,
+                                    public virtual tunitas::application::exception::Aspect,
+                                    public cli::exception::formatting::Usage {
+  struct Ancestors {
+    struct Aspects {
+      using Tunitas = tunitas::exception::Aspect;
+      using Application = tunitas::application::exception::Aspect;
+      using App = app::exception::Aspect;
+    };
+    using Exception = cli::exception::formatting::Usage;
+  };
+public:
+  using Results [[either]] = Ancestors::Aspects::Application::Results;
+  inline explicit Usage(cli::experience::Console const &);
+  inline Usage(cli::experience::Console const &, cli::exits::Code);
+  auto what() const noexcept -> Results::What override;
+  auto stream() const noexcept -> Results::Stream override;
+  auto code() const noexcept -> Results::Exit override;
+  auto exit() const noexcept -> Results::Exit override;
+private:
+  auto unformatted() const -> std::string override;
+};
+#endiv
+#divert <ipp>
+#import cli.exits.constants
+namespace app::flow::exception {
+  Usage::Usage(cli::experience::Console const &exp)
+    : Usage{exp, cli::exits::OK}
+  { }
+  Usage::Usage(cli::experience::Console const &exp, cli::exits::Code code)
+    : Ancestors::Exception{exp.NAME, code}
+  { }
+}
+#endiv
+#divert <cpp>
+namespace app::flow::exception {
+  auto Usage::what() const noexcept -> Results::What     { return Ancestors::Exception::what(); }
+  auto Usage::stream() const noexcept -> Results::Stream { return Ancestors::Exception::stream(); }
+  auto Usage::code() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
+  auto Usage::exit() const noexcept -> Results::Exit     { return Ancestors::Exception::exit(); }
+}
+#import std.ostringstream
+#import app.flow.defaults
+auto app::flow::exception::Usage::unformatted() const -> std::string {
+  auto const simulation_lifetime_in_milliseconds = tunitas::time::duration_cast<tunitas::time::duration::Millisecond>(defaults::SIMULATION_LIFETIME).count();
+  std::ostringstream buf;
+  buf << "usage: ${NAME} [...options...]\n"
+      << "\n"
+      << "\nSimulator Options:"
+      << "\n--interactive                      interactive mode (as-yet unimplemented)"
+      << "\n--programmatic, --program          programmatic mode (as-yet unimplemented)"
+      << "\n--simulation-lifetime SECONDS      limit the lifetime of the simulation to SECONDS"
+      << "\n    alternatives: --lifetime, -l"
+      << "\n    default: " << simulation_lifetime_in_milliseconds << " milliseconds"
+      << "\n"
+      << "\nGeneral Options:"
+      << "\n--usage, --help, -h                emit this message, and exit"
+      << "\n--version, -V                      emit the package version, and exit"
+      << "\n--dry-run, --dryrun, -y            dry run, do not start the server"
+      << "\n--warnings, --warning, -w          emit warnings"
+      << "\n--quiet, -q                        be quiet, emit no notices or warnings"
+      << "\n--verbose, -v                      be verbose (independent of --quiet)"
+      << "\n--DEBUG, -D                        debug output (you should not need this)"; // no '\n'
+  return buf.str();
+}
+#import std.is_abstract
+namespace {
+  namespace testate {
+    using namespace app::flow::exception;
+    static_assert(not std::is_abstract_v<Usage>);
+  }
+}
+#endiv

@@ -1,0 +1,16 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+nonstd_SUBSOURCES = \
+  obj/src/nonstd/container/Traits/tunitas.denniston.report.Series.VALUE.cpp \
+  obj/src/nonstd/iterator/Traits/tunitas.denniston.report.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
+  obj/src/nonstd/iterator/Traits/tunitas.denniston.preparation.ranges.iterator.Iterator.PROJECTION.SUBITERATOR.cpp \
+  \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.linear.Concurrent.KEY.INDEX.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.linear.Sequential.KEY.INDEX.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.logarithmic.Concurrent.KEY.VALUE.cpp \
+  obj/src/nonstd/iterator/Qualified/tunitas.denniston.concurrent.dictionary.logarithmic.Sequential.KEY.VALUE.cpp \
+  $(end)

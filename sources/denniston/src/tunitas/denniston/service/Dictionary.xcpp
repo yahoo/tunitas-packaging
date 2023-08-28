@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.concurrent.dictionary.Dictionary.template // for Complexity, Concurrency and Parameters<...>
+#import tunitas.hale.hpke.Side
+namespace tunitas::denniston::service {
+  //
+  // A dictionary of all the services
+  //
+  // Specification:
+  //
+  //   Given an id::Service, find the "preprovisioned" information belonging to it.
+  //
+  // Design:
+  //
+  //   map id::Service -> hpke::Configuration
+  //   Not thread-aware (the caller must perform synchronization, if such is necessary)
+  //
+  //   But avoid (suppress) the ability to create-on-missing with operator[]
+  //
+  //   Omitted: [[FIXTHIS?, TODO?]]
+  //   The hpke::Configuration<SIDE> is tied to the endpoint.
+  //   There is no provision for resolving individual tasks within a service endpoint.
+  //
+  // Usage:
+  //
+  //   As one does.
+  //
+  namespace [[eponymous]] dictionary {
+    template<hale::hpke::Side> struct Dictionary;
+    using denniston::concurrent::dictionary::Parameters;
+    using enum denniston::concurrent::dictionary::Complexity;
+    using enum denniston::concurrent::dictionary::Concurrency;
+  }
+  using dictionary::Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.hale.hpke.Configuration
+#import tunitas.hale.hpke.key_from // this is ours, and it is nearby
+#import tunitas.rheem.protocol.id // for id::Service
+#import tunitas.denniston.concurrent.dictionary.Dictionary
+namespace tunitas::denniston::service {
+  template<hale::hpke::Side SIDE> class dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Service, hale::hpke::Configuration<SIDE>>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Service, hale::hpke::Configuration<SIDE>>>;
+  public:
+    Dictionary() = default;
+    using Ancestor::Dictionary;
+  };
+}
+#endiv

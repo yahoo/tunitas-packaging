@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet.required.Packet
+namespace tunitas::denniston::protocol::packet {
+  //
+  // A pointer to a message packet.
+  //
+  // Specification:
+  //
+  //   unique_ptr, you know.
+  //
+  // Design:
+  //
+  //   std::unique_ptr
+  //
+  // Usage:
+  //
+  //   Said it before ... unique_ptr.
+  //   see std::make_unique(...)
+  //
+  template<required::Packet> struct Pointer;
+}
+#endiv
+#divert <hpp>
+#import std.unique_ptr
+namespace tunitas::denniston::protocol {
+  namespace packet {
+    using std::move;
+    template<required::Packet PACKET> inline auto swap(Pointer<PACKET> &, Pointer<PACKET> &) noexcept -> void;
+  }
+  template<packet::required::Packet PACKET> struct packet::Pointer : public std::unique_ptr<PACKET> {
+    using Ancestor = std::unique_ptr<PACKET>;
+    friend auto packet::swap<>(Pointer &, Pointer &) noexcept -> void;
+  public:
+    Pointer() = default;
+    using Ancestor::unique_ptr;
+    Pointer(Ancestor &&donor) : Ancestor{forward<Ancestor>(donor)} { }
+    using Ancestor::operator=;
+    Pointer &operator=(Ancestor &&donor) { Ancestor::operator=(forward<Ancestor>(donor)); return *this; }
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol {
+  template<packet::required::Packet PACKET> auto packet::swap(Pointer<PACKET> &a, Pointer<PACKET> &b) noexcept -> void {
+    typename Pointer<PACKET>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+}
+#endiv

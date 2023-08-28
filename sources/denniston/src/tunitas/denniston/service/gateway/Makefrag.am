@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_service_gateway_SUBSOURCES = \
+  obj/src/tunitas/denniston/service/gateway/namespace.cpp \
+  obj/src/tunitas/denniston/service/gateway/Gateway.cpp \
+  obj/src/tunitas/denniston/service/gateway/Gather.cpp \
+  obj/src/tunitas/denniston/service/gateway/Subprocess.cpp \
+  obj/src/tunitas/denniston/service/gateway/Subprocesses.cpp \
+  $(tunitas_denniston_service_gateway_required_SUBSOURCES) \
+  $(tunitas_denniston_service_gateway_subprocess_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/service/gateway/required/Makefrag.am
+include src/tunitas/denniston/service/gateway/subprocess/Makefrag.am

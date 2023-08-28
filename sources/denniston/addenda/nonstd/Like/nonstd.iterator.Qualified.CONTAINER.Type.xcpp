@@ -1,0 +1,37 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import nonstd.iterator.Qualified
+// #import nonstd.likely.Indirect
+#include <hpp/nonstd.iterator.Qualified>
+namespace nonstd::likely {
+  template<typename PATTERN, typename REPLACE> struct Right<PATTERN, nonstd::likely::Indirect<nonstd::iterator::Qualified<REPLACE>>>;
+}
+#endiv
+#divert <hpp>
+namespace nonstd::likely {
+  template<typename PATTERN, typename REPLACE> struct Right<PATTERN, nonstd::likely::Indirect<nonstd::iterator::Qualified<REPLACE>>> {
+    using Type [[school("New_School")]] = typename nonstd::iterator::Qualified<typename Right<PATTERN, REPLACE>::Type>::Type;
+    using type [[school("old_school")]] = Type;
+  };
+}
+#endiv
+#divert <cpp>
+#import std.same_as
+#import std.vector // pick one, any one will do
+namespace {
+  namespace testate {
+    struct Pattern;
+    namespace mutating {
+      using Expected = std::vector<char>::iterator;
+      using Observed = nonstd::Like<Pattern /*mutable*/, nonstd::likely::Indirect<nonstd::iterator::Qualified<std::vector<char>>>>::Type;
+      static_assert(std::same_as<Expected, Observed>);
+    }
+    namespace constie {
+      using Expected = std::vector<char>::const_iterator;
+      using Observed = nonstd::Like<Pattern const, nonstd::likely::Indirect<nonstd::iterator::Qualified<std::vector<char>>>>::Type;
+      static_assert(std::same_as<Expected, Observed>);
+    }
+  }
+}
+#endiv

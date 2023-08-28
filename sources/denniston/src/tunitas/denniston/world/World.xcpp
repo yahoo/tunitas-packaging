@@ -1,0 +1,174 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::world {
+  //
+  // The manifestation of a world (a computing resource).
+  //
+  // Specification:
+  //
+  //   A World manages Asome computing.
+  //   Publishes an interface by which it can be contacted.
+  //
+  //   Starts immediately upon construction
+  //   Shutdown (stopping) must be managed to recover from schduler exceptions.
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  //   Whereas we acknowledge that userland can cause scheduling problems such as deadlock-on-graceful_hutdown
+  //   we work within the scheduler operations infrastructure to map those detected prolems to exceptions.
+  //
+  //   World::shutdown() is idempotent
+  //   world::one_shot_shut_down() is NOT idempotent and MUST be run precisely once.
+  //        WATCHOUT - if you run it multiply then it sends control messages to defunct processes (and thus hangs)
+  //
+  //   World::shutdown() can throw
+  //   World::~World() can throw if shutdown throws; this will be immediately fatal
+  //     to operate safely, guard with a Stopper (which itself throws in the destructor)
+  //     or for complete safety use scheduler::operate<World>(...thunk...)
+  //
+  // Usage:
+  //
+  //   try {
+  //     auto configuration = Configuration{};
+  //     auto stopper = Stop{configuration};
+  //     ...operate upon configuration...
+  //     if (optionally) {
+  //       configuration.shutdown(); .................. else Stopper will do it for us
+  //     }
+  //   } catch (scheduler::exception::Aspect const &) {
+  //     ...remind that ther's a bug in userland so shutdown() deadlocked...
+  //   }
+  //
+  // Usage:
+  //
+  //   try {
+  //     scheduler::operate<Configuration>([](auto &configuration) {
+  //       ...operate upon configuration...
+  //       if (optionally) {
+  //         configuration.shutdown(); .................. else Stopper will do it for us
+  //       }
+  //     });
+  //   } catch (scheduler::exception::Aspect const &) {
+  //     ...remind that ther's a bug in userland so shutdown() deadlocked...
+  //   }
+  //
+  struct World;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.world.Layout
+namespace tunitas::denniston {
+  namespace world {
+    using std::move;
+  }
+  class world::World : public Layout {
+    using Ancestor = Layout;
+  public:
+    [[idempotent]] inline auto shutdown() -> void;
+    //
+    explicit World(Size = DEFAULT_INITIAL_CLIENT_COUNT);
+    ~World();
+    World(World const &) = delete;
+    World &operator=(World const &) = delete;
+  protected:
+    auto startup() -> void;
+    auto enable_logging() -> void;
+    bool has_been_shut_down{false};
+    [[NOT_idempotent]] auto one_shot_shut_down() -> void;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::world {
+  auto World::shutdown() -> void {
+    if (!has_been_shut_down) {
+      one_shot_shut_down();
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.Instance
+#import tunitas.denniston.world.Linker
+#import std.clog
+namespace tunitas::denniston::world {
+  World::World(Size initial_client_count) : Layout{initial_client_count} {
+    logs.outbound = &std::clog; // else we won't see anything!
+    enable_logging();
+    auto link = Linker{*this};
+    // in arbitrary order
+    link.control();
+    link.gateway();
+    link.configuration();
+    link.directory();
+    // and finally
+    startup();
+  }
+  World::~World() {
+    // WATCHOUT - this can throw, which will be immediately fatal.
+    // For safety, instead guard ~World()  with a World::Stopper
+    shutdown();
+  }
+  auto World::enable_logging() -> void {
+    // ALL processes of the System MUST be listed here (else you'll see no logsnothing)
+    system.collector->log.concentrator = &logs;
+    system.configuration->log.concentrator = &logs;
+    system.directory->log.concentrator = &logs;
+    system.gateway->log.concentrator = &logs;
+    for (auto &processor : system.processors) { processor->log.concentrator = &logs; }
+    for (auto &client : system.clients)       { client->log.concentrator = &logs; }
+  }
+  auto World::startup() -> void {
+    system.configuration->launch(threads);
+    system.directory->launch(threads);
+    system.gateway->launch(threads);
+    system.collector->launch(threads);
+    for (auto &processor : system.processors) {
+      processor->launch(threads);
+    }
+    for (auto &client : system.clients) {
+      client->launch(threads);
+    }
+  }
+}
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Quit
+#import tunitas.denniston.scheduler.backoff.Stepper
+#import nonstd.runtime_assert
+namespace tunitas::denniston::world {
+  auto World::one_shot_shut_down() -> void {
+    runtime_assert(!has_been_shut_down);
+    has_been_shut_down = true;
+    using namespace protocol::packet;
+    for (auto &face : control.everyone) {
+      face.write(make<Quit>());
+    }
+    // ensure that they all have run to process that quit packet.
+    for (auto step=scheduler::backoff::Stepper{}; step; ++step) {
+      for (auto &face : control.everyone) {
+        if (face.is_blocked_then_notify()) {
+          step.needs_another_iteration();
+        }
+      }
+    }
+    // and after the Quit packets are processed, all the run(...) functions will have exited.
+  }
+}
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::world;
+    static_assert(std::is_default_constructible_v<World>);
+    static_assert(not std::is_copy_constructible_v<World>);
+    static_assert(not std::is_move_constructible_v<World>);
+    static_assert(not std::is_copy_assignable_v<World>);
+    static_assert(not std::is_move_assignable_v<World>);
+    static_assert(not std::is_swappable_v<World>);
+  }
+}
+#endiv

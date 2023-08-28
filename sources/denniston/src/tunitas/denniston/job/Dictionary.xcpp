@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.job.required.dictionary.Valuable
+#import tunitas.denniston.concurrent.dictionary.Dictionary.template // for enums Complexity, Concurrency and Parameters<....>
+namespace tunitas::denniston::job {
+  //
+  // A (sequential) dictionary of jobs.
+  //
+  // Scope:
+  //
+  //   For bookkeeping the awaiting-outbound and awaiting-return work.
+  //
+  // Specification:
+  //
+  //   The sequential dictionary interface.
+  //
+  // Design.
+  //
+  //   Off The Shelf.
+  //
+  // Usage:
+  //
+  //   As espected.
+  //
+  namespace [[eponymous]] dictionary {
+    template<required::dictionary::Valuable> struct Dictionary;
+    using denniston::concurrent::dictionary::Parameters;
+    using enum denniston::concurrent::dictionary::Complexity;
+    using enum denniston::concurrent::dictionary::Concurrency;
+  }
+  using dictionary::Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.id // for id::Job
+#import tunitas.denniston.concurrent.dictionary.Dictionary
+#import tunitas.denniston.job.usage.dictionary.Valuable
+namespace tunitas::denniston::job {
+  template<required::dictionary::Valuable VALUE> struct dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Job, VALUE>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Job, VALUE>>;
+    static_assert(usage::dictionary::Valuable<VALUE>);
+  public:
+    Dictionary() = default;
+    using Ancestor::Dictionary;
+  };
+}
+#endiv

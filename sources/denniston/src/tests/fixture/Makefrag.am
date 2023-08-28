@@ -1,0 +1,20 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_fixture_SUBSOURCES = \
+  check/obj/src/tests/fixture/namespace.cpp \
+  check/obj/src/tests/fixture/environment.cpp \
+  check/obj/src/tests/fixture/Combine.cpp \
+  $(tests_fixture_generic_SUBSOURCES) \
+  $(tests_fixture_required_SUBSOURCES) \
+  $(tests_fixture_Mainly_SUBSOURCES) \
+  $(tests_fixture_Partly_SUBSOURCES) \
+  $(end)
+#
+include src/tests/fixture/generic/Makefrag.am
+include src/tests/fixture/required/Makefrag.am
+include src/tests/fixture/Mainly/Makefrag.am
+include src/tests/fixture/Partly/Makefrag.am

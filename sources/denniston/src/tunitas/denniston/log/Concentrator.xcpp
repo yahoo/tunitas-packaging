@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::log {
+  //
+  // The telemetry concentrator
+  //
+  // Specification:
+  //
+  //   Rhymes with syglog(8)
+  //
+  // Design:
+  //
+  //   Threadsafe with locking managed by the concentrator.
+  //
+  // Usage:
+  //
+  //   You'll figure it out.  It's not that hard.
+  //
+  struct Concentrator;
+}
+#endiv
+#divert <hpp>
+#import std.mutex
+#import std.lock_guard
+#import tunitas.time.Clock
+#import tunitas.denniston.Species
+#forward tunitas.denniston.world.World
+#import tunitas.string.View
+struct tunitas::denniston::log::Concentrator {
+  auto accept(Species, string::View message) -> void;
+protected:
+  friend class world::World; // assigns into outbound to establish the actual outflow of the messages
+  std::ostream *outbound{};
+  std::mutex mutex{};
+  using Clock = time::Clock;
+  class Guardian : public std::lock_guard<std::mutex> {
+    using Ancestor = std::lock_guard<std::mutex>;
+  public:
+    using Ancestor::lock_guard;
+  };
+};
+#endiv
+#divert <cpp>
+#import tunitas.denniston.log.ine
+#import tunitas.denniston.log.stamp
+namespace tunitas::denniston::log {
+  auto Concentrator::accept(Species origin, string::View message) -> void {
+    auto guard = Guardian{mutex};
+    if (outbound) {
+      // [[FIXTHIS]] just queue up this message in the critical section and then outbound it later on a separate path
+      *outbound << stamp(Clock::now()) << ' ' << stamp(origin) << ':' << ' ' << ine(message) << '\n';
+    }
+  }
+}
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::log;
+    static_assert(std::is_default_constructible_v<Concentrator>);
+    static_assert(not std::is_copy_constructible_v<Concentrator>);
+    static_assert(not std::is_move_constructible_v<Concentrator>);
+    static_assert(not std::is_copy_assignable_v<Concentrator>);
+    static_assert(not std::is_move_assignable_v<Concentrator>);
+    static_assert(not std::is_swappable_v<Concentrator>);
+  }
+}
+#endiv

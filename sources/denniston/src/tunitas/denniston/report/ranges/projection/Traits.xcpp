@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.ranges.projection.Projection
+namespace tunitas::denniston::report::ranges::projection {
+  //
+  // What does a projection do?
+  // Specializations only.
+  //
+  // RECORD is constie or not
+  //
+  template<Projection, typename RECORD> struct Traits;
+  template<typename RECORD> struct Traits<Projection::RECORD, RECORD>;
+  template<typename RECORD> struct Traits<Projection::REPORT_ID, RECORD>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.id // for id::Report
+#import std.conditional
+namespace tunitas::denniston::report::ranges::projection {
+  template<typename RECORD> struct Traits<Projection::RECORD, RECORD> {
+    using Record = RECORD; // can be constie
+    using Value = std::remove_const_t<RECORD>;
+    using Reference = Record &;
+    using Pointer = Record *;
+  };
+  template<typename RECORD> class Traits<Projection::REPORT_ID, RECORD> {
+    using Replacement = rheem::protocol::id::Report;
+  public:
+    using Record = std::conditional<std::is_const_v<RECORD>, Replacement const, Replacement>;
+    using Value = Replacement;
+    using Reference = std::conditional_t<std::is_const_v<RECORD>, Value const &, Value &>;
+    using Pointer = std::conditional_t<std::is_const_v<RECORD>, Value const *, Value *>;
+  };
+}
+#endiv

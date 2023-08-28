@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.ranges.Projection
+#import tunitas.denniston.report.ranges.iterator.required // ctcnr (cascade that certain 'namespace required')
+#import nonstd.required.iterator.Forward
+namespace tunitas::denniston::report::ranges::iterator {
+  //
+  // Given the PROJECTION adn the SUBITERATOR, compute the Basis
+  //
+  // Uage:
+  //
+  //   constexpr auto PROJ = Projection{...somehow...};
+  //   using Sub ... an iterator or a const_iterator
+  //
+  //   using B = Rebase<PROJ, Sub>::Type;
+  //
+  template<Projection, required::iterator::Forward> struct Rebase;
+}
+#endiv
+#divert <hpp>
+#import nonstd.iterator.Traits // but you may need a specialization
+#import tunitas.denniston.report.ranges.projection.Traits
+#import tunitas.denniston.report.ranges.iterator.Basis
+#import std.conditional
+#import std.is_const
+#import std.remove_reference
+#import std.remove_pointer
+namespace tunitas::denniston::report::ranges {
+  template<Projection PROJECTION, required::iterator::Forward SUBITERATOR> class iterator::Rebase {
+    struct Sub {
+      using Iterator = SUBITERATOR;
+      using Value = typename nonstd::iterator::Traits<Iterator>::Value;
+      using Reference = typename nonstd::iterator::Traits<Iterator>::Reference;
+      using Pointer = typename nonstd::iterator::Traits<Iterator>::Pointer;
+      static_assert(std::is_const_v<std::remove_reference_t<Reference>> == std::is_const_v<std::remove_pointer_t<Pointer>>);
+    };
+    struct Projected {
+      inline static constexpr auto const LATENT_IS_CONSTIE = std::is_const_v<std::remove_reference_t<typename Sub::Reference>> || std::is_const_v<std::remove_pointer_t<typename Sub::Pointer>>;
+      using Record = std::conditional_t<LATENT_IS_CONSTIE, typename Sub::Value const, typename Sub::Value>;
+      using Value = typename projection::Traits<PROJECTION, Record>::Value;
+      using Reference = typename projection::Traits<PROJECTION, Record>::Reference;
+      using Pointer = typename projection::Traits<PROJECTION, Record>::Pointer;
+    };
+  public:
+    using Type = Basis<SUBITERATOR, typename Projected::Value, typename Projected::Reference, typename Projected::Pointer>;
+  };
+}
+#endiv

@@ -1,0 +1,91 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.process.companion.required.iterator.Subprocess
+namespace tunitas::denniston::process::companion {
+  //
+  // Synchronization for the Subprocesses.
+  //
+  // Specification:
+  //
+  //   Ensure unique access to the underlying array.
+  //   Block until all the subprocesses are UNDEAD.
+  //
+  //   https://en.cppreference.com/w/cpp/thread/condition_variable/wait
+  //
+  // Invariants:
+  //
+  //   During steady-state operation of wait(...) and notify(), the underlying subprocess base is stable (fixed).
+  //   This implies that the iterators passed into wait(...) are never invalidated during a call to wait(...).
+  //
+  //   notify(), which calls notify_all(), need not be executed under any lock (so it says).
+  //
+  //   wait(Guard &, Duration, Iterator, Iterator) -> bool
+  //   per https://en.cppreference.com/w/cpp/thread/condition_variable/wait_for
+  //   returns false if the predicate stop_waiting still evaluates to false after the rel_time timeout expired,
+  //   returns true otherwise because on return early, the stop_waiting() MUST have returned true
+  //                                   on return at timeout, the value of stop_waiting() is returned
+  //
+  // Usage:
+  //
+  //   Used within Subprocesses
+  //
+  //   auto guard = Guard{synchro};
+  //   synchro.wait(start, finish)
+  //
+  //   synchro.notify(...)
+  //
+  template<required::iterator::Subprocess> struct Synchro;
+}
+#endiv
+#divert <hpp>
+#import std.mutex
+#import std.condition_variable
+#import tunitas.denniston.process.companion.usage.iterator.Subprocess
+#import tunitas.time.Duration
+#import nonstd.iterator.Traits
+namespace tunitas::denniston::process {
+  template<companion::required::iterator::Subprocess ITERATOR> struct companion::Synchro {
+    static_assert(usage::iterator::Subprocess<ITERATOR>);
+  protected:
+    using Iterator = ITERATOR;
+    using Value = typename nonstd::iterator::Traits<Iterator>::Value;
+    using Duration = time::Duration;
+    using Mutex = std::mutex;
+    using Condition = std::condition_variable;
+    Mutex m{};
+    Condition c{};
+    inline static auto is_undead(Value const &) -> bool;
+  public:
+    explicit Synchro() = default;
+    struct Guard;
+    friend class Guard;
+    enum class Dispensation { UNSTOPPED, DONE };
+    friend constexpr auto done(Dispensation s) { return Dispensation::DONE == s; }
+    inline auto wait(Guard &, Duration, Iterator, Iterator) -> Dispensation;
+    inline auto wait(Guard &, Iterator, Iterator) -> void;
+    auto notify() -> void { c.notify_all(); }
+  };
+}
+#endiv
+#divert <ipp>
+#import std.all_of
+#import tunitas.denniston.process.companion.Synchro.Guard
+namespace tunitas::denniston::process::companion {
+  template<companion::required::iterator::Subprocess _> auto Synchro<_>::wait(Guard &g, Iterator start, Iterator finish) -> void {
+    auto stop_waiting = [start, finish]{ return std::all_of(start, finish, is_undead); };
+    c.wait(g, stop_waiting);
+  }
+  template<companion::required::iterator::Subprocess _> auto Synchro<_>::wait(Guard &g, Duration limit, Iterator start, Iterator finish) -> Dispensation {
+    auto stop_waiting = [start, finish]{ return std::all_of(start, finish, is_undead); };
+    auto waited = c.wait_for(g, limit, stop_waiting);
+    return waited ? Dispensation::DONE : Dispensation::UNSTOPPED;
+  }
+  template<companion::required::iterator::Subprocess _> auto Synchro<_>::is_undead(Value const &item) -> bool {
+    return item->lifestage.guarded().is(Lifestage::UNDEAD);
+  }
+}
+#endiv

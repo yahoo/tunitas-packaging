@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.role.Genus
+namespace tunitas::denniston::role::traits {
+  //
+  // A declaration of the Genus-to-Instance types
+  // Specializations only.
+  //
+  template<role::Genus> struct Service;
+  template<> struct Service<role::Genus::CLIENT>;
+  template<> struct Service<role::Genus::COLLECTOR>;
+  template<> struct Service<role::Genus::CONFIGURATION>;
+  template<> struct Service<role::Genus::DIRECTORY>;
+  template<> struct Service<role::Genus::GATEWAY>;
+  template<> struct Service<role::Genus::PROCESSOR>;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.service.instance.Client
+#forward tunitas.denniston.service.instance.Collector
+#forward tunitas.denniston.service.instance.Configuration
+#forward tunitas.denniston.service.instance.Directory
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
+namespace tunitas::denniston::role {
+  template<role::Genus> struct traits::Service { };
+  namespace traits {
+    template<> struct Service<role::Genus::CLIENT>        { using Type = service::instance::Client; };
+    template<> struct Service<role::Genus::COLLECTOR>     { using Type = service::instance::Collector; };
+    template<> struct Service<role::Genus::CONFIGURATION> { using Type = service::instance::Configuration; };
+    template<> struct Service<role::Genus::DIRECTORY>     { using Type = service::instance::Directory; };
+    template<> struct Service<role::Genus::GATEWAY>       { using Type = service::instance::Gateway; };
+    template<> struct Service<role::Genus::PROCESSOR>     { using Type = service::instance::Processor; };
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.role.traits.Genus
+#import tunitas.denniston.service.instance.traits.Genus
+#import std.same_as
+namespace {
+  namespace testate {
+    namespace consistency {
+      using enum tunitas::denniston::role::Genus;
+      using namespace tunitas::denniston::service::instance;
+      using tunitas::denniston::role::traits::Service;
+      using tunitas::denniston::service::instance::traits::Genus;
+      // round-trip consistency
+      static_assert(std::same_as<Client,        Service<Genus<Client>::value>::Type>);
+      static_assert(std::same_as<Collector,     Service<Genus<Collector>::value>::Type>);
+      static_assert(std::same_as<Configuration, Service<Genus<Configuration>::value>::Type>);
+      static_assert(std::same_as<Directory,     Service<Genus<Directory>::value>::Type>);
+      static_assert(std::same_as<Gateway,       Service<Genus<Gateway>::value>::Type>);
+      static_assert(std::same_as<Processor,     Service<Genus<Processor>::value>::Type>);
+    }
+  }
+}
+#endiv

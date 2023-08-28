@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tests.unit.concurrent.channel.Generator.template
+#import tests.unit.concurrent.channel.Message
+namespace tests::unit::channel {
+  //
+  // Generate some random values
+  // We're looking for a series of values, not true non-determinism.
+  //
+  // Usage:
+  //
+  //   Generator<string> generator;
+  //   generator();
+  //   generator();
+  //   generator();
+  //
+  template<> struct Generator<Message>;
+}
+#endiv
+#divert <hpp>
+#import tests.unit.concurrent.channel.Generator.string.Storage
+namespace tests::unit::channel {
+  template<> struct Generator<Message> {
+  public:
+    Generator() = default;
+    using Result = Message;
+    auto operator()() -> Result;
+  private:
+    Generator<string::Storage> subgenerator{};
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::channel {
+  auto Generator<Message>::operator()() -> Result {
+    return Result{subgenerator(), subgenerator(), subgenerator()};
+  }
+}
+#endiv

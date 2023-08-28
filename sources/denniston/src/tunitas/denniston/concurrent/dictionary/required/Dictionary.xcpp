@@ -1,0 +1,20 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.concurrent.dictionary.Dictionary.template // for the tag enumeration
+namespace tunitas::denniston::concurrent::dictionary::required {
+  //
+  // Is this type a Dictionary<...>?
+  // This UST be diagnosable without the complete type definition of DICTIONARY
+  //
+  template<typename DICTIONARY> concept Dictionary = requires(DICTIONARY) {
+    { // \exists some parameters that make this work
+      []<auto COMPLEXITY, auto CONCURRENCY, typename PARAMETERS>(Dictionary<COMPLEXITY, CONCURRENCY, PARAMETERS> *)
+      requires (same_as<Complexity, decltype(COMPLEXITY)> && same_as<Concurrency, decltype(CONCURRENCY)> && InstanceOf<PARAMETERS, dictionary::Parameters>)
+      {} (static_cast<DICTIONARY *>(nullptr)) };
+  };
+}
+#endiv

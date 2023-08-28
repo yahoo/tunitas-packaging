@@ -1,0 +1,88 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process {
+  //
+  // A process has a specific shape to the run function
+  // Descendants work within that ready-to-run framework
+  //
+  // Specification:
+  //
+  //   Prototype supplying a standard run()
+  //   Descendants implement ready()
+  //
+  //   catchup() is designed to allow descendants to notify their sibling threads of end-of-times.
+  //   e.g. as is done in see Client & Gateway
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Reactor;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.Model
+class tunitas::denniston::process::Reactor : public Model {
+  using Ancestor = Model;
+  inline auto complain(string::View message) noexcept -> void; // called from a noexcept catch clause
+protected:
+  virtual ~Reactor();
+  inline explicit Reactor(Species);
+  auto run() noexcept -> void;
+  virtual auto react() -> void = 0;
+public:
+  auto launch(scheduler::Threads &) -> void override;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process {
+  Reactor::Reactor(Species role) : Ancestor{role} { }
+  auto Reactor::complain(string::View message) noexcept -> void try {
+    log.format("[[FIXTHIS]] an exception has escaped from a process. It is recaptured. It has the message: {}", message);
+  } catch (...) {
+    // nothing we can do at this point.
+    // Of course, we could terminate() ... sure, why not?  Or why?
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.string.Storage
+#import tunitas.denniston.protocol.packet.cast // for is_quit(...)
+#import tunitas.denniston.protocol.packet.Status
+#import substd.exception.Exception
+namespace tunitas::denniston::process {
+  Reactor::~Reactor() = default; // force the layout of the vtable right here
+  auto Reactor::launch(scheduler::Threads &pool) -> void {
+    // WATCHOUT - descendants may typically implement their own launch(...) and DO NOT call here
+    disposable.acquire();
+    pool.launch(&Reactor::run, this);
+  }
+  auto Reactor::run() noexcept -> void {
+    try {
+      while (!is_shutting_down()) {
+        ready.wait(readable);
+        if (auto red=control.read_if(); red) {
+          if (is_quit(*red)) {
+            graceful_shutdown.store(true);
+            break;
+          }
+        }
+        this->react();
+      }
+    } catch (substd::exception::Exception const &e) {
+      complain(e.what());
+    } catch (...) {
+      complain("unknown exception");
+    }
+    disposable.release();
+  }
+}
+#endiv

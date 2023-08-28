@@ -1,0 +1,99 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::log {
+  //
+  // The client side of log-collection
+  //
+  // Specification:
+  //
+  //   Smells like syslog(3)
+  //   Yet uses std::format conventions
+  //   https://en.cppreference.com/w/cpp/utility/format/format
+  //
+  // Design:
+  //
+  //   std::format(...) when available; else fmt::format
+  //   Locks for the Concentrator.
+  //
+  // Usage:
+  //
+  //   auto role = Species::PROCESSOR2; .......... for example
+  //   auto client = Client{role};
+  //   client.format(...somehow...);
+  //
+  struct Client;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.log.Concentrator
+#import tunitas.denniston.Species
+#forward tunitas.denniston.world.World
+#import tunitas.string.View
+namespace tunitas::denniston {
+  namespace log {
+    using std::move;
+    inline auto swap(Client &, Client &) noexcept -> void;
+  }
+  struct log::Client {
+    inline explicit Client(Species);
+    inline explicit Client(Concentrator &, Species);
+    Client(Client const &) = delete;
+    Client &operator=(Client const &) = delete;
+    Client(Client &&) = default;
+    Client &operator=(Client &&) = default;
+    template<typename... ARGUMENTS> inline auto format(string::View format, ARGUMENTS &&...) -> void;
+  protected:
+    friend class world::World;
+    Species role{};
+    Concentrator *concentrator{};
+    friend auto log::swap(Client &, Client &) noexcept -> void;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto log::swap(Client &a, Client &b) noexcept -> void {
+    swap(a.role, b.role);
+    std::swap(a.concentrator, b.concentrator);
+  }
+  namespace log {
+    Client::Client(Species role)
+      : role{role}
+    { }
+    Client::Client(Concentrator &arg_concentrator, Species arg_role)
+      : role{arg_role}
+      , concentrator{&arg_concentrator}
+    { }
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.denniston.log.Concentrator
+#import fmt.make_format_args
+#import fmt.vformat
+namespace tunitas::denniston::log {
+  template<typename... ARGUMENTS> auto Client::format(string::View format_string, ARGUMENTS &&...rest) -> void {
+    if (nullptr != concentrator) {
+      auto formatted = log::vformat(format_string, log::make_format_args(forward<ARGUMENTS>(rest)...));
+      concentrator->accept(role, formatted);
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::log;
+    static_assert(not std::is_default_constructible_v<Client>);
+    static_assert(not std::is_copy_constructible_v<Client>);
+    static_assert(    std::is_move_constructible_v<Client>);
+    static_assert(not std::is_copy_assignable_v<Client>);
+    static_assert(    std::is_move_assignable_v<Client>);
+    static_assert(    std::is_swappable_v<Client>);
+  }
+}
+#endiv

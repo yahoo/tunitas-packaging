@@ -1,0 +1,82 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::companion {
+  //
+  // like jthread, but marks the object as Lifestate::UNDEAD when the function returns.
+  //
+  // Specification:
+  //
+  //   jthread, same constructor signature, same behavior.
+  //   https://en.cppreference.com/w/cpp/thread/jthread
+  //
+  //   When the given run(...) function returns then the object is marked Lifestage::UNDEAD
+  //
+  // Design:
+  //
+  //   Using the Best Available Means and Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   struct Class {
+  //     auto run() noexcept -> void;
+  //   };
+  //   auto pointer = new Class{...somehow...};
+  //
+  //   subbie = Subbie{&Class::run, pointer};
+  //
+  struct Subbie;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.process.companion.Submodel
+#import tunitas.string.View
+#import nonstd.required.InstanceOf
+#import tunitas.denniston.process.companion.required // ctcnr (cascade that certain namepace 'required')
+#import std.jthread
+class tunitas::denniston::process::companion::Subbie : public std::jthread {
+  using Ancestor = std::jthread;
+  template<typename OBJECT> static auto manage_running_and_then_announce_completion(OBJECT *, void (OBJECT::*run)()) noexcept -> void requires required::InstanceOf<OBJECT, Submodel>;
+  template<typename OBJECT> inline static auto complain(OBJECT *, string::View message) noexcept -> void;
+public:
+  Subbie() = default;
+  template<typename OBJECT> inline [[implicit]] Subbie(void (OBJECT::*run)(), OBJECT *) requires required::InstanceOf<OBJECT, Submodel>;
+  template<typename OBJECT> inline [[implicit]] Subbie(OBJECT *, void (OBJECT::*run)()) requires required::InstanceOf<OBJECT, Submodel>;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::companion {
+  template<typename OBJECT> Subbie::Subbie(OBJECT *object, void (OBJECT::*run)()) requires required::InstanceOf<OBJECT, Submodel> : Ancestor{&Subbie::manage_running_and_then_announce_completion<OBJECT>, object, run} { }
+  template<typename OBJECT> Subbie::Subbie(void (OBJECT::*run)(), OBJECT *object) requires required::InstanceOf<OBJECT, Submodel> : Ancestor{&Subbie::manage_running_and_then_announce_completion<OBJECT>, object, run} { }
+  template<typename OBJECT> auto Subbie::complain(OBJECT *object, string::View message) noexcept -> void try {
+    // These aren't trivial chatter.  These represent serious problems (being suppressed)
+    // Some of them acknowledge deadlock errors for which there is no recovery  (the process is hung)
+    // That being std::system_error with std::errc::resource_deadlock_avoided_something_something.
+    object->owner.log.format("[[FIXTHIS]] an exception has escaped from a subprocess. It is recaptured. It has the message {}", message);
+  } catch (...) {
+    // What can we do?
+    // We could call std::terminate(...) that's what we could do.  But we don't.  Why is that?
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.denniston.process.companion.Shutdown
+#import tunitas.denniston.process.companion.Submodel
+#import tunitas.denniston.process.companion.Submodel.Guard.Completion
+#import substd.exception.Exception
+namespace tunitas::denniston::process::companion {
+  template<typename OBJECT> auto Subbie::manage_running_and_then_announce_completion(OBJECT *object, void (OBJECT::*run)()) noexcept -> void requires required::InstanceOf<OBJECT, Submodel> try {
+    auto guard = typename OBJECT::Guard::Completion{*object};
+    (object->*run)();
+  } catch (Shutdown) {
+    // yay!
+  } catch (substd::exception::Exception const &e) {
+    complain(object, e.what());
+  } catch(...) {
+    complain(object, "unknown exception");
+  }
+}
+#endiv

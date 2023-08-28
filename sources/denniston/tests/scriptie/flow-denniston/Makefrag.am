@@ -1,0 +1,12 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_scriptie_flow_denniston_TESTS = $(tests_scriptie_flow_denniston_XFAIL_TESTS) $(tests_scriptie_flow_denniston_XGOOD_TESTS)
+tests_scriptie_flow_denniston_XFAIL_TESTS = 
+tests_scriptie_flow_denniston_XGOOD_TESTS = \
+  tests/scriptie/flow-denniston/usage.test \
+  tests/scriptie/flow-denniston/version.test \
+  $(end)

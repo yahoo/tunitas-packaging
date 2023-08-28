@@ -1,0 +1,36 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_concurrent_dictionary_SUBSOURCES = \
+  obj/src/tunitas/denniston/concurrent/Dictionary.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/namespace.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Found.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Inserted.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Subrange.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Range.cpp \
+  \
+  obj/src/tunitas/denniston/concurrent/dictionary/Dictionary.template.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Dictionary.LINEAR.SEQUENTIAL.Parameters.KEY.INDEX.VALUE.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Dictionary.LINEAR.CONCURRENT.Parameters.KEY.INDEX.VALUE.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Dictionary.LOGARITHMIC.SEQUENTIAL.Parameters.KEY.VALUE.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Dictionary.LOGARITHMIC.CONCURRENT.Parameters.KEY.VALUE.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Dictionary.cpp \
+  \
+  obj/src/tunitas/denniston/concurrent/dictionary/Variables.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Variables.Guard.Free.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Variables.Guard.Exclusive.cpp \
+  obj/src/tunitas/denniston/concurrent/dictionary/Variables.Guard.Condition.cpp \
+  \
+  $(tunitas_denniston_concurrent_dictionary_linear_SUBSOURCES) \
+  $(tunitas_denniston_concurrent_dictionary_logarithmic_SUBSOURCES) \
+  $(tunitas_denniston_concurrent_dictionary_required_SUBSOURCES) \
+  $(tunitas_denniston_concurrent_dictionary_usage_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/concurrent/dictionary/linear/Makefrag.am
+include src/tunitas/denniston/concurrent/dictionary/logarithmic/Makefrag.am
+include src/tunitas/denniston/concurrent/dictionary/required/Makefrag.am
+include src/tunitas/denniston/concurrent/dictionary/usage/Makefrag.am

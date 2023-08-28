@@ -1,0 +1,190 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::processor {
+  //
+  // A manifestation of a processor in the network.
+  //
+  // Specification:
+  //
+  //   Computes aggregates.
+  //
+  // Invariants:
+  //
+  //   The Processor role is expected to be one of the two aggregator names.
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Processor;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.concurrent.Channel
+#import tunitas.denniston.concurrent.Variable
+#import tunitas.denniston.error.Code
+#import tunitas.denniston.job.Dictionary
+#import tunitas.denniston.job.Corpus
+#import tunitas.denniston.process.Reactor
+#import tunitas.denniston.protocol.packet.Pointer
+#import tunitas.denniston.protocol.packet.Request
+#import tunitas.denniston.service.processor.Subprocesses
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Corpus
+#forward tunitas.denniston.Configuration
+#import tunitas.entropy.Source
+#import tunitas.keyston.nonce.Generator
+#import tunitas.keyston.vdaf.Nonce
+#import tunitas.octets.Fixed
+#import std.atomic
+class tunitas::denniston::service::processor::Processor : public process::Reactor {
+  using Ancestor = process::Reactor;
+  auto react() -> void override;
+public:
+  using Entropy = entropy::Source;
+  inline explicit Processor([[inout]] Entropy &, Species);
+  inline explicit Processor([[inout]] Entropy &, [[inout]] denniston::Configuration &, Species);
+  ~Processor();
+  auto launch(scheduler::Threads &) -> void override;
+  Interface configuration{};
+  Interface directory{};
+  Interface gateway{};
+  Subprocesses subprocesses{};
+  //
+  concurrent::Channel<protocol::packet::Pointer<Request<Post::INITIALIZATION>>> initializations{};
+  concurrent::Channel<protocol::packet::Pointer<Request<Post::CONTINUATION>>> continuations{};
+  task::Dictionary<task::Corpus<Genus::PROCESSOR>> tasks{};
+  job::Dictionary<job::Corpus<Genus::PROCESSOR>> jobs{};
+  class Generators {
+    using Nonce = keyston::vdaf::Nonce;
+    using Noncer = keyston::nonce::Generator<Nonce, Entropy>;
+  public:
+    Noncer noncer;
+    Generators(Entropy &e) : noncer{e} { }
+  } generators;
+  std::atomic<unsigned> howmany_were_recovered{0};
+  using E = error::Code;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.Configuration
+#import tunitas.denniston.exception.Invalid
+namespace tunitas::denniston::service::processor {
+  Processor::Processor(Entropy &entropy, denniston::Configuration &, Species role) : Processor{entropy, role} { }
+  Processor::Processor(Entropy &entropy, Species role)
+    : Ancestor{role}
+    , generators{entropy} {
+    if (!is_processor(role)) {
+      throw exception::Invalid{"invalid role for a processor"};
+    }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.protocol.packet.cast
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Request
+#import tunitas.denniston.protocol.packet.Response
+#import tunitas.denniston.role.io
+#import tunitas.denniston.service.processor.subprocess.make
+#import tunitas.denniston.service.processor.subprocess.Boot
+#import tunitas.denniston.service.processor.subprocess.Initialization
+#import tunitas.denniston.service.processor.subprocess.Continuation
+#import tunitas.hale.hpke.extract
+#import tunitas.hale.hpke.configuration.extract.tunitas.keyston // vdaf.Secret specialization
+namespace tunitas::denniston::service::processor {
+  Processor::~Processor() {
+    ready.notify();
+    subprocesses.wait_for_all_to_finish();
+    disposable.acquire();
+  }
+  auto Processor::launch(scheduler::Threads &pool) -> void {
+    disposable.acquire(); // with release() in React::run()
+    pool.launch(&Processor::run, this);
+    subprocesses.spawn(subprocess::make<subprocess::Boot>(*this));
+    subprocesses.spawn(subprocess::make<subprocess::Initialization>(*this));
+    subprocesses.spawn(subprocess::make<subprocess::Continuation>(*this));
+  }
+  auto Processor::react() -> void {
+    if (auto red=configuration.read_if(); red) {
+      log.format("red from configuration");
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        log.format("from configuration failure: {}", got->status.message());
+      } else if (auto got=downcast_get<Response<Get::TASKS>>(*red); nullptr != got) {
+        log.format("from configuration tasks: count {}", got->tasks.size());
+        for (auto &given : got->tasks) {
+          auto [noob, inserted] = tasks.insert({move(given)});
+          log.format("{} {}", (inserted ? "inserted"s : "duplicated"s), noob.definition.id);
+        }
+        subprocesses.notify(); // And yet there is only the one subprocess (boot) at this point.
+      } else {
+        log.format("from configuration, something else (ignored)");
+      }
+    }
+    if (auto red=directory.read_if(); red) {
+      log.format("red from directory");
+      if (auto got=downcast_get<Status>(*red); nullptr != got) {
+        ++howmany_were_recovered;
+        log.format("from directory failure: {}", got->status.message());
+      } else if (auto got=downcast_get<Response<Get::SECRET>>(*red); nullptr != got) {
+        ++howmany_were_recovered;
+        auto notifiable{false};
+        if (!got->task_id) {
+          //
+          // It applies to all tasks that have the indicated endpoint (service_id)
+          //
+          for (auto locked=tasks.range(); auto &task : locked) {
+            auto contains = [](auto const &container, auto const &match) -> bool {
+                              auto finish = container.end();
+                              return finish != std::find(container.begin(), finish, match);
+                            };
+            if (contains(task.definition.services, got->service_id)) {
+              task.verify = extract<keyston::vdaf::Secret>(tunitas::error::by::Exception{}, got->configuration);
+              notifiable = true;
+            }
+          }
+        } else {
+          //
+          // The configuration applies to just that specific task (service_id is ignored)
+          //
+          auto const &task_id{*got->task_id};
+          log.format("directory responded with a secret for task {}", task_id);
+          if (auto found=tasks.find(task_id); !found) {
+            log.format("failed to find task {} in the inventory (ignoring this secret)", task_id);
+          } else {
+            found.value().verify = extract<keyston::vdaf::Secret>(tunitas::error::by::Exception{}, got->configuration);
+            notifiable = true;
+          }
+        }
+        if (notifiable) {
+          subprocesses.notify();
+        }
+      } else {
+        log.format("from directory, something else (ignored)");
+      }
+    }
+    if (auto red=gateway.read_if(); red) {
+      log.format("red from gateway (and ignoring it)");
+      // if (auto got=downcast_get<Request<Post::INITIALIZATION>>(*red); nullptr != got) {
+      if (is<Request<Post::INITIALIZATION>>(*red)) {
+        initializations.push_back(downcast<Request<Post::INITIALIZATION>>(otherwise::Exception{}, move(*red)));
+      } else if (is<Request<Post::CONTINUATION>>(*red)) {
+        continuations.push_back(downcast<Request<Post::CONTINUATION>>(otherwise::Exception{}, move(*red)));
+      } else {
+        log.format("from gateway, something else (ignored)");
+      }
+    }
+  }
+}
+#endiv

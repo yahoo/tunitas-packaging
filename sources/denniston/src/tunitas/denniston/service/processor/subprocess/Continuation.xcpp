@@ -1,0 +1,145 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::processor::subprocess {
+  //
+  // The continuation subprocess (thread)
+  //
+  // Specification:
+  //
+  //   Ask for the tasks.
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  // Concurrency:
+  //
+  //   Not within.
+  //   Synchronize with (others) in the Processor by the Prototype::barrier.
+  //
+  // Usage:
+  //
+  //   See service::instance::Processor
+  //
+  struct Continuation;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.count
+#import tunitas.denniston.service.processor.subprocess.Prototype
+#import tunitas.denniston.error.Code
+#import tunitas.denniston.network.Socket.Interface
+#import tunitas.denniston.protocol.continuation.Computer
+#import tunitas.denniston.preparation.ranges.Subrange
+#import tunitas.denniston.report.Series
+#import tunitas.rheem.protocol.id // id::Report
+#import tunitas.rheem.protocol.continuation.Request
+#import tunitas.rheem.protocol.continuation.Response
+namespace tunitas::denniston::service::processor {
+  namespace subprocess {
+    inline auto swap(Continuation *&a, Continuation *&b) noexcept -> void { std::swap(a, b); }
+  }
+  class subprocess::Continuation : public Prototype {
+    using Ancestor = Prototype;
+  public:
+    inline explicit Continuation(Processor &);
+    //
+    auto run_managed_lifecycle() -> void;
+  protected:
+    using E = error::Code;
+    using Members = report::Series<rheem::protocol::id::Report>;
+    using Preparation_Steps = rheem::protocol::continuation::Request::Preparation_Steps;
+    using Project_to_Identifier [[lol("wut?")]] = preparation::ranges::Subrange<preparation::ranges::Projection::REPORT_ID, Preparation_Steps::Basic_Iterator<Preparation_Steps const>>;
+    using Interface = network::Socket::Interface;
+    struct Protocol {
+      using Request = rheem::protocol::continuation::Request;
+      using Response = rheem::protocol::continuation::Response;
+    };
+    auto respond(Interface &, Protocol::Request const &) -> void;
+    inline static auto match(Members const &, Preparation_Steps const &) -> bool;
+    using Computer = protocol::continuation::Computer;
+ };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.job.Corpus
+#import std.equal
+namespace tunitas::denniston::service::processor::subprocess {
+  Continuation::Continuation(Processor &owner) : Ancestor{owner} { }
+#if 0
+    // expects this->barrier to already be started (locked)
+    subbie = std::jthread{&Continuation::run_managed_lifecycle, this};
+#endif
+  auto Continuation::match(Members const &members, Preparation_Steps const &steps) -> bool {
+    auto project = Project_to_Identifier{steps};
+    return std::equal(members.begin(), members.end(), project.begin(), project.end());
+  }
+}
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::processor::subprocess::Continuation;
+    //
+    static_assert(not std::semiregular<Continuation>);
+    //
+    // because that barrier in Continuation::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_default_constructible_v<Continuation>);
+    static_assert(not std::is_copy_constructible_v<Continuation>);
+    static_assert(not std::is_move_constructible_v<Continuation>);
+    static_assert(not std::is_copy_assignable_v<Continuation>);
+    static_assert(not std::is_move_assignable_v<Continuation>);
+    static_assert(not std::is_swappable_v<Continuation>);
+    static_assert(    std::is_swappable_v<Continuation *>);
+  }
+}
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Response
+#import tunitas.denniston.protocol.packet.Status
+namespace tunitas::denniston::service::processor::subprocess {
+  auto Continuation::run_managed_lifecycle() -> void {
+    // waiting on the barrier ALSO checks for other signalling (e.g. graceful shutdown)
+    do {
+      barrier.wait([this]{ return !owner.continuations.empty(); });
+      respond(owner.gateway, owner.continuations.pop_front()->payload);
+    } while (true);
+  }
+  auto Continuation::respond(Interface &back, Protocol::Request const &request) -> void {
+    //
+    // Reminder: each of the 'found' holds a lock on the Task and the Job dictionary.
+    // Thus we are guaranteed we won't be interfered with while reading the task and job.
+    // But we want to minimize the critical section.
+    // There is contention for these resources with the Initialization thread.
+    //
+    // Steps:
+    //
+    //   1. Get the task (readonly).
+    //   2. Get the job (readwrite).
+    //
+    owner.log.format("continuation responding for job {} task {}", request.job_id, request.task_id);
+    if (auto tfound=owner.tasks.find(request.task_id); !tfound) {
+      back.write(make<Status>(E::NO_SUCH_TASK));
+    } else if (auto jfound=owner.jobs.find(request.job_id); !jfound) {
+      back.write(make<Status>(E::NO_SUCH_JOB));
+    } else if (jfound->task->definition.id != tfound->definition.id) {
+      back.write(make<Status>(E::JOB_DOES_NOT_PERTAIN_TO_THAT_TASK));
+    } else if (!match(jfound->definition.members, request.preparation_steps)) {
+      back.write(make<Status>(E::REPORT_SERIES_DOES_NOT_MATCH));
+    } else {
+      runtime_assert(request.task_id == tfound.value().definition.id); // ... i.e. we already knew this was true
+      runtime_assert(request.job_id == jfound.value().definition.id); // .... eadem ratione
+      auto computer = [&, this]{
+                        auto const &ex = owner.executor;
+                        auto &os = jfound->states;
+                        auto const &ps = request.preparation_steps;
+                        return Computer{ex, os, ps};
+                      }();
+      back.write(make<Response<Get::CONTINUATION>>(request.job_id, computer()));
+    }
+  }
+}
+#endiv

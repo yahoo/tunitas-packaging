@@ -1,0 +1,106 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.instance
+#import tunitas.denniston.Species
+namespace tests::unit::service::instance {
+  class Fixture;
+  namespace library = ::tunitas::denniston::service::instance;
+  namespace service = ::tunitas::denniston::service;
+  using ::tunitas::denniston::Species;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.service.instance.Client
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
+namespace tests::unit::service {
+  struct instance::Fixture : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    template<typename SUBJECT> auto test_make() -> void;
+  protected:
+    inline static constexpr auto const CLIENT_COUNT = 100uz;
+  };
+  namespace instance {
+    template<> auto Fixture::test_make<library::Client>() -> void;
+    template<> auto Fixture::test_make<library::Gateway>() -> void;
+    template<> auto Fixture::test_make<library::Processor>() -> void;
+  }
+}
+#endiv
+#divert <tpp>
+#import tunitas.denniston.service.instance.make
+namespace tests::unit::service::instance {
+  template<typename SUBJECT> auto Fixture::test_make() -> void {
+    auto made = library::make<SUBJECT>(); // <---------------------------------------- test this
+    require(ASSERTION, nullptr != made.get());
+    require(ASSERTION, sizeof (made));
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.instance.Client
+#import tunitas.denniston.service.instance.Collector
+#import tunitas.denniston.service.instance.Configuration
+#import tunitas.denniston.service.instance.Directory
+#import tunitas.denniston.service.instance.Gateway
+#import tunitas.denniston.service.instance.Processor
+auto tests::unit::service::instance::Fixture::suite() -> Suite {
+  auto series = Stream{"instance"sv};
+  series << []{
+              auto make = Stream{"make"sv};
+              make << add("Client", &Fixture::test_make<library::Client>)
+                   << add("Collector", &Fixture::test_make<library::Collector>)
+                   << add("Configuration", &Fixture::test_make<library::Configuration>)
+                   << add("Directory", &Fixture::test_make<library::Directory>)
+                   << add("Gateway", &Fixture::test_make<library::Gateway>)
+                   << add("Processor", &Fixture::test_make<library::Processor>)                  
+                   << END;
+              return make;
+            }()
+         << END;
+  return settle(series);
+}
+#import std.deque
+#import tunitas.entropy.Source
+#import tunitas.denniston.Configuration
+#import tunitas.denniston.service.Instance
+namespace tests::unit::service::instance {
+  template<> auto Fixture::test_make<library::Client>() -> void {
+    auto source = ::tunitas::entropy::Source{};
+    auto world = ::tunitas::denniston::Configuration{source};
+    auto hold = std::deque<service::Instance>{};
+    for (auto count{0uz}; CLIENT_COUNT != count; ++count) {
+      auto client = Species(1+count);
+      auto made = library::make<library::Client>(source, world, client); // <---------------------------------------- test this
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+      hold.push_back(move(made));
+    }
+    require(ASSERTION, CLIENT_COUNT == hold.size());
+  }
+  template<> auto Fixture::test_make<library::Gateway>() -> void {
+    auto source = ::tunitas::entropy::Source{};
+    auto world = ::tunitas::denniston::Configuration{source};
+    auto made = library::make<library::Gateway>(source, world); // <-------------------------------------------------- test this
+    require(ASSERTION, sizeof (made));
+  }
+  template<> auto Fixture::test_make<library::Processor>() -> void {
+    auto source = ::tunitas::entropy::Source{};
+    auto world = ::tunitas::denniston::Configuration{source};
+    {
+      auto made = library::make<library::Processor>(source, world, Species::PROCESSOR1); // <---------------------------------------- test this
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    } {
+      auto made = library::make<library::Processor>(source, world, Species::PROCESSOR2); // <---------------------------------------- test this
+      require(ASSERTION, nullptr != made.get());
+      require(ASSERTION, sizeof (made));
+    }
+  }
+}
+#endiv

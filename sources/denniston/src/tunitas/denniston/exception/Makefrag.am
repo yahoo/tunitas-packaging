@@ -1,0 +1,18 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_exception_SUBSOURCES = \
+  obj/src/tunitas/denniston/exception/namespace.cpp \
+  obj/src/tunitas/denniston/exception/Aspect.cpp \
+  obj/src/tunitas/denniston/exception/Bound.cpp \
+  obj/src/tunitas/denniston/exception/Cast.cpp \
+  obj/src/tunitas/denniston/exception/Failure.cpp \
+  obj/src/tunitas/denniston/exception/Invalid.cpp \
+  obj/src/tunitas/denniston/exception/Invariant.cpp \
+  obj/src/tunitas/denniston/exception/Null.cpp \
+  obj/src/tunitas/denniston/exception/Range.cpp \
+  obj/src/tunitas/denniston/exception/Optional.cpp \
+  $(end)

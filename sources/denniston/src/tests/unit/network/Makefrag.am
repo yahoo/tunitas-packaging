@@ -1,0 +1,16 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_unit_network_SUBSOURCES = \
+  check/obj/src/tests/unit/network/namespace.cpp \
+  check/obj/src/tests/unit/network/Fixture.cpp \
+  check/obj/src/tests/unit/network/pipe.Fixture.cpp \
+  $(tests_unit_network_socket_SUBSOURCES) \
+  $(tests_unit_network_table_SUBSOURCES) \
+  $(end)
+#
+include src/tests/unit/network/socket/Makefrag.am
+include src/tests/unit/network/table/Makefrag.am

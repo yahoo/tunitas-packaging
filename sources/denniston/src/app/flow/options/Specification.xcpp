@@ -1,0 +1,72 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import cli.options.argument.constants
+#import app.flow.options.indicator.constants
+namespace app::flow::options {
+  //
+  // The options specification
+  //
+  // Usage:
+  //
+  //   Specification const spec{};
+  //   Parser parser{spec};
+  //   ...etc...
+  //
+  namespace [[eponymous]] specification {
+    namespace oa = cli::options::argument;
+    namespace oi = app::flow::options::indicator;
+    class Specification;
+  }
+  using specification::Specification;
+}
+#endiv
+#divert <hpp>
+#import tunitas.application.options.Specification
+class app::flow::options::Specification : public tunitas::application::options::Specification {
+  using Ancestor = tunitas::application::options::Specification;
+public:
+  Specification();
+};
+#endiv
+#divert <cpp>
+app::flow::options::Specification::Specification()
+  //
+  // To enable oi::MISSING processing, from getopt(3):
+  // <quote>
+  //   If the first character following any optional '+' or '-' described above (sic) of optstring is a colon (':'), 
+  //       then getopt() likewise does not print an error message.
+  //   In addition, it returns ':' instead of '?' to indicate a missing option argument.
+  //   This allows the caller to distinguish the two different types of errors.
+  // </quote>
+  //
+  //          /--------------- that one
+  //          |
+  //          v
+  : Ancestor{":hVVDqvwyipl:",
+             {{"help", oa::NO, oi::USAGE_SUBCOMMAND},
+              {"usage", oa::NO, oi::USAGE_SUBCOMMAND},
+              {"version", oa::NO, oi::VERSION_SUBCOMMAND},
+              {"debug", oa::NO, oi::OLD_DEBUG_MODE},
+              {"DEBUG", oa::NO, oi::DEBUG_MODE},
+              {"quiet", oa::NO, oi::QUIET_MODE},
+              {"verbose", oa::NO, oi::VERBOSE_MODE},
+              {"warning", oa::NO, oi::WARNING_MODE},
+              {"warnings", oa::NO, oi::WARNING_MODE},
+              {"dryrun", oa::NO, oi::DRYRUN_MODE},
+              {"dry-run", oa::NO, oi::DRYRUN_MODE},
+              //
+              {"interactive", oa::NO, oi::INTERACTIVE_MODE},
+              //
+              {"program", oa::NO, oi::PROGRAMMATIC_MODE},
+              {"programmatic", oa::NO, oi::PROGRAMMATIC_MODE},
+              //
+              {"duration", oa::REQUIRED, oi::SIMULATION_LIFETIME},
+              {"simulation-duration", oa::REQUIRED, oi::SIMULATION_LIFETIME},
+              {"lifetime", oa::REQUIRED, oi::SIMULATION_LIFETIME},
+              {"simulation-lifetime", oa::REQUIRED, oi::SIMULATION_LIFETIME}}}
+{ }
+#endiv

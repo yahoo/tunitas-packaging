@@ -1,0 +1,45 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet.Report.template
+namespace tunitas::denniston::protocol::packet {
+  //
+  // A whole report packet (ahem "package" ... thes things are biggish)
+  //
+  // Specification:
+  //
+  //   This is a client's report of some measurement.
+  //
+  // Design:
+  //
+  //   There it is.
+  //
+  // Usage:
+  //
+  //   On the network.
+  //
+  template<> struct Report<WHOLE>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.packet.Prototype
+#import tunitas.rheem.protocol.report.Produced
+namespace tunitas::denniston::protocol::packet {
+  template<> class Report<WHOLE> : public Prototype {
+    using Ancestor = Prototype;
+  public:
+    using Produced = rheem::protocol::report::Produced<WHOLE>;
+    Produced produced{};
+    explicit Report() = default;
+    inline explicit Report(Produced);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol::packet {
+  Report<WHOLE>::Report(Produced p) : produced{move(p)} { }
+}
+#endiv

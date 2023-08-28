@@ -1,0 +1,20 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.concurrent.channel.Variability
+#import nonstd.required.Class
+namespace tunitas::denniston::concurrent::channel::required {
+  //
+  // The requirements constraints on the Variability implementation
+  // This MUST be diagnosable without the complete type of VARIABILITY.
+  // Instead see usage::Variability<VARIABILITY> for the complete diagnostic.
+  //
+  // Given that this is an abstract interface class, there is not much we can say about it without knowing the complete type.
+  // So we check a little now nad defer to usage::Variability<VARIABILITY> which is applied in the body of Channel<TYPE, VARIABILITY>
+  //
+  template<typename VARIABILITY> concept Variability = Class<VARIABILITY>;
+}
+#endiv

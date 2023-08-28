@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::scheduler::exception {
+  //
+  // A timeout has occurred in the Tunitas Denniston Scheduler.
+  //
+  // Specification:
+  //
+  //   Yes.
+  //
+  // Design:
+  //
+  //   More than a type alias.  There is no design.
+  //   The design is that it's just a new type.
+  //
+  // Usage:
+  //
+  //   Throw it!
+  //
+  struct [[nodiscard]] Timeout;
+}
+#endiv
+#divert <hpp>
+#import tunitas.exception.complete.Basic
+#import tunitas.exception.partial.System
+#import tunitas.exception.Aspect
+#import tunitas.denniston.exception.Aspect
+#import tunitas.denniston.scheduler.exception.Aspect
+class tunitas::denniston::scheduler::exception::Timeout final : public complete::Basic<partial::System, scheduler::exception::Aspect, denniston::exception::Aspect, tunitas::exception::Aspect> {
+  using Ancestor = complete::Basic<partial::System, scheduler::exception::Aspect, denniston::exception::Aspect, tunitas::exception::Aspect>;
+public:
+  inline Timeout();
+  using Ancestor::Basic;
+};
+#endiv
+#divert <ipp>
+#import std.error_code
+#import std.generic_category
+namespace tunitas::denniston::scheduler::exception {
+  Timeout::Timeout()
+    // [[FIXTHIS]] are we supposed to have to cast the enum back to an into just to use the standard interface?
+    : Ancestor{std::error_code{(int)std::errc::timed_out, std::generic_category()}}
+  { }
+}
+#endiv
+#divert <cpp>
+#import std.derived_from
+namespace {
+  namespace testate {
+    using tunitas::denniston::scheduler::exception::Timeout;
+    static_assert(std::derived_from<Timeout, std::system_error>);
+  }
+}
+#endiv

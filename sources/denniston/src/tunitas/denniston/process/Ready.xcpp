@@ -1,0 +1,135 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process {
+  //
+  // At the process level, are any channels readable?
+  //
+  // Specification:
+  //
+  //   A multi-lock situation
+  //   The first lock(able) is special, for it guards the "is ready" bit.
+  //   A lock+condition (variable) system.
+  //
+  // Design:
+  //
+  //   Right outta da books.
+  //
+  //   See the recipe for using a condition variable
+  //   https://en.cppreference.com/w/cpp/thread/condition_variable
+  //   1. acquire a std::unique_lock<std::mutex>, on the same mutex as used to protect the shared variable
+  //   2. choices among the predicated variants of wait(...), wait_for(...), wait_until(...)
+  //
+  //   And yet
+  //   <quote ref="https://en.cppreference.com/w/cpp/thread/condition_variable">
+  //     std::condition_variable works only with std::unique_lock<std::mutex>, which allows for maximal efficiency on some platforms.
+  //     std::condition_variable_any provides a condition variable that works with any BasicLockable object, such as std::shared_lock.
+  //   </quote>
+  //
+  //   with BasicLockable being defined thus: https://en.cppreference.com/w/cpp/named_req/BasicLockable
+  //
+  // Usage:
+  //
+  //   Positioned in a process.
+  //   Socket::Interface performs update+notifications.
+  //
+  // Centrall; e.g. at the service instance (a.k.a. "process") state variables (a.k.a. "struct").
+  //
+  //   struct Something {
+  //     ...etc...
+  //     Ready ready{};
+  //     ...etc...
+  //   }
+  //
+  // Reading; e.g. within the service instance's run function
+  //
+  //    while (true) {
+  //      this->ready.wait(this->readable);
+  //      ... something is ready to read ... find it (poll each of the interfaces).
+  //      auto red0 = some_face.read_if();
+  //      auto red1 = someother_face.read_if();
+  //      auto red2 = another_face.read_if();
+  //      auto red3 = and_another_face.read_if();
+  //      ... and so on...
+  //   }
+  //
+  // Writing (at the process; that obligation is handled within socket::interface::write(...))
+  //   
+  //   readability.notify();
+  //
+  struct Ready;
+}
+#endiv
+#divert <hpp>
+#import std.mutex
+#import std.condition_variable_any
+#import tunitas.denniston.process.Readable
+#forward tunitas.denniston.process.readable.Container
+#forward tunitas.denniston.process.readable.Fixed
+#forward tunitas.denniston.process.readable.Variable
+class tunitas::denniston::process::Ready {
+protected:
+  // Container peeks into the Ready and accesses Ready::mutex upon its construction
+  template<readable::required::Array> friend class readable::Container;
+#if 0 // no longer needed because only the public interface is used
+  template<Size> friend class readable::Fixed;
+  friend class readable::Variable;
+#endif
+  using Mutex = std::mutex;
+  using Condition = std::condition_variable_any;
+  Mutex mutex{};
+  // std::unique_lock<std::mutex> lock{mutex, std::defer_lock};
+  Condition condition{};
+  bool some_channel_is_ready_to_read{};
+  struct Guard;
+  friend class Guard;
+public:
+  inline auto notify() -> void;
+  auto wait([[inout]] Readable &) -> void;
+  // These are constie-ish, but need the locks so they remain mutable
+  inline auto is_readable() -> bool;
+  inline auto is_readable([[inout]] Readable &) -> bool;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.process.Ready.Guard
+#import tunitas.denniston.process.Readable.Guard
+namespace tunitas::denniston::process {
+  auto Ready::notify() -> void {
+    // No locking here because no reading of the signalling variable (we're sending this knowledge away to the other thread.)
+    some_channel_is_ready_to_read = true;
+    condition.notify_all();
+  }
+  auto Ready::is_readable() -> bool {
+    auto little=Guard{*this};
+    return some_channel_is_ready_to_read;
+  }
+  auto Ready::is_readable(Readable &ourselves) -> bool {
+    auto big = Readable::Guard{ourselves};
+    return some_channel_is_ready_to_read || ourselves.is_ready_to_read();
+  }
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::process {
+  auto Ready::wait(Readable &ourselves) -> void {
+    if (auto little=Guard{*this}; some_channel_is_ready_to_read) {
+      some_channel_is_ready_to_read = false;
+      return;
+    } else { }
+    //
+    // AND THEN (not 'else')
+    // Relock agani-and-more and look at the bigger picture
+    // Reminder: the big Readable::Guard spans lots of locks with the first such overlaps with this->mutex (the little lock)
+    //
+    auto stop_when = [this, &ourselves]{ return some_channel_is_ready_to_read || ourselves.is_ready_to_read(); };
+    auto big = Readable::Guard{ourselves};
+    condition.wait(big, stop_when);
+    some_channel_is_ready_to_read = false;
+    // You MUST now go about your business reading the channels to exhaust their pended input
+  }
+}
+#endiv

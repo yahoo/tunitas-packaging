@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.string.Storage
+#import tunitas.string.View
+#import tunitas.denniston.role.Species
+#import tunitas.denniston.role.package_io.Bundled
+namespace tunitas::denniston::role {
+  namespace package_io::body::exported {
+    //
+    // ADL will find these.in namespace role
+    //
+    inline auto to_string(Species) -> string::Storage;
+    inline constexpr auto to_string_view(Species) -> Optional<string::View>;
+    inline constexpr auto to_bundle(Species) -> Bundled;
+  }
+  //
+  // So that ADL will find them here.
+  using package_io::body::exported::to_string;
+  using package_io::body::exported::to_string_view;
+  using package_io::body::exported::to_bundle;
+}
+#endiv
+#divert <ipp>
+#import std.to_string
+namespace tunitas::denniston::role::package_io {
+  auto interface::to_string(Species species) -> string::Storage {
+    auto visitor = Visitor{[species](Null)       -> string::Storage { return "(Invalid)Species #"s + std::to_string(underlying(species)); },
+                           [](string::View view) -> string::Storage { return {view.begin(), view.end()}; },
+                           [](Indexed indexed)   -> string::Storage { return string::Storage{get<0>(indexed)} + "-"s + std::to_string(get<1>(indexed)); }};
+    return visit(visitor, to_bundle(species));
+  }
+  constexpr auto interface::to_string_view(Species species) -> Optional<string::View> {
+    auto visitor = Visitor{[](Null)              -> Optional<string::View> { return {}; },
+                           [](string::View view) -> Optional<string::View> { return view; },
+                           [](Indexed indexed)   -> Optional<string::View> { return get<0>(indexed); }}; // WATCHOUT - this drops the index (thereby losing information)
+    return visit(visitor, to_bundle(species));
+  }
+  constexpr auto interface::to_bundle(Species species) -> Bundled {
+    if (is_client(species))        { return Indexed{"CLIENT-#"sv, recover_client_index(species)}; }
+    if (is_collector(species))     { return "COLLECTOR"sv; }
+    if (is_configuration(species)) { return "CONFIGURATION"sv; }
+    if (is_directory(species))     { return "DIRECTORY"sv; }
+    if (is_gateway(species))       { return "GATEWAY"sv; }
+    if (is_processor(species))     { return Indexed{"PROCESSOR"sv, recover_processor_index(species)}; }
+    return {};
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::role::Species;
+    // prove that ADL can find these against role::Species
+    static_assert(sizeof (to_string(Species{})));
+    static_assert(sizeof (to_string_view(Species{})));
+    static_assert(sizeof (to_bundle(Species{})));
+  }
+}
+#endiv

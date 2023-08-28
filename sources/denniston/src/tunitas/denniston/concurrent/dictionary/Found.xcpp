@@ -1,0 +1,124 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.concurrent.dictionary.required.Foundable
+#import tunitas.denniston.concurrent.dictionary.required.Guardian
+namespace tunitas::denniston::concurrent::dictionary {
+  //
+  // The result of a lookup ("find") in the dictionary.
+  //
+  // Specification:
+  //
+  //   An optional reference to the found entry.
+  //   Rhymes with Optional<Value &>
+  //
+  // Design:
+  //
+  //   An optional reference (whatever that might mean.
+  //   These things are thus useful substantially only for the return value of Dictionary::find(...)
+  //
+  //   Like std::optional<...>, there is operator*, operator-> and value()
+  //   Unlike std::optional<...>, they all perform the same checks, maintain the lock and throw exceptions on invariant failure.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Found) < lifetime(Value &)
+  //   And consider the invalidation when the containing Dictionary is reorganized.
+  //
+  // Exceptions:
+  //
+  //   Throws exception::Optional{} upon indirection into an empty container.
+  //
+  // Usage:
+  //
+  //   auto found = dictionary.find(key);
+  //   if (found) {
+  //      ...*found or found.value()...
+  //   } else {
+  //      ...do without...
+  //   }
+  //   
+  template<typename VALUE, typename BASE, required::Guardian> requires required::Foundable<VALUE, BASE> struct Found;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.Pair
+#import std.is_same
+#import std.remove_const
+namespace tunitas::denniston::concurrent {
+  template<typename VALUE, typename BASE, dictionary::required::Guardian GUARD> requires dictionary::required::Foundable<VALUE, BASE> struct dictionary::Found {
+    using Value = VALUE;
+    using Guard = GUARD;
+    Found() = default;
+    inline [[implicit]] Found(Guard &&, Value &);
+    inline explicit operator bool() const;
+    inline auto has_value() const -> bool;
+#if 202312 < __cplusplus
+    template<typename SELF> inline auto operator->(this SELF *) -> nonstd::like_t<SELF, Value *>;
+    template<typename SELF> inline auto operator*(this SELF *) -> nonstd::like_t<SELF, Value &>;
+    template<typename SELF> inline auto value(this SELF *) -> nonstd::like_t<SELF, Value &>;
+#else
+    inline auto operator->() -> Value *;
+    inline auto operator->() const -> Value const *;
+    inline auto operator*() -> Value &;
+    inline auto operator*() const -> Value const &;
+    inline auto value() -> Value &;
+    inline auto value() const -> Value const &;
+  private:
+    template<typename SELF> inline static auto pointer(SELF &) -> decltype(auto);
+  public:
+#endif
+  protected:
+    using Held = Pair<Guard, Value *>;
+    Optional<Held> held{};
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.exception.Optional
+#import substd.exception.Optional
+namespace tunitas::denniston::concurrent::dictionary {
+  template<typename V, typename B, required::Guardian G> Found<V,B,G>::Found(Guard &&guard, Value &value) : held{Held{forward<Guard>(guard), &value}} { }
+  template<typename V, typename B, required::Guardian G> Found<V,B,G>::operator bool() const          { return held.operator bool(); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::has_value() const -> bool { return held.has_value(); }
+#if 202312 < __GNUC__
+  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::operator->(this SELF *self) -> nonstd::like_t<SELF, Value *> try {
+    auto &got = self->held.value();
+    return got.second;
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::operator*(this SELF *self) -> nonstd::like_t<SELF, Value &> try {
+    auto &got = self->held.value();
+    return *got.second;
+  } catch (substd::exception::Optional const &) {
+    throw exception::Optional{};
+  }
+  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::value(this SELF *self) -> nonstd::like_t<SELF, Value &> {
+    if (!self->held) {
+      throw exception::Optional{};
+    } else {
+      return *self->held->second;
+    }
+  }
+#else
+  template<typename V, typename B, required::Guardian G> template<typename SELF> auto Found<V,B,G>::pointer(SELF &self) -> decltype(auto) {
+    if (!self.held) {
+      throw exception::Optional{};
+    } else {
+      return self.held->second;
+    }
+  }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator->() -> Value *             { return  pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator->() const -> Value const * { return  pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator*() -> Value &              { return *pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::operator*() const -> Value const &  { return *pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::value() -> Value &                  { return *pointer(*this); }
+  template<typename V, typename B, required::Guardian G> auto Found<V,B,G>::value() const -> Value const &      { return *pointer(*this); }
+#endif
+}
+#endiv

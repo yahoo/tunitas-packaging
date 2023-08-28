@@ -1,0 +1,66 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.role.Genus
+namespace tunitas::denniston::role::traits {
+  //
+  // A declaration of the Genus-to-truth
+  // Specializations only.
+  //
+  template<Genus> struct Genus;
+  template<> struct Genus<role::Genus::CLIENT>;
+  template<> struct Genus<role::Genus::COLLECTOR>;
+  template<> struct Genus<role::Genus::CONFIGURATION>;
+  template<> struct Genus<role::Genus::DIRECTORY>;
+  template<> struct Genus<role::Genus::GATEWAY>;
+  template<> struct Genus<role::Genus::PROCESSOR>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+#import tunitas.denniston.role.Species
+namespace tunitas::denniston::role {
+  template<Genus> struct traits::Genus : public std::false_type { };
+  namespace traits {
+    template<> struct Genus<role::Genus::CLIENT>        : public std::true_type { inline static constexpr auto const SPECIES = role::Species::CLIENT; };
+    template<> struct Genus<role::Genus::COLLECTOR>     : public std::true_type { inline static constexpr auto const SPECIES = role::Species::COLLECTOR; };
+    template<> struct Genus<role::Genus::CONFIGURATION> : public std::true_type { inline static constexpr auto const SPECIES = role::Species::CONFIGURATION; };
+    template<> struct Genus<role::Genus::DIRECTORY>     : public std::true_type { inline static constexpr auto const SPECIES = role::Species::DIRECTORY; };
+    template<> struct Genus<role::Genus::GATEWAY>       : public std::true_type { inline static constexpr auto const SPECIES = role::Species::GATEWAY; };
+    template<> struct Genus<role::Genus::PROCESSOR>     : public std::true_type { /*no unique SPECIES */ };
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.service.instance.traits.Genus
+namespace {
+  namespace testate {
+    namespace consistency1 {
+      using enum tunitas::denniston::role::Genus;
+      using tunitas::denniston::role::traits::Genus;
+      static_assert(Genus<CLIENT>::value);
+      static_assert(Genus<COLLECTOR>::value);
+      static_assert(Genus<CONFIGURATION>::value);
+      static_assert(Genus<DIRECTORY>::value);
+      static_assert(Genus<GATEWAY>::value);
+      static_assert(Genus<PROCESSOR>::value);
+      static_assert(not Genus<tunitas::denniston::role::Genus{999}>::value);
+    }
+    namespace consistency1 {
+      using tunitas::denniston::role::Species;
+      using enum tunitas::denniston::role::Genus;
+      using tunitas::denniston::role::traits::Genus;
+      static_assert(Species::CLIENT == Genus<CLIENT>::SPECIES);
+      static_assert(Species::COLLECTOR == Genus<COLLECTOR>::SPECIES);
+      static_assert(Species::CONFIGURATION == Genus<CONFIGURATION>::SPECIES);
+      static_assert(Species::DIRECTORY == Genus<DIRECTORY>::SPECIES);
+      static_assert(Species::GATEWAY == Genus<GATEWAY>::SPECIES);
+      // NO SUCH Species::PROCESSOR == Genus<PROCESSOR>::GENUS)
+    }
+  }
+}
+#endiv

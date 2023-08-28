@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import std.remove_const
+#import std.same_as
+#forward tunitas.denniston.process.companion.Lifestage
+namespace tunitas::denniston::process::companion::required {
+  //
+  // Is this type a Lifestage, as is suitable for Lifestage::Reference<LIFESTAGE>?
+  //
+  // When there's a choice we go with American over British English spellings.  These are neologisms anyway, right?
+  // When there's a choice, we go with fewer letters rather than more.
+  // But sometimes vagueness and practice mean you et both.
+  //
+  // Herein.
+  // As such. https://wikidiff.com/referenceable/referencable
+  //   which mentions that "referenceable" with the extra 'e' is mentioned in J2EE literature.
+  //   which mentions that "referencable" is mentioned in some C language literature
+  //
+  template<typename LIFESTAGE> concept Referencable = same_as<Lifestage, std::remove_const_t<LIFESTAGE>>;
+}
+#endiv

@@ -1,0 +1,11 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_unit_nonstd_SUBSOURCES = \
+  check/obj/src/tests/unit/nonstd/namespace.cpp \
+  check/obj/src/tests/unit/nonstd/Fixture.cpp \
+  check/obj/src/tests/unit/nonstd/From_String.cpp \
+  $(end)

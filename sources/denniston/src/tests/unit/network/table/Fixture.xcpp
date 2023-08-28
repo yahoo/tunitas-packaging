@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::network::table { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::network::table::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Sockets() -> void;
+  auto test_usage_Sockets_Interfaces() -> void;
+  auto test_usage_Descriptor_Socket() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.network.table.Sockets
+auto tests::unit::network::table::Fixture::suite() -> Suite {
+  auto series = Stream{"table"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Sockets", &Fixture::test_usage_Sockets)
+                  << add("Sockets::Interfaces", &Fixture::test_usage_Sockets_Interfaces)
+                  << add("Descriptor<Socket>", &Fixture::test_usage_Descriptor_Socket)
+                  << END;
+              return use;
+            }()
+         << add<Sockets>()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.network.table.Sockets
+#import tunitas.denniston.network.table.Descriptor
+namespace tests::unit::network::table {
+  auto Fixture::test_usage_Sockets() -> void {
+    using Subject = library::Sockets;
+    auto subject = Subject{};
+    auto first = subject.allocate();
+    auto second = subject.allocate();
+    auto third = subject.allocate();
+    //
+    subject.deallocate(first);
+    subject.deallocate(second);
+    subject.deallocate(third);
+  }
+  auto Fixture::test_usage_Sockets_Interfaces() -> void {
+    using Subject = library::Sockets::Interfaces;
+    auto subject = Subject{};
+    require(ASSERTION, subject.empty());
+  }
+  auto Fixture::test_usage_Descriptor_Socket() -> void {
+    using Subject = library::Descriptor<library::Sockets>;
+    auto subject0 = Subject{};
+    auto subject1 = Subject{};
+    auto subject2 = Subject{subject1};
+    swap(subject0, subject1);
+    swap(subject1, subject2);
+  }
+}
+#endiv

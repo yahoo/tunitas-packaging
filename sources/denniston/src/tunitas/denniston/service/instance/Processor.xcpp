@@ -1,0 +1,26 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.processor.Processor
+namespace tunitas::denniston::service::instance {
+  //
+  // A manifestation of a processor in the network.
+  //
+  // Specification:
+  //
+  //   A computor (it computes, it processes, it slices, it dices, only three payments of $29.99 (plus tax, shipping & handling)
+  //
+  // Design:
+  //
+  //   Something something: a thread.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  using service::processor::Processor;
+}
+#endiv

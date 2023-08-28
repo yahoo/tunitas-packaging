@@ -1,0 +1,53 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import std.allocator_traits // but for non-standard ALLOCATOR, you may need specializations visile to make this work
+namespace nonstd::required::allocator {
+  //
+  // An allocator suitable for a stream or std::char_traits
+  // And pairable with Allocator_Traits
+  //
+  // WATCHOUT - the allocator_traits<ALLOCATOR> system relies upon ALLOCATOR to self-trait. [[what's the point of that?]]
+  // WATCHOUT - thus Has_Traits<ALLOCATOR> will never compile unless there is forward-declared specialization of allocator_traits<ALLOCATOR> which is rare unto non-existent.
+  //
+  // Authorities
+  //
+  //   https://en.cppreference.com/w/cpp/memory/allocator_traits
+  //   https://en.cppreference.com/w/cpp/memory/allocator
+  //
+  // Notice the evolution C++17->C++20->C++23 with the deprecations & simplifications.
+  //
+  namespace [[eponymous]] basic {
+    template<typename TRAITS> concept Has_Traits = requires(TRAITS) {
+#if 1
+      requires false;
+#else      
+      typename TRAITS::size_type;
+      typename TRAITS::difference_type;
+      typename TRAITS::value_type;
+      // REMOVED in C++20 ---> typename std::allocator_traits<ALLOCATOR>::pointer;
+      // REMOVED in C++20 ---> typename std::allocator_traits<ALLOCATOR>::const_pointer;
+      // NO SUCH in traits ---> typename std::allocator_traits<ALLOCATOR>::reference;
+      // NO SUCH in traits ---> typename std::allocator_traits<ALLOCATOR>::const_reference;
+#endif
+    };
+    template<typename SELF> concept Is_Self_Traited = requires(SELF) {
+      typename SELF::size_type;
+      typename SELF::difference_type;
+      typename SELF::value_type;
+    };
+    template<typename ALLOCATOR> concept Basic = Is_Self_Traited<ALLOCATOR> || Has_Traits<std::allocator_traits<ALLOCATOR>>;
+  }
+  using basic::Basic;
+}
+#endiv
+#divert <cpp>
+#import std.allocator
+namespace {
+  namespace testate {
+    namespace subrequired = nonstd::required::allocator;
+    // Testify! - All known character types (have) Allocators
+    static_assert(subrequired::Basic<std::allocator<char>>);
+  }
+}
+#endiv

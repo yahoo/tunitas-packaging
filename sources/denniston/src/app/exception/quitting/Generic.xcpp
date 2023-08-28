@@ -1,0 +1,96 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace app::exception::quitting {
+  //
+  // Quitting (in the generic sense)
+  //
+  // Specification:
+  //
+  //   All the capabilities except the constructor
+  //
+  // Design:
+  //
+  //   The descendant completes the constructor signature.
+  //
+  // Rationale:
+  //
+  //   All this machinery exception::Quitting, exception::quitting::Programmatic and Generic
+  //   is necessary because some of the appliation options function templates still require the old style.
+  //   e.g. tunitas::application::options::get_integer(...)
+  //   So we hack.
+  //
+  // Usage:
+  //
+  //   By inheritance, see Quitting or Programmatic.
+  //
+  class Generic;
+}
+#endiv
+#divert <hpp>
+#import app.exception.Aspect
+#import cli.exception.Aspect
+#import cli.exception.partial.Quitting
+#import cli.exits.Code
+#import tunitas.application.options.Program
+#import tunitas.application.exception.Aspect
+#import tunitas.application.exception.feature.Quitting
+#import tunitas.exception.Aspect
+class app::exception::quitting::Generic : public virtual app::exception::Aspect,
+                                          public virtual cli::exception::Aspect,
+                                          public virtual tunitas::exception::Aspect,
+                                          public virtual tunitas::application::exception::Aspect,
+                                          public virtual tunitas::application::exception::feature::Quitting,
+                                          public cli::exception::partial::Quitting {
+  struct Ancestors {
+    struct Aspects {
+      using Tunitas = tunitas::exception::Aspect;
+      using Application = tunitas::application::exception::Aspect;
+      using App = app::exception::Aspect;
+    };
+    using Exception = cli::exception::partial::Quitting;
+  };
+protected:
+  ~Generic() = default;
+  using Old_Style_Program_NOT_New_Style_Console = tunitas::application::options::Program;
+  inline explicit Generic(Old_Style_Program_NOT_New_Style_Console const &);
+  inline explicit Generic(Old_Style_Program_NOT_New_Style_Console const &, cli::exits::Code);
+public:
+  using Results [[either]] = Ancestors::Aspects::Application::Results;
+  auto what() const noexcept -> Results::What override;
+  auto stream() const noexcept -> Results::Stream override;
+  auto code() const noexcept -> Results::Exit override;
+  auto exit() const noexcept -> Results::Exit override;
+};
+#endiv
+#divert <ipp>
+#import cli.exits.constants
+namespace app::exception::quitting {
+  Generic::Generic(Old_Style_Program_NOT_New_Style_Console const &prog) : Generic{prog, cli::exits::OK} { }
+  Generic::Generic(Old_Style_Program_NOT_New_Style_Console const &prog, cli::exits::Code code) : Ancestors::Exception{prog, "quitting", code} { }
+}
+#endiv
+#divert <cpp>
+namespace app::exception::quitting {
+  auto Generic::what() const noexcept -> Results::What     { return Ancestors::Exception::what(); }
+  auto Generic::stream() const noexcept -> Results::Stream { return Ancestors::Exception::stream(); }
+  auto Generic::code() const noexcept -> Results::Exit     { return Ancestors::Exception::code(); }
+  auto Generic::exit() const noexcept -> Results::Exit     { return Ancestors::Exception::exit(); }
+}
+// Of course this is test code
+#import tunitas.application.required.exception.Quitting
+#import std.is_abstract
+namespace {
+  namespace testate {
+    using app::exception::quitting::Generic;
+    static_assert(not std::is_abstract_v<Generic>);
+#if 0
+    // doesn't quite qualify any more because Generic(Console const &) instead of Generic(Program const &)
+    static_assert(tunitas::application::required::exception::Quitting<Generic>);
+#endif
+  }
+}
+#endiv

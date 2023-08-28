@@ -1,0 +1,60 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::role {
+  //
+  // The genus is the "name" of a role, by index
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   The Distributed Aggregation Protoco for Privacy-Preserving Measurement
+  //
+  // Design:
+  //
+  //   For now, an enum (class).
+  //   There aren't a lot of roles in the protocol.
+  //
+  // Usage:
+  //
+  //   You need a tutorial on the usage of an enum (class)?
+  //
+  //   The I/O supportis separate (stringification and formatter)
+  //   #import tunitas.denniston.role.io
+  //
+  enum class Genus {
+    CONFIGURATION = -5,
+    DIRECTORY = -4,
+    COLLECTOR = -3,
+    PROCESSOR = -2,
+    // unused value = -1,
+    GATEWAY = 0,
+    CLIENT = 1,
+    // clients are positive numbers and onward and upward
+  };
+}
+#endiv
+#divert <hpp>
+namespace tunitas::denniston::role {
+  inline constexpr auto underlying(Genus n) { return std::underlying_type_t<Genus>(n); }
+  inline auto swap(Genus &a, Genus &b) noexcept -> void { return std::swap(a, b); }
+  //
+  inline constexpr auto is_client(Genus genus) -> bool        { return Genus::CLIENT == genus; }
+  inline constexpr auto is_configuration(Genus genus) -> bool { return Genus::CONFIGURATION == genus; }
+  inline constexpr auto is_collector(Genus genus) -> bool     { return Genus::COLLECTOR == genus; }
+  inline constexpr auto is_directory(Genus genus) -> bool     { return Genus::DIRECTORY == genus; }
+  inline constexpr auto is_gateway(Genus genus) -> bool       { return Genus::GATEWAY == genus; }
+  inline constexpr auto is_processor(Genus genus) -> bool     { return Genus::PROCESSOR == genus; }
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::role {
+  // any?
+}
+#endiv
+#divert <cpp>
+#warning FIXTHIS - ensmoothen rheem::protocol::Role and denniston::role::Genus
+#endiv

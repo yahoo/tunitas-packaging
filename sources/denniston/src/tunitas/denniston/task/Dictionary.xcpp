@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.task.required.dictionary.Valuable
+#import tunitas.denniston.concurrent.dictionary.Dictionary.template // for Complexity, Concurrency, Parameters
+namespace tunitas::denniston::task {
+  //
+  // A dictionary of all the tasks
+  //
+  // Specification:
+  //
+  //   Given an id::Task ...
+  //   Given an index::Task...
+  //   ... find the "preprovisioned" information belonging to it.
+  //
+  //   Has both the content-addressable and the index-addressable capability
+  //
+  // Design:
+  //
+  //   vector maps Index -> Definition
+  //   Not thread-aware (the caller must perform synchronization, if such is necessary)
+  //
+  //   Both Found and Inserted return references into the core dtaa structure.
+  //   The core data structure {vector,deque,etc.}) MUST NOT move its storage over the lifetime of these objects.
+  //
+  // Lifetimes:
+  //
+  //   Whereas Found and Inserted return references.
+  //   lifetime(Found) is invalidated by insert(...)
+  //   lifetime(Inserted) is invalidated by insert(...)
+  //
+  // Usage:
+  //
+  //   As you would.
+  //
+  namespace [[eponymous]] dictionary {
+    template<required::dictionary::Valuable> struct Dictionary;
+    using denniston::concurrent::dictionary::Parameters;
+    using enum denniston::concurrent::dictionary::Complexity;
+    using enum denniston::concurrent::dictionary::Concurrency;
+  }
+  using dictionary::Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.index // for index::Task
+#import tunitas.denniston.concurrent.dictionary.Dictionary
+#import tunitas.rheem.protocol.id // for id::Task
+#import tunitas.denniston.task.usage.dictionary.Valuable
+namespace tunitas::denniston::task {
+  template<required::dictionary::Valuable VALUE> class dictionary::Dictionary : public concurrent::dictionary::Dictionary<LINEAR, SEQUENTIAL, Parameters<rheem::protocol::id::Task, denniston::index::Task, VALUE>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LINEAR, SEQUENTIAL, Parameters<rheem::protocol::id::Task, denniston::index::Task, VALUE>>;
+    static_assert(usage::dictionary::Valuable<VALUE>);
+  public:
+    Dictionary() = default;
+    using Ancestor::Dictionary;
+  };
+}
+#endiv

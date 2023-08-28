@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::job {
+  //
+  // Bookkeeping on a job
+  //
+  // Specifiation:
+  //
+  //   Where is it now in the system?
+  //
+  // Usage:
+  //
+  //   See service::instance::Gateway.
+  //
+  struct Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.id // id::Job, id::Report and so on
+#import tunitas.rheem.protocol.job.Job
+#import tunitas.denniston.report.Series
+#import tunitas.denniston.job.required.iterator.Member
+namespace tunitas::denniston {
+  namespace job {
+    using std::move;
+    inline auto swap(Definition &, Definition &) noexcept -> void;
+    inline auto key_from(Definition const &) -> rheem::protocol::id::Job const &;
+  }
+  class job::Definition : public rheem::protocol::job::Job {
+    using Ancestor = rheem::protocol::job::Job;
+    friend auto job::swap(Definition &, Definition &) noexcept -> void;
+  public:
+    Definition() = default;
+    using Ancestor::Job;
+    template<required::iterator::Member ITERATOR> inline [[implicit]] Definition(rheem::protocol::id::Job, ITERATOR start, ITERATOR finish);
+    //
+    report::Series<rheem::protocol::id::Report> members{};
+ };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto job::key_from(Definition const &m) -> rheem::protocol::id::Job const & { return m.id; }
+  auto job::swap(Definition &a, Definition &b) noexcept -> void {
+    Definition::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+    swap(a.members, b.members);
+  }
+  namespace job {
+    template<required::iterator::Member ITERATOR> Definition::Definition(rheem::protocol::id::Job id, ITERATOR start, ITERATOR finish)
+      : Ancestor{move(id)}
+      , members{start, finish}
+    { }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.concurrent.dictionary.usage.Key_From
+namespace {
+  namespace testate {
+    namespace usage = tunitas::denniston::concurrent::dictionary::usage;
+    using namespace tunitas::denniston::job;
+    //
+    // At present this thing is semiregular, though we might move it to uncopyable-but-movable.
+    static_assert(std::semiregular<Definition>);
+    // and moreso
+    static_assert(    std::is_default_constructible_v<Definition>);
+    static_assert(true || not std::is_copy_constructible_v<Definition>);
+    static_assert(    std::is_move_constructible_v<Definition>);
+    static_assert(true ||not std::is_copy_assignable_v<Definition>);
+    static_assert(    std::is_move_assignable_v<Definition>);
+    static_assert(    std::is_swappable_v<Definition>);
+    //
+    static_assert(usage::Key_From<Definition>);
+  }
+}
+#endiv

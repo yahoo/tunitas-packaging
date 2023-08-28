@@ -1,0 +1,179 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.time.literals
+namespace app::flow::options {
+  //
+  // The options parser.
+  //
+  // Specification:
+  //
+  //   Whatever the usage says.
+  //   Accepts a c::Argv
+  //   Reorders the Argv according to the machinations within getopt(3).
+  //
+  // Design:
+  //
+  //   Yes.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Parser) < lifetime(cfg)
+  //   lifetime(Parser) < lifetime(spec)
+  //
+  //   The lifetime of the Configuration (cfg) must be longer than the Parser.
+  //   The lifetime of the Specification (spec) must be longer than the Parser.
+  //
+  // Exceptions:
+  //
+  //   If the parser cannot consume the options (i.e. the luser gave erroneous input)
+  //
+  // Usage:
+  //
+  //   auto spec = Specification{};
+  //   auto parser = Parser{cfg, spec};
+  //   auto parsed = parser.parse(args);
+  //   if (ok(parsed)) {
+  //     ...etc...
+  //   }
+  //
+  namespace [[eponymous]] parser {
+    class Parser;
+    using namespace tunitas::time::literals;
+    namespace time = tunitas::time;
+  }
+  using parser::Parser;
+}
+#endiv
+#divert <hpp>
+#import app.flow.Configuration
+#import app.flow.options.Specification
+#import cli.experience.Console
+#import tunitas.application.options.Args
+#import tunitas.application.options.get.Limits
+#import tunitas.time.duration_cast
+#import tunitas.time.ratio
+#import std.int64_t
+struct app::flow::options::parser::Parser {
+  inline explicit Parser([[inout]] cli::experience::Console &, Specification const &);
+  // disallow temporaries in places where the lifetimes matter
+  inline Parser(Specification &&) = delete;
+  struct Result;
+  auto parse([[inout]] Configuration &, [[inout]] Args &) -> Result;
+protected:
+  cli::experience::Console &exp;
+  Specification const &specification;
+  struct Limits {
+    struct Lifetime {
+      // Whereas durations are normally signed quantities.
+      using Value = std::int64_t;
+      inline static constexpr auto min() -> Value { return 0ll; }
+      inline static constexpr auto max() -> Value { return time::duration_cast<time::durations::Second>(MAX).count(); }
+    private:
+      inline static constexpr auto MAX = 100_days;
+    };
+  };
+};
+#import app.flow.options.Parser.Result
+#endiv
+#divert <ipp>
+#import app.flow.options.Specification
+namespace app::flow::options::parser {
+  Parser::Parser(cli::experience::Console &exp, Specification const &specification)
+    : exp{exp}
+    , specification{specification}
+  { }
+}
+#endiv
+#divert <cpp>
+#import app.exception.Quitting
+#import app.exception.quitting.Programmatic
+#import app.exception.Version
+#import app.flow.exception.Usage
+#import app.flow.options.indicator.constants
+#import cli.options.dualie.Getter
+#import cli.exits.constants
+#import tunitas.application.options.get_integer
+namespace app::flow::options::parser {
+  auto Parser::parse(Configuration &cfg, Args &args) -> Result {
+    auto getter = cli::options::dualie::Getter{specification.shortish(), specification.longish(), args};
+    for (auto step=getter(); more(step); step=getter()) {
+      namespace oi = indicator;
+      switch (code(step)) {
+      case oi::CHR_D:
+      case oi::DEBUG_MODE:
+        cfg.debug_mode = true;
+        break;
+      case oi::OLD_DEBUG_MODE:
+        warning(exp) << "instead prefer --DEBUG (upper case)\n";
+        cfg.debug_mode = true;
+        break;
+      case oi::CHR_h:
+      case oi::USAGE_SUBCOMMAND:
+        throw exception::Usage{exp, cli::exits::OK};
+      case oi::CHR_i:
+      case oi::INTERACTIVE_MODE:
+        cfg.interactive_mode = true;
+        break;
+      case oi::CHR_p:
+      case oi::PROGRAMMATIC_MODE:
+        cfg.programmatic_mode = true;
+        break;
+      case oi::CHR_q:
+      case oi::QUIET_MODE:
+        cfg.quiet_mode = true;
+        break;
+      case oi::CHR_v:
+      case oi::VERBOSE_MODE:
+        cfg.verbose_mode = true;
+        break;
+      case oi::CHR_w:
+      case oi::WARNINGS_MODE:
+        cfg.warning_mode = true;
+        break;
+      case oi::CHR_V:
+      case oi::VERSION_SUBCOMMAND:
+        throw exception::Version{exp};
+      case oi::CHR_y:
+      case oi::DRYRUN_MODE:
+        cfg.dry_run_mode = true;
+        break;
+      case oi::CHR_l:
+      case oi::SIMULATION_LIFETIME:
+        {
+          auto raw = get_integer<Limits::Lifetime::Value, exception::quitting::Programmatic, Limits::Lifetime>(exp, step, "simulation-lifetime");
+          auto cooked = time::duration::Second{raw};
+          if (0_second == cooked) {
+            notice(exp) << "running the simulation for zero seconds will shut it down immediately after initialization\n";
+          }
+          verbose(exp) << "the simulation lifetime will be " << cooked << '\n';
+          cfg.simulation_lifetime = cooked;
+        }
+        break;
+      case oi::MISSING:
+        error(exp) << "missing value for " << word_in_error(step) << '\n';
+        throw exception::Quitting{exp, cli::exits::USAGE};
+        // return cli::exits::USAGE;
+      case oi::UNKNOWN:
+        error(exp) << "unknown option " << word_in_error(step) << '\n';
+        throw exception::Quitting{exp, cli::exits::USAGE};
+        // return cli::exits::USAGE;
+      default:
+        // This is a programmer error (reasonably it is a logic_error) because some option from the argv line wasn't configured.
+        // It is also substantially untestable in a correctly configured system.
+        error(exp) << "unconfigured option '" << char(code(step)) << "'\n";
+        throw exception::Quitting{exp, cli::exits::SOFTWARE};
+      }
+    }
+    if (getter.size()) {
+      error(exp) << "there may not be any words after the options\n";
+      throw exception::Quitting{exp, cli::exits::USAGE};
+    } else {
+      return {getter.begin(), getter.end()};
+    }
+  }
+}
+#endiv

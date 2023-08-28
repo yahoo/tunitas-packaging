@@ -1,0 +1,173 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.InstanceOf
+#import tests.unit.required // ctcnr (cascade that certain 'namespace required')
+#import tunitas.denniston.job.Dictionary
+namespace tests::unit::job {
+  //
+  // This test is substantially overkill at this point.
+  // The test rigging for concurrent::Dictionary<...> already tests each of these interfaces.
+  //
+  template<required::InstanceOf<library::Dictionary> SUBJECT> struct Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.identifier.Generator
+#import tunitas.denniston.job.Dictionary
+#import tunitas.denniston.job.Definition
+#import tunitas.denniston.job.Corpus
+namespace tests::unit {
+  template<required::InstanceOf<job::library::Dictionary>SUBJECT> struct job::Dictionary : public rigging::suite::Fixture {
+    static auto suite() -> Suite;
+    //
+    using Subject = SUBJECT;
+    //
+    auto test_constructor_default() -> void;
+    auto test_insert_good() -> void;
+    auto test_insert_fail() -> void;
+    auto test_find_good() -> void;
+    auto test_find_fail() -> void;
+    auto test_at_good() -> void;
+    auto test_at_fail() -> void;
+    auto test_begin_end_mutable() -> void;
+    auto test_begin_end_constie() -> void;
+  protected:
+    using Generator = ::tunitas::rheem::identifier::Generator<::tunitas::rheem::protocol::id::Task, ::tunitas::rheem::identifier::generator::Policy::SUPPLIED>;
+    Generator generate{};
+    inline static auto definition_location([[inout]] typename Subject::Value &) -> library::Definition &;
+  };
+  namespace job {
+    template<> inline auto Dictionary<library::Dictionary<library::Definition>>::definition_location(typename Subject::Value &that) -> library::Definition & { return that; }
+    template<> inline auto Dictionary<library::Dictionary<library::Corpus<::tunitas::denniston::Genus::COLLECTOR>>>::definition_location(typename Subject::Value &that) -> library::Definition & { return that.definition; }
+    template<> inline auto Dictionary<library::Dictionary<library::Corpus<::tunitas::denniston::Genus::GATEWAY>>>::definition_location(typename Subject::Value &that) -> library::Definition &   { return that.definition; }
+    template<> inline auto Dictionary<library::Dictionary<library::Corpus<::tunitas::denniston::Genus::PROCESSOR>>>::definition_location(typename Subject::Value &that) -> library::Definition & { return that.definition; }
+  }
+}
+#endiv
+#divert <tpp>
+namespace tests::unit::job {
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::suite() -> Suite {
+    auto series = Stream{typeid(Subject)};
+    series << []{
+                auto con = Stream{"constructor"sv};
+                con << add("default", &Dictionary::test_constructor_default)
+                    << END;
+                return con;
+              }()
+           << []{
+                auto ins = Stream{"insert"sv};
+                ins << add("good", &Dictionary::test_insert_good)
+                    << add("fail", &Dictionary::test_insert_fail)
+                    << END;
+                return ins;
+              }()
+           << []{
+                auto fin = Stream{"find"sv};
+                fin << add("good", &Dictionary::test_find_good)
+                    << add("fail", &Dictionary::test_find_fail)
+                    << END;
+                return fin;
+              }()
+           << []{
+                auto at = Stream{"at"sv};
+                at << add("good", &Dictionary::test_at_good)
+                   << add("fail", &Dictionary::test_at_fail)
+                   << END;
+                return at;
+              }()
+           << []{
+                auto be = Stream{"begin-end"sv};
+                be << add("constie", &Dictionary::test_begin_end_constie)
+                   << add("mutable", &Dictionary::test_begin_end_mutable)
+                   << END;
+                return be;
+              }()
+           << END;
+    return settle(series);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_constructor_default() -> void {
+    auto subject = Subject{}; // <---------------------------------------------------- test this
+    require(ASSERTION, subject.empty());
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_insert_good() -> void {
+    auto subject = Subject{};
+    auto const &[noob, inserted] = subject.insert({}); // <------- test this
+    definition_location(noob).id = generate(99u);
+    require(ASSERTION, inserted);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_insert_fail() -> void {
+    auto subject = Subject{};
+    subject.insert({});
+    auto const &[noob, inserted] = subject.insert({}); // <------ test this (already inserted)
+    require(ASSERTION, !inserted);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_find_good() -> void {
+    auto subject = Subject{};
+    subject.insert({});
+    auto found = subject.find({}); // <------------------------- test this (was already inserted)
+    require(ASSERTION, true == (bool) found);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_find_fail() -> void {
+    auto subject = Subject{};
+    subject.insert({});
+    auto found = subject.find(generate(99u)); // <------------------- test this (was not already inserted)
+    require(ASSERTION, false == (bool) found);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_at_good() -> void {
+    auto subject = Subject{};
+    subject.insert({});
+    auto found = subject.at(typename Subject::Index{0}); // <------------------------- test this (was already inserted)
+    require(ASSERTION, true == (bool) found);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_at_fail() -> void {
+    auto subject = Subject{};
+    subject.insert({});
+    auto found = subject.at(typename Subject::Index{99u}); // <------------------- test this (was not already inserted)
+    require(ASSERTION, false == (bool) found);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_begin_end_constie() -> void {
+    constexpr auto const COUNT = 6uz;
+    auto const subject = [this]{ // <---------------------------------------- constie subject
+                           auto ret = Subject{};
+                           for (auto i{0uz}, e{COUNT}; e != i; ++i) {
+                             auto spec = typename Subject::Value{};
+                             definition_location(spec).id = generate(i);
+                             auto [noob, inserted] = ret.insert(move(spec));
+                             require(ASSERTION, inserted);
+                           }
+                           return ret;
+                         }();
+    require(ASSERTION, COUNT == subject.size());
+    auto recount{0uz};
+    for (auto locked=subject.range(); auto const &place : locked) { // <---------------------------------------- test this (on constie subject)
+      ++recount;
+      require(ASSERTION, sizeof (place));
+    }
+    require(ASSERTION, COUNT == recount);
+  }
+  template<required::InstanceOf<library::Dictionary>_> auto Dictionary<_>::test_begin_end_mutable() -> void {
+    constexpr auto const COUNT = 6uz;
+    auto subject = [this]{
+                     auto ret = Subject{};
+                     for (auto i{0uz}, e{COUNT}; e != i; ++i) {
+                       auto spec = typename Subject::Value{};
+                       definition_location(spec).id = generate(i);
+                       auto [noob, inserted] = ret.insert(move(spec));
+                       require(ASSERTION, inserted);
+                     }
+                     return ret;
+                   }();
+    require(ASSERTION, COUNT == subject.size());
+    auto recount{0uz};
+    for (auto locked=subject.range(); auto &place : locked) { // <---------------------------------------- test this (on mutable subject)
+      ++recount;
+      require(ASSERTION, sizeof (place));
+    }
+    require(ASSERTION, COUNT == recount);
+  }
+}
+#endiv

@@ -1,0 +1,95 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::companion {
+  //
+  // The barrier for the scripting
+  //
+  // Specification:
+  //
+  //   The ability to wait for a condition.
+  //   Others will notify() the barrier to remind the scheduler to reevaluate the waited-for condition.
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  //   <quote ref="https://en.cppreference.com/w/cpp/thread/condition_variable">
+  //     Any thread that intends to wait on std::condition_variable has to
+  //     1. acquire a std::unique_lock<std::mutex>, on the same mutex as used to protect the shared variable
+  //     2. either
+  //        a. check the condition, in case it was already updated and notified
+  //        b. execute wait, wait_for, or wait_until.
+  //     The wait operations atomically release the mutex and suspend the execution of the thread.
+  //     When the condition variable is notified, a timeout expires, or a spurious wakeup occurs,
+  //     the thread is awakened, and the mutex is atomically reacquired.
+  //     The thread should then check the condition and resume waiting if the wake up was spurious.
+  //     The use the predicated overload of wait, wait_for, and wait_until, which takes care of the three steps above.
+  //   </quote>
+  //
+  // Usage:
+  //
+  //   Reader                Executor
+  //   ------------------------------------
+  //   barrier.notify()      ....
+  //   ....                  barrier.wait(...predicate...)
+  //   barrier.notify()      ....
+  //   ....                  barrier.wait(...predicate...)
+  //   barrier.notify()      ....
+  //   ....                  barrier.wait(...predicate...)
+  //
+  //   And so on
+  //
+  struct Barrier;
+}
+#endiv
+#divert <hpp>
+#import std.mutex
+#import std.condition_variable
+#import std.invocable
+#forward tunitas.denniston.process.Model
+#forward tunitas.denniston.process.companion.Prototype
+class tunitas::denniston::process::companion::Barrier {
+  using Condition = std::condition_variable;
+  using Mutex = std::mutex;
+  struct Guard;
+  Condition when{};
+  Mutex mutex{};
+  using Process = process::Model; // ............ the non-template parts of Model (which is not a template)
+  using Subprocess = companion::Prototype; // ... the non-template parts of the Submodel<PROCESS>
+  Process &owner;
+  Subprocess &self;
+public:
+  inline explicit Barrier(Process &, Subprocess &);
+  inline auto notify() -> void;
+  template<std::invocable<> PREDICATE> auto wait(PREDICATE predicate) -> void;
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::companion {
+  Barrier::Barrier(Process &o, Subprocess &s) : owner{o}, self{s} { }
+  auto Barrier::notify() -> void { when.notify_all(); }
+}
+#endiv
+#divert <tpp>
+#import tunitas.denniston.process.Model
+#import tunitas.denniston.process.companion.Barrier.Guard
+#import tunitas.denniston.process.companion.Prototype
+#import tunitas.denniston.process.companion.Shutdown
+namespace tunitas::denniston::process::companion {
+  template<std::invocable<> PREDICATE> auto Barrier::wait(PREDICATE caller_predicate) -> void {
+    auto stop_when = [this, caller_predicate]{
+      if (self.lifestage.guarded().is(Lifestage::DOOMED) || owner.is_shutting_down()) {
+        throw Shutdown{};
+      } else {
+        return caller_predicate();
+      }
+    };
+    auto lock = Guard{mutex};
+    when.wait(lock, stop_when);
+  }
+}
+#endiv

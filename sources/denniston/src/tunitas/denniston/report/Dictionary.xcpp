@@ -1,0 +1,52 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.required.Valuable
+#import tunitas.denniston.concurrent.dictionary.Dictionary.template // for enums Complexity, Concurrency and Parameters<....>
+namespace tunitas::denniston::report {
+  //
+  // A (sequential) dictionary of reports.
+  //
+  // Scope:
+  //
+  //   For bookkeeping the awaiting-outbound and awaiting-return work.
+  //
+  // Specification:
+  //
+  //   The sequential dictionary interface.
+  //
+  // Design.
+  //
+  //   Off The Shelf.
+  //
+  // Usage:
+  //
+  //   As espected.
+  //
+  namespace [[eponymous]] dictionary {
+    template<required::Valuable> struct Dictionary;
+    using denniston::concurrent::dictionary::Parameters;
+    using enum denniston::concurrent::dictionary::Complexity;
+    using enum denniston::concurrent::dictionary::Concurrency;
+  }
+  using dictionary::Dictionary;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.index // not needed unless LINEAR
+#import tunitas.rheem.protocol.id // for id::Report
+#import tunitas.denniston.report.usage.Valuable
+#import tunitas.denniston.concurrent.dictionary.Dictionary
+namespace tunitas::denniston::report {
+  template<required::Valuable VALUE> struct dictionary::Dictionary : public concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Report, VALUE>> {
+    using Ancestor = denniston::concurrent::dictionary::Dictionary<LOGARITHMIC, SEQUENTIAL, Parameters<rheem::protocol::id::Report, VALUE>>;
+    static_assert(usage::Valuable<VALUE>);
+  public:
+    Dictionary() = default;
+    using Ancestor::Dictionary;
+  };
+}
+#endiv

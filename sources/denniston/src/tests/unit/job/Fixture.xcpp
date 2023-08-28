@@ -1,0 +1,65 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::job { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.Genus
+struct tests::unit::job::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Definition() -> void;
+  auto test_usage_Dictionary() -> void;
+  using Genus = ::tunitas::denniston::Genus;
+  template<typename CORPUS> auto test_usage_Corpus() -> void;
+};
+#endiv
+#divert <tpp>
+namespace tests::unit::job {
+  template<typename CORPUS> auto Fixture::test_usage_Corpus() -> void {
+    using Subject = CORPUS;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof(subject));
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.task.Corpus
+auto tests::unit::job::Fixture::suite() -> Suite {
+  auto series = Stream{"job"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Definition", &Fixture::test_usage_Definition)
+                  << add("Dictionary", &Fixture::test_usage_Dictionary)
+                  << []{
+                       auto corp = Stream{"Corpus"sv};
+                       corp << add("COLLECTOR", &Fixture::test_usage_Corpus<library::Corpus<Genus::COLLECTOR>>)
+                            << add("GATEWAY", &Fixture::test_usage_Corpus<library::Corpus<Genus::GATEWAY>>)
+                            << add("PROCESSOR", &Fixture::test_usage_Corpus<library::Corpus<Genus::PROCESSOR>>)
+                            << END;
+                       return corp;
+                     }()
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.job.Definition
+#import tunitas.denniston.job.Dictionary
+namespace tests::unit::job {
+  auto Fixture::test_usage_Definition() -> void {
+    using Subject = library::Definition;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Dictionary() -> void {
+    using Subject = library::Dictionary<library::Definition>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv

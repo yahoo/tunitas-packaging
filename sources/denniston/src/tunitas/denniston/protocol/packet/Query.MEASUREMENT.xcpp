@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet.Query.template
+namespace tunitas::denniston::protocol::packet {
+  //
+  // Semantic:
+  //
+  //   The Collector is asking the Gateway (service) for the measurement indicated by the (given) task.
+  //
+  // Design:
+  //
+  //   No.  Yeah No.  No Yeah.
+  //   In point of fact, there is a design decision here.
+  //   To wit: the use of inheritance prevents the use of designated initialization.
+  //
+  // Response:
+  //
+  //   Success returns a Response<MEASUREMENT>
+  //   Failure returns a Status
+  //
+  template<> struct Query<Get::MEASUREMENT>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.packet._.task.Query
+namespace tunitas::denniston::protocol::packet {
+  template<> class Query<Get::MEASUREMENT> : public _::task::Query {
+    using Ancestor = _::task::Query;
+  public:
+    explicit Query() = default;
+    using Ancestor::Query;
+  };
+}
+#endiv

@@ -1,0 +1,55 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+namespace nonstd::iterator {
+  //
+  // Elide the difficulty of identifying the qualified iterator name.
+  //
+  // Specification:
+  //
+  //   The default implementation assumes the existence of (lower-case)
+  //     iterator
+  //     const_iterator
+  //
+  // Design:
+  //
+  //   This is a library customization point.
+  //   There are no concept guards here because userland usages may need the freedom.
+  //
+  // Usage:
+  //
+  //   Oh come on.
+  //
+  //   struct Records ... a container of some sort.
+  //
+  //   using Mutator = iterator::Qualified<Records>::Type;
+  //   using Observer = iterator::Qualified<Records const>::Type;
+  //
+  template<typename CONTAINER> struct Qualified;
+  template<typename CONTAINER> struct Qualified<CONTAINER const>;
+  template<typename CONTAINER> struct Qualified<CONTAINER volatile>;
+  template<typename CONTAINER> struct Qualified<CONTAINER const volatile>;
+}
+#endiv
+#divert <hpp>
+namespace nonstd {
+  template<typename CONTAINER> struct iterator::Qualified {
+    using Type = typename CONTAINER::iterator;
+    using type [[deprecated("instead prefer Qualified<CONTAINER>::Type")]] = Type;
+    // The common mistakes
+    using Iterator [[deprecated("instead prefer Qualified<CONTAINER>::Type")]] = Type;
+    using iterator [[deprecated("instead prefer Qualified<CONTAINER>::Type")]] = Type;
+  };
+  namespace iterator {
+    template<typename CONTAINER> struct Qualified<CONTAINER const> {
+      using Type = typename CONTAINER::const_iterator;
+      using type [[deprecated("instead prefer Qualified<CONTAINER const>::Type")]] = Type;
+      // The common mistakes
+      using Iterator [[deprecated("instead prefer Qualified<CONTAINER const>::Type")]] = Type;
+      using iterator [[deprecated("instead prefer Qualified<CONTAINER const>::Type")]] = Type;
+    };
+    template<typename CONTAINER> struct Qualified<CONTAINER volatile> : public Qualified<CONTAINER> { };
+    template<typename CONTAINER> struct Qualified<CONTAINER const volatile> : public Qualified<CONTAINER const> { };
+  }
+}
+#endiv

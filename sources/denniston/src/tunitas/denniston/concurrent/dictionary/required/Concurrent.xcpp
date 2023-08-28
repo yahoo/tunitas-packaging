@@ -1,0 +1,17 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.concurrent.dictionary.linear.Concurrent
+#forward tunitas.denniston.concurrent.dictionary.logarithmic.Concurrent
+#import std.remove_const
+#import nonstd.required.InstanceOf
+namespace tunitas::denniston::concurrent::dictionary::required {
+  //
+  // A concurrent dictionary, of some complexity, constie or mutable
+  //
+  template<typename DICTIONARY> concept Concurrent = InstanceOf<std::remove_const_t<DICTIONARY>, dictionary::linear::Concurrent> || InstanceOf<std::remove_const_t<DICTIONARY>, dictionary::logarithmic::Concurrent>;
+}
+#endiv

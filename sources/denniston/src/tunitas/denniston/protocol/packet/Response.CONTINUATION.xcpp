@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet.Response.template
+namespace tunitas::denniston::protocol::packet {
+  //
+  // Semantic:
+  //
+  //   The response from the Processor after performing the continuation step.
+  //   Will appear back at the service::instance::Gateway.
+  //
+  // Design:
+  //
+  //   The manifest constructors in ileu of aggregate or designated constructors allows make<...>(...) to work.
+  //
+  // Usage:
+  //
+  //   auto res = rheem::protocol::continuation::Response{...somehow...};
+  //
+  //   auto made = make<Response<continuation>>(move(res));
+  //
+  template<> struct Response<Get::CONTINUATION>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.packet.Prototype
+#import tunitas.rheem.protocol.id // for id::Job
+#import tunitas.rheem.protocol.continuation.Response
+namespace tunitas::denniston::protocol::packet {
+  template<> struct Response<Get::CONTINUATION> : public Prototype {
+    using Destination = rheem::protocol::id::Job;
+    using Payload = rheem::protocol::continuation::Response;
+    Destination destination{};
+    Payload payload{};
+    inline explicit Response(Destination, Payload);
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol::packet {
+  Response<Get::CONTINUATION>::Response(Destination d, Payload p)
+    : destination{move(d)}
+    , payload{move(p)}
+  { }
+}
+#endiv

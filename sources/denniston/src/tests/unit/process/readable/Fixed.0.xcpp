@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tests.unit.process.readable.Fixed.template
+namespace tests::unit::process::readable {
+  template<> auto Fixed<library::Fixed<0>>::test_constructor() -> void;
+  template<> auto Fixed<library::Fixed<0>>::test_lock() -> void;
+  template<> auto Fixed<library::Fixed<0>>::test_unlock_all() -> void;
+  template<> auto Fixed<library::Fixed<0>>::test_unlock_first() -> void;
+  template<> auto Fixed<library::Fixed<0>>::test_unlock_rest() -> void;
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::process::readable {
+  template<> auto Fixed<library::Fixed<0>>::test_constructor() -> void {
+    auto subject = Subject{ready};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<> auto Fixed<library::Fixed<0>>::test_lock() -> void {
+    auto subject = Subject{ready};
+    subject.lock(); // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<> auto Fixed<library::Fixed<0>>::test_unlock_all() -> void {
+    auto subject = Subject{ready};
+    subject.lock();
+    subject.unlock(); // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<> auto Fixed<library::Fixed<0>>::test_unlock_first() -> void {
+    auto subject = Subject{ready};
+    subject.lock();
+    subject.unlock_first(); // <---------------------------------------- test this
+  }
+  template<> auto Fixed<library::Fixed<0>>::test_unlock_rest() -> void {
+    auto subject = Subject{ready};
+    subject.lock();
+    subject.unlock_rest(); // <---------------------------------------- test this
+  }
+}
+#endiv

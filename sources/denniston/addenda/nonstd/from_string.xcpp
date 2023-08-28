@@ -1,0 +1,42 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <hpp>
+#import nonstd.Outcome
+#import nonstd.required.Number
+#import nonstd.required.Character
+#import nonstd.required.Character_Traits
+#import nonstd.required.Allocator
+#import std.basic_string
+namespace nonstd {
+  //
+  // Convert a string to a Number (being an Integer or a Floating (being float, double, long double))
+  //
+  // Specification:
+  //
+  //   Return an outcomje
+  //
+  // Design:
+  //
+  //   Underneath we have to use the standard-suppled from_chars, opeator>> or whatever is available for the character type
+  //
+  // Usage:
+  //
+  //   using Number = one among the integers the floating point types.
+  //
+  //   auto specimen = "...somehow...";
+  //   auto got = from_string<Number>(specimen);
+  //   if (good(got)) {
+  //     auto recovered = value(move(got));
+  //     ...celebrate...
+  //   } else {
+  //     auto recovered = error_code(got);
+  //     ..complain...
+  //   }
+  //
+  template<required::Number NUMBER, required::Character CHAR, required::Character_Traits TRAITS, required::Allocator ALLOCATOR> inline auto from_string(std::basic_string<CHAR, TRAITS, ALLOCATOR> const &) -> Outcome<NUMBER>;
+}
+#endiv
+#divert <ipp>
+#import nonstd.from_string_view
+template<nonstd::required::Number NUMBER, nonstd::required::Character CHAR, nonstd::required::Character_Traits TRAITS, nonstd::required::Allocator ALLOCATOR> auto nonstd::from_string(std::basic_string<CHAR, TRAITS, ALLOCATOR> const &s) -> Outcome<NUMBER> { return from_string_view<NUMBER, CHAR, TRAITS>(s); }
+#endiv

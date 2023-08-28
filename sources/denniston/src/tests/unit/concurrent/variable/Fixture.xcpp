@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::concurrent::variable { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::concurrent::variable::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Variable() -> void;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::concurrent::variable::Fixture::suite() -> Suite {
+  auto series = Stream{"variable"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Variable", &Fixture::test_usage_Variable)
+                  << END;
+              return use;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.concurrent.variable.Variable
+namespace tests::unit::concurrent::variable {
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = library::Variable<int>;
+    auto subject = Subject{};
+    auto has0 = subject.has_value();
+    require(ASSERTION, !has0);
+    subject = 1;
+    auto has1 = subject.has_value();
+    require(ASSERTION, has1);
+    { auto ref = subject.ref();
+      require(ASSERTION, 1 == *ref); }
+    { auto got = *subject;
+      require(ASSERTION, 1 == got); }
+  }
+}
+#endiv

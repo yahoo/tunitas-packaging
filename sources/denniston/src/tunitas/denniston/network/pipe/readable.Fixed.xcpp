@@ -1,0 +1,82 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::pipe::readable {
+  //
+  // The fixed-length implementation of the multi-pipe readability (for the process)
+  //
+  // Specification:
+  //
+  //   Survey the pipe to see what is readable.
+  //
+  //   For is_ready_to_read, the caller MUST provide the guarding locks.
+  //
+  // Design:
+  //
+  //   Obeys the process::Readable protocol.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Readable) < lifetime(ready)
+  //   lifetime(Readable) < lifetime(pipe) \forall pipes
+  //
+  // Usage:
+  //
+  //   see process::Ready
+  //
+  template<Size N> struct Fixed;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.network.pipe.Pipe
+#forward tunitas.denniston.network.pipe.Pollability
+#import tunitas.denniston.network.pipe.required.Pollabilities
+#forward tunitas.denniston.process.Ready
+#import tunitas.denniston.process.readable.Fixed
+namespace tunitas::denniston::network::pipe {
+  template<typename... TYPES> inline auto make_fixed_readable(process::Ready &, Pipe<TYPES> &...) -> readable::Fixed<sizeof...(TYPES)>;
+  template<Size N> class readable::Fixed : public process::readable::Fixed<N> {
+    using Ancestor = process::readable::Fixed<N>;
+  protected:
+    Pollability *pollability[N];
+  public:
+    template<typename... POLLABILITIES> requires required::Pollabilities<POLLABILITIES...> Fixed(process::Ready &, POLLABILITIES &...) requires (N == sizeof...(POLLABILITIES));
+    auto is_ready_to_read() -> bool override;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::network {
+  template<typename... TYPES> auto pipe::make_fixed_readable(process::Ready &ready, Pipe<TYPES> &...pipes) -> readable::Fixed<sizeof...(TYPES)> { return {ready, pipes...}; }
+  namespace pipe::readable {
+    template<Size N> template<typename... POLLABILITIES> requires required::Pollabilities<POLLABILITIES...> Fixed<N>::Fixed(process::Ready &first, POLLABILITIES &...rest) requires (N == sizeof...(POLLABILITIES))
+      : Ancestor{first, rest.variables.lock...}
+      , pollability{&rest...}
+    { }
+  }
+}
+#endiv
+#divert <tpp>
+namespace tunitas::denniston::network::pipe::readable {
+  template<Size _> auto Fixed<_>::is_ready_to_read() -> bool {
+    for (auto place : pollability) {
+      if (place->is_ready_to_read()) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::pipe::readable;
+    static_assert(not std::is_abstract_v<Fixed<0>>);
+    static_assert(not std::is_abstract_v<Fixed<1>>);
+  }
+}
+#endiv

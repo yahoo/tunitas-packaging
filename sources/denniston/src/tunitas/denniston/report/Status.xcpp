@@ -1,0 +1,77 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::report {
+  //
+  // The status of a report as it moves thorugh the DAP ({Distributed,Decentralized} Aggregation Protocol)
+  //
+  // Specification:
+  //
+  //   Continued, Finished, Failed.
+  //
+  // Design:
+  //
+  //   We've got an enum for that.
+  //   Specifically Step::Result.
+  //
+  // Usage:
+  //
+  //   see service::gateway::subprocess::Job
+  //
+  struct Status;
+}
+#endiv
+#divert <hpp>
+#import tunitas.rheem.protocol.preparation.Step
+#import nonstd.required.Constructible_From
+namespace tunitas::denniston {
+  namespace report {
+    using std::move;
+    inline auto swap(Status &, Status &) noexcept -> void;
+  }
+  class report::Status : public rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED> {
+    using Ancestor = rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>;
+    friend auto swap(Status &, Status &) noexcept -> void;
+  public:
+    Status() = default;
+    using Ancestor::Step;
+    inline Status(Ancestor);
+    inline auto operator=(Ancestor) -> Status &;
+  };
+  static_assert(nonstd::required::Constructible_From<report::Status, rheem::protocol::preparation::Step<rheem::protocol::preparation::Mark::POSITIONED>>);
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto report::swap(Status &a, Status &b) noexcept -> void {
+    Status::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+  namespace report {
+    Status::Status(Ancestor a) : Ancestor{move(a)} { }
+    auto Status::operator=(Ancestor a) -> Status & {
+      Ancestor::operator=(move(a));
+      return *this;
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::report;
+    //
+    static_assert(std::semiregular<Status>);
+    //
+    static_assert(std::is_default_constructible_v<Status>);
+    static_assert(std::is_copy_constructible_v<Status>);
+    static_assert(std::is_move_constructible_v<Status>);
+    static_assert(std::is_copy_assignable_v<Status>);
+    static_assert(std::is_move_assignable_v<Status>);
+    static_assert(std::is_swappable_v<Status>);
+  }
+}
+#endiv

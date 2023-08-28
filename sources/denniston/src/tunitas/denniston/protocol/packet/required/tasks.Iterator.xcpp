@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.iterator.Forward
+#import nonstd.required.iterator.Producing
+#import tunitas.denniston.task.Definition
+#import std.remove_reference
+namespace tunitas::denniston::protocol::packet::required::tasks {
+  //
+  // Produce some task:Definitions
+  // MUST produce the task by value (task:Definition) for copy or by constie reference
+  // MUST  NOT by lvalue reference (task:Definition &&) for move
+  // Check the iterator for specific return of task:Definition or task:Definition const &; never task:Definition &
+  //
+  // This DOES NOT handle the ancestry of rheem::protocol::task::task:Definition into denniston::task::task:Definition
+  // or the implicit prmotion (conversion) of rheem::protocol::task::task:Definition into denniston::task::task:Definition.
+  // See the hardcoding of the denniston task:Definition.
+  // We're trading denniston tasks around, sot his is appropriate.
+  //
+  namespace [[eponymous]] eponymous_iterator {
+    template<typename VALUE, typename MATCH> concept Copying = convertible_to<VALUE, MATCH>; // a new (copied) value, not a reference to the old one
+    template<typename ITERATOR, typename MATCH> concept Iterator_Producing = requires(ITERATOR) {
+      requires iterator::Forward<ITERATOR>;
+      requires requires(MATCH, ITERATOR const constie, ITERATOR writing) {
+        requires iterator::Producing<ITERATOR, MATCH>; // ... which is too vague
+        { *constie } -> Copying<MATCH>;
+        { *writing } -> Copying<MATCH>;
+      };
+    };
+    template<typename ITERATOR> concept Iterator = Iterator_Producing<ITERATOR, denniston::task::Definition>;
+  }
+  using eponymous_iterator::Iterator;
+}
+#endiv

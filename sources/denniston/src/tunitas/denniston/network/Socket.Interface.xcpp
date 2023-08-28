@@ -1,0 +1,126 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// The socket ineterface
+//
+// Specification:
+//
+//   Interfaces are light-to-copy.
+//   The operation (read & write) have move semantics; moving the packets.
+//   The read operation blocks.
+//   The read_if operation does not block but returns an optional
+//
+//   is_blocked() and notify() are used in finalization towards thread termination (not in steady state)
+//
+// Design:
+//
+//   Just what you see.
+//
+// Usage:
+//
+//   auto face = ...somehow...
+//
+//   auto pack = face.read());
+//   auto maybe = face.read_if();
+//   face.write(move(move(pack)));
+//   
+#include <hpp/tunitas.denniston.network.Socket>
+#endiv
+#divert <hpp>
+static_assert(sizeof (tunitas::denniston::network::Socket));
+static_assert(sizeof (tunitas::denniston::network::Socket::Interface *));
+#forward tunitas.denniston.process.Ready
+#import tunitas.Optional
+#import tunitas.denniston.network.required.iterator.Socket_Move
+#forward tunitas.denniston.world.binder.Linkage
+namespace tunitas::denniston::network {
+  struct Socket::Interface {
+    using Value = Socket::Value;
+    using Pipe = network::Pipe<Value>; // same as Socket::Pipe, but that is protected and Interface is not a friend
+    inline auto write(Value) -> void;
+    template<required::iterator::Socket_Move<Value> ITERATOR> inline auto write(ITERATOR first, ITERATOR last) -> void;
+    inline auto read() -> Value; // ................ blocks until there is something to read
+    inline auto read_if() -> Optional<Value>; // ... does not block
+    using Peeked = concurrent::channel::Peek<Value>;
+    inline auto peek() -> Peeked;
+    explicit Interface() = default;
+    // if the written-at process is readable then we are (still) blocked.
+    inline auto is_blocked() -> bool;
+    inline auto notify() -> void;
+    inline auto is_blocked_then_notify() -> bool;
+  protected:
+    friend class Socket;
+    friend class world::binder::Linkage;
+    inline Interface(Socket *, Pipe Socket::*read, Pipe Socket::*write, process::Ready *);
+    Socket *origin{};;
+    Pipe Socket::*read_side{};
+    Pipe Socket::*write_side{};
+    process::Ready *ready{};
+    inline auto validate_origin() const -> void;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.network.Socket
+#import tunitas.denniston.network.exception.Null
+#import tunitas.denniston.process.Ready
+namespace tunitas::denniston::network {
+  Socket::Interface::Interface(Socket *o, Pipe Socket::*r, Pipe Socket::*w, process::Ready *y)
+    : origin{o}
+    , read_side{r}
+    , write_side{w}
+    , ready{y}
+  { }
+  auto Socket::Interface::Interface::validate_origin() const -> void {
+    if (nullptr == origin) {
+      throw exception::Null{};
+    }
+  }
+  //
+  // writing
+  auto Socket::Interface::write(Value value) -> void {
+    validate_origin();
+    (origin->*write_side).push_back(move(value));
+    ready->notify();
+  }
+  template<required::iterator::Socket_Move<Socket::Value> ITERATOR> auto Socket::Interface::write(ITERATOR start, ITERATOR finish) -> void {
+    validate_origin();
+    (origin->*write_side).push_back(start, finish);
+    ready->notify();
+  }
+  //
+  // reading
+  auto Socket::Interface::read() -> Value {
+    validate_origin();
+    return (origin->*read_side).pop_front();
+  }
+  auto Socket::Interface::read_if() -> Optional<Value> {
+    validate_origin();
+    return (origin->*read_side).pop_front_if();
+  }
+  auto Socket::Interface::peek() -> Peeked {
+    validate_origin();
+    return (origin->*read_side).peek();
+  }
+  auto Socket::Interface::is_blocked() -> bool {
+    validate_origin();
+    return ready->is_readable();
+  }
+  auto Socket::Interface::notify() -> void {
+    validate_origin();
+    return ready->notify();
+  }
+  auto Socket::Interface::is_blocked_then_notify() -> bool {
+    validate_origin();
+    auto was = ready->is_readable();
+    if (was) {
+      ready->notify();
+    }
+    return was;
+  }
+}
+#endiv

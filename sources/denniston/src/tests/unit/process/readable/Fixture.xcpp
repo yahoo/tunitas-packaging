@@ -1,0 +1,58 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::process::readable { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.process.Ready
+struct tests::unit::process::readable::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Fixed() -> void;
+  auto test_usage_Variable() -> void;
+protected:
+  ::tunitas::denniston::process::Ready ready{};
+};
+#endiv
+#divert <cpp>
+#import tests.unit.process.readable.Fixed
+#import tests.unit.process.readable.Variable
+auto tests::unit::process::readable::Fixture::suite() -> Suite {
+  auto series = Stream{"readable"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Fixed", &Fixture::test_usage_Fixed)
+                  << add("Variable", &Fixture::test_usage_Variable)
+                  << END;
+              return use;
+            }()
+         << add<Variable>()
+         << []{
+              auto fix = Stream{"Fixed"sv};
+              fix << add<Fixed<library::Fixed<0>>>()
+                  << add<Fixed<library::Fixed<1>>>()
+                  << add<Fixed<library::Fixed<2>>>()
+                  << END;
+              return fix;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.network.pipe.readable.Fixed
+#import tunitas.denniston.network.pipe.readable.Variable
+namespace tests::unit::process::readable {
+  auto Fixture::test_usage_Fixed() -> void {
+    using Subject = sublibrary::Fixed<0>;
+    auto subject = Subject{ready};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Variable() -> void {
+    using Subject = sublibrary::Variable;
+    auto subject = Subject{ready};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv

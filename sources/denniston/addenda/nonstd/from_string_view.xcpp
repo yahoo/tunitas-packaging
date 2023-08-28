@@ -1,0 +1,112 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+namespace nonstd {
+  namespace package_from_string_view {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_from_string_view::interface;
+}
+#endiv
+#divert <hpp>
+#import nonstd.Outcome
+#import nonstd.required.Number
+#import nonstd.required.Character
+#import nonstd.required.Character_Traits
+#import std.basic_string_view
+#import std.string_view
+namespace nonstd {
+  namespace package_from_string_view::body {
+    namespace exported {
+      //
+      // Convert a string view to a { Integer, Rational, Floating }
+      //
+      // Language Reqwuirement: -std=gnu++23 (C++23 with GNU extensions) to get std::from_chars(...) to work on __int128 "right out of the box"
+      //
+      // Specification:
+      //
+      //   Return an outcomje
+      //   Whatever from_chars(...) does; which includes integers in binary(?), octal, decimal, hexidecimal, and on to hexidecimal integers of C++20
+      //
+      //   The outcome is against std::errc
+      //
+      // Design:
+      //
+      //   Underneath we have to use the package-suppled operator>> and hope
+      //   Given operator>> as the only primitive, then we must copy the characters to a stringstream and use that.
+      //
+      //   [[WATCHOUT]] the definition of from_chars(...) has lots of exceptional differences from the underlying C token parsers strtol(...), strtod(...)
+      //
+      //   the from_chars(...) call takes the default argument
+      //      integers for base=10
+      //      floatings fmt=std::chars_format::general
+      //
+      // Usage:
+      //
+      //   using Number = one among { Integer, Rational, Floating };
+      //
+      //   auto specimen = "...somehow...";
+      //   auto got = from_string_view<Number>(specimen);
+      //   if (good(got)) {
+      //     auto recovered = value(move(got));
+      //     ...celebrate...
+      //   } else {
+      //     auto recovered = error_code(got);
+      //     ..complain...
+      //   }
+      //
+      template<required::Number NUMBER, required::Character CHAR, required::Character_Traits TRAITS> inline auto from_string_view(std::basic_string_view<CHAR, TRAITS>) -> Outcome<NUMBER>;
+    }
+    template<required::Number NUMBER> inline auto thinly(std::string_view) -> Outcome<NUMBER>;
+  }
+}
+#endiv
+#divert <ipp>
+#import std.string
+#import std.same_as
+#import std.from_chars
+#import std.errc
+#import std.error_condition
+namespace nonstd::package_from_string_view {
+  template<required::Number NUMBER, required::Character CHAR, required::Character_Traits TRAITS> auto interface::from_string_view(std::basic_string_view<CHAR, TRAITS> view) -> Outcome<NUMBER> {
+    if constexpr (std::same_as<CHAR, char>) {
+      return thinly<NUMBER>(view);
+    } else if constexpr (std::same_as<CHAR, char8_t>) {
+      return thinly<NUMBER>({reinterpret_cast<char const *>(view.data()), view.size()});
+    } else {
+      // [[FIXTHIS]] is there already a wchar_t implementation of all this?  [[yes, no, noyeah, yeahno?]]
+      auto buf = std::string{};
+      for (auto wc : view) {
+        buf.push_back(char(wc)); // [[FIXTHIS]] is there a safer way to widen the characters [-+0-9xeEpP]?
+      }
+      return thinly<NUMBER>(buf);
+    }
+  }
+  template<required::Number NUMBER> auto body::thinly(std::string_view view) -> Outcome<NUMBER> {
+    auto const make_code = [](std::errc rc) {
+                                auto cond = std::error_condition{rc}; // Wow.  These are really really hard to use now aren't they?
+                                return std::error_code{(int) cond.value(), cond.category()};
+                              };
+    if (view.empty()) {
+      return make_code(std::errc::invalid_argument);
+    } else {
+      auto start = view.data();
+      auto finish = start + view.size();
+      auto ret = NUMBER{};
+      //
+      // WITNESS ---> gcc (GCC) 11.2.1 20210827
+      // WITNESS ---> Unless CXXFLAGS+=-std=gnu++23 you will see the following error for int128_t
+      // WITNESS ---> addenda/nonstd/from_string_view.xcpp:97:38: error: no matching function for call to ‘from_chars(const char*&, const char*&, __int128&)’
+      //
+      if (auto from = std::from_chars(start, finish, ret); std::errc{} != from.ec) {
+        return make_code(from.ec);
+      } else if (from.ptr != finish) {
+        return make_code(std::errc::invalid_argument);
+      } else {
+        return ret;
+      }
+    }
+  }
+}
+#endiv

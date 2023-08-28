@@ -1,0 +1,61 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+//
+// Specification:
+//
+//   (convenience)  collection of interfaces.
+//
+// Design:
+//
+//   Again, all the machinery to defer the elaboration of the complete type as to late as possible.
+//
+#include <hpp/tunitas.denniston.network.table.Sockets>
+#endiv
+#divert <hpp>
+#import std.deque
+#import tunitas.denniston.network.Socket.Interface
+static_assert(sizeof (tunitas::denniston::network::Socket));
+static_assert(sizeof (tunitas::denniston::network::Socket::Interface));
+namespace tunitas::denniston::network {
+  namespace table {
+    inline auto swap(Sockets::Interfaces &, Sockets::Interfaces &) noexcept -> void;
+  }
+  class Sockets::Interfaces : public std::deque<Socket::Interface> {
+    using Ancestor = std::deque<Socket::Interface>;
+    friend auto table::swap(Interfaces &, Interfaces &) noexcept -> void;
+  public:
+    Interfaces() = default;
+    using Ancestor::deque;
+    Interfaces(Ancestor &&donor) : Ancestor{move(donor)} { }
+    Interfaces(Ancestor const &other) : Ancestor{other} { }
+    using Ancestor::operator=;
+    Interfaces &operator=(Ancestor &&donor)      { Ancestor::operator=(move(donor)); return *this; }
+    Interfaces &operator=(Ancestor const &other) { Ancestor::operator=(other); return *this; }
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::network {
+  auto table::swap(Sockets::Interfaces &a, Sockets::Interfaces &b) noexcept -> void {
+    Sockets::Interfaces &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::table;
+    static_assert(std::is_default_constructible_v<Sockets::Interfaces>);
+    static_assert(std::is_copy_constructible_v<Sockets::Interfaces>);
+    static_assert(std::is_move_constructible_v<Sockets::Interfaces>);
+    static_assert(std::is_copy_assignable_v<Sockets::Interfaces>);
+    static_assert(std::is_move_assignable_v<Sockets::Interfaces>);
+    static_assert(std::is_swappable_v<Sockets::Interfaces>);
+  }
+}
+#endiv

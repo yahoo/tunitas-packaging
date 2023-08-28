@@ -1,0 +1,87 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::pipe::readable {
+  //
+  // The variable-length implementation of the multi-pipe readability (for the process)
+  //
+  // Specification:
+  //
+  //   Survey the pipe to see what is readable.
+  //
+  //   For is_ready_to_read, the caller MUST provide the guarding locks.
+  //
+  // Design:
+  //
+  //   Obeys the process::Readable protocol.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Readable) < lifetime(ready)
+  //   lifetime(Readable) < lifetime(pipe) \forall pipes
+  //
+  // Usage:
+  //
+  //   see process::Ready
+  //
+  struct Variable;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.network.pipe.Pollability
+#forward tunitas.denniston.network.pipe.Pipe
+#import tunitas.denniston.network.pipe.required.Pollabilities
+#forward tunitas.denniston.process.Ready
+#import tunitas.denniston.process.readable.Variable
+#import std.vector
+namespace tunitas::denniston::network::pipe {
+  template<typename... TYPES> inline auto make_variable_readable(process::Ready &, Pipe<TYPES> &...) -> readable::Variable;
+  class readable::Variable : public process::readable::Variable {
+    using Ancestor = process::readable::Variable;
+  protected:
+    std::vector<Pollability *> pollabilities{};
+  public:
+    template<typename... POLLABILITIES> requires required::Pollabilities<POLLABILITIES...> Variable(process::Ready &, POLLABILITIES &...);
+    auto is_ready_to_read() -> bool override;
+    inline auto add(Pollability &) -> void;
+  };
+}
+static_assert(not std::is_abstract_v<tunitas::denniston::network::pipe::readable::Variable>);
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::network {
+  template<typename... TYPES> auto pipe::make_variable_readable(process::Ready &ready, Pipe<TYPES> &...pipes) -> readable::Variable { return {ready, pipes...}; }
+  namespace pipe::readable {
+    template<typename... POLLABILITIES> requires required::Pollabilities<POLLABILITIES...> Variable::Variable(process::Ready &first, POLLABILITIES &...rest)
+      : Ancestor{first, rest.variables.lock...}
+      , pollabilities{&rest...}
+    { }
+    auto Variable::add(Pollability &pipe) -> void {
+      Ancestor::add(pipe.variables.lock);
+      pollabilities.push_back(&pipe);
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace tunitas::denniston::network::pipe::readable {
+  auto Variable::is_ready_to_read() -> bool {
+    // The expectation is that the caller has established this->lock() with a guard (no locking here)
+    for (auto place : pollabilities) {
+      if (place->is_ready_to_read()) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+namespace {
+  namespace testate {
+    using namespace tunitas::denniston::network::pipe::readable;
+    static_assert(not std::is_abstract_v<Variable>);
+  }
+}
+#endiv

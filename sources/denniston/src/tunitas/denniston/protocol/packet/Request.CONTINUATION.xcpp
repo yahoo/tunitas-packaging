@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol.packet.Request.template
+namespace tunitas::denniston::protocol::packet {
+  //
+  // Semantic:
+  //
+  //   The request from the gateway to a processor to perform the continuation step.
+  //   Will appear the service::instance::Processor
+  //
+  // Design:
+  //
+  //  The manifest constructors in lieu of aggregate or designated constructors allows make<...>(...) to work.
+  //
+  // Usage:
+  //
+  //   auto req = rheem::protocol::continuation::Request{...somehow...};
+  //
+  //   auto made = make<Request<CONTINUATION>>(move(req));
+  //
+  template<> struct Request<Post::CONTINUATION>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.protocol.packet.Prototype
+#import tunitas.rheem.protocol.continuation.Request
+namespace tunitas::denniston::protocol::packet {
+  template<> struct Request<Post::CONTINUATION> : public Prototype {
+    using Payload = rheem::protocol::continuation::Request;
+    Payload payload{};
+    inline explicit Request(Payload p) : payload{move(p)} { }
+  };
+}
+#endiv

@@ -1,0 +1,33 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.service.instance.Collector
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
+namespace tunitas::denniston::service::instance::traits {
+  //
+  // A declaration of the Service Instance which are Corporal.
+  // Meaning they maintain a Corpus (see task::Corpus<GENUS> and task::Dictionary<task::Corpus<GENUS>>)
+  // Specializations only.
+  //
+  template<typename> struct [[deprecated("AVOID; instead use role::traits::Corporal<GENUS>")]] Corporal;
+  template<> struct [[deprecated("AVOID; instead use role::traits::Corporal<Genus::COLLECTOR>")]] Corporal<Collector>;
+  template<> struct [[deprecated("AVOID; instead use role::traits::Corporal<Genus::GATEWAY>")]] Corporal<Gateway>;
+  template<> struct [[deprecated("AVOID; instead use role::traits::Corporal<Genus::PROCESSOR>")]] Corporal<Processor>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::denniston::service::instance {
+  template<typename TYPE> struct traits::Corporal : public std::false_type { };
+  namespace traits {
+    template<> struct Corporal<Collector> : public std::true_type { };
+    template<> struct Corporal<Gateway>   : public std::true_type { };
+    template<> struct Corporal<Processor> : public std::true_type { };
+  }
+}
+#endiv

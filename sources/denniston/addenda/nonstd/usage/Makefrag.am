@@ -1,0 +1,9 @@
+# This is a GNU -*- Makefile -*- fragment which is managed by automake
+# For terms and provenance see the LICENSE file at the top of this repository.
+#
+nonstd_usage_SUBSOURCES = \
+  noinst/obj/src/nonstd/usage/namespace.cpp \
+  $(nonstd_usage_allocator_SUBSOURCES) \
+  $(end)
+#
+include addenda/nonstd/usage/allocator/Makefrag.am

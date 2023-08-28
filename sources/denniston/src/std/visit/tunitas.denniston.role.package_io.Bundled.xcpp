@@ -1,0 +1,30 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import std.visit
+#forward tunitas.denniston.role.package_io.Bundled
+namespace std {
+  namespace __detail::__variant {
+    // gcc (GCC) 11.2.1 20210827
+    // This worked to get std::visit(...) to operate on Step<CHAR, TRAITS, DOCUMENT>
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled>;
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled const>;
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled &>;
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled const &>;
+  }
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.role.package_io.Variant
+namespace std {
+  namespace __detail::__variant {
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled>         : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::body::Variant> { };
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled const>   : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::body::Variant> { };
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled &>       : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::body::Variant> { };
+    template<typename MAYBE_VARIANT_COOKIE> class _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::Bundled const &> : public _Extra_visit_slot_needed<MAYBE_VARIANT_COOKIE, tunitas::denniston::role::package_io::body::Variant> { };
+  }
+}
+#endiv

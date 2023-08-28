@@ -1,0 +1,16 @@
+// This is C++ 23 -*- c++ -*- -std=c++23 in the stylings of the S.C.O.L.D. design method.
+// For terms and provenance see the LICENSE file at the top of the repository.
+#divert <fpp>
+#import nonstd.Like.std.optional.TYPE
+#import nonstd.optional.Optional
+#endiv
+#divert <cpp>
+#import std.same_as
+namespace {
+  namespace testate {
+    struct Replace;
+    struct Pattern;
+    static_assert(std::same_as<nonstd::optional::Optional<Replace const *>, nonstd::Like<Pattern const, nonstd::optional::Optional<Replace *>>::Type>);
+  }
+}
+#endiv

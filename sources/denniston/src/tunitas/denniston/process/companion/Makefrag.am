@@ -1,0 +1,31 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_process_companion_SUBSOURCES = \
+  obj/src/tunitas/denniston/process/companion/namespace.cpp \
+  obj/src/tunitas/denniston/process/companion/Barrier.cpp \
+  obj/src/tunitas/denniston/process/companion/Barrier.Guard.cpp \
+  obj/src/tunitas/denniston/process/companion/Lifestage.cpp \
+  obj/src/tunitas/denniston/process/companion/Lifestage.Guard.cpp \
+  obj/src/tunitas/denniston/process/companion/Lifestage.Reference.constie.cpp \
+  obj/src/tunitas/denniston/process/companion/Lifestage.Reference.mutable.cpp \
+  obj/src/tunitas/denniston/process/companion/Lifestage.Reference.cpp \
+  obj/src/tunitas/denniston/process/companion/Lifestage.Conjugate.cpp \
+  obj/src/tunitas/denniston/process/companion/Pointer.cpp \
+  obj/src/tunitas/denniston/process/companion/Prototype.cpp \
+  obj/src/tunitas/denniston/process/companion/Shutdown.cpp \
+  obj/src/tunitas/denniston/process/companion/Subprocesses.cpp \
+  obj/src/tunitas/denniston/process/companion/Submodel.cpp \
+  obj/src/tunitas/denniston/process/companion/Submodel.Guard.Completion.cpp \
+  obj/src/tunitas/denniston/process/companion/Subbie.cpp \
+  obj/src/tunitas/denniston/process/companion/Synchro.cpp \
+  obj/src/tunitas/denniston/process/companion/Synchro.Guard.cpp \
+  $(tunitas_denniston_process_companion_required_SUBSOURCES) \
+  $(tunitas_denniston_process_companion_usage_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/process/companion/required/Makefrag.am
+include src/tunitas/denniston/process/companion/usage/Makefrag.am

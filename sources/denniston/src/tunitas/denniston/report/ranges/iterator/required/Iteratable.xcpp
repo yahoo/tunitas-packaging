@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import nonstd.required.Reference
+#import nonstd.required.Pointer
+#import nonstd.required.iterator.Forward
+#import std.remove_reference
+#import std.remove_pointer
+#import std.remove_const
+#import std.is_const
+namespace tunitas::denniston::report::ranges::iterator::required {
+  //
+  // Do all these parameters work together to define an iterator (basis)?
+  //
+  // Specification:
+  //
+  //   well, does it?
+  //
+  // Design:
+  //
+  //   Bundle them all up here to keep the utterances in teh class declaration simpler.
+  //
+  // USage:
+  //
+  //   template<typename I, typename V, typename R, typename P> requires required::Iteratable<I, V, R, P> struct Something;
+  //
+  template<typename ITERATOR, typename VALUE, typename REFERENCE, typename POINTER> concept Iteratable = requires(ITERATOR, VALUE, REFERENCE, POINTER) {
+    requires required::iterator::Forward<ITERATOR>;
+    requires !std::is_const_v<VALUE>;
+    requires Reference<REFERENCE>;
+    requires Pointer<POINTER>;
+    requires std::is_const_v<std::remove_reference_t<REFERENCE>> == std::is_const_v<std::remove_pointer_t<POINTER>>;
+    requires same_as<VALUE, std::remove_const_t<std::remove_reference_t<REFERENCE>>>;
+    requires same_as<VALUE, std::remove_const_t<std::remove_pointer_t<POINTER>>>;
+  };
+}
+#endiv

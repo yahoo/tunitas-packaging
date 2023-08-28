@@ -1,0 +1,62 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.report.required.Valuable
+namespace tunitas::denniston::report {
+  //
+  // An ordered series of reports.
+  //
+  // Specification:
+  //
+  //   Arbitrary deterministic order ... needed.
+  //   Contiguous layout ............... not needed.
+  //
+  // Design:
+  //
+  //   Make a new type so that ADL will work.
+  //
+  // Usage:
+  //
+  //   See at least ...
+  //     service::gateway::subprocess::Job
+  //     service::process::subprocess::Initialization
+  //     service::process::subprocess::Continuation
+  //
+  //   auto series = Series<Something>
+  //   for (auto const &item : subrange(series)) {
+  //      ...examine item...
+  //   }
+  //
+  template<required::Valuable> struct Series;
+}
+#import nonstd.container.Traits.tunitas.denniston.report.Series.VALUE
+#endiv
+#divert <hpp>
+#import tunitas.denniston.report.usage.Valuable
+#import tunitas.array.Series
+namespace tunitas::denniston {
+  namespace report {
+    using std::move;
+    template<required::Valuable VALUE> inline auto swap(Series<VALUE> &, Series<VALUE> &) noexcept -> void;
+  }
+  template<report::required::Valuable VALUE> struct report::Series : public array::Series<VALUE> {
+    using Ancestor = array::Series<VALUE>;
+    static_assert(usage::Valuable<VALUE>);
+    friend auto report::swap<>(Series &, Series &) noexcept -> void;
+  public:
+    Series() = default;
+    using Ancestor::Series;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  template<report::required::Valuable VALUE> auto report::swap(Series<VALUE> &a, Series<VALUE> &b) noexcept -> void {
+    typename Series<VALUE>::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+  }
+}
+#endiv

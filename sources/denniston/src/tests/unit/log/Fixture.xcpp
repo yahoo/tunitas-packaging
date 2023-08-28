@@ -1,0 +1,107 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::log { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.Species
+#import tunitas.time.Clock
+struct tests::unit::log::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Species = ::tunitas::denniston::Species;
+  using Clock = ::tunitas::time::Clock;
+  //
+  auto test_usage_Client() -> void;
+  auto test_usage_Concentrator() -> void;
+  //
+  auto test_ine() -> void;
+  //
+  auto test_stamp_none() -> void;
+  auto test_stamp_time_Point() -> void;
+  auto test_stamp_role_Species() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.log.Concentrator
+#import tests.unit.log.Client
+#import tests.unit.log.Cluster
+auto tests::unit::log::Fixture::suite() -> Suite {
+  auto series = Stream{"log"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Client", &Fixture::test_usage_Client)
+                  << add("Concentrator", &Fixture::test_usage_Concentrator)
+                  << END;
+              return use;
+            }()
+         << add("ine", &Fixture::test_ine)
+         << []{
+              auto tamp = Stream{"stamp"sv};
+              tamp << add("none", &Fixture::test_stamp_none)
+                   << add("time::Point", &Fixture::test_stamp_time_Point)
+                   << add("Species", &Fixture::test_stamp_role_Species)
+                   << END;
+              return tamp;
+            }()
+         << add<Concentrator>()
+         << add<Client>()
+         << add<Cluster>()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.log.ine
+#import tunitas.denniston.log.stamp
+#import tunitas.denniston.log.Client
+#import tunitas.denniston.log.Concentrator
+#import std.ostringstream
+namespace tests::unit::log {
+  auto Fixture::test_usage_Client() -> void {
+    using Subject = library::Client;
+    auto subject = Subject{Species::GATEWAY};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Concentrator() -> void {
+    using Subject = library::Concentrator;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_ine() -> void {
+    auto buf = std::ostringstream{};
+    auto const full = "full"sv;
+    auto const empty = ""sv;
+    buf << library::ine(full) << '/' << library::ine(empty); // <-------------------- test this
+    auto const expected = "full/(empty)"s;
+    auto actual = buf.str();
+    std::cerr << "actual = " << actual << '\n';
+    require(ASSERTION, expected == actual);
+  }
+  auto Fixture::test_stamp_none() -> void {
+    auto buf = std::ostringstream{};
+    buf << library::stamp(); // <---------------------------------------- test this
+    auto actual = buf.str();
+    std::cerr << "stamp = " << actual << '\n';
+    require(ASSERTION, !actual.empty());
+  }
+  auto Fixture::test_stamp_time_Point() -> void {
+    auto buf = std::ostringstream{};
+    buf << library::stamp(Clock::now()); // <-------------------- test this
+    auto actual = buf.str();
+    std::cerr << "stamp = " << actual << '\n';
+    require(ASSERTION, !actual.empty());
+  }
+  auto Fixture::test_stamp_role_Species() -> void {
+    using enum Species;
+    for (auto name : {CLIENT, COLLECTOR, CONFIGURATION, DIRECTORY, GATEWAY, PROCESSOR1, PROCESSOR2, Species{2}, Species{3}, Species{4}, Species{98}, Species{99}, Species{100}}) {
+      auto buf = std::ostringstream{};
+      buf << library::stamp(name); // <-------------------- test this
+      auto actual = buf.str();
+      std::cerr << "stamp = " << actual << '\n';
+      require(ASSERTION, !actual.empty());
+    }
+  }
+}
+#endiv

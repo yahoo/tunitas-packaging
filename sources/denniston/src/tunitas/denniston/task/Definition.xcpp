@@ -1,0 +1,98 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::task {
+  //
+  // The basic unit of the system is a Task Definition
+  //
+  // Semantic:
+  //
+  //   A single measurement.
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 2. System Architecture
+  //
+  //   The type of each measurement.
+  //   The aggregation function to compute (see keyston::vdaf::Name)
+  //   The set of aggregators and necessary cryptographic keying material to use.
+  //   The VDAF to execute, which to some extent is dictated by the previous choices.
+  //   The minimum "batch size" of reports which can be aggregated.
+  //   The rate at which measurements can be taken, i.e., the "minimum batch window".
+  //   These parameters are distributed out of band to the clients and to the aggregators.
+  //   They are distributed by the collecting entity in some authenticated form.
+  //   Each task is identified by a unique 32-byte ID which is <snip/>
+  //
+  // Design:
+  //
+  //   Using the Best Available Means and Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   Use designated initialization.
+  //   Construct one, and consider it.
+  //
+  struct Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.count
+#import tunitas.rheem.protocol.task.Task
+namespace tunitas::denniston {
+  namespace task {
+    using std::move;
+    inline auto swap(Definition &, Definition &) noexcept -> void;
+    inline auto key_from(Definition const &) -> rheem::protocol::id::Task const &;
+  }
+  class task::Definition : public rheem::protocol::task::Task {
+    using Ancestor = rheem::protocol::task::Task;
+    friend auto swap(Definition &, Definition &) noexcept -> void;
+  public:
+    Optional<count::Job> job_batch_size{}; // else something about a time-based job trigger
+    //
+    Definition() = default;
+    using Ancestor::Task;
+    inline [[implicit]] Definition(Ancestor);
+    using Ancestor::operator=;
+    inline auto operator=(Ancestor) -> Definition &;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto task::key_from(Definition const &d) -> rheem::protocol::id::Task const & { return d.id; }
+  auto task::swap(Definition &a, Definition &b) noexcept -> void {
+    Definition::Ancestor &aa{a}, &bb{b};
+    swap(aa, bb);
+    swap(a.job_batch_size, b.job_batch_size);
+  }
+  namespace task {
+    Definition::Definition(Ancestor a) : Ancestor{move(a)} { }
+    auto Definition::operator=(Ancestor a) -> Definition & {
+      Ancestor::operator=(move(a));
+      return *this;
+    }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::task::Definition;
+    //
+    static_assert(std::semiregular<Definition>);
+    //
+    static_assert(std::is_default_constructible_v<Definition>);
+    static_assert(std::is_copy_constructible_v<Definition>);
+    static_assert(std::is_move_constructible_v<Definition>);
+    static_assert(std::is_copy_assignable_v<Definition>);
+    static_assert(std::is_move_assignable_v<Definition>);
+    static_assert(std::is_swappable_v<Definition>);
+  }
+}
+#endiv

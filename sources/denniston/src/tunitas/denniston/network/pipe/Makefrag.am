@@ -1,0 +1,19 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tunitas_denniston_network_pipe_SUBSOURCES = \
+  obj/src/tunitas/denniston/network/Pipe.cpp \
+  obj/src/tunitas/denniston/network/pipe/namespace.cpp \
+  obj/src/tunitas/denniston/network/pipe/Pipe.cpp \
+  obj/src/tunitas/denniston/network/pipe/Pollability.cpp \
+  obj/src/tunitas/denniston/network/pipe/readable.Fixed.cpp \
+  obj/src/tunitas/denniston/network/pipe/readable.Variable.cpp \
+  $(tunitas_denniston_network_pipe_required_SUBSOURCES) \
+  $(tunitas_denniston_network_pipe_usage_SUBSOURCES) \
+  $(end)
+#
+include src/tunitas/denniston/network/pipe/required/Makefrag.am
+include src/tunitas/denniston/network/pipe/usage/Makefrag.am

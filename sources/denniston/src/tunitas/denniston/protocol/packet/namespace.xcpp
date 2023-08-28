@@ -1,0 +1,22 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.protocol
+#import tunitas.rheem.protocol // for protocol::Slice
+namespace tunitas::denniston::protocol {
+  static_assert(sizeof(Slice), "already visible");
+  namespace packet {
+    enum class Get { PUBLIC, SECRET, TASKS, INITIALIZATION, CONTINUATION, MEASUREMENT };
+    enum class Post { INITIALIZATION, CONTINUATION };
+    //
+    // although it was already visible, we need it to flow with using namespace protocol::packet
+    using rheem::protocol::Slice;
+    // DO NOT ---. using enum Slice <--- DO NOT (because in this namespace the enum tags are all qualified)
+    //
+    namespace [[nodirectory]] traits { }
+  }
+}
+#endiv

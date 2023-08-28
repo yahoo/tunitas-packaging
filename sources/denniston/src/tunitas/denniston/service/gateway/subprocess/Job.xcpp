@@ -1,0 +1,112 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::gateway::subprocess {
+  //
+  // The job management subprocess (thread)
+  //
+  // Specification:
+  //
+  //   Prepare the job.
+  //   Send it out.
+  //   Wait for it to return.
+  //   Examine for the termination conditions.
+  //
+  // Procedure:
+  // 1. lock awaiting all the INITIALIZATION repsonses returning from the procesors.
+  // 2. review what came back.
+  // 3. send out CONTINUATION responses if necessary.
+  // 4. lock awaiting the CONTINUATION responses returing from the processors.
+  // 5. review what came back.
+  // 6. go to 3.
+  //
+  // quit if there are too many repetitions (the algos are all finite with nown bounds).
+  // quit if this all takes too long (e.g. some processor failed to respond).
+  //
+  // Design:
+  //
+  //   Just what you see.
+  //
+  // Concurrency:
+  //
+  //   Not within.
+  //   Synchronize with (others) in the Gateway by the Prototype::barrier.
+  //
+  // Usage:
+  //
+  //   See service::instance::Gateway
+  //
+  struct Job;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.count
+#forward tunitas.denniston.job.Corpus
+#import tunitas.denniston.service.gateway.subprocess.Prototype
+#import tunitas.denniston.service.gateway.Gather
+namespace tunitas::denniston::service::gateway {
+  namespace subprocess {
+    inline auto swap(Job *&a, Job *&b) noexcept -> void { std::swap(a, b); }
+  }
+  class subprocess::Job : public Prototype {
+    using Ancestor = Prototype;
+  public:
+    using Corpus = job::Corpus<Genus::GATEWAY>;
+    Corpus &corpus;
+    count::Job process_repetition_limit{};
+    Gather gather{};
+    //
+    inline explicit Job(Gateway &, Corpus &);
+    //
+    auto run_managed_lifecycle() -> void;
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::service::gateway::subprocess {
+  Job::Job(Gateway &owner, Corpus &corp)
+    : Ancestor{owner}
+    , corpus{corp} {
+    corpus.subprocess = this;
+#if 0
+    subbie = {&Job::run_managed_lifecycle, this};
+#endif
+  }
+}
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::gateway::subprocess::Job;
+    //
+    static_assert(not std::semiregular<Job>);
+    //
+    // because that barrier in Job::Ancestor (Prototype) has an immobile mutex within it.
+    static_assert(not std::is_default_constructible_v<Job>);
+    static_assert(not std::is_copy_constructible_v<Job>);
+    static_assert(not std::is_move_constructible_v<Job>);
+    static_assert(not std::is_copy_assignable_v<Job>);
+    static_assert(not std::is_move_assignable_v<Job>);
+    static_assert(not std::is_swappable_v<Job>);
+    static_assert(    std::is_swappable_v<Job *>);
+  }
+}
+#import tunitas.denniston.job.Corpus
+namespace tunitas::denniston::service::gateway::subprocess {
+  auto Job::run_managed_lifecycle() -> void {
+    count::Job process_repetition_count{};
+    do {
+      barrier.wait([this]{ return gather.is_complete(); });
+      owner.log.format("job {} pretends to do something for some time", corpus.definition.id);
+#warning [[FINISHTHIS]] do not delay, do something in the job ... compute something
+      std::this_thread::sleep_for(250ms);
+      if (++process_repetition_count >= process_repetition_limit) {
+        break;
+      }
+    } while (true);
+    owner.log.format("job {} is ending", corpus.definition.id);
+  }
+}
+#endiv

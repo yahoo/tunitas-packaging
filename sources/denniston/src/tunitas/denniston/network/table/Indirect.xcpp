@@ -1,0 +1,42 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::network::table {
+  //
+  // Because unique_ptr really does require the complete type (to even utter the type name)
+  //
+  // Specification:
+  //
+  //   Indirect a little comrade!
+  //
+  // Design:
+  //
+  //   You know.
+  //
+  // Usage:
+  //
+  //   Like std::unique_ptr but more indirect.
+  //
+  template<typename> struct Indirect;
+}
+#endiv
+#divert <hpp>
+#import std.unique_ptr
+namespace tunitas::denniston::network {
+  template<typename TYPE> class table::Indirect : public std::unique_ptr<TYPE> {
+    using Ancestor = std::unique_ptr<TYPE>;
+  public:
+    explicit Indirect() = default;
+    using Ancestor::unique_ptr;
+    Indirect(Ancestor &&donor) : Ancestor{move(donor)} { }
+    using Ancestor::operator=;
+    Indirect &operator=(Ancestor &&donor) {
+      Ancestor::operator=(move(donor));
+      return  *this;
+    }
+  };
+}
+#endiv

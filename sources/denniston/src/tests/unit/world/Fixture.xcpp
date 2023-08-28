@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::world { class Fixture; }
+#endiv
+#divert <hpp>
+struct tests::unit::world::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_World() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.world.World
+auto tests::unit::world::Fixture::suite() -> Suite {
+  auto series = Stream{"world"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("World", &Fixture::test_usage_World)
+                  << END;
+              return use;
+            }()
+         << add<World>()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.world.World
+#import tunitas.denniston.scheduler.Threads
+namespace tests::unit::world {
+  auto Fixture::test_usage_World() -> void {
+    using Subject = library::World;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+}
+#endiv

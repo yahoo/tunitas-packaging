@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.instance.traits.Instance
+#include <hpp/tunitas.denniston.service.instance.traits.Instance>
+namespace tunitas::denniston::service::instance::required {
+  //
+  // Is this TYPE a service instance?
+  // Must be answerable without the complete type of TYPE (i.e. no use of derived_from<...>)
+  // Instead we require the complete type of the traits::Instance<INSTANCE> declaration.
+  //
+  template<typename INSTANCE> concept Instance = traits::Instance<INSTANCE>::value;
+}
+#endiv
+#divert <cpp>
+#forward tunitas.denniston.process.Model
+#forward tunitas.denniston.process.Reactor
+#forward tunitas.denniston.service.instance.Client
+#forward tunitas.denniston.service.instance.Collector
+#forward tunitas.denniston.service.instance.Configuration
+#forward tunitas.denniston.service.instance.Directory
+#forward tunitas.denniston.service.instance.Gateway
+#forward tunitas.denniston.service.instance.Processor
+namespace {
+  namespace testate {
+    namespace required = tunitas::denniston::service::instance::required;
+    using namespace tunitas::denniston::service::instance;
+    namespace process = tunitas::denniston::process;
+    static_assert(required::Instance<process::Model>);
+    static_assert(required::Instance<process::Reactor>);
+    static_assert(required::Instance<Client>);
+    static_assert(required::Instance<Collector>);
+    static_assert(required::Instance<Configuration>);
+    static_assert(required::Instance<Directory>);
+    static_assert(required::Instance<Gateway>);
+    static_assert(required::Instance<Processor>);
+  }
+}
+#endiv
+    

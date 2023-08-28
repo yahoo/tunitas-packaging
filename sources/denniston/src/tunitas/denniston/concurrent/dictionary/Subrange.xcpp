@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.concurrent.dictionary.required.Iterable
+namespace tunitas::denniston::concurrent::dictionary {
+  //
+  // A subrange of a dictionary.
+  //
+  // Specification:
+  //
+  //   The start, finish.
+  //   Locking is available (or not) at the Range<ITERATOR, CONTAINER> level
+  //
+  // Design:
+  //
+  //   Using the Best Available Means & Methods (UBAMM)
+  //
+  // Usage:
+  //
+  //   See Dictionary<...> ut moreover Concurrent & Sequential
+  //
+  template<required::Iterable> struct Subrange;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.concurrent.dictionary.required.Dictionary
+#forward tunitas.denniston.concurrent.dictionary.Range
+namespace tunitas::denniston::concurrent {
+  template<dictionary::required::Iterable ITERATOR> struct dictionary::Subrange {
+    using Iterator = ITERATOR;
+    inline auto empty() const -> bool;
+    inline auto begin() const -> Iterator;
+    inline auto end() const -> Iterator;
+  protected:
+    template<required::Origin, required::Iterable> friend class Range;
+    inline [[implicit]] Subrange(Iterator, Iterator);
+    Iterator start{}, finish{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::concurrent::dictionary {
+  template<required::Iterable _> Subrange<_>::Subrange(Iterator s, Iterator f)
+    : start{s}
+    , finish{f}
+  { }
+  template<required::Iterable _> auto Subrange<_>::empty() const -> bool { return finish == start; }
+  template<required::Iterable _> auto Subrange<_>::begin() const -> Iterator { return start; }
+  template<required::Iterable _> auto Subrange<_>::end() const -> Iterator { return finish; }
+}
+#endiv

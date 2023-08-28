@@ -1,0 +1,150 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::instance {
+  //
+  // A manifestation of the configuration (service) in the network.
+  //
+  // Specification:
+  //
+  //   Serves configurations
+  //
+  //   This is at variance with the specification (draft-ietf-ppm-dap-02 at least) which specifies that
+  //   The configurations MUST be supplied by the aggregators (here called "processors").  We don't follow that.
+  //   Here, the configurations are served to clients from a separate service, this service.
+  //   Clients do not have any direct contact with the processor fleet at all.
+  //
+  //   Soooo.  It's "like DNS" or "like LDAP."
+  //
+  // Authorities:
+  //
+  //   I-D.ietf-ppm-dap
+  //   Distributed Aggregation Protocol for Privacy Preserving Measurement
+  //   https://www.ietf.org/archive/id/draft-ietf-ppm-dap-02.html
+  //   Section 2.1. System Architecture
+  //
+  // Design:
+  //
+  //   Something something, something something: a thread.
+  //
+  //   The Configuration constructor accepts the initial task list from the Configuration.
+  //
+  // Usage:
+  //
+  //   In the environment..
+  //
+  struct Configuration;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.Configuration
+#import tunitas.denniston.network.pipe.readable.Variable
+#import tunitas.denniston.process.Reactor
+#import tunitas.denniston.task.Dictionary
+#import tunitas.denniston.task.Definition
+#import tunitas.denniston.error.Code
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.keyston.Shards
+class tunitas::denniston::service::instance::Configuration : public process::Reactor {
+  using Ancestor = process::Reactor;
+  auto react() -> void;
+  auto respond([[inout]] Interface &, [[inout]] Query<Get::TASKS> &, string::View from_whom) -> void;
+public:
+  inline explicit Configuration();
+  inline explicit Configuration([[inout]] denniston::Configuration &);
+  ~Configuration();
+  Interfaces clients{};
+  Interface collector{};
+  Interface gateway{};
+  keyston::Shards<Interface> processors{};
+  task::Dictionary<task::Definition> tasks{};
+  using E = error::Code;
+};
+#endiv
+#divert <ipp>
+#import tunitas.denniston.Configuration
+namespace tunitas::denniston::service::instance {
+  Configuration::Configuration()
+    : Ancestor{Species::CONFIGURATION}
+  { }
+  Configuration::Configuration(denniston::Configuration &cfg) : Configuration{} {
+    tasks = move(*cfg.tasks);
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.protocol.packet.cast // for downcast(...), is<TYPE>(...) and and is_$thing(...)
+#import tunitas.denniston.protocol.packet.make
+#import tunitas.denniston.protocol.packet.Status
+#import tunitas.denniston.protocol.packet.Query
+#import tunitas.denniston.protocol.packet.Response
+#import std.min
+#import std.cbegin
+namespace tunitas::denniston::service::instance {
+  Configuration::~Configuration() {
+    ready.notify();
+    // There are no subprocesses
+    disposable.acquire();
+  }
+  auto Configuration::react() -> void try {
+    if (auto red=collector.read_if(); red) {
+      if (is_ping(*red)) {
+        log.format("collector sent a ping");
+        collector.write(protocol::packet::make<protocol::packet::Status>());
+      } else {
+        log.format("[the] collector sent something else (which is ignored)");
+      }
+    }
+    if (auto red=gateway.read_if(); red) {
+      if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
+        respond(gateway, *got, "gateway");
+      } else {
+        log.format("[the] gateway sent something else (which is ignored)");
+      }
+    }
+    for (auto &face : clients) {
+      if (auto red=face.read_if(); red) {
+        if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
+          respond(face, *got, "some client");
+        } else {
+          log.format("[that] client sent something else (which is ignored)");
+        }
+      }
+    }
+    for (auto &face : processors) {
+      if (auto red=face.read_if(); red) {
+        if (auto got=downcast_get<Query<Get::TASKS>>(*red); nullptr != got) {
+          respond(face, *got, "some processor");
+        } else {
+          log.format("[that] processor sent something else (which is ignored)");
+        }
+      }
+    }
+  } catch(...) {
+    log.format("escaped exception is suppressed");
+  }
+  auto Configuration::respond([[inout]] Interface &back, [[inout]] Query<Get::TASKS> &query, string::View from_whom) -> void {
+    if (!query.task_id) {
+      if (tasks.empty()) {
+        back.write(make<Status>(E::NO_AVAILABLE_TASKS));
+      } else {
+        // [[FIXTHIS]] returns only the first (um) 256 ... tell someone of the problem
+        auto const locked = tasks.range(); // hold the object (and its lock) for the duration; MUST be constie to satisfy the constructor in Response
+        auto start = std::cbegin(locked);
+        auto finish = start + std::min(Response<Get::TASKS>::capacity(), tasks.size());
+        back.write(make<Response<Get::TASKS>>(start, finish));
+      }
+    } else {
+      auto const &task_id = *query.task_id;
+      if (auto found=tasks.find(task_id); !found) {
+        back.write(make<Status>(E::NO_SUCH_TASK));
+      } else {
+        back.write(make<Response<Get::TASKS>>(*found));
+      }
+    }
+  }
+}
+#endiv

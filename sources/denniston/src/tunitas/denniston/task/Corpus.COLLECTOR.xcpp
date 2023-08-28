@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.task.Corpus.template
+namespace tunitas::denniston::task {
+  //
+  // The corpus of the Task Dictionary of the Collector
+  //
+  // Specification:
+  //
+  //   Sure man.  A Specifiation, we can do that.  Can we Jim?  A specification?
+  //
+  // Design:
+  //
+  //   The constructors MUST be implicit to convert from the Definition upon insertion into a Dictionary.
+  //
+  //  On the design of the field 'result'
+  //    Perhaps an Outcome<Result> so we can know the reason why the result failed to be returned.
+  //    There are three states here.
+  //    1. null, unknown, no query has yet been attempted
+  //    2. failure, the query with an explanation
+  //    3. success, the query succeeded and here is the result
+  //
+  // Usage:
+  //
+  //   see service::Collector
+  //
+  template<> struct Corpus<Genus::COLLECTOR>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.task.Definition
+#import tunitas.keyston.measurement.Specimen
+#import tunitas.Optional
+namespace tunitas::denniston::task {
+  inline auto swap(Corpus<Genus::COLLECTOR> &, Corpus<Genus::COLLECTOR> &) noexcept -> void;
+  template<> class Corpus<Genus::COLLECTOR> {
+    using Protocol = rheem::protocol::task::Task;
+    static_assert(std::derived_from<Definition, Protocol>);
+  public:
+    Corpus() = default;
+    inline [[implicit]] Corpus(Definition);
+    inline [[implicit]] Corpus(Protocol);
+    //
+    Definition definition{};
+    Optional<keyston::measurement::Specimen> result{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto task::swap(Corpus<Genus::COLLECTOR> &a, Corpus<Genus::COLLECTOR> &b) noexcept -> void {
+    swap(a.definition, b.definition);
+    swap(a.result, b.result);
+  }
+  namespace task {
+    Corpus<Genus::COLLECTOR>::Corpus(Definition def) : definition{move(def)} { }
+    Corpus<Genus::COLLECTOR>::Corpus(Protocol prot) : definition{move(prot)} { }
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::task::Corpus;
+    using tunitas::denniston::Genus;
+    //
+    static_assert(std::semiregular<Corpus<Genus::COLLECTOR>>);
+    //
+    static_assert(std::is_default_constructible_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_copy_constructible_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_move_constructible_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_copy_assignable_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_move_assignable_v<Corpus<Genus::COLLECTOR>>);
+    static_assert(std::is_swappable_v<Corpus<Genus::COLLECTOR>>);
+  }
+}
+#endiv

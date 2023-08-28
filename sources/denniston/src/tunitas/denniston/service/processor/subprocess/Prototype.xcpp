@@ -1,0 +1,56 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::service::processor::subprocess {
+  //
+  // The prototype of a processor subprocess
+  //
+  // Specification:
+  //
+  //   Construction starts the barrier (establishes that lock)
+  //   That lock MUST be cleared before the end-of-life of the descendant.
+  //
+  // Design:
+  //
+  //   Descendants only.
+  //   The destructor MUST be public so that unique_ptr<Prototype> can see it
+  //   Therefore the constructor is made protected.
+  //
+  // Usage:
+  //
+  //   See service::instance::Processor, at least the subprocesses
+  //
+  struct Prototype;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.service.processor.Processor // DO NOT use #import
+#import tunitas.denniston.process.companion.Submodel
+namespace tunitas::denniston::service::processor {
+  namespace subprocess {
+    inline auto swap(Prototype *&a, Prototype *&b) noexcept -> void { std::swap(a, b); }
+  }
+  class subprocess::Prototype : public process::companion::Submodel<Processor> {
+    using Ancestor = process::companion::Submodel<Processor>;
+  protected:
+    using Ancestor::Submodel;
+  public:
+    virtual ~Prototype() = default;
+  };
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.service.processor.Processor // the ancestor's constructor definition requires the complee type
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::service::processor::subprocess::Prototype;
+    namespace required = tunitas::denniston::process::companion::required;
+    static_assert(required::Subprocess<Prototype>);
+  }
+}
+#endiv

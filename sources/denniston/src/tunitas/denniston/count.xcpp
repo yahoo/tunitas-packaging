@@ -1,0 +1,78 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-keyston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/components/keyston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::count {
+  namespace package_count {
+    namespace body::exported { }
+    namespace interface = body::exported;
+  }
+  using namespace package_count::interface;
+}
+#import nonstd.integers
+namespace tunitas::denniston::count::package_count {
+  namespace body {
+    using namespace nonstd::integers;
+    namespace exported {
+      //
+      // The count various quantities.
+      //
+      // Specification:
+      //
+      //   Unsigned integers.
+      //   Size the integers
+      //   These are used for operations configuration.
+      //   These are used for computing.
+      //   These are distinct from the quantities used for-the-wire data layout in namespace keystton::protocol
+      //
+      // Design:
+      //
+      //   In a namespace so that ADL will find it and its operations
+      //
+      // Usage:
+      //
+      //   You need a tutorial on how to use an unscoped enumeration (a flavored integer?)? o.rly?
+      //
+      enum Job : uint32_t; // ...... Maybe than 65K
+      enum Batch : uint64_t; // .... Maybe more than four billion.
+      enum Report : uint64_t; // ... Maybe more than four billion.
+    }
+  }
+}
+#endiv
+#divert <hpp>
+#import std.underlying_type
+#import std.strong_ordering
+#import nonstd.required.Enumeration
+#import tunitas.denniston.required // ctcnr (cascade that certain namespace required)
+namespace tunitas::denniston::count::package_count {
+  namespace body::exported {
+    template<required::Enumeration NUMERATION> inline constexpr auto underlying(NUMERATION n) { return std::underlying_type_t<NUMERATION>(n); }
+    template<required::Enumeration NUMERATION> inline auto swap(NUMERATION &a, NUMERATION &b) noexcept -> void;
+    //
+    template<required::Enumeration ENUMERATION> inline auto operator++(ENUMERATION &) -> ENUMERATION &;
+    template<required::Enumeration ENUMERATION> inline auto operator++(ENUMERATION &, int) -> ENUMERATION;
+    template<required::Enumeration ENUMERATION> inline constexpr auto operator==(ENUMERATION, ENUMERATION) -> bool;
+    template<required::Enumeration ENUMERATION> inline constexpr auto operator<=>(ENUMERATION, ENUMERATION) -> std::strong_ordering;
+  }
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::count::package_count {
+  template<required::Enumeration NUMERATION> inline auto interface::swap(NUMERATION &a, NUMERATION &b) noexcept -> void { std::swap(a, b); }
+  //
+  template<required::Enumeration ENUMERATION> auto interface::operator++(ENUMERATION &lhs) -> ENUMERATION & {
+    lhs = ENUMERATION{1u+underlying(lhs)};
+    return lhs;
+  }
+  template<required::Enumeration ENUMERATION> auto interface::operator++(ENUMERATION &lhs, int) -> ENUMERATION {
+    auto old = auto(lhs);
+    ++lhs;
+    return old;
+  }
+  template<required::Enumeration ENUMERATION> constexpr auto interface::operator==(ENUMERATION a, ENUMERATION b) -> bool                  { return underlying(a) == underlying(b); }
+  template<required::Enumeration ENUMERATION> constexpr auto interface::operator<=>(ENUMERATION a, ENUMERATION b) -> std::strong_ordering { return underlying(a) <=> underlying(b); }
+}
+#endiv

@@ -1,0 +1,76 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::report {
+  //
+  // Bookkeeping on a report
+  //
+  // Specifiation:
+  //
+  //   Where is it now in the system?
+  //
+  // Usage:
+  //
+  //   See service::Gateway
+  //
+  struct Definition;
+}
+#endiv
+#divert <hpp>
+#import tunitas.denniston.count // for job::Count
+#import tunitas.rheem.protocol.id // id::Report and id::Job and so on
+#import tunitas.rheem.protocol.report.Produced
+#import tunitas.Optional
+namespace tunitas::denniston {
+  namespace report {
+    using std::move;
+    inline auto swap(Definition &, Definition &) noexcept -> void;
+    inline auto key_from(Definition const &) -> rheem::protocol::id::Report const &;
+  }
+  struct report::Definition {
+    using Report = rheem::protocol::report::Produced<rheem::protocol::Slice::WHOLE>;
+    Report report{};
+    Optional<rheem::protocol::id::Job> job_id{}; // best: this should be a pointer to the reigning job
+    count::Job process_repetitions{}; // how many times has this report been sent out to the processors for work?
+    //
+    Definition() = default;
+    inline [[implicit]] Definition(Report);
+ };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto report::key_from(Definition const &m) -> rheem::protocol::id::Report const & { return m.report.report_id; }
+  auto report::swap(Definition &a, Definition &b) noexcept -> void {
+    swap(a.report, b.report);
+    swap(a.job_id, b.job_id);
+    swap(a.process_repetitions, b.process_repetitions);
+  }
+  namespace report {
+    Definition::Definition(Report r) : report{move(r)} { }
+  }
+}
+#endiv
+#divert <cpp>
+#import tunitas.denniston.concurrent.dictionary.usage.Key_From
+namespace {
+  namespace testate {
+    namespace usage = tunitas::denniston::concurrent::dictionary::usage;
+    using namespace tunitas::denniston::report;
+    //
+    static_assert(std::semiregular<Definition>);
+    // and moreso
+    static_assert(std::is_default_constructible_v<Definition>);
+    static_assert(std::is_copy_constructible_v<Definition>);
+    static_assert(std::is_move_constructible_v<Definition>);
+    static_assert(std::is_copy_assignable_v<Definition>);
+    static_assert(std::is_move_assignable_v<Definition>);
+    static_assert(std::is_swappable_v<Definition>);
+    //
+    static_assert(usage::Key_From<Definition>);
+  }
+}
+#endiv

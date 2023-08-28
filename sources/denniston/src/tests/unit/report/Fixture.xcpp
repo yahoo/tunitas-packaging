@@ -1,0 +1,117 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc, 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::report { class Fixture; }
+#endiv
+#divert <hpp>
+#import tunitas.denniston.report.ranges.Projection
+#import tunitas.denniston.report.Definition
+#import tunitas.denniston.report.Series
+#import tunitas.rheem.protocol.id // for id::Report, id::Job, id::Task, etc.
+struct tests::unit::report::Fixture : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  auto test_usage_Definition() -> void;
+  auto test_usage_Dictionary() -> void;
+  auto test_usage_Generator() -> void;
+  auto test_usage_Series() -> void;
+  //
+  using enum ::tunitas::denniston::report::ranges::Projection;
+  using Subiterator = library::Series<library::Definition>::Basic_Iterator<library::Series<library::Definition> const>;
+  struct Identifier {
+    using Task = ::tunitas::rheem::protocol::id::Task;
+    using Job = ::tunitas::rheem::protocol::id::Job;
+    using Report = ::tunitas::rheem::protocol::id::Report;
+  };
+  //
+  auto test_usage_Subrange_RECORD() -> void;
+  auto test_usage_Subrange_REPORT_ID() -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.report.Series
+auto tests::unit::report::Fixture::suite() -> Suite {
+  auto series = Stream{"report"sv};
+  series << []{
+              auto use = Stream{"usage"sv};
+              use << add("Definition", &Fixture::test_usage_Definition)
+                  << add("Dictionary", &Fixture::test_usage_Dictionary)
+                  << add("Generator", &Fixture::test_usage_Generator)
+                  << add("Series", &Fixture::test_usage_Series)
+                  << []{
+                       auto sub = Stream{"Subrange"sv};
+                       sub << add("RECORD", &Fixture::test_usage_Subrange_RECORD)
+                           << add("REPORT_ID", &Fixture::test_usage_Subrange_REPORT_ID)
+                           << END;
+                       return sub;
+                     }()
+                  << END;
+              return use;
+            }()
+         << []{
+              auto ser = Stream{"Series<...>"sv};
+              ser << add<Series<library::Series<Identifier::Report>>>()
+                  << END;
+              return ser;
+            }()
+         << END;
+  return settle(series);
+}
+#import tunitas.denniston.report.Definition
+#import tunitas.denniston.report.Dictionary
+#import tunitas.denniston.report.Generator
+#import tunitas.denniston.report.ranges.Subrange
+#import tunitas.denniston.report.Series
+#import tunitas.entropy.Source
+namespace tests::unit::report {
+  auto Fixture::test_usage_Definition() -> void {
+    using Subject = library::Definition;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Dictionary() -> void {
+    using Subject = library::Dictionary<library::Definition>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Generator() -> void {
+    using Source = ::tunitas::entropy::Source;
+    using Subject = library::Generator<Source>;
+    auto entropy = Source{};
+    auto subject = Subject{entropy};
+    auto task_id = ::tunitas::rheem::protocol::id::Task{};
+    auto generated = subject(task_id);
+    require(ASSERTION, sizeof (generated));
+  }
+  auto Fixture::test_usage_Series() -> void {
+    using Subject = library::Series<library::Definition>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+  }
+  auto Fixture::test_usage_Subrange_RECORD() -> void {
+    using Subject = library::ranges::Subrange<RECORD, Subiterator>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto count{0uz};
+    for (auto const &each : subject) {
+      ++count;
+      require(ASSERTION, sizeof (each));
+    }
+    require(ASSERTION, 0uz == count); // it as empty, was it not?
+  }
+  auto Fixture::test_usage_Subrange_REPORT_ID() -> void {
+    using Subject = library::ranges::Subrange<REPORT_ID, Subiterator>;
+    auto subject = Subject{};
+    require(ASSERTION, sizeof (subject));
+    auto count{0uz};
+    for (auto const &each : subject) {
+      ++count;
+      require(ASSERTION, sizeof (each));
+    }
+    require(ASSERTION, 0uz == count); // it as empty, was it not?
+  }
+}
+#endiv

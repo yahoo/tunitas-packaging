@@ -1,0 +1,56 @@
+seek register-k or register-d
+#divert <fpp>
+namespace tunitas::denniston::error::code {
+  //
+  // The Unpackaged Error Codes of Tunitas Denniston.
+  //
+  // Usage:
+  //
+  //   std::error_code ec(BAD, error::category());
+  //   std::cout << ec.message();
+  //
+  struct Unpackaged {
+    enum class Enumeration {
+      SUCCESS, // ........ improper success (which is a failure)
+      FAILURE, // ........ sic, generic failure
+      //
+      GATEWAY_IS_MISCONFIGURED,
+      COLLECTOR_IS_MISCONFIGURED,
+      PROCESSOR_IS_MISCONFIGURED,
+      //
+      NO_SUCH_BATCH,
+      NO_SUCH_JOB,
+      NO_SUCH_REPORT,
+      NO_SUCH_SERVICE,
+      NO_SUCH_TASK,
+      //
+      DUPLICATE_BATCH,
+      DUPLICATE_JOB,
+      DUPLICATE_REPORT,
+      DUPLICATE_SERVICE,
+      DUPLICATE_TASK,
+      //
+      NO_AVAILABLE_TASKS,
+      SHARE_COUNT_IS_INCORRECT_FOR_THIS_TASK,
+      REPORT_SERIES_DOES_NOT_MATCH,
+      JOB_DOES_NOT_PERTAIN_TO_THAT_TASK,
+    };
+    using enum Enumeration;
+  };
+}
+#import std.is_error_code_enum.tunitas.denniston.error.code.Unpackaged.Enumeration // enable that certain magic template constructor
+#endiv
+#divert <hpp>
+#import std.error_code
+#import std.underlying_type
+namespace tunitas::denniston::error::code {
+  inline auto make_error_code(Unpackaged::Enumeration) noexcept -> std::error_code;
+  inline constexpr auto underlying(Unpackaged::Enumeration e) noexcept { return std::underlying_type_t<Unpackaged::Enumeration>(e); }
+}
+#endiv
+#divert <ipp>
+#import tunitas.denniston.error.category
+namespace tunitas::denniston::error {
+  auto code::make_error_code(Unpackaged::Enumeration e) noexcept -> std::error_code { return {underlying(e), category()}; }
+}
+#endiv

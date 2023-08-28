@@ -1,0 +1,31 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.service.client.subprocess.Pointer
+#import tunitas.denniston.service.client.subprocess.Prototype
+namespace tunitas::denniston::service::client {
+  //
+  // A subprocess of the client
+  //
+  // Specification:
+  //
+  //   It's one of those pointers.
+  //
+  // Design:
+  //
+  //   We said it was a pointer.
+  //
+  // Usage:
+  //
+  //   Do you not know how a pointer works?
+  //
+  //   auto sub = make<Task>(...arguments...);
+  //   auto sub = make<Job>(...arguments...);
+  //   ...you get the idea...
+  //
+  using Subprocess = subprocess::Pointer<subprocess::Prototype>;
+}
+#endiv

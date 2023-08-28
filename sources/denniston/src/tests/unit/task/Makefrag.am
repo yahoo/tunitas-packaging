@@ -1,0 +1,16 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_unit_task_SUBSOURCES = \
+  check/obj/src/tests/unit/task/namespace.cpp \
+  check/obj/src/tests/unit/task/Fixture.cpp \
+  check/obj/src/tests/unit/task/Dictionary.cpp \
+  check/obj/src/tests/unit/task/Corpus.template.cpp \
+  check/obj/src/tests/unit/task/Corpus.COLLECTOR.cpp \
+  check/obj/src/tests/unit/task/Corpus.GATEWAY.cpp \
+  check/obj/src/tests/unit/task/Corpus.PROCESSOR.cpp \
+  check/obj/src/tests/unit/task/Corpus.cpp \
+  $(end)

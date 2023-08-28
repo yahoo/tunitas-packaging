@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import app.exception.quitting.Generic
+namespace app::exception::quitting {
+  //
+  // Quitting, in the [[deprecating]] style.
+  //
+  // Specification:
+  //
+  //   Construct with a Program
+  //
+  // Design:
+  //
+  //   The same as the generic.
+  //
+  // Usage:
+  //
+  //   You need a tutorial on how to throw a quitting exception?
+  //
+  //   auto exp = Experience{...somehow...};
+  //
+  //   throw exception::quitting::Programmatic{exp.NAME};
+  //   throw exception::quitting::Programmatic{exp.NAME, FAIL};
+  //
+  struct [[nodiscard]] Programmatic;
+}
+#endiv
+#divert <hpp>
+#import cli.options.Program
+class app::exception::quitting::Programmatic final : public Generic {
+  using Ancestor = Generic;
+public:
+  explicit Programmatic(cli::options::Program const &prog) : Ancestor{prog} { }
+  explicit Programmatic(cli::options::Program const &prog, cli::exits::Code exit) : Ancestor{prog, exit} { }
+};
+#endiv

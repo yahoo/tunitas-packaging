@@ -1,0 +1,109 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::protocol::continuation {
+  //
+  // The computer (function processor) for the continuation step of the aggregation protocol
+  //
+  // Specification:
+  //
+  //   https://ietf-wg-ppm.github.io/draft-ietf-ppm-dap/draft-ietf-ppm-dap.html
+  //   Section 4.4.1 Aggregate Initialization
+  //
+  //   We call it "compute" not "process" or "aggregate" because it ... (wait for it) ... computes.
+  //
+  // Design:
+  //
+  //   Stateless.
+  //   How hard can this be?
+  //   Copy some fields from the left side to the right side.
+  //   Return the result; go home.
+  //
+  //   (To avoid gratuitous copying) The computer works against references to its components.
+  //
+  // Lifetimes:
+  //
+  //   lifetime(Computer) < lifetime(...components...)
+  //   (otherwise said) The lifetime of the components must be longer than that of the Computer.
+  //
+  // Exceptions:
+  //
+  //   Throws Invalid upon Inappropriate service species.
+  //   The service species MUST be PROCESSOR1 or PROCESSOR2
+  //
+  // Usage:
+  //
+  //   [[as found in each service::processor::Initialization, or processor::Continuation]]
+  //   <rhymes-with>
+  //     ...something something dark-side...
+  //   </rhymes-with>
+  //
+  struct Computer;
+}
+#endiv
+#divert <hpp>
+#import tunitas.keyston.vdaf.Name
+#import tunitas.denniston.job.Corpus
+#import tunitas.rheem.protocol.continuation.Request
+#import tunitas.rheem.protocol.continuation.Response
+struct tunitas::denniston::protocol::continuation::Computer {
+  using Function = keyston::vdaf::Name;
+  using States = job::Corpus<Genus::PROCESSOR>::Preparation_States;
+  using Steps = rheem::protocol::continuation::Request::Preparation_Steps;
+  using Response = rheem::protocol::continuation::Response;
+  //
+  Function exe{};
+  States &states; // modified during operator()
+  Steps const &steps;
+  //
+  inline [[implicit]] Computer(Function, [[inout]] States &, Steps const &);
+  auto operator()() const -> Response;
+protected:
+  using State = Steps::Value;
+  using Step = Response::Preparation_Steps::Value;
+  // Go again?  is final step?
+};
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::protocol::continuation {
+  Computer::Computer(Function exe, States &states, Steps const &steps)
+    : exe{exe}
+    , states{states}
+    , steps{steps}
+  { }
+}
+#endiv
+#divert <cpp>
+#import nonstd.exception.Unimplemented
+#import std.views.iota
+#import nonstd.exception.Unreachable
+namespace tunitas::denniston::protocol::continuation {
+  auto Computer::operator()() const -> Response {
+#if 1
+    throw nonstd::exception::Unimplemented{};
+#else
+    // This should not be here in the protocol; as a separable executor thingie.
+    auto ret = Response{};
+    for (auto ith : std::views::iota(0u, states.size())) {
+      auto &state{states.at(ith)};
+      auto const &step{steps.at(ith)};
+      auto continued = exe.continuation(state, step);
+      if (auto got=cast<Again *>(continued); nullptr != got) {
+        auto restep = Step{step.report_id, got->second};
+        state = got->first;
+        ret.preparation_steps.push_back(move(restep));
+      } else if (auto got=cast<Final *>(continued); nullptr != got) {
+        auto restep = Step{step.report_id, *got};
+        ret.preparation_steps.push_back(move(restep));
+      } else {
+        throw exception::Unreachable{};
+      }
+    }
+    return ret;
+#endif
+  }
+}
+#endiv

@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#import tunitas.denniston.task.Corpus.template
+namespace tunitas::denniston::task {
+  //
+  // The working storage of the tasks in a processor.
+  //
+  // Specification:
+  //
+  //   Whatever it takes.  We're here for you.
+  //   The Corpus is a record within a concurrent Dictionary.
+  //
+  // Design:
+  //
+  //   The constructors MUST be implicit to convert from the Definition upon insertion into a Dictionary.
+  //
+  // Usage:
+  //
+  //   see Processor.
+  //
+  template<> struct Corpus<Genus::PROCESSOR>;
+}
+#endiv
+#divert <hpp>
+#import tunitas.Optional
+#import tunitas.denniston.task.Definition
+#import tunitas.keyston.vdaf.Secret
+namespace tunitas::denniston::task {
+  inline auto swap(Corpus<Genus::PROCESSOR> &, Corpus<Genus::PROCESSOR> &) noexcept -> void;
+  template<> struct Corpus<Genus::PROCESSOR> {
+    Definition definition{};
+    using Verify_Key = keyston::vdaf::Secret;
+    Optional<Verify_Key> verify{};
+  };
+}
+#endiv
+#divert <ipp>
+namespace tunitas::denniston {
+  auto task::swap(Corpus<Genus::PROCESSOR> &a, Corpus<Genus::PROCESSOR> &b) noexcept -> void {
+    swap(a.definition, b.definition);
+  }
+}
+#endiv
+#divert <cpp>
+namespace {
+  namespace testate {
+    using tunitas::denniston::task::Corpus;
+    using tunitas::denniston::Genus;
+    //
+    static_assert(std::semiregular<Corpus<Genus::PROCESSOR>>);
+    //
+    static_assert(std::is_default_constructible_v<Corpus<Genus::PROCESSOR>>);
+    static_assert(std::is_copy_constructible_v<Corpus<Genus::PROCESSOR>>);
+    static_assert(std::is_move_constructible_v<Corpus<Genus::PROCESSOR>>);
+    static_assert(std::is_copy_assignable_v<Corpus<Genus::PROCESSOR>>);
+    static_assert(std::is_move_assignable_v<Corpus<Genus::PROCESSOR>>);
+    static_assert(std::is_swappable_v<Corpus<Genus::PROCESSOR>>);
+  }
+}
+#endiv

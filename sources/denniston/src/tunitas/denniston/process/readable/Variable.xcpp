@@ -1,0 +1,63 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tunitas::denniston::process::readable {
+  //
+  // The variable-count implementation of readable.
+  //
+  // Specification:
+  //
+  //   See Prototype
+  //
+  // Design:
+  //
+  //   Uses a variable array (Variable Entity-Containing Type, Owning Resources; VECTOR)
+  //   use add(...) to add the reference Mutex &
+  //   use push_back(...) to add the pointer Mutex*
+  //
+  // Usage:
+  //
+  //   See Ready
+  //
+  struct Variable;
+}
+#endiv
+#divert <hpp>
+#forward tunitas.denniston.process.Ready
+#import tunitas.denniston.process.readable.Container
+#import tunitas.denniston.process.readable.required.Either
+#import tunitas.denniston.process.readable.required.Mutex
+#import tunitas.denniston.process.readable.required.Range_of_Mutex
+#import std.vector
+class tunitas::denniston::process::readable::Variable : public Container<std::vector<std::mutex *>> {
+  using Ancestor = Container<std::vector<std::mutex *>>;
+  static_assert(std::is_abstract_v<Ancestor>); // the descendant MUST provide an implementation of is_ready_to_read() -> bool
+protected:
+  ~Variable() = default;
+  template<required::Range_of_Mutex RANGE> inline auto accrete(RANGE const &) -> void;
+  template<required::Mutex MUTEX> inline auto accrete(MUTEX &) -> void;
+public:
+  using Mutex = std::mutex;
+  template<typename... EITHER> inline [[implicit]] Variable(Ready &, EITHER &...) requires (required::Either<EITHER> && ... );
+  inline auto add(Mutex &) -> void;
+};
+static_assert(std::is_abstract_v<tunitas::denniston::process::readable::Variable>);
+#endiv
+#divert <ipp>
+namespace tunitas::denniston::process::readable {
+  template<typename... EITHER> Variable::Variable(Ready &first, EITHER &...rest) requires (required::Either<EITHER> && ... )
+    : Ancestor{first} {
+    (accrete(rest), ...);
+  }
+  template<required::Mutex MUTEX> auto Variable::accrete(MUTEX &place) -> void { Ancestor::locks.push_back(&place); }
+  template<required::Range_of_Mutex RANGE> auto Variable::accrete(RANGE const &range) -> void {
+    for (auto &place : range) {
+      Ancestor::locks.push_back(&place);
+    }
+  }
+  auto Variable::add(Mutex &place) -> void { locks.push_back(&place); }
+}
+#endiv

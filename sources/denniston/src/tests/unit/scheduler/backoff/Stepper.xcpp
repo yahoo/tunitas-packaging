@@ -1,0 +1,172 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+namespace tests::unit::scheduler::backoff { class Stepper; }
+#endiv
+#divert <hpp>
+#import std.size_t
+#import tunitas.denniston.scheduler.backoff.Stepper
+#import tunitas.denniston.scheduler.exception.Aspect
+struct tests::unit::scheduler::backoff::Stepper : public rigging::suite::Fixture {
+  static auto suite() -> Suite;
+  //
+  using Subject = library::Stepper;
+  using Count = std::size_t;
+  //
+  auto test_constructor_default() -> void;
+  auto test_constructor_Duration_Count() -> void;
+  auto test_constructor_Count_Duration() -> void;
+  //
+  auto test_operator_bool() -> void;
+  auto test_operator_not() -> void;
+  auto test_need_another_iteration() -> void;
+  //
+  auto test_operator_inc_pre_good() -> void;
+  auto test_operator_inc_pre_fail() -> void;
+  auto test_operator_inc_post() -> void;
+protected:
+  using Failure = ::tunitas::denniston::scheduler::exception::Aspect;
+  static auto exercise(Subject, Count) -> void;
+  static auto exercise_if_cascade(Subject) -> void;
+  static auto exercise_loop_idiom(Subject, Count) -> void;
+};
+#endiv
+#divert <cpp>
+#import tests.unit.scheduler.backoff.Stepper
+auto tests::unit::scheduler::backoff::Stepper::suite() -> Suite {
+  auto series = Stream{"Stepper"sv};
+  series << []{
+             auto con = Stream{"constructor"sv};
+             con << add("default", &Stepper::test_constructor_default)
+                 << add("Duration,Count", &Stepper::test_constructor_Duration_Count)
+                 << add("Count,Duration", &Stepper::test_constructor_Count_Duration)
+                 << END;
+             return con;
+           }()
+         << add("operator bool", &Stepper::test_operator_bool)
+         << add("operator!", &Stepper::test_operator_not)
+         << add("need_another_iteration", &Stepper::test_need_another_iteration)
+         << []{
+           auto inc = Stream{"operator++"sv};
+           inc << []{
+             auto pre = Stream{"pre"sv};
+             pre << add("good", &Stepper::test_operator_inc_pre_good)
+                 << add("fail", &Stepper::test_operator_inc_pre_fail)
+                 << END;
+             return pre;
+           }()
+               << add("post", &Stepper::test_operator_inc_post)
+               << END;
+           return inc;
+         }()
+         << END;
+  return settle(series);
+}
+#import tests.unit.scheduler.backoff.Stepper
+namespace tests::unit::scheduler::backoff {
+  auto Stepper::exercise(Subject subject, Count count) -> void {
+    exercise_if_cascade(subject);
+    exercise_loop_idiom(subject, count);
+  }
+  auto Stepper::exercise_if_cascade(Subject subject) -> void {
+    if (subject) {
+      require(ASSERTION, false == !subject);
+      ++subject;
+      require(ASSERTION, false == (bool)subject);
+      subject.need_another_iteration();
+      if (subject) {
+        require(ASSERTION, true == (bool)subject);
+        ++subject;
+        require(ASSERTION, false == (bool)subject);
+      }
+    }
+  }
+  auto Stepper::exercise_loop_idiom(Subject step, Count expected_loop_count) -> void {
+    auto observed_loop_count = 0uz;
+    for ( /*as was constructed*/ ; step; ++step) {
+      ++observed_loop_count;
+      step.needs_another_iteration();
+    }
+    require(ASSERTION, expected_loop_count == observed_loop_count);
+  }
+  auto Stepper::test_constructor_default() -> void {
+    auto subject = Subject{}; // WATCHOUT - the default constructor does NOT give zero, it gives "many"
+    exercise(subject, Subject::Default::COUNT);
+  }
+  auto Stepper::test_constructor_Duration_Count() -> void {
+    constexpr auto COUNT = 3uz;
+    auto subject = Subject{1ns, COUNT};
+    exercise(subject, COUNT);
+  }
+  auto Stepper::test_constructor_Count_Duration() -> void {
+    constexpr auto COUNT = 2uz;
+    auto subject = Subject{COUNT, 1ns};
+    exercise(subject, COUNT);
+  }
+  auto Stepper::test_operator_bool() -> void {
+    auto subject = Subject{2, 1ns};
+    require(ASSERTION, true == (bool) subject);
+    subject.need_another_iteration();
+    ++subject;
+    require(ASSERTION, true == (bool) subject);
+    subject.need_another_iteration();
+    ++subject;
+    require(ASSERTION, false == (bool) subject);
+    subject.need_another_iteration();
+    subject.need_another_iteration();
+    subject.need_another_iteration();
+    subject.need_another_iteration();
+    require(ASSERTION, false == (bool) subject);
+  }
+  auto Stepper::test_operator_not() -> void {
+    auto subject = Subject{2, 1ns};
+    require(ASSERTION, false == ! subject);
+    ++subject;
+    require(ASSERTION, true == ! subject);
+    subject.need_another_iteration();
+    require(ASSERTION, true == ! subject);
+    ++subject;
+    require(ASSERTION, true == ! subject);
+    subject.need_another_iteration();
+    require(ASSERTION, true == ! subject);
+  }
+  auto Stepper::test_need_another_iteration() -> void {
+    // already tested that in the opreators
+  }
+  auto Stepper::test_operator_inc_pre_good() -> void {
+    auto subject = Subject{2, 1ns};
+    require(ASSERTION, true == (bool) subject);
+    subject.needs_another_iteration();
+    ++subject; // always works
+    require(ASSERTION, true == (bool) subject);
+    subject.needs_another_iteration();
+    ++subject; // becomes exhausted
+    require(ASSERTION, false == (bool) subject);
+  }
+  auto Stepper::test_operator_inc_pre_fail() -> void try {
+    auto subject = Subject{1, 1ns};
+    require(ASSERTION, true == (bool) subject);
+    subject.needs_another_iteration();
+    ++subject; // always works (but becomes exhausted)
+    require(ASSERTION, false == (bool) subject);
+    ++subject; // this fails
+    impossible(ASSERTION);
+    require(ASSERTION, false == (bool) subject);
+  } catch (Failure const &) {
+    require(ASSERTION);
+  }
+  auto Stepper::test_operator_inc_post() -> void {
+    auto subject = Subject{2, 1ns};
+    require(ASSERTION, true == (bool) subject);
+    subject.needs_another_iteration();
+    subject++; // always works
+    require(ASSERTION, true == (bool) subject);
+    subject.needs_another_iteration();
+    subject++; // becomes exhausted
+    require(ASSERTION, false == (bool) subject);
+  }
+}
+#endiv

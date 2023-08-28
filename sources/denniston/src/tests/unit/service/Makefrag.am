@@ -1,0 +1,23 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Yahoo Inc, 2022.
+# Licensed under the terms of the Apache-2.0 license.
+# For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+# For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#
+tests_unit_service_SUBSOURCES = \
+  check/obj/src/tests/unit/service/namespace.cpp \
+  check/obj/src/tests/unit/service/Dictionary.cpp \
+  check/obj/src/tests/unit/service/Fixture.cpp \
+  check/obj/src/tests/unit/service/instance.Fixture.cpp \
+  $(tests_unit_service_client_SUBSOURCES) \
+  $(tests_unit_service_collector_SUBSOURCES) \
+  $(tests_unit_service_gateway_SUBSOURCES) \
+  $(tests_unit_service_processor_SUBSOURCES) \
+  $(tests_unit_service_partial_SUBSOURCES) \
+  $(end)
+#
+include src/tests/unit/service/client/Makefrag.am
+include src/tests/unit/service/partial/Makefrag.am
+include src/tests/unit/service/collector/Makefrag.am
+include src/tests/unit/service/gateway/Makefrag.am
+include src/tests/unit/service/processor/Makefrag.am

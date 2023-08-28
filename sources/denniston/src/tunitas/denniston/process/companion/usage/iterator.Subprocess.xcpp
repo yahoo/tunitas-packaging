@@ -1,0 +1,32 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tunitas.denniston.process.companion.usage.Subprocess
+#import tunitas.denniston.process.companion.required.iterator.Subprocess
+#import nonstd.required.iterator.Forward
+#import nonstd.iterator.Traits
+#import tunitas.denniston.process.companion.Pointer
+namespace tunitas::denniston::process::companion::usage::iterator {
+  //
+  // Is this TYPE an iterator that can produce (pointers to) companion subprocess (prototype)?
+  //
+  // The complete type of ITERATOR is now available.
+  // The complete type of a specialization of iterator::Traits<ITERATOR> must be availbale.
+  //
+  // All this is necessary because of the Typeycle in the concepts governing
+  //
+  //   companion::Subprocesses -> companion::Synchro -> Subprocesses::Iterator (also. Subprocesses::Basic_Iterator<Subprocess const>)
+  //
+  template<typename ITERATOR> concept Subprocess = required::iterator::Subprocess<ITERATOR> && requires(ITERATOR) {
+    requires required::iterator::Forward<ITERATOR>;
+    typename nonstd::iterator::Traits<ITERATOR>::Value;
+    requires required::InstanceOf<typename nonstd::iterator::Traits<ITERATOR>::Value, Pointer>;
+    // and Pointer itself requires that its type argument is a required::Subprocess<TYPE>
+    // but redundantly...
+    requires usage::Subprocess<typename nonstd::iterator::Traits<ITERATOR>::Value::Value>;
+  };
+}
+#endiv

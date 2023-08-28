@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <hpp>
+#import tests.unit.process.readable.Fixed.template
+namespace tests::unit::process::readable {
+  template<> auto Fixed<library::Fixed<1>>::test_constructor() -> void;
+  template<> auto Fixed<library::Fixed<1>>::test_lock() -> void;
+  template<> auto Fixed<library::Fixed<1>>::test_unlock_all() -> void;
+  template<> auto Fixed<library::Fixed<1>>::test_unlock_first() -> void;
+  template<> auto Fixed<library::Fixed<1>>::test_unlock_rest() -> void;
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::process::readable {
+  template<> auto Fixed<library::Fixed<1>>::test_constructor() -> void {
+    Lock set{};
+    auto subject = Subject{ready, set};
+    require(ASSERTION, sizeof (subject));
+  }
+  template<> auto Fixed<library::Fixed<1>>::test_lock() -> void {
+    Lock set{};
+    auto subject = Subject{ready, set};
+    subject.lock(); // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<> auto Fixed<library::Fixed<1>>::test_unlock_all() -> void {
+    Lock set{};
+    auto subject = Subject{ready, set};
+    subject.lock();
+    subject.unlock(); // <---------------------------------------- test this
+    require(ASSERTION, sizeof (subject));
+  }
+  template<> auto Fixed<library::Fixed<1>>::test_unlock_first() -> void {
+    Lock set{};
+    auto subject = Subject{ready, set};
+    subject.lock();
+    subject.unlock_first(); // <---------------------------------------- test this
+  }
+  template<> auto Fixed<library::Fixed<1>>::test_unlock_rest() -> void {
+    Lock set{};
+    auto subject = Subject{ready, set};
+    subject.lock();
+    subject.unlock_rest(); // <---------------------------------------- test this
+  }
+}
+#endiv

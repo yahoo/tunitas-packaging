@@ -1,0 +1,70 @@
+// This is -*- c++ -*- nearly C++23 with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Yahoo Inc. 2022.
+// Licensed under the terms of the Apache-2.0 license.
+// For terms, see the LICENSE file at https://github.com/yahoo/tunitas-denniston/blob/master/LICENSE
+// For terms, see the LICENSE file at https://git.tunitas.technology/all/services/denniston/tree/LICENSE
+#divert <fpp>
+#forward tunitas.denniston.protocol.packet.Prototype
+#forward tunitas.denniston.protocol.packet.Ping
+#forward tunitas.denniston.protocol.packet.Provision
+#forward tunitas.denniston.protocol.packet.Quit
+#forward tunitas.denniston.protocol.packet.Query
+#forward tunitas.denniston.protocol.packet.Request
+#forward tunitas.denniston.protocol.packet.Report
+#forward tunitas.denniston.protocol.packet.Response
+#forward tunitas.denniston.protocol.packet.Status
+namespace tunitas::denniston::protocol::packet::traits {
+  //
+  // A declaration of the Service Instance traits
+  // Specializations only.
+  //
+  template<typename> struct Packet;
+  template<> struct Packet<Prototype>;
+  template<> struct Packet<Ping>;
+  template<> struct Packet<Provision>;
+  template<> struct Packet<Query<Get::PUBLIC>>;
+  template<> struct Packet<Query<Get::SECRET>>;
+  template<> struct Packet<Query<Get::TASKS>>;
+  template<> struct Packet<Query<Get::MEASUREMENT>>;
+  template<> struct Packet<Quit>;
+  template<> struct Packet<Report<SHARE>>;
+  template<> struct Packet<Report<WHOLE>>;
+  template<> struct Packet<Request<Post::CONTINUATION>>;
+  template<> struct Packet<Request<Post::INITIALIZATION>>;
+  template<> struct Packet<Response<Get::PUBLIC>>;
+  template<> struct Packet<Response<Get::SECRET>>;
+  template<> struct Packet<Response<Get::TASKS>>;
+  template<> struct Packet<Response<Get::CONTINUATION>>;
+  template<> struct Packet<Response<Get::INITIALIZATION>>;
+  template<> struct Packet<Response<Get::MEASUREMENT>>;
+  template<> struct Packet<Status>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+#import std.false_type
+namespace tunitas::denniston::protocol::packet {
+  template<typename TYPE> struct traits::Packet : public std::false_type { };
+  namespace traits {
+    template<> struct Packet<Prototype>                     : public std::true_type { };
+    template<> struct Packet<Ping>                          : public std::true_type { };
+    template<> struct Packet<Provision>                     : public std::true_type { };
+    template<> struct Packet<Query<Get::PUBLIC>>            : public std::true_type { };
+    template<> struct Packet<Query<Get::SECRET>>            : public std::true_type { };
+    template<> struct Packet<Query<Get::TASKS>>             : public std::true_type { };
+    template<> struct Packet<Query<Get::MEASUREMENT>>       : public std::true_type { };
+    template<> struct Packet<Quit>                          : public std::true_type { };
+    template<> struct Packet<Report<SHARE>>                 : public std::true_type { };
+    template<> struct Packet<Report<WHOLE>>                 : public std::true_type { };
+    template<> struct Packet<Request<Post::CONTINUATION>>   : public std::true_type { };
+    template<> struct Packet<Request<Post::INITIALIZATION>> : public std::true_type { };
+    template<> struct Packet<Response<Get::PUBLIC>>         : public std::true_type { };
+    template<> struct Packet<Response<Get::SECRET>>         : public std::true_type { };
+    template<> struct Packet<Response<Get::TASKS>>          : public std::true_type { };
+    template<> struct Packet<Response<Get::CONTINUATION>>   : public std::true_type { };
+    template<> struct Packet<Response<Get::INITIALIZATION>> : public std::true_type { };
+    template<> struct Packet<Response<Get::MEASUREMENT>>    : public std::true_type { };
+    template<> struct Packet<Status>                        : public std::true_type { };
+  }
+}
+#endiv
